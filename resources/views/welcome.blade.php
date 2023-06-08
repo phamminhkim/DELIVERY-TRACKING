@@ -23,7 +23,7 @@
     <div id="app">
         @include('header')
 
-        <main class="py-4" >
+        <main class="py-4" style="background-color: #F1F1F1" >
             {{-- @yield('content') --}}
             <div style="height: 500px"></div>
         </main>
