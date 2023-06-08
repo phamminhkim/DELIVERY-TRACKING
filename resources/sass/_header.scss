@@ -1,0 +1,36 @@
+.bg-header{
+    background-color: #2659F3;
+    min-height: 65px;
+    color: wheat;
+    .title {
+        color: #FBFF1F !important;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .round {
+        border-radius: 25px;
+        background: #FBFF1F;
+        width: 25px;
+        height: 25px;  
+        color: #2659F3;
+        text-align: center;
+        padding-top: 0;
+      }
+    .text-ul{
+        list-style-type:none;
+        display: table-footer-group;
+        line-height:99%;
+        color: #fff !important;
+        font-size: 0.9rem;
+       
+        li a{
+            color: #fff !important;
+        }
+    }
+    
+    
+}
+.navbar-light .navbar-nav .nav-link {
+    color: #f8f9fa  !important;
+}
+ 
