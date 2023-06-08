@@ -1,61 +1,32 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<p align="center"><a href="https://laravel.com" target="_blank">TLG Delivery Tracking</a></p>
+ 
+## Ứng dụng
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+Ghi nhận thông tin giao hàng :
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Điều phối kho sẽ đẩy đơn hàng DO từ SAP sang Web Portal.
+- Điều phối quyết định chọn nhà vận chuyển đối với DO.
+- Nhà vận chuyển xác nhận nhận hàng .
+- Nhà vận chuyển khi giao xong sẽ xác nhận giao xong trên Mini App Zalo
+- Nhà vận chuyển có thể tách thành nhiều lần giao. Mỗi lần giao cũng được xác nhận trên hệ thống.
+- Khách hàng với mã KH được cấp từ hệ thống SAP sẽ thấy các đơn hàng của họ.
+- Khách hàng có thể xác nhận đơn hàng đã giao xong hoặc phản hồi.
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Đăng ký khách hàng
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+ - Khách hàng đăng ký qua từ web portal, từ tài khoản google hoặc facebook. 
+ - Sau khi đăng ký khách hàng nhập bổ sung mã KH đã cấp thì có thể lấy được đơn hàng.
+ - Khách hàng khi login có thể xác nhận đơn hàng.
+ -
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Đăng ký giao nhận
 
-## Laravel Sponsors
+- Đăng ký nhà vận chuyển trên hệ thống web portal.
+- Đăng ký các đối tác vận chuyển ( Chành , Trung chuyển ) sẽ được admin hoặc tài khoản nhà vận chuyển đăng ký .
+- Các đối tác vận chuyển khi giao xong sẽ xác nhận đã giao trên Mini App Zalo.
+- Hoặc nhà vận chuyển sẽ chụp hình các chứng từ và xác nhận đã giao trên App Zalo.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Đăng ký tài khoản nhân viên
+ Tài khoản nhân viên sẽ được admin đăng ký trên hệ thống web portal
