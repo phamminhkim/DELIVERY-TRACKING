@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-light  bg-header shadow-sm"  >
     <div class="container">
        
-            <img src="img/logo.png" width="15%"> 
+            <img src="{{asset('img/logo.png')}}" width="15%"> 
             <a class="navbar-brand title ml-4" href="{{ url('/') }}">
                Delivery Tracking
             </a>
@@ -50,7 +50,10 @@
                         <ul class="text-ul" >
                             <li>
                                 <a  href="#">
-                                   Xin chào, {{ Auth::user()->name }}
+                                   Xin chào, {{ Auth::user()->name }} 
+                                   @php
+                                        echo Auth::user()->load('customer')->customer==null?"":"(customer)";
+                                    @endphp
                                 </a>
                                 
                             </li>

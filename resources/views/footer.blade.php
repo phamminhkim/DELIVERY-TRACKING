@@ -3,7 +3,7 @@
     <div class="row" style="background-color:#547CF5;color:aliceblue;" >
         <div class="col-xs-12 col-sm-2"></div>
         <div class="col-xs-12 col-sm-4 footer-click">
-            <img src="img/logo.png" style="width:200px;margin-left:-15px" class="mt-3">
+            <img src="{{asset('img/logo.png')}}" style="width:200px;margin-left:-15px" class="mt-3">
             <p>Công ty Cổ Phần Tập Đoàn Thiên Long</p>
             <p>GPĐKKD số 0301464830 do Sở KHĐT TP. Hồ Chí Minh 
                 <br>cấp ngày 04/03/2005.</p>

@@ -1,16 +1,25 @@
 @extends('layouts.app')
-
+@section('link-header')
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<script type="text/javascript">
+    var onloadCallback = function() {
+      //alert("grecaptcha is ready!");
+    };
+  </script>
+  <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+  async defer>
+</script>
+@endsection
 @section('content')
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <p style="font-weight:bold;margin-left:20px;">ĐĂNG KÝ TÀI KHOẢN</p> 
-        </div>
-    </div>
+ 
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="">
-               
+            <div class="card">
+                <div class="card-header">
+                    <p><strong>ĐĂNG KÝ TÀI KHOẢN</strong></p>  
+                     <p>Bạn đã có tài khoản?  <a href="{{ route('login')}}">Đăng nhập tại đây</a></p>
+                 </div>
 
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
@@ -43,20 +52,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="email" class="col-md-4 col-form-label text-md-right">Mã KH</label>
-
-                            <div class="col-md-6">
-                                <input id="makh" type="text" class="form-control @error('makh') is-invalid @enderror" name="makh" value="{{ old('makh') }}" required autocomplete="makh">
-
-                                @error('makh')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-group row">
+                         <div class="form-group row">
                             <label for="password" class="col-md-4 col-form-label text-md-right">Mật khẩu</label>
 
                             <div class="col-md-6">
@@ -77,7 +73,18 @@
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right"></label>
 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="col-md-offset-4 col-md-6">
+                                        <div class="g-recaptcha" data-sitekey="6LdYYIEmAAAAAGaDLR5uQg_WWQrckA6EW9N3v41D" data-callback="YourOnSubmitFn"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
