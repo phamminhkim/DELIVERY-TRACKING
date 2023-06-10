@@ -146,9 +146,9 @@
                         </div>
                         <div class="right col col-sm-2 d-flex justify-content-center align-items-center">
                             <div class="detail-btn">
-                                <button type="button" class="btn">
+                                <a role="button" class="btn" id="detailButton" href='myorder-detail'>
                                     Chi tiết
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -183,4 +183,10 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function getDetail() {
+          location.href ='/myorder-detail';
+        }
+    </script>
 @endsection

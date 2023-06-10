@@ -11095,7 +11095,7 @@ a.text-dark:focus {
   border-radius: 20px;
 }
 
-.formOrder .form-list .list-card .list-body .right .detail-btn button {
+.formOrder .form-list .list-card .list-body .right .detail-btn a {
   font-family: "Inter";
   font-style: normal;
   font-weight: 700;

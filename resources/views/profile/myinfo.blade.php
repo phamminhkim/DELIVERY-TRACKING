@@ -22,7 +22,7 @@
                     <span>@yield('title')</span>
                 </div>
                 <div class="left-iframe">
-                  @yield('my-info-iframe')
+                    @yield('my-info-iframe')
                 </div>
             </div>
         </div>

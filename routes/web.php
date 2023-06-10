@@ -40,3 +40,7 @@ Route::get('/myorder', function () {
 
   return view('orders.myorder')->with('fakeData', $fakeData);
 });
+
+Route::get('/myorder-detail', function () {
+  return view('orders.orderDetail');
+});
