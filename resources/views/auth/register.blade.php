@@ -29,7 +29,7 @@
                             <label for="name" class="col-md-4 col-form-label text-md-right">Tên (*)</label>
 
                             <div class="col-md-6">
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}"  autocomplete="name" autofocus>
 
                                 @error('name')
                                     <span class="invalid-feedback" role="alert">
@@ -50,6 +50,7 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                              
                             </div>
                         </div>
                          <div class="form-group row">
@@ -79,7 +80,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="col-md-offset-4 col-md-6">
-                                        <div class="g-recaptcha" data-sitekey="6LdYYIEmAAAAAGaDLR5uQg_WWQrckA6EW9N3v41D" data-callback="YourOnSubmitFn"></div>
+                                       
+                                        <div class="g-recaptcha"   data-sitekey="6LdYYIEmAAAAAGaDLR5uQg_WWQrckA6EW9N3v41D"   data-callback="YourOnSubmitFn"></div>
+                                        <div hidden  class="form-control @error('g-recaptcha-response') is-invalid @enderror" name="g-recaptcha-response"  ></div>
+                                        @error('g-recaptcha-response')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
