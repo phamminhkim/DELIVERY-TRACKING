@@ -183,10 +183,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function getDetail() {
-          location.href ='/myorder-detail';
-        }
-    </script>
 @endsection
