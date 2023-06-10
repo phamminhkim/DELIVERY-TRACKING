@@ -10969,6 +10969,153 @@ a.text-dark:focus {
   color: #f8f9fa !important;
 }
 
+.formInfo {
+  background-color: white;
+  min-height: 600px;
+  overflow-y: scroll;
+}
+
+.formInfo .form-body .col .form-input {
+  border: none;
+  background-color: white;
+  padding: 0;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  color: #3B3F3F;
+}
+
+.formInfo .form-body .col .form-label {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  color: #504949;
+}
+
+.formInfo .form-body .col .form-label .form-href {
+  color: #3B93B9;
+}
+
+.formInfo .form-button .btn {
+  background: #3B93B9;
+  border-radius: 20px;
+  border: none;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formInfo .form-button #save-btn {
+  background-color: #B9873B;
+  color: white;
+  border: none;
+}
+
+.my-info .info-body .right .right-slidebar span {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 22px;
+  color: #7F7676;
+}
+
+.my-info .info-body .right .right-slidebar a {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 22px;
+  color: #3B3F3F;
+}
+
+.my-info .info-body .left .left-header span {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 39px;
+  color: #7F7676;
+}
+
+.formOrder .form-header {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  color: #7F7676;
+}
+
+.formOrder .form-list {
+  height: 380px;
+  overflow-y: scroll;
+}
+
+.formOrder .form-list .list-card {
+  padding: 10px;
+  background-color: white;
+}
+
+.formOrder .form-list .list-card .list-header {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  color: #504949;
+  padding: 0px 20px 5px 0px;
+}
+
+.formOrder .form-list .list-card .list-header .header-status {
+  background: #E5E5E5;
+  border-radius: 20px;
+  line-height: 24px;
+}
+
+.formOrder .form-list .list-card .list-header .header-status span {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formOrder .form-list .list-card .stoke {
+  border-bottom: 1px solid #AAA2A2;
+}
+
+.formOrder .form-list .list-card .list-body .left .left-label {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  color: #504949;
+}
+
+.formOrder .form-list .list-card .list-body .left .left-label a {
+  color: #504949;
+}
+
+.formOrder .form-list .list-card .list-body .right .detail-btn {
+  background: #0E3ABE;
+  border-radius: 20px;
+}
+
+.formOrder .form-list .list-card .list-body .right .detail-btn button {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  color: #F5F5F5;
+}
+
+.formOrder .form-footer {
+  height: 50px;
+}
+
+.formOrder .form-footer .left .left-title {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+}
+
+.formOrder .form-footer .left .left-input {
+  width: 50px;
+}
+
 /*!
  * Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)

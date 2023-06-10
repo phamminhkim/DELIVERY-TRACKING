@@ -14,14 +14,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+  return view('welcome');
 });
-Route::get('/myinfo', function () {
-    return view('profile.myinfo');
-});
-Route::get('/myorder', function () {
-    return view('orders.myorder');
-});
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+// Page routes 
+
+// Route::get('/myinfo', function () {
+//   return view('profile.myinfo');
+// });
+
+Route::get('/myinfo', function () {
+  $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
+  $fakeUser = json_decode($jsonString, true);
+
+  return view('profile.components.formInfo')->with('fakeUser', $fakeUser);
+});
+
+Route::get('/myorder', function () {
+  $jsonString = file_get_contents(base_path('resources/data/myOrder.json'));
+  $fakeData = json_decode($jsonString, true);
+
+  return view('orders.myorder')->with('fakeData', $fakeData);
+});

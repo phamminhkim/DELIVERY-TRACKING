@@ -1,0 +1,48 @@
+@import'./iframe-info.scss';
+
+.my-info {
+    .info-body {
+        .right {
+
+            .right-slidebar {
+                span {
+                    font-family: 'Inter';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 18px;
+                    line-height: 22px;
+                    color: #7F7676;
+                }
+
+                a {
+                    font-family: 'Inter';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 18px;
+                    line-height: 22px;
+                    color: #3B3F3F;
+
+                }
+            }
+        }
+
+        .left {
+
+            .left-header {
+                span {
+                    font-family: 'Inter';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 32px;
+                    line-height: 39px;
+                    color: #7F7676;
+                }
+            }
+
+            // .left-iframe {
+            //     height: 600px;
+            //     overflow-y: scroll;
+            // }
+        }
+    }
+}

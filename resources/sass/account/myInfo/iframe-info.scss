@@ -1,0 +1,48 @@
+.formInfo {
+    background-color: white;
+    min-height: 600px;
+    overflow-y: scroll;
+
+    .form-body {
+        .col {
+            .form-input {
+                border: none;
+                background-color: white;
+                padding: 0;
+                font-family: 'Inter';
+                font-style: normal;
+                font-weight: 700;
+                color: #3B3F3F;
+            }
+
+            .form-label {
+                font-family: 'Inter';
+                font-style: normal;
+                font-weight: 400;
+                color: #504949;
+
+                .form-href {
+                    color: #3B93B9;
+                }
+            }
+        }
+    }
+
+    .form-button {
+        .btn {
+            background: #3B93B9;
+            border-radius: 20px;
+            border: none;
+
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+        }
+
+        #save-btn {
+            background-color: #B9873B;
+            color: #FFFF;
+            border: none;
+        }
+    }
+}
