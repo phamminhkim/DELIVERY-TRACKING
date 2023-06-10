@@ -73,6 +73,16 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-4">
+                               
+
+                                <a  class="btn btn-primary" href=" {{ url('login/google') }} ">
+                                    <i class="fa-brands fa-google"></i>
+                                </a>
+                            </div>
+                        </div>
+                       
                     </form>
                 </div>
             </div>

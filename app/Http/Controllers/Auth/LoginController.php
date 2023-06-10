@@ -20,7 +20,7 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers ;
 
     /**
      * Where to redirect users after login.
@@ -79,7 +79,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {   
       
-        if (!$user->active == 1) {
+        if (!$user->email_verified_at != null) {
            
             auth()->logout();
             return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');

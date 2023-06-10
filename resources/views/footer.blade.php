@@ -1,4 +1,4 @@
-<div class="bottom ml-2 mt-2 mr-2 mb-0" style="">
+<div class="bottom" style="width:99%" >
        
     <div class="row" style="background-color:#547CF5;color:aliceblue;" >
         <div class="col-xs-12 col-sm-2"></div>

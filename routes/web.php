@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,11 +19,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/myinfo', function () {
+    $locale = App::getLocale();
+    // dd( $locale );
     return view('profile.myinfo');
 })->middleware('verified');
 Route::get('/myorder', function () {
     return view('orders.myorder');
 });
 
+Route::get('login/{social}', [
+    'as' => 'login.{social}',
+    'uses' => 'SocialAuthController@redirectToProvider'
+]);
+
+Route::get('login/{social}/callback', [
+    'as' => 'login.{social}.callback',
+    'uses' => 'SocialAuthController@handleProviderCallback'
+]);
 
 Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
