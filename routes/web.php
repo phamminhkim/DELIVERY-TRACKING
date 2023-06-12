@@ -44,7 +44,10 @@ Route::get('/myorder', function () {
 });
 
 Route::get('/myorder-detail', function () {
-  return view('orders.orderDetail');
+  $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
+  $fakeTimeline = json_decode($jsonString, true);
+
+  return view('orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
 });
 Route::get('login/{social}', [
   'as' => 'login.{social}',

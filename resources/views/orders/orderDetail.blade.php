@@ -27,11 +27,28 @@
         {{-- ? end header --}}
 
         {{-- ? steps body --}}
-        <el-steps :active="1">
-            <el-step title="Step 1" icon="el-icon-edit"></el-step>
-            <el-step title="Step 2" icon="el-icon-upload"></el-step>
-            <el-step title="Step 3" icon="el-icon-picture"></el-step>
-        </el-steps>
+        <div class="steps row justify-content-center align-items-center">
+            <div class="col-md-8">
+                <el-steps active="1" finish-status="success">
+                    <el-step title="Đang xử lý" icon="el-icon-document"></el-step>
+                    <el-step title="Đóng gói" icon="el-icon-present"></el-step>
+                    <el-step title="Đang vận chuyển" icon="el-icon-truck"></el-step>
+                    <el-step title="Đã giao hàng" icon="el-icon-receiving"></el-step>
+                </el-steps>
+            </div>
+        </div>
         {{-- ? end steps body --}}
+
+        {{-- ? timeline body --}}
+        <div class="timeline">
+            @foreach ($fakeTimeline as $item)
+                <el-timeline>
+                    <el-timeline-item key="index" timestamp="{{ $item['timeline'] }}" color="{{ $item['active'] === 1 ? '#0D8F41' : '#D9D9D9' }}">
+                        {{ $item['title'] }}
+                    </el-timeline-item>
+                </el-timeline>
+            @endforeach
+        </div>
+        {{-- ? end timeline --}}
     </article>
 @endsection

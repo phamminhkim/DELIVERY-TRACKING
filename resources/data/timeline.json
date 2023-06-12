@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Đã giao hàng",
+    "active": 1,
+    "timeline": "01/06 15:00"
+  },
+  {
+    "title": "Đến kho trung chuyển Kiện hàng đã đến kho trung chuyển [Thị Xã Bến Cát ]",
+    "active": 0,
+    "timeline": "01/06 11:00"
+  },
+  {
+    "title": "Đang vận chuyển",
+    "active": 0,
+    "timeline": "01/06 09:00"
+  },
+  {
+    "title": "Đã đóng gói",
+    "active": 0,
+    "timeline": "01/06 08:12"
+  }
+]

@@ -1,0 +1,33 @@
+.login-page {
+    .forgot-pass {
+        color: #504949;
+        font-style: normal;
+        font-size: smaller;
+    }
+
+    .form-btn {
+        color: #ffffff;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 700;
+        border: none;
+
+        &:hover {
+            color: #504949;
+        }
+    }
+}
+
+.register-page {
+    .form-btn {
+        color: #ffffff;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 700;
+        border: none;
+
+        &:hover {
+            color: #504949;
+        }
+    }
+}
