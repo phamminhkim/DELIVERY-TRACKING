@@ -29,7 +29,7 @@
         {{-- ? steps body --}}
         <div class="steps row justify-content-center align-items-center">
             <div class="col-md-8">
-                <el-steps :active="1" finish-status="success">
+                <el-steps :active="4" finish-status="success">
                     <el-step title="Đang xử lý" icon="el-icon-document"></el-step>
                     <el-step title="Đóng gói" icon="el-icon-present"></el-step>
                     <el-step title="Đang vận chuyển" icon="el-icon-truck"></el-step>
