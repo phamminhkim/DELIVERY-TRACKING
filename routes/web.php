@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Auth::routes(['verify' => true]);
 Route::get('/', function () {
   return view('welcome');
 });
@@ -44,3 +46,14 @@ Route::get('/myorder', function () {
 Route::get('/myorder-detail', function () {
   return view('orders.orderDetail');
 });
+Route::get('login/{social}', [
+  'as' => 'login.{social}',
+  'uses' => 'SocialAuthController@redirectToProvider'
+]);
+
+Route::get('login/{social}/callback', [
+  'as' => 'login.{social}.callback',
+  'uses' => 'SocialAuthController@handleProviderCallback'
+]);
+
+Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');

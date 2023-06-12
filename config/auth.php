@@ -17,6 +17,12 @@ return [
         'guard' => 'web',
         'passwords' => 'users',
     ],
+    //Thêm login google
+    'socialite' => [
+        'drivers' => [
+            'google',
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

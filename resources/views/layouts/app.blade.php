@@ -18,12 +18,14 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    @yield('link-header')
 </head>
 <body>
     <div id="app">
         @include('header')
 
-        <main class="py-4" style="min-height: 430px;background-color: #F1F1F1"   >
+        <main class="py-4" style="min-height:450px;background-color: #F1F1F1"   >
             @yield('content')
         </main>
        
