@@ -3,6 +3,9 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
+//  ? thêm thư viện element-ui
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
 
 require('./bootstrap');
 
@@ -15,6 +18,9 @@ window.Vue = require('vue');
  *
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
+
+// ? sử dụng element-ui
+Vue.use(ElementUI);
 
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))

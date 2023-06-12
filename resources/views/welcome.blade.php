@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,19 +20,20 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+
 <body>
     <div id="app">
         @include('header')
 
-        <main class="py-4" style="background-color: #F1F1F1" >
+        <main class="py-4" style="background-color: #F1F1F1">
             {{-- @yield('content') --}}
             <div style="height: 500px"></div>
         </main>
-       
-    </div>  
 
-    
-      @include('footer')
-   
+    </div>
+
+
+    @include('footer')
+
 </body>
 </html>

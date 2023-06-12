@@ -1,0 +1,35 @@
+.orderDetail {
+    background-color: white;
+    min-height: 600px;
+    overflow-y: scroll;
+
+    .detail-header {
+        .header-top {
+            .header-title {
+                font-family: 'Inter';
+                font-style: normal;
+                font-weight: 400;
+                color: #504949;
+            }
+
+            .header-status {
+                background: #E5E5E5;
+                border-radius: 20px;
+
+                font-family: 'Inter';
+                font-style: normal;
+                font-weight: 700;
+                color: #504949;
+            }
+        }
+
+        .header-body {
+            span {
+                font-family: 'Inter';
+                font-style: normal;
+                font-weight: 700;
+                color: #504949;
+            }
+        }
+    }
+}
