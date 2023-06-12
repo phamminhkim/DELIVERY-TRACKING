@@ -80,6 +80,9 @@
                                 <a  class="btn btn-primary" href=" {{ url('login/google') }} ">
                                     <i class="fa-brands fa-google"></i>
                                 </a>
+                                <a  class="btn btn-primary" href=" {{ url('login/facebook') }} ">
+                                    <i class="fa-brands fa-facebook"></i>
+                                </a>
                             </div>
                         </div>
                        

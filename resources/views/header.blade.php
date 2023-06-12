@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-light  bg-header shadow-sm"  >
     <div class="container">
        
-            <img src="{{asset('img/logo.png')}}" width="15%"> 
+            <img src="{{asset('img/logo.png')}}" width="17%"> 
             <a class="navbar-brand title ml-4" href="{{ url('/') }}">
                Delivery Tracking
             </a>
@@ -13,7 +13,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left Side Of Navbar -->
                 <a class="navbar-brand round ml-5"  >
-                    <i class="fa-solid fa-headphones-simple fa-xs"></i>
+                    <i class="fa-solid fa-headphones-simple "></i>
                  </a>
                  <div  >
                     <ul class="text-ul" >
@@ -23,7 +23,8 @@
                  </div>
                  @guest
                     <a class="navbar-brand round ml-5"  >
-                        <i class="fa-solid fa-user fa-xs"></i>
+
+                        <i class="fa-solid fa-user"></i>
                     </a>
                     <div  >
                         <ul class="text-ul" >
@@ -31,7 +32,7 @@
                         </ul>
                     </div>
                     <a class="navbar-brand round ml-5"  >
-                        <i class="fa-solid fa-key fa-xs"></i>
+                        <i class="fa-solid fa-key "></i>
                     </a>
                     <div  >
                         <ul class="text-ul" >
@@ -43,9 +44,19 @@
                         </ul>
                     </div>
                  @else
-                    <a class="navbar-brand round ml-5"  >
-                        <i class="fa-solid fa-user fa-xs"></i>
-                    </a>
+                  
+                        @if ( Auth::user()->avatar)
+                        <a class="navbar-brand img-round ml-5"  >
+                            <img src="{{Auth::user()->avatar}}" alt="" style="width:inherit">
+                        </a>
+                           
+                        @else
+                            <a class="navbar-brand round ml-5"  >
+                                <i class="fa-solid fa-user "></i>
+                            </a>
+                        @endif
+                       
+                  
                     <div  >
                         <ul class="text-ul" >
                             <li>
@@ -72,7 +83,7 @@
                         </ul>
                     </div>
                     <a class="navbar-brand round ml-5"  >
-                        <i class="fa-solid fa-cart-shopping fa-xs"></i>
+                        <i class="fa-solid fa-cart-shopping "></i>
                     </a>
                     <div  >
                         <ul class="text-ul" >
