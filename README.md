@@ -4,11 +4,11 @@
 
 Ghi nhận thông tin giao hàng :
 
--Quản lý thông tin giao hàng của đơn hàng
--Các phiếu xuất được bàn giao cho NVC ( không chuyên )
--Các tài xế NVC khi giao xong (1 phần hoặc toàn bộ ) thì quét phiếu xuất xác nhận hoàn thành ( 1 phần hoặc toàn bộ ), có upload hình ảnh làm bằng chứng.  Có thể xác nhận giao nhiều lần cho đến khi xác nhận giao toàn bộ.
--Các tài xế không cần đăng ký số điện thoại trước trên hệ thống
--Khi giao xong thì thông báo đến khách hàng để khách hàng xác nhận đã nhận hàng.
+-   Quản lý thông tin giao hàng của đơn hàng
+-   Các phiếu xuất được bàn giao cho NVC ( không chuyên )
+-   Các tài xế NVC khi giao xong (1 phần hoặc toàn bộ ) thì quét phiếu xuất xác nhận hoàn thành ( 1 phần hoặc toàn bộ ), có upload hình ảnh làm bằng chứng.  Có thể xác nhận giao nhiều lần cho đến khi xác nhận giao toàn bộ.
+-   Các tài xế không cần đăng ký số điện thoại trước trên hệ thống
+-   Khi giao xong thì thông báo đến khách hàng để khách hàng xác nhận đã nhận hàng.
 
 
 
