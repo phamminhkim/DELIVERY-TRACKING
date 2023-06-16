@@ -22,7 +22,7 @@
 </div>
 @endsection --}}
 
-@extends('profile.myinfo')
+@extends('pages.profile.myinfo')
 
 @section('title')
     Đơn hàng của tôi

@@ -10981,6 +10981,36 @@ a.text-dark:focus {
   color: #f8f9fa !important;
 }
 
+.login-page .forgot-pass {
+  color: #504949;
+  font-style: normal;
+  font-size: 0.75rem;
+}
+
+.login-page .form-btn {
+  color: #ffffff;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  border: none;
+}
+
+.login-page .form-btn:hover {
+  color: #504949;
+}
+
+.register-page .form-btn {
+  color: #ffffff;
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  border: none;
+}
+
+.register-page .form-btn:hover {
+  color: #504949;
+}
+
 .formInfo {
   background-color: white;
   min-height: 600px;
@@ -11198,36 +11228,6 @@ a.text-dark:focus {
 .orderWaiting .table-header {
   background: #D9D9D9;
   color: #3B3F3F;
-}
-
-.login-page .forgot-pass {
-  color: #504949;
-  font-style: normal;
-  font-size: 0.75rem;
-}
-
-.login-page .form-btn {
-  color: #ffffff;
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  border: none;
-}
-
-.login-page .form-btn:hover {
-  color: #504949;
-}
-
-.register-page .form-btn {
-  color: #ffffff;
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  border: none;
-}
-
-.register-page .form-btn:hover {
-  color: #504949;
 }
 
 /*!

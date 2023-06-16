@@ -1,4 +1,4 @@
-@extends('profile.myinfo')
+@extends('pages.profile.myinfo')
 
 @section('title')
     Quản lý tài khoản / xem
