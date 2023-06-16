@@ -43,6 +43,7 @@ Route::get('/myorder', function () {
   return view('orders.myorder')->with('fakeData', $fakeData);
 });
 
+
 Route::get('/myorder-detail', function () {
   $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
   $fakeTimeline = json_decode($jsonString, true);
