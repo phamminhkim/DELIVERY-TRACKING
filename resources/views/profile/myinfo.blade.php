@@ -15,6 +15,11 @@
                     <span class="mb-3">Xin chào, Nguyễn Ngọc Hùng</span>
                     <a class="text-decoration-none mb-3" href="myinfo">Quản lý tài khoản</a>
                     <a class="text-decoration-none mb-3" href="myorder">Đơn hàng của tôi</a>
+                    <a class="text-decoration-none mb-3" href="myorder">Đơn hàng chờ giao</a>
+                    <a class="text-decoration-none mb-3" href="myorder">Đơn hàng đang giao</a>
+                    <a class="text-decoration-none mb-3" href="myorder">Đơn hàng đã giao</a>
+                    <a class="text-decoration-none mb-3" href="myorder">Nhà vận chuyển</a>
+                    <a class="text-decoration-none mb-3" href="myorder">Nhân viên giao hàng</a>
                 </div>
             </div>
             <div class="left col-md-9 container-sm">
