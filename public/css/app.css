@@ -11041,6 +11041,40 @@ a.text-dark:focus {
   color: #3B3F3F;
 }
 
+@media screen and (max-width: 767px), (min-width: 768px) and (max-width: 1024px) {
+  .my-info .info-body .right .right-slidebar {
+    display: none !important;
+  }
+}
+
+.my-info .info-body .right .sm-show {
+  display: none;
+}
+
+@media screen and (max-width: 767px), (min-width: 768px) and (max-width: 1024px) {
+  .my-info .info-body .right .sm-show {
+    display: block;
+  }
+
+  .my-info .info-body .right .sm-show span {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 22px;
+    color: #7F7676;
+  }
+
+  .my-info .info-body .right .sm-show a {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 22px;
+    color: #3B3F3F;
+  }
+}
+
 .my-info .info-body .left .left-header span {
   font-family: "Inter";
   font-style: normal;
