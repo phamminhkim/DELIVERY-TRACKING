@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8790a1cdcec7ab4c29f0d27473b05a2a",
+    "content-hash": "23a1d3c4ce6b175aed2e0e7a7a1b2df1",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -6653,6 +6653,98 @@
                 }
             ],
             "time": "2022-01-24T18:55:24+00:00"
+        },
+        {
+            "name": "wilkques/pkce-php",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wilkques/pkce-php.git",
+                "reference": "fa8ecf84371f1df9da561208c3aedbb0866d6456"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wilkques/pkce-php/zipball/fa8ecf84371f1df9da561208c3aedbb0866d6456",
+                "reference": "fa8ecf84371f1df9da561208c3aedbb0866d6456",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Wilkques\\PKCE\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wilkques",
+                    "email": "wilkques@gmail.com"
+                }
+            ],
+            "description": "PKCE for PHP",
+            "support": {
+                "issues": "https://github.com/wilkques/pkce-php/issues",
+                "source": "https://github.com/wilkques/pkce-php/tree/v2.0.0"
+            },
+            "time": "2022-05-18T02:56:16+00:00"
+        },
+        {
+            "name": "zaloplatform/zalo-php-sdk",
+            "version": "4.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zaloplatform/zalo-php-sdk.git",
+                "reference": "87b30627b578e25d0c4c9661a9ef600045bff640"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zaloplatform/zalo-php-sdk/zipball/87b30627b578e25d0c4c9661a9ef600045bff640",
+                "reference": "87b30627b578e25d0c4c9661a9ef600045bff640",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.2"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "Zalo\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "zaloplatform",
+                    "email": "zaloplatform@gmail.com"
+                }
+            ],
+            "description": "sdk for zalo developers",
+            "keywords": [
+                "composer",
+                "sdk",
+                "zalo",
+                "zalosdk"
+            ],
+            "support": {
+                "issues": "https://github.com/zaloplatform/zalo-php-sdk/issues",
+                "source": "https://github.com/zaloplatform/zalo-php-sdk/tree/4.0.3"
+            },
+            "time": "2023-05-29T10:15:39+00:00"
         }
     ],
     "packages-dev": [

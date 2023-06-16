@@ -18,7 +18,9 @@
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.5",
         "laravel/ui": "2.4",
-        "socialiteproviders/zalo": "^5.0"
+        "socialiteproviders/zalo": "^5.0",
+        "wilkques/pkce-php": "^2.0",
+        "zaloplatform/zalo-php-sdk": "^4.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
