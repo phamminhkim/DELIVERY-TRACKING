@@ -1,19 +1,19 @@
-@extends('profile.myinfo')
+@extends('pages.profile.myinfo')
 
 @section('title')
     Quản lý tài khoản / xem
 @endsection
 
 @section('my-info-iframe')
-    <div class="formInfo container p-3">
+    <div class="formInfo p-3">
         @foreach ($fakeUser as $item)
-            <div class="form-body row row-cols-lg-3 row-cols-1 g-1 g-lg-3">
-                <div class="col mb-3">
+            <div class="form-body row row-cols-lg-3 row-cols-sm-1 row-cols-md-2 g-1 g-lg-3">
+                <div class="col-sm-4 col-12 col mb-3">
                     <label for="full_name" class="form-label">Họ tên</label>
                     <input type="text" class="form-input form-control" id="full_name" placeholder="Full name"
                         aria-label="Full name" value="{{ $item['name'] }}" disabled>
                 </div>
-                <div class="col">
+                <div class="col-sm-4 col-12 col">
                     <label for="email" class="form-label">
                         Địa chỉ email |
                         <a class="form-href" id="edit-email">Thay đổi</a>
@@ -24,7 +24,7 @@
                         value="{{ substr($item['email'], 0, 2) }}********{{ substr($item['email'], strpos($item['email'], '@')) }}"
                         disabled>
                 </div>
-                <div class="col">
+                <div class="col-sm-4 col-12 col">
                     <label for="phone_number" class="form-label">
                         Số điện thoại |
                         <a class="form-href" id="edit-phone">Thay đổi</a>
@@ -35,7 +35,7 @@
                         value="{{ substr($item['phone_number'], 0, 3) }}******{{ substr($item['phone_number'], -2) }}"
                         disabled>
                 </div>
-                <div class="col d-flex flex-column">
+                <div class="col-sm-4 col-12 col d-flex flex-column">
                     <label for="gender" class="form-label">Giới tính</label>
                     <select class="form-input form-select" id="gender" aria-label="Gender" disabled>
                         <option value="0" selected>Nam</option>
@@ -44,13 +44,13 @@
                 </div>
             </div>
         @endforeach
-        <div class="form-button container-sm d-flex flex-column mt-5">
-            <button onclick="showSaveBtn()" type="submit" id="edit-btn" class="btn btn-primary col-md-3 mb-3">Sửa thông
+        <div class="form-button container-sm row  col-md-3 mt-5">
+            <button onclick="showSaveBtn()" type="submit" id="edit-btn" class="btn btn-primary col-md-12 mb-3">Sửa thông
                 tin </button>
-            <button onclick="changePassBtn()" type="button" id="changePass-btn" class="btn btn-primary col-md-3 mb-3">Đổi
+            <button onclick="changePassBtn()" type="button" id="changePass-btn" class="btn btn-primary col-md-12 mb-3">Đổi
                 mật
                 khẩu</button>
-            <button onclick="saveBtn()" type="button" id="save-btn" class="btn col-md-3 mb-3" hidden>Lưu thay đổi</button>
+            <button onclick="saveBtn()" type="button" id="save-btn" class="btn col-md-12 mb-3" hidden>Lưu thay đổi</button>
         </div>
     </div>
 

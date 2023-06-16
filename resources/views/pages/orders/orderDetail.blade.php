@@ -1,11 +1,11 @@
-@extends('profile.myinfo')
+@extends('pages.profile.myinfo')
 
 @section('title')
     Chi tiết kiện hàng
 @endsection
 
 @section('my-info-iframe')
-    <article class="orderDetail container p-3">
+    <article class="orderDetail p-3">
         {{-- ? header --}}
         <div class="detail-header">
             <div class="header-top row mb-3">

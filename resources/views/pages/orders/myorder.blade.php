@@ -22,7 +22,7 @@
 </div>
 @endsection --}}
 
-@extends('profile.myinfo')
+@extends('pages.profile.myinfo')
 
 @section('title')
     Đơn hàng của tôi
@@ -49,12 +49,12 @@
         </div>
     </div> --}}
 
-    <div class="formOrder container p-0">
-        <div class="form-header row">
-            <div class="header-title col-sm-1 col mb-3">
+    <div class="formOrder p-0">
+        <div class="form-header row row-cols-2">
+            <div class="header-title col-md-6 col-lg-6 mb-3">
                 <span>Hiển thị </span>
             </div>
-            <div class="header-option col">
+            <div class="header-option col-md-6 col-lg-6 text-right">
                 <select class="form-select" aria-label="Show list">
                     <option selected>5 đơn hàng gần đây</option>
                     <option value="1">10 đơn hàng gần đây</option>
@@ -108,7 +108,7 @@
 
             {{-- ? test fakeData --}}
             @foreach ($fakeData as $item)
-                <div class="list-card container-sm mb-3">
+                <div class="list-card mb-3">
                     <div class="list-header row">
                         <div class="header-title col-sm-10 col">
                             <span class="title">
@@ -156,12 +156,12 @@
             @endforeach
         </div>
         <div class="form-footer mt-3">
-            <div class="row col-8 d-flex justify-content-between">
-                <div class="left col-5">
+            <div class="row row-cols-2">
+                <div class="left col-lg-3 col-sm-4">
                     <span class="left-title">Per page:</span>
                     <input class="left-input float-center" type="number" value="10">
                 </div>
-                <div class="right col-7">
+                <div class="right col-lg-9 col-sm-8">
                     <nav aria-label="Page navigation example">
                         <ul class="pagination">
                             <li class="page-item">

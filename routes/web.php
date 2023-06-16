@@ -33,22 +33,28 @@ Route::get('/myinfo', function () {
   $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
   $fakeUser = json_decode($jsonString, true);
 
-  return view('profile.components.formInfo')->with('fakeUser', $fakeUser);
+  return view('pages.profile.components.formInfo')->with('fakeUser', $fakeUser);
 });
 
 Route::get('/myorder', function () {
   $jsonString = file_get_contents(base_path('resources/data/myOrder.json'));
   $fakeData = json_decode($jsonString, true);
 
-  return view('orders.myorder')->with('fakeData', $fakeData);
+  return view('pages.orders.myorder')->with('fakeData', $fakeData);
 });
+
 
 Route::get('/myorder-detail', function () {
   $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
   $fakeTimeline = json_decode($jsonString, true);
 
-  return view('orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
+  return view('pages.orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
 });
+
+Route::get('/order-waiting', function () {
+  return view('pages.orders.orderWaiting');
+});
+
 Route::get('login/{social}', [
   'as' => 'login.{social}',
   'uses' => 'SocialAuthController@redirectToProvider'
