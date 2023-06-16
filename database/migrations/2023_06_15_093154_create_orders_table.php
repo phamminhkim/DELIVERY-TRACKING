@@ -21,8 +21,7 @@ class CreateOrdersTable extends Migration
             $table->string('delivery_address');
             $table->float('weight');
             $table->string('note');
-            $table->timestamps('created_at');
-            $table->timestamps('updated_at');
+            $table->timestamps();
             $table->integer('status_id');
             $table->integer('delivery_id');
         });

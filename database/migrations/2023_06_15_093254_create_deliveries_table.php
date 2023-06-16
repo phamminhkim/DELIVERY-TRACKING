@@ -21,8 +21,7 @@ class CreateDeliveriesTable extends Migration
             $table->string('shipping_code', 50);
             $table->string('shipping_type', 2);
             $table->integer('created_by');
-            $table->timestamps('created_at');
-            $table->timestamps('updated_at');
+            $table->timestamps();
         });
     }
 
