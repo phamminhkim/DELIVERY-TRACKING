@@ -7,8 +7,8 @@
 @section('my-info-iframe')
     <article class="orderWaiting">
         <div class="table-responsive">
-            <table class="table table-sm">
-                <thead class="table-secondary">
+            <table class="table table-sm table-hover" id="myTable">
+                <thead class="table-header">
                     <tr>
                         <th scope="col">STT</th>
                         <th scope="col">First</th>
