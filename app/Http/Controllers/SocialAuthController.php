@@ -14,12 +14,15 @@ class SocialAuthController extends Controller
 {
     public function redirectToProvider($provider)
     {
+       
+    
         return Socialite::driver($provider)->redirect();
+        
     }
 
     public function handleProviderCallback(SocialAccountService $service, $provider)
     {
-       
+     
         $user = $service->createOrGetUser(Socialite::driver($provider));
       
         Auth::login($user);

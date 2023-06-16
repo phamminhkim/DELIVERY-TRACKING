@@ -40,5 +40,10 @@ return [
         'client_secret' => env('FACEBOOK_APP_SECRET'),
         'redirect' => env('FACEBOOK_APP_CALLBACK_URL'),
     ],
+    'zalo' => [
+        'client_id' => env('ZALO_APP_ID'),
+        'client_secret' => env('ZALO_APP_SECRET'),
+        'redirect' => env('ZALO_APP_CALLBACK_URL'),
+    ],
 
 ];

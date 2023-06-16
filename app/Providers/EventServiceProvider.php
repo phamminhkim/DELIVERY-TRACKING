@@ -17,10 +17,18 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+           
         ],
         'Illuminate\Auth\Events\Verified' => [
             'App\Listeners\LogVerifiedUser',
         ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\Zalo\ZaloExtendSocialite::class.'@handle',
+        ],
+      
+       
+    
     ];
 
     /**

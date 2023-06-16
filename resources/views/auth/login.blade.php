@@ -92,6 +92,11 @@
                                         {{-- <i class="fa-brands fa-facebook"></i> --}}
                                         Facebook
                                     </a>
+                                    <a class="col-5 btn form-btn" href=" {{ url('login/zalo') }} "
+                                    style="background-color: #6683D9">
+                                    {{-- <i class="fa-brands fa-zalo"></i> --}}
+                                    zalo
+                                </a>
                                 </div>
                             </div>
 
