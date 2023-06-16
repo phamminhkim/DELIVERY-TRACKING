@@ -56,6 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         phone_number.disabled = false;
         gender.classList.remove("form-input");
         gender.disabled = false;
+        editEmail.hidden = true;
+        editPhone.hidden = true;
 
         email.value = emailValue;
         phone_number.value = phoneValue;
@@ -70,6 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
         phone_number.disabled = true;
         gender.classList.add("form-input");
         gender.disabled = true;
+        editEmail.hidden = false;
+        editPhone.hidden = false;
 
         email.value = hiddenEmail;
         phone_number.value = hiddenPhone;

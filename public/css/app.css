@@ -11164,7 +11164,7 @@ a.text-dark:focus {
 .login-page .forgot-pass {
   color: #504949;
   font-style: normal;
-  font-size: smaller;
+  font-size: 0.75rem;
 }
 
 .login-page .form-btn {
