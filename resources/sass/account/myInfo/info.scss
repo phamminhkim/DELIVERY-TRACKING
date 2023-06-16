@@ -21,9 +21,45 @@
                     font-size: 18px;
                     line-height: 22px;
                     color: #3B3F3F;
+                }
 
+                @media screen and (max-width: 767px),
+                (min-width: 768px) and (max-width:1024px) {
+                    display: none !important;
                 }
             }
+
+            .sm-show {
+                display: none;
+            }
+
+            @media screen and (max-width: 767px),
+            (min-width: 768px) and (max-width:1024px) {
+                .sm-show {
+                    display: block;
+                    
+
+                    span {
+                        font-family: 'Inter';
+                        font-style: normal;
+                        font-weight: 700;
+                        font-size: 18px;
+                        line-height: 22px;
+                        color: #7F7676;
+                    }
+
+                    a {
+                        font-family: 'Inter';
+                        font-style: normal;
+                        font-weight: 700;
+                        font-size: 18px;
+                        line-height: 22px;
+                        color: #3B3F3F;
+                    }
+                }
+            }
+
+
         }
 
         .left {

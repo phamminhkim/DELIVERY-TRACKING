@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-light  bg-header shadow-sm"  >
+<nav class="navbar navbar-expand-lg navbar-light  bg-header shadow-sm"  >
     <div class="container">
        
             <img src="{{asset('img/logo.png')}}" width="17%"> 

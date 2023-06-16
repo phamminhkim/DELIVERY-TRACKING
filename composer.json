@@ -17,7 +17,8 @@
         "laravel/passport": "~9.0",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "2.4"
+        "laravel/ui": "2.4",
+        "socialiteproviders/zalo": "^5.0"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

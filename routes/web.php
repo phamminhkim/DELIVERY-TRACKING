@@ -50,6 +50,11 @@ Route::get('/myorder-detail', function () {
 
   return view('orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
 });
+
+Route::get('/order-waiting', function () {
+  return view('orders.orderWaiting');
+});
+
 Route::get('login/{social}', [
   'as' => 'login.{social}',
   'uses' => 'SocialAuthController@redirectToProvider'
