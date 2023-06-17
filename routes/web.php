@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use Zalo\Zalo;
 use Illuminate\Support\Str;
 use Wilkques\PKCE\Generator;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,45 +34,18 @@ Route::get('/zalo', function () {
     $zalo = new Zalo($config);
     $helper = $zalo -> getRedirectLoginHelper();
     $callbackUrl = "https://shipdemo.thienlong.vn/login/zalo/callback";
+    $codeVerifier = Generator::codeVerifier();
+    session()->put('codeVerifier',$codeVerifier);
+    $codeChallenge = Generator::codeChallenge($codeVerifier);
 
-    $codeVerifier =   Str::random(43) ;//bin2hex(random_bytes(32));
-       $codeChallenge = hash('sha256', $codeVerifier, true);
-       $state =  Str::random(40);
-
-
-      
-$codeVerifier = Generator::codeVerifier();
-
-$codeChallenge = Generator::codeChallenge($codeVerifier);
-
-       $verifierBytes = random_bytes(64);
-       $codeVerifier = rtrim(strtr(base64_encode($verifierBytes), "+/", "-_"), "=");
-      // dd($codeChallenge);
-       // Very important, "raw_output" must be set to true or the challenge
-       // will not match the verifier.
-     //  $challengeBytes = hash("sha256", $codeVerifier, true);
-      // $codeChallenge = rtrim(strtr(base64_encode($challengeBytes), "+/", "-_"), "=");
-   
-       // State token, a uuid is fine here
-       $state = uniqid();
-
-
-
-    //dd($codeChallenge . " - ".$state);
-   // Log::info("test call back");
+    $verifierBytes = random_bytes(64);
+    $codeVerifier = rtrim(strtr(base64_encode($verifierBytes), "+/", "-_"), "=");
+    $state = uniqid();
     $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
 
-   return redirect($loginUrl);
-    
+    return redirect($loginUrl);
 
-    //$codeVerifier = PKCEUtil::genCodeVerifier();
-    //$codeChallenge = PKCEUtil::genCodeChallenge($codeVerifier);
-    //$codeVerifier = "your code verifier";
-    $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
-   
-    $accessToken = $zaloToken->getAccessToken();
-    dd($accessToken);
-});
+    });
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
