@@ -82,7 +82,8 @@ Route::prefix('login')->group(function () {
         'uses' => 'SocialAuthController@redirectToProvider'
     ]);
 
-Route::get('login/{social}/callback', [
-  'as' => 'login.{social}.callback',
-  'uses' => 'SocialAuthController@handleProviderCallback'
-]);
+    Route::get('login/{social}/callback', [
+        'as' => 'login.{social}.callback',
+        'uses' => 'SocialAuthController@handleProviderCallback'
+    ]);
+});
