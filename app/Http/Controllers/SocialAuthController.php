@@ -14,7 +14,7 @@ use Zalo\ZaloEndPoint;
 use Illuminate\Support\Str;
 use Wilkques\PKCE\Generator;
 use Illuminate\Support\Facades\Http;
- 
+use Illuminate\Support\Facades\Log;
 
 class SocialAuthController extends Controller
 {
@@ -45,10 +45,7 @@ class SocialAuthController extends Controller
         $codeVerifier = Generator::codeVerifier();
         session()->put('codeVerifier',$codeVerifier);
         $codeChallenge = Generator::codeChallenge($codeVerifier);
-    
-         $verifierBytes = random_bytes(64);
-         $codeVerifier = rtrim(strtr(base64_encode($verifierBytes), "+/", "-_"), "=");
-         $state = uniqid();
+        $state = uniqid();
         $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
     
         return redirect($loginUrl);
@@ -61,10 +58,6 @@ class SocialAuthController extends Controller
         'app_id' => config("services.zalo.client_id") ,
         'app_secret' =>  config("services.zalo.client_secret")
     );
-
-    // $ZALO_CLIENT_ID = '270349389225145785';
-    // $ZALO_CLIENT_SECRET= 'PtCJyx1eNY4Pr6W467Xu';
-    // $ZALO_REDIRECT_URI = 'https://shipdemo.thienlong.vn/auth/zalo/callback';
 
     $zalo = new Zalo($config);
    
