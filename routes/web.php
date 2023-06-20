@@ -25,25 +25,6 @@ Auth::routes(['verify' => true]);
 
 Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
 
-Route::get('/zalo', function () {
-    $config = array(
-        'app_id' => '270349389225145785',
-        'app_secret' => 'PtCJyx1eNY4Pr6W467Xu'
-    );
-    $zalo = new Zalo($config);
-    $helper = $zalo->getRedirectLoginHelper();
-    $callbackUrl = "https://shipdemo.thienlong.vn/login/zalo/callback";
-    $codeVerifier = Generator::codeVerifier();
-    session()->put('codeVerifier', $codeVerifier);
-    $codeChallenge = Generator::codeChallenge($codeVerifier);
-
-    $verifierBytes = random_bytes(64);
-    $codeVerifier = rtrim(strtr(base64_encode($verifierBytes), "+/", "-_"), "=");
-    $state = uniqid();
-    $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
-
-    return redirect($loginUrl);
-});
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -87,4 +68,4 @@ Route::get('login/{social}', [
   ]);
   Route::get('/auth/zalo', 'SocialAuthController@redirectToZalo')->name('zalo.login');
   Route::get('/auth/zalo/callback', 'SocialAuthController@handleZaloCallback');
-  Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
+   
