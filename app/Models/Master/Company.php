@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderReviewOption extends Model
+class Company extends Model
 {
     protected $fillable = [
         'name'
