@@ -40,6 +40,7 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
+    'log_database_queries' => (bool) env('LOG_DATABASE_QUERIES', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -175,9 +176,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-       Laravel\Socialite\SocialiteServiceProvider::class,
-       \SocialiteProviders\Manager\ServiceProvider::class,
-       //\SocialiteProviders\Manager\ServiceProvider::class, // add
+        Laravel\Socialite\SocialiteServiceProvider::class,
+        \SocialiteProviders\Manager\ServiceProvider::class,
+        //\SocialiteProviders\Manager\ServiceProvider::class, // add
 
     ],
 
