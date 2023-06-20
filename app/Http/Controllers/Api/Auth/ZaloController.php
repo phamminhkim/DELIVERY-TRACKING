@@ -13,26 +13,24 @@ use Zalo\ZaloEndPoint;
 
 class ZaloController extends ResponseController
 {
-
-
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function existUser(Request $request)
+    public function checkExistingUser(Request $request)
     {
-        $providerName = 'ZaloProvider';
-        $providerId = $request->zalo_user_id;
-        $account = SocialAccount::whereProvider($providerName)
-            ->whereProviderUserId($providerId)
+        $provider_name = 'ZaloProvider';
+        $provider_id = $request->zalo_user_id;
+        $account = SocialAccount::whereProvider($provider_name)
+            ->whereProviderUserId($provider_id)
             ->first();
-        // dd($providerId);
+
         if ($account && $account->user) {
-            return $this->sendSuccess('user is exist');
+            return $this->sendSuccess('User is exist');
         } else {
-            return $this->sendFailedWithMessage('user is not exist');
+            return $this->sendFailedWithMessage('User is not exist');
         }
     }
     /**
@@ -43,35 +41,31 @@ class ZaloController extends ResponseController
      */
     public function login(Request $request)
     {
-        $accessTokenZalo = $request->access_token;
+        $zalo_access_token = $request->access_token;
         $config = array(
             'app_id' => config("services.zalo.client_id"),
             'app_secret' =>  config("services.zalo.client_secret")
         );
-
         $zalo = new Zalo($config);
 
-
-        $helper = $zalo->getRedirectLoginHelper();
-
         $params = ['fields' => 'id,name,picture'];
-        $response = $zalo->get(ZaloEndPoint::API_GRAPH_ME, $accessTokenZalo, $params);
+        $response = $zalo->get(ZaloEndPoint::API_GRAPH_ME, $zalo_access_token, $params);
         $result = $response->getDecodedBody(); // result
         $service = new SocialAccountService;
-        $user = $service->createOrGetUserFromZalo($result);
+        $user = $service->getOrCreateUserFromZalo($result);
 
         Auth::login($user);
-        $userLogin = Auth::user();
-        $accessToken = $userLogin->createToken('authToken')->accessToken;
-        $res['access_token'] = $accessToken;
+        $user_login = Auth::user();
+        $access_token = $user_login->createToken('authToken')->accessToken;
+        $res['access_token'] = $access_token;
         if ($user) {
             if ($user->active == 1) {
                 return $this->sendResponse($res, 'Logged in successfully');
             } else {
-                return $this->sendFailedWithMessage('User is locked');
+                return $this->sendFailedWithMessage('User is not active');
             }
         } else {
-            return $this->sendFailedWithMessage('Login is fault');
+            return $this->sendFailedWithMessage('Login failed');
         }
     }
 }

@@ -29,6 +29,6 @@ Route::delete('order_delete/{id}', [OrderController::class, 'destroy']);
 //api 
 
 Route::prefix('auth')->group(function () {
-    Route::post('/zalo/exist_user', [ZaloController::class, 'existUser']);
+    Route::post('/zalo/exist_user', [ZaloController::class, 'checkExistingUser']);
     Route::post('/zalo/login', [ZaloController::class, 'login']);
-});  
+});
