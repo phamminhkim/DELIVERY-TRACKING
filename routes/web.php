@@ -57,14 +57,15 @@ Route::prefix('admins')->group(function () {
     });
 });
 
-Route::prefix('login')->group(function () {
-    Route::get('{social}', [
-        'as' => 'login.{social}',
-        'uses' => 'SocialAuthController@redirectToProvider'
-    ]);
-
-    Route::get('{social}/callback', [
-        'as' => 'login.{social}.callback',
-        'uses' => 'SocialAuthController@handleProviderCallback'
-    ]);
-});
+Route::get('login/{social}', [
+    'as' => 'login.{social}',
+    'uses' => 'SocialAuthController@redirectToProvider'
+  ]);
+  
+  Route::get('login/{social}/callback', [
+    'as' => 'login.{social}.callback',
+    'uses' => 'SocialAuthController@handleProviderCallback'
+  ]);
+  Route::get('/auth/zalo', 'SocialAuthController@redirectToZalo')->name('zalo.login');
+  Route::get('/auth/zalo/callback', 'SocialAuthController@handleZaloCallback');
+   
