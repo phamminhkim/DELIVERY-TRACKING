@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\User;
+ 
 use App\Models\SocialAccount;
+use App\Models\User;
 use Laravel\Socialite\Contracts\Provider;
 class SocialAccountService
 {
