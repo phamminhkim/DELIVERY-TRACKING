@@ -1,10 +1,7 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
-use App\Models\Shared\Customer;
-use App\Models\Shared\Employee;
-use App\Models\Shared\Transporter;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','active','avatar'
+        'name', 'email', 'password', 'active', 'avatar'
     ];
 
     /**
@@ -39,17 +36,4 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    // public function customer()
-    // {
-    //     return $this->hasOne(Customer::class);
-    // }
-    // public function employee()
-    // {
-    //     return $this->hasOne(Employee::class);
-    // }
-    // public function transporter()
-    // {
-    //     return $this->hasOne(Transporter::class);
-    // }
-    
 }

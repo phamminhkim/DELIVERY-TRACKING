@@ -19,24 +19,22 @@ use Wilkques\PKCE\Generator;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+// 
 Auth::routes(['verify' => true]);
-Route::get('/', function () {
-  return view('welcome');
-});
-Route::get('/calllback', function ($state) {
-    dd("calllback");
-});
+
+Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
 
 Route::get('/zalo', function () {
-      $config = array(
+    $config = array(
         'app_id' => '270349389225145785',
         'app_secret' => 'PtCJyx1eNY4Pr6W467Xu'
     );
     $zalo = new Zalo($config);
-    $helper = $zalo -> getRedirectLoginHelper();
+    $helper = $zalo->getRedirectLoginHelper();
     $callbackUrl = "https://shipdemo.thienlong.vn/login/zalo/callback";
     $codeVerifier = Generator::codeVerifier();
-    session()->put('codeVerifier',$codeVerifier);
+    session()->put('codeVerifier', $codeVerifier);
     $codeChallenge = Generator::codeChallenge($codeVerifier);
 
     $verifierBytes = random_bytes(64);
@@ -45,53 +43,46 @@ Route::get('/zalo', function () {
     $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
 
     return redirect($loginUrl);
-
-    });
+});
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-// Page routes 
+Route::prefix('admins')->group(function () {
+    Route::get('info', function () {
+        $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
+        $fakeUser = json_decode($jsonString, true);
 
-// Route::get('/myinfo', function () {
-//   return view('profile.myinfo');
-// });
+        return view('pages.profile.components.formInfo')->with('fakeUser', $fakeUser);
+    });
 
-Route::get('/myinfo', function () {
-  $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
-  $fakeUser = json_decode($jsonString, true);
+    Route::get('orders', function () {
+        $jsonString = file_get_contents(base_path('resources/data/myOrder.json'));
+        $fakeData = json_decode($jsonString, true);
 
-  return view('pages.profile.components.formInfo')->with('fakeUser', $fakeUser);
+        return view('pages.orders.myorder')->with('fakeData', $fakeData);
+    });
+
+
+    Route::get('order-detail', function () {
+        $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
+        $fakeTimeline = json_decode($jsonString, true);
+
+        return view('pages.orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
+    });
+
+    Route::get('order-waiting', function () {
+        return view('pages.orders.orderWaiting');
+    });
 });
 
-Route::get('/myorder', function () {
-  $jsonString = file_get_contents(base_path('resources/data/myOrder.json'));
-  $fakeData = json_decode($jsonString, true);
-
-  return view('pages.orders.myorder')->with('fakeData', $fakeData);
-});
-
-
-Route::get('/myorder-detail', function () {
-  $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
-  $fakeTimeline = json_decode($jsonString, true);
-
-  return view('pages.orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
-});
-
-Route::get('/order-waiting', function () {
-  return view('pages.orders.orderWaiting');
-});
-
-Route::get('login/{social}', [
-  'as' => 'login.{social}',
-  'uses' => 'SocialAuthController@redirectToProvider'
-]);
+Route::prefix('login')->group(function () {
+    Route::get('{social}', [
+        'as' => 'login.{social}',
+        'uses' => 'SocialAuthController@redirectToProvider'
+    ]);
 
 Route::get('login/{social}/callback', [
   'as' => 'login.{social}.callback',
   'uses' => 'SocialAuthController@handleProviderCallback'
 ]);
-Route::get('/auth/zalo', 'SocialAuthController@redirectToZalo')->name('zalo.login');
-Route::get('/auth/zalo/callback', 'SocialAuthController@handleZaloCallback');
-Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
