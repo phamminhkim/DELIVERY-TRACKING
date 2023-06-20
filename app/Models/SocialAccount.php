@@ -3,7 +3,7 @@
 namespace App\Models;
  
 use Illuminate\Database\Eloquent\Model;
-
+use App\User;
 class SocialAccount extends Model
 {
     protected $fillable = [
