@@ -63,7 +63,7 @@
                                 <a  href="#">
                                    Xin chào, {{ Auth::user()->name }} 
                                    @php
-                                        echo Auth::user()->load('customer')->customer==null?"":"(customer)";
+                                        // echo Auth::user()->load('customer')->customer==null?"":"(customer)";
                                     @endphp
                                 </a>
                                 

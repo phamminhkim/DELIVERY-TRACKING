@@ -39,17 +39,17 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    public function customer()
-    {
-        return $this->hasOne(Customer::class);
-    }
-    public function employee()
-    {
-        return $this->hasOne(Employee::class);
-    }
-    public function transporter()
-    {
-        return $this->hasOne(Transporter::class);
-    }
+    // public function customer()
+    // {
+    //     return $this->hasOne(Customer::class);
+    // }
+    // public function employee()
+    // {
+    //     return $this->hasOne(Employee::class);
+    // }
+    // public function transporter()
+    // {
+    //     return $this->hasOne(Transporter::class);
+    // }
     
 }

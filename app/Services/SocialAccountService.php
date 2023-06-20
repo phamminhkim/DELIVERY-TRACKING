@@ -11,6 +11,7 @@ class SocialAccountService
     {
        
         $providerUser = $provider->user(); 
+      
         $providerName = class_basename($provider);
        
         $account = SocialAccount::whereProvider($providerName)
@@ -47,4 +48,36 @@ class SocialAccountService
             return $user;
         }
     }
+
+    public function createOrGetUserFromZalo($data)
+    {
+       
+        $providerId = $data['id']; 
+        $avatar =  $data['picture']['data']['url']; 
+        $providerName = 'ZaloProvider';
+        $name = $data['name']; 
+        $account = SocialAccount::whereProvider($providerName)
+            ->whereProviderUserId($providerId)
+            ->first();
+        
+        if ($account) {
+            return $account->user;
+        } else {
+            $account = new SocialAccount([
+                'provider_user_id' => $providerId,
+                'provider' => $providerName
+            ]);
+            
+            $user = User::create([
+                'name' => $name,
+                'avatar' =>$avatar
+            ]);
+           
+            $account->user()->associate($user);
+            $account->save();
+
+            return $user;
+        }
+    }
+    
 }

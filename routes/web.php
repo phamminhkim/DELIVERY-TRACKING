@@ -26,6 +26,7 @@ Route::get('/', function () {
 Route::get('/calllback', function ($state) {
     dd("calllback");
 });
+
 Route::get('/zalo', function () {
       $config = array(
         'app_id' => '270349389225145785',
@@ -91,5 +92,6 @@ Route::get('login/{social}/callback', [
   'as' => 'login.{social}.callback',
   'uses' => 'SocialAuthController@handleProviderCallback'
 ]);
-
+Route::get('/auth/zalo', 'SocialAuthController@redirectToZalo')->name('zalo.login');
+Route::get('/auth/zalo/callback', 'SocialAuthController@handleZaloCallback');
 Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
