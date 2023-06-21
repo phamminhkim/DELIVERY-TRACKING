@@ -50,7 +50,7 @@ class SocialAccountService
         }
     }
 
-    public function getOrCreateUserFromZalo($data)
+    public function createOrGetUserFromZalo($data)
     {
        
         $providerId = $data['id']; 

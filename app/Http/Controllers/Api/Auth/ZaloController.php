@@ -51,8 +51,9 @@ class ZaloController extends ResponseController
         $params = ['fields' => 'id,name,picture'];
         $response = $zalo->get(ZaloEndPoint::API_GRAPH_ME, $zalo_access_token, $params);
         $result = $response->getDecodedBody(); // result
+        //dd($result);//check ở đây
         $service = new SocialAccountService;
-        $user = $service->getOrCreateUserFromZalo($result);
+        $user = $service->createOrGetUserFromZalo($result);
 
         Auth::login($user);
         $user_login = Auth::user();
