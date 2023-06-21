@@ -53,7 +53,7 @@ class ZaloController extends ResponseController
         $result = $response->getDecodedBody(); // result
         //dd($result);//check ở đây
         $service = new SocialAccountService;
-        $user = $service->getOrCreateUserFromZalo($result);
+        $user = $service->createOrGetUserFromZalo($result);
 
         Auth::login($user);
         $user_login = Auth::user();
