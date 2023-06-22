@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Company extends Model
 {
     protected $fillable = [
-        'name'
+        'code',
+        'name',
+        'is_active'
+    ];
+    protected $casts = [
+        'is_active' => 'boolean'
     ];
 }

@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-use App\Models\Shared\Order;
+use App\Models\Business\Order;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 class OrderController extends Controller
@@ -24,14 +24,14 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $orders = new Order();
-        $orders->company_id = $request->input('company_id');
-        $orders->sap_do = $request->input('sap_do');
-        $orders->customer_id = $request->input('customer_id');
-        $orders->delivery_address = $request->input('delivery_address');
-        $orders->weight = $request->input('weight');
-        $orders->note = $request->input('note');
+        $orders->company_code = $request->input('company_id');
+        $orders->customer_id = $request->input('customer_id');        
+        $orders->sap_so_number = $request->input('sap_so_number');
+        $orders->sap_so_created_date = $request->input('sap_so_created_date');
+        $orders->sap_po_number = $request->input('sap_po_number');
+        $orders->sap_do_number = $request->input('sap_do_number');
         $orders->status_id = $request->input('status_id');
-        $orders->delivery_id = $request->input('delivery_id');
+        $orders->warehouse_id = $request->input('warehouse_id');
         $orders->save();
 
         return response()->json([
