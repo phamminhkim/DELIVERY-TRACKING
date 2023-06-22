@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Validators\ReCaptcha;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -32,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
             $this->logDatabaseQueries();
         }
 
-        Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
+        Validator::extend('recaptcha',  [ReCaptcha::class,'validate']);
+       // Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
     }
 
     public function loadMigrationsRecursive()
