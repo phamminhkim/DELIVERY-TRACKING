@@ -10,7 +10,9 @@ import "element-ui/lib/theme-chalk/index.css";
 require('./bootstrap');
 
 window.Vue = require('vue');
-
+import router from "./router";
+import VueRouter from "vue-router";
+window.Vue.use(VueRouter);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -35,4 +37,5 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
+    router,
 });

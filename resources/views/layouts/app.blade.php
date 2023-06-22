@@ -28,8 +28,8 @@
         <main class="py-4" style="min-height:450px;background-color: #F1F1F1"   >
             @yield('content')
         </main>
-       
+        @include('footer')
     </div>  
-    @include('footer')
+   
 </body>
 </html>
