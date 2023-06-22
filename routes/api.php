@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\ZaloController;
+use App\Http\Controllers\Api\Auth\UserAuthController;
+use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
@@ -29,6 +30,7 @@ Route::delete('order_delete/{id}', [OrderController::class, 'destroy']);
 //api 
 
 Route::prefix('auth')->group(function () {
-    Route::post('/zalo/exist_user', [ZaloController::class, 'checkExistingUser']);
-    Route::post('/zalo/login', [ZaloController::class, 'login']);
+    Route::post('/zalo/exist_user', [ZaloAuthController::class, 'checkExistingUser']);
+    Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
+    Route::post('/user/login', [UserAuthController::class,'login']);
 });

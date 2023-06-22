@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Zalo\Zalo;
 use Zalo\ZaloEndPoint;
 
-class ZaloController extends ResponseController
+class ZaloAuthController extends ResponseController
 {
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
