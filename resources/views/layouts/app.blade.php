@@ -18,7 +18,18 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <script>
+         try {
 
+                window.Laravel = {!! json_encode([
+                    'csrfToken' => csrf_token(),
+                    'access_token' => $access_token,
+                    'current_user' => Auth::user(),
+                ]) !!};
+                } catch (err) {
+
+                }
+    </script>
     @yield('link-header')
 </head>
 <body>

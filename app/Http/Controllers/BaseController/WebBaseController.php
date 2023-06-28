@@ -16,7 +16,7 @@ class WebBaseController  extends ResponseController
         $this->middleware(function ($request, $next) {
             //load menu từ Role_user
             $auth_user = Auth()->user();
-            dd("dd");
+          
             $access_token = "";
             // Nếu không phải login từ API thì tạo token cho user
             if (!$auth_user->token()) {
@@ -29,7 +29,7 @@ class WebBaseController  extends ResponseController
                     $request->session()->put('user', $access_token);
                 }
             }
-             
+            view()->share(compact( 'access_token'));
             return $next($request);
         });
     }
