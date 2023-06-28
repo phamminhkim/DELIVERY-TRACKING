@@ -8,7 +8,6 @@ use Zalo\Zalo;
 use Illuminate\Support\Str;
 use Wilkques\PKCE\Generator;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -27,7 +26,7 @@ Auth::routes(['verify' => true]);
 Auth::routes();
 Route::get('/', 'HomeController@index')->name('home')->middleware('verified');
 Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
- 
+
 Route::prefix('admins')->group(function () {
     Route::get('info', function () {
         $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
@@ -58,13 +57,13 @@ Route::prefix('admins')->group(function () {
 
 Route::get('login/{social}', [
     'as' => 'login.{social}',
-    'uses' => 'SocialAuthController@redirectToProvider'
-  ]);
-  
-  Route::get('login/{social}/callback', [
+    'uses' => 'Auth\SocialAuthController@redirectToProvider'
+]);
+
+Route::get('login/{social}/callback', [
     'as' => 'login.{social}.callback',
-    'uses' => 'SocialAuthController@handleProviderCallback'
-  ]);
-  Route::get('/auth/zalo', 'SocialAuthController@redirectToZalo')->name('zalo.login');
-  Route::get('/auth/zalo/callback', 'SocialAuthController@handleZaloCallback');
-  Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
+    'uses' => 'Auth\SocialAuthController@handleProviderCallback'
+]);
+Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo.login');
+Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
+Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');

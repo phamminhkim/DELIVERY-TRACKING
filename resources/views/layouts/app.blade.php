@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>Thien Long Delivery Tracking</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -21,15 +22,17 @@
    
     @yield('link-header')
 </head>
+
 <body>
     <div id="app">
         @include('header')
 
-        <main class="py-4" style="min-height:450px;background-color: #F1F1F1"   >
+        <main class="py-4" style="min-height:450px;background-color: #F1F1F1">
             @yield('content')
         </main>
         @include('footer')
-    </div>  
-   
+    </div>
+
 </body>
+
 </html>

@@ -18,10 +18,4 @@ class HomeController extends WebBaseController
     {
         return view('home');
     }
-
-    // public function Order()
-    // {
-    //     return view('order');
-    // }
-
 }

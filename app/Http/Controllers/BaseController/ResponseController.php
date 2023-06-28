@@ -7,59 +7,31 @@ use Illuminate\Http\Request;
 
 class ResponseController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
-    public function sendResponse($result, $message = '', $code = 200)
-    {
-
-        $response = [
-            'success' => true,
-            'data'    => $result,
-            'message' => $message,
-        ];
-
-        return response()->json($response, $code);
-    }
-    public function sendError($error, $errorMessage = [], $code = 400)
-    {
-        $response = [
-            'success' => false,
-            'message' => $error
-        ];
-        if (!empty($errorMessage)) {
-            $response['errors'] = $errorMessage;
-        }
-        return response()->json($response, $code);
-    }
-
-    public function sendOk()
+    public function responseOk()
     {
         return response();
     }
-    public function sendSuccess($message)
+    public function responseSuccess($result, $message = '', $code = 200)
     {
         $response = [
             'success' => true,
-            'message' => $message
+            'data'    => $result,
         ];
-        return response()->json($response, 200);
+        if ($message != '') {
+            $response['message'] = $message;
+        }
+
+        return response()->json($response, $code);
     }
-    public function sendFailedWithMessage($message)
+    public function responseError($error_message, $error_array = [], $code = 400)
     {
         $response = [
             'success' => false,
-            'message' => $message
+            'message' => $error_message
         ];
-        return response()->json($response, 200);
-    }
-    public function sendFailedWithStatusCode($message, $code)
-    {
-        $response = [
-            'success' => false,
-            'message' => $message
-        ];
+        if (!empty($error_array)) {
+            $response['errors'] = $error_array;
+        }
         return response()->json($response, $code);
     }
 }
