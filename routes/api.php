@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
+use App\Http\Controllers\Api\Master\WarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,13 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/manual-create', [OrderController::class, 'store']);
         Route::put('/{id}', [OrderController::class, 'update']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
+    });
+
+    Route::prefix('/warehouses')->group(function () {
+        Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
+        Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
+        Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
+        Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
     });
 });
 

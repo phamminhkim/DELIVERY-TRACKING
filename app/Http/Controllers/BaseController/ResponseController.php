@@ -26,9 +26,11 @@ class ResponseController extends Controller
     public function responseError($error_message, $error_array = [], $code = 400)
     {
         $response = [
-            'success' => false,
-            'message' => $error_message
+            'success' => false
         ];
+        if (!empty($error_message)) {
+            $response['message'] = $error_message;
+        }
         if (!empty($error_array)) {
             $response['errors'] = $error_array;
         }
