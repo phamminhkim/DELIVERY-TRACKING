@@ -100,9 +100,16 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'database' => [
+        'database-query' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/database.log'),
+            'path' => storage_path('logs/queries.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
+        'database-slow-query' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/slow-queries.log'),
             'level' => 'debug',
             'days' => 14,
         ],

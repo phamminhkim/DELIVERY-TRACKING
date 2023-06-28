@@ -41,7 +41,8 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
     'log_database_queries' => (bool) env('LOG_DATABASE_QUERIES', false),
-
+    'log_slow_queries' => (bool) env('LOG_SLOW_QUERIES', true),
+    'slow_query_time' => (float) env('SLOW_QUERY_TIME', 0.5),
     /*
     |--------------------------------------------------------------------------
     | Application URL

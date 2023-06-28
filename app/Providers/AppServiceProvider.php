@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Validators\ReCaptcha;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -29,12 +30,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadMigrationsRecursive();
-        if (config('app.log_database_queries')) {
-            $this->logDatabaseQueries();
-        }
+        $this->logDatabaseQueries();
 
-        Validator::extend('recaptcha',  [ReCaptcha::class,'validate']);
-       // Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
+        Validator::extend('recaptcha',  [ReCaptcha::class, 'validate']);
+        // Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
     }
 
     public function loadMigrationsRecursive()
@@ -50,15 +49,36 @@ class AppServiceProvider extends ServiceProvider
     public function logDatabaseQueries()
     {
         DB::listen(function ($query) {
-            $sql = $query->sql;
-            $bindings = $query->bindings;
+            try {
+                if (config('app.log_database_queries') || config('app.log_slow_queries')) {
+                    $sql = $query->sql;
+                    $bindings = $query->bindings;
 
-            $sql = str_replace('?', '%s', $sql);
-            $sql = vsprintf($sql, $bindings);
+                    $sql = str_replace('?', '%s', $sql);
+                    $bindings = array_map(function ($value) {
+                        if ($value instanceof DateTime) {
+                            return $value->format('Y-m-d H:i:s');
+                        }
 
-            $message = sprintf('Connection: %s | Time: %s | SQL: %s', $query->connectionName, $query->time, $sql);
+                        return $value;
+                    }, $bindings);
+                    $sql = vsprintf($sql, $bindings);
 
-            Log::channel('database')->debug($message);
+                    $message = sprintf('Connection: %s | Time: %s | SQL: %s', $query->connectionName, $query->time, $sql);
+
+                    if (config('app.log_database_queries')) {
+                        Log::channel('database-query')->debug($message);
+                    }
+                    if (config('app.log_slow_queries')) {
+                        if ($query->time > config('app.slow_query_time')) {
+                            Log::channel('database-slow-query')->debug($message);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                dd($e->getMessage());
+                //Log::channel('database')->error($e->getMessage());
+            }
         });
     }
 }
