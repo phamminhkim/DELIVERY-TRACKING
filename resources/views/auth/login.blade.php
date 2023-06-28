@@ -80,27 +80,33 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="form-group row mb-0">
-                                <div class="col-md-6 offset-md-4 text-center">
-                                    <a class="col-5 btn form-btn" href=" {{ url('login/google') }} "
+                            <div class="form-group row mb-2 text-center">
+                                <strong class="col-md-6 offset-md-4">hoặc</strong>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <div class="col-md-6 offset-md-4">
+                                    <button type="submit" class="col btn form-btn" href=" {{ url('login/google') }} "
                                         style="background-color: #E54040">
-                                        {{-- <i class="fa-brands fa-google"></i> --}}
-                                        Google
-                                    </a>
-                                    <a class="col-5 btn form-btn" href=" {{ url('login/facebook') }} "
-                                        style="background-color: #6683D9">
-                                        {{-- <i class="fa-brands fa-facebook"></i> --}}
-                                        Facebook
-                                    </a>
-                                    <a class="col-5 btn form-btn" href=" {{ route('zalo.login') }}"
-                                    style="background-color: #6683D9">
-                                    {{-- <i class="fa-brands fa-zalo"></i> --}}
-                                    zalo
-                                </a>
-                                 
+                                        Đăng nhập bằng Google
+                                    </button>
                                 </div>
                             </div>
-
+                            <div class="form-group row mb-2">
+                                <div class="col-md-6 offset-md-4">
+                                    <button type="submit" class="col btn form-btn" href=" {{ url('login/facebook') }} "
+                                        style="background-color: #3b5998">
+                                        Đăng nhập bằng Facebook
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <div class="col-md-6 offset-md-4">
+                                    <button type="submit" class="col btn form-btn" href=" {{ url('zalo/login') }} "
+                                        style="background-color: #0180C7">
+                                        Đăng nhập bằng Zalo
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
