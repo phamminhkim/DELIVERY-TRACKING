@@ -85,26 +85,26 @@
                             </div>
                             <div class="form-group row mb-2">
                                 <div class="col-md-6 offset-md-4">
-                                    <button type="submit" class="col btn form-btn" href=" {{ url('login/google') }} "
+                                    <a class="col btn form-btn" href=" {{ url('login/google') }} "
                                         style="background-color: #E54040">
                                         Đăng nhập bằng Google
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
                                 <div class="col-md-6 offset-md-4">
-                                    <button type="submit" class="col btn form-btn" href=" {{ url('login/facebook') }} "
+                                    <a class="col btn form-btn" href=" {{ url('login/facebook') }} "
                                         style="background-color: #3b5998">
                                         Đăng nhập bằng Facebook
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
                                 <div class="col-md-6 offset-md-4">
-                                    <button type="submit" class="col btn form-btn" href=" {{ url('zalo/login') }} "
+                                    <a class="col btn form-btn" href=" {{ url('zalo/login') }} "
                                         style="background-color: #0180C7">
                                         Đăng nhập bằng Zalo
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </form>
