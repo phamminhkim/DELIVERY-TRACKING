@@ -6,5 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderDelivery extends Model
 {
-    //
+    protected $fillable = [
+        'start_delivery_date',
+        'end_delivery_date',
+    ];
+    protected $hidden = [
+        'order_id',
+        'delivery_id'
+    ];
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+    public function delivery()
+    {
+        return $this->belongsTo(Delivery::class);
+    }
 }
