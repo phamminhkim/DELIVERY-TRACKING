@@ -74,7 +74,7 @@ Route::prefix('admins')->group(function () {
     Route::get('order-waiting', function () {
         return view('pages.orders.orderWaiting');
     });
-    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZalo')->name('zalo.login');
+    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZalo');
     Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
 });
 
@@ -89,7 +89,6 @@ Route::get('login/{social}/callback', [
 ]);
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
-Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
 Route::any('/partners', 'SinglePage\AppController@delivery_partners');
 

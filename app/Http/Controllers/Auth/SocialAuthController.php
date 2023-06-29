@@ -120,16 +120,16 @@ class SocialAuthController extends Controller
         $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
 
         $accessToken = $zaloToken->getAccessToken();
-        dd($accessToken);//Yêu cầu mã truy cập mức OA
+        // dd($accessToken);//Yêu cầu mã truy cập mức OA
         //Lưu access token vào DB
-        // $params = ['fields' => 'id,name,picture'];
-        // $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
-        // $result = $response->getDecodedBody(); // result
+        $params = ['fields' => 'id,name,picture'];
+        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+        $result = $response->getDecodedBody(); // result
 
-        // $service = new SocialAccountService;
-        // $user = $service->createOrGetUserFromZalo($result);
+        $service = new SocialAccountService;
+        $user = $service->createOrGetUserFromZalo($result);
 
-        // Auth::login($user);
+        Auth::login($user);
 
         return redirect()->intended('/');
     }
