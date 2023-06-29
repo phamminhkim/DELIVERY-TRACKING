@@ -10,7 +10,7 @@ class DeliveryPartnerController extends ResponseController
 {
     public function getAvailablePartners(Request $request)
     {
-        
+
         $handler = MasterRepository::deliveryPartnerRequest($request);
         $partners = $handler->getAvailablePartners();
 
@@ -18,13 +18,13 @@ class DeliveryPartnerController extends ResponseController
             return $this->responseSuccess($partners);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
-        } 
+        }
     }
 
     //add 
     public function createNewPartner(Request $request)
     {
-        
+
         $handler = MasterRepository::deliveryPartnerRequest($request);
         $partner = $handler->createNewPartner();
 
@@ -32,13 +32,11 @@ class DeliveryPartnerController extends ResponseController
             return $this->responseSuccess($partner);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
-        } 
-
+        }
     }
     //update
     public function updateExistingPartner(Request $request, $id)
     {
-      
         $handler = MasterRepository::deliveryPartnerRequest($request);
         $partner = $handler->updateExistingPartner($id);
 
@@ -46,21 +44,17 @@ class DeliveryPartnerController extends ResponseController
             return $this->responseSuccess($partner);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
-        } 
-
-        
+        }
     }
-    public function deleteExistingPartner($id)
-    {        
-        $request = request();
+    public function deleteExistingPartner(Request $request, $id)
+    {
         $handler = MasterRepository::deliveryPartnerRequest($request);
-        $partner = $handler->deleteExistingPartner($id);
+        $is_success = $handler->deleteExistingPartner($id);
 
-        if ($partner) {
-            return $this->responseSuccess($partner);
+        if ($is_success) {
+            return $this->responseOk();
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
-        } 
-
+        }
     }
 }
