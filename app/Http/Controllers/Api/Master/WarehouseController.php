@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api\Master;
 
 use App\Http\Controllers\BaseController\ResponseController;
-use App\Repositories\MasterRepository;
 use Illuminate\Http\Request;
+use App\Repositories\MasterRepository;
+
 
 class WarehouseController extends ResponseController
 {

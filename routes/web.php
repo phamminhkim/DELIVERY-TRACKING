@@ -67,3 +67,4 @@ Route::get('login/{social}/callback', [
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
+Route::any('/partners', 'SinglePage\AppController@delivery_partners');

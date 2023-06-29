@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
 use App\Http\Controllers\Api\Master\WarehouseController;
+use App\Http\Controllers\Api\Master\DeliveryPartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,12 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
         Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
     });
+    Route::prefix('partners')->group(function () {
+        Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
+        Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
+        Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
+        Route::delete('/{id}', [DeliveryPartnerController::class, 'deleteExistingPartner']);
+    });
 });
 
 //api 
@@ -45,3 +52,4 @@ Route::prefix('auth')->group(function () {
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
     Route::post('/user/login', [UserAuthController::class, 'login']);
 });
+
