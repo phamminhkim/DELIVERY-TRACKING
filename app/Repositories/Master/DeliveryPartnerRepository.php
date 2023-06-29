@@ -34,13 +34,13 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
-                'api_url.required'=> 'Yêu cầu nhập api_url.',
+                'api_url.required' => 'Yêu cầu nhập api_url.',
                 'api_url.string' => 'Api Url phải là chuỗi.',
-                'api_key.required'=> 'Yêu cầu nhập api_key.',
+                'api_key.required' => 'Yêu cầu nhập api_key.',
                 'api_key.string' => 'Api key phải là chuỗi.',
-                'api_secret.required'=> 'Yêu cầu nhập api_secret.',
+                'api_secret.required' => 'Yêu cầu nhập api_secret.',
                 'api_secret.string' => 'Api secret phải là chuỗi.',
-                
+
             ]);
 
             if ($validator->fails()) {
@@ -71,11 +71,11 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
-                'api_url.required'=> 'Yêu cầu nhập api_url.',
+                'api_url.required' => 'Yêu cầu nhập api_url.',
                 'api_url.string' => 'Api Url phải là chuỗi.',
-                'api_key.required'=> 'Yêu cầu nhập api_key.',
+                'api_key.required' => 'Yêu cầu nhập api_key.',
                 'api_key.string' => 'Api key phải là chuỗi.',
-                'api_secret.required'=> 'Yêu cầu nhập api_secret.',
+                'api_secret.required' => 'Yêu cầu nhập api_secret.',
                 'api_secret.string' => 'Api secret phải là chuỗi.',
             ]);
 
@@ -95,8 +95,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
     public function deleteExistingPartner($id)
     {
         try {
-            $partner = DeliveryPartner::findOrFail($id);          
-            $partner->delete();           
+            $partner = DeliveryPartner::findOrFail($id);
+            $partner->delete();
             return $partner;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
