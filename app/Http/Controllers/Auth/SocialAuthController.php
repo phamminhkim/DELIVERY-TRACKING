@@ -50,6 +50,7 @@ class SocialAuthController extends Controller
 
         return redirect($loginUrl);
     }
+    
     public function handleZaloCallback(Request $request)
     {
 
@@ -81,6 +82,26 @@ class SocialAuthController extends Controller
 
         return redirect()->intended('/');
     }
+
+    public function redirectToOaZalo()
+    {
+
+
+        $config = array(
+            'app_id' => config("services.zalo.client_id"),
+            'app_secret' =>  config("services.zalo.client_secret")
+        );
+        $zalo = new Zalo($config);
+        $helper = $zalo->getRedirectLoginHelper();
+        $callbackUrl =   config("services.zalo.redirect_oa"); //"https://shipdemo.thienlong.vn/auth/zalo/callback";
+        $codeVerifier = Generator::codeVerifier();
+        session()->put('codeVerifier', $codeVerifier);
+        $codeChallenge = Generator::codeChallenge($codeVerifier);
+        $state = uniqid();
+        $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
+
+        return redirect($loginUrl);
+    }
     public function handleOaZaloCallback(Request $request)//Redirect Call back get access_token for OA 
     {
         
@@ -99,16 +120,16 @@ class SocialAuthController extends Controller
         $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
 
         $accessToken = $zaloToken->getAccessToken();
+        dd($accessToken);//Yêu cầu mã truy cập mức OA
+        //Lưu access token vào DB
+        // $params = ['fields' => 'id,name,picture'];
+        // $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+        // $result = $response->getDecodedBody(); // result
 
-        
-        $params = ['fields' => 'id,name,picture'];
-        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
-        $result = $response->getDecodedBody(); // result
+        // $service = new SocialAccountService;
+        // $user = $service->createOrGetUserFromZalo($result);
 
-        $service = new SocialAccountService;
-        $user = $service->createOrGetUserFromZalo($result);
-
-        Auth::login($user);
+        // Auth::login($user);
 
         return redirect()->intended('/');
     }
