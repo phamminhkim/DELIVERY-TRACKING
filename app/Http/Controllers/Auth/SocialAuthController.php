@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Wilkques\PKCE\Generator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Zalo\Builder\MessageBuilder;
 
 class SocialAuthController extends Controller
 {
@@ -41,14 +42,14 @@ class SocialAuthController extends Controller
         );
         $zalo = new Zalo($config);
         $helper = $zalo->getRedirectLoginHelper();
-        $callbackUrl =   config("services.zalo.redirect"); //"https://shipdemo.thienlong.vn/auth/zalo/callback";
-        $codeVerifier = Generator::codeVerifier();
-        session()->put('codeVerifier', $codeVerifier);
-        $codeChallenge = Generator::codeChallenge($codeVerifier);
+        $callback_url =   config("services.zalo.redirect"); //"https://shipdemo.thienlong.vn/auth/zalo/callback";
+        $code_verifier = Generator::code_verifier();
+        session()->put('code_verifier', $code_verifier);
+        $codeChallenge = Generator::codeChallenge($code_verifier);
         $state = uniqid();
-        $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
+        $login_url = $helper->getLoginUrl($callback_url, $codeChallenge, $state);
 
-        return redirect($loginUrl);
+        return redirect($login_url);
     }
     
     public function handleZaloCallback(Request $request)
@@ -63,16 +64,13 @@ class SocialAuthController extends Controller
 
 
         $helper = $zalo->getRedirectLoginHelper();
-        $callbackUrl =   config("services.zalo.redirect"); // $ZALO_REDIRECT_URI ;
-        $codeVerifier = session()->get('codeVerifier');
+        $callback_url =   config("services.zalo.redirect"); // $ZALO_REDIRECT_URI ;
+        $code_verifier = session()->get('code_verifier');
 
-        $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
-
-        $accessToken = $zaloToken->getAccessToken();
-
-
+        $zalo_token = $helper->getZaloToken($code_verifier); // get zalo token
+        $access_token = $zalo_token->getAccessToken();
         $params = ['fields' => 'id,name,picture'];
-        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $access_token, $params);
         $result = $response->getDecodedBody(); // result
 
         $service = new SocialAccountService;
@@ -93,44 +91,48 @@ class SocialAuthController extends Controller
         );
         $zalo = new Zalo($config);
         $helper = $zalo->getRedirectLoginHelper();
-        $callbackUrl =   config("services.zalo.redirect_oa"); //"https://shipdemo.thienlong.vn/auth/zalo/callback";
-        $codeVerifier = Generator::codeVerifier();
-        session()->put('codeVerifier', $codeVerifier);
-        $codeChallenge = Generator::codeChallenge($codeVerifier);
+        $callback_url =   config("services.zalo.redirect_oa"); //"https://shipdemo.thienlong.vn/auth/zalo/callback";
+        $code_verifier = Generator::code_verifier();
+        session()->put('code_verifier', $code_verifier);
+        $codeChallenge = Generator::codeChallenge($code_verifier);
         $state = uniqid();
-        $loginUrl = $helper->getLoginUrl($callbackUrl, $codeChallenge, $state);
+       // $login_url = $helper->getLoginUrl($callback_url, $codeChallenge, $state);
+        $login_url = $helper->getLoginUrlByOA($callback_url, $codeChallenge, $state);
 
-        return redirect($loginUrl);
+        return redirect($login_url);
     }
     public function handleOaZaloCallback(Request $request)//Redirect Call back get access_token for OA 
     {
-        
+       
         $config = array(
             'app_id' => config("services.zalo.client_id"),
             'app_secret' =>  config("services.zalo.client_secret")
         );
 
         $zalo = new Zalo($config);
-
-
         $helper = $zalo->getRedirectLoginHelper();
-        $callbackUrl =   config("services.zalo.redirect_oa"); // $ZALO_REDIRECT_UR OAI ;
-        $codeVerifier = session()->get('codeVerifier');
-
-        $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
-
-        $accessToken = $zaloToken->getAccessToken();
-        // dd($accessToken);//Yêu cầu mã truy cập mức OA
-        //Lưu access token vào DB
+        $callback_url =   config("services.zalo.redirect_oa"); // $ZALO_REDIRECT_UR OAI ;
+        $code_verifier = session()->get('code_verifier');
+        $zalo_token = $helper->getZaloTokenByOA($code_verifier); // get zalo token
+        $access_token = $zalo_token->getAccessToken();
         $params = ['fields' => 'id,name,picture'];
-        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $access_token, $params);
         $result = $response->getDecodedBody(); // result
+        
+        $msgBuilder = new MessageBuilder(MessageBuilder::MSG_TYPE_TXT);
+        $msgBuilder->withUserId($result['id']);
+        $msgBuilder->withText('Đã cấp quyền truy cập ứng dụng ship');
+        $msgText = $msgBuilder->build();
 
-        $service = new SocialAccountService;
-        $user = $service->createOrGetUserFromZalo($result);
+        // send request
+        $response = $zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3,$access_token, $msgText);
+        $result = $response->getDecodedBody();
+        dd($result);
+        // $service = new SocialAccountService;
+        // $user = $service->createOrGetUserFromZalo($result);
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        return redirect()->intended('/');
+        // return redirect()->intended('/');
     }
 }
