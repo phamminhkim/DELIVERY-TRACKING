@@ -81,4 +81,35 @@ class SocialAuthController extends Controller
 
         return redirect()->intended('/');
     }
+    public function handleOaZaloCallback(Request $request)//Redirect Call back get access_token for OA 
+    {
+        
+        $config = array(
+            'app_id' => config("services.zalo.client_id"),
+            'app_secret' =>  config("services.zalo.client_secret")
+        );
+
+        $zalo = new Zalo($config);
+
+
+        $helper = $zalo->getRedirectLoginHelper();
+        $callbackUrl =   config("services.zalo.redirect_oa"); // $ZALO_REDIRECT_UR OAI ;
+        $codeVerifier = session()->get('codeVerifier');
+
+        $zaloToken = $helper->getZaloToken($codeVerifier); // get zalo token
+
+        $accessToken = $zaloToken->getAccessToken();
+
+        
+        $params = ['fields' => 'id,name,picture'];
+        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $accessToken, $params);
+        $result = $response->getDecodedBody(); // result
+
+        $service = new SocialAccountService;
+        $user = $service->createOrGetUserFromZalo($result);
+
+        Auth::login($user);
+
+        return redirect()->intended('/');
+    }
 }
