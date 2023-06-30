@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
 use App\Http\Controllers\Api\Master\WarehouseController;
 use App\Http\Controllers\Api\Master\DeliveryPartnerController;
+use App\Http\Controllers\Api\Master\CompanyController;
+use App\Http\Controllers\Api\Master\CustomerController;
+use App\Http\Controllers\Api\Master\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +27,7 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
 
-    //api order
+    //api Master
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'getAvailableOrders']);
         Route::post('/manual-create', [OrderController::class, 'store']);
@@ -38,11 +41,29 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
         Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
     });
-    Route::prefix('partners')->group(function () {
+    Route::prefix('/partners')->group(function () {
         Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
         Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
         Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
         Route::delete('/{id}', [DeliveryPartnerController::class, 'deleteExistingPartner']);
+    });
+    Route::prefix('/companies')->group(function () {
+        Route::get('/', [CompanyController::class, 'getAvailableCompanies']);
+        Route::post('/', [CompanyController::class, 'createNewCompany']);
+        Route::put('/{id}', [CompanyController::class, 'updateExistingCompany']);
+        Route::delete('/{id}', [CompanyController::class, 'deleteExistingCompany']);
+    });
+    Route::prefix('/customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
+        Route::post('/', [CustomerController::class, 'createNewCustomer']);
+        Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
+        Route::delete('/{id}', [CustomerController::class, 'deleteExistingCustomer']);
+    });
+    Route::prefix('/employees')->group(function () {
+        Route::get('/', [EmployeeController::class, 'getAvailableEmployees']);
+        Route::post('/', [EmployeeController::class, 'createNewEmployee']);
+        Route::put('/{id}', [EmployeeController::class, 'updateExistingEmployee']);
+        Route::delete('/{id}', [EmployeeController::class, 'deleteExistingEmployee']);
     });
 });
 
