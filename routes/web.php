@@ -24,8 +24,8 @@ Auth::routes(['verify' => true]);
 
 
 Auth::routes();
-Route::get('/', 'HomeController@index')->name('home')->middleware('verified');
-Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
+Route::get('/', 'HomeController@index')->name('home');
+Route::get('/home', 'HomeController@index')->name('home');
 
 Route::prefix('admins')->group(function () {
     Route::get('routes', function () {
@@ -74,6 +74,8 @@ Route::prefix('admins')->group(function () {
     Route::get('order-waiting', function () {
         return view('pages.orders.orderWaiting');
     });
+    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZalo');
+    Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
 });
 
 Route::get('login/{social}', [
@@ -89,3 +91,5 @@ Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
 Route::any('/partners', 'SinglePage\AppController@delivery_partners');
+
+

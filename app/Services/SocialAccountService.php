@@ -52,7 +52,7 @@ class SocialAccountService
 
     public function createOrGetUserFromZalo($data)
     {
-       
+        
         $providerId = $data['id']; 
         $avatar =  $data['picture']['data']['url']; 
         $providerName = 'ZaloProvider';

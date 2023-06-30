@@ -101,7 +101,7 @@
                             </div>
                             <div class="form-group row mb-2">
                                 <div class="col-md-6 offset-md-4">
-                                    <a class="col btn form-btn" href=" {{ url('zalo/login') }} "
+                                    <a class="col btn form-btn" href=" {{ url('auth/zalo') }} "
                                         style="background-color: #0180C7">
                                         Đăng nhập bằng Zalo
                                     </a>
