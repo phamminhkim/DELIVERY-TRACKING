@@ -10,6 +10,14 @@ use App\Http\Controllers\Api\Master\DeliveryPartnerController;
 use App\Http\Controllers\Api\Master\CompanyController;
 use App\Http\Controllers\Api\Master\CustomerController;
 use App\Http\Controllers\Api\Master\EmployeeController;
+use App\Http\Controllers\Api\Master\DistributionChannelController;
+use App\Http\Controllers\Api\Master\SaleDistrictController;
+use App\Http\Controllers\Api\Master\SaleGroupController;
+
+
+use App\Http\Controllers\Api\Master\MasterDataController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +73,26 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{id}', [EmployeeController::class, 'updateExistingEmployee']);
         Route::delete('/{id}', [EmployeeController::class, 'deleteExistingEmployee']);
     });
+    Route::prefix('/distributionChannels')->group(function () {
+        Route::get('/', [DistributionChannelController::class, 'getAvailableDistributionChannels']);
+        Route::post('/', [DistributionChannelController::class, 'createNewDistributionChannel']);
+        Route::put('/{id}', [DistributionChannelController::class, 'updateExistingDistributionChannel']);
+        Route::delete('/{id}', [DistributionChannelController::class, 'deleteExistingDistributionChannel']);
+    });
+    Route::prefix('/saleDistricts')->group(function () {
+        Route::get('/', [SaleDistrictController::class, 'getAvailableSaleDistricts']);
+        Route::post('/', [SaleDistrictController::class, 'createNewSaleDistrict']);
+        Route::put('/{id}', [SaleDistrictController::class, 'updateExistingSaleDistrict']);
+        Route::delete('/{id}', [SaleDistrictController::class, 'deleteExistingSaleDistrict']);
+    });
+    Route::prefix('/saleGroups')->group(function () {
+        Route::get('/', [SaleGroupController::class, 'getAvailableSaleGroups']);
+        Route::post('/', [SaleGroupController::class, 'createNewSaleGroup']);
+        Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
+        Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
+    });
+    Route::post('/sap/sync-category/{category}', [MasterDataController::class, 'sysCategory']);
+    
 });
 
 //api 
