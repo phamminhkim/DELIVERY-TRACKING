@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderReceiver extends Model
 {
+    protected $primaryKey = 'order_id';
+    public $timestamps = false;
+
     protected $fillable = [
-        'receiver_name', 'receiver_phone'
+        'receiver_name', 'receiver_phone', 'note'
     ];
     protected $hidden = [
         'order_id'

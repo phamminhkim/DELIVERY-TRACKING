@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderSale extends Model
 {
+    protected $primaryKey = 'order_id';
+    public $timestamps = false;
+
     protected $fillable = [
         'distribution_channel_id', 'sale_district_id', 'sale_group_id'
     ];

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderDetail extends Model
 {
+    protected $primaryKey = 'order_id';
+
     protected $fillable = [
         'delivery_address', 'note', 'total_item', 'total_weight', 'total_value'
     ];
