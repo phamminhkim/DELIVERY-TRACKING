@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderApproved extends Model
 {
+    protected $primaryKey = 'order_id';
+    public $timestamps = false;
+
     protected $fillable = [
-        'sap_so_coordinate_approval_date', 'sap_so_finance_approval_date'
+        'sap_so_finance_approval_date'
     ];
     protected $casts = [
-        'sap_so_coordinate_approval_date' => 'datetime',
         'sap_so_finance_approval_date' => 'datetime'
     ];
     protected $hidden = [

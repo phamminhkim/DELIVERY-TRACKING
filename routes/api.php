@@ -38,9 +38,7 @@ Route::middleware('auth:api')->group(function () {
     //api Master
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'getAvailableOrders']);
-        Route::post('/manual-create', [OrderController::class, 'store']);
-        Route::put('/{id}', [OrderController::class, 'update']);
-        Route::delete('/{id}', [OrderController::class, 'destroy']);
+        Route::post('/sap-sync', [OrderController::class, 'syncFromSAP']);
     });
 
     Route::prefix('/warehouses')->group(function () {
@@ -101,4 +99,3 @@ Route::prefix('auth')->group(function () {
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
     Route::post('/user/login', [UserAuthController::class, 'login']);
 });
-
