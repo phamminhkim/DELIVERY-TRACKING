@@ -28,9 +28,9 @@ class ZaloAuthController extends ResponseController
             ->first();
 
         if ($account && $account->user) {
-            return $this->sendSuccess('User is exist');
+            return $this->responseSuccess([], 'User is exist');
         } else {
-            return $this->sendFailedWithMessage('User is not exist');
+            return $this->responseError('User is not exist');
         }
     }
     /**
@@ -52,21 +52,25 @@ class ZaloAuthController extends ResponseController
         $response = $zalo->get(ZaloEndPoint::API_GRAPH_ME, $zalo_access_token, $params);
         $result = $response->getDecodedBody(); // result
         //dd($result);//check ở đây
-        $service = new SocialAccountService;
-        $user = $service->createOrGetUserFromZalo($result);
+        if (isset($result) && isset($result['id'])) {
+            $service = new SocialAccountService;
+            $user = $service->createOrGetUserFromZalo($result);
 
-        Auth::login($user);
-        $user_login = Auth::user();
-        $access_token = $user_login->createToken('authToken')->accessToken;
-        $res['access_token'] = $access_token;
-        if ($user) {
-            if ($user->active == 1) {
-                return $this->sendResponse($res, 'Logged in successfully');
+            Auth::login($user);
+            $user_login = Auth::user();
+            $access_token = $user_login->createToken('authToken')->accessToken;
+            $res['access_token'] = $access_token;
+            if ($user) {
+                if ($user->active == 1) {
+                    return $this->responseSuccess($res, 'Logged in successfully');
+                } else {
+                    return $this->responseError('User is not active');
+                }
             } else {
-                return $this->sendFailedWithMessage('User is not active');
+                return $this->responseError('Login failed');
             }
-        } else {
-            return $this->sendFailedWithMessage('Login failed');
+        }else{
+            return $this->responseError('Login failed');
         }
     }
 }

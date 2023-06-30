@@ -80,13 +80,13 @@ class UserAuthController extends ResponseController
             $seconds = $this->limiter()->availableIn(
                 $this->throttleKey($request)
             );
-            return $this->sendFailedWithMessage('Logging in too many times. Please wait in ' .  $seconds . ' seconds');
+            return $this->responseError('Logging in too many times. Please wait in ' .  $seconds . ' seconds');
         }
         if ($this->attemptLogin($request)) {
             return $this->sendLoginResponse($request);
         }
         $this->incrementLoginAttempts($request);
-        return $this->sendFailedWithMessage('Login failed');
+        return $this->responseError('Login failed');
     }
     public function logout(Request $request)
     {
@@ -108,7 +108,7 @@ class UserAuthController extends ResponseController
         /// dd($user);
         $access_token = $user->createToken('authToken')->accessToken;
         $res['access_token'] = $access_token;
-        return $this->sendResponse($res, 'Logged in successfully');
+        return $this->responseSuccess($res, 'Logged in successfully');
     }
     protected function validateLogin(Request $request)
     {
