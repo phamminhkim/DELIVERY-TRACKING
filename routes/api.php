@@ -89,8 +89,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
         Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
     });
-    Route::post('/sap/sync-category/{category}', [MasterDataController::class, 'sysCategory']);
-    
+    Route::post('/sap/sync-category/{category}', [MasterDataController::class, 'syncCategory']);
 });
 
 //api 
