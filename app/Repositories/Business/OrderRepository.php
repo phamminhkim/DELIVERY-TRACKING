@@ -111,15 +111,15 @@ class OrderRepository extends RepositoryAbs
                                 'warehouse_id' => $warehouse->id,
                             ]
                         );
-                        $created_order->approved->updateOrCreate(['order_id' => $created_order['id']], $order['approveds']);
-                        $created_order->detail->updateOrCreate(['order_id' => $created_order['id']], [
+                        $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], $order['approveds']);
+                        $created_order->detail()->updateOrCreate(['order_id' => $created_order['id']], [
                             'delivery_address' => $order['details']['delivery_address'] ?? '',
                             'note' => $order['details']['note'] ?? '',
                             'total_item' => $order['details']['total_item'],
                             'total_weight' => $order['details']['total_weight'],
                             'total_value' => $order['details']['total_value'],
                         ]);
-                        $created_order->receiver->updateOrCreate(['order_id' => $created_order['id']], [
+                        $created_order->receiver()->updateOrCreate(['order_id' => $created_order['id']], [
                             'receiver_name' => $order['receivers']['receiver_name'],
                             'receiver_phone' => $order['receivers']['receiver_phone'] ?? '',
                             'note' => $order['receivers']['note'] ?? '',
