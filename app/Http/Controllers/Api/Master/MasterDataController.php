@@ -18,30 +18,35 @@ class MasterDataController extends ResponseController
                 $handler = MasterRepository::customerRequest($request);
                 $data = $request->all();
                 $handler->updateOrInsert();
-                break;               
-        
+                return $data;
+                break;
+
             case SapSyncCategory::DistributionChannel:
                 $handler = MasterRepository::distributionChannelRequest($request);
                 $data = $request->all();
                 $handler->updateOrInsert();
+                return $data;
                 break;
             case SapSyncCategory::Warehouse:
                 //dd("Warehouse");
                 $handler = MasterRepository::warehouseRequest($request);
-                $data = $request->all();   
-                $handler->updateOrInsert();             
+                $data = $request->all();
+                $handler->updateOrInsert();
+                return $data;
                 break;
             case SapSyncCategory::SaleDistrict:
                 //dd("SaleDistrict");
                 $handler = MasterRepository::saleDistrictRequest($request);
                 $data = $request->all();
                 $handler->updateOrInsert();
-                break; 
+                return $data;
+                break;
             case SapSyncCategory::SaleGroup:
                 //dd("SaleGroup");
                 $handler = MasterRepository::saleGroupRequest($request);
                 $data = $request->all();
                 $handler->updateOrInsert();
+                return $data;
                 break;
             default:
                 return $this->responseError('Invalid category', []);

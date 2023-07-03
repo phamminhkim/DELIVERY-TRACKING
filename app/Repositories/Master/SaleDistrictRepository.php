@@ -24,14 +24,14 @@ class SaleDistrictRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:sale_districts,code',
                 'name' => 'required|string',
-                
+
             ], [
                 'code.required' => 'Yêu cầu nhập mã Sale District.',
                 'code.string' => 'Mã Sale District phải là chuỗi.',
                 'code.unique' => 'Mã Sale District đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên Sale District.',
                 'name.string' => 'Tên Sale District phải là chuỗi.',
-                            
+
 
             ]);
 
@@ -49,21 +49,35 @@ class SaleDistrictRepository extends RepositoryAbs
     }
 
     public function updateOrInsert(){
-        foreach ($this->data as $value) {
-            $validator = Validator::make($value, [
+        $result = array(
+            'insert_count' => 0,
+            'update_count' => 0,
+            'skip_count' => 0,
+            'delete_count' => 0,
+            'error_count' => 0,
+        );
+        foreach ($this->data as $saleDistrict) {
+            $validator = Validator::make($saleDistrict, [
                 'code' => 'required|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
             ]);
-    
+
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $saleDistrict = SaleDistrict::where('code', $value['code'])->first();
-                if ($saleDistrict) {
-                    $saleDistrict->update($value);
+                $exist_saleDistrict = SaleDistrict::where('code', $saleDistrict['code'])->first();
+                if ($exist_saleDistrict) {
+                    $exist_saleDistrict->update([
+                        'name' => $saleDistrict['name'],
+                    ]);
+                    $result['update_count']++;
                 } else {
-                    SaleDistrict::create($value);
+                    SaleDistrict::create([
+                        'code' => $saleDistrict['code'],
+                        'name' => $saleDistrict['name'],
+                    ]);
+                    $result['insert_count']++;
                 }
             }
         }
@@ -74,14 +88,14 @@ class SaleDistrictRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:sale_districts,code',
                 'name' => 'required|string',
-                
+
             ], [
                 'code.required' => 'Yêu cầu nhập mã kênh.',
                 'code.string' => 'Mã kênh phải là chuỗi.',
                 'code.unique' => 'Mã kênh đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên Sale District.',
                 'name.string' => 'Tên Sale District phải là chuỗi.',
-                            
+
 
             ]);
 

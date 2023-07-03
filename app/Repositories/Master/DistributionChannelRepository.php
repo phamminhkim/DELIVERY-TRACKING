@@ -24,14 +24,14 @@ class DistributionChannelRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:distribution_channels,code',
                 'name' => 'required|string',
-                
+
             ], [
                 'code.required' => 'Yêu cầu nhập mã kênh.',
                 'code.string' => 'Mã kênh phải là chuỗi.',
                 'code.unique' => 'Mã kênh đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên kênh phân phối.',
                 'name.string' => 'Tên kênh phân phối phải là chuỗi.',
-                            
+
 
             ]);
 
@@ -49,21 +49,35 @@ class DistributionChannelRepository extends RepositoryAbs
     }
 
     public function updateOrInsert(){
-        foreach ($this->data as $value) {
-            $validator = Validator::make($value, [
+        $result = array(
+            'insert_count' => 0,
+            'update_count' => 0,
+            'skip_count' => 0,
+            'delete_count' => 0,
+            'error_count' => 0,
+        );
+        foreach ($this->data as $distributionChannel) {
+            $validator = Validator::make($distributionChannel, [
                 'code' => 'required|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
             ]);
-    
+
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $distributionChannel = DistributionChannel::where('code', $value['code'])->first();
-                if ($distributionChannel) {
-                    $distributionChannel->update($value);
+                $exist_distributionChannel = DistributionChannel::where('code', $distributionChannel['code'])->first();
+                if ($exist_distributionChannel) {
+                    $exist_distributionChannel->update([
+                        'name' => $distributionChannel['name'],
+                    ]);
+                    $result['update_count']++;
                 } else {
-                    DistributionChannel::create($value);
+                    DistributionChannel::create([
+                        'code' => $distributionChannel['code'],
+                        'name' => $distributionChannel['name'],
+                    ]);
+                    $result['insert_count']++;
                 }
             }
         }
@@ -74,14 +88,14 @@ class DistributionChannelRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:distribution_channels,code',
                 'name' => 'required|string',
-                
+
             ], [
                 'code.required' => 'Yêu cầu nhập mã kênh.',
                 'code.string' => 'Mã kênh phải là chuỗi.',
                 'code.unique' => 'Mã kênh đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên kênh phân phối.',
                 'name.string' => 'Tên kênh phân phối phải là chuỗi.',
-                            
+
 
             ]);
 

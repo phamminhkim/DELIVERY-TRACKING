@@ -5,7 +5,7 @@ namespace App\Repositories\Master;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
-
+use App\Models\Master\Company;
 class WarehouseRepository extends RepositoryAbs
 {
     public function getAvailableWarehouses()
@@ -50,22 +50,52 @@ class WarehouseRepository extends RepositoryAbs
         }
     }
 
-    public function updateOrInsert(){
-        foreach ($this->data as $value) {
-            $validator = Validator::make($value, [
+    public function updateOrInsert()
+    {
+
+        $result = array(
+            'insert_count' => 0,
+            'update_count' => 0,
+            'skip_count' => 0,
+            'delete_count' => 0,
+            'error_count' => 0,
+        );
+        foreach ($this->data as $warehouse) {
+           // dd("test2");
+            $validator = Validator::make($warehouse, [
+                'company_code' => 'required|integer|exists:companies,code',
                 'code' => 'required|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
             ]);
-    
+
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $warehouse = Warehouse::where('code', $value['code'])->first();
-                if ($warehouse) {
-                    $warehouse->update($value);
+                //dd("abc");
+                $company = Company::where('code', $warehouse['company_code'])->first();
+               // dd($company);
+                if (!$company) {
+                    $result['error_count']++;
+                    $this->errors[] = 'Không tìm thấy công ty có mã ' . $warehouse['company_code'];
+                    continue;
+                }
+                $exist_warehouse = Warehouse::where('code', $warehouse['code'])->first();
+                if ($exist_warehouse) {
+                    $exist_warehouse->update([
+
+                        'company_code' => $company->code,
+                        'name' => $warehouse['name'],
+                    ]);
+                    $result['update_count']++;
                 } else {
-                    Warehouse::create($value);
+                    //dd('test1');
+                    Warehouse::create([
+                        'company_code' => $company->code,
+                        'code' => $warehouse['code'],
+                        'name' => $warehouse['name'],
+                    ]);
+                    $result['insert_count']++;
                 }
             }
         }
