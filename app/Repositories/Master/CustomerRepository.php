@@ -55,6 +55,32 @@ class CustomerRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    public function updateOrInsert(){
+        foreach ($this->data as  $value) {
+          
+          $customer = Customer::where('code',$value['code'])->first();
+          $validator = Validator::make($value, [
+            'code' => 'required|string|unique:customers,code',
+           
+        ], [
+            'code.required' => 'Yêu cầu nhập mã kho.',
+          
+
+        ]);
+      
+         if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                 
+                $new_customer = Customer::create($value);
+                if($customer){
+                  $new_customer->id = $customer->id;
+                }
+                $new_customer->save();
+            }
+         
+        }
+    }
     public function updateExistingCustomer($id)
     {
         try {

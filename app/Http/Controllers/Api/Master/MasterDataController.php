@@ -17,49 +17,51 @@ class MasterDataController extends ResponseController
                 //dd("abc");
                 $handler = MasterRepository::customerRequest($request);
                 $data = $request->all();
+                $handler->updateOrInsert();
+                break;
+                // if (isset($data['id'])) {
+                //     $id = $data['id'];
+                //     $customer = $handler->updateExistingCustomer($id);
                 
-                if (isset($data['id'])) {
-                    $id = $data['id'];
-                    $customer = $handler->updateExistingCustomer($id);
+                //     if ($customer) {
+                //         return $this->responseSuccess($customer);
+                //     } else {
+                //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+                //     }
+                // } else {
+                //     $customer = $handler->createNewCustomer($data);
                 
-                    if ($customer) {
-                        return $this->responseSuccess($customer);
-                    } else {
-                        return $this->responseError($handler->getMessage(), $handler->getErrors());
-                    }
-                } else {
-                    $customer = $handler->createNewCustomer($data);
-                
-                    if ($customer) {
-                        return $this->responseSuccess($customer);
-                    } else {
-                        return $this->responseError($handler->getMessage(), $handler->getErrors());
-                    }
-                }     
+                //     if ($customer) {
+                //         return $this->responseSuccess($customer);
+                //     } else {
+                //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+                //     }
+                // }     
         
             case SapSyncCategory::DistributionChannel:
                 //dd("DistributionChannel");
-                $handler = MasterRepository::districtbutionChannelRequest($request);
-                $data = $request->all();
+                // $handler = MasterRepository::districtbutionChannelRequest($request);
+                // $data = $request->all();
                 
-                if (isset($data['id'])) {
-                    $id = $data['id'];
-                    $distribution_channel = $handler->updateExistingDistributionChannel($id);
+                // if (isset($data['id'])) {
+                //     $id = $data['id'];
+                //     $distribution_channel = $handler->updateExistingDistributionChannel($id);
                 
-                    if ($distribution_channel) {
-                        return $this->responseSuccess($distribution_channel);
-                    } else {
-                        return $this->responseError($handler->getMessage(), $handler->getErrors());
-                    }
-                } else {
-                    $distribution_channel = $handler->createNewDistributionChannel($data);
+                //     if ($distribution_channel) {
+                //         return $this->responseSuccess($distribution_channel);
+                //     } else {
+                //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+                //     }
+                // } else {
+                //     $distribution_channel = $handler->createNewDistributionChannel($data);
                 
-                    if ($distribution_channel) {
-                        return $this->responseSuccess($distribution_channel);
-                    } else {
-                        return $this->responseError($handler->getMessage(), $handler->getErrors());
-                    }
-                }     
+                //     if ($distribution_channel) {
+                //         return $this->responseSuccess($distribution_channel);
+                //     } else {
+                //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+                //     }
+                // }     
+                break;
             case SapSyncCategory::Warehouse:
                 //dd("Warehouse");
                 $handler = MasterRepository::warehouseRequest($request);
@@ -83,6 +85,7 @@ class MasterDataController extends ResponseController
                         return $this->responseError($handler->getMessage(), $handler->getErrors());
                     }
                 }     
+                break;
             case SapSyncCategory::SaleDistrict:
                 //dd("SaleDistrict");
                 $handler = MasterRepository::saleDistrictRequest($request);
@@ -105,7 +108,8 @@ class MasterDataController extends ResponseController
                     } else {
                         return $this->responseError($handler->getMessage(), $handler->getErrors());
                     }
-                }     
+                }    
+                break; 
             case SapSyncCategory::SaleGroup:
                 //dd("SaleGroup");
                 $handler = MasterRepository::saleGroupRequest($request);
@@ -129,6 +133,7 @@ class MasterDataController extends ResponseController
                         return $this->responseError($handler->getMessage(), $handler->getErrors());
                     }
                 }     
+                break;
             default:
                 return $this->responseError('Invalid category', []);
         }
