@@ -35,61 +35,68 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
 
-    //api Master
-    Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'getAvailableOrders']);
-        Route::post('/sap-sync', [OrderController::class, 'syncFromSAP']);
+    Route::prefix('master')->group(function () {
+        Route::prefix('/warehouses')->group(function () {
+            Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
+            Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
+            Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
+            Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
+        });
+        Route::prefix('/partners')->group(function () {
+            Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
+            Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
+            Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
+            Route::delete('/{id}', [DeliveryPartnerController::class, 'deleteExistingPartner']);
+        });
+        Route::prefix('/companies')->group(function () {
+            Route::get('/', [CompanyController::class, 'getAvailableCompanies']);
+            Route::post('/', [CompanyController::class, 'createNewCompany']);
+            Route::put('/{id}', [CompanyController::class, 'updateExistingCompany']);
+            Route::delete('/{id}', [CompanyController::class, 'deleteExistingCompany']);
+        });
+        Route::prefix('/customers')->group(function () {
+            Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
+            Route::post('/', [CustomerController::class, 'createNewCustomer']);
+            Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
+            Route::delete('/{id}', [CustomerController::class, 'deleteExistingCustomer']);
+        });
+        Route::prefix('/employees')->group(function () {
+            Route::get('/', [EmployeeController::class, 'getAvailableEmployees']);
+            Route::post('/', [EmployeeController::class, 'createNewEmployee']);
+            Route::put('/{id}', [EmployeeController::class, 'updateExistingEmployee']);
+            Route::delete('/{id}', [EmployeeController::class, 'deleteExistingEmployee']);
+        });
+        Route::prefix('/distribution-channels')->group(function () {
+            Route::get('/', [DistributionChannelController::class, 'getAvailableDistributionChannels']);
+            Route::post('/', [DistributionChannelController::class, 'createNewDistributionChannel']);
+            Route::put('/{id}', [DistributionChannelController::class, 'updateExistingDistributionChannel']);
+            Route::delete('/{id}', [DistributionChannelController::class, 'deleteExistingDistributionChannel']);
+        });
+        Route::prefix('/sale-districts')->group(function () {
+            Route::get('/', [SaleDistrictController::class, 'getAvailableSaleDistricts']);
+            Route::post('/', [SaleDistrictController::class, 'createNewSaleDistrict']);
+            Route::put('/{id}', [SaleDistrictController::class, 'updateExistingSaleDistrict']);
+            Route::delete('/{id}', [SaleDistrictController::class, 'deleteExistingSaleDistrict']);
+        });
+        Route::prefix('/sale-groups')->group(function () {
+            Route::get('/', [SaleGroupController::class, 'getAvailableSaleGroups']);
+            Route::post('/', [SaleGroupController::class, 'createNewSaleGroup']);
+            Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
+            Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
+        });
+    });
+    Route::prefix('sap')->group(function () {
+        Route::post('/sync-category/{category}', [MasterDataController::class, 'syncFromSAP']);
+        Route::post('/sync-order', [OrderController::class, 'syncFromSAP']);
     });
 
-    Route::prefix('/warehouses')->group(function () {
-        Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
-        Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
-        Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
-        Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
+    //Route::get('/orders', [OrderController::class, 'getAvailableOrders']);
+
+    Route::prefix('shipment')->group(function () {
     });
-    Route::prefix('/partners')->group(function () {
-        Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
-        Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
-        Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
-        Route::delete('/{id}', [DeliveryPartnerController::class, 'deleteExistingPartner']);
+
+    Route::prefix('customers')->group(function () {
     });
-    Route::prefix('/companies')->group(function () {
-        Route::get('/', [CompanyController::class, 'getAvailableCompanies']);
-        Route::post('/', [CompanyController::class, 'createNewCompany']);
-        Route::put('/{id}', [CompanyController::class, 'updateExistingCompany']);
-        Route::delete('/{id}', [CompanyController::class, 'deleteExistingCompany']);
-    });
-    Route::prefix('/customers')->group(function () {
-        Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
-        Route::post('/', [CustomerController::class, 'createNewCustomer']);
-        Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
-        Route::delete('/{id}', [CustomerController::class, 'deleteExistingCustomer']);
-    });
-    Route::prefix('/employees')->group(function () {
-        Route::get('/', [EmployeeController::class, 'getAvailableEmployees']);
-        Route::post('/', [EmployeeController::class, 'createNewEmployee']);
-        Route::put('/{id}', [EmployeeController::class, 'updateExistingEmployee']);
-        Route::delete('/{id}', [EmployeeController::class, 'deleteExistingEmployee']);
-    });
-    Route::prefix('/distribution-channels')->group(function () {
-        Route::get('/', [DistributionChannelController::class, 'getAvailableDistributionChannels']);
-        Route::post('/', [DistributionChannelController::class, 'createNewDistributionChannel']);
-        Route::put('/{id}', [DistributionChannelController::class, 'updateExistingDistributionChannel']);
-        Route::delete('/{id}', [DistributionChannelController::class, 'deleteExistingDistributionChannel']);
-    });
-    Route::prefix('/sale-districts')->group(function () {
-        Route::get('/', [SaleDistrictController::class, 'getAvailableSaleDistricts']);
-        Route::post('/', [SaleDistrictController::class, 'createNewSaleDistrict']);
-        Route::put('/{id}', [SaleDistrictController::class, 'updateExistingSaleDistrict']);
-        Route::delete('/{id}', [SaleDistrictController::class, 'deleteExistingSaleDistrict']);
-    });
-    Route::prefix('/sale-groups')->group(function () {
-        Route::get('/', [SaleGroupController::class, 'getAvailableSaleGroups']);
-        Route::post('/', [SaleGroupController::class, 'createNewSaleGroup']);
-        Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
-        Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
-    });
-    Route::post('/sap/sync-category/{category}', [MasterDataController::class, 'syncCategory']);
 });
 
 //api 

@@ -9,7 +9,7 @@ use App\Repositories\MasterRepository;
 
 class MasterDataController extends ResponseController
 {
-    public function syncCategory(Request $request, $category)
+    public function syncFromSAP(Request $request, $category)
     {
         switch ($category) {
             case SapSyncCategory::Customer:
