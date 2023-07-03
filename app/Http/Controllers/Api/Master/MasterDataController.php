@@ -20,7 +20,7 @@ class MasterDataController extends ResponseController
                 if (!is_array($customers)) {
                     $customers = $customers->toArray();
                 }
-                $customer = $handler->createNewCustomer();                                               
+                //$customer = $handler->createNewCustomer();                                               
                 
             //lấy ra các thuộc tính cần lấy
             $filtered_customers = array_map(function ($customer) {
@@ -40,8 +40,7 @@ class MasterDataController extends ResponseController
                 if (!is_array($distribution_channels)) {
                     $distribution_channels = $distribution_channels->toArray();
                 }
-                $distribution_channel = $handler->createNewDistributionChannel();
-                //$distributionChannel = $handler->updateExistingDistributionChannel($id);
+                //$distribution_channel = $handler->createNewDistributionChannel();
                 //lấy ra các thuộc tính cần lấy
                 $filtered_distribution_channels = array_map(function ($distribution_channel) {
                     return [
@@ -57,7 +56,7 @@ class MasterDataController extends ResponseController
                 if (!is_array($warehouses)) {
                     $warehouses = $warehouses->toArray();
                 }
-                $warehouse = $handler->createNewWarehouse();
+                //$warehouse = $handler->createNewWarehouse();
                 //lấy ra các thuộc tính cần lấy
                 $filtered_warehouses = array_map(function ($warehouse) {
                     return [

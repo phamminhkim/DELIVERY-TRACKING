@@ -25,7 +25,7 @@ class SaleDistrictController extends ResponseController
     public function createNewSaleDistrict(Request $request)
     {
 
-        $handler = MasterRepository::SaleDistrictRequest($request);
+        $handler = MasterRepository::saleDistrictRequest($request);
         $saleDistrict = $handler->createNewSaleDistrict();
 
         if ($saleDistrict) {
@@ -37,7 +37,7 @@ class SaleDistrictController extends ResponseController
     //update
     public function updateExistingSaleDistrict(Request $request, $id)
     {
-        $handler = MasterRepository::SaleDistrictRequest($request);
+        $handler = MasterRepository::saleDistrictRequest($request);
         $saleDistrict = $handler->updateExistingSaleDistrict($id);
 
         if ($saleDistrict) {
@@ -48,7 +48,7 @@ class SaleDistrictController extends ResponseController
     }
     public function deleteExistingSaleDistrict(Request $request, $id)
     {
-        $handler = MasterRepository::SaleDistrictRequest($request);
+        $handler = MasterRepository::saleDistrictRequest($request);
         $is_success = $handler->deleteExistingSaleDistrict($id);
 
         if ($is_success) {

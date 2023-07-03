@@ -47,4 +47,8 @@ class MasterRepository
     {
         return new SaleGroupRepository($request);
     }
+    public static function saleDistrictRequest(Request $request)
+    {
+        return new SaleDistrictRepository($request);
+    }
 }

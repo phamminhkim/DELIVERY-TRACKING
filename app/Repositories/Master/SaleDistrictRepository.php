@@ -26,9 +26,9 @@ class SaleDistrictRepository extends RepositoryAbs
                 'name' => 'required|string',
                 
             ], [
-                'code.required' => 'Yêu cầu nhập mã kênh.',
-                'code.string' => 'Mã kênh phải là chuỗi.',
-                'code.unique' => 'Mã kênh đã tồn tại.',
+                'code.required' => 'Yêu cầu nhập mã Sale District.',
+                'code.string' => 'Mã Sale District phải là chuỗi.',
+                'code.unique' => 'Mã Sale District đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên Sale District.',
                 'name.string' => 'Tên Sale District phải là chuỗi.',
                             
