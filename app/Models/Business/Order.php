@@ -75,4 +75,10 @@ class Order extends Model
     {
         return $this->hasMany(CustomerReview::class);
     }
+
+
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status_id', $status);
+    }
 }
