@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderDelivery extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
+        'order_id',
+        'delivery_id',
         'start_delivery_date',
         'end_delivery_date',
     ];

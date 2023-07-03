@@ -22,9 +22,9 @@ class OrderRepository extends RepositoryAbs
                 '*.sap_so_created_date' => 'required|date',
                 '*.sap_po_number' => 'nullable|string|max:20',
                 '*.sap_do_number' => 'nullable|string|max:20',
-                '*.approveds.sap_so_finance_approval_date' => 'required|date',
+                '*.approveds.sap_so_finance_approval_date' => 'nullable|date',
                 '*.details.delivery_address' => 'nullable|string|max:255',
-                '*.details.note' => 'required|string|max:200',
+                '*.details.note' => 'nullable|string|max:200',
                 '*.details.total_item' => 'required|numeric',
                 '*.details.total_weight' => 'required|numeric',
                 '*.details.total_value' => 'required|numeric',
@@ -34,19 +34,17 @@ class OrderRepository extends RepositoryAbs
                 '*.is_deleted' => 'nullable|boolean'
             ], [
                 '*.company_code.required' => 'Mã công ty là bắt buộc.',
-                '*.company_code.exists' => 'Mã công ty không tồn tại.',
+                '*.company_code.exists' => 'Mã công ty :input không tồn tại.',
                 '*.customer_code.required' => 'Mã khách hàng là bắt buộc.',
-                '*.customer_code.exists' => 'Mã khách hàng không tồn tại.',
+                '*.customer_code.exists' => 'Mã khách hàng :input không tồn tại.',
                 '*.sap_so_number.required' => 'Số đơn hàng SAP là bắt buộc.',
                 '*.sap_so_number.max' => 'Số đơn hàng SAP không được vượt quá 20 ký tự.',
                 '*.sap_so_created_date.required' => 'Ngày tạo đơn hàng SAP là bắt buộc.',
-                '*.sap_so_created_date.date' => 'Ngày tạo đơn hàng SAP không hợp lệ.',
+                '*.sap_so_created_date.date' => 'Ngày tạo đơn hàng SAP :input không hợp lệ.',
                 '*.sap_po_number.max' => 'Số đơn hàng PO không được vượt quá 20 ký tự.',
                 '*.sap_do_number.max' => 'Số đơn hàng DO không được vượt quá 20 ký tự.',
-                '*.approveds.sap_so_finance_approval_date.required' => 'Ngày phê duyệt tài chính SAP SO là bắt buộc.',
-                '*.approveds.sap_so_finance_approval_date.date' => 'Ngày phê duyệt tài chính SAP SO không hợp lệ.',
+                '*.approveds.sap_so_finance_approval_date.date' => 'Ngày phê duyệt tài chính SAP SO :input không hợp lệ.',
                 '*.details.delivery_address.max' => 'Địa chỉ giao hàng không được vượt quá 255 ký tự.',
-                '*.details.note.required' => 'Ghi chú là bắt buộc.',
                 '*.details.note.max' => 'Ghi chú không được vượt quá 200 ký tự.',
                 '*.details.total_item.required' => 'Tổng số mục là bắt buộc.',
                 '*.details.total_item.numeric' => 'Tổng số mục phải là số.',
@@ -58,7 +56,7 @@ class OrderRepository extends RepositoryAbs
                 '*.receivers.receiver_name.max' => 'Tên người nhận không được vượt quá 255 ký tự.',
                 '*.receivers.receiver_phone.max' => 'Số điện thoại người nhận không được vượt quá 255 ký tự.',
                 '*.warehouse_code.required' => 'Mã kho là bắt buộc.',
-                '*.warehouse_code.exists' => 'Mã kho không tồn tại.',
+                '*.warehouse_code.exists' => 'Mã kho :input không tồn tại.',
                 '*.is_deleted.boolean' => 'Trạng thái xóa phải là true hoặc false.'
             ]);
 
@@ -111,7 +109,9 @@ class OrderRepository extends RepositoryAbs
                                 'warehouse_id' => $warehouse->id,
                             ]
                         );
-                        $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], $order['approveds']);
+                        $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
+                            'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
+                        ]);
                         $created_order->detail()->updateOrCreate(['order_id' => $created_order['id']], [
                             'delivery_address' => $order['details']['delivery_address'] ?? '',
                             'note' => $order['details']['note'] ?? '',

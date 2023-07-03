@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Master\EmployeeController;
 use App\Http\Controllers\Api\Master\DistributionChannelController;
 use App\Http\Controllers\Api\Master\SaleDistrictController;
 use App\Http\Controllers\Api\Master\SaleGroupController;
+use App\Http\Controllers\Api\Business\DeliveryController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -85,18 +86,22 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
     });
+
     Route::prefix('sap')->group(function () {
         Route::post('/sync-category/{category}', [MasterDataController::class, 'syncFromSAP']);
         Route::post('/sync-order', [OrderController::class, 'syncFromSAP']);
     });
 
-    //Route::get('/orders', [OrderController::class, 'getAvailableOrders']);
-
     Route::prefix('shipment')->group(function () {
     });
 
-    Route::prefix('customers')->group(function () {
+    Route::prefix('customer')->group(function () {
     });
+
+    Route::prefix('admin')->group(function () {
+        Route::post('/create-delivery', [DeliveryController::class, 'createDelivery']);
+    });
+    //Route::get('/orders', [OrderController::class, 'getAvailableOrders']);
 });
 
 //api 
