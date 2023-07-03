@@ -39,7 +39,7 @@ class CustomerRepository extends RepositoryAbs
                 'phone_number.required' => 'Yêu cầu nhập số điện thoại.',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
                 'address.required' => 'Yêu cầu nhập địa chỉ.',
-                'address.string' => 'Địa chỉ phải là chuỗi.',                
+                'address.string' => 'Địa chỉ phải là chuỗi.',
 
             ]);
 
@@ -55,22 +55,28 @@ class CustomerRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function updateOrInsert(){
-        foreach ($this->data as $value) {
-            $validator = Validator::make($value, [
+    public function updateOrInsert()
+    {
+        foreach ($this->data as $customer) {
+            $validator = Validator::make($customer, [
                 'code' => 'required|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
             ]);
-    
+
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $customer = Customer::where('code', $value['code'])->first();
+                $customer = Customer::where('code', $customer['code'])->first();
                 if ($customer) {
-                    $customer->update($value);
+                    $customer->update([
+                        'name' => $customer['name'],
+                        'email' => $customer['email'] ?? '',
+                        'phone_number' => $customer['phone_number'] ?? '',
+                        'address' => $customer['address'] ?? '',
+                    ]);
                 } else {
-                    Customer::create($value);
+                    Customer::create($customer);
                 }
             }
         }
@@ -95,7 +101,7 @@ class CustomerRepository extends RepositoryAbs
                 'phone_number.required' => 'Yêu cầu nhập số điện thoại.',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
                 'address.required' => 'Yêu cầu nhập địa chỉ.',
-                'address.string' => 'Địa chỉ phải là chuỗi.',                
+                'address.string' => 'Địa chỉ phải là chuỗi.',
 
             ]);
 
