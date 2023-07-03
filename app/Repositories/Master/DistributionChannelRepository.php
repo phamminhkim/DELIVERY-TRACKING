@@ -47,6 +47,27 @@ class DistributionChannelRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function updateOrInsert(){
+        foreach ($this->data as $value) {
+            $validator = Validator::make($value, [
+                'code' => 'required|string',
+            ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
+            ]);
+    
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $distributionChannel = DistributionChannel::where('code', $value['code'])->first();
+                if ($distributionChannel) {
+                    $distributionChannel->update($value);
+                } else {
+                    DistributionChannel::create($value);
+                }
+            }
+        }
+    }
     public function updateExistingDistributionChannel($id)
     {
         try {

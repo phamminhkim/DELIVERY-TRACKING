@@ -56,29 +56,23 @@ class CustomerRepository extends RepositoryAbs
         }
     }
     public function updateOrInsert(){
-        foreach ($this->data as  $value) {
-          
-          $customer = Customer::where('code',$value['code'])->first();
-          $validator = Validator::make($value, [
-            'code' => 'required|string|unique:customers,code',
-           
-        ], [
-            'code.required' => 'Yêu cầu nhập mã kho.',
-          
-
-        ]);
-      
-         if ($validator->fails()) {
+        foreach ($this->data as $value) {
+            $validator = Validator::make($value, [
+                'code' => 'required|string',
+            ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
+            ]);
+    
+            if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                 
-                $new_customer = Customer::create($value);
-                if($customer){
-                  $new_customer->id = $customer->id;
+                $customer = Customer::where('code', $value['code'])->first();
+                if ($customer) {
+                    $customer->update($value);
+                } else {
+                    Customer::create($value);
                 }
-                $new_customer->save();
             }
-         
         }
     }
     public function updateExistingCustomer($id)

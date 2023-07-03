@@ -47,6 +47,27 @@ class SaleGroupRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function updateOrInsert(){
+        foreach ($this->data as $value) {
+            $validator = Validator::make($value, [
+                'code' => 'required|string',
+            ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
+            ]);
+    
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $saleGroup = SaleGroup::where('code', $value['code'])->first();
+                if ($saleGroup) {
+                    $saleGroup->update($value);
+                } else {
+                    SaleGroup::create($value);
+                }
+            }
+        }
+    }
     public function updateExistingSaleGroup($id)
     {
         try {

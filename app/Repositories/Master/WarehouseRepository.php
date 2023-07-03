@@ -49,6 +49,27 @@ class WarehouseRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function updateOrInsert(){
+        foreach ($this->data as $value) {
+            $validator = Validator::make($value, [
+                'code' => 'required|string',
+            ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
+            ]);
+    
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $warehouse = Warehouse::where('code', $value['code'])->first();
+                if ($warehouse) {
+                    $warehouse->update($value);
+                } else {
+                    Warehouse::create($value);
+                }
+            }
+        }
+    }
     public function updateExistingWarehouse($id)
     {
         try {

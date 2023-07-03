@@ -47,6 +47,27 @@ class SaleDistrictRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function updateOrInsert(){
+        foreach ($this->data as $value) {
+            $validator = Validator::make($value, [
+                'code' => 'required|string',
+            ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
+            ]);
+    
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $saleDistrict = SaleDistrict::where('code', $value['code'])->first();
+                if ($saleDistrict) {
+                    $saleDistrict->update($value);
+                } else {
+                    SaleDistrict::create($value);
+                }
+            }
+        }
+    }
     public function updateExistingSaleDistrict($id)
     {
         try {
