@@ -99,7 +99,10 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
-        Route::post('/create-delivery', [DeliveryController::class, 'createDelivery']);
+        Route::prefix('/delivery')->group(function () {
+            Route::post('/', [DeliveryController::class, 'createDelivery']);
+            Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);
+        });
     });
     //Route::get('/orders', [OrderController::class, 'getAvailableOrders']);
 });

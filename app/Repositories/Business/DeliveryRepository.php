@@ -90,6 +90,7 @@ class DeliveryRepository extends RepositoryAbs
                 DB::commit();
 
                 $result = array(
+                    'delivery_id' => $delivery->id,
                     'qr_token' => $generated_token,
                     'total_orders' => count($this->data['orders'])
                 );
@@ -102,7 +103,7 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function createDeliveryTokenInternal($delivery, $delivery_partner)
+    private function createDeliveryTokenInternal($delivery, $delivery_partner)
     {
         $token = $delivery->tokens()->create([
             'delivery_id' => $delivery->id,
@@ -113,7 +114,7 @@ class DeliveryRepository extends RepositoryAbs
         return $token;
     }
 
-    public function createDeliveryTokenExternal($delivery, $delivery_partner)
+    private function createDeliveryTokenExternal($delivery, $delivery_partner)
     {
         $token = DeliveryToken::create([
             'delivery_id' => $delivery->id,
@@ -122,5 +123,33 @@ class DeliveryRepository extends RepositoryAbs
             'is_primary' => true,
         ]);
         return null;
+    }
+
+    public function deleteDelivery($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $delivery = Delivery::find($id);
+            if (!$delivery) {
+                $this->message = 'Đơn vận chuyển không tồn tại.';
+                return false;
+            } else {
+                $delivery->tokens()->delete();
+                foreach ($delivery->orders as $order) {
+                    $order->status_id = EnumsOrderStatus::Pending;
+                    $order->save();
+                }
+                OrderDelivery::where('delivery_id', $delivery->id)->delete();
+                $delivery->delete();
+            }
+            DB::commit();
+
+            return true;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
     }
 }

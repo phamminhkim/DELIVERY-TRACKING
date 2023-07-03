@@ -40,6 +40,10 @@ class Delivery extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_deliveries');
+    }
     public function tokens()
     {
         return $this->hasMany(DeliveryToken::class);

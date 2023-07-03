@@ -9,7 +9,9 @@ class ResponseController extends Controller
 {
     public function responseOk()
     {
-        return response();
+        return response()->json([
+            'success' => true
+        ]);
     }
     public function responseSuccess($result, $message = '', $code = 200)
     {
