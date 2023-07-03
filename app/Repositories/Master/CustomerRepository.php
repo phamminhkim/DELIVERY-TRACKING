@@ -67,16 +67,22 @@ class CustomerRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $customer = Customer::where('code', $customer['code'])->first();
-                if ($customer) {
-                    $customer->update([
+                $exist_customer = Customer::where('code', $customer['code'])->first();
+                if ($exist_customer) {
+                    $exist_customer->update([
                         'name' => $customer['name'],
                         'email' => $customer['email'] ?? '',
                         'phone_number' => $customer['phone_number'] ?? '',
                         'address' => $customer['address'] ?? '',
                     ]);
                 } else {
-                    Customer::create($customer);
+                    Customer::create([
+                        'code' => $customer['code'],
+                        'name' => $customer['name'],
+                        'email' => $customer['email'] ?? '',
+                        'phone_number' => $customer['phone_number'] ?? '',
+                        'address' => $customer['address'] ?? '',
+                    ]);
                 }
             }
         }
