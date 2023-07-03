@@ -125,6 +125,94 @@ class DeliveryRepository extends RepositoryAbs
         return null;
     }
 
+    public function updateDelivery($id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'orders' => 'required|array',
+                'orders.*.id' => 'required|uuid|exists:orders',
+            ], [
+                'orders.*.required' => 'Mã đơn hàng là bắt buộc.',
+                'orders.*.uuid' => 'Mã đơn hàng không đúng định dạng.',
+                'orders.*.exists' => 'Mã đơn hàng không tồn tại.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $delivery = Delivery::find($id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                } else {
+                    DB::beginTransaction();
+
+                    $new_order_ids = array_map(function ($item) {
+                        return $item['id'];
+                    }, $this->request['orders']);
+                    $same_list = array_intersect($new_order_ids, $delivery->orders->pluck('id')->toArray());
+                    $insert_list = array_diff($new_order_ids, $delivery->orders->pluck('id')->toArray());
+                    $delete_list = array_diff($delivery->orders->pluck('id')->toArray(), $new_order_ids);
+
+                    foreach ($insert_list as $order_id) {
+                        $order = Order::find($order_id);
+                        if ($order->status_id == EnumsOrderStatus::Preparing) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được xử lí.';
+                            return false;
+                        }
+                        if ($order->status_id == EnumsOrderStatus::Delivering) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
+                            return false;
+                        }
+                        if ($order->status_id == EnumsOrderStatus::Delivered) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                            return false;
+                        }
+
+                        $order->status_id = EnumsOrderStatus::Preparing;
+                        $order->save();
+
+                        OrderDelivery::create([
+                            'order_id' => $order->id,
+                            'delivery_id' => $delivery->id,
+                            'start_delivery_at' => null,
+                            'complete_delivery_at' => null,
+                        ]);
+                    };
+
+                    foreach ($delete_list as $order_id) {
+                        $order = Order::find($order_id);
+                        if ($order->status_id == EnumsOrderStatus::Delivering) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
+                            return false;
+                        }
+                        if ($order->status_id == EnumsOrderStatus::Delivered) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                            return false;
+                        }
+
+                        $order->status_id = EnumsOrderStatus::Pending;
+                        $order->save();
+
+                        OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->delete();
+                    };
+
+                    DB::commit();
+
+                    $result = array(
+                        'delivery_id' => $delivery->id,
+                        'total_orders' => count($this->data['orders'])
+                    );
+                    return $result;
+                }
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function deleteDelivery($id)
     {
         try {

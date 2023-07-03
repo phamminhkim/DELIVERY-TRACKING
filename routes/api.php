@@ -101,6 +101,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::prefix('/delivery')->group(function () {
             Route::post('/', [DeliveryController::class, 'createDelivery']);
+            Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);
         });
     });

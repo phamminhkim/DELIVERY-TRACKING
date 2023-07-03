@@ -22,6 +22,18 @@ class DeliveryController extends ResponseController
         }
     }
 
+    public function updateDelivery(Request $request, $id)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->updateDelivery($id);
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function deleteDelivery(Request $request, $id)
     {
         $handler = BusinessRepository::deliveryRequest($request);
