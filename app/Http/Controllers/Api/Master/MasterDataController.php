@@ -14,91 +14,121 @@ class MasterDataController extends ResponseController
     {
         switch ($category) {
             case SapSyncCategory::Customer:
+                //dd("abc");
                 $handler = MasterRepository::customerRequest($request);
-                $customers = $handler->getAvailableCustomers();
-                // Kiểm tra xem $customers có phải là một mảng hay không
-                if (!is_array($customers)) {
-                    $customers = $customers->toArray();
-                }
-                //$customer = $handler->createNewCustomer();                                               
+                $data = $request->all();
                 
-            //lấy ra các thuộc tính cần lấy
-            $filtered_customers = array_map(function ($customer) {
-                return [
-                    'code' => $customer['code'],
-                    'name' => $customer['name'],
-                    'email' => $customer['email'],
-                    'phone_number' => $customer['phone_number'],
-                    'address' => $customer['address'],
-                ];
-            }, $customers);
-            return $this->responseSuccess($filtered_customers);
+                if (isset($data['id'])) {
+                    $id = $data['id'];
+                    $customer = $handler->updateExistingCustomer($id);
+                
+                    if ($customer) {
+                        return $this->responseSuccess($customer);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                } else {
+                    $customer = $handler->createNewCustomer($data);
+                
+                    if ($customer) {
+                        return $this->responseSuccess($customer);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                }     
+        
             case SapSyncCategory::DistributionChannel:
-                $handler = MasterRepository::distributionChannelRequest($request);
-                $distribution_channels = $handler->getAvailableDistributionChannels();
-
-                if (!is_array($distribution_channels)) {
-                    $distribution_channels = $distribution_channels->toArray();
-                }
-                //$distribution_channel = $handler->createNewDistributionChannel();
-                //lấy ra các thuộc tính cần lấy
-                $filtered_distribution_channels = array_map(function ($distribution_channel) {
-                    return [
-                        'code' => $distribution_channel['code'],
-                        'name' => $distribution_channel['name'],
-                    ];
-                }, $distribution_channels);
-                return $this->responseSuccess($filtered_distribution_channels); 
+                //dd("DistributionChannel");
+                $handler = MasterRepository::districtbutionChannelRequest($request);
+                $data = $request->all();
+                
+                if (isset($data['id'])) {
+                    $id = $data['id'];
+                    $distribution_channel = $handler->updateExistingDistributionChannel($id);
+                
+                    if ($distribution_channel) {
+                        return $this->responseSuccess($distribution_channel);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                } else {
+                    $distribution_channel = $handler->createNewDistributionChannel($data);
+                
+                    if ($distribution_channel) {
+                        return $this->responseSuccess($distribution_channel);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                }     
             case SapSyncCategory::Warehouse:
+                //dd("Warehouse");
                 $handler = MasterRepository::warehouseRequest($request);
-                $warehouses = $handler->getAvailableWarehouses();
-            
-                if (!is_array($warehouses)) {
-                    $warehouses = $warehouses->toArray();
-                }
-                //$warehouse = $handler->createNewWarehouse();
-                //lấy ra các thuộc tính cần lấy
-                $filtered_warehouses = array_map(function ($warehouse) {
-                    return [
-                        'code' => $warehouse['code'],
-                        'name' => $warehouse['name'],
-                    ];
-                }, $warehouses);
-                return $this->responseSuccess($filtered_warehouses); 
+                $data = $request->all();
+                
+                if (isset($data['id'])) {
+                    $id = $data['id'];
+                    $warehouse = $handler->updateExistingWarehouse($id);
+                
+                    if ($warehouse) {
+                        return $this->responseSuccess($warehouse);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                } else {
+                    $warehouse = $handler->createNewWarehouse($data);
+                
+                    if ($warehouse) {
+                        return $this->responseSuccess($warehouse);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                }     
             case SapSyncCategory::SaleDistrict:
+                //dd("SaleDistrict");
                 $handler = MasterRepository::saleDistrictRequest($request);
-                $saleDistricts = $handler->getAvailableSaleDistricts();
-            
-                if (!is_array($saleDistricts)) {
-                    $saleDistricts = $saleDistricts->toArray();
-                }          
+                $data = $request->all();
                 
-                //$saleDistrict = $handler->createNewSaleDistrict();
-                //lấy ra các thuộc tính cần lấy
-                $filtered_saleDistricts = array_map(function ($saleDistrict) {
-                    return [
-                        'code' => $saleDistrict['code'],
-                        'name' => $saleDistrict['name'],
-                    ];
-                }, $saleDistricts);
-                return $this->responseSuccess($filtered_saleDistricts);
+                if (isset($data['id'])) {
+                    $id = $data['id'];
+                    $saleDistrict = $handler->updateExistingSaleDistrict($id);
+                
+                    if ($saleDistrict) {
+                        return $this->responseSuccess($saleDistrict);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                } else {
+                    $saleDistrict = $handler->createNewSaleDistrict($data);
+                
+                    if ($saleDistrict) {
+                        return $this->responseSuccess($saleDistrict);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                }     
             case SapSyncCategory::SaleGroup:
+                //dd("SaleGroup");
                 $handler = MasterRepository::saleGroupRequest($request);
-                $saleGroups = $handler->getAvailableSaleGroups();
-            
-                if (!is_array($saleGroups)) {
-                    $saleGroups = $saleGroups->toArray();
-                }          
+                $data = $request->all();
                 
-                //$saleDistrict = $handler->createNewSaleDistrict();
-                //lấy ra các thuộc tính cần lấy
-                $filtered_saleGroups = array_map(function ($saleGroup) {
-                    return [
-                        'code' => $saleGroup['code'],
-                        'name' => $saleGroup['name'],
-                    ];
-                }, $saleGroups);
-                return $this->responseSuccess($filtered_saleGroups);
+                if (isset($data['id'])) {
+                    $id = $data['id'];
+                    $saleGroup = $handler->updateExistingSaleGroup($id);
+                
+                    if ($saleGroup) {
+                        return $this->responseSuccess($saleGroup);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                } else {
+                    $saleGroup = $handler->createNewSaleGroup($data);
+                
+                    if ($saleGroup) {
+                        return $this->responseSuccess($saleGroup);
+                    } else {
+                        return $this->responseError($handler->getMessage(), $handler->getErrors());
+                    }
+                }     
             default:
                 return $this->responseError('Invalid category', []);
         }
