@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Validator;
 
 class DeliveryController extends ResponseController
 {
+    public function getDeliveryByQrScan(Request $request, $qr_code)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->getDeliveryByQrScan($qr_code);
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function createDelivery(Request $request)
     {
         $handler = BusinessRepository::deliveryRequest($request);

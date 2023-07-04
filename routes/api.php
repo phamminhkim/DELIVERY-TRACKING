@@ -93,6 +93,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('shipment')->group(function () {
+        Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getDeliveryByQrScan']);
     });
 
     Route::prefix('customer')->group(function () {

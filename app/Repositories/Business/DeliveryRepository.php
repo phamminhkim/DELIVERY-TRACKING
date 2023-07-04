@@ -17,6 +17,32 @@ use Illuminate\Support\Str;
 
 class DeliveryRepository extends RepositoryAbs
 {
+    public function getDeliveryByQrScan($qr_token)
+    {
+        try {
+            $token = base64_decode($qr_token);
+            $delivery_token = DeliveryToken::where('token', $token)->first();
+            if (!$delivery_token) {
+                $this->message = 'Mã QR không hợp lệ.';
+                return false;
+            } else {
+                $delivery = Delivery::find($delivery_token->delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                } else {
+                    $delivery->load(['customer', 'orders']);
+
+                    return $delivery;
+                }
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function createDelivery()
     {
         try {
@@ -87,11 +113,12 @@ class DeliveryRepository extends RepositoryAbs
                         'complete_delivery_at' => null,
                     ]);
                 }
+                $qr_code = \QrCode::size(200)->errorCorrection('H')->generate($generated_token->token);
                 DB::commit();
 
                 $result = array(
                     'delivery_id' => $delivery->id,
-                    'qr_token' => $generated_token,
+                    'qr_token' => strval($qr_code),
                     'total_orders' => count($this->data['orders'])
                 );
                 return $result;
@@ -108,7 +135,7 @@ class DeliveryRepository extends RepositoryAbs
         $token = $delivery->tokens()->create([
             'delivery_id' => $delivery->id,
             'delivery_partner_id' => $delivery_partner->id,
-            'token' => Str::uuid()->toString(),
+            'token' => base64_encode(Str::uuid()->toString()),
             'is_primary' => true,
         ]);
         return $token;
@@ -150,7 +177,6 @@ class DeliveryRepository extends RepositoryAbs
                     $new_order_ids = array_map(function ($item) {
                         return $item['id'];
                     }, $this->request['orders']);
-                    $same_list = array_intersect($new_order_ids, $delivery->orders->pluck('id')->toArray());
                     $insert_list = array_diff($new_order_ids, $delivery->orders->pluck('id')->toArray());
                     $delete_list = array_diff($delivery->orders->pluck('id')->toArray(), $new_order_ids);
 

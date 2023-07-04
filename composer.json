@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "2.4",
         "predis/predis": "^2.2",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "socialiteproviders/zalo": "^5.0",
         "wilkques/pkce-php": "^2.0",
         "zaloplatform/zalo-php-sdk": "^4.0"
