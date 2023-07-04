@@ -42,7 +42,7 @@ class ZaloAuthController extends ResponseController
     public function login(Request $request)
     {
         $zalo_access_token = $request->access_token;
-        $zalo_user_phone = $request->phone;
+        $zalo_user_phone = $request->phone_number;
         $config = array(
             'app_id' => config("services.zalo.client_id"),
             'app_secret' =>  config("services.zalo.client_secret")
