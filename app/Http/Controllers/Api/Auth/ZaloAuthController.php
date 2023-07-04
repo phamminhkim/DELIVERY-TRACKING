@@ -42,6 +42,7 @@ class ZaloAuthController extends ResponseController
     public function login(Request $request)
     {
         $zalo_access_token = $request->access_token;
+        $zalo_user_phone = $request->phone;
         $config = array(
             'app_id' => config("services.zalo.client_id"),
             'app_secret' =>  config("services.zalo.client_secret")
@@ -54,6 +55,7 @@ class ZaloAuthController extends ResponseController
         //dd($result);//check ở đây
         if (isset($result) && isset($result['id'])) {
             $service = new SocialAccountService;
+            $result['phone_number'] = $zalo_user_phone;
             $user = $service->createOrGetUserFromZalo($result);
 
             Auth::login($user);

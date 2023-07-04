@@ -57,6 +57,7 @@ class SocialAccountService
         $avatar =  $data['picture']['data']['url']; 
         $providerName = 'ZaloProvider';
         $name = $data['name']; 
+        $phone_number = $data['phone_number'] ?? ''; 
         $account = SocialAccount::whereProvider($providerName)
             ->whereProviderUserId($providerId)
             ->first();
@@ -71,7 +72,8 @@ class SocialAccountService
             
             $user = User::create([
                 'name' => $name,
-                'avatar' =>$avatar
+                'avatar' =>$avatar,
+                'phone_number' =>$phone_number
             ]);
            
             $account->user()->associate($user);
