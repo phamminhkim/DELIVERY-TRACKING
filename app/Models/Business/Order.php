@@ -3,6 +3,8 @@
 namespace App\Models\Business;
 
 use App\Models\Master\Company;
+use App\Models\Master\OrderStatus;
+use App\Models\Master\Warehouse;
 use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Model;
 

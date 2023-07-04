@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\DeliveryPartner;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuids;
 
@@ -23,6 +24,8 @@ class Delivery extends Model
         'customer_id',
         'status_id',
         'warehouse_id',
+        'delivery_partner_id',
+        'created_by'
     ];
     public function company()
     {

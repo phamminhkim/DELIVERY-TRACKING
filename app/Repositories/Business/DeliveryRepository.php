@@ -31,8 +31,10 @@ class DeliveryRepository extends RepositoryAbs
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
                 } else {
-                    $delivery->load(['orders']);
-
+                    $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver']);
+                    foreach ($delivery->orders as $order) {
+                        $order->unsetRelation('pivot');
+                    }
                     return $delivery;
                 }
             }
