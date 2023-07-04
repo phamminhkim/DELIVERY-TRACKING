@@ -28,18 +28,6 @@ class Delivery extends Model
     {
         return $this->belongsTo(Company::class);
     }
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
-    }
-    public function status()
-    {
-        return $this->belongsTo(Status::class);
-    }
-    public function warehouse()
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_deliveries');

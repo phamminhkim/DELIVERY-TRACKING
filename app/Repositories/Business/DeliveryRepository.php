@@ -12,6 +12,7 @@ use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -20,8 +21,7 @@ class DeliveryRepository extends RepositoryAbs
     public function getDeliveryByQrScan($qr_token)
     {
         try {
-            $token = base64_decode($qr_token);
-            $delivery_token = DeliveryToken::where('token', $token)->first();
+            $delivery_token = DeliveryToken::where('token', $qr_token)->first();
             if (!$delivery_token) {
                 $this->message = 'Mã QR không hợp lệ.';
                 return false;
@@ -31,7 +31,7 @@ class DeliveryRepository extends RepositoryAbs
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
                 } else {
-                    $delivery->load(['customer', 'orders']);
+                    $delivery->load(['orders']);
 
                     return $delivery;
                 }
@@ -135,7 +135,7 @@ class DeliveryRepository extends RepositoryAbs
         $token = $delivery->tokens()->create([
             'delivery_id' => $delivery->id,
             'delivery_partner_id' => $delivery_partner->id,
-            'token' => base64_encode(Str::uuid()->toString()),
+            'token' => Hash::make(Str::uuid()->toString()),
             'is_primary' => true,
         ]);
         return $token;
