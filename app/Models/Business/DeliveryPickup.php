@@ -4,24 +4,23 @@ namespace App\Models\Business;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderDriverConfirm extends Model
+class DeliveryPickup extends Model
 {
     protected $fillable = [
-        'confirm_date',
-        'confirm_status',
+        'pickup_at',
         'driver_phone',
         'driver_name',
         'driver_note',
         'driver_plate_number',
     ];
     protected $hidden = [
-        'order_id',
+        'delivery_id',
     ];
     protected $casts = [
-        'confirm_date' => 'datetime',
+        'pickup_at' => 'datetime',
     ];
-    public function order()
+    public function delivery()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Delivery::class);
     }
 }
