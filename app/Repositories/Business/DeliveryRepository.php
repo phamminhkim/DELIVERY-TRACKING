@@ -45,6 +45,68 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
+    public function pickupDelivery($delivery_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'driver_phone' => 'required|string|max:20',
+                'driver_name' => 'required|string|max:50',
+                'driver_note' => 'nullable|string|max:120',
+                'driver_plate_number' => 'required|string|max:20',
+            ], [
+                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
+                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
+                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
+                'driver_name.required' => 'Tên tài xế là bắt buộc.',
+                'driver_name.string' => 'Tên tài xế không đúng định dạng.',
+                'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
+                'driver_note.string' => 'Ghi chú tài xế không đúng định dạng.',
+                'driver_note.max' => 'Ghi chú tài xế không được vượt quá 120 ký tự.',
+                'driver_plate_number.required' => 'Biển số xe là bắt buộc.',
+                'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
+                'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $delivery = Delivery::find($delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                } else {
+                    DB::beginTransaction();
+                    $delivery->pickup()->create([
+                        'pickup_at' => now(),
+                        'driver_phone' => $this->data['driver_phone'],
+                        'driver_name' => $this->data['driver_name'],
+                        'driver_note' => $this->data['driver_note'] ?? '',
+                        'driver_plate_number' => $this->data['driver_plate_number'],
+                    ]);
+
+                    $delivery->start_delivery_date = now();
+                    $delivery->save();
+
+                    foreach ($delivery->orders as $order) {
+                        $order->status_id = EnumsOrderStatus::Delivering;
+                        $order->save();
+
+                        $order_delivery = OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->first();
+                        $order_delivery->start_delivery_date = now();
+                        $order_delivery->save();
+                    }
+                    DB::commit();
+
+                    return true;
+                }
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function createDelivery()
     {
         try {
@@ -154,7 +216,7 @@ class DeliveryRepository extends RepositoryAbs
         return null;
     }
 
-    public function updateDelivery($id)
+    public function updateDelivery($delivery_id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -169,7 +231,7 @@ class DeliveryRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $delivery = Delivery::find($id);
+                $delivery = Delivery::find($delivery_id);
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
@@ -241,12 +303,12 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function deleteDelivery($id)
+    public function deleteDelivery($delivery_id)
     {
         try {
             DB::beginTransaction();
 
-            $delivery = Delivery::find($id);
+            $delivery = Delivery::find($delivery_id);
             if (!$delivery) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;

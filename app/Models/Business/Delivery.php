@@ -31,6 +31,10 @@ class Delivery extends Model
     {
         return $this->belongsTo(Company::class);
     }
+    public function pickup()
+    {
+        return $this->hasOne(DeliveryPickup::class);
+    }
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_deliveries');
