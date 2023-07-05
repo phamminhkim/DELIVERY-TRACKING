@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Repositories\SystemRepository;
 use App\Services\SocialAccountService;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -51,7 +52,7 @@ class SocialAuthController extends Controller
 
         return redirect($loginUrl);
     }
-    
+
     public function handleZaloCallback(Request $request)
     {
 
@@ -103,44 +104,16 @@ class SocialAuthController extends Controller
 
         return redirect($loginUrl);
     }
-    public function handleOaZaloCallback(Request $request)//Redirect Call back get access_token for OA 
+
+    public function handleOaZaloCallback(Request $request) //Redirect Call back get access_token for OA 
     {
-        $msg_builder = new MessageBuilder(MessageBuilder::MSG_TYPE_TXT);
-        $config = array(
-            'app_id' => config("services.zalo.client_id"),
-            'app_secret' =>  config("services.zalo.client_secret")
-        );
+        $handler = SystemRepository::zaloRequest($request);
+        $is_success = $handler->OaCallback();
 
-        $zalo = new Zalo($config);
-
-
-        $helper = $zalo->getRedirectLoginHelper();
-        $callback_url =   config("services.zalo.redirect_oa"); // $ZALO_REDIRECT_UR OAI ;
-        $code_verifier = session()->get('codeVerifier');
-
-        $zalo_token = $helper->getZaloTokenByOA($code_verifier); // get zalo token
-
-        $access_token = $zalo_token->getAccessToken();
-        // dd($access_token);//Yêu cầu mã truy cập mức OA
-        //Lưu access token vào DB
-        $params = ['fields' => 'id,name,picture'];
-        $response = $zalo->get(ZaloEndpoint::API_GRAPH_ME, $access_token, $params);
-        $result = $response->getDecodedBody(); // result
-
-        $msg_builder = new MessageBuilder(MessageBuilder::MSG_TYPE_TXT);
-        $msg_builder->withUserId($result['id']);
-        $msg_builder->withText('Đã cấp quyền truy cập ứng dụng ship');
-        $msg_text = $msg_builder->build();
-
-        // send request
-        $response = $zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3,$access_token, $msg_text);
-        $result = $response->getDecodedBody();
-        dd($result);
-        // $service = new SocialAccountService;
-        // $user = $service->createOrGetUserFromZalo($result);
-
-        // Auth::login($user);
-
-        return redirect()->intended('/');
+        if ($is_success) {
+            return redirect()->intended('/');
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
     }
 }

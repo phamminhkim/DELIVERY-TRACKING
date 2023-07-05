@@ -113,7 +113,6 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);
         });
     });
-    //Route::get('/orders', [OrderController::class, 'getAvailableOrders']);
 });
 
 //api 
