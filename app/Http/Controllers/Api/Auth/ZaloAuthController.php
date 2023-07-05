@@ -6,13 +6,20 @@ use App\Http\Controllers\BaseController\ResponseController;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Services\SocialAccountService;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Zalo\Zalo;
 use Zalo\ZaloEndPoint;
 
 class ZaloAuthController extends ResponseController
 {
+    public function __construct()
+    {
+        
+        $this->middleware('auth:api')->except(['checkExistingUser','login']);
+    }
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
      *
@@ -75,4 +82,22 @@ class ZaloAuthController extends ResponseController
             return $this->responseError('Login failed');
         }
     }
+    public function updatePhoneNumber(Request $request){
+       
+       $validator = Validator::make($request->all(),[
+        'phone_number' => 'required'
+       ],[
+            'phone_number.required' => 'Nhập số điện thoại'
+       ]);
+       if($validator->fails()){
+            return $this->responseError($validator->errors());
+       }else{
+         
+            $user = User::find(Auth()->user()->id);
+            $user->phone_number = $request->phone_number;
+            $user->save();
+            return $this->responseSuccess(  'Updated in successfully');
+       }
+    }
+   
 }

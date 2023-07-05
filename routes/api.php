@@ -35,7 +35,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
+    // Route::prefix('profile')->group(function () {
+    //     Route::post('/update_phone_number', [ZaloAuthController::class, 'updatePhoneNumber']);
+    // });
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
@@ -85,6 +87,8 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
+
+      
     });
 
     Route::prefix('sap')->group(function () {
@@ -116,5 +120,6 @@ Route::middleware('auth:api')->group(function () {
 Route::prefix('auth')->group(function () {
     Route::post('/zalo/exist_user', [ZaloAuthController::class, 'checkExistingUser']);
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
+    Route::post('/zalo/update_phone_number', [ZaloAuthController::class, 'updatePhoneNumber']);
     Route::post('/user/login', [UserAuthController::class, 'login']);
 });
