@@ -5,6 +5,7 @@ namespace App\Repositories\System;
 use App\Models\System\ServiceToken;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Zalo\Builder\MessageBuilder;
 use Zalo\Zalo;
 use Zalo\ZaloEndPoint;
@@ -27,6 +28,7 @@ class ZaloRepository extends RepositoryAbs
             if ($existing_token->expired_at > now()) {
                 return $existing_token->access_token;
             } else {
+                Log::info("ZaloOA access token has expired at "  . $existing_token->expired_at->format('Y-m-d H:i:s'));
                 $response = Http::post('https://oauth.zaloapp.com/v4/access_token', [
                     'app_id' => config("services.zalo.client_id"),
                     'app_secret' => config("services.zalo.client_secret"),
@@ -36,35 +38,45 @@ class ZaloRepository extends RepositoryAbs
 
                 $result = $response->json();
                 if (isset($result['access_token'])) {
-                    $this->updateOaAccessToken($result['accessToken'], $result['refreshToken'], $result['accessTokenExpiresAt']);
+                    $expired_at = $existing_token->expired_at->addSeconds($result['expires_in']);
+                    $this->updateOaAccessToken($result['accessToken'], $result['refreshToken'], $expired_at);
                     return $result['access_token'];
                 } else {
+                    Log::info("Failed to request ZaloOA access token");
                     throw new \Exception("OA access token not found");
                 }
             }
         } else {
+            Log::info("Request ZaloOA access token not found");
             throw new \Exception("OA access token not found");
         }
     }
 
     private function updateOaAccessToken($access_token, $refresh_token, $expired_at)
     {
-        $existing_token = ServiceToken::where('provider', 'zalo')->where('category', 'oa_access_token')->first();
-        if ($existing_token) {
-            $existing_token->access_token = $access_token;
-            $existing_token->refresh_token = $refresh_token;
-            $existing_token->expired_at = $expired_at;
-            $existing_token->save();
-        } else {
-            $existing_token = ServiceToken::create([
-                'provider' => 'zalo',
-                'category' => 'oa_access_token',
-                'access_token' => $access_token,
-                'refresh_token' => $refresh_token,
-                'expired_at' => $expired_at
-            ]);
+        try {
+            $existing_token = ServiceToken::where('provider', 'zalo')->where('category', 'oa_access_token')->first();
+            if ($existing_token) {
+                $existing_token->access_token = $access_token;
+                $existing_token->refresh_token = $refresh_token;
+                $existing_token->expired_at = $expired_at;
+                $existing_token->save();
+                Log::info("Import ZaloOA access token, expired at " . $expired_at->format('Y-m-d H:i:s'));
+            } else {
+                $existing_token = ServiceToken::create([
+                    'provider' => 'zalo',
+                    'category' => 'oa_access_token',
+                    'access_token' => $access_token,
+                    'refresh_token' => $refresh_token,
+                    'expired_at' => $expired_at
+                ]);
+                Log::info("Update ZaloOA access token, expired at " . $expired_at->format('Y-m-d H:i:s'));
+            }
+            return $existing_token;
+        } catch (\Exception $e) {
+            Log::info("Failed to update ZaloOA access token");
+            throw new \Exception("Failed to update OA access token");
         }
-        return $existing_token;
     }
 
     public function OaCallback()
