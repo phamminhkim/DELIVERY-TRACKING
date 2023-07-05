@@ -14,7 +14,9 @@ abstract class RepositoryAbs
 
     public function __construct($request)
     {
-        $this->current_user = User::find(Auth()->user()->id);
+        if (Auth()->user())
+            $this->current_user = User::find(Auth()->user()->id);
+
         $this->request = $request;
         $this->data = $request->all();
     }
