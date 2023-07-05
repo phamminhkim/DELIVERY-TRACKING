@@ -185,23 +185,28 @@ class DeliveryRepository extends RepositoryAbs
     public function completeDelivery($delivery_id)
     {
         try {
-            $validator = Validator::make($this->data, [
-                'driver_phone' => 'required|string|max:20',
-            ], []);
-
-            if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
-            } else {
-                $delivery = Delivery::find($delivery_id);
-                if (!$delivery) {
-                    $this->message = 'Đơn vận chuyển không tồn tại.';
-                    return false;
-                }
-
-                DB::beginTransaction();
-
-                DB::commit();
+            $delivery = Delivery::find($delivery_id);
+            if (!$delivery) {
+                $this->message = 'Đơn vận chuyển không tồn tại.';
+                return false;
             }
+            if ($delivery->complete_delivery_at) {
+                $this->message = 'Đơn vận chuyển đã được hoàn thành.';
+                return false;
+            }
+            if (!$delivery->start_delivery_at) {
+                $this->message = 'Đơn vận chuyển chưa được bắt đầu.';
+                return false;
+            }
+            if ($delivery->orders->where('status_id', '!=', EnumsOrderStatus::Delivered)->count() > 0) {
+                $this->message = 'Đơn vận chuyển có đơn hàng chưa hoàn thành.';
+                return false;
+            }
+            DB::beginTransaction();
+            $delivery->update(['complete_delivery_at' => now()]);
+            DB::commit();
+
+            return true;
         } catch (\Exception $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
