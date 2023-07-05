@@ -70,7 +70,7 @@ class Order extends Model
 
     public function driver_confirms()
     {
-        return $this->hasMany(DriverConfirm::class);
+        return $this->hasMany(OrderDriverConfirm::class);
     }
 
     public function customer_reviews()
