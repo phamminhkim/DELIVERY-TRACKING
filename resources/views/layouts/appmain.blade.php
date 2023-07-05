@@ -27,7 +27,7 @@
                     'current_user' => Auth::user(),
                 ]) !!};
 
-                console.log( window.Laravel.access_token);
+               //console.log( window.Laravel.access_token);
                 } catch (err) {
 
                 }
