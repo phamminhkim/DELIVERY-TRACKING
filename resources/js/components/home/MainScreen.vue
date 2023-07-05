@@ -1,7 +1,7 @@
 <template>
   <div>
         <Header></Header>
-          <div>Content</div>
+          <div>{{token}}</div>
          <Footer></Footer>
   </div>
 </template>
@@ -13,14 +13,15 @@ import Header from '../narbar/Header.vue'
 export default {
   components: { Header, Footer },
   created() {
-      console.log("window.Laravel");
-      console.log(window.Laravel);
-    //  this.token = window.Laravel.access_token ;
+      
+      this.token = "Bearer "+ window.Laravel.access_token ;
+      
   },
  
   data() {
     return {
       token:"",
+      
     }
   },
 }
