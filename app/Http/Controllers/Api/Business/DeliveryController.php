@@ -22,10 +22,22 @@ class DeliveryController extends ResponseController
         }
     }
 
-    public function pickupDelivery(Request $request, $id)
+    public function confirmPickupDelivery(Request $request, $id)
     {
         $handler = BusinessRepository::deliveryRequest($request);
-        $is_success = $handler->pickupDelivery($id);
+        $is_success = $handler->confirmPickupDelivery($id);
+
+        if ($is_success) {
+            return $this->responseSuccess($is_success);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function confirmOrderDelivery(Request $request, $delivery_id, $order_id)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $is_success = $handler->confirmOrderDelivery($delivery_id, $order_id);
 
         if ($is_success) {
             return $this->responseSuccess($is_success);

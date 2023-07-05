@@ -24,4 +24,8 @@ class OrderDriverConfirm extends Model
     {
         return $this->belongsTo(Order::class);
     }
+    public function images()
+    {
+        return $this->morphMany(CmsImage::class, 'imageable', 'imageable_type', 'imageable_id', 'id');
+    }
 }

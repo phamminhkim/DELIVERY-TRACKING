@@ -7,12 +7,13 @@ use App\Models\Business\Delivery;
 use App\Models\Business\DeliveryToken;
 use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
-use App\Models\Master\Customer;
+use App\Models\Business\OrderDriverConfirm;
 use App\Models\Master\DeliveryPartner;
-use App\Models\Master\Warehouse;
+use App\Models\Master\Image;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -31,7 +32,7 @@ class DeliveryRepository extends RepositoryAbs
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
                 } else {
-                    $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver']);
+                    $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images']);
                     foreach ($delivery->orders as $order) {
                         $order->unsetRelation('pivot');
                     }
@@ -45,7 +46,7 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function pickupDelivery($delivery_id)
+    public function confirmPickupDelivery($delivery_id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -100,6 +101,113 @@ class DeliveryRepository extends RepositoryAbs
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function confirmOrderDelivery($delivery_id, $order_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'confirm_status' => 'required|in:fully,partly',
+                'driver_phone' => 'required|string|max:20',
+                'driver_name' => 'required|string|max:50',
+                'driver_note' => 'nullable|string|max:120',
+                'driver_plate_number' => 'required|string|max:20',
+                'images' => 'nullable|array',
+                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ], [
+                'confirm_status.required' => 'Trạng thái xác nhận là bắt buộc.',
+                'confirm_status.in' => 'Trạng thái xác nhận không hợp lệ.',
+                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
+                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
+                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
+                'driver_name.required' => 'Tên tài xế là bắt buộc.',
+                'driver_name.string' => 'Tên tài xế không đúng định dạng.',
+                'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
+                'driver_note.string' => 'Ghi chú tài xế không đúng định dạng.',
+                'driver_note.max' => 'Ghi chú tài xế không được vượt quá 120 ký tự.',
+                'driver_plate_number.required' => 'Biển số xe là bắt buộc.',
+                'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
+                'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
+                'images.array' => 'Danh sách hình ảnh không đúng định dạng.',
+                'images.*.image' => 'Hình ảnh không đúng định dạng.',
+                'images.*.mimes' => 'Hình ảnh không đúng định dạng.',
+                'images.*.max' => 'Hình ảnh không được vượt quá 2MB.',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $delivery = Delivery::find($delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                } else {
+                    $order = Order::find($order_id);
+                    if (!$order) {
+                        $this->message = 'Đơn hàng không tồn tại.';
+                        return false;
+                    } else {
+                        $order_delivery = OrderDelivery::where('order_id', $order->id)
+                            ->where('delivery_id', $delivery->id)
+                            ->first();
+                        if (!$order_delivery) {
+                            $this->message = 'Đơn hàng không thuộc đơn vận chuyển này.';
+                            return false;
+                        } else {
+                            $confirm = $order->driver_confirms()->create([
+                                'complete_delivery_date' => now(),
+                                'confirm_status' => $this->data['confirm_status'],
+                                'driver_phone' => $this->data['driver_phone'],
+                                'driver_name' => $this->data['driver_name'],
+                                'driver_note' => $this->data['driver_note'] ?? '',
+                                'driver_plate_number' => $this->data['driver_plate_number'],
+                            ]);
+                            $this->storeImageImages($confirm, $this->data['images'] ?? []);
+                            if ($this->data['confirm_status'] == 'fully') {
+                                $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                            }
+                            DB::commit();
+
+                            return $order;
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    private function storeImageImages($confirm, $images)
+    {
+        foreach ($images as $image) {
+            $name = uniqid();
+            $extension = substr($image, strpos($image, "/") + 1, strpos($image, ";") - strpos($image, "/") - 1);
+            $image_base64 = substr($image, strpos($image, ",") + 1);
+
+            $image_data = base64_decode($image_base64);
+            $image_props = getimagesizefromstring($image_data);
+            $width = $image_props[0];
+            $height = $image_props[1];
+            $size = strlen($image_data);
+
+            $image = new Image();
+            $image->name = $name;
+            $image->owner_id = $this->current_user->id;
+            $image->ext = $extension;
+            $image->width = $width;
+            $image->height = $height;
+            $image->size = $size;
+
+            $file_name = $image->name . '.' . $image->ext;
+            $image->url = 'images/' . $file_name;
+
+            Storage::disk('images')->put($file_name, $image_data);
+
+            $confirm->images()->save($image, ['imageable_id' => $confirm->id, 'imageable_type' => OrderDriverConfirm::class]);
         }
     }
 
