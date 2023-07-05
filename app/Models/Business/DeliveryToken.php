@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DeliveryToken extends Model
 {
     protected $fillable = [
+        'delivery_id',
         'delivery_partner_id',
         'token',
         'is_primary',
