@@ -100,16 +100,23 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'api-call' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/api/errors.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
+
         'database-query' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/queries.log'),
+            'path' => storage_path('logs/database/queries.log'),
             'level' => 'debug',
             'days' => 14,
         ],
 
         'database-slow-query' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/slow-queries.log'),
+            'path' => storage_path('logs/database/slow-queries.log'),
             'level' => 'debug',
             'days' => 14,
         ],
