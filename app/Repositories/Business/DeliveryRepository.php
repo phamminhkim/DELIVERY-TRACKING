@@ -26,19 +26,18 @@ class DeliveryRepository extends RepositoryAbs
             if (!$delivery_token) {
                 $this->message = 'Mã QR không hợp lệ.';
                 return false;
-            } else {
-                $delivery = Delivery::find($delivery_token->delivery_id);
-                if (!$delivery) {
-                    $this->message = 'Đơn vận chuyển không tồn tại.';
-                    return false;
-                } else {
-                    $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images']);
-                    foreach ($delivery->orders as $order) {
-                        $order->unsetRelation('pivot');
-                    }
-                    return $delivery;
-                }
             }
+            $delivery = Delivery::find($delivery_token->delivery_id);
+            if (!$delivery) {
+                $this->message = 'Đơn vận chuyển không tồn tại.';
+                return false;
+            }
+
+            $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images']);
+            foreach ($delivery->orders as $order) {
+                $order->unsetRelation('pivot');
+            }
+            return $delivery;
         } catch (\Exception $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
@@ -75,27 +74,27 @@ class DeliveryRepository extends RepositoryAbs
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
-                } else {
-                    DB::beginTransaction();
-                    $delivery->pickup()->create([
-                        'pickup_at' => now(),
-                        'driver_phone' => $this->data['driver_phone'],
-                        'driver_name' => $this->data['driver_name'],
-                        'driver_note' => $this->data['driver_note'] ?? '',
-                        'driver_plate_number' => $this->data['driver_plate_number'],
-                    ]);
-                    $delivery->update(['start_delivery_date' => now()]);
-
-                    $delivery->orders->each(function ($order) use ($delivery) {
-                        $order->update(['status_id' => EnumsOrderStatus::Delivering]);
-                        OrderDelivery::where('order_id', $order->id)
-                            ->where('delivery_id', $delivery->id)
-                            ->update(['start_delivery_date' => now()]);
-                    });
-                    DB::commit();
-
-                    return true;
                 }
+
+                DB::beginTransaction();
+                $delivery->pickup()->create([
+                    'pickup_at' => now(),
+                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_name' => $this->data['driver_name'],
+                    'driver_note' => $this->data['driver_note'] ?? '',
+                    'driver_plate_number' => $this->data['driver_plate_number'],
+                ]);
+                $delivery->update(['start_delivery_date' => now()]);
+
+                $delivery->orders->each(function ($order) use ($delivery) {
+                    $order->update(['status_id' => EnumsOrderStatus::Delivering]);
+                    OrderDelivery::where('order_id', $order->id)
+                        ->where('delivery_id', $delivery->id)
+                        ->update(['start_delivery_date' => now()]);
+                });
+                DB::commit();
+
+                return true;
             }
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -142,37 +141,66 @@ class DeliveryRepository extends RepositoryAbs
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
-                } else {
-                    $order = Order::find($order_id);
-                    if (!$order) {
-                        $this->message = 'Đơn hàng không tồn tại.';
-                        return false;
-                    } else {
-                        $order_delivery = OrderDelivery::where('order_id', $order->id)
-                            ->where('delivery_id', $delivery->id)
-                            ->first();
-                        if (!$order_delivery) {
-                            $this->message = 'Đơn hàng không thuộc đơn vận chuyển này.';
-                            return false;
-                        } else {
-                            $confirm = $order->driver_confirms()->create([
-                                'complete_delivery_date' => now(),
-                                'confirm_status' => $this->data['confirm_status'],
-                                'driver_phone' => $this->data['driver_phone'],
-                                'driver_name' => $this->data['driver_name'],
-                                'driver_note' => $this->data['driver_note'] ?? '',
-                                'driver_plate_number' => $this->data['driver_plate_number'],
-                            ]);
-                            $this->storeImageImages($confirm, $this->data['images'] ?? []);
-                            if ($this->data['confirm_status'] == 'fully') {
-                                $order->update(['status_id' => EnumsOrderStatus::Delivered]);
-                            }
-                            DB::commit();
-
-                            return $order;
-                        }
-                    }
                 }
+                $order = Order::find($order_id);
+                if (!$order) {
+                    $this->message = 'Đơn hàng không tồn tại.';
+                    return false;
+                }
+                $order_delivery = OrderDelivery::where('order_id', $order->id)
+                    ->where('delivery_id', $delivery->id)
+                    ->first();
+                if (!$order_delivery) {
+                    $this->message = 'Đơn hàng không thuộc đơn vận chuyển này.';
+                    return false;
+                }
+                if ($order->status_id == EnumsOrderStatus::Delivered) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                    return false;
+                }
+
+                $confirm = $order->driver_confirms()->create([
+                    'complete_delivery_date' => now(),
+                    'confirm_status' => $this->data['confirm_status'],
+                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_name' => $this->data['driver_name'],
+                    'driver_note' => $this->data['driver_note'] ?? '',
+                    'driver_plate_number' => $this->data['driver_plate_number'],
+                ]);
+                $this->storeImageImages($confirm, $this->data['images'] ?? []);
+                if ($this->data['confirm_status'] == 'fully') {
+                    $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                }
+                DB::commit();
+
+                return $order;
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function completeDelivery($delivery_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'driver_phone' => 'required|string|max:20',
+            ], []);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $delivery = Delivery::find($delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                }
+
+                DB::beginTransaction();
+
+                DB::commit();
             }
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -331,66 +359,65 @@ class DeliveryRepository extends RepositoryAbs
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
-                } else {
-                    DB::beginTransaction();
-
-                    $new_order_ids = array_map(function ($item) {
-                        return $item['id'];
-                    }, $this->request['orders']);
-                    $insert_list = array_diff($new_order_ids, $delivery->orders->pluck('id')->toArray());
-                    $delete_list = array_diff($delivery->orders->pluck('id')->toArray(), $new_order_ids);
-
-                    foreach ($insert_list as $order_id) {
-                        $order = Order::find($order_id);
-                        if ($order->status_id == EnumsOrderStatus::Preparing) {
-                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được xử lí.';
-                            return false;
-                        }
-                        if ($order->status_id == EnumsOrderStatus::Delivering) {
-                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
-                            return false;
-                        }
-                        if ($order->status_id == EnumsOrderStatus::Delivered) {
-                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
-                            return false;
-                        }
-
-                        $order->status_id = EnumsOrderStatus::Preparing;
-                        $order->save();
-
-                        OrderDelivery::create([
-                            'order_id' => $order->id,
-                            'delivery_id' => $delivery->id,
-                            'start_delivery_at' => null,
-                            'complete_delivery_at' => null,
-                        ]);
-                    };
-
-                    foreach ($delete_list as $order_id) {
-                        $order = Order::find($order_id);
-                        if ($order->status_id == EnumsOrderStatus::Delivering) {
-                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
-                            return false;
-                        }
-                        if ($order->status_id == EnumsOrderStatus::Delivered) {
-                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
-                            return false;
-                        }
-
-                        $order->status_id = EnumsOrderStatus::Pending;
-                        $order->save();
-
-                        OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->delete();
-                    };
-
-                    DB::commit();
-
-                    $result = array(
-                        'delivery_id' => $delivery->id,
-                        'total_orders' => count($this->data['orders'])
-                    );
-                    return $result;
                 }
+                DB::beginTransaction();
+
+                $new_order_ids = array_map(function ($item) {
+                    return $item['id'];
+                }, $this->request['orders']);
+                $insert_list = array_diff($new_order_ids, $delivery->orders->pluck('id')->toArray());
+                $delete_list = array_diff($delivery->orders->pluck('id')->toArray(), $new_order_ids);
+
+                foreach ($insert_list as $order_id) {
+                    $order = Order::find($order_id);
+                    if ($order->status_id == EnumsOrderStatus::Preparing) {
+                        $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được xử lí.';
+                        return false;
+                    }
+                    if ($order->status_id == EnumsOrderStatus::Delivering) {
+                        $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
+                        return false;
+                    }
+                    if ($order->status_id == EnumsOrderStatus::Delivered) {
+                        $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                        return false;
+                    }
+
+                    $order->status_id = EnumsOrderStatus::Preparing;
+                    $order->save();
+
+                    OrderDelivery::create([
+                        'order_id' => $order->id,
+                        'delivery_id' => $delivery->id,
+                        'start_delivery_at' => null,
+                        'complete_delivery_at' => null,
+                    ]);
+                };
+
+                foreach ($delete_list as $order_id) {
+                    $order = Order::find($order_id);
+                    if ($order->status_id == EnumsOrderStatus::Delivering) {
+                        $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
+                        return false;
+                    }
+                    if ($order->status_id == EnumsOrderStatus::Delivered) {
+                        $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                        return false;
+                    }
+
+                    $order->status_id = EnumsOrderStatus::Pending;
+                    $order->save();
+
+                    OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->delete();
+                };
+
+                DB::commit();
+
+                $result = array(
+                    'delivery_id' => $delivery->id,
+                    'total_orders' => count($this->data['orders'])
+                );
+                return $result;
             }
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -402,21 +429,20 @@ class DeliveryRepository extends RepositoryAbs
     public function deleteDelivery($delivery_id)
     {
         try {
-            DB::beginTransaction();
 
             $delivery = Delivery::find($delivery_id);
             if (!$delivery) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
-            } else {
-                $delivery->tokens()->delete();
-                foreach ($delivery->orders as $order) {
-                    $order->status_id = EnumsOrderStatus::Pending;
-                    $order->save();
-                }
-                OrderDelivery::where('delivery_id', $delivery->id)->delete();
-                $delivery->delete();
             }
+            DB::beginTransaction();
+            $delivery->tokens()->delete();
+            foreach ($delivery->orders as $order) {
+                $order->status_id = EnumsOrderStatus::Pending;
+                $order->save();
+            }
+            OrderDelivery::where('delivery_id', $delivery->id)->delete();
+            $delivery->delete();
             DB::commit();
 
             return true;

@@ -96,6 +96,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getDeliveryByQrScan']);
         Route::post('/confirm-pickup/{delivery_id}', [DeliveryController::class, 'confirmPickupDelivery']);
         Route::post('/confirm-delivery/{delivery_id}/{order_id}', [DeliveryController::class, 'confirmOrderDelivery']);
+        Route::post('/complete-delivery/{delivery_id}', [DeliveryController::class, 'completeDelivery']);
     });
 
     Route::prefix('customer')->group(function () {
