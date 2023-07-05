@@ -83,18 +83,14 @@ class DeliveryRepository extends RepositoryAbs
                         'driver_note' => $this->data['driver_note'] ?? '',
                         'driver_plate_number' => $this->data['driver_plate_number'],
                     ]);
+                    $delivery->update(['start_delivery_date' => now()]);
 
-                    $delivery->start_delivery_date = now();
-                    $delivery->save();
-
-                    foreach ($delivery->orders as $order) {
-                        $order->status_id = EnumsOrderStatus::Delivering;
-                        $order->save();
-
-                        $order_delivery = OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->first();
-                        $order_delivery->start_delivery_date = now();
-                        $order_delivery->save();
-                    }
+                    $delivery->orders->each(function ($order) use ($delivery) {
+                        $order->update(['status_id' => EnumsOrderStatus::Delivering]);
+                        OrderDelivery::where('order_id', $order->id)
+                            ->where('delivery_id', $delivery->id)
+                            ->update(['start_delivery_date' => now()]);
+                    });
                     DB::commit();
 
                     return true;
@@ -130,9 +126,7 @@ class DeliveryRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 DB::beginTransaction();
-
                 $delivery_partner = DeliveryPartner::where('code', $this->data['delivery_partner_code'])->first();
-
                 $delivery = Delivery::create([
                     'company_code' => $this->data['company_code'],
                     'delivery_partner_id' => $delivery_partner->id,
@@ -141,12 +135,7 @@ class DeliveryRepository extends RepositoryAbs
                     'created_by' => $this->current_user->id
                 ]);
 
-                $generated_token = null;
-                if ($delivery_partner->is_external) {
-                    $generated_token = $this->createDeliveryTokenExternal($delivery, $delivery_partner);
-                } else {
-                    $generated_token = $this->createDeliveryTokenInternal($delivery, $delivery_partner);
-                }
+                $generated_token = $this->createDeliveryToken($delivery, $delivery_partner);
                 if (!$generated_token) {
                     $this->message = 'Đơn vị vận chuyển không hỗ trợ tích hợp.';
                     return false;
@@ -194,26 +183,25 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    private function createDeliveryTokenInternal($delivery, $delivery_partner)
+    private function createDeliveryToken($delivery, $delivery_partner)
     {
-        $token = $delivery->tokens()->create([
-            'delivery_id' => $delivery->id,
-            'delivery_partner_id' => $delivery_partner->id,
-            'token' => Hash::make(Str::uuid()->toString()),
-            'is_primary' => true,
-        ]);
-        return $token;
-    }
-
-    private function createDeliveryTokenExternal($delivery, $delivery_partner)
-    {
-        $token = DeliveryToken::create([
-            'delivery_id' => $delivery->id,
-            'delivery_partner_id' => $delivery_partner->id,
-            //'token' => '1234567890',
-            'is_primary' => true,
-        ]);
-        return null;
+        if ($delivery_partner->is_external) {
+            $token = DeliveryToken::create([
+                'delivery_id' => $delivery->id,
+                'delivery_partner_id' => $delivery_partner->id,
+                //'token' => '1234567890',
+                'is_primary' => true,
+            ]);
+            return null;
+        } else {
+            $token = $delivery->tokens()->create([
+                'delivery_id' => $delivery->id,
+                'delivery_partner_id' => $delivery_partner->id,
+                'token' => Hash::make(Str::uuid()->toString()),
+                'is_primary' => true,
+            ]);
+            return $token;
+        }
     }
 
     public function updateDelivery($delivery_id)
