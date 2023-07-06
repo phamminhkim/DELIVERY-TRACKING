@@ -49,14 +49,10 @@ class DeliveryRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'driver_phone' => 'required|string|max:20',
                 'driver_name' => 'required|string|max:50',
                 'driver_note' => 'nullable|string|max:120',
                 'driver_plate_number' => 'required|string|max:20',
             ], [
-                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
-                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
-                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
                 'driver_name.required' => 'Tên tài xế là bắt buộc.',
                 'driver_name.string' => 'Tên tài xế không đúng định dạng.',
                 'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
@@ -79,7 +75,7 @@ class DeliveryRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $delivery->pickup()->create([
                     'pickup_at' => now(),
-                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
@@ -108,7 +104,6 @@ class DeliveryRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'confirm_status' => 'required|in:fully,partly',
-                'driver_phone' => 'required|string|max:20',
                 'driver_name' => 'required|string|max:50',
                 'driver_note' => 'nullable|string|max:120',
                 'driver_plate_number' => 'required|string|max:20',
@@ -117,9 +112,6 @@ class DeliveryRepository extends RepositoryAbs
             ], [
                 'confirm_status.required' => 'Trạng thái xác nhận là bắt buộc.',
                 'confirm_status.in' => 'Trạng thái xác nhận không hợp lệ.',
-                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
-                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
-                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
                 'driver_name.required' => 'Tên tài xế là bắt buộc.',
                 'driver_name.string' => 'Tên tài xế không đúng định dạng.',
                 'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
@@ -162,7 +154,7 @@ class DeliveryRepository extends RepositoryAbs
                 $confirm = $order->driver_confirms()->create([
                     'complete_delivery_date' => now(),
                     'confirm_status' => $this->data['confirm_status'],
-                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
