@@ -31,6 +31,10 @@ class Delivery extends Model
     {
         return $this->belongsTo(Company::class);
     }
+    public function partner()
+    {
+        return $this->belongsTo(DeliveryPartner::class, 'delivery_partner_id');
+    }
     public function pickup()
     {
         return $this->hasOne(DeliveryPickup::class);
