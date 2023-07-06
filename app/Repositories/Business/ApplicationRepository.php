@@ -30,7 +30,7 @@ class ApplicationRepository extends RepositoryAbs
 
             //$app_id = '4589579355561746606';
             $app_id = '1994287696618217604';
-            $redirect_url = 'https://zalo.me/s/' . $app_id . '/?env=DEVELOPMENT&version=zdev-640a79e5&delivery=' . $delivery->id;
+            $redirect_url = 'https://zalo.me/s/' . $app_id . '/?env=DEVELOPMENT&version=zdev-043d2bab&delivery=' . $delivery->id;
 
             return $redirect_url;
         } catch (\Exception $exception) {
