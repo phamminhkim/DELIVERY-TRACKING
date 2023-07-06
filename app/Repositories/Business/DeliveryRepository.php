@@ -304,7 +304,7 @@ class DeliveryRepository extends RepositoryAbs
 
                 $result = array(
                     'delivery_id' => $delivery->id,
-                    'qr_token' => strval($qr_code),
+                    'qr_token' => env('APP_URL') . '/scan-qr/' . strval($qr_code),
                     'total_orders' => count($this->data['orders'])
                 );
                 return $result;
