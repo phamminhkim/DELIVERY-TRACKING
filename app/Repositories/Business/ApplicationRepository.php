@@ -32,36 +32,43 @@ class ApplicationRepository extends RepositoryAbs
                 $this->message = 'Đơn vị vận chuyển không hỗ trợ.';
                 return false;
             } else {
-                $params = array(
-                    'delivery' => $delivery->id
-                );
-                if ($delivery->complete_delivery_date) {
-                    $app_env = config('services.zalo.customer_app_env');
-                    $app_id = config('services.zalo.customer_app_id');
-                    $app_version = config('services.zalo.customer_app_version');
-                } else {
-                    $app_env = config('services.zalo.driver_app_env');
-                    $app_id = config('services.zalo.driver_app_id');
-                    $app_version = config('services.zalo.driver_app_version');
-                }
+                $redirect_url = $this->getRedirectUrlForInternalSystem($delivery);
 
-                if (
-                    $app_env && $app_id
-                ) {
-                    if ($app_env == 'DEVELOPMENT' || $app_env == 'TESTING') {
-                        $params['env'] = $app_env;
-                        $params['version'] = $app_version;
-                    }
-                    $redirect_url = 'https://zalo.me/s/' . $app_id . '/?' . http_build_query($params);
-                    return $redirect_url;
-                } else {
-                    $this->message = 'Không tìm thấy thông tin ứng dụng Zalo.';
-                    return false;
-                }
+                return $redirect_url;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+
+    private function getRedirectUrlForInternalSystem($delivery)
+    {
+        $params = array();
+        if ($delivery->complete_delivery_date) {
+            $app_env = config('services.zalo.customer_app_env');
+            $app_id = config('services.zalo.customer_app_id');
+            $app_version = config('services.zalo.customer_app_version');
+        } else {
+            $app_env = config('services.zalo.driver_app_env');
+            $app_id = config('services.zalo.driver_app_id');
+            $app_version = config('services.zalo.driver_app_version');
+        }
+
+        if (
+            $app_env && $app_id
+        ) {
+            if ($app_env == 'DEVELOPMENT' || $app_env == 'TESTING') {
+                $params['env'] = $app_env;
+                $params['version'] = $app_version;
+            }
+            $params['delivery'] = $delivery->id;
+            $redirect_url = 'https://zalo.me/s/' . $app_id . '/?' . http_build_query($params);
+
+            return $redirect_url;
+        } else {
+            $this->message = 'Không tìm thấy thông tin ứng dụng Zalo.';
+            return false;
         }
     }
 }
