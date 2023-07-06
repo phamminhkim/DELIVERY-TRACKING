@@ -107,6 +107,13 @@ return [
             'days' => 7,
         ],
 
+        'performances' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/api/performances.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
+
         'database-query' => [
             'driver' => 'daily',
             'path' => storage_path('logs/database/queries.log'),
