@@ -28,11 +28,37 @@ class ApplicationRepository extends RepositoryAbs
                 return false;
             }
 
-            //$app_id = '4589579355561746606';
-            $app_id = '1994287696618217604';
-            $redirect_url = 'https://zalo.me/s/' . $app_id . '/?env=DEVELOPMENT&version=zdev-043d2bab&delivery=' . $delivery->id;
+            if ($delivery->partner->is_external) {
+                $this->message = 'Đơn vị vận chuyển không hỗ trợ.';
+                return false;
+            } else {
+                $params = array(
+                    'delivery' => $delivery->id
+                );
+                if ($delivery->complete_delivery_date) {
+                    $app_env = config('services.zalo.customer_app_env');
+                    $app_id = config('services.zalo.customer_app_id');
+                    $app_version = config('services.zalo.customer_app_version');
+                } else {
+                    $app_env = config('services.zalo.driver_app_env');
+                    $app_id = config('services.zalo.driver_app_id');
+                    $app_version = config('services.zalo.driver_app_version');
+                }
 
-            return $redirect_url;
+                if (
+                    $app_env && $app_id
+                ) {
+                    if ($app_env == 'development') {
+                        $params['env'] = $app_env;
+                        $params['version'] = $app_version;
+                    }
+                    $redirect_url = 'https://zalo.me/s/' . $app_id . '/?' . http_build_query($params);
+                    return $redirect_url;
+                } else {
+                    $this->message = 'Không tìm thấy thông tin ứng dụng Zalo.';
+                    return false;
+                }
+            }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

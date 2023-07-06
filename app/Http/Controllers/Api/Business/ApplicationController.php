@@ -18,7 +18,7 @@ class ApplicationController extends ResponseController
         if ($url) {
             return redirect($url);
         } else {
-            return  redirect('/', 404, 'Mã QR không hợp lệ.');
+            return  redirect('/errors', 404, $handler->getMessage());
         }
     }
 }
