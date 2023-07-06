@@ -30,7 +30,7 @@ class Delivery extends Model
     ];
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'company_code', 'code');
     }
     public function partner()
     {
