@@ -48,7 +48,7 @@ class ApplicationRepository extends RepositoryAbs
                 if (
                     $app_env && $app_id
                 ) {
-                    if ($app_env == 'development') {
+                    if ($app_env == 'DEVELOPMENT' || $app_env == 'TESTING') {
                         $params['env'] = $app_env;
                         $params['version'] = $app_version;
                     }
