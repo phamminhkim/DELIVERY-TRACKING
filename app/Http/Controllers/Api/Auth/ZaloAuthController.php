@@ -18,7 +18,7 @@ class ZaloAuthController extends ResponseController
     public function __construct()
     {
         
-        $this->middleware('auth:api')->except(['checkExistingUser','login']);
+        $this->middleware('auth:api')->except(['checkExistingUser','verifyUserPhone','login']);
     }
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
@@ -40,6 +40,33 @@ class ZaloAuthController extends ResponseController
             return $this->responseError('User is not exist');
         }
     }
+    /**
+     * Kiểm tra tài khoản user zalo đã được đăng ký số điện thoại chưa.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function verifyUserPhone(Request $request)
+    {
+        $provider_name = 'ZaloProvider';
+        $provider_id = $request->zalo_user_id;
+        $account = SocialAccount::whereProvider($provider_name)
+            ->whereProviderUserId($provider_id)
+            ->first();
+
+        if ($account && $account->user) {
+            if ($account->user->phone_number == '') {
+                
+                return $this->responseSuccess([], 'User already exists and has phone number verified');
+            }else{
+                return $this->responseError('User already exists but has not verified phone number');
+            }
+           
+        } else {
+            return $this->responseError('User is not exist');
+        }
+    }
+    
     /**
      * Login vào hệ thống.
      *
