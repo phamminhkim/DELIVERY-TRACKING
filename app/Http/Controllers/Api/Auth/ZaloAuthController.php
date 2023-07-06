@@ -18,7 +18,7 @@ class ZaloAuthController extends ResponseController
     public function __construct()
     {
         
-        $this->middleware('auth:api')->except(['checkExistingUser','verifyUserPhone','login']);
+        $this->middleware('auth:api')->except(['checkExistUser','verifyUserPhone','login']);
     }
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
@@ -26,7 +26,7 @@ class ZaloAuthController extends ResponseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function checkExistingUser(Request $request)
+    public function checkExistUser(Request $request)
     {
         $provider_name = 'ZaloProvider';
         $provider_id = $request->zalo_user_id;

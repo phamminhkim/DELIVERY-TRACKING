@@ -117,7 +117,7 @@ Route::middleware('auth:api')->group(function () {
 
 //api 
 Route::prefix('auth')->group(function () {
-    Route::post('/zalo/exist-user ', [ZaloAuthController::class, 'checkExistingUser']);
+    Route::post('/zalo/exist-user', [ZaloAuthController::class, 'checkExistUser']);
     Route::post('/zalo/verify-user-phone', [ZaloAuthController::class, 'verifyUserPhone']);
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
     Route::post('/zalo/update-phone-number', [ZaloAuthController::class, 'updatePhoneNumber']);
