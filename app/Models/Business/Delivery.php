@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\Company;
 use App\Models\Master\DeliveryPartner;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuids;
