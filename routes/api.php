@@ -87,8 +87,6 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
-
-      
     });
 
     Route::prefix('sap')->group(function () {
@@ -98,6 +96,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('shipment')->group(function () {
         Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getDeliveryByQrScan']);
+        Route::get('/delivery/{delivery_id}', [DeliveryController::class, 'getDeliveryById']);
         Route::post('/confirm-pickup/{delivery_id}', [DeliveryController::class, 'confirmPickupDelivery']);
         Route::post('/confirm-delivery/{delivery_id}/{order_id}', [DeliveryController::class, 'confirmOrderDelivery']);
         Route::post('/complete-delivery/{delivery_id}', [DeliveryController::class, 'completeDelivery']);
