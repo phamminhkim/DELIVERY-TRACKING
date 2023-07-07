@@ -108,7 +108,6 @@ class DeliveryRepository extends RepositoryAbs
                 'driver_note' => 'nullable|string|max:120',
                 'driver_plate_number' => 'required|string|max:20',
                 'images' => 'nullable|array',
-                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ], [
                 'confirm_status.required' => 'Trạng thái xác nhận là bắt buộc.',
                 'confirm_status.in' => 'Trạng thái xác nhận không hợp lệ.',
@@ -121,9 +120,6 @@ class DeliveryRepository extends RepositoryAbs
                 'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
                 'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
                 'images.array' => 'Danh sách hình ảnh không đúng định dạng.',
-                'images.*.image' => 'Hình ảnh không đúng định dạng.',
-                'images.*.mimes' => 'Hình ảnh không đúng định dạng.',
-                'images.*.max' => 'Hình ảnh không được vượt quá 2MB.',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -206,18 +202,20 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    private function storeImageImages($confirm, $images)
+    private function storeImageImages($confirm, $upload_images)
     {
-        foreach ($images as $image) {
-            $name = uniqid();
-            $extension = substr($image, strpos($image, "/") + 1, strpos($image, ";") - strpos($image, "/") - 1);
-            $image_base64 = substr($image, strpos($image, ",") + 1);
+        foreach ($upload_images as $upload_image) {
+            $image_data = $upload_image['thumbUrl'];
 
-            $image_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_data);
+            $name = uniqid();
+            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
+            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
+
+            $image_raw_data = base64_decode($image_base64);
+            $image_props = getimagesizefromstring($image_raw_data);
             $width = $image_props[0];
             $height = $image_props[1];
-            $size = strlen($image_data);
+            $size = strlen($image_raw_data);
 
             $image = new Image();
             $image->name = $name;
