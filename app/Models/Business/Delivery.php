@@ -18,6 +18,8 @@ class Delivery extends Model
         'sap_so_created_date',
         'sap_po_number',
         'sap_do_number',
+        'start_delivery_date',
+        'complete_delivery_date',
         'created_by'
     ];
     protected $hidden = [

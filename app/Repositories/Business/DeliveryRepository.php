@@ -178,11 +178,11 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
-            if ($delivery->complete_delivery_at) {
+            if ($delivery->complete_delivery_date) {
                 $this->message = 'Đơn vận chuyển đã được hoàn thành.';
                 return false;
             }
-            if (!$delivery->start_delivery_at) {
+            if (!$delivery->start_delivery_date) {
                 $this->message = 'Đơn vận chuyển chưa được bắt đầu.';
                 return false;
             }
@@ -191,7 +191,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
             DB::beginTransaction();
-            $delivery->update(['complete_delivery_at' => now()]);
+            $delivery->update(['complete_delivery_date' => now()]);
             DB::commit();
 
             return true;
