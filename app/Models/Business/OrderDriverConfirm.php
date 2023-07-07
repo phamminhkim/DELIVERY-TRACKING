@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\Image;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderDriverConfirm extends Model
@@ -26,6 +27,6 @@ class OrderDriverConfirm extends Model
     }
     public function images()
     {
-        return $this->morphMany(CmsImage::class, 'imageable', 'imageable_type', 'imageable_id', 'id');
+        return $this->morphMany(Image::class, 'imageable', 'imageable_type', 'imageable_id', 'id');
     }
 }
