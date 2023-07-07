@@ -27,7 +27,18 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Mã QR không hợp lệ.';
                 return false;
             }
-            $delivery = Delivery::find($delivery_token->delivery_id);
+
+            return $this->getDeliveryById($delivery_token->delivery_id);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function getDeliveryById($delivery_id)
+    {
+        try {
+            $delivery = Delivery::find($delivery_id);
             if (!$delivery) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
