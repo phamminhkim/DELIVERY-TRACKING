@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Business\ApplicationController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -92,3 +93,5 @@ Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallb
 
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
 Route::any('/partners', 'SinglePage\AppController@delivery_partners');
+
+Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

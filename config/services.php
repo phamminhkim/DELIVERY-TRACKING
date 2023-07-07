@@ -45,6 +45,14 @@ return [
         'client_secret' => env('ZALO_APP_SECRET'),
         'redirect' => env('ZALO_APP_CALLBACK_URL'),
         'redirect_oa' => env('ZALO_OA_APP_CALLBACK_URL'),
+
+        'driver_app_env' => env('ZALO_DRIVER_APP_ENV'), // 'production' or 'development
+        'driver_app_id' => env('ZALO_DRIVER_APP_ID'),
+        'driver_app_version' => env('ZALO_DRIVER_APP_VERSION'),
+
+        'customer_app_env' => env('ZALO_CUSTOMER_APP_ENV'), // 'production' or 'development
+        'customer_app_id' => env('ZALO_CUSTOMER_APP_ID'),
+        'customer_app_version' => env('ZALO_CUSTOMER_APP_VERSION'),
     ],
 
 ];
