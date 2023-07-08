@@ -50,4 +50,8 @@ class Delivery extends Model
     {
         return $this->hasMany(DeliveryToken::class);
     }
+    public function timelines()
+    {
+        return $this->hasMany(DeliveryTimeline::class);
+    }
 }

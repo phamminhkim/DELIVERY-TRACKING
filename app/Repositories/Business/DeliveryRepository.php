@@ -122,6 +122,10 @@ class DeliveryRepository extends RepositoryAbs
                         ->where('delivery_id', $delivery->id)
                         ->update(['start_delivery_date' => now()]);
                 });
+                $delivery->timelines()->create([
+                    'event' => 'confirm_pickup_delivery',
+                    'description' => 'Tài xế ' . $this->data['driver_name'] . ' đã nhận vận đơn & bắt đầu giao hàng.',
+                ]);
                 DB::commit();
 
                 return true;
@@ -192,6 +196,15 @@ class DeliveryRepository extends RepositoryAbs
                 $this->storeImageImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                    $delivery->timelines()->create([
+                        'event' => 'confirm_fully_order_delivery',
+                        'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
+                    ]);
+                } else {
+                    $delivery->timelines()->create([
+                        'event' => 'confirm_partly_order_delivery',
+                        'description' => 'Giao một phần hàng trong đơn hàng ' . $order->sap_so_number . '.',
+                    ]);
                 }
                 DB::commit();
 
@@ -226,6 +239,10 @@ class DeliveryRepository extends RepositoryAbs
             }
             DB::beginTransaction();
             $delivery->update(['complete_delivery_date' => now()]);
+            $delivery->timelines()->create([
+                'event' => 'complete_delivery',
+                'description' => 'Đơn vận chuyển hoàn tất.',
+            ]);
             DB::commit();
 
             return true;
@@ -331,6 +348,11 @@ class DeliveryRepository extends RepositoryAbs
                         'complete_delivery_at' => null,
                     ]);
                 }
+                $delivery->timelines()->create([
+                    'event' => 'create_delivery',
+                    'description' => 'Tạo & in đơn vận chuyển.',
+                ]);
+
                 $qr_code = \QrCode::size(200)->errorCorrection('H')->generate($generated_token->token);
                 DB::commit();
 
@@ -474,6 +496,10 @@ class DeliveryRepository extends RepositoryAbs
                 $order->save();
             }
             OrderDelivery::where('delivery_id', $delivery->id)->delete();
+            $delivery->timelines()->create([
+                'event' => 'delete_delivery',
+                'description' => 'Hủy đơn vận chuyển.',
+            ]);
             $delivery->delete();
             DB::commit();
 
