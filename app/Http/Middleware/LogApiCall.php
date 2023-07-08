@@ -20,8 +20,9 @@ class LogApiCall
 
         if ($response->getStatusCode() != 200) {
             Log::channel('api-call')->error('Api call failed', [
-                'url' => $request->fullUrl(),
+                'status_code' => $response->getStatusCode(),
                 'method' => $request->method(),
+                'url' => $request->fullUrl(),
                 'params' => $request->all(),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),

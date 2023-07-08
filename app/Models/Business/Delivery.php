@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\Company;
 use App\Models\Master\DeliveryPartner;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuids;
@@ -17,6 +18,8 @@ class Delivery extends Model
         'sap_so_created_date',
         'sap_po_number',
         'sap_do_number',
+        'start_delivery_date',
+        'complete_delivery_date',
         'created_by'
     ];
     protected $hidden = [
@@ -29,7 +32,11 @@ class Delivery extends Model
     ];
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'company_code', 'code');
+    }
+    public function partner()
+    {
+        return $this->belongsTo(DeliveryPartner::class, 'delivery_partner_id');
     }
     public function pickup()
     {
@@ -42,5 +49,9 @@ class Delivery extends Model
     public function tokens()
     {
         return $this->hasMany(DeliveryToken::class);
+    }
+    public function timelines()
+    {
+        return $this->hasMany(DeliveryTimeline::class);
     }
 }

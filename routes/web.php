@@ -1,6 +1,10 @@
 <?php
 
+<<<<<<< HEAD
 
+=======
+use App\Http\Controllers\Api\Business\ApplicationController;
+>>>>>>> 6cc5cde3bc04485954a0066937320160962b16dd
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -75,7 +79,7 @@ Route::prefix('admins')->group(function () {
     Route::get('order-waiting', function () {
         return view('pages.orders.orderWaiting');
     });
-    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZalo');
+    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZaloAuthorizeUrl');
     Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
 });
 
@@ -88,11 +92,12 @@ Route::get('login/{social}/callback', [
     'as' => 'login.{social}.callback',
     'uses' => 'Auth\SocialAuthController@handleProviderCallback'
 ]);
-Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo.login');
-Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
+Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
+Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
+
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
 Route::any('/delivery-partner', 'SinglePage\AppController@delivery_partner');
 Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
 
 
-
+Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

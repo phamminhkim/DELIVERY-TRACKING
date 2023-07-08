@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Delivery;
 use App\Models\Business\DeliveryToken;
+use App\Models\Business\DeliveryTokenScan;
 use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
@@ -24,22 +25,55 @@ class DeliveryRepository extends RepositoryAbs
         try {
             $delivery_token = DeliveryToken::where('token', $qr_token)->first();
             if (!$delivery_token) {
+                $scan_log['result'] = 'Mã QR không hợp lệ.';
+
+                DeliveryTokenScan::create([
+                    'token_id' => null,
+                    'scan_by' => $this->current_user->id,
+                    'scan_at' => now(),
+                    'is_success' => false,
+                    'result' => 'Invalid QR code'
+                ]);
                 $this->message = 'Mã QR không hợp lệ.';
                 return false;
+            } else {
+                $delivery_token->scans()->create([
+                    'scan_by' => $this->current_user->id,
+                    'scan_at' => now(),
+                    'is_success' => true,
+                    'result' => 'Fetch delivery with id ' . strval($delivery_token->delivery_id)
+                ]);
+
+                return $this->getDeliveryById($delivery_token->delivery_id);
             }
-            $delivery = Delivery::find($delivery_token->delivery_id);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+
+            DeliveryTokenScan::create([
+                'token_id' => $delivery_token ? $delivery_token->id : null,
+                'scan_by' => $this->current_user->id,
+                'scan_at' => now(),
+                'is_success' => false,
+                'result' => $exception->getMessage()
+            ]);
+        }
+    }
+    public function getDeliveryById($delivery_id)
+    {
+        try {
+            $delivery = Delivery::find($delivery_id);
             if (!$delivery) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
 
-            $delivery->load(['orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images']);
+            $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
             foreach ($delivery->orders as $order) {
                 $order->unsetRelation('pivot');
             }
             return $delivery;
         } catch (\Exception $exception) {
-            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
@@ -49,14 +83,10 @@ class DeliveryRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'driver_phone' => 'required|string|max:20',
                 'driver_name' => 'required|string|max:50',
                 'driver_note' => 'nullable|string|max:120',
                 'driver_plate_number' => 'required|string|max:20',
             ], [
-                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
-                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
-                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
                 'driver_name.required' => 'Tên tài xế là bắt buộc.',
                 'driver_name.string' => 'Tên tài xế không đúng định dạng.',
                 'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
@@ -79,7 +109,7 @@ class DeliveryRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $delivery->pickup()->create([
                     'pickup_at' => now(),
-                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
@@ -92,6 +122,10 @@ class DeliveryRepository extends RepositoryAbs
                         ->where('delivery_id', $delivery->id)
                         ->update(['start_delivery_date' => now()]);
                 });
+                $delivery->timelines()->create([
+                    'event' => 'confirm_pickup_delivery',
+                    'description' => 'Tài xế ' . $this->data['driver_name'] . ' đã nhận vận đơn & bắt đầu giao hàng.',
+                ]);
                 DB::commit();
 
                 return true;
@@ -108,18 +142,13 @@ class DeliveryRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'confirm_status' => 'required|in:fully,partly',
-                'driver_phone' => 'required|string|max:20',
                 'driver_name' => 'required|string|max:50',
                 'driver_note' => 'nullable|string|max:120',
                 'driver_plate_number' => 'required|string|max:20',
                 'images' => 'nullable|array',
-                'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ], [
                 'confirm_status.required' => 'Trạng thái xác nhận là bắt buộc.',
                 'confirm_status.in' => 'Trạng thái xác nhận không hợp lệ.',
-                'driver_phone.required' => 'Số điện thoại tài xế là bắt buộc.',
-                'driver_phone.string' => 'Số điện thoại tài xế không đúng định dạng.',
-                'driver_phone.max' => 'Số điện thoại tài xế không được vượt quá 20 ký tự.',
                 'driver_name.required' => 'Tên tài xế là bắt buộc.',
                 'driver_name.string' => 'Tên tài xế không đúng định dạng.',
                 'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
@@ -129,9 +158,6 @@ class DeliveryRepository extends RepositoryAbs
                 'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
                 'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
                 'images.array' => 'Danh sách hình ảnh không đúng định dạng.',
-                'images.*.image' => 'Hình ảnh không đúng định dạng.',
-                'images.*.mimes' => 'Hình ảnh không đúng định dạng.',
-                'images.*.max' => 'Hình ảnh không được vượt quá 2MB.',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -162,7 +188,7 @@ class DeliveryRepository extends RepositoryAbs
                 $confirm = $order->driver_confirms()->create([
                     'complete_delivery_date' => now(),
                     'confirm_status' => $this->data['confirm_status'],
-                    'driver_phone' => $this->data['driver_phone'],
+                    'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
@@ -170,6 +196,15 @@ class DeliveryRepository extends RepositoryAbs
                 $this->storeImageImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                    $delivery->timelines()->create([
+                        'event' => 'confirm_fully_order_delivery',
+                        'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
+                    ]);
+                } else {
+                    $delivery->timelines()->create([
+                        'event' => 'confirm_partly_order_delivery',
+                        'description' => 'Giao một phần hàng trong đơn hàng ' . $order->sap_so_number . '.',
+                    ]);
                 }
                 DB::commit();
 
@@ -190,11 +225,11 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
-            if ($delivery->complete_delivery_at) {
+            if ($delivery->complete_delivery_date) {
                 $this->message = 'Đơn vận chuyển đã được hoàn thành.';
                 return false;
             }
-            if (!$delivery->start_delivery_at) {
+            if (!$delivery->start_delivery_date) {
                 $this->message = 'Đơn vận chuyển chưa được bắt đầu.';
                 return false;
             }
@@ -203,7 +238,11 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
             DB::beginTransaction();
-            $delivery->update(['complete_delivery_at' => now()]);
+            $delivery->update(['complete_delivery_date' => now()]);
+            $delivery->timelines()->create([
+                'event' => 'complete_delivery',
+                'description' => 'Đơn vận chuyển hoàn tất.',
+            ]);
             DB::commit();
 
             return true;
@@ -214,18 +253,20 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    private function storeImageImages($confirm, $images)
+    private function storeImageImages($confirm, $upload_images)
     {
-        foreach ($images as $image) {
-            $name = uniqid();
-            $extension = substr($image, strpos($image, "/") + 1, strpos($image, ";") - strpos($image, "/") - 1);
-            $image_base64 = substr($image, strpos($image, ",") + 1);
+        foreach ($upload_images as $upload_image) {
+            $image_data = $upload_image['thumbUrl'];
 
-            $image_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_data);
+            $name = uniqid();
+            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
+            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
+
+            $image_raw_data = base64_decode($image_base64);
+            $image_props = getimagesizefromstring($image_raw_data);
             $width = $image_props[0];
             $height = $image_props[1];
-            $size = strlen($image_data);
+            $size = strlen($image_raw_data);
 
             $image = new Image();
             $image->name = $name;
@@ -307,12 +348,17 @@ class DeliveryRepository extends RepositoryAbs
                         'complete_delivery_at' => null,
                     ]);
                 }
+                $delivery->timelines()->create([
+                    'event' => 'create_delivery',
+                    'description' => 'Tạo & in đơn vận chuyển.',
+                ]);
+
                 $qr_code = \QrCode::size(200)->errorCorrection('H')->generate($generated_token->token);
                 DB::commit();
 
                 $result = array(
                     'delivery_id' => $delivery->id,
-                    'qr_token' => strval($qr_code),
+                    'qr_token' => env('APP_URL') . '/scan-qr/' . strval($qr_code),
                     'total_orders' => count($this->data['orders'])
                 );
                 return $result;
@@ -335,10 +381,13 @@ class DeliveryRepository extends RepositoryAbs
             ]);
             return null;
         } else {
+            $new_token =  Hash::make(Str::uuid()->toString());
+            $token_str = str_replace([':', '/', '\\'], '', $new_token);
+
             $token = $delivery->tokens()->create([
                 'delivery_id' => $delivery->id,
                 'delivery_partner_id' => $delivery_partner->id,
-                'token' => Hash::make(Str::uuid()->toString()),
+                'token' => $token_str,
                 'is_primary' => true,
             ]);
             return $token;
@@ -447,6 +496,10 @@ class DeliveryRepository extends RepositoryAbs
                 $order->save();
             }
             OrderDelivery::where('delivery_id', $delivery->id)->delete();
+            $delivery->timelines()->create([
+                'event' => 'delete_delivery',
+                'description' => 'Hủy đơn vận chuyển.',
+            ]);
             $delivery->delete();
             DB::commit();
 

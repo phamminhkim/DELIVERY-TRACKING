@@ -15,6 +15,14 @@ class DeliveryPartner extends Model
         'is_external',
         'is_active',
     ];
+    protected $hidden = [
+        'code',
+        'api_url',
+        'api_key',
+        'api_secret',
+        'is_external',
+        'is_active',
+    ];
 
     protected $casts = [
         'is_external' => 'boolean',

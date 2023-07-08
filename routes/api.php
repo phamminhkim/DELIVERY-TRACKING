@@ -88,6 +88,7 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
+<<<<<<< HEAD
 
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
@@ -97,6 +98,8 @@ Route::middleware('auth:api')->group(function () {
         });
 
 
+=======
+>>>>>>> 6cc5cde3bc04485954a0066937320160962b16dd
     });
 
     Route::prefix('sap')->group(function () {
@@ -106,6 +109,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('shipment')->group(function () {
         Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getDeliveryByQrScan']);
+        Route::get('/delivery/{delivery_id}', [DeliveryController::class, 'getDeliveryById']);
         Route::post('/confirm-pickup/{delivery_id}', [DeliveryController::class, 'confirmPickupDelivery']);
         Route::post('/confirm-delivery/{delivery_id}/{order_id}', [DeliveryController::class, 'confirmOrderDelivery']);
         Route::post('/complete-delivery/{delivery_id}', [DeliveryController::class, 'completeDelivery']);
@@ -125,8 +129,9 @@ Route::middleware('auth:api')->group(function () {
 
 //api
 Route::prefix('auth')->group(function () {
-    Route::post('/zalo/exist_user', [ZaloAuthController::class, 'checkExistingUser']);
+    Route::post('/zalo/exist-user', [ZaloAuthController::class, 'checkExistUser']);
+    Route::post('/zalo/verify-user-phone', [ZaloAuthController::class, 'verifyUserPhone']);
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
-    Route::post('/zalo/update_phone_number', [ZaloAuthController::class, 'updatePhoneNumber']);
+    Route::post('/zalo/update-phone-number', [ZaloAuthController::class, 'updatePhoneNumber']);
     Route::post('/user/login', [UserAuthController::class, 'login']);
 });
