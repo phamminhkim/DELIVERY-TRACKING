@@ -41,6 +41,7 @@ class DeliveryRepository extends RepositoryAbs
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
                     'is_success' => true,
+                    'result' => 'Fetch delivery with id ' . strval($delivery_token->delivery_id)
                 ]);
 
                 return $this->getDeliveryById($delivery_token->delivery_id);
