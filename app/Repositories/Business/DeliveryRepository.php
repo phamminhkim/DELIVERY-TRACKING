@@ -359,10 +359,13 @@ class DeliveryRepository extends RepositoryAbs
             ]);
             return null;
         } else {
+            $new_token =  Hash::make(Str::uuid()->toString());
+            $token_str = str_replace([':', '/', '\\'], '', $new_token);
+
             $token = $delivery->tokens()->create([
                 'delivery_id' => $delivery->id,
                 'delivery_partner_id' => $delivery_partner->id,
-                'token' => Hash::make(Str::uuid()->toString()),
+                'token' => $token_str,
                 'is_primary' => true,
             ]);
             return $token;
