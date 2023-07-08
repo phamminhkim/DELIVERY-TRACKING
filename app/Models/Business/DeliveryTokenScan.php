@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeliveryTokenScan extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'token_id',
         'token',

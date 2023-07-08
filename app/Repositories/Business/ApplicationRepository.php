@@ -22,7 +22,7 @@ class ApplicationRepository extends RepositoryAbs
             if (!$delivery_token) {
                 DeliveryTokenScan::create([
                     'token_id' => null,
-                    'scan_by' => $this->current_user->id,
+                    'scan_by' => $this->current_user ? $this->current_user->id : null,
                     'scan_at' => now(),
                     'is_success' => false,
                     'result' => 'Token not found'
@@ -34,7 +34,7 @@ class ApplicationRepository extends RepositoryAbs
             if (!$delivery) {
                 DeliveryTokenScan::create([
                     'token_id' => $delivery_token->id,
-                    'scan_by' => $this->current_user->id,
+                    'scan_by' => $this->current_user ? $this->current_user->id : null,
                     'scan_at' => now(),
                     'is_success' => false,
                     'result' => 'Delivery not found'
@@ -46,7 +46,7 @@ class ApplicationRepository extends RepositoryAbs
             if ($delivery->partner->is_external) {
                 DeliveryTokenScan::create([
                     'token_id' => $delivery_token->id,
-                    'scan_by' => $this->current_user->id,
+                    'scan_by' => $this->current_user ? $this->current_user->id : null,
                     'scan_at' => now(),
                     'is_success' => false,
                     'result' => 'Unsupported delivery partner'
@@ -58,7 +58,7 @@ class ApplicationRepository extends RepositoryAbs
 
                 DeliveryTokenScan::create([
                     'token_id' => $delivery_token->id,
-                    'scan_by' => $this->current_user->id,
+                    'scan_by' => $this->current_user ? $this->current_user->id : null,
                     'scan_at' => now(),
                     'is_success' => true,
                     'result' => 'Redirect to ' . $redirect_url
@@ -72,7 +72,7 @@ class ApplicationRepository extends RepositoryAbs
 
             DeliveryTokenScan::create([
                 'token_id' => $delivery_token ? $delivery_token->id : null,
-                'scan_by' => $this->current_user->id,
+                'scan_by' => $this->current_user ? $this->current_user->id : null,
                 'scan_at' => now(),
                 'is_success' => false,
                 'result' => $exception->getMessage()
