@@ -32,6 +32,6 @@ class DeliveryToken extends Model
     }
     public function scans()
     {
-        return $this->hasMany(DeliveryTokenScan::class);
+        return $this->hasMany(DeliveryTokenScan::class, 'token_id', 'id');
     }
 }
