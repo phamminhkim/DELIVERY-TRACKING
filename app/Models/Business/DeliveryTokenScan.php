@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class DeliveryTokenScan extends Model
 {
     protected $fillable = [
-        'delivery_id',
         'token_id',
         'token',
         'scan_by',
@@ -17,7 +16,6 @@ class DeliveryTokenScan extends Model
     ];
     protected $hidden = [
         'id',
-        'delivery_id',
         'token_id',
     ];
     protected $casts = [
@@ -28,8 +26,8 @@ class DeliveryTokenScan extends Model
     {
         return $this->belongsTo(User::class, 'scan_by');
     }
-    public function delivery()
+    public function token()
     {
-        return $this->belongsTo(Delivery::class);
+        return $this->belongsTo(DeliveryToken::class);
     }
 }

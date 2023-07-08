@@ -21,7 +21,6 @@ class ApplicationRepository extends RepositoryAbs
             $delivery_token = DeliveryToken::where('token', $qr_token)->first();
             if (!$delivery_token) {
                 DeliveryTokenScan::create([
-                    'delivery_id' => null,
                     'token_id' => null,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
@@ -34,7 +33,6 @@ class ApplicationRepository extends RepositoryAbs
             $delivery = Delivery::find($delivery_token->delivery_id);
             if (!$delivery) {
                 DeliveryTokenScan::create([
-                    'delivery_id' => $delivery->id,
                     'token_id' => $delivery_token->id,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
@@ -47,7 +45,6 @@ class ApplicationRepository extends RepositoryAbs
 
             if ($delivery->partner->is_external) {
                 DeliveryTokenScan::create([
-                    'delivery_id' => $delivery->id,
                     'token_id' => $delivery_token->id,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
@@ -60,7 +57,6 @@ class ApplicationRepository extends RepositoryAbs
                 $redirect_url = $this->getRedirectUrlForInternalSystem($delivery);
 
                 DeliveryTokenScan::create([
-                    'delivery_id' => $delivery->id,
                     'token_id' => $delivery_token->id,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
@@ -75,7 +71,6 @@ class ApplicationRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
 
             DeliveryTokenScan::create([
-                'delivery_id' => $delivery_token ? $delivery_token->delivery_id : null,
                 'token_id' => $delivery_token ? $delivery_token->id : null,
                 'scan_by' => $this->current_user->id,
                 'scan_at' => now(),

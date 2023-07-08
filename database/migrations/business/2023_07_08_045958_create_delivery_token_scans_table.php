@@ -15,8 +15,6 @@ class CreateDeliveryTokenScansTable extends Migration
     {
         Schema::create('delivery_token_scans', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('delivery_id')->nullable();
-            $table->foreign('delivery_id')->references('id')->on('deliveries');
             $table->unsignedBigInteger('token_id')->nullable();
             $table->foreign('token_id')->references('id')->on('delivery_tokens');
             $table->unsignedBigInteger('scan_by');

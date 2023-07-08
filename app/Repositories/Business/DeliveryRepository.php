@@ -28,7 +28,6 @@ class DeliveryRepository extends RepositoryAbs
                 $scan_log['result'] = 'Mã QR không hợp lệ.';
 
                 DeliveryTokenScan::create([
-                    'delivery_id' => null,
                     'token_id' => null,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
@@ -39,7 +38,6 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             } else {
                 $delivery_token->scans()->create([
-                    'delivery_id' => $delivery_token->delivery_id,
                     'scan_by' => $this->current_user->id,
                     'scan_at' => now(),
                     'is_success' => true,
@@ -52,7 +50,6 @@ class DeliveryRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
 
             DeliveryTokenScan::create([
-                'delivery_id' => $delivery_token ? $delivery_token->delivery_id : null,
                 'token_id' => $delivery_token ? $delivery_token->id : null,
                 'scan_by' => $this->current_user->id,
                 'scan_at' => now(),
@@ -60,13 +57,6 @@ class DeliveryRepository extends RepositoryAbs
                 'result' => $exception->getMessage()
             ]);
         }
-
-        $delivery_token->scans()->create([
-            'delivery_id' => $delivery_token->delivery_id,
-            'scan_by' => $this->current_user->id,
-            'scan_at' => now(),
-            'result' => 'success'
-        ]);
     }
     public function getDeliveryById($delivery_id)
     {
