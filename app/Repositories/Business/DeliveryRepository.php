@@ -68,7 +68,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
 
-            $delivery->load(['company', 'partner', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images']);
+            $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
             foreach ($delivery->orders as $order) {
                 $order->unsetRelation('pivot');
             }
