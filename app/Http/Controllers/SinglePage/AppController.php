@@ -11,4 +11,11 @@ class AppController extends WebBaseController
     public function index(){
         return view("app.index");
     }
+
+    public function delivery_partner(){
+        return view("app.delivery_partners");
+    }
+    public function delivery_user(){
+        return view("app.user");
+    }
 }

@@ -1,41 +1,36 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-//  ? thêm thư viện element-ui
+require('./bootstrap');
+import Vue from 'vue'
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
-
-require('./bootstrap');
 
 window.Vue = require('vue');
 import router from "./router";
 import VueRouter from "vue-router";
-window.Vue.use(VueRouter);
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+import moment from 'moment';
 
-// ? sử dụng element-ui
-Vue.use(ElementUI);
+Vue.filter('formatDate', function(value) {
+    if (value) {
+        return moment(String(value)).format('DD/MM/YYYY')
+    }
+});
+Vue.use(VueRouter);
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+Vue.use(BootstrapVue)
+Vue.use(ElementUI)
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+Vue.component('home', require('./components/home/MainScreen.vue').default);
+Vue.component('delivery-partner', require('./components/home/DeliveryPartners.vue').default);
+Vue.component('delivery-user', require('./components/home/DeliveryUser.vue').default);
 
 const app = new Vue({
     el: '#app',
+    data() {
+        return {}
+    },
     router,
 });
+Vue.config.productionTip = false;

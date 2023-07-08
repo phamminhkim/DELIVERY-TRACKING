@@ -27,7 +27,7 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'api_url' => 'required|string',
                 'api_key' => 'required|string',
                 'api_secret' => 'required|string',
-                'is_external' => 'required',
+                //'is_external' => 'required',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
@@ -50,6 +50,7 @@ class DeliveryPartnerRepository extends RepositoryAbs
 
                 return $partner;
             }
+
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -59,16 +60,16 @@ class DeliveryPartnerRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:delivery_partners,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
                 'api_url' => 'required|string',
                 'api_key' => 'required|string',
                 'api_secret' => 'required|string',
-                'is_external' => 'required',
+                //'is_external' => 'required',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
-                'code.unique' => 'Mã kho đã tồn tại.',
+                //'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
                 'api_url.required' => 'Yêu cầu nhập api_url.',

@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,7 @@ use Wilkques\PKCE\Generator;
 |
 */
 
-// 
+//
 Auth::routes(['verify' => true]);
 
 
@@ -90,6 +91,8 @@ Route::get('login/{social}/callback', [
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToZalo')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleZaloCallback');
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
-Route::any('/partners', 'SinglePage\AppController@delivery_partners');
+Route::any('/delivery-partner', 'SinglePage\AppController@delivery_partner');
+Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
+
 
 

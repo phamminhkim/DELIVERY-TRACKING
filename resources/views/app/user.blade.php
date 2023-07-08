@@ -2,6 +2,6 @@
 
 @section('content')
 
-        <delivery-partner></delivery-partner>
+        <delivery-user></delivery-user>
 
 @endsection

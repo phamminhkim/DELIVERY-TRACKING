@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Master\DistributionChannelController;
 use App\Http\Controllers\Api\Master\SaleDistrictController;
 use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\Master\UserController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -45,7 +46,7 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
         });
-        Route::prefix('/partners')->group(function () {
+        Route::prefix('/delivery-partner')->group(function () {
             Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
             Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
             Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
@@ -88,7 +89,14 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
 
-      
+        Route::prefix('/users')->group(function () {
+            Route::get('/', [UserController::class, 'getAvailableUsers']);
+            Route::post('/', [UserController::class, 'createNewUser']);
+            Route::put('/{id}', [UserController::class, 'updateExistingUser']);
+            Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+        });
+
+
     });
 
     Route::prefix('sap')->group(function () {
@@ -115,7 +123,7 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-//api 
+//api
 Route::prefix('auth')->group(function () {
     Route::post('/zalo/exist_user', [ZaloAuthController::class, 'checkExistingUser']);
     Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
