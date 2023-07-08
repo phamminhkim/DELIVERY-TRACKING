@@ -30,4 +30,8 @@ class DeliveryToken extends Model
     {
         return $this->belongsTo(DeliveryPartner::class);
     }
+    public function scans()
+    {
+        return $this->hasMany(DeliveryTokenScan::class);
+    }
 }

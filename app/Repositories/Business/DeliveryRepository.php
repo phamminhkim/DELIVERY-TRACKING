@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Delivery;
 use App\Models\Business\DeliveryToken;
+use App\Models\Business\DeliveryTokenScan;
 use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
@@ -24,16 +25,48 @@ class DeliveryRepository extends RepositoryAbs
         try {
             $delivery_token = DeliveryToken::where('token', $qr_token)->first();
             if (!$delivery_token) {
+                $scan_log['result'] = 'Mã QR không hợp lệ.';
+
+                DeliveryTokenScan::create([
+                    'delivery_id' => null,
+                    'token_id' => null,
+                    'scan_by' => $this->current_user->id,
+                    'scan_at' => now(),
+                    'is_success' => false,
+                    'result' => 'Invalid QR code'
+                ]);
                 $this->message = 'Mã QR không hợp lệ.';
                 return false;
-            }
+            } else {
+                $delivery_token->scans()->create([
+                    'delivery_id' => $delivery_token->delivery_id,
+                    'scan_by' => $this->current_user->id,
+                    'scan_at' => now(),
+                    'is_success' => true,
+                ]);
 
-            return $this->getDeliveryById($delivery_token->delivery_id);
+                return $this->getDeliveryById($delivery_token->delivery_id);
+            }
         } catch (\Exception $exception) {
-            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+
+            DeliveryTokenScan::create([
+                'delivery_id' => $delivery_token ? $delivery_token->delivery_id : null,
+                'token_id' => $delivery_token ? $delivery_token->id : null,
+                'scan_by' => $this->current_user->id,
+                'scan_at' => now(),
+                'is_success' => false,
+                'result' => $exception->getMessage()
+            ]);
         }
+
+        $delivery_token->scans()->create([
+            'delivery_id' => $delivery_token->delivery_id,
+            'scan_by' => $this->current_user->id,
+            'scan_at' => now(),
+            'result' => 'success'
+        ]);
     }
     public function getDeliveryById($delivery_id)
     {
@@ -50,7 +83,6 @@ class DeliveryRepository extends RepositoryAbs
             }
             return $delivery;
         } catch (\Exception $exception) {
-            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
