@@ -17,7 +17,7 @@ class CreateDeliveryTokenScansTable extends Migration
             $table->id();
             $table->unsignedBigInteger('token_id')->nullable();
             $table->foreign('token_id')->references('id')->on('delivery_tokens');
-            $table->unsignedBigInteger('scan_by');
+            $table->unsignedBigInteger('scan_by')->nullable();
             $table->foreign('scan_by')->references('id')->on('users');
             $table->dateTime('scan_at');
             $table->boolean('is_success');
