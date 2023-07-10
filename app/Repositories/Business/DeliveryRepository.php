@@ -491,6 +491,7 @@ class DeliveryRepository extends RepositoryAbs
             }
             DB::beginTransaction();
             $delivery->tokens()->delete();
+            $delivery->timelines()->delete();
             foreach ($delivery->orders as $order) {
                 $order->status_id = EnumsOrderStatus::Pending;
                 $order->save();

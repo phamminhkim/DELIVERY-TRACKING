@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Api\Business\ApplicationController;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -98,3 +99,22 @@ Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
+
+Route::get('access-token', function ($request) {
+    $auth_user = Auth()->user();
+
+    $access_token = null;
+    // Nếu không phải login từ API thì tạo token cho user
+    if ($auth_user && !$auth_user->token()) {
+        if (Session::has('user')) {
+            $access_token = Session::get('user');
+        } else {
+            $authToken =  $auth_user->createToken('authToken');
+            $access_token = $authToken->accessToken; // $auth_user->createToken('authToken')->accessToken;
+            $auth_user->withAccessToken($access_token);
+            Session::put('user', $access_token);
+        }
+    }
+
+    echo $access_token ?? "Không có token";
+});
