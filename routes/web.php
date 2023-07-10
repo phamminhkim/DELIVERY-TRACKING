@@ -1,10 +1,7 @@
 <?php
 
-<<<<<<< HEAD
 
-=======
 use App\Http\Controllers\Api\Business\ApplicationController;
->>>>>>> 6cc5cde3bc04485954a0066937320160962b16dd
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
