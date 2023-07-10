@@ -297,10 +297,10 @@ export default {
                             this.fetchUser();
                             $('#delivery_user').modal('hide');
                         } else {
-                            this.errors = data.data.errors;
+                            this.errors = data.errors;
                             this.showMessage('error', 'Thêm mới không thành công');
                             this.fetchUser();
-                            this.reset();
+                            //this.reset();
                         }
                     })
                     .catch(err => {
@@ -324,7 +324,7 @@ export default {
                             $('#delivery_user').modal('hide');
                             //this.clearError();
                         } else {
-                            this.errors = data.data.errors;
+                            this.errors = data.errors;
                             this.showMessage('error', 'Cập nhật không thành công');
                             this.fetchUser();
                             //this.reset();

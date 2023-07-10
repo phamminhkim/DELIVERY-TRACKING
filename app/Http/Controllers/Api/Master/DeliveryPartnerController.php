@@ -52,7 +52,7 @@ class DeliveryPartnerController extends ResponseController
         $is_success = $handler->deleteExistingPartner($id);
 
         if ($is_success) {
-            return $this->responseOk('success');
+            return $this->responseOk();
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
