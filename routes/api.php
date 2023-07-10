@@ -88,7 +88,6 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
-<<<<<<< HEAD
 
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
@@ -98,8 +97,6 @@ Route::middleware('auth:api')->group(function () {
         });
 
 
-=======
->>>>>>> 6cc5cde3bc04485954a0066937320160962b16dd
     });
 
     Route::prefix('sap')->group(function () {
