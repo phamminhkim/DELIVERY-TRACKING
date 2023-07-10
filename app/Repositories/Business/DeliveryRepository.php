@@ -358,7 +358,7 @@ class DeliveryRepository extends RepositoryAbs
 
                 $result = array(
                     'delivery_id' => $delivery->id,
-                    'qr_token' => env('APP_URL') . '/scan-qr/' . strval($qr_code),
+                    'qr_token' => strval($qr_code),
                     'total_orders' => count($this->data['orders'])
                 );
                 return $result;
@@ -497,10 +497,6 @@ class DeliveryRepository extends RepositoryAbs
                 $order->save();
             }
             OrderDelivery::where('delivery_id', $delivery->id)->delete();
-            $delivery->timelines()->create([
-                'event' => 'delete_delivery',
-                'description' => 'Hủy đơn vận chuyển.',
-            ]);
             $delivery->delete();
             DB::commit();
 
