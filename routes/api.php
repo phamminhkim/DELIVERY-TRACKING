@@ -36,9 +36,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    // Route::prefix('profile')->group(function () {
-    //     Route::post('/update_phone_number', [ZaloAuthController::class, 'updatePhoneNumber']);
-    // });
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
@@ -95,8 +92,6 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
         });
-
-
     });
 
     Route::prefix('sap')->group(function () {
@@ -126,9 +121,12 @@ Route::middleware('auth:api')->group(function () {
 
 //api
 Route::prefix('auth')->group(function () {
-    Route::post('/zalo/exist-user', [ZaloAuthController::class, 'checkExistUser']);
-    Route::post('/zalo/verify-user-phone', [ZaloAuthController::class, 'verifyUserPhone']);
-    Route::post('/zalo/login', [ZaloAuthController::class, 'login']);
-    Route::post('/zalo/update-phone-number', [ZaloAuthController::class, 'updatePhoneNumber']);
     Route::post('/user/login', [UserAuthController::class, 'login']);
+
+    Route::prefix('zalo')->group(function () {
+        Route::post('/exist-user', [ZaloAuthController::class, 'checkExistUser']);
+        Route::post('/verify-user-phone', [ZaloAuthController::class, 'verifyUserPhone']);
+        Route::post('/login', [ZaloAuthController::class, 'login']);
+        Route::post('/update-phone-number', [ZaloAuthController::class, 'updatePhoneNumber']);
+    });
 });
