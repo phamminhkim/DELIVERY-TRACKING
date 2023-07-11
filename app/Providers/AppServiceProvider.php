@@ -50,12 +50,12 @@ class AppServiceProvider extends ServiceProvider
 
     private function detectLazyLoadingViolation()
     {
-        Model::preventLazyLoading(!config('app.prevent_lazy_loading', false));
-
-        Model::handleLazyLoadingViolationUsing(function ($model, $relation) {
-            $message = sprintf("N+1 Query detected in %s::%s", get_class($model), $relation);
-            Log::channel('n+1')->debug($message);
-        });
+        //Model::preventLazyLoading(!config('app.prevent_lazy_loading', false));
+        //
+        //Model::handleLazyLoadingViolationUsing(function ($model, $relation) {
+        //    $message = sprintf("N+1 Query detected in %s::%s", get_class($model), $relation);
+        //    Log::channel('n+1')->debug($message);
+        //});
     }
 
     private function logDatabaseQueries()
