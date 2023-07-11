@@ -127,6 +127,11 @@ return [
             'level' => 'debug',
             'days' => 14,
         ],
+
+        'n+1' => [
+            'driver' => 'stack',
+            'path' => storage_path('logs/database/n+1.log'),
+        ],
     ],
 
 ];

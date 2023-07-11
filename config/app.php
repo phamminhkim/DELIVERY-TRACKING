@@ -43,6 +43,7 @@ return [
     'log_database_queries' => (bool) env('LOG_DATABASE_QUERIES', false),
     'log_slow_queries' => (bool) env('LOG_SLOW_QUERIES', true),
     'slow_query_time' => (float) env('SLOW_QUERY_TIME', 0.5),
+    'prevent_lazy_loading' => (bool) env('PREVENT_LAZY_LOADING', false),
     /*
     |--------------------------------------------------------------------------
     | Application URL

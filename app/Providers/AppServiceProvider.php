@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Validators\ReCaptcha;
 use DateTime;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -31,12 +32,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsRecursive();
         $this->logDatabaseQueries();
+        $this->detectLazyLoadingViolation();
 
         Validator::extend('recaptcha',  [ReCaptcha::class, 'validate']);
         // Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
     }
 
-    public function loadMigrationsRecursive()
+    private function loadMigrationsRecursive()
     {
         // Lấy recursive tất cả các thư mục con trong thư mục migrations
         $mainPath = database_path('migrations');
@@ -46,7 +48,17 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom($paths);
     }
 
-    public function logDatabaseQueries()
+    private function detectLazyLoadingViolation()
+    {
+        Model::preventLazyLoading(!config('app.prevent_lazy_loading', false));
+
+        Model::handleLazyLoadingViolationUsing(function ($model, $relation) {
+            $message = sprintf("N+1 Query detected in %s::%s", get_class($model), $relation);
+            Log::channel('n+1')->debug($message);
+        });
+    }
+
+    private function logDatabaseQueries()
     {
         DB::listen(function ($query) {
             try {
