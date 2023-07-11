@@ -5,13 +5,15 @@ namespace App\Repositories\Master;
 use App\Models\Master\DeliveryPartner;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class DeliveryPartnerRepository extends RepositoryAbs
 {
     public function getAvailablePartners()
     {
         try {
-            $partners = DeliveryPartner::all();
+            // $partners = DeliveryPartner::all();
+            $partners = DB::table('delivery_partners')->get();
             return $partners;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

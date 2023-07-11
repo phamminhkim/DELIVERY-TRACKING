@@ -340,7 +340,7 @@ export default {
                             this.fetchPartner();
                             $('#delivery_partner').modal('hide');
                         } else {
-                            this.errors = data.data.errors;
+                            this.errors = data.errors;
                             this.showMessage('error', 'Thêm mới không thành công');
                             this.fetchPartner();
                             this.reset();
@@ -367,7 +367,7 @@ export default {
                             $('#delivery_partner').modal('hide');
                             //this.clearError();
                         } else {
-                            this.errors = data.data.errors;
+                            this.errors = data.errors;
                             this.showMessage('error', 'Cập nhật không thành công');
                             this.fetchPartner();
                             //this.reset();
@@ -399,7 +399,6 @@ export default {
             this.edit = true;
             this.errors = {};
             this.partner.id = item.id;
-            this.partner.id = item.id;
             this.partner.code = item.code;
             this.partner.name = item.name;
             this.partner.api_url = item.api_url;
@@ -415,8 +414,8 @@ export default {
             this.partner.api_url = '';
             this.partner.api_key = '';
             this.partner.api_secret = '';
-            this.partner.is_external = null;
-            this.partner.is_active= null;
+            this.partner.is_external = '';
+            this.partner.is_active= '';
         },
         showModal() {
             this.edit = false;
@@ -475,7 +474,7 @@ export default {
     },
     computed: {
         rows() {
-            return this.partner.length;
+            return this.delivery_partners.length;
         },
     }
 }

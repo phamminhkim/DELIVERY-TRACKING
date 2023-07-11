@@ -428,7 +428,7 @@ export default {
     },
     computed: {
         rows() {
-            return this.user.length;
+            return this.users.length;
         },
     }
 }
