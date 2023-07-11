@@ -1,6 +1,6 @@
 require('./bootstrap');
 import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import ElementUI from "element-ui";
@@ -19,12 +19,15 @@ Vue.filter('formatDate', function(value) {
 Vue.use(VueRouter);
 
 Vue.use(BootstrapVue)
+Vue.use(BootstrapVueIcons)
+
 Vue.use(ElementUI)
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('home', require('./components/home/MainScreen.vue').default);
 Vue.component('delivery-partner', require('./components/home/DeliveryPartners.vue').default);
 Vue.component('delivery-user', require('./components/home/DeliveryUser.vue').default);
+Vue.component('admin-container', require('./components/AdminContainer.vue').default);
 
 const app = new Vue({
     el: '#app',
@@ -33,4 +36,5 @@ const app = new Vue({
     },
     router,
 });
+
 Vue.config.productionTip = false;
