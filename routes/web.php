@@ -100,7 +100,7 @@ Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
 
-Route::get('access-token', function ($request) {
+Route::get('access-token', function () {
     $auth_user = Auth()->user();
 
     $access_token = null;
