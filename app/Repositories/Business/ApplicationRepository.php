@@ -8,6 +8,7 @@ use App\Models\Business\DeliveryToken;
 use App\Models\Business\DeliveryTokenScan;
 use App\Models\Business\Order;
 use App\Models\Master\Customer;
+use App\Models\Master\CustomerPhone;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
@@ -82,8 +83,8 @@ class ApplicationRepository extends RepositoryAbs
 
     private function getRedirectUrlForInternalSystem($delivery)
     {
-        $params = array();
-        if ($delivery->complete_delivery_date) {
+        $is_customer = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
+        if ($is_customer) {
             $app_env = config('services.zalo.customer_app_env');
             $app_id = config('services.zalo.customer_app_id');
             $app_version = config('services.zalo.customer_app_version');
@@ -93,6 +94,7 @@ class ApplicationRepository extends RepositoryAbs
             $app_version = config('services.zalo.driver_app_version');
         }
 
+        $params = array();
         if (
             $app_env && $app_id
         ) {
