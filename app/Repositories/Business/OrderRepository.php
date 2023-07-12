@@ -94,6 +94,11 @@ class OrderRepository extends RepositoryAbs
                             $this->errors[] = 'Không tìm thấy kho có mã ' . $order['warehouse_code'];
                             continue;
                         }
+                        $existing_order = Order::where('sap_so_number', $order['sap_so_number'])->first();
+                        if ($existing_order && $existing_order->status_id > EnumsOrderStatus::Pending) {
+                            $result['skip_count']++;
+                            continue;
+                        }
 
                         $created_order = Order::updateOrCreate(
                             [
