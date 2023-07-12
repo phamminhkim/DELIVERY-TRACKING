@@ -99,9 +99,11 @@
 
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="code">Code <span class="text-danger">*</span></label>
+                                        <label>Mã (code)</label>
+                                        <small class="text-danger">*</small>
                                         <input v-model="partner.code" class="form-control" id="code" name="code"
-                                            placeholder="Enter a code..." :class="{ 'is-invalid': hasError('code') }" />
+                                            placeholder="Nhập mã (code) ..."
+                                            v-bind:class="hasError('code') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('code')" class="invalid-feedback" role="alert">
                                             <strong>{{ getError('code') }}</strong>
                                         </span>
