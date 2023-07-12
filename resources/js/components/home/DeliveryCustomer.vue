@@ -6,7 +6,7 @@
                 <div class="col-md-12">
 
                     <div class="form-group d-flex justify-content-between mt-2">
-                        <h4 class="text-uppercase font-weight-bold">Danh sách Nhà vận chuyển </h4>
+                        <h4 class="text-uppercase font-weight-bold">Danh sách khách hàng </h4>
 
                         <!-- tạo mới -->
 
@@ -47,16 +47,16 @@
                 <!-- tạo nút edit và delete -->
                 <div>
                     <b-table responsive hover striped :bordered="true" :current-page="current_page" :per-page="per_page"
-                        :filter="filter" :fields="fields" :items="delivery_partners" :tbody-tr-class="rowClass">
+                        :filter="filter" :fields="fields" :items="customers" :tbody-tr-class="rowClass">
                         <template #cell(index)="data">
                             {{ data.index + (current_page - 1) * per_page + 1 }}
                         </template>
                         <template #cell(action)="data">
                             <div class="margin">
-                                <button class="btn btn-xs" style="margin-right: 10px;" @click="editPartner(data.item)"><i
+                                <button class="btn btn-xs" style="margin-right: 10px;" @click="editCustomer(data.item)"><i
                                         class="fas fa-edit text-green" style="color: green;" title="Edit"></i></button>
 
-                                <button class="btn btn-xs" @click="deletePartner(data.item.id)"><i
+                                <button class="btn btn-xs" @click="deleteCustomer(data.item.id)"><i
                                         class="fas fa-trash text-red" style="color: red;" title="Delete"></i></button>
                             </div>
                         </template>
@@ -83,14 +83,14 @@
                 </div>
                 <!-- end phân trang -->
                 <!-- tạo form -->
-                <div class="modal fade" id="delivery_partner" tabindex="-1" role="dialog">
+                <div class="modal fade" id="delivery_customer" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form @submit.prevent=addPartner>
+                            <form @submit.prevent=addCustomer>
                                 <div class="modal-header">
                                     <h4 class="modal-title">
-                                        <span v-if="!edit">Thêm mới nhà vận chuyển</span>
-                                        <span v-if="edit">Cập nhật nhà vận chuyển</span>
+                                        <span v-if="!edit">Thêm mới khách hàng</span>
+                                        <span v-if="edit">Cập nhật khách hàng</span>
                                     </h4>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
@@ -99,51 +99,54 @@
 
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="code">Code <span class="text-danger">*</span></label>
-                                        <input v-model="partner.code" class="form-control" id="code" name="code"
-                                            placeholder="Enter a code..." :class="{ 'is-invalid': hasError('code') }" />
+                                        <label>Mã khách hàng</label>
+                                        <small class="text-danger">*</small>
+                                        <input v-model="customer.code" class="form-control" id="code" name="code"
+                                            placeholder="Nhập mã khách hàng ..."
+                                            v-bind:class="hasError('code') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('code')" class="invalid-feedback" role="alert">
                                             <strong>{{ getError('code') }}</strong>
                                         </span>
                                     </div>
+
                                     <div class="form-group">
-                                        <label>Tên nhà vận chuyển</label>
+                                        <label>Tên khách hàng</label>
                                         <small class="text-danger">*</small>
-                                        <input v-model="partner.name" class="form-control" id="name" name="name"
-                                            placeholder="Nhập tên nhà vận chuyển ..."
+                                        <input v-model="customer.name" class="form-control" id="name" name="name"
+                                            placeholder="Nhập tên khách hàng ..."
                                             v-bind:class="hasError('name') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('name')" class="invalid-feedback" role="alert">
                                             <strong>{{ getError('name') }}</strong>
                                         </span>
                                     </div>
                                     <div class="form-group">
-                                        <label>API_URL</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_url" class="form-control" id="api_url" name="api_url"
-                                            placeholder="Nhập api_url ..."
-                                            v-bind:class="hasError('api_url') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_url') }}</strong>
+                                        <label>Email</label>
+                                        <!-- <small class="text-danger">*</small> -->
+                                        <input v-model="customer.email" class="form-control" id="email" name="email"
+                                            placeholder="Nhập email ..."
+                                            v-bind:class="hasError('email') ? 'is-invalid' : ''" />
+                                        <span v-if="hasError('email')" class="invalid-feedback" role="alert">
+                                            <strong>{{ getError('email') }}</strong>
                                         </span>
                                     </div>
                                     <div class="form-group">
-                                        <label>API_Key</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_key" class="form-control" id="api_key" name="api_key"
-                                            placeholder="Nhập api_key ..."
-                                            v-bind:class="hasError('api_key') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_key') }}</strong>
+                                        <label>Số điện thoại</label>
+                                        <!-- <small class="text-danger">*</small> -->
+                                        <input v-model="customer.phone_number" class="form-control" id="phone_number" name="phone_number"
+                                            placeholder="Nhập số điện thoại ..."
+                                            v-bind:class="hasError('phone_number') ? 'is-invalid' : ''" />
+                                        <span v-if="hasError('phone_number')" class="invalid-feedback" role="alert">
+                                            <strong>{{ getError('phone_number') }}</strong>
                                         </span>
                                     </div>
                                     <div class="form-group">
-                                        <label>API_Secret</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_secret" class="form-control" id="api_secret"
-                                            name="api_secret" placeholder="Nhập API Secret ..."
-                                            v-bind:class="hasError('api_secret') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_secret') }}</strong>
+                                        <label>Địa chỉ</label>
+                                        <!-- <small class="text-danger">*</small> -->
+                                        <input v-model="customer.address" class="form-control" id="address" name="address"
+                                            placeholder="Nhập địa chỉ khách hàng ..."
+                                            v-bind:class="hasError('address') ? 'is-invalid' : ''" />
+                                        <span v-if="hasError('address')" class="invalid-feedback" role="alert">
+                                            <strong>{{ getError('address') }}</strong>
                                         </span>
                                     </div>
 
@@ -154,7 +157,7 @@
                                     <button type="button" class="btn btn-default" data-dismiss="modal">
                                         Đóng
                                     </button>
-                                    <button type="submit" title="Submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-primary">
                                         Lưu
                                     </button>
                                 </div>
@@ -166,7 +169,9 @@
             </div>
         </div>
         <!-- end container -->
+
     </div>
+
 </template>
 
 <script>
@@ -186,15 +191,13 @@ export default {
             loading: false,
             edit: false,
             errors: {},
-            partner: {
+            customer: {
                 id: '',
-                code: '',
+                code:'',
                 name: '',
-                api_url: '',
-                api_key: '',
-                api_secret: '',
-                is_external: '',
-                is_active: '',
+                email:'',
+                phone_number:'',
+                address:'',
             },
             //component per-page
             pagination: {
@@ -211,7 +214,7 @@ export default {
             filter: "",
 
             fields: [
-                {
+            {
                     key: 'index',
                     label: 'STT',
                     sortable: true,
@@ -220,7 +223,7 @@ export default {
 
                 {
                     key: 'code',
-                    label: '(Code)',
+                    label: 'Mã khách hàng',
                     sortable: true,
                     class: 'text-nowrap',
 
@@ -228,47 +231,32 @@ export default {
 
                 {
                     key: 'name',
-                    label: 'Tên nhà vận chuyển',
+                    label: 'Tên khách hàng',
                     sortable: true,
                     class: 'text-nowrap',
 
                 },
 
                 {
-                    key: 'api_url',
-                    label: 'API URL',
+                    key: 'email',
+                    label: 'Email',
                     sortable: true,
                     class: 'text-nowrap',
 
                 },
 
                 {
-                    key: 'api_key',
-                    label: 'API key',
+                    key: 'phone_number',
+                    label: 'Số điện thoại',
                     sortable: true,
                     class: 'text-nowrap',
 
                 },
 
-                {
-                    key: 'api_secret',
-                    label: 'API Secret',
-                    sortable: true,
-                    class: 'text-nowrap',
-
-                },
 
                 {
-                    key: 'is_external',
-                    label: 'External',
-                    sortable: true,
-                    class: 'text-nowrap',
-
-                },
-
-                {
-                    key: 'is_active',
-                    label: 'Hoạt động',
+                    key: 'address',
+                    label: 'Địa chỉ',
                     sortable: true,
                     class: 'text-nowrap',
 
@@ -284,21 +272,21 @@ export default {
 
             ],
 
-            delivery_partners: [],
-            page_url_partner: "/api/master/delivery-partner",
-            page_url_create_partner: '/api/master/delivery-partner',
-            page_url_update_partner: '/api/master/delivery-partner',
-            page_url_destroy_partner: '/api/master/delivery-partner',
+            customers: [],
+            page_url_customer: "/api/master/customers",
+            page_url_create_customer: '/api/master/customers',
+            page_url_update_customer: '/api/master/customers',
+            page_url_destroy_customer: '/api/master/customers',
         }
     },
     created() {
-        this.errors = {};
+        this.errors={};
         this.token = "Bearer " + window.Laravel.access_token;
-        this.fetchPartner();
+        this.fetchCustomer();
     },
     methods: {
-        fetchPartner() {
-            var page_url = this.page_url_partner;
+        fetchCustomer() {
+            var page_url = this.page_url_customer;
             fetch(page_url, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -308,19 +296,19 @@ export default {
                 .then(res => res.json())
                 .then(data => {
 
-                    this.delivery_partners = data.data;
+                    this.customers = data.data;
                 })
                 .catch(err => {
                     console.log(err);
                 });
         },
-        addPartner() {
-            var page_url = this.page_url_create_partner;
-            var page_url_update = this.page_url_update_partner;
+        addCustomer() {
+            var page_url = this.page_url_create_customer;
+            var page_url_update = this.page_url_update_customer;
             if (this.edit === false) {
                 fetch(page_url, {
                     method: "POST",
-                    body: JSON.stringify(this.partner),
+                    body: JSON.stringify(this.customer),
                     headers: {
                         Authorization: this.token,
                         "content-type": "application/json"
@@ -329,18 +317,19 @@ export default {
 
                     .then(res => res.json())
                     .then(data => {
-
+                            // alert('abc');
+                            // console.log(data);
                         if (data.success == true) {
 
                             this.reset();
                             this.showMessage('success', 'Thêm thành công');
-                            this.fetchPartner();
-                            $('#delivery_partner').modal('hide');
+                            this.fetchCustomer();
+                            $('#delivery_customer').modal('hide');
                         } else {
                             this.errors = data.errors;
                             this.showMessage('error', 'Thêm mới không thành công');
-                            this.fetchPartner();
-                            this.reset();
+                            this.fetchCustomer();
+                            //this.reset();
                         }
                     })
                     .catch(err => {
@@ -348,9 +337,9 @@ export default {
                     });
             } else {
                 //update
-                fetch(page_url_update + "/" + this.partner.id, {
+                fetch(page_url_update + "/" + this.customer.id, {
                     method: "PUT",
-                    body: JSON.stringify(this.partner),
+                    body: JSON.stringify(this.customer),
                     headers: {
                         Authorization: this.token,
                         "content-type": "application/json"
@@ -358,15 +347,15 @@ export default {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success == true) {
+                        if (data.success == true)  {
                             this.showMessage('success', 'Cập nhật thành công');
-                            this.fetchPartner();
-                            $('#delivery_partner').modal('hide');
+                            this.fetchCustomer();
+                            $('#delivery_customer').modal('hide');
                             //this.clearError();
                         } else {
                             this.errors = data.errors;
                             this.showMessage('error', 'Cập nhật không thành công');
-                            this.fetchPartner();
+                            this.fetchCustomer();
                             //this.reset();
 
                         }
@@ -374,9 +363,9 @@ export default {
                     .catch(err => console.log(err));
             }
         },
-        deletePartner(id) {
+        deleteCustomer(id) {
             if (confirm('Bạn muốn xoá?')) {
-                fetch(`${this.page_url_destroy_partner}/${id}`, {
+                fetch(`${this.page_url_destroy_customer}/${id}`, {
                     method: 'delete',
                     headers: {
                         Authorization: this.token,
@@ -386,39 +375,38 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         this.showMessage('success', 'Xoá thành công');
-                        this.fetchPartner();
+                        this.fetchCustomer();
                         this.reset();
                     });
             }
         },
 
-        editPartner(item) {
+        editCustomer(item) {
             this.edit = true;
             this.errors = {};
-            this.partner.id = item.id;
-            this.partner.code = item.code;
-            this.partner.name = item.name;
-            this.partner.api_url = item.api_url;
-            this.partner.api_key = item.api_key;
-            this.partner.api_secret = item.api_secret;
-            $('#delivery_partner').modal('show');
+            this.customer.id = item.id;
+            this.customer.code = item.code;
+            this.customer.name = item.name;
+            this.customer.email = item.email;
+            this.customer.phone_number = item.phone_number;
+            this.customer.address = item.address;
+
+            $('#delivery_customer').modal('show');
             //this.clearError();
         },
         reset() {
-            this.partner.id = '';
-            this.partner.code = '',
-            this.partner.name = '';
-            this.partner.api_url = '';
-            this.partner.api_key = '';
-            this.partner.api_secret = '';
-            this.partner.is_external = '';
-            this.partner.is_active = '';
+            this.customer.id = '';
+            this.customer.code = '';
+            this.customer.name = '';
+            this.customer.email = '';
+            this.customer.phone_number = '';
+            this.customer.address= '';
         },
         showModal() {
             this.edit = false;
             //console.log('thu');
             this.errors = {};
-            $('#delivery_partner').modal('show');
+            $('#delivery_customer').modal('show');
             this.reset();
         },
         placeholder() {
@@ -452,11 +440,10 @@ export default {
             }
         },
         hasError(fieldName) {
-            // if (typeof this.errors === "object" && this.errors !== null) {
-            //     return this.errors.hasOwnProperty(fieldName);
-            // }
-            // return false;
-            return fieldName in this.errors;
+            if (typeof this.errors === "object" && this.errors !== null) {
+                return this.errors.hasOwnProperty(fieldName);
+            }
+            return false;
         },
         getError(fieldName) {
             //console.log(fieldName+"="+ this.errors[fieldName][0]);
@@ -469,7 +456,7 @@ export default {
     },
     computed: {
         rows() {
-            return this.delivery_partners.length;
+            return this.customers.length;
         },
     }
 }

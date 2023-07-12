@@ -96,6 +96,7 @@ Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallb
 Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
 Route::any('/delivery-partner', 'SinglePage\AppController@delivery_partner');
 Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
+Route::any('/delivery-customer', 'SinglePage\AppController@delivery_customer');
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

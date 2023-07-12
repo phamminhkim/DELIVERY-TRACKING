@@ -27,6 +27,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('home', require('./components/home/MainScreen.vue').default);
 Vue.component('delivery-partner', require('./components/home/DeliveryPartners.vue').default);
 Vue.component('delivery-user', require('./components/home/DeliveryUser.vue').default);
+Vue.component('delivery-customer', require('./components/home/DeliveryCustomer.vue').default);
 Vue.component('admin-container', require('./components/AdminContainer.vue').default);
 
 const app = new Vue({

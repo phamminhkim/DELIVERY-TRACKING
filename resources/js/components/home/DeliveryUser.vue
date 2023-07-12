@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container-fluid " style="background: rgb(225 225 225 / 30%);">
+        <div class="container" style="background: rgb(225 225 225 / 30%);">
             <div class="row">
                 <div class="col-md-12">
 
@@ -385,9 +385,6 @@ export default {
             if (!item || type !== 'row') return
             if (item.status === 'awesome') return 'table-success'
         },
-        // showViewProgram(program) {
-        //     this.$refs.viewSubmission.viewSubmission(program);
-        // },
         showMessage(type, title, message) {
             if (!title)
                 title = "Information";
