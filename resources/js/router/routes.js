@@ -9,6 +9,6 @@ const routes = [
     { path: '/delivery-user', component: DeliveryUser, name: 'DeliveryUser' },
     { path: '/delivery-customer', component: DeliveryCustomer, name: 'DeliveryCustomer' },
 
-  ];
+];
 
-  export default routes;
+export default routes;

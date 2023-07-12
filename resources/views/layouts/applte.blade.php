@@ -18,10 +18,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title>{{ config('app.name', 'TL Delivery Tracking') }}</title>
 
+    <script src="{{ asset('js/app.js') }}" defer></script>
+
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="template/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/template/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="template/css/adminlte.min.css">
+    <link rel="stylesheet" href="/template/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <script>
@@ -41,16 +43,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-    <div class="wrapper">
+    <div class="wrapper" id="app">
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <div class="container">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars text-secondary"></i></a>
+
                 <a href="../../" class="navbar-brand">
                     <i class="fas fa-truck "></i>
                     {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
-                    <span class="brand-text font-weight-light">TL Delivery Tracking</span>
+             
+                    <span class="font-weight-light">TL Delivery Tracking</span>
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse"
@@ -61,7 +66,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
                 <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                     <!-- Left navbar links -->
-                    <ul class="navbar-nav">
+                    {{-- <ul class="navbar-nav">
                         <li class="nav-item">
                             <a href="#" class="nav-link">Liên hệ</a>
                         </li>
@@ -104,19 +109,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <!-- End Level two -->
                             </ul>
                         </li>
-                    </ul>
+                    </ul> --}}
 
 
                     <!-- Right navbar links -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown user-menu">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#user-profile">
                                 <img src="{{ Auth::user()->avatar }}" class="user-image img-circle elevation-2"
                                     alt="User a">
                                 <span class="d-none d-md-inline">{{ Auth::user()->name }} -
                                     {{ Auth::user()->username }}</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right"
+                            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="user-profile"
                                 style="left: inherit; right: -8px; border: 0; margin-top: 8px">
                                 <!-- User image -->
                                 <li class="user-header">
@@ -130,11 +135,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
-                                    <a href="/profile" class="btn btn-default btn-flat">
+                                    <a href="/profile" class="btn btn-default btn-flat" style="border-width: 1px; border-color: #000">
                                         Hồ sơ cá nhân</a>
                                     <a href="{{ route('logout') }}"
                                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                                        class="btn btn-default btn-flat float-right">Đăng xuất</a>
+                                        class="btn btn-default btn-flat float-right" style="border-width: 1px; border-color: #000">Đăng xuất</a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                         class="d-none">
                                         @csrf
@@ -152,22 +157,22 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="/" class="brand-link">
-                {{-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-           style="opacity: .8"> --}}
-                <span class="brand-text font-weight-light">AdminLTE 3</span>
+                <img src="/images/icon_tl.png" alt="TL Logo" class="brand-image m-auto"
+           style="opacity: .8">
+                <span class="brand-text font-weight-light">AdminControlPannel</span>
             </a>
 
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                {{-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        {{-- <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> --}}
+                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">Alexander Pierce</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
@@ -176,35 +181,36 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
                         <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
-                                    Dashboard
+                                    Delivery
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="./index.html" class="nav-link active">
+                                    <router-link to="/delivery-partner" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Dashboard v1</p>
-                                    </a>
+                                        <p>Partners</p>
+                                    </router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <router-link to="/delivery-user" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Dashboard v2</p>
-                                    </a>
+                                        <p>Users</p>
+                                    </router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index3.html" class="nav-link">
+                                    <router-link to="/delivery-customer" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Dashboard v3</p>
-                                    </a>
+                                        <p>Customers</p>
+                                    </router-link>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
+
+                        {{-- <li class="nav-item">
                             <a href="pages/widgets.html" class="nav-link">
                                 <i class="nav-icon fas fa-th"></i>
                                 <p>
@@ -698,7 +704,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <i class="nav-icon far fa-circle text-info"></i>
                                 <p>Informational</p>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -712,15 +718,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <div class="container">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0 text-dark"> Top Navigation <small>Example 3.0</small></h1>
+                            <h1 class="m-0 text-dark"> Admin Application <small>1.0</small></h1>
                         </div><!-- /.col -->
-                        <div class="col-sm-6">
+                        {{-- <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="#">Home</a></li>
                                 <li class="breadcrumb-item"><a href="#">Layout</a></li>
                                 <li class="breadcrumb-item active">Top Navigation</li>
                             </ol>
-                        </div><!-- /.col -->
+                        </div><!-- /.col --> --}}
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>
@@ -728,11 +734,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
             <!-- Main content -->
             <div class="content">
-                <div class="container">
-                    <div class="row">
+                <div class="container-fluid">
                         @yield('content')
                         <!-- /.col-md-6 -->
-                    </div>
                     <!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>
@@ -754,12 +758,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <!-- REQUIRED SCRIPTS -->
 
+
     <!-- jQuery -->
-    <script src="template/plugins/jquery/jquery.min.js"></script>
+    <script src="/template/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
-    <script src="template/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/template/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
-    <script src="template/js/adminlte.min.js"></script>
+    <script src="/template/js/adminlte.min.js"></script>
+
 </body>
 
 </html>
