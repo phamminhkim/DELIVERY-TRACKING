@@ -258,21 +258,21 @@ export default {
 
                 },
 
-                {
-                    key: 'is_external',
-                    label: 'External',
-                    sortable: true,
-                    class: 'text-nowrap',
+                // {
+                //     key: 'is_external',
+                //     label: 'External',
+                //     sortable: true,
+                //     class: 'text-nowrap',
 
-                },
+                // },
 
-                {
-                    key: 'is_active',
-                    label: 'Hoạt động',
-                    sortable: true,
-                    class: 'text-nowrap',
+                // {
+                //     key: 'is_active',
+                //     label: 'Hoạt động',
+                //     sortable: true,
+                //     class: 'text-nowrap',
 
-                },
+                // },
                 {
                     key: 'action',
                     label: 'Trạng thái',
