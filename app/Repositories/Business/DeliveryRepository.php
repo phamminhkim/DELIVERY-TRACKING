@@ -201,6 +201,7 @@ class DeliveryRepository extends RepositoryAbs
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
                     ]);
                 } else {
+                    $order->update(['status_id' => EnumsOrderStatus::PartlyDelivered]);
                     $delivery->timelines()->create([
                         'event' => 'confirm_partly_order_delivery',
                         'description' => 'Giao một phần hàng trong đơn hàng ' . $order->sap_so_number . '.',

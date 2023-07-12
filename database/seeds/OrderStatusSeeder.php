@@ -27,8 +27,12 @@ class OrderStatusSeeder extends Seeder
                 'name' => 'Đang vận chuyển',
             ],
             [
+                'id' => '40',
+                'name' => 'Đã giao một phần',
+            ],
+            [
                 'id' => '100',
-                'name' => 'Đã giao',
+                'name' => 'Đã giao xong',
             ],
         ];
 
