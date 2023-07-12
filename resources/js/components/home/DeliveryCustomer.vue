@@ -374,9 +374,18 @@ export default {
                 })
                     .then(res => res.json())
                     .then(data => {
-                        this.showMessage('success', 'Xoá thành công');
-                        this.fetchCustomer();
-                        this.reset();
+                        if (data.success == true)  {
+                            this.showMessage('success', 'Xóa thành công');
+                            this.fetchCustomer();
+                            $('#delivery_customer').modal('hide');
+                            //this.clearError();
+                        } else {
+                            this.errors = data.errors;
+                            this.showMessage('error', 'Xóa không thành công');
+                            this.fetchCustomer();
+                            //this.reset();
+
+                        }
                     });
             }
         },
