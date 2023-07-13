@@ -46,7 +46,13 @@ class DeliveryPartnerRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $partner => $validator) {
+                    if ($errors->has($partner)) {
+                        $this->errors[$partner] = $errors->first($partner);
+                        return false;
+                    }
+                }
             } else {
                 $partner = DeliveryPartner::create($this->data);
 
@@ -83,7 +89,13 @@ class DeliveryPartnerRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $partner => $validator) {
+                    if ($errors->has($partner)) {
+                        $this->errors[$partner] = $errors->first($partner);
+                        return false;
+                    }
+                }
             } else {
                 $partner = DeliveryPartner::findOrFail($id);
                 $partner->update($this->data);

@@ -456,7 +456,7 @@ export default {
         },
         getError(fieldName) {
             //console.log(fieldName+"="+ this.errors[fieldName][0]);
-            return this.errors[fieldName][0];
+            return this.errors[fieldName];
         },
         clearError(event) {
             Vue.delete(this.errors, event.target.name);
