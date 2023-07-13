@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container">
+        <div class="container-fluid">
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row">
