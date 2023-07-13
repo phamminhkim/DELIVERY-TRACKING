@@ -370,7 +370,6 @@ export default {
                             this.showMessage('error', 'Cập nhật không thành công');
                             this.fetchPartner();
                             //this.reset();
-
                         }
                     })
                     .catch(err => console.log(err));
