@@ -83,7 +83,7 @@ class ApplicationRepository extends RepositoryAbs
 
     private function getRedirectUrlForInternalSystem($delivery)
     {
-        $is_customer = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
+        $is_customer = false; //CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
         if ($is_customer) {
             $app_env = config('services.zalo.customer_app_env');
             $app_id = config('services.zalo.customer_app_id');
@@ -94,15 +94,15 @@ class ApplicationRepository extends RepositoryAbs
             $app_version = config('services.zalo.driver_app_version');
         }
 
-        $params = array();
         if (
             $app_env && $app_id
         ) {
+            $params = array();
+            $params['delivery'] = $delivery->id;
             if ($app_env == 'DEVELOPMENT' || $app_env == 'TESTING') {
                 $params['env'] = $app_env;
                 $params['version'] = $app_version;
             }
-            $params['delivery'] = $delivery->id;
             $redirect_url = 'https://zalo.me/s/' . $app_id . '/?' . http_build_query($params);
 
             return $redirect_url;
