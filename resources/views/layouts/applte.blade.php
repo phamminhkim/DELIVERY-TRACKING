@@ -190,19 +190,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <router-link to="/delivery-partner" class="nav-link">
+                                    <router-link to="/delivery-partners" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Partners</p>
                                     </router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <router-link to="/delivery-user" class="nav-link">
+                                    <router-link to="/delivery-users" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Users</p>
                                     </router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <router-link to="/delivery-customer" class="nav-link">
+                                    <router-link to="/delivery-customers" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Customers</p>
                                     </router-link>

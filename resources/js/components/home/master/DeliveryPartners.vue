@@ -310,10 +310,10 @@ export default {
             ],
 
             delivery_partners: [],
-            page_url_partner: "/api/master/delivery-partner",
-            page_url_create_partner: '/api/master/delivery-partner',
-            page_url_update_partner: '/api/master/delivery-partner',
-            page_url_destroy_partner: '/api/master/delivery-partner',
+            page_url_partner: "/api/master/delivery-partners",
+            page_url_create_partner: '/api/master/delivery-partners',
+            page_url_update_partner: '/api/master/delivery-partners',
+            page_url_destroy_partner: '/api/master/delivery-partners',
         }
     },
     created() {
