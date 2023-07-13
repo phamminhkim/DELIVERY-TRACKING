@@ -29,16 +29,16 @@ Vue.component(
 );
 Vue.component("home", require("./components/home/MainScreen.vue").default);
 Vue.component(
-    "delivery-partner",
-    require("./components/home/MasterDeliveryPartners.vue").default
+    "delivery-partners",
+    require("./components/home/Master/DeliveryPartners.vue").default
 );
 Vue.component(
-    "master-users",
-    require("./components/home/MasterUsers.vue").default
+    "delivery-users",
+    require("./components/home/master/DeliveryUsers.vue").default
 );
 Vue.component(
-    "delivery-customer",
-    require("./components/home/MasterCustomers.vue").default
+    "delivery-customers",
+    require("./components/home/master/DeliveryCustomers.vue").default
 );
 Vue.component(
     "admin-container",

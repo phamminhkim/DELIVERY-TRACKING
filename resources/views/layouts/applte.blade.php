@@ -54,7 +54,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <i class="fas fa-truck "></i>
                     {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
-             
+
                     <span class="font-weight-light">TL Delivery Tracking</span>
                 </a>
 
