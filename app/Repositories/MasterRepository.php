@@ -8,6 +8,7 @@ use App\Repositories\Master\CompanyRepository;
 use App\Repositories\Master\CustomerRepository;
 use App\Repositories\Master\EmployeeRepository;
 use App\Repositories\Master\DistributionChannelRepository;
+use App\Repositories\Master\MenuRouterRepository;
 use App\Repositories\Master\SaleDistrictRepository;
 use App\Repositories\Master\SaleGroupRepository;
 use App\Repositories\Master\UserRepository;
@@ -24,10 +25,10 @@ class MasterRepository
         return new WarehouseRepository($request);
     }
 
-    public static function companyRequest(Request $request)
-    {
-        return new CompanyRepository($request);
-    }
+    //public static function companyRequest(Request $request)
+    //{
+    //    return new CompanyRepository($request);
+    //}
     public static function customerRequest(Request $request)
     {
         return new CustomerRepository($request);
@@ -57,5 +58,9 @@ class MasterRepository
     public static function userRequest(Request $request)
     {
         return new UserRepository($request);
+    }
+    public static function menuRouterRequest(Request $request)
+    {
+        return new MenuRouterRepository($request);
     }
 }

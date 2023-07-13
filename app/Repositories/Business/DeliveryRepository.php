@@ -30,7 +30,7 @@ class DeliveryRepository extends RepositoryAbs
                 DeliveryTokenScan::create([
                     'token_id' => null,
                     'scan_by' => $this->current_user->id,
-                    'scan_at' => now(),
+                    'scan_at' => date('Y-m-d H:i:s'),
                     'is_success' => false,
                     'result' => 'Invalid QR code'
                 ]);
@@ -39,7 +39,7 @@ class DeliveryRepository extends RepositoryAbs
             } else {
                 $delivery_token->scans()->create([
                     'scan_by' => $this->current_user->id,
-                    'scan_at' => now(),
+                    'scan_at' => date('Y-m-d H:i:s'),
                     'is_success' => true,
                     'result' => 'Fetch delivery with id ' . strval($delivery_token->delivery_id)
                 ]);
@@ -53,7 +53,7 @@ class DeliveryRepository extends RepositoryAbs
             DeliveryTokenScan::create([
                 'token_id' => $delivery_token ? $delivery_token->id : null,
                 'scan_by' => $this->current_user->id,
-                'scan_at' => now(),
+                'scan_at' => date('Y-m-d H:i:s'),
                 'is_success' => false,
                 'result' => $exception->getMessage()
             ]);
@@ -108,19 +108,19 @@ class DeliveryRepository extends RepositoryAbs
 
                 DB::beginTransaction();
                 $delivery->pickup()->create([
-                    'pickup_at' => now(),
+                    'pickup_at' => date('Y-m-d H:i:s'),
                     'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
                 ]);
-                $delivery->update(['start_delivery_date' => now()]);
+                $delivery->update(['start_delivery_date' => date('Y-m-d H:i:s')]);
 
                 $delivery->orders->each(function ($order) use ($delivery) {
                     $order->update(['status_id' => EnumsOrderStatus::Delivering]);
                     OrderDelivery::where('order_id', $order->id)
                         ->where('delivery_id', $delivery->id)
-                        ->update(['start_delivery_date' => now()]);
+                        ->update(['start_delivery_date' => date('Y-m-d H:i:s')]);
                 });
                 $delivery->timelines()->create([
                     'event' => 'confirm_pickup_delivery',
@@ -186,7 +186,7 @@ class DeliveryRepository extends RepositoryAbs
                 }
 
                 $confirm = $order->driver_confirms()->create([
-                    'complete_delivery_date' => now(),
+                    'complete_delivery_date' => date('Y-m-d H:i:s'),
                     'confirm_status' => $this->data['confirm_status'],
                     'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
@@ -239,7 +239,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
             DB::beginTransaction();
-            $delivery->update(['complete_delivery_date' => now()]);
+            $delivery->update(['complete_delivery_date' => date('Y-m-d H:i:s')]);
             $delivery->timelines()->create([
                 'event' => 'complete_delivery',
                 'description' => 'Đơn vận chuyển hoàn tất.',

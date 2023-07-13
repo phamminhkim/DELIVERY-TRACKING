@@ -93,10 +93,7 @@ Route::get('login/{social}/callback', [
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
 
-Route::any('/app/{any}', 'SinglePage\AppController@index')->where('any', '.*');
-Route::any('/delivery-partner', 'SinglePage\AppController@delivery_partner');
-Route::any('/delivery-user', 'SinglePage\AppController@delivery_user');
-Route::any('/delivery-customer', 'SinglePage\AppController@delivery_customer');
+Route::any('/app/{any?}', 'SinglePage\AppController@index')->where('any', '.*');
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

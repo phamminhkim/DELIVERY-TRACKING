@@ -14,4 +14,15 @@ class OrderDetail extends Model
         'created_at',
         'updated_at'
     ];
+    public function getTotalValueAttribute($value)
+    {
+        // Check if the decimal part is zero
+        if (floor($value) == $value) {
+            $formatted_value = number_format($value);
+        } else {
+            $formatted_value = number_format($value, 2);
+        }
+
+        return $formatted_value;
+    }
 }
