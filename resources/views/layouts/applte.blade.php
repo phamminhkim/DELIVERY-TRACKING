@@ -51,7 +51,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
                         class="fas fa-bars text-secondary"></i></a>
 
-                <a href="../../" class="navbar-brand">
+                <a href="/app" class="navbar-brand">
                     {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
 
@@ -112,9 +112,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="/" class="brand-link">
+            <a href="/app" class="brand-link">
                 <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto" style="opacity: .8">
-                <span class="brand-text font-weight-light">Control Panel</span>
+                <i><strong class="brand-text">Control Panel</strong></i>
             </a>
 
             <!-- Sidebar -->
