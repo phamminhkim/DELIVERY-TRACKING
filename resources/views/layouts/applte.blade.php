@@ -157,7 +157,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="/" class="brand-link">
-                <img src="/images/icon_tl.png" alt="TL Logo" class="brand-image m-auto"
+                <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto"
            style="opacity: .8">
                 <span class="brand-text font-weight-light">AdminControlPannel</span>
             </a>
