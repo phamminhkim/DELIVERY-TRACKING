@@ -105,7 +105,12 @@
                                             placeholder="Nhập mã (code) ..."
                                             v-bind:class="hasError('code') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('code') }}</strong>
+                                            <!-- <strong>{{ getError('code') }}</strong> -->
+                                            <div v-for="(error, index) in getError('code')" :key="index">
+                                                <strong >{{ error }}</strong> 
+                                                <br/>
+                                            </div>
+
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -115,7 +120,12 @@
                                             placeholder="Nhập tên nhà vận chuyển ..."
                                             v-bind:class="hasError('name') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('name') }}</strong>
+                                            <!-- <strong>{{ getError('name') }}</strong> -->
+                                            <div v-for="(error, index) in getError('name')" :key="index">
+                                                <strong >{{ error }}</strong> 
+                                                <br/>
+                                            </div>
+
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -125,7 +135,10 @@
                                             placeholder="Nhập api_url ..."
                                             v-bind:class="hasError('api_url') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_url') }}</strong>
+                                            <div v-for="(error, index) in getError('api_url')" :key="index">
+                                                <strong >{{ error }}</strong> 
+                                                <br/>
+                                            </div>
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -135,7 +148,12 @@
                                             placeholder="Nhập api_key ..."
                                             v-bind:class="hasError('api_key') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_key') }}</strong>
+                                            <!-- <strong>{{ getError('api_key') }}</strong> -->
+                                            <div v-for="(error, index) in getError('api_key')" :key="index">
+                                                <strong >{{ error }}</strong> 
+                                                <br/>
+                                            </div>
+
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -145,7 +163,12 @@
                                             name="api_secret" placeholder="Nhập API Secret ..."
                                             v-bind:class="hasError('api_secret') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('api_secret') }}</strong>
+                                            <!-- <strong>{{ getError('api_secret') }}</strong> -->
+                                            <div v-for="(error, index) in getError('api_secret')" >
+                                                <strong :key="index">{{ error }}</strong> 
+                                                <br/>
+                                            </div>
+
                                         </span>
                                     </div>
 
@@ -317,6 +340,7 @@ export default {
                 });
         },
         addPartner() {
+            if(!this.formValidate()) return;
             var page_url = this.page_url_create_partner;
             var page_url_update = this.page_url_update_partner;
             if (this.edit === false) {
@@ -333,7 +357,6 @@ export default {
                     .then(data => {
 
                         if (data.success == true) {
-
                             this.reset();
                             this.showMessage('success', 'Thêm thành công');
                             this.fetchPartner();
@@ -461,12 +484,59 @@ export default {
         },
         getError(fieldName) {
             //console.log(fieldName+"="+ this.errors[fieldName][0]);
-            return this.errors[fieldName][0];
+            return this.errors[fieldName];
         },
         clearError(event) {
             Vue.delete(this.errors, event.target.name);
             //  console.log(event.target.name);
         },
+        formValidate(){
+            const errors = {};
+            const pushError = (field_name, error) => {
+                if(field_name in errors){
+                    errors[field_name].push(error);
+                }
+                else {
+                    errors[field_name] = [error];
+                }
+            };
+            const validator = {
+                'code': () => {
+                    if(this.partner.code.length === 0){
+                        pushError('code', 'Yêu cầu nhập mã kho.');
+                    }
+                },
+                'name': () => {
+                    if(this.partner.name.length === 0){
+                        pushError('name', 'Yêu cầu nhập mã nhà vận chuyển.');
+                    }
+                },
+                'api_url': () => {
+                    const url_regex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
+                    if(this.partner.api_url.length === 0){
+                        pushError('api_url', 'Yêu cầu nhập api_url.');
+                    }
+                    if(this.partner.api_url.match(url_regex) === null){
+                        pushError('api_url', 'api_url phải là một URL');
+                    }
+                },
+                'api_key': () => {
+                    if(this.partner.api_key.length === 0){
+                        pushError('api_key', 'Yêu cầu nhập api_key.');
+                    }
+                },
+                'api_secret': () => {
+                    if(this.partner.api_secret.length === 0){
+                        pushError('api_secret', 'Yêu cầu nhập api_secret.');
+                    }
+                },
+            };
+            Object.keys(validator).forEach(key => {
+                validator[key]();
+            })
+            this.errors = errors;
+            return Object.keys(errors).length === 0;
+        }
     },
     computed: {
         rows() {
@@ -482,3 +552,4 @@ export default {
     margin-bottom: 0px;
 }
 </style>
+ 
