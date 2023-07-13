@@ -84,7 +84,7 @@ class MenuUtility
 
             RedisUtility::saveWithCategoryExpire('menu-tree', $user_id, $menus, 3600);
         }
-
+        $request_path = str_replace('app/', '/', $request_path);
         $current_menu = MenuRouter::where('link', $request_path)->get()->first();
         $current_root_menu = 0;
         if ($current_menu) {

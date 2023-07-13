@@ -6,7 +6,7 @@
             v-bind:value="menu.id"
             :class="getItemClass(menu)"
         >
-            <a :href="getLinkHref(menu)" :class="getLinkClass(menu)">
+            <router-link :to="getLinkHref(menu)" :class="getLinkClass(menu)">
                 <i
                     :style="'font-size:' + (1.2 - level * 0.3) + 'rem'"
                     :class="
@@ -30,7 +30,7 @@
                         {{ getMenuPendingCount(menu) }}
                     </span>
                 </p>
-            </a>
+            </router-link>
             <menu-router-children
                 v-if="menu.has_children"
                 :level="level + 1"
