@@ -14,7 +14,7 @@
                             <div class="float-sm-right">
                                 <button
                                     class="btn btn-info btn-sm"
-                                    @click="showModel()"
+                                    @click="showModal()"
                                 >
                                     <i class="fa fa-plus"></i>
                                     Tạo mới
@@ -226,7 +226,7 @@
                                                         ? 'is-invalid'
                                                         : ''
                                                 "
-                                            />
+                                            /> 
                                             <span
                                                 v-if="hasError('name')"
                                                 class="invalid-feedback"
