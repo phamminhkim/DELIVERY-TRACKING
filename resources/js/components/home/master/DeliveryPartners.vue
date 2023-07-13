@@ -148,221 +148,10 @@
                         </div>
                     </div>
                     <!-- end phân trang -->
+
                     <!-- tạo form -->
-                    <div
-                        class="modal fade"
-                        id="delivery_partner"
-                        tabindex="-1"
-                        role="dialog"
-                    >
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <form @submit.prevent="addPartner">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">
-                                            <span v-if="!edit"
-                                                >Thêm mới nhà vận chuyển</span
-                                            >
-                                            <span v-if="edit"
-                                                >Cập nhật nhà vận chuyển</span
-                                            >
-                                        </h4>
-                                        <button
-                                            type="button"
-                                            class="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                        >
-                                            <span aria-hidden="true"
-                                                >&times;</span
-                                            >
-                                        </button>
-                                    </div>
-
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <label>Mã (code)</label>
-                                            <small class="text-danger">*</small>
-                                            <input
-                                                v-model="partner.code"
-                                                class="form-control"
-                                                id="code"
-                                                name="code"
-                                                placeholder="Nhập mã (code) ..."
-                                                v-bind:class="
-                                                    hasError('code')
-                                                        ? 'is-invalid'
-                                                        : ''
-                                                "
-                                            />
-                                            <span
-                                                v-if="hasError('code')"
-                                                class="invalid-feedback"
-                                                role="alert"
-                                            >
-                                                <!-- <strong>{{ getError('code') }}</strong> -->
-                                                <div
-                                                    v-for="(
-                                                        error, index
-                                                    ) in getError('code')"
-                                                    :key="index"
-                                                >
-                                                    <strong>{{ error }}</strong>
-                                                    <br />
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Tên nhà vận chuyển</label>
-                                            <small class="text-danger">*</small>
-                                            <input
-                                                v-model="partner.name"
-                                                class="form-control"
-                                                id="name"
-                                                name="name"
-                                                placeholder="Nhập tên nhà vận chuyển ..."
-                                                v-bind:class="
-                                                    hasError('name')
-                                                        ? 'is-invalid'
-                                                        : ''
-                                                "
-                                            /> 
-                                            <span
-                                                v-if="hasError('name')"
-                                                class="invalid-feedback"
-                                                role="alert"
-                                            >
-                                                <!-- <strong>{{ getError('name') }}</strong> -->
-                                                <div
-                                                    v-for="(
-                                                        error, index
-                                                    ) in getError('name')"
-                                                    :key="index"
-                                                >
-                                                    <strong>{{ error }}</strong>
-                                                    <br />
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>API_URL</label>
-                                            <small class="text-danger">*</small>
-                                            <input
-                                                v-model="partner.api_url"
-                                                class="form-control"
-                                                id="api_url"
-                                                name="api_url"
-                                                placeholder="Nhập api_url ..."
-                                                v-bind:class="
-                                                    hasError('api_url')
-                                                        ? 'is-invalid'
-                                                        : ''
-                                                "
-                                            />
-                                            <span
-                                                v-if="hasError('api_url')"
-                                                class="invalid-feedback"
-                                                role="alert"
-                                            >
-                                                <div
-                                                    v-for="(
-                                                        error, index
-                                                    ) in getError('api_url')"
-                                                    :key="index"
-                                                >
-                                                    <strong>{{ error }}</strong>
-                                                    <br />
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>API_Key</label>
-                                            <small class="text-danger">*</small>
-                                            <input
-                                                v-model="partner.api_key"
-                                                class="form-control"
-                                                id="api_key"
-                                                name="api_key"
-                                                placeholder="Nhập api_key ..."
-                                                v-bind:class="
-                                                    hasError('api_key')
-                                                        ? 'is-invalid'
-                                                        : ''
-                                                "
-                                            />
-                                            <span
-                                                v-if="hasError('api_key')"
-                                                class="invalid-feedback"
-                                                role="alert"
-                                            >
-                                                <!-- <strong>{{ getError('api_key') }}</strong> -->
-                                                <div
-                                                    v-for="(
-                                                        error, index
-                                                    ) in getError('api_key')"
-                                                    :key="index"
-                                                >
-                                                    <strong>{{ error }}</strong>
-                                                    <br />
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>API_Secret</label>
-                                            <small class="text-danger">*</small>
-                                            <input
-                                                v-model="partner.api_secret"
-                                                class="form-control"
-                                                id="api_secret"
-                                                name="api_secret"
-                                                placeholder="Nhập API Secret ..."
-                                                v-bind:class="
-                                                    hasError('api_secret')
-                                                        ? 'is-invalid'
-                                                        : ''
-                                                "
-                                            />
-                                            <span
-                                                v-if="hasError('api_secret')"
-                                                class="invalid-feedback"
-                                                role="alert"
-                                            >
-                                                <!-- <strong>{{ getError('api_secret') }}</strong> -->
-                                                <div
-                                                    v-for="(
-                                                        error, index
-                                                    ) in getError('api_secret')"
-                                                    :key="index"
-                                                >
-                                                    <strong>{{ error }}</strong>
-                                                    <br />
-                                                </div>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="modal-footer justify-content-between"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="btn btn-default"
-                                            data-dismiss="modal"
-                                        >
-                                            Đóng
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            title="Submit"
-                                            class="btn btn-primary"
-                                        >
-                                            Lưu
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    <DialogAddUpdateDeliveryPartners ref="dialog" :isEdit="is_edit_modal" :partnerItem="partner_item" :fetchData="fetchData"></DialogAddUpdateDeliveryPartners>
+                    
                     <!-- end tạo form -->
                 </div>
             </div>
@@ -375,11 +164,12 @@
 import Vue from "vue";
 import toastr from "toastr";
 import "toastr/toastr.scss";
-
 import ApiHandler from "../ApiHandler";
+import DialogAddUpdateDeliveryPartners from "./dialogs/DialogAddUpdateDeliveryPartners.vue";
 export default {
     components: {
         Vue,
+        DialogAddUpdateDeliveryPartners
     },
     data() {
         return {
@@ -391,10 +181,21 @@ export default {
             token: "Bearer " + window.Laravel.access_token,
 
             search_placeholder: "Tìm kiếm..",
-            is_loading: false,
-            edit: false,
-            errors: {},
-            partner: {
+            // is_loading: false   ,
+            // edit: false,
+            // errors: {},
+            // partner: {
+            //     id: "",
+            //     code: "",
+            //     name: "",
+            //     api_url: "",
+            //     api_key: "",
+            //     api_secret: "",
+            //     is_external: "",
+            //     is_active: "",
+            // },
+            // ---------------------------
+            partner_item: {
                 id: "",
                 code: "",
                 name: "",
@@ -404,6 +205,9 @@ export default {
                 is_external: "",
                 is_active: "",
             },
+            is_show_modal: false,
+            is_edit_modal: false,
+            // ----------------------------
             pagination: {
                 item_per_page: 10,
                 current_page: 1,
@@ -506,67 +310,67 @@ export default {
                 this.showMessage("error", "Lỗi", error.message);
             }
         },
-        addPartner() {
-            if (!this.formValidate()) return;
-            var page_url = this.page_url_create_partner;
-            var page_url_update = this.page_url_update_partner;
-            if (this.edit === false) {
-                fetch(page_url, {
-                    method: "POST",
-                    body: JSON.stringify(this.partner),
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json",
-                    },
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data.success == true) {
-                            this.reset();
-                            this.showMessage("success", "Thêm thành công");
-                            this.fetchData();
-                            $("#delivery_partner").modal("hide");
-                        } else {
-                            this.errors = data.errors;
-                            this.showMessage(
-                                "error",
-                                "Thêm mới không thành công"
-                            );
-                            this.fetchData();
-                            this.reset();
-                        }
-                    })
-                    .catch((err) => {})
-                    .finally(() => {
-                        this.is_loading = false;
-                    });
-            } else {
-                //update
-                fetch(page_url_update + "/" + this.partner.id, {
-                    method: "PUT",
-                    body: JSON.stringify(this.partner),
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json",
-                    },
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        if (data.success == true) {
-                            this.showMessage("success", "Cập nhật thành công");
-                            $("#delivery_partner").modal("hide");
-                        } else {
-                            this.errors = data.errors;
-                            this.showMessage(
-                                "error",
-                                "Cập nhật không thành công"
-                            );
-                        }
-                        this.fetchData();
-                    })
-                    .catch((err) => console.log(err));
-            }
-        },
+        // addPartner() {
+        //     if (!this.formValidate()) return;
+        //     var page_url = this.page_url_create_partner;
+        //     var page_url_update = this.page_url_update_partner;
+        //     if (this.edit === false) {
+        //         fetch(page_url, {
+        //             method: "POST",
+        //             body: JSON.stringify(this.partner),
+        //             headers: {
+        //                 Authorization: this.token,
+        //                 "content-type": "application/json",
+        //             },
+        //         })
+        //             .then((res) => res.json())
+        //             .then((data) => {
+        //                 if (data.success == true) {
+        //                     this.reset();
+        //                     this.showMessage("success", "Thêm thành công");
+        //                     this.fetchData();
+        //                     $("#delivery_partner").modal("hide");
+        //                 } else {
+        //                     this.errors = data.errors;
+        //                     this.showMessage(
+        //                         "error",
+        //                         "Thêm mới không thành công"
+        //                     );
+        //                     this.fetchData();
+        //                     this.reset();
+        //                 }
+        //             })
+        //             .catch((err) => {})
+        //             .finally(() => {
+        //                 this.is_loading = false;
+        //             });
+        //     } else {
+        //         //update
+        //         fetch(page_url_update + "/" + this.partner.id, {
+        //             method: "PUT",
+        //             body: JSON.stringify(this.partner),
+        //             headers: {
+        //                 Authorization: this.token,
+        //                 "content-type": "application/json",
+        //             },
+        //         })
+        //             .then((res) => res.json())
+        //             .then((data) => {
+        //                 if (data.success == true) {
+        //                     this.showMessage("success", "Cập nhật thành công");
+        //                     $("#delivery_partner").modal("hide");
+        //                 } else {
+        //                     this.errors = data.errors;
+        //                     this.showMessage(
+        //                         "error",
+        //                         "Cập nhật không thành công"
+        //                     );
+        //                 }
+        //                 this.fetchData();
+        //             })
+        //             .catch((err) => console.log(err));
+        //     }
+        // },
         deletePartner(id) {
             if (confirm("Bạn muốn xoá?")) {
                 fetch(`${this.page_url_destroy_partner}/${id}`, {
@@ -586,15 +390,20 @@ export default {
         },
 
         editPartner(item) {
-            this.edit = true;
-            this.errors = {};
-            this.partner.id = item.id;
-            this.partner.code = item.code;
-            this.partner.name = item.name;
-            this.partner.api_url = item.api_url;
-            this.partner.api_key = item.api_key;
-            this.partner.api_secret = item.api_secret;
-            $("#delivery_partner").modal("show");
+            // this.edit = true;
+            // this.errors = {};
+            // this.partner.id = item.id;
+            // this.partner.code = item.code;
+            // this.partner.name = item.name;
+            // this.partner.api_url = item.api_url;
+            // this.partner.api_key = item.api_key;
+            // this.partner.api_secret = item.api_secret;
+            // $("#delivery_partner").modal("show");
+
+            // ------------------------------
+            this.is_edit_modal = true;
+            this.partner_item = item;
+            this.$refs.dialog.showModal();
         },
         reset() {
             this.partner.id = "";
@@ -606,92 +415,96 @@ export default {
             this.partner.is_active = "";
         },
         showModal() {
-            this.edit = false;
-            this.errors = {};
-            $("#delivery_partner").modal("show");
-            this.reset();
+            // this.edit = false;
+            // this.errors = {};
+            // // $("#delivery_partner").modal("show");
+            // this.reset();
+
+            // --------------------
+            this.is_edit_modal = false;
+            this.$refs.dialog.showModal();
         },
         rowClass(item, type) {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
-        showMessage(type, title, message) {
-            if (!title) title = "Information";
-            toastr.options = {
-                positionClass: "toast-bottom-right",
-                toastClass: this.getToastClassByType(type),
-            };
-            toastr[type](message, title);
-            //this.reset()
-        },
-        getToastClassByType(type) {
-            switch (type) {
-                case "success":
-                    return "toastr-bg-green";
-                case "error":
-                    return "toastr-bg-red";
-                case "warning":
-                    return "toastr-bg-yellow";
-                default:
-                    return "";
-            }
-        },
-        hasError(fieldName) {
-            return fieldName in this.errors;
-        },
-        getError(fieldName) {
-            return this.errors[fieldName];
-        },
-        clearError(event) {
-            Vue.delete(this.errors, event.target.name);
-        },
-        formValidate() {
-            const errors = {};
-            const pushError = (field_name, error) => {
-                if (field_name in errors) {
-                    errors[field_name].push(error);
-                } else {
-                    errors[field_name] = [error];
-                }
-            };
-            const validator = {
-                code: () => {
-                    if (this.partner.code.length === 0) {
-                        pushError("code", "Yêu cầu nhập mã kho.");
-                    }
-                },
-                name: () => {
-                    if (this.partner.name.length === 0) {
-                        pushError("name", "Yêu cầu nhập mã nhà vận chuyển.");
-                    }
-                },
-                api_url: () => {
-                    const url_regex =
-                        /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-                    if (this.partner.api_url.length === 0) {
-                        pushError("api_url", "Yêu cầu nhập api_url.");
-                    }
-                    if (this.partner.api_url.match(url_regex) === null) {
-                        pushError("api_url", "api_url phải là một URL");
-                    }
-                },
-                api_key: () => {
-                    if (this.partner.api_key.length === 0) {
-                        pushError("api_key", "Yêu cầu nhập api_key.");
-                    }
-                },
-                api_secret: () => {
-                    if (this.partner.api_secret.length === 0) {
-                        pushError("api_secret", "Yêu cầu nhập api_secret.");
-                    }
-                },
-            };
-            Object.keys(validator).forEach((key) => {
-                validator[key]();
-            });
-            this.errors = errors;
-            return Object.keys(errors).length === 0;
-        },
+        // showMessage(type, title, message) {
+        //     if (!title) title = "Information";
+        //     toastr.options = {
+        //         positionClass: "toast-bottom-right",
+        //         toastClass: this.getToastClassByType(type),
+        //     };
+        //     toastr[type](message, title);
+        //     //this.reset()
+        // },
+        // getToastClassByType(type) {
+        //     switch (type) {
+        //         case "success":
+        //             return "toastr-bg-green";
+        //         case "error":
+        //             return "toastr-bg-red";
+        //         case "warning":
+        //             return "toastr-bg-yellow";
+        //         default:
+        //             return "";
+        //     }
+        // },
+        // hasError(fieldName) {
+        //     return fieldName in this.errors;
+        // },
+        // getError(fieldName) {
+        //     return this.errors[fieldName];
+        // },
+        // clearError(event) {
+        //     Vue.delete(this.errors, event.target.name);
+        // },
+        // formValidate() {
+        //     const errors = {};
+        //     const pushError = (field_name, error) => {
+        //         if (field_name in errors) {
+        //             errors[field_name].push(error);
+        //         } else {
+        //             errors[field_name] = [error];
+        //         }
+        //     };
+        //     const validator = {
+        //         code: () => {
+        //             if (this.partner.code.length === 0) {
+        //                 pushError("code", "Yêu cầu nhập mã kho.");
+        //             }
+        //         },
+        //         name: () => {
+        //             if (this.partner.name.length === 0) {
+        //                 pushError("name", "Yêu cầu nhập mã nhà vận chuyển.");
+        //             }
+        //         },
+        //         api_url: () => {
+        //             const url_regex =
+        //                 /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
+        //             if (this.partner.api_url.length === 0) {
+        //                 pushError("api_url", "Yêu cầu nhập api_url.");
+        //             }
+        //             if (this.partner.api_url.match(url_regex) === null) {
+        //                 pushError("api_url", "api_url phải là một URL");
+        //             }
+        //         },
+        //         api_key: () => {
+        //             if (this.partner.api_key.length === 0) {
+        //                 pushError("api_key", "Yêu cầu nhập api_key.");
+        //             }
+        //         },
+        //         api_secret: () => {
+        //             if (this.partner.api_secret.length === 0) {
+        //                 pushError("api_secret", "Yêu cầu nhập api_secret.");
+        //             }
+        //         },
+        //     };
+        //     Object.keys(validator).forEach((key) => {
+        //         validator[key]();
+        //     });
+        //     this.errors = errors;
+        //     return Object.keys(errors).length === 0;
+        // },
     },
     computed: {
         rows() {
