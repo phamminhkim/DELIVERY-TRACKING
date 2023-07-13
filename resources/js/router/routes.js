@@ -18,13 +18,13 @@ const routes = [{
         name: "DeliveryPartners",
     },
     {
-        path: "/delivery-users",
+        path: "/users",
         component: Users,
         name: "Users"
     },
 
     {
-        path: "/delivery-customers",
+        path: "/customers",
         component: Customers,
         name: "Customers",
     },
