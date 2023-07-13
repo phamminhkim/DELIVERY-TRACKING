@@ -164,8 +164,8 @@
                                             v-bind:class="hasError('api_secret') ? 'is-invalid' : ''" />
                                         <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
                                             <!-- <strong>{{ getError('api_secret') }}</strong> -->
-                                            <div v-for="(error, index) in getError('api_secret')" >
-                                                <strong :key="index">{{ error }}</strong> 
+                                            <div v-for="(error, index) in getError('api_secret')" :key="index">
+                                                <strong >{{ error }}</strong> 
                                                 <br/>
                                             </div>
 
@@ -202,7 +202,6 @@ export default {
     components: {
         Vue
     },
-
     data() {
         return {
             token: '',
@@ -310,10 +309,10 @@ export default {
             ],
 
             delivery_partners: [],
-            page_url_partner: "/api/master/delivery-partner",
-            page_url_create_partner: '/api/master/delivery-partner',
-            page_url_update_partner: '/api/master/delivery-partner',
-            page_url_destroy_partner: '/api/master/delivery-partner',
+            page_url_partner: "/api/master/delivery-partners",
+            page_url_create_partner: '/api/master/delivery-partners',
+            page_url_update_partner: '/api/master/delivery-partners',
+            page_url_destroy_partner: '/api/master/delivery-partners',
         }
     },
     created() {

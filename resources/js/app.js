@@ -11,7 +11,7 @@ import router from "./router";
 import VueRouter from "vue-router";
 import moment from "moment";
 
-Vue.filter("formatDate", function (value) {
+Vue.filter("formatDate", function(value) {
     if (value) {
         return moment(String(value)).format("DD/MM/YYYY");
     }
@@ -30,15 +30,15 @@ Vue.component(
 Vue.component("home", require("./components/home/MainScreen.vue").default);
 Vue.component(
     "delivery-partner",
-    require("./components/home/DeliveryPartners.vue").default
+    require("./components/home/master/DeliveryPartners.vue").default
 );
 Vue.component(
     "users",
-    require("./components/home/Users.vue").default
+    require("./components/home/master/Users.vue").default
 );
 Vue.component(
     "delivery-customer",
-    require("./components/home/DeliveryCustomer.vue").default
+    require("./components/home/master/DeliveryCustomers.vue").default
 );
 Vue.component(
     "admin-container",
