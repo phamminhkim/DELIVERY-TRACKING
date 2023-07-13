@@ -30,7 +30,7 @@ Vue.component(
 Vue.component("home", require("./components/home/MainScreen.vue").default);
 Vue.component(
     "delivery-partners",
-    require("./components/home/Master/DeliveryPartners.vue").default
+    require("./components/home/master/DeliveryPartners.vue").default
 );
 Vue.component(
     "delivery-users",

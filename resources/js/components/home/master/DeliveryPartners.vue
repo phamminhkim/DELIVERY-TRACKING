@@ -47,7 +47,7 @@
                                     type="search"
                                     class="form-control -control-navbar"
                                     v-model="filter"
-                                    :placeholder="placeholderText"
+                                    :placeholder="search_placeholder"
                                     aria-label="Search"
                                 />
                                 <div class="input-group-append">
@@ -71,8 +71,8 @@
                             hover
                             striped
                             :bordered="true"
-                            :current-page="current_page"
-                            :per-page="per_page"
+                            :current-page="pagination.current_page"
+                            :per-page="pagination.item_per_page"
                             :filter="filter"
                             :fields="fields"
                             :items="delivery_partners"
@@ -81,7 +81,8 @@
                             <template #cell(index)="data">
                                 {{
                                     data.index +
-                                    (current_page - 1) * per_page +
+                                    (pagination.current_page - 1) *
+                                        pagination.item_per_page +
                                     1
                                 }}
                             </template>
@@ -124,8 +125,8 @@
                                 <div class="col-md-2">
                                     <b-form-select
                                         size="sm"
-                                        v-model="per_page"
-                                        :options="pageOptions"
+                                        v-model="pagination.item_per_page"
+                                        :options="pagination.page_options"
                                     >
                                     </b-form-select>
                                 </div>
@@ -136,9 +137,9 @@
                                 ></label>
                                 <div class="col-md-3">
                                     <b-pagination
-                                        v-model="current_page"
+                                        v-model="pagination.current_page"
                                         :total-rows="rows"
-                                        :per-page="per_page"
+                                        :per-page="pagination.item_per_page"
                                         size="sm"
                                         class="ml-1"
                                     ></b-pagination>
@@ -374,20 +375,23 @@
 import Vue from "vue";
 import toastr from "toastr";
 import "toastr/toastr.scss";
+
+import ApiHandler from "../ApiHandler";
 export default {
     components: {
         Vue,
     },
-
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
+
             form_title: "Nhà vận chuyển",
             form_icon: "fas fa-truck",
 
-            token: "",
-            pagesNumber: [],
-            placeholderText: "Tìm kiếm..",
-            loading: false,
+            token: "Bearer " + window.Laravel.access_token,
+
+            search_placeholder: "Tìm kiếm..",
+            is_loading: false,
             edit: false,
             errors: {},
             partner: {
@@ -400,18 +404,17 @@ export default {
                 is_external: "",
                 is_active: "",
             },
-            //component per-page
             pagination: {
-                total: 0,
-                per_page: 2,
-                from: 1,
-                to: 0,
+                item_per_page: 10,
                 current_page: 1,
+                page_options: [
+                    10,
+                    50,
+                    100,
+                    500,
+                    { value: this.rows, text: "All" },
+                ],
             },
-            per_page: 10,
-            current_page: 1,
-            pageOptions: [10, 50, 100, 500, { value: this.rows, text: "All" }],
-            //search
             filter: "",
 
             fields: [
@@ -482,32 +485,26 @@ export default {
 
             delivery_partners: [],
             page_url_partner: "/api/master/delivery-partners",
-            page_url_create_partner: '/api/master/delivery-partners',
-            page_url_update_partner: '/api/master/delivery-partners',
-            page_url_destroy_partner: '/api/master/delivery-partners',
-        }
+            page_url_create_partner: "/api/master/delivery-partners",
+            page_url_update_partner: "/api/master/delivery-partners",
+            page_url_destroy_partner: "/api/master/delivery-partners",
+        };
     },
     created() {
-        this.errors = {};
-        this.token = "Bearer " + window.Laravel.access_token;
-        this.fetchPartner();
+        this.fetchData();
     },
     methods: {
-        fetchPartner() {
-            var page_url = this.page_url_partner;
-            fetch(page_url, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: this.token,
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    this.delivery_partners = data.data;
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+        async fetchData() {
+            try {
+                let result = await this.api_handler.get(this.page_url_partner);
+                if (result.success) {
+                    this.delivery_partners = result.data;
+                } else {
+                    this.showMessage("error", "Lỗi", result.message);
+                }
+            } catch (error) {
+                this.showMessage("error", "Lỗi", error.message);
+            }
         },
         addPartner() {
             if (!this.formValidate()) return;
@@ -527,7 +524,7 @@ export default {
                         if (data.success == true) {
                             this.reset();
                             this.showMessage("success", "Thêm thành công");
-                            this.fetchPartner();
+                            this.fetchData();
                             $("#delivery_partner").modal("hide");
                         } else {
                             this.errors = data.errors;
@@ -535,12 +532,13 @@ export default {
                                 "error",
                                 "Thêm mới không thành công"
                             );
-                            this.fetchPartner();
+                            this.fetchData();
                             this.reset();
                         }
                     })
-                    .catch((err) => {
-                        this.loading = false;
+                    .catch((err) => {})
+                    .finally(() => {
+                        this.is_loading = false;
                     });
             } else {
                 //update
@@ -556,18 +554,15 @@ export default {
                     .then((data) => {
                         if (data.success == true) {
                             this.showMessage("success", "Cập nhật thành công");
-                            this.fetchPartner();
                             $("#delivery_partner").modal("hide");
-                            //this.clearError();
                         } else {
                             this.errors = data.errors;
                             this.showMessage(
                                 "error",
                                 "Cập nhật không thành công"
                             );
-                            this.fetchPartner();
-                            //this.reset();
                         }
+                        this.fetchData();
                     })
                     .catch((err) => console.log(err));
             }
@@ -584,7 +579,7 @@ export default {
                     .then((res) => res.json())
                     .then((data) => {
                         this.showMessage("success", "Xoá thành công");
-                        this.fetchPartner();
+                        this.fetchData();
                         this.reset();
                     });
             }
@@ -600,7 +595,6 @@ export default {
             this.partner.api_key = item.api_key;
             this.partner.api_secret = item.api_secret;
             $("#delivery_partner").modal("show");
-            //this.clearError();
         },
         reset() {
             this.partner.id = "";
@@ -613,13 +607,9 @@ export default {
         },
         showModal() {
             this.edit = false;
-            //console.log('thu');
             this.errors = {};
             $("#delivery_partner").modal("show");
             this.reset();
-        },
-        placeholder() {
-            return this.placeholderText;
         },
         rowClass(item, type) {
             if (!item || type !== "row") return;
@@ -647,19 +637,13 @@ export default {
             }
         },
         hasError(fieldName) {
-            // if (typeof this.errors === "object" && this.errors !== null) {
-            //     return this.errors.hasOwnProperty(fieldName);
-            // }
-            // return false;
             return fieldName in this.errors;
         },
         getError(fieldName) {
-            //console.log(fieldName+"="+ this.errors[fieldName][0]);
             return this.errors[fieldName];
         },
         clearError(event) {
             Vue.delete(this.errors, event.target.name);
-            //  console.log(event.target.name);
         },
         formValidate() {
             const errors = {};
