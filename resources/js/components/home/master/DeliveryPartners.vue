@@ -113,38 +113,34 @@
                     </div>
                     <!-- end tạo nút -->
                     <!-- phân trang -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group row">
-                                <label
-                                    class="col-form-label-sm col-md-2"
-                                    style="text-align: left"
-                                    for=""
-                                    >Số lượng mỗi trang:</label
-                                >
-                                <div class="col-md-2">
-                                    <b-form-select
-                                        size="sm"
-                                        v-model="pagination.item_per_page"
-                                        :options="pagination.page_options"
-                                    >
-                                    </b-form-select>
-                                </div>
-                                <label
-                                    class="col-form-label-sm col-md-1"
-                                    style="text-align: left"
-                                    for=""
-                                ></label>
-                                <div class="col-md-3">
-                                    <b-pagination
-                                        v-model="pagination.current_page"
-                                        :total-rows="rows"
-                                        :per-page="pagination.item_per_page"
-                                        size="sm"
-                                        class="ml-1"
-                                    ></b-pagination>
-                                </div>
-                            </div>
+                    <div class="form-group row">
+                        <label
+                            class="col-form-label-sm col-md-2"
+                            style="text-align: left"
+                            for=""
+                            >Số lượng mỗi trang:</label
+                        >
+                        <div class="col-md-2">
+                            <b-form-select
+                                size="sm"
+                                v-model="pagination.item_per_page"
+                                :options="pagination.page_options"
+                            >
+                            </b-form-select>
+                        </div>
+                        <label
+                            class="col-form-label-sm col-md-1"
+                            style="text-align: left"
+                            for=""
+                        ></label>
+                        <div class="col-md-3">
+                            <b-pagination
+                                v-model="pagination.current_page"
+                                :total-rows="rows"
+                                :per-page="pagination.item_per_page"
+                                size="sm"
+                                class="ml-1"
+                            ></b-pagination>
                         </div>
                     </div>
                     <!-- end phân trang -->
@@ -226,7 +222,7 @@
                                                         ? 'is-invalid'
                                                         : ''
                                                 "
-                                            /> 
+                                            />
                                             <span
                                                 v-if="hasError('name')"
                                                 class="invalid-feedback"
@@ -385,7 +381,7 @@ export default {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
-            form_title: "Nhà vận chuyển",
+            form_title: "Đối tác vận chuyển",
             form_icon: "fas fa-truck",
 
             token: "Bearer " + window.Laravel.access_token,

@@ -41,6 +41,14 @@ Vue.component(
     require("./components/home/master/DeliveryCustomers.vue").default
 );
 Vue.component(
+    "menu-router-config",
+    require("./components/home/master/MenuRouterConfig.vue").default
+);
+Vue.component(
+    "menu-router",
+    require("./components/home/menu/MenuRouter.vue").default
+);
+Vue.component(
     "admin-container",
     require("./components/AdminContainer.vue").default
 );

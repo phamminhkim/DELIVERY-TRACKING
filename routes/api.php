@@ -18,8 +18,7 @@ use App\Http\Controllers\Api\Master\UserController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
-
-
+use App\Http\Controllers\Api\Master\MenuRouterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,12 +84,15 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
-
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+        });
+        Route::prefix('/menu-routers')->group(function () {
+            Route::get('/configs', [MenuRouterController::class, 'getConfigMenus']);
+            Route::post('/save-configs', [MenuRouterController::class, 'saveConfigMenus']);
         });
     });
 
