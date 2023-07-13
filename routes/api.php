@@ -43,7 +43,7 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
         });
-        Route::prefix('/delivery-partner')->group(function () {
+        Route::prefix('/delivery-partners')->group(function () {
             Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
             Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
             Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
