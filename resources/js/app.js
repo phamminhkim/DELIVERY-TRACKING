@@ -33,8 +33,8 @@ Vue.component(
     require("./components/home/DeliveryPartners.vue").default
 );
 Vue.component(
-    "master-users",
-    require("./components/home/MasterUsers.vue").default
+    "users",
+    require("./components/home/Users.vue").default
 );
 Vue.component(
     "delivery-customer",
