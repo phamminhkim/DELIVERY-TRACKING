@@ -6,15 +6,20 @@ const routes = [
     { path: "/", component: MainScreen, name: "MainScreen" },
     { path: "/home", component: MainScreen, name: "MainScreen" },
     {
-        path: "/delivery-partner",
-        component: DeliveryPartners,
-        name: "DeliveryPartners",
+        path: "/master-delivery-partners",
+        component: MasterDeliveryPartners,
+        name: "MasterDeliveryPartners",
     },
     { path: "/users", component: Users, name: "Users" },
     {
-        path: "/delivery-customer",
-        component: DeliveryCustomer,
-        name: "DeliveryCustomer",
+        path: "/master-users",
+        component: MasterUsers,
+        name: "MasterUsers",
+    },
+    {
+        path: "/master-customers",
+        component: MasterCustomers,
+        name: "MasterCustomers",
     },
 ];
 
