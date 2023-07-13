@@ -1,6 +1,6 @@
 import axios from "axios";
 
-class APIHandler {
+class ApiHandler {
     constructor(token) {
         this.token = token;
     }
