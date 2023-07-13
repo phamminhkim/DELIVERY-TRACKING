@@ -1,193 +1,369 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container" style="background: rgb(225 225 225 / 30%);">
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="form-group d-flex justify-content-between mt-2">
-                        <h4 class="text-uppercase font-weight-bold">Danh sách Nhà vận chuyển </h4>
-
-                        <!-- tạo mới -->
-
-                        <div class="text-right">
-                            <button @click="showModal()" class="btn btn-sm btn-info" style="height: 35px;width: 90px;">
-                                + Tạo mới
-                            </button>
+        <div class="container">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="m-0 text-dark">
+                                <i :class="form_icon" /> {{ form_title }}
+                            </h5>
                         </div>
-                        <!-- end tạo mới -->
-                    </div>
-
-                </div>
-            </div>
-
-
-
-            <div class="container-header">
-
-
-                <!-- end tạo mới -->
-
-
-                <!-- tìm kiếm -->
-                <div class="row" style="background-color:#F4F6F9">
-                    <div class="col-md-3">
-                        <div class="input-group input-group-sm mt-1 mb-1">
-                            <input type="search" class="form-control -control-navbar" v-model="filter"
-                                :placeholder="placeholderText" aria-label="Search">
-                            <div class="input-group-append">
-                                <button class="btn btn-default" style="background: #1b1a1a;color: white;">
-                                    <i class="fas fa-search"></i>
+                        <div class="col-sm-6">
+                            <div class="float-sm-right">
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    @click="showModel()"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                    Tạo mới
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- end tìm kiếm -->
-                <!-- tạo nút edit và delete -->
-                <div>
-                    <b-table responsive hover striped :bordered="true" :current-page="current_page" :per-page="per_page"
-                        :filter="filter" :fields="fields" :items="delivery_partners" :tbody-tr-class="rowClass">
-                        <template #cell(index)="data">
-                            {{ data.index + (current_page - 1) * per_page + 1 }}
-                        </template>
-                        <template #cell(action)="data">
-                            <div class="margin">
-                                <button class="btn btn-xs" style="margin-right: 10px;" @click="editPartner(data.item)"><i
-                                        class="fas fa-edit text-green" style="color: green;" title="Edit"></i></button>
-
-                                <button class="btn btn-xs" @click="deletePartner(data.item.id)"><i
-                                        class="fas fa-trash text-red" style="color: red;" title="Delete"></i></button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group row">
+                                <button
+                                    type="button"
+                                    class="btn btn-warning btn-sm ml-1 mt-1"
+                                >
+                                    <strong>
+                                        <i
+                                            class="fas fa-check mr-1 text-bold"
+                                        />Cập nhật chức năng</strong
+                                    >
+                                </button>
                             </div>
-                        </template>
-                    </b-table>
-                </div>
-                <!-- end tạo nút -->
-                <!-- phân trang -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group row">
-                            <label class="col-form-label-sm col-md-1" style="text-align: left" for="">Per
-                                page:</label>
-                            <div class="col-md-3">
-                                <b-form-select size="sm" v-model="per_page" :options="pageOptions">
-                                </b-form-select>
-                            </div>
-                            <label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
-                            <div class="col-md-3">
-                                <b-pagination v-model="current_page" :total-rows="rows" :per-page="per_page" size="sm"
-                                    class="ml-1"></b-pagination>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group input-group-sm mt-1 mb-1">
+                                <input
+                                    type="search"
+                                    class="form-control -control-navbar"
+                                    v-model="filter"
+                                    :placeholder="placeholderText"
+                                    aria-label="Search"
+                                />
+                                <div class="input-group-append">
+                                    <button
+                                        class="btn btn-default"
+                                        style="
+                                            background: #1b1a1a;
+                                            color: white;
+                                        "
+                                    >
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- end phân trang -->
-                <!-- tạo form -->
-                <div class="modal fade" id="delivery_partner" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form @submit.prevent=addPartner>
-                                <div class="modal-header">
-                                    <h4 class="modal-title">
-                                        <span v-if="!edit">Thêm mới nhà vận chuyển</span>
-                                        <span v-if="edit">Cập nhật nhà vận chuyển</span>
-                                    </h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
+                    <!-- tạo nút edit và delete -->
+                    <div class="row">
+                        <b-table
+                            responsive
+                            hover
+                            striped
+                            :bordered="true"
+                            :current-page="current_page"
+                            :per-page="per_page"
+                            :filter="filter"
+                            :fields="fields"
+                            :items="delivery_partners"
+                            :tbody-tr-class="rowClass"
+                        >
+                            <template #cell(index)="data">
+                                {{
+                                    data.index +
+                                    (current_page - 1) * per_page +
+                                    1
+                                }}
+                            </template>
+                            <template #cell(action)="data">
+                                <div class="margin">
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="editPartner(data.item)"
+                                    >
+                                        <i
+                                            class="fas fa-edit text-green"
+                                            title="Edit"
+                                        ></i>
+                                    </button>
+
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="deletePartner(data.item.id)"
+                                    >
+                                        <i
+                                            class="fas fa-trash text-red bigger-120"
+                                            title="Delete"
+                                        ></i>
                                     </button>
                                 </div>
-
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label>Mã (code)</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.code" class="form-control" id="code" name="code"
-                                            placeholder="Nhập mã (code) ..."
-                                            v-bind:class="hasError('code') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                            <!-- <strong>{{ getError('code') }}</strong> -->
-                                            <div v-for="(error, index) in getError('code')" :key="index">
-                                                <strong >{{ error }}</strong> 
-                                                <br/>
-                                            </div>
-
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Tên nhà vận chuyển</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.name" class="form-control" id="name" name="name"
-                                            placeholder="Nhập tên nhà vận chuyển ..."
-                                            v-bind:class="hasError('name') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                            <!-- <strong>{{ getError('name') }}</strong> -->
-                                            <div v-for="(error, index) in getError('name')" :key="index">
-                                                <strong >{{ error }}</strong> 
-                                                <br/>
-                                            </div>
-
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>API_URL</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_url" class="form-control" id="api_url" name="api_url"
-                                            placeholder="Nhập api_url ..."
-                                            v-bind:class="hasError('api_url') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
-                                            <div v-for="(error, index) in getError('api_url')" :key="index">
-                                                <strong >{{ error }}</strong> 
-                                                <br/>
-                                            </div>
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>API_Key</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_key" class="form-control" id="api_key" name="api_key"
-                                            placeholder="Nhập api_key ..."
-                                            v-bind:class="hasError('api_key') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                            <!-- <strong>{{ getError('api_key') }}</strong> -->
-                                            <div v-for="(error, index) in getError('api_key')" :key="index">
-                                                <strong >{{ error }}</strong> 
-                                                <br/>
-                                            </div>
-
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>API_Secret</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="partner.api_secret" class="form-control" id="api_secret"
-                                            name="api_secret" placeholder="Nhập API Secret ..."
-                                            v-bind:class="hasError('api_secret') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                            <!-- <strong>{{ getError('api_secret') }}</strong> -->
-                                            <div v-for="(error, index) in getError('api_secret')" >
-                                                <strong :key="index">{{ error }}</strong> 
-                                                <br/>
-                                            </div>
-
-                                        </span>
-                                    </div>
-
-
+                            </template>
+                        </b-table>
+                    </div>
+                    <!-- end tạo nút -->
+                    <!-- phân trang -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <label
+                                    class="col-form-label-sm col-md-2"
+                                    style="text-align: left"
+                                    for=""
+                                    >Số lượng mỗi trang:</label
+                                >
+                                <div class="col-md-2">
+                                    <b-form-select
+                                        size="sm"
+                                        v-model="per_page"
+                                        :options="pageOptions"
+                                    >
+                                    </b-form-select>
                                 </div>
-
-                                <div class="modal-footer justify-content-between">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                                        Đóng
-                                    </button>
-                                    <button type="submit" title="Submit" class="btn btn-primary">
-                                        Lưu
-                                    </button>
+                                <label
+                                    class="col-form-label-sm col-md-1"
+                                    style="text-align: left"
+                                    for=""
+                                ></label>
+                                <div class="col-md-3">
+                                    <b-pagination
+                                        v-model="current_page"
+                                        :total-rows="rows"
+                                        :per-page="per_page"
+                                        size="sm"
+                                        class="ml-1"
+                                    ></b-pagination>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
+                    <!-- end phân trang -->
+                    <!-- tạo form -->
+                    <div
+                        class="modal fade"
+                        id="delivery_partner"
+                        tabindex="-1"
+                        role="dialog"
+                    >
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <form @submit.prevent="addPartner">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">
+                                            <span v-if="!edit"
+                                                >Thêm mới nhà vận chuyển</span
+                                            >
+                                            <span v-if="edit"
+                                                >Cập nhật nhà vận chuyển</span
+                                            >
+                                        </h4>
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                        >
+                                            <span aria-hidden="true"
+                                                >&times;</span
+                                            >
+                                        </button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>Mã (code)</label>
+                                            <small class="text-danger">*</small>
+                                            <input
+                                                v-model="partner.code"
+                                                class="form-control"
+                                                id="code"
+                                                name="code"
+                                                placeholder="Nhập mã (code) ..."
+                                                v-bind:class="
+                                                    hasError('code')
+                                                        ? 'is-invalid'
+                                                        : ''
+                                                "
+                                            />
+                                            <span
+                                                v-if="hasError('code')"
+                                                class="invalid-feedback"
+                                                role="alert"
+                                            >
+                                                <!-- <strong>{{ getError('code') }}</strong> -->
+                                                <div
+                                                    v-for="(
+                                                        error, index
+                                                    ) in getError('code')"
+                                                    :key="index"
+                                                >
+                                                    <strong>{{ error }}</strong>
+                                                    <br />
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tên nhà vận chuyển</label>
+                                            <small class="text-danger">*</small>
+                                            <input
+                                                v-model="partner.name"
+                                                class="form-control"
+                                                id="name"
+                                                name="name"
+                                                placeholder="Nhập tên nhà vận chuyển ..."
+                                                v-bind:class="
+                                                    hasError('name')
+                                                        ? 'is-invalid'
+                                                        : ''
+                                                "
+                                            />
+                                            <span
+                                                v-if="hasError('name')"
+                                                class="invalid-feedback"
+                                                role="alert"
+                                            >
+                                                <!-- <strong>{{ getError('name') }}</strong> -->
+                                                <div
+                                                    v-for="(
+                                                        error, index
+                                                    ) in getError('name')"
+                                                    :key="index"
+                                                >
+                                                    <strong>{{ error }}</strong>
+                                                    <br />
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>API_URL</label>
+                                            <small class="text-danger">*</small>
+                                            <input
+                                                v-model="partner.api_url"
+                                                class="form-control"
+                                                id="api_url"
+                                                name="api_url"
+                                                placeholder="Nhập api_url ..."
+                                                v-bind:class="
+                                                    hasError('api_url')
+                                                        ? 'is-invalid'
+                                                        : ''
+                                                "
+                                            />
+                                            <span
+                                                v-if="hasError('api_url')"
+                                                class="invalid-feedback"
+                                                role="alert"
+                                            >
+                                                <div
+                                                    v-for="(
+                                                        error, index
+                                                    ) in getError('api_url')"
+                                                    :key="index"
+                                                >
+                                                    <strong>{{ error }}</strong>
+                                                    <br />
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>API_Key</label>
+                                            <small class="text-danger">*</small>
+                                            <input
+                                                v-model="partner.api_key"
+                                                class="form-control"
+                                                id="api_key"
+                                                name="api_key"
+                                                placeholder="Nhập api_key ..."
+                                                v-bind:class="
+                                                    hasError('api_key')
+                                                        ? 'is-invalid'
+                                                        : ''
+                                                "
+                                            />
+                                            <span
+                                                v-if="hasError('api_key')"
+                                                class="invalid-feedback"
+                                                role="alert"
+                                            >
+                                                <!-- <strong>{{ getError('api_key') }}</strong> -->
+                                                <div
+                                                    v-for="(
+                                                        error, index
+                                                    ) in getError('api_key')"
+                                                    :key="index"
+                                                >
+                                                    <strong>{{ error }}</strong>
+                                                    <br />
+                                                </div>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>API_Secret</label>
+                                            <small class="text-danger">*</small>
+                                            <input
+                                                v-model="partner.api_secret"
+                                                class="form-control"
+                                                id="api_secret"
+                                                name="api_secret"
+                                                placeholder="Nhập API Secret ..."
+                                                v-bind:class="
+                                                    hasError('api_secret')
+                                                        ? 'is-invalid'
+                                                        : ''
+                                                "
+                                            />
+                                            <span
+                                                v-if="hasError('api_secret')"
+                                                class="invalid-feedback"
+                                                role="alert"
+                                            >
+                                                <!-- <strong>{{ getError('api_secret') }}</strong> -->
+                                                <div
+                                                    v-for="(
+                                                        error, index
+                                                    ) in getError('api_secret')"
+                                                    :key="index"
+                                                >
+                                                    <strong>{{ error }}</strong>
+                                                    <br />
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="modal-footer justify-content-between"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="btn btn-default"
+                                            data-dismiss="modal"
+                                        >
+                                            Đóng
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            title="Submit"
+                                            class="btn btn-primary"
+                                        >
+                                            Lưu
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end tạo form -->
                 </div>
-                <!-- end tạo form -->
             </div>
         </div>
         <!-- end container -->
@@ -195,31 +371,34 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import toastr from 'toastr';
-import 'toastr/toastr.scss';
+import Vue from "vue";
+import toastr from "toastr";
+import "toastr/toastr.scss";
 export default {
     components: {
-        Vue
+        Vue,
     },
 
     data() {
         return {
-            token: '',
+            form_title: "Nhà vận chuyển",
+            form_icon: "fas fa-truck",
+
+            token: "",
             pagesNumber: [],
-            placeholderText: "Tìm kiếm ",
+            placeholderText: "Tìm kiếm..",
             loading: false,
             edit: false,
             errors: {},
             partner: {
-                id: '',
-                code: '',
-                name: '',
-                api_url: '',
-                api_key: '',
-                api_secret: '',
-                is_external: '',
-                is_active: '',
+                id: "",
+                code: "",
+                name: "",
+                api_url: "",
+                api_key: "",
+                api_secret: "",
+                is_external: "",
+                is_active: "",
             },
             //component per-page
             pagination: {
@@ -237,50 +416,45 @@ export default {
 
             fields: [
                 {
-                    key: 'index',
-                    label: 'STT',
+                    key: "index",
+                    label: "STT",
                     sortable: true,
-                    class: 'text-nowrap',
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'code',
-                    label: '(Code)',
+                    key: "code",
+                    label: "(Code)",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'name',
-                    label: 'Tên nhà vận chuyển',
+                    key: "name",
+                    label: "Tên nhà vận chuyển",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'api_url',
-                    label: 'API URL',
+                    key: "api_url",
+                    label: "API URL",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'api_key',
-                    label: 'API key',
+                    key: "api_key",
+                    label: "API key",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'api_secret',
-                    label: 'API Secret',
+                    key: "api_secret",
+                    label: "API Secret",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
 
                 // {
@@ -299,21 +473,18 @@ export default {
 
                 // },
                 {
-                    key: 'action',
-                    label: 'Trạng thái',
+                    key: "action",
+                    label: "Trạng thái",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap",
                 },
-
-
             ],
 
             delivery_partners: [],
-            page_url_partner: "/api/master/delivery-partner",
-            page_url_create_partner: '/api/master/delivery-partner',
-            page_url_update_partner: '/api/master/delivery-partner',
-            page_url_destroy_partner: '/api/master/delivery-partner',
+            page_url_partner: "/api/master/delivery-partners",
+            page_url_create_partner: '/api/master/delivery-partners',
+            page_url_update_partner: '/api/master/delivery-partners',
+            page_url_destroy_partner: '/api/master/delivery-partners',
         }
     },
     created() {
@@ -326,21 +497,20 @@ export default {
             var page_url = this.page_url_partner;
             fetch(page_url, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: this.token
-                }
+                    "Content-Type": "application/json",
+                    Authorization: this.token,
+                },
             })
-                .then(res => res.json())
-                .then(data => {
-
+                .then((res) => res.json())
+                .then((data) => {
                     this.delivery_partners = data.data;
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
         },
         addPartner() {
-            if(!this.formValidate()) return;
+            if (!this.formValidate()) return;
             var page_url = this.page_url_create_partner;
             var page_url_update = this.page_url_update_partner;
             if (this.edit === false) {
@@ -349,26 +519,27 @@ export default {
                     body: JSON.stringify(this.partner),
                     headers: {
                         Authorization: this.token,
-                        "content-type": "application/json"
-                    }
+                        "content-type": "application/json",
+                    },
                 })
-
-                    .then(res => res.json())
-                    .then(data => {
-
+                    .then((res) => res.json())
+                    .then((data) => {
                         if (data.success == true) {
                             this.reset();
-                            this.showMessage('success', 'Thêm thành công');
+                            this.showMessage("success", "Thêm thành công");
                             this.fetchPartner();
-                            $('#delivery_partner').modal('hide');
+                            $("#delivery_partner").modal("hide");
                         } else {
                             this.errors = data.errors;
-                            this.showMessage('error', 'Thêm mới không thành công');
+                            this.showMessage(
+                                "error",
+                                "Thêm mới không thành công"
+                            );
                             this.fetchPartner();
                             this.reset();
                         }
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         this.loading = false;
                     });
             } else {
@@ -378,38 +549,41 @@ export default {
                     body: JSON.stringify(this.partner),
                     headers: {
                         Authorization: this.token,
-                        "content-type": "application/json"
-                    }
+                        "content-type": "application/json",
+                    },
                 })
-                    .then(res => res.json())
-                    .then(data => {
+                    .then((res) => res.json())
+                    .then((data) => {
                         if (data.success == true) {
-                            this.showMessage('success', 'Cập nhật thành công');
+                            this.showMessage("success", "Cập nhật thành công");
                             this.fetchPartner();
-                            $('#delivery_partner').modal('hide');
+                            $("#delivery_partner").modal("hide");
                             //this.clearError();
                         } else {
                             this.errors = data.errors;
-                            this.showMessage('error', 'Cập nhật không thành công');
+                            this.showMessage(
+                                "error",
+                                "Cập nhật không thành công"
+                            );
                             this.fetchPartner();
                             //this.reset();
                         }
                     })
-                    .catch(err => console.log(err));
+                    .catch((err) => console.log(err));
             }
         },
         deletePartner(id) {
-            if (confirm('Bạn muốn xoá?')) {
+            if (confirm("Bạn muốn xoá?")) {
                 fetch(`${this.page_url_destroy_partner}/${id}`, {
-                    method: 'delete',
+                    method: "delete",
                     headers: {
                         Authorization: this.token,
-                        "content-type": "application/json"
-                    }
+                        "content-type": "application/json",
+                    },
                 })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.showMessage('success', 'Xoá thành công');
+                    .then((res) => res.json())
+                    .then((data) => {
+                        this.showMessage("success", "Xoá thành công");
                         this.fetchPartner();
                         this.reset();
                     });
@@ -425,40 +599,37 @@ export default {
             this.partner.api_url = item.api_url;
             this.partner.api_key = item.api_key;
             this.partner.api_secret = item.api_secret;
-            $('#delivery_partner').modal('show');
+            $("#delivery_partner").modal("show");
             //this.clearError();
         },
         reset() {
-            this.partner.id = '';
-            this.partner.code = '',
-            this.partner.name = '';
-            this.partner.api_url = '';
-            this.partner.api_key = '';
-            this.partner.api_secret = '';
-            this.partner.is_external = '';
-            this.partner.is_active = '';
+            this.partner.id = "";
+            (this.partner.code = ""), (this.partner.name = "");
+            this.partner.api_url = "";
+            this.partner.api_key = "";
+            this.partner.api_secret = "";
+            this.partner.is_external = "";
+            this.partner.is_active = "";
         },
         showModal() {
             this.edit = false;
             //console.log('thu');
             this.errors = {};
-            $('#delivery_partner').modal('show');
+            $("#delivery_partner").modal("show");
             this.reset();
         },
         placeholder() {
             return this.placeholderText;
         },
         rowClass(item, type) {
-            if (!item || type !== 'row') return
-            if (item.status === 'awesome') return 'table-success'
+            if (!item || type !== "row") return;
+            if (item.status === "awesome") return "table-success";
         },
         showMessage(type, title, message) {
-            if (!title)
-                title = "Information";
+            if (!title) title = "Information";
             toastr.options = {
                 positionClass: "toast-bottom-right",
                 toastClass: this.getToastClassByType(type),
-
             };
             toastr[type](message, title);
             //this.reset()
@@ -490,66 +661,64 @@ export default {
             Vue.delete(this.errors, event.target.name);
             //  console.log(event.target.name);
         },
-        formValidate(){
+        formValidate() {
             const errors = {};
             const pushError = (field_name, error) => {
-                if(field_name in errors){
+                if (field_name in errors) {
                     errors[field_name].push(error);
-                }
-                else {
+                } else {
                     errors[field_name] = [error];
                 }
             };
             const validator = {
-                'code': () => {
-                    if(this.partner.code.length === 0){
-                        pushError('code', 'Yêu cầu nhập mã kho.');
+                code: () => {
+                    if (this.partner.code.length === 0) {
+                        pushError("code", "Yêu cầu nhập mã kho.");
                     }
                 },
-                'name': () => {
-                    if(this.partner.name.length === 0){
-                        pushError('name', 'Yêu cầu nhập mã nhà vận chuyển.');
+                name: () => {
+                    if (this.partner.name.length === 0) {
+                        pushError("name", "Yêu cầu nhập mã nhà vận chuyển.");
                     }
                 },
-                'api_url': () => {
-                    const url_regex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-                    if(this.partner.api_url.length === 0){
-                        pushError('api_url', 'Yêu cầu nhập api_url.');
+                api_url: () => {
+                    const url_regex =
+                        /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
+                    if (this.partner.api_url.length === 0) {
+                        pushError("api_url", "Yêu cầu nhập api_url.");
                     }
-                    if(this.partner.api_url.match(url_regex) === null){
-                        pushError('api_url', 'api_url phải là một URL');
-                    }
-                },
-                'api_key': () => {
-                    if(this.partner.api_key.length === 0){
-                        pushError('api_key', 'Yêu cầu nhập api_key.');
+                    if (this.partner.api_url.match(url_regex) === null) {
+                        pushError("api_url", "api_url phải là một URL");
                     }
                 },
-                'api_secret': () => {
-                    if(this.partner.api_secret.length === 0){
-                        pushError('api_secret', 'Yêu cầu nhập api_secret.');
+                api_key: () => {
+                    if (this.partner.api_key.length === 0) {
+                        pushError("api_key", "Yêu cầu nhập api_key.");
+                    }
+                },
+                api_secret: () => {
+                    if (this.partner.api_secret.length === 0) {
+                        pushError("api_secret", "Yêu cầu nhập api_secret.");
                     }
                 },
             };
-            Object.keys(validator).forEach(key => {
+            Object.keys(validator).forEach((key) => {
                 validator[key]();
-            })
+            });
             this.errors = errors;
             return Object.keys(errors).length === 0;
-        }
+        },
     },
     computed: {
         rows() {
             return this.delivery_partners.length;
         },
-    }
-}
+    },
+};
 </script>
 
-<style lang="scss" scoped
->
+<style lang="scss" scoped>
 .table {
     margin-bottom: 0px;
 }
 </style>
- 
