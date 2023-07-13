@@ -30,7 +30,7 @@ Vue.component(
 Vue.component("home", require("./components/home/MainScreen.vue").default);
 Vue.component(
     "delivery-partner",
-    require("./components/home/DeliveryPartners.vue").default
+    require("./components/home/MasterDeliveryPartners.vue").default
 );
 Vue.component(
     "master-users",
@@ -38,7 +38,7 @@ Vue.component(
 );
 Vue.component(
     "delivery-customer",
-    require("./components/home/DeliveryCustomer.vue").default
+    require("./components/home/MasterCustomers.vue").default
 );
 Vue.component(
     "admin-container",

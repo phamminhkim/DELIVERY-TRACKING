@@ -1,23 +1,23 @@
 import MainScreen from "../components/home/MainScreen.vue";
-import MasterDeliveryPartners from "../components/home/DeliveryPartners.vue";
+import MasterDeliveryPartners from "../components/home/MasterDeliveryPartners.vue";
 import MasterUsers from "../components/home/MasterUsers.vue";
-import MasterCustomers from "../components/home/DeliveryCustomer.vue";
+import MasterCustomers from "../components/home/MasterCustomers.vue";
 const routes = [
     { path: "/", component: MainScreen, name: "MainScreen" },
     { path: "/home", component: MainScreen, name: "MainScreen" },
     {
-        path: "/master-delivery-partners",
+        path: "/delivery-partners",
         component: MasterDeliveryPartners,
-        name: "MasterDeliveryPartners",
+        name: "DeliveryPartners",
     },
     {
-        path: "/master-users",
+        path: "/users",
         component: MasterUsers,
-        name: "MasterUsers" },
+        name: "Users" },
     {
-        path: "/master-customers",
+        path: "/customers",
         component: MasterCustomers,
-        name: "MasterCustomers",
+        name: "Customers",
     },
 ];
 
