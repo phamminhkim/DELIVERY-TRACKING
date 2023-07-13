@@ -48,14 +48,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <div class="container">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars text-secondary"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
+                        class="fas fa-bars text-secondary"></i></a>
 
                 <a href="../../" class="navbar-brand">
-                    <i class="fas fa-truck "></i>
                     {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
 
-                    <span class="font-weight-light">TL Delivery Tracking</span>
+                    <strong>DELIVERY TRACKING</strong>
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse"
@@ -115,7 +115,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <!-- Right navbar links -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown user-menu">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="#user-profile">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"
+                                data-target="#user-profile">
                                 <img src="{{ Auth::user()->avatar }}" class="user-image img-circle elevation-2"
                                     alt="User a">
                                 <span class="d-none d-md-inline">{{ Auth::user()->name }} -
@@ -135,11 +136,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 </li>
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
-                                    <a href="/profile" class="btn btn-default btn-flat" style="border-width: 1px; border-color: #000">
+                                    <a href="/profile" class="btn btn-default btn-flat"
+                                        style="border-width: 1px; border-color: #000">
                                         Hồ sơ cá nhân</a>
                                     <a href="{{ route('logout') }}"
                                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                                        class="btn btn-default btn-flat float-right" style="border-width: 1px; border-color: #000">Đăng xuất</a>
+                                        class="btn btn-default btn-flat float-right"
+                                        style="border-width: 1px; border-color: #000">Đăng xuất</a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                         class="d-none">
                                         @csrf
@@ -157,9 +160,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="/" class="brand-link">
-                <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto"
-           style="opacity: .8">
-                <span class="brand-text font-weight-light">AdminControlPannel</span>
+                <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto" style="opacity: .8">
+                <span class="brand-text font-weight-light">Control Panel</span>
             </a>
 
             <!-- Sidebar -->
@@ -713,30 +715,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </aside>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0 text-dark"> Admin Application <small>1.0</small></h1>
-                        </div><!-- /.col -->
-                        {{-- <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item"><a href="#">Layout</a></li>
-                                <li class="breadcrumb-item active">Top Navigation</li>
-                            </ol>
-                        </div><!-- /.col --> --}}
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
-            <!-- /.content-header -->
-
             <!-- Main content -->
             <div class="content">
                 <div class="container-fluid">
-                        @yield('content')
-                        <!-- /.col-md-6 -->
+                    @yield('content')
+                    <!-- /.col-md-6 -->
                     <!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>
