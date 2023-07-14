@@ -28,7 +28,6 @@ Auth::routes(['verify' => true]);
 
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
-Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');
 
 Route::prefix('admins')->group(function () {
     Route::get('routes', function () {
@@ -50,32 +49,6 @@ Route::prefix('admins')->group(function () {
             echo "</tr>";
         }
         echo "</table>";
-    });
-
-    Route::get('info', function () {
-        $jsonString = file_get_contents(base_path('resources/data/myInfo.json'));
-        $fakeUser = json_decode($jsonString, true);
-
-        return view('pages.profile.components.formInfo')->with('fakeUser', $fakeUser);
-    });
-
-    Route::get('orders', function () {
-        $jsonString = file_get_contents(base_path('resources/data/myOrder.json'));
-        $fakeData = json_decode($jsonString, true);
-
-        return view('pages.orders.myorder')->with('fakeData', $fakeData);
-    });
-
-
-    Route::get('order-detail', function () {
-        $jsonString = file_get_contents(base_path('resources/data/timeline.json'));
-        $fakeTimeline = json_decode($jsonString, true);
-
-        return view('pages.orders.orderDetail')->with('fakeTimeline', $fakeTimeline);
-    });
-
-    Route::get('order-waiting', function () {
-        return view('pages.orders.orderWaiting');
     });
     Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZaloAuthorizeUrl');
     Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
@@ -115,3 +88,5 @@ Route::get('access-token', function () {
 
     echo $access_token ?? "Không có token";
 });
+
+Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');
