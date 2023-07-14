@@ -8,26 +8,41 @@ const routes = [
         path: "/dashboard",
         component: MainScreen,
         name: "MainScreen",
+        meta: {
+            breadcrumb: "Tổng quan",
+        },
     },
     {
         path: "/delivery-partners",
         component: DeliveryPartners,
         name: "DeliveryPartners",
+        meta: {
+            breadcrumb: "Đơn vị vận chuyển",
+        },
     },
     {
         path: "/users",
         component: Users,
         name: "Users",
+        meta: {
+            breadcrumb: "Danh sách người dùng",
+        },
     },
     {
         path: "/customers",
         component: Customers,
         name: "Customers",
+        meta: {
+            breadcrumb: "Danh sách khách hàng",
+        },
     },
     {
         path: "/menu-router-config",
         component: MenuRouterConfig,
         name: "MenuRouterConfig",
+        meta: {
+            breadcrumb: "Định tuyến menus",
+        },
     },
 ];
 
