@@ -10,11 +10,16 @@ use Illuminate\Support\Facades\Validator;
 
 class OrderController extends ResponseController
 {
-    public function getAvailableOrders()
+    public function getOrders(Request $request)
     {
-        $query = Order::all();
+        $handler = BusinessRepository::orderRequest($request);
+        $orders = $handler->getOrders();
 
-        return $this->responseSuccess($query);
+        if ($orders) {
+            return $this->responseSuccess($orders);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
     }
 
     public function syncFromSAP(Request $request)

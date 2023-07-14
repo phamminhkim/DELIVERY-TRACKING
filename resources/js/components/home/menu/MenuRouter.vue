@@ -68,37 +68,51 @@ export default {
     },
     created() {
         this.token = "Bearer " + window.Laravel.access_token;
-        this.updateRoute(this.$route.path.replace("/", ""));
+        this.updateRoute(this.$route);
     },
     watch: {
         $route(to, from) {
-            this.updateRoute(to.path.replace("/", ""));
+            this.updateRoute(to);
         },
     },
     methods: {
-        updateRoute(route) {
-            this.menus.forEach((menu) => {
-                let menu_current = menu.children.find(
-                    (menu) => menu.link == route
+        updateRoute(route_to) {
+            const route = route_to.path.replace("/", "");
+            const params = new URLSearchParams(route_to.query);
+
+            this.menu_current = {};
+            this.menu_current_root = {};
+
+            for (const menu of this.menus) {
+                const menu_current = menu.children.find(
+                    (child) =>
+                        child.link === route &&
+                        params.toString() ===
+                            new URLSearchParams(child.query_string).toString()
                 );
+
                 if (menu_current) {
                     this.menu_current = menu_current;
                     this.menu_current_root = menu_current;
-                    while (this.menu_current_root.parent_id != 0) {
+
+                    while (this.menu_current_root.parent_id !== 0) {
                         this.menu_current_root = this.menus.find(
                             (menu) =>
-                                menu.id == this.menu_current_root.parent_id
+                                menu.id === this.menu_current_root.parent_id
                         );
                     }
-                } else {
-                    this.menu_current = {};
-                    this.menu_current_root = {};
+
+                    return;
                 }
-            });
+            }
         },
         getLinkHref(menu) {
             if (!menu.has_children) {
-                return menu.link;
+                return (
+                    menu.link +
+                    (menu.query_string != "" ? "?" : "") +
+                    menu.query_string
+                );
             } else return "#";
         },
         getItemClass(menu) {

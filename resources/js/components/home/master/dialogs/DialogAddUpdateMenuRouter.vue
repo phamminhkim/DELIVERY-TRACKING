@@ -1,11 +1,16 @@
 <template>
-    <div class="modal fade" id="DialogCreateMenu" tabindex="-1" role="dialog">
+    <div
+        class="modal fade"
+        id="DialogAddUpdateMenuRouter"
+        tabindex="-1"
+        role="dialog"
+    >
         <div class="modal-dialog">
             <div class="modal-content">
                 <form @submit.prevent="submitDataForm">
                     <div class="modal-header">
                         <h4 class="modal-title">
-                            <span v-if="!edit">Tạo mới</span>
+                            <span v-if="!is_editing">Tạo mới</span>
                             <span v-else>Cập nhật</span>
                             menu
                         </h4>
@@ -55,6 +60,16 @@
                                 placeholder="Nhập đường dẫn menu"
                                 :rules="['rules.required,rules.min']"
                                 required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>Query string </label>
+                            <input
+                                v-model="menu.query_string"
+                                type="text"
+                                class="form-control"
+                                placeholder="Nhập query string (nếu có)"
+                                :rules="['rules.required,rules.min']"
                             />
                         </div>
                         <div class="form-group">
@@ -114,34 +129,19 @@
     </div>
 </template>
 <script>
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-
 export default {
     props: {
         menu: Object,
-        edit: Boolean,
-    },
-    components: {
-        Treeselect,
-    },
-    data() {
-        return {
-            loading: false,
-            token: "",
-        };
-    },
-    created() {
-        this.token = "Bearer " + window.Laravel.access_token;
+        is_editing: Boolean,
     },
     methods: {
         submitDataForm() {
-            if (this.edit) {
+            if (this.is_editing) {
                 this.$emit("onUpdateMenu", this.menu);
             } else {
                 this.$emit("onCreateMenu", this.menu);
             }
-            $("#DialogCreateMenu").modal("hide");
+            $("#DialogAddUpdateMenuRouter").modal("hide");
         },
     },
 };

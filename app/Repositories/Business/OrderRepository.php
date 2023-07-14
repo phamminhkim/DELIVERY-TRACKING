@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Order;
 use App\Models\Master\Customer;
+use App\Models\Master\OrderStatus;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
@@ -142,6 +143,23 @@ class OrderRepository extends RepositoryAbs
             }
         } catch (\Exception $exception) {
             DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function getOrders()
+    {
+        try {
+            $query = Order::query();
+            if ($this->request->filled('filter')) {
+                if ($this->request->filter == 'undone') {
+                    $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+                }
+            }
+            $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+            return $orders;
+        } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

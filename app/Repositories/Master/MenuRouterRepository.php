@@ -61,6 +61,7 @@ class MenuRouterRepository extends RepositoryAbs
                 $menu->order = ++$i;
                 $menu->title = $row['title'];
                 $menu->link = $row['link'];
+                $menu->query_string = $row['query_string'] ?? '';
                 $menu->icon = $row['icon'] ?? '';
                 $menu->left = 0;
                 $menu->right = 0;

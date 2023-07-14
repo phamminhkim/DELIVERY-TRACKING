@@ -3,6 +3,9 @@ import DeliveryPartners from "../components/home/master/DeliveryPartners.vue";
 import Users from "../components/home/master/DeliveryUsers.vue";
 import Customers from "../components/home/master/DeliveryCustomers.vue";
 import MenuRouterConfig from "../components/home/master/MenuRouterConfig.vue";
+import Orders from "../components/home/business/Orders.vue";
+import Deliveries from "../components/home/business/Deliveries.vue";
+
 const routes = [
     {
         path: "/dashboard",
@@ -42,6 +45,22 @@ const routes = [
         name: "MenuRouterConfig",
         meta: {
             breadcrumb: "Định tuyến menus",
+        },
+    },
+    {
+        path: "/deliveries",
+        component: Deliveries,
+        name: "Deliveries",
+        meta: {
+            breadcrumb: "Quản lí vận đơn",
+        },
+    },
+    {
+        path: "/orders",
+        component: Orders,
+        name: "Orders",
+        meta: {
+            breadcrumb: "Quản lí đơn hàng",
         },
     },
 ];
