@@ -11,10 +11,10 @@ class MenuRouterController extends ResponseController
     public function getConfigMenus(Request $request)
     {
         $handler = MasterRepository::menuRouterRequest($request);
-        $users = $handler->getConfigMenus();
+        $menus = $handler->getConfigMenus();
 
-        if ($users) {
-            return $this->responseSuccess($users);
+        if ($menus) {
+            return $this->responseSuccess($menus);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
@@ -23,10 +23,22 @@ class MenuRouterController extends ResponseController
     public function saveConfigMenus(Request $request)
     {
         $handler = MasterRepository::menuRouterRequest($request);
-        $users = $handler->saveConfigMenus();
+        $is_success = $handler->saveConfigMenus();
 
-        if ($users) {
-            return $this->responseSuccess($users);
+        if ($is_success) {
+            return $this->responseOk();
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function deleteConfigMenu(Request $request, $id)
+    {
+        $handler = MasterRepository::menuRouterRequest($request);
+        $is_success = $handler->deleteConfigMenu($id);
+
+        if ($is_success) {
+            return $this->responseOk();
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }

@@ -27,8 +27,8 @@ Auth::routes(['verify' => true]);
 
 
 Auth::routes();
-Route::get('/', 'HomeController@index')->name('home');
 Route::get('/home', 'HomeController@index')->name('home');
+Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');
 
 Route::prefix('admins')->group(function () {
     Route::get('routes', function () {
@@ -93,7 +93,6 @@ Route::get('login/{social}/callback', [
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
 
-Route::any('/app/{any?}', 'SinglePage\AppController@index')->where('any', '.*');
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

@@ -29,12 +29,9 @@ class WebBaseController  extends ResponseController
                     $request->session()->put('user', $access_token);
                 }
             }
-            $menu_data = MenuUtility::getMenusForUser(Auth::user()->id, $request->path());
-            $menus = $menu_data['list_menus'];
-            $current_menu = $menu_data['current_menu'];
-            $current_root = $menu_data['current_root'];
+            $menus = MenuUtility::getMenusForUser(Auth::user()->id);
 
-            view()->share(compact('access_token', 'menus', 'current_menu', 'current_root'));
+            view()->share(compact('access_token', 'menus'));
             return $next($request);
         });
     }

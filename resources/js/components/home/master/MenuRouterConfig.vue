@@ -209,6 +209,7 @@ export default {
             token: "",
             page_url_menu: "/api/master/menu-routers/configs",
             api_save_menu_routers: "/api/master/menu-routers/save-configs",
+            api_delete_menu_routers: "/api/master/menu-routers/",
         };
     },
     created() {
@@ -307,6 +308,36 @@ export default {
             this.menu = menu;
             //console.log(this.$refs.nested_tree_menus.getPureData());
             $("#DialogCreateMenu").modal("show");
+        },
+        deleteItem(menu) {
+            if (confirm("Bạn có chắc chắn muốn xóa menu này?")) {
+                th.breadthFirstSearch(this.current_tree, (node) => {
+                    if (node.id == menu.id) {
+                        fetch(this.api_delete_menu_routers + menu.id, {
+                            method: "DELETE",
+                            headers: {
+                                Authorization: this.token,
+                                "content-type": "application/json",
+                            },
+                        })
+                            .then((res) => res.json())
+                            .then((data) => {
+                                this.loading = false;
+                                if (data.success) {
+                                    toastr.success(data.message, "Thành công");
+                                    this.fetchMenus();
+                                } else {
+                                    toastr.danger(data.message, "Thất bại");
+                                }
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                this.loading = false;
+                            });
+                        return false;
+                    }
+                });
+            }
         },
         convertToTree(menu_id, childs_id) {
             let menu = this.list_menus[menu_id];

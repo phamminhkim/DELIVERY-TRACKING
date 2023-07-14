@@ -91,6 +91,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
         });
         Route::prefix('/menu-routers')->group(function () {
+            Route::delete('/{id}', [MenuRouterController::class, 'deleteConfigMenu']);
             Route::get('/configs', [MenuRouterController::class, 'getConfigMenus']);
             Route::post('/save-configs', [MenuRouterController::class, 'saveConfigMenus']);
         });

@@ -16,7 +16,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'TL Delivery Tracking') }}</title>
+    <title>{{ config('app.title', 'TL Delivery Tracking') }}</title>
 
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -26,6 +26,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="/template/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+    
     <script>
         try {
 
@@ -50,11 +52,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
                     class="fas fa-bars text-secondary"></i></a>
 
-            <a href="/app" class="navbar-brand">
+            <router-link to="/" class="navbar-brand">
                 {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
                 <strong>DELIVERY TRACKING</strong>
-            </a>
+            </router-link>
 
             <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,7 +107,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="/app" class="brand-link">
+            <a href="/" class="brand-link">
                 <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto" style="opacity: .8">
                 <i><strong class="brand-text">Control Panel</strong></i>
             </a>
@@ -114,9 +116,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <div class="sidebar">
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
-                    <menu-router v-bind:menus="{{ $menus }}"
-                        v-bind:menu_current_root="{{ json_encode($current_root) }}"
-                        v-bind:menu_current="{{ json_encode($current_menu) }}">
+                    <menu-router v-bind:menus="{{ $menus }}">
                     </menu-router>
                 </nav>
                 <!-- /.sidebar-menu -->

@@ -49,9 +49,17 @@ Vue.component(
     require("./components/home/menu/MenuRouter.vue").default
 );
 Vue.component(
+    "menu-router-children",
+    require("./components/home/menu/MenuRouterChildren.vue").default
+);
+Vue.component(
     "admin-container",
     require("./components/AdminContainer.vue").default
 );
+
+toastr.options = {
+    positionClass: "toast-bottom-right",
+};
 
 const app = new Vue({
     el: "#app",
