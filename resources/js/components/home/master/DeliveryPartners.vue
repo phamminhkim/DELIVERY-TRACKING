@@ -302,6 +302,7 @@ export default {
                 if (result.success) {
                     this.delivery_partners = result.data;
                     this.fetchData();
+                    this.showMessage('success', 'Xóa thành công');
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -319,6 +320,26 @@ export default {
         rowClass(item, type) {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
+        },
+        showMessage(type, title, message) {
+            if (!title) title = "Information";
+            toastr.options = {
+                positionClass: "toast-bottom-right",
+                toastClass: this.getToastClassByType(type),
+            };
+            toastr[type](message, title);
+        },
+        getToastClassByType(type) {
+            switch (type) {
+                case "success":
+                    return "toastr-bg-green";
+                case "error":
+                    return "toastr-bg-red";
+                case "warning":
+                    return "toastr-bg-yellow";
+                default:
+                    return "";
+            }
         },
     },
     computed: {

@@ -1,18 +1,22 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container">
+        <div class="container-fluid">
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-6">
                             <h5 class="m-0 text-dark">
-                                <i :class="form_icon" /> {{ form_title }}
+                                <i :class="form_icon" />
+                                {{ form_title }}
                             </h5>
                         </div>
                         <div class="col-sm-6">
                             <div class="float-sm-right">
-                                <button class="btn btn-info btn-sm" @click="showModal()">
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    @click="showCreateDialog()"
+                                >
                                     <i class="fa fa-plus"></i>
                                     Tạo mới
                                 </button>
@@ -26,21 +30,35 @@
                     <div class="row">
                         <div class="col-md-9">
                             <div class="form-group row">
-                                <button type="button" class="btn btn-warning btn-sm ml-1 mt-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-warning btn-sm ml-1 mt-1"
+                                >
                                     <strong>
-                                        <i class="fas fa-check mr-1 text-bold" />Cập nhật chức năng</strong>
+                                        <i
+                                            class="fas fa-check mr-1 text-bold"
+                                        />Cập nhật chức năng</strong
+                                    >
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="input-group input-group-sm mt-1 mb-1">
-                                <input type="search" class="form-control -control-navbar" v-model="filter"
-                                    :placeholder="search_placeholder" aria-label="Search" />
+                                <input
+                                    type="search"
+                                    class="form-control -control-navbar"
+                                    v-model="search_pattern"
+                                    :placeholder="search_placeholder"
+                                    aria-label="Search"
+                                />
                                 <div class="input-group-append">
-                                    <button class="btn btn-default" style="
+                                    <button
+                                        class="btn btn-default"
+                                        style="
                                             background: #1b1a1a;
                                             color: white;
-                                        ">
+                                        "
+                                    >
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
@@ -49,25 +67,66 @@
                     </div>
                     <!-- tạo nút edit và delete -->
                     <div class="row">
-                        <b-table responsive hover striped :bordered="true" :current-page="pagination.current_page"
-                            :per-page="pagination.item_per_page" :filter="filter" :fields="fields"
-                            :items="items" :tbody-tr-class="rowClass">
+                        <b-table
+                            responsive
+                            hover
+                            striped
+                            :bordered="true"
+                            :current-page="pagination.current_page"
+                            :per-page="pagination.item_per_page"
+                            :filter="search_pattern"
+                            :fields="fields"
+                            :items="delivery_partners"
+                            :tbody-tr-class="rowClass"
+                        >
                             <template #cell(index)="data">
                                 {{
                                     data.index +
                                     (pagination.current_page - 1) *
-                                    pagination.item_per_page +
+                                        pagination.item_per_page +
                                     1
                                 }}
                             </template>
+                            <template #cell(is_external)="data">
+                                <span
+                                    v-if="data.item.is_external"
+                                    class="badge bg-primary"
+                                    >Đối tác ngoài</span
+                                >
+                                <span v-else class="badge bg-info">Nội bộ</span>
+                            </template>
+                            <template #cell(is_active)="data">
+                                <span
+                                    class="badge bg-success"
+                                    v-if="data.item.is_active == 1"
+                                    >Đang hoạt động</span
+                                >
+                                <span
+                                    class="badge bg-warning"
+                                    v-if="data.item.is_active == 0"
+                                    >Ngưng hoạt động</span
+                                >
+                            </template>
                             <template #cell(action)="data">
                                 <div class="margin">
-                                    <button class="btn btn-xs mr-1" @click="editPartner(data.item)">
-                                        <i class="fas fa-edit text-green" title="Edit"></i>
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="showEditDialog(data.item)"
+                                    >
+                                        <i
+                                            class="fas fa-edit text-green"
+                                            title="Edit"
+                                        ></i>
                                     </button>
 
-                                    <button class="btn btn-xs mr-1" @click="deletePartner(data.item.id)">
-                                        <i class="fas fa-trash text-red bigger-120" title="Delete"></i>
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="deletePartner(data.item.id)"
+                                    >
+                                        <i
+                                            class="fas fa-trash text-red bigger-120"
+                                            title="Delete"
+                                        ></i>
                                     </button>
                                 </div>
                             </template>
@@ -75,24 +134,45 @@
                     </div>
                     <!-- end tạo nút -->
                     <!-- phân trang -->
-                    <div class="form-group row">
-                        <label class="col-form-label-sm col-md-2" style="text-align: left" for="">Số lượng mỗi
-                            trang:</label>
+                    <div class="row">
+                        <label
+                            class="col-form-label-sm col-md-2"
+                            style="text-align: left"
+                            for=""
+                            >Số lượng mỗi trang:</label
+                        >
                         <div class="col-md-2">
-                            <b-form-select size="sm" v-model="pagination.item_per_page" :options="pagination.page_options">
+                            <b-form-select
+                                size="sm"
+                                v-model="pagination.item_per_page"
+                                :options="pagination.page_options"
+                            >
                             </b-form-select>
                         </div>
-                        <label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
+                        <label
+                            class="col-form-label-sm col-md-1"
+                            style="text-align: left"
+                            for=""
+                        ></label>
                         <div class="col-md-3">
-                            <b-pagination v-model="pagination.current_page" :total-rows="rows"
-                                :per-page="pagination.item_per_page" size="sm" class="ml-1"></b-pagination>
+                            <b-pagination
+                                v-model="pagination.current_page"
+                                :total-rows="rows"
+                                :per-page="pagination.item_per_page"
+                                size="sm"
+                                class="ml-1"
+                            ></b-pagination>
                         </div>
                     </div>
                     <!-- end phân trang -->
 
                     <!-- tạo form -->
-                    <CRUDForm ref="dialog" :isEdit="is_edit_modal" :partnerItem="editing_item"
-                        :fetchData="fetchData"></CRUDForm>
+                    <DialogAddUpdateDeliveryPartners
+                        ref="AddUpdateDialog"
+                        :is_editing="is_editing"
+                        :editing_item="editing_item"
+                        :refetchData="fetchData"
+                    ></DialogAddUpdateDeliveryPartners>
 
                     <!-- end tạo form -->
                 </div>
@@ -104,36 +184,26 @@
 
 <script>
 import Vue from "vue";
-import toastr from "toastr";
-import "toastr/toastr.scss";
-import ApiHandler from "../../ApiHandler";
-import CRUDForm from "./CRUDForm.vue";
+import ApiHandler from "../ApiHandler";
+import DialogAddUpdateDeliveryPartners from "./dialogs/DialogAddUpdateDeliveryPartners.vue";
 export default {
     components: {
         Vue,
-        CRUDForm
+        DialogAddUpdateDeliveryPartners,
     },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
-            form_title: "Đối tác vận chuyển",
+            form_title: window.Laravel.form_title,
             form_icon: "fas fa-truck",
 
             search_placeholder: "Tìm kiếm..",
-            
-           editing_item: {
-                id: "",
-                code: "",
-                name: "",
-                api_url: "",
-                api_key: "",
-                api_secret: "",
-                is_external: "",
-                is_active: "",
-            },
-            is_edit_modal: false,
-            // ----------------------------
+            search_pattern: "",
+
+            is_editing: false,
+            editing_item: {},
+
             pagination: {
                 item_per_page: 10,
                 current_page: 1,
@@ -145,78 +215,66 @@ export default {
                     { value: this.rows, text: "All" },
                 ],
             },
-            filter: "",
 
             fields: [
                 {
                     key: "index",
                     label: "STT",
                     sortable: true,
-                    class: "text-nowrap",
+                    class: "text-nowrap text-center",
                 },
-
                 {
                     key: "code",
-                    label: "(Code)",
+                    label: "Mã",
                     sortable: true,
-                    class: "text-nowrap",
+                    class: "text-nowrap text-center",
                 },
-
                 {
                     key: "name",
                     label: "Tên nhà vận chuyển",
                     sortable: true,
                     class: "text-nowrap",
                 },
-
                 {
                     key: "api_url",
-                    label: "API URL",
+                    label: "API Url",
                     sortable: true,
                     class: "text-nowrap",
                 },
-
                 {
                     key: "api_key",
-                    label: "API key",
+                    label: "API Key",
                     sortable: true,
                     class: "text-nowrap",
                 },
-
                 {
                     key: "api_secret",
                     label: "API Secret",
                     sortable: true,
                     class: "text-nowrap",
                 },
-
-                // {
-                //     key: 'is_external',
-                //     label: 'External',
-                //     sortable: true,
-                //     class: 'text-nowrap',
-
-                // },
-
-                // {
-                //     key: 'is_active',
-                //     label: 'Hoạt động',
-                //     sortable: true,
-                //     class: 'text-nowrap',
-
-                // },
+                {
+                    key: "is_external",
+                    label: "Phạm vị",
+                    sortable: true,
+                    class: "text-nowrap text-center",
+                },
+                {
+                    key: "is_active",
+                    label: "Khả dụng",
+                    sortable: true,
+                    class: "text-nowrap text-center",
+                },
                 {
                     key: "action",
-                    label: "Trạng thái",
+                    label: "Hành động",
                     sortable: true,
-                    class: "text-nowrap",
+                    class: "text-nowrap text-center",
                 },
             ],
 
-            items: [],
+            delivery_partners: [],
             page_url_partner: "/api/master/delivery-partners",
-            page_url_create_partner: "/api/master/delivery-partners",
-            page_url_update_partner: "/api/master/delivery-partners",
             page_url_destroy_partner: "/api/master/delivery-partners",
         };
     },
@@ -228,7 +286,7 @@ export default {
             try {
                 let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
-                    this.items = result.data;
+                    this.delivery_partners = result.data;
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -236,59 +294,37 @@ export default {
                 this.showMessage("error", "Lỗi", error.message);
             }
         },
-    
-        deletePartner(id) {
+        async deletePartner(id) {
             if (confirm("Bạn muốn xoá?")) {
-                fetch(`${this.page_url_destroy_partner}/${id}`, {
-                    method: "delete",
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json",
-                    },
-                })
-                    .then((res) => res.json())
-                    .then((data) => {
-                        this.showMessage("success", "Xoá thành công");
-                        this.fetchData();
-                        this.reset();
-                    });
+                let result = await this.api_handler.delete(
+                    `${this.page_url_destroy_partner}/${id}`
+                );
+                if (result.success) {
+                    this.delivery_partners = result.data;
+                    this.fetchData();
+                } else {
+                    this.showMessage("error", "Lỗi", result.message);
+                }
             }
         },
-
-        editPartner(item) {
-            this.is_edit_modal = true;
+        showCreateDialog() {
+            this.is_editing = false;
+            $("#DialogAddUpdateDeliveryPartner").modal("show");
+        },
+        showEditDialog(item) {
+            this.is_editing = true;
             this.editing_item = item;
-            this.$refs.dialog.showModal();
-        },
-        reset() {
-            this.partner.id = "";
-            (this.partner.code = ""), (this.partner.name = "");
-            this.partner.api_url = "";
-            this.partner.api_key = "";
-            this.partner.api_secret = "";
-            this.partner.is_external = "";
-            this.partner.is_active = "";
-        },
-        showModal() {
-            this.is_edit_modal = false;
-            this.$refs.dialog.showModal();
+            $("#DialogAddUpdateDeliveryPartner").modal("show");
         },
         rowClass(item, type) {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
-
     },
     computed: {
         rows() {
-            return this.items.length;
+            return this.delivery_partners.length;
         },
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.table {
-    margin-bottom: 0px;
-}
-</style>
