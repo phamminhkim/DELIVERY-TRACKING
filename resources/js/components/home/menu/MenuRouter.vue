@@ -15,7 +15,12 @@
                 <strong v-if="menu.link == '#' && menu.icon == ''">
                     {{ menu.title }}</strong
                 >
-                <a v-else :class="getLinkClass(menu)" style="cursor: pointer">
+                <router-link
+                    v-else
+                    :to="getLinkHref(menu)"
+                    :class="getLinkClass(menu)"
+                    style="cursor: pointer"
+                >
                     <i v-if="menu.icon" :class="'nav-icon ' + menu.icon"></i>
                     <p>
                         {{ menu.title }}
@@ -30,7 +35,7 @@
                             {{ getMenuPendingCount(menu) }}
                         </span>
                     </p>
-                </a>
+                </router-link>
 
                 <menu-router-children
                     v-if="menu.has_children"
@@ -90,6 +95,11 @@ export default {
                     this.menu_current_root = {};
                 }
             });
+        },
+        getLinkHref(menu) {
+            if (!menu.has_children) {
+                return menu.link;
+            } else return "#";
         },
         getItemClass(menu) {
             if (menu.link == "#" && menu.icon == "") {

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Zalo\Zalo;
 use Illuminate\Support\Str;
@@ -27,7 +28,9 @@ Auth::routes(['verify' => true]);
 
 
 Auth::routes();
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/', function () {
+    return Redirect::to('/dashboard');
+});
 
 Route::prefix('admins')->group(function () {
     Route::get('routes', function () {

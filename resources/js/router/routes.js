@@ -5,12 +5,7 @@ import Customers from "../components/home/master/DeliveryCustomers.vue";
 import MenuRouterConfig from "../components/home/master/MenuRouterConfig.vue";
 const routes = [
     {
-        path: "/",
-        component: MainScreen,
-        name: "MainScreen",
-    },
-    {
-        path: "/home",
+        path: "/dashboard",
         component: MainScreen,
         name: "MainScreen",
     },

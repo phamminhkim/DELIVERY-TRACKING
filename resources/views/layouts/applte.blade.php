@@ -27,17 +27,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
-    
+
     <script>
         try {
-
             window.Laravel = {!! json_encode([
                 'csrfToken' => csrf_token(),
                 'access_token' => $access_token,
                 'current_user' => Auth::user(),
             ]) !!};
-
-            //console.log( window.Laravel.access_token);
         } catch (err) {
 
         }
@@ -52,7 +49,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
                     class="fas fa-bars text-secondary"></i></a>
 
-            <router-link to="/" class="navbar-brand">
+            <router-link to="/dashboard" class="navbar-brand">
                 {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
                 <strong>DELIVERY TRACKING</strong>
