@@ -244,7 +244,7 @@ export default {
             immediate: true,
             handler(new_query, old_query) {
                 if (new_query !== old_query) {
-                    this.fetchData();
+                    this.fetchData(new_query);
                 }
             },
         },
