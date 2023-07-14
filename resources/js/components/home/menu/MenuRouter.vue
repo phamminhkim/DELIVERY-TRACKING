@@ -85,6 +85,9 @@ export default {
                                 menu.id == this.menu_current_root.parent_id
                         );
                     }
+                } else {
+                    this.menu_current = {};
+                    this.menu_current_root = {};
                 }
             });
         },
