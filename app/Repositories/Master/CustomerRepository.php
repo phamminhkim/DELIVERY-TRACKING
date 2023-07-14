@@ -52,6 +52,7 @@ class CustomerRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['is_active'] = true;
                 $customer = Customer::create($this->data);
 
                 return $customer;

@@ -1,440 +1,321 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container" style="background: rgb(225 225 225 / 30%);">
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="form-group d-flex justify-content-between mt-2">
-                        <h4 class="text-uppercase font-weight-bold">Danh sách khách hàng </h4>
-
-                        <!-- tạo mới -->
-
-                        <div class="text-right">
-                            <button @click="showModal()" class="btn btn-sm btn-info" style="height: 35px;width: 90px;">
-                                + Tạo mới
-                            </button>
+        <div class="container-fluid">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h5 class="m-0 text-dark">
+                                <i :class="form_icon" />
+                                {{ form_title }}
+                            </h5>
                         </div>
-                        <!-- end tạo mới -->
-                    </div>
-
-                </div>
-            </div>
-
-
-
-            <div class="container-header">
-
-
-                <!-- end tạo mới -->
-
-
-                <!-- tìm kiếm -->
-                <div class="row" style="background-color:#F4F6F9">
-                    <div class="col-md-3">
-                        <div class="input-group input-group-sm mt-1 mb-1">
-                            <input type="search" class="form-control -control-navbar" v-model="filter"
-                                :placeholder="placeholderText" aria-label="Search">
-                            <div class="input-group-append">
-                                <button class="btn btn-default" style="background: #1b1a1a;color: white;">
-                                    <i class="fas fa-search"></i>
+                        <div class="col-sm-6">
+                            <div class="float-sm-right">
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    @click="showCreateDialog()"
+                                >
+                                    <i class="fa fa-plus"></i>
+                                    Tạo mới
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- end tìm kiếm -->
-                <!-- tạo nút edit và delete -->
-                <div>
-                    <b-table responsive hover striped :bordered="true" :current-page="current_page" :per-page="per_page"
-                        :filter="filter" :fields="fields" :items="customers" :tbody-tr-class="rowClass">
-                        <template #cell(index)="data">
-                            {{ data.index + (current_page - 1) * per_page + 1 }}
-                        </template>
-                        <template #cell(action)="data">
-                            <div class="margin">
-                                <button class="btn btn-xs" style="margin-right: 10px;" @click="editCustomer(data.item)"><i
-                                        class="fas fa-edit text-green" style="color: green;" title="Edit"></i></button>
-
-                                <button class="btn btn-xs" @click="deleteCustomer(data.item.id)"><i
-                                        class="fas fa-trash text-red" style="color: red;" title="Delete"></i></button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group row">
+                                <button
+                                    type="button"
+                                    class="btn btn-warning btn-sm ml-1 mt-1"
+                                >
+                                    <strong>
+                                        <i
+                                            class="fas fa-check mr-1 text-bold"
+                                        />Cập nhật chức năng</strong
+                                    >
+                                </button>
                             </div>
-                        </template>
-                    </b-table>
-                </div>
-                <!-- end tạo nút -->
-                <!-- phân trang -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group row">
-                            <label class="col-form-label-sm col-md-1" style="text-align: left" for="">Per
-                                page:</label>
-                            <div class="col-md-3">
-                                <b-form-select size="sm" v-model="per_page" :options="pageOptions">
-                                </b-form-select>
-                            </div>
-                            <label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
-                            <div class="col-md-3">
-                                <b-pagination v-model="current_page" :total-rows="rows" :per-page="per_page" size="sm"
-                                    class="ml-1"></b-pagination>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group input-group-sm mt-1 mb-1">
+                                <input
+                                    type="search"
+                                    class="form-control -control-navbar"
+                                    v-model="search_pattern"
+                                    :placeholder="search_placeholder"
+                                    aria-label="Search"
+                                />
+                                <div class="input-group-append">
+                                    <button
+                                        class="btn btn-default"
+                                        style="
+                                            background: #1b1a1a;
+                                            color: white;
+                                        "
+                                    >
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- end phân trang -->
-                <!-- tạo form -->
-                <div class="modal fade" id="delivery_customer" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form @submit.prevent=addCustomer>
-                                <div class="modal-header">
-                                    <h4 class="modal-title">
-                                        <span v-if="!edit">Thêm mới khách hàng</span>
-                                        <span v-if="edit">Cập nhật khách hàng</span>
-                                    </h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
+                    <!-- tạo nút edit và delete -->
+                    <div class="row">
+                        <b-table
+                            responsive
+                            hover
+                            striped
+                            :bordered="true"
+                            :current-page="pagination.current_page"
+                            :per-page="pagination.item_per_page"
+                            :filter="search_pattern"
+                            :fields="fields"
+                            :items="customers"
+                            :tbody-tr-class="rowClass"
+                        >
+                            <template #cell(index)="data">
+                                {{
+                                    data.index +
+                                    (pagination.current_page - 1) *
+                                        pagination.item_per_page +
+                                    1
+                                }}
+                            </template>
+
+                            <template #cell(is_active)="data">
+                                <span
+                                    class="badge bg-success"
+                                    v-if="data.item.is_active == 1"
+                                    >Đang hoạt động</span
+                                >
+                                <span
+                                    class="badge bg-warning"
+                                    v-if="data.item.is_active == 0"
+                                    >Ngưng hoạt động</span
+                                >
+                            </template>
+                            <template #cell(action)="data">
+                                <div class="margin">
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="showEditDialog(data.item)"
+                                    >
+                                        <i
+                                            class="fas fa-edit text-green"
+                                            title="Edit"
+                                        ></i>
+                                    </button>
+
+                                    <button
+                                        class="btn btn-xs mr-1"
+                                        @click="deleteCustomer(data.item.id)"
+                                    >
+                                        <i
+                                            class="fas fa-trash text-red bigger-120"
+                                            title="Delete"
+                                        ></i>
                                     </button>
                                 </div>
-
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label>Mã khách hàng</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="customer.code" class="form-control" id="code" name="code"
-                                            placeholder="Nhập mã khách hàng ..."
-                                            v-bind:class="hasError('code') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('code') }}</strong>
-                                        </span>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Tên khách hàng</label>
-                                        <small class="text-danger">*</small>
-                                        <input v-model="customer.name" class="form-control" id="name" name="name"
-                                            placeholder="Nhập tên khách hàng ..."
-                                            v-bind:class="hasError('name') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('name') }}</strong>
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <!-- <small class="text-danger">*</small> -->
-                                        <input v-model="customer.email" class="form-control" id="email" name="email"
-                                            placeholder="Nhập email ..."
-                                            v-bind:class="hasError('email') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('email')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('email') }}</strong>
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Số điện thoại</label>
-                                        <!-- <small class="text-danger">*</small> -->
-                                        <input v-model="customer.phone_number" class="form-control" id="phone_number" name="phone_number"
-                                            placeholder="Nhập số điện thoại ..."
-                                            v-bind:class="hasError('phone_number') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('phone_number')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('phone_number') }}</strong>
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Địa chỉ</label>
-                                        <!-- <small class="text-danger">*</small> -->
-                                        <input v-model="customer.address" class="form-control" id="address" name="address"
-                                            placeholder="Nhập địa chỉ khách hàng ..."
-                                            v-bind:class="hasError('address') ? 'is-invalid' : ''" />
-                                        <span v-if="hasError('address')" class="invalid-feedback" role="alert">
-                                            <strong>{{ getError('address') }}</strong>
-                                        </span>
-                                    </div>
-
-
-                                </div>
-
-                                <div class="modal-footer justify-content-between">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                                        Đóng
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">
-                                        Lưu
-                                    </button>
-                                </div>
-                            </form>
+                            </template>
+                        </b-table>
+                    </div>
+                    <!-- end tạo nút -->
+                    <!-- phân trang -->
+                    <div class="row">
+                        <label
+                            class="col-form-label-sm col-md-2"
+                            style="text-align: left"
+                            for=""
+                            >Số lượng mỗi trang:</label
+                        >
+                        <div class="col-md-2">
+                            <b-form-select
+                                size="sm"
+                                v-model="pagination.item_per_page"
+                                :options="pagination.page_options"
+                            >
+                            </b-form-select>
+                        </div>
+                        <label
+                            class="col-form-label-sm col-md-1"
+                            style="text-align: left"
+                            for=""
+                        ></label>
+                        <div class="col-md-3">
+                            <b-pagination
+                                v-model="pagination.current_page"
+                                :total-rows="rows"
+                                :per-page="pagination.item_per_page"
+                                size="sm"
+                                class="ml-1"
+                            ></b-pagination>
                         </div>
                     </div>
+                    <!-- end phân trang -->
+
+                    <!-- tạo form -->
+                    <DialogAddUpdateCustomers
+                        ref="AddUpdateDialog"
+                        :is_editing="is_editing"
+                        :editing_item="editing_item"
+                        :refetchData="fetchData"
+                    ></DialogAddUpdateCustomers>
+
+                    <!-- end tạo form -->
                 </div>
-                <!-- end tạo form -->
             </div>
         </div>
         <!-- end container -->
-
     </div>
-
 </template>
 
 <script>
-import Vue from 'vue';
-import toastr from 'toastr';
-import 'toastr/toastr.scss';
+import Vue from "vue";
+import ApiHandler from "../ApiHandler";
+import DialogAddUpdateCustomers from "./dialogs/DialogAddUpdateCustomers.vue";
 export default {
     components: {
-        Vue
+        Vue,
+        DialogAddUpdateCustomers,
     },
-
     data() {
         return {
-            token: '',
-            pagesNumber: [],
-            placeholderText: "Tìm kiếm ",
-            loading: false,
-            edit: false,
-            errors: {},
-            customer: {
-                id: '',
-                code:'',
-                name: '',
-                email:'',
-                phone_number:'',
-                address:'',
-            },
-            //component per-page
+            api_handler: new ApiHandler(window.Laravel.access_token),
+
+            form_title: window.Laravel.form_title,
+            form_icon: " fas fa-people-arrows",
+
+            search_placeholder: "Tìm kiếm..",
+            search_pattern: "",
+
+            is_editing: false,
+            editing_item: {},
+
             pagination: {
-                total: 0,
-                per_page: 2,
-                from: 1,
-                to: 0,
+                item_per_page: 10,
                 current_page: 1,
+                page_options: [
+                    10,
+                    50,
+                    100,
+                    500,
+                    { value: this.rows, text: "All" },
+                ],
             },
-            per_page: 10,
-            current_page: 1,
-            pageOptions: [10, 50, 100, 500, { value: this.rows, text: "All" }],
-            //search
-            filter: "",
 
             fields: [
-            {
-                    key: 'index',
-                    label: 'STT',
+                {
+                    key: "index",
+                    label: "STT",
                     sortable: true,
-                    class: 'text-nowrap',
+                    class: "text-nowrap text-center",
+                },
+                {
+                    key: "code",
+                    label: "Mã",
+                    sortable: true,
+                    class: "text-nowrap text-center",
+                },
+                {
+                    key: "name",
+                    label: "Tên khách hàng",
+                    sortable: true,
+                    class: "text-nowrap",
+                },
+                {
+                    key: "email",
+                    label: "Email",
+                    sortable: true,
+                    class: "text-nowrap",
+                },
+                {
+                    key: "phone_number",
+                    label: "Số điện thoại",
+                    sortable: true,
+                    class: "text-nowrap",
+                },
+                {
+                    key: "address",
+                    label: "Địa chỉ",
+                    sortable: true,
+                    class: "text-nowrap",
                 },
 
                 {
-                    key: 'code',
-                    label: 'Mã khách hàng',
+                    key: "is_active",
+                    label: "Khả dụng",
                     sortable: true,
-                    class: 'text-nowrap',
-
-                },
-
-                {
-                    key: 'name',
-                    label: 'Tên khách hàng',
-                    sortable: true,
-                    class: 'text-nowrap',
-
-                },
-
-                {
-                    key: 'email',
-                    label: 'Email',
-                    sortable: true,
-                    class: 'text-nowrap',
-
-                },
-
-                {
-                    key: 'phone_number',
-                    label: 'Số điện thoại',
-                    sortable: true,
-                    class: 'text-nowrap',
-
-                },
-
-
-                {
-                    key: 'address',
-                    label: 'Địa chỉ',
-                    sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap text-center",
                 },
                 {
-                    key: 'action',
-                    label: 'Trạng thái',
+                    key: "action",
+                    label: "Hành động",
                     sortable: true,
-                    class: 'text-nowrap',
-
+                    class: "text-nowrap text-center",
                 },
-
-
             ],
 
             customers: [],
             page_url_customer: "/api/master/customers",
-            page_url_create_customer: '/api/master/customers',
-            page_url_update_customer: '/api/master/customers',
-            page_url_destroy_customer: '/api/master/customers',
-        }
+            page_url_destroy_customer: "/api/master/customers",
+        };
     },
     created() {
-        this.errors={};
-        this.token = "Bearer " + window.Laravel.access_token;
-        this.fetchCustomer();
+        this.fetchData();
     },
     methods: {
-        fetchCustomer() {
-            var page_url = this.page_url_customer;
-            fetch(page_url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: this.token
+        async fetchData() {
+            try {
+                let result = await this.api_handler.get(this.page_url_customer);
+                if (result.success) {
+                    this.customers = result.data;
+                } else {
+                    this.showMessage("error", "Lỗi", result.message);
                 }
-            })
-                .then(res => res.json())
-                .then(data => {
-
-                    this.customers = data.data;
-                })
-                .catch(err => {
-                    console.log(err);
-                });
-        },
-        addCustomer() {
-            var page_url = this.page_url_create_customer;
-            var page_url_update = this.page_url_update_customer;
-            if (this.edit === false) {
-                fetch(page_url, {
-                    method: "POST",
-                    body: JSON.stringify(this.customer),
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json"
-                    }
-                })
-
-                    .then(res => res.json())
-                    .then(data => {
-                            // alert('abc');
-                            // console.log(data);
-                        if (data.success == true) {
-
-                            this.reset();
-                            this.showMessage('success', 'Thêm thành công');
-                            this.fetchCustomer();
-                            $('#delivery_customer').modal('hide');
-                        } else {
-                            this.errors = data.errors;
-                            this.showMessage('error', 'Thêm mới không thành công');
-                            this.fetchCustomer();
-                            //this.reset();
-                        }
-                    })
-                    .catch(err => {
-                        this.loading = false;
-                    });
-            } else {
-                //update
-                fetch(page_url_update + "/" + this.customer.id, {
-                    method: "PUT",
-                    body: JSON.stringify(this.customer),
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json"
-                    }
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success == true)  {
-                            this.showMessage('success', 'Cập nhật thành công');
-                            this.fetchCustomer();
-                            $('#delivery_customer').modal('hide');
-                            //this.clearError();
-                        } else {
-                            this.errors = data.errors;
-                            this.showMessage('error', 'Cập nhật không thành công');
-                            this.fetchCustomer();
-                            //this.reset();
-
-                        }
-                    })
-                    .catch(err => console.log(err));
+            } catch (error) {
+                this.showMessage("error", "Lỗi", error.message);
             }
         },
-        deleteCustomer(id) {
-            if (confirm('Bạn muốn xoá?')) {
-                fetch(`${this.page_url_destroy_customer}/${id}`, {
-                    method: 'delete',
-                    headers: {
-                        Authorization: this.token,
-                        "content-type": "application/json"
-                    }
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success == true)  {
-                            this.showMessage('success', 'Xóa thành công');
-                            this.fetchCustomer();
-                            $('#delivery_customer').modal('hide');
-                            //this.clearError();
-                        } else {
-                            this.errors = data.errors;
-                            this.showMessage('error', 'Xóa không thành công');
-                            this.fetchCustomer();
-                            //this.reset();
-
-                        }
-                    });
+        async deleteCustomer(id) {
+            if (confirm("Bạn muốn xoá?")) {
+                let result = await this.api_handler.delete(
+                    `${this.page_url_destroy_customer}/${id}`
+                );
+                if (result.success) {
+                    this.customers = result.data;
+                    this.fetchData();
+                    this.showMessage('success', 'Xóa thành công');
+                } else {
+                    this.showMessage("error", "Lỗi", result.message);
+                }
             }
         },
-
-        editCustomer(item) {
-            this.edit = true;
-            this.errors = {};
-            this.customer.id = item.id;
-            this.customer.code = item.code;
-            this.customer.name = item.name;
-            this.customer.email = item.email;
-            this.customer.phone_number = item.phone_number;
-            this.customer.address = item.address;
-
-            $('#delivery_customer').modal('show');
-            //this.clearError();
+        showCreateDialog() {
+            this.is_editing = false;
+            $("#DialogAddUpdateCustomer").modal("show");
         },
-        reset() {
-            this.customer.id = '';
-            this.customer.code = '';
-            this.customer.name = '';
-            this.customer.email = '';
-            this.customer.phone_number = '';
-            this.customer.address= '';
-        },
-        showModal() {
-            this.edit = false;
-            //console.log('thu');
-            this.errors = {};
-            $('#delivery_customer').modal('show');
-            this.reset();
-        },
-        placeholder() {
-            return this.placeholderText;
+        showEditDialog(item) {
+            this.is_editing = true;
+            this.editing_item = item;
+            $("#DialogAddUpdateCustomer").modal("show");
         },
         rowClass(item, type) {
-            if (!item || type !== 'row') return
-            if (item.status === 'awesome') return 'table-success'
+            if (!item || type !== "row") return;
+            if (item.status === "awesome") return "table-success";
         },
         showMessage(type, title, message) {
-            if (!title)
-                title = "Information";
+            if (!title) title = "Information";
             toastr.options = {
                 positionClass: "toast-bottom-right",
                 toastClass: this.getToastClassByType(type),
-
             };
             toastr[type](message, title);
-            //this.reset()
         },
         getToastClassByType(type) {
             switch (type) {
@@ -448,32 +329,11 @@ export default {
                     return "";
             }
         },
-        hasError(fieldName) {
-            if (typeof this.errors === "object" && this.errors !== null) {
-                return this.errors.hasOwnProperty(fieldName);
-            }
-            return false;
-        },
-        getError(fieldName) {
-            //console.log(fieldName+"="+ this.errors[fieldName][0]);
-            return this.errors[fieldName];
-        },
-        clearError(event) {
-            Vue.delete(this.errors, event.target.name);
-            //  console.log(event.target.name);
-        },
     },
     computed: {
         rows() {
             return this.customers.length;
         },
-    }
-}
+    },
+};
 </script>
-
-<style lang="scss" scoped
->
-.table {
-    margin-bottom: 0px;
-}
-</style>
