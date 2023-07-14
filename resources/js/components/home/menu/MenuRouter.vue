@@ -53,18 +53,44 @@ export default {
     components: { MenuRouterChildren },
     props: {
         menus: Array,
-        menu_current_root: Object,
-        menu_current: Object,
-    },
-    created() {
-        this.token = "Bearer " + window.Laravel.access_token;
     },
     data() {
         return {
             pending_counts: {},
+            menu_current: {},
+            menu_current_root: {},
         };
     },
+    created() {
+        this.token = "Bearer " + window.Laravel.access_token;
+        this.updateRoute(this.$route.path.replace("/", ""));
+    },
+    watch: {
+        $route(to, from) {
+            this.updateRoute(to.path.replace("/", ""));
+        },
+    },
     methods: {
+        updateRoute(route) {
+            this.menus.forEach((menu) => {
+                let menu_current = menu.children.find(
+                    (menu) => menu.link == route
+                );
+                if (menu_current) {
+                    this.menu_current = menu_current;
+                    this.menu_current_root = menu_current;
+                    while (this.menu_current_root.parent_id != 0) {
+                        this.menu_current_root = this.menus.find(
+                            (menu) =>
+                                menu.id == this.menu_current_root.parent_id
+                        );
+                    }
+                } else {
+                    this.menu_current = {};
+                    this.menu_current_root = {};
+                }
+            });
+        },
         getItemClass(menu) {
             if (menu.link == "#" && menu.icon == "") {
                 return "nav-header";

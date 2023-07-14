@@ -13,6 +13,9 @@ class MenuRouter extends Model
         'order',
         'link',
         'icon',
+        'left',
+        'right',
+        'is_active',
     ];
     protected $casts = [
         'is_active' => 'boolean',

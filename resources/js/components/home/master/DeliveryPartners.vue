@@ -1,13 +1,14 @@
 <template>
     <div>
         <!-- container -->
-        <div class="container">
+        <div class="container-fluid">
             <div class="content-header">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-6">
                             <h5 class="m-0 text-dark">
-                                <i :class="form_icon" /> {{ form_title }}
+                                <i :class="form_icon" />
+                                {{ form_title }}
                             </h5>
                         </div>
                         <div class="col-sm-6">
@@ -111,13 +112,13 @@ import DialogAddUpdateDeliveryPartners from "./dialogs/DialogAddUpdateDeliveryPa
 export default {
     components: {
         Vue,
-        DialogAddUpdateDeliveryPartners
+        DialogAddUpdateDeliveryPartners,
     },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
-            form_title: "Đối tác vận chuyển",
+            form_title: window.Laravel.form_title,
             form_icon: "fas fa-truck",
 
             // token: "Bearer " + window.Laravel.access_token,

@@ -62,6 +62,9 @@ class MenuRouterRepository extends RepositoryAbs
                 $menu->title = $row['title'];
                 $menu->link = $row['link'];
                 $menu->icon = $row['icon'];
+                $menu->left = 0;
+                $menu->right = 0;
+                $menu->is_active = true;
                 $menu->save();
             }
 
@@ -69,6 +72,24 @@ class MenuRouterRepository extends RepositoryAbs
             $transformer->traverseUpdate();
             RedisUtility::deleteByCategory('menu-tree');
 
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function deleteConfigMenu($id)
+    {
+        try {
+            $menu = MenuRouter::find($id);
+            if ($menu) {
+                $menu->delete();
+                $transformer = new NestedSetSync();
+                $transformer->traverseUpdate();
+                RedisUtility::deleteByCategory('menu-tree');
+                return true;
+            }
             return true;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

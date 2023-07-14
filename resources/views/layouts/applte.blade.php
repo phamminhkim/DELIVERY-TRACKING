@@ -16,7 +16,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'TL Delivery Tracking') }}</title>
+    <title>{{ config('app.title', 'TL Delivery Tracking') }}</title>
 
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -26,6 +26,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="/template/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+    
     <script>
         try {
 
@@ -47,72 +49,65 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <div class="container">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
-                        class="fas fa-bars text-secondary"></i></a>
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
+                    class="fas fa-bars text-secondary"></i></a>
 
-                <a href="/app" class="navbar-brand">
-                    {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+            <router-link to="/" class="navbar-brand">
+                {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
              style="opacity: .8"> --}}
+                <strong>DELIVERY TRACKING</strong>
+            </router-link>
 
-                    <strong>DELIVERY TRACKING</strong>
-                </a>
+            <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <button class="navbar-toggler order-1" type="button" data-toggle="collapse"
-                    data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+                <!-- Right navbar links -->
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"
+                            data-target="#user-profile">
+                            <img src="{{ Auth::user()->avatar }}" class="user-image img-circle elevation-2"
+                                alt="User a">
+                            <span class="d-none d-md-inline">{{ Auth::user()->name }} -
+                                {{ Auth::user()->username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="user-profile"
+                            style="left: inherit; right: -8px; border: 0; margin-top: 8px">
+                            <!-- User image -->
+                            <li class="user-header">
+                                <img src="{{ Auth::user()->avatar }}" class="img-circle elevation-2" alt="User Image">
 
-                <div class="collapse navbar-collapse order-3" id="navbarCollapse">
-                    <!-- Right navbar links -->
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item dropdown user-menu">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"
-                                data-target="#user-profile">
-                                <img src="{{ Auth::user()->avatar }}" class="user-image img-circle elevation-2"
-                                    alt="User a">
-                                <span class="d-none d-md-inline">{{ Auth::user()->name }} -
-                                    {{ Auth::user()->username }}</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="user-profile"
-                                style="left: inherit; right: -8px; border: 0; margin-top: 8px">
-                                <!-- User image -->
-                                <li class="user-header">
-                                    <img src="{{ Auth::user()->avatar }}" class="img-circle elevation-2"
-                                        alt="User Image">
-
-                                    <p class="nav-link">
-                                        {{ Auth::user()->name }} - {{ Auth::user()->username }}
-                                        <small>Thành viên từ {{ Auth::user()->created_at }}</small>
-                                    </p>
-                                </li>
-                                <!-- Menu Footer-->
-                                <li class="user-footer">
-                                    <a href="/profile" class="btn btn-default btn-flat"
-                                        style="border-width: 1px; border-color: #000">
-                                        Hồ sơ cá nhân</a>
-                                    <a href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                                        class="btn btn-default btn-flat float-right"
-                                        style="border-width: 1px; border-color: #000">Đăng xuất</a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                        class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-
+                                <p class="nav-link">
+                                    {{ Auth::user()->name }} - {{ Auth::user()->username }}
+                                    <small>Thành viên từ {{ Auth::user()->created_at }}</small>
+                                </p>
+                            </li>
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <a href="/profile" class="btn btn-default btn-flat"
+                                    style="border-width: 1px; border-color: #000">
+                                    Hồ sơ cá nhân</a>
+                                <a href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                    class="btn btn-default btn-flat float-right"
+                                    style="border-width: 1px; border-color: #000">Đăng xuất</a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="/app" class="brand-link">
+            <a href="/" class="brand-link">
                 <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto" style="opacity: .8">
                 <i><strong class="brand-text">Control Panel</strong></i>
             </a>
@@ -121,9 +116,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <div class="sidebar">
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
-                    <menu-router v-bind:menus="{{ $menus }}"
-                        v-bind:menu_current_root="{{ json_encode($current_root) }}"
-                        v-bind:menu_current="{{ json_encode($current_menu) }}">
+                    <menu-router v-bind:menus="{{ $menus }}">
                     </menu-router>
                 </nav>
                 <!-- /.sidebar-menu -->

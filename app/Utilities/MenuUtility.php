@@ -20,6 +20,9 @@ class MenuUtility
                     $new_menu->link = $menu['link'];
                     $new_menu->icon = $menu['icon'];
                     $new_menu->order = 0;
+                    $new_menu->left = 0;
+                    $new_menu->right = 0;
+                    $new_menu->is_active = true;
                     $new_menu->save();
 
                     $menu['id'] = $new_menu->id;
@@ -43,13 +46,8 @@ class MenuUtility
         return $tree_array;
     }
 
-    public static function getMenusForUser($user_id, $request_path)
+    public static function getMenusForUser($user_id)
     {
-        $menu_data = array();
-        $menu_data['list_menus'] = array();
-        $menu_data['current_menu'] = null;
-        $menu_data['current_root'] = null;
-
         $menus = array();
         $cache_menus = RedisUtility::getByCategory('menu-tree', $user_id);
         if ($cache_menus) {
@@ -84,25 +82,8 @@ class MenuUtility
 
             RedisUtility::saveWithCategoryExpire('menu-tree', $user_id, $menus, 3600);
         }
-        $request_path = str_replace('app/', '/', $request_path);
-        $current_menu = MenuRouter::where('link', $request_path)->get()->first();
-        $current_root_menu = 0;
-        if ($current_menu) {
-            $current_root_menu = MenuUtility::getNestedSetMenuRoot($current_menu);
-        } else {
-            $current_menu = new MenuRouter();
-            $current_menu->id = 0;
-        }
-        if (!$current_root_menu) {
-            $current_root_menu = new MenuRouter();
-            $current_root_menu->id = 0;
-        }
 
-        $menu_data['list_menus'] = $menus;
-        $menu_data['current_menu'] = $current_menu;
-        $menu_data['current_root'] = $current_root_menu;
-
-        return $menu_data;
+        return $menus;
     }
     public static function getNestedSetMenuTreeTop($menu)
     {

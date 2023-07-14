@@ -44,7 +44,13 @@ class CustomerRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $customer => $validator) {
+                    if ($errors->has($customer)) {
+                        $this->errors[$customer] = $errors->first($customer);
+                        return false;
+                    }
+                }
             } else {
                 $customer = Customer::create($this->data);
 
@@ -112,7 +118,13 @@ class CustomerRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $customer => $validator) {
+                    if ($errors->has($customer)) {
+                        $this->errors[$customer] = $errors->first($customer);
+                        return false;
+                    }
+                }
             } else {
                 $customer = Customer::findOrFail($id);
                 $customer->update($this->data);

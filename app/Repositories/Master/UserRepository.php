@@ -31,19 +31,24 @@ class UserRepository extends RepositoryAbs
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
+                'email.unique' => 'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
 
 
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $user => $validator) {
+                    if ($errors->has($user)) {
+                        $this->errors[$user] = $errors->first($user);
+                        return false;
+                    }
+                }
             } else {
                 $user = User::create($this->data);
-
                 return $user;
             }
-
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -67,7 +72,13 @@ class UserRepository extends RepositoryAbs
 
             ]);
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $user => $validator) {
+                    if ($errors->has($user)) {
+                        $this->errors[$user] = $errors->first($user);
+                        return false;
+                    }
+                }
             } else {
                 $user = User::findOrFail($id);
                 $user->update($this->data);
