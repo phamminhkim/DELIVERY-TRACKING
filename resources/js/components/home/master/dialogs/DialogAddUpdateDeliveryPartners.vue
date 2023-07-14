@@ -6,8 +6,8 @@
                 <form @submit.prevent="addPartner">
                     <div class="modal-header">
                         <h4 class="modal-title">
-                            <span v-if="!edit">Thêm mới nhà vận chuyển</span>
-                            <span v-if="edit">Cập nhật nhà vận chuyển</span>
+                            <span v-if="!isEdit">Thêm mới nhà vận chuyển</span>
+                            <span v-if="isEdit">Cập nhật nhà vận chuyển</span>
                         </h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -141,7 +141,6 @@ export default {
             api_handler: new APIHandler(window.Laravel.access_token),
 
             is_loading: false,
-            edit: false,
             errors: {},
             partner: {
                 id: "",
@@ -172,48 +171,51 @@ export default {
                         .finally(() => {
                             this.is_loading = false;
                         })
-                    if (data.success) {
-                        this.reset();
-                        this.showMessage("success", "Thêm thành công");
-                        this.fetchData();
-                        $("#delivery_partner").modal("hide");
-                    } else {
-                        this.errors = data.errors;
-                        this.showMessage(
-                            "error",
-                            "Thêm mới không thành công"
-                        );
-                        this.fetchData();
-                        this.reset();
-                    }
+
+                    this.reset();
+                    this.showMessage("success", "Thêm thành công");
+                    this.fetchData();
+                    $("#delivery_partner").modal("hide");
+                    // if (data.success) {
+
+                    // } else {
+
+                    // }
                 }
                 catch (error) {
                     this.showMessage("error", "Lỗi", error.message);
+                    this.errors = data.errors;
+                    this.showMessage(
+                        "error",
+                        "Thêm mới không thành công"
+                    );
+                    this.fetchData();
+                    this.reset();
                 }
 
             } else {
                 //update
                 try {
-                    if(this.is_loading) return;
+                    if (this.is_loading) return;
                     this.is_loading = true;
-                    let data = await this.api_handler.put(page_url_update, this.partner)
+                    let data = await this.api_handler.put(`${page_url_update}/${this.partner.id}`, this.partner)
                         .finally(() => {
                             this.is_loading = false;
                         })
 
-                    if (data.success == true) {
-                        this.showMessage("success", "Cập nhật thành công");
-                        $("#delivery_partner").modal("hide");
-                    } else {
-                        this.errors = data.errors;
-                        this.showMessage(
-                            "error",
-                            "Cập nhật không thành công"
-                        );
-                    }
+                    this.showMessage("success", "Cập nhật thành công");
+                    $("#delivery_partner").modal("hide");
+                    // if (data.success == true) {
+                    // } else {
+                    // }
                     this.fetchData();
                 } catch (error) {
                     this.showMessage("error", "Lỗi", error.message);
+                    this.errors = data.errors;
+                    this.showMessage(
+                        "error",
+                        "Cập nhật không thành công"
+                    );
                 }
             }
         },
@@ -238,6 +240,7 @@ export default {
         },
         hasError(fieldName) {
             return fieldName in this.errors;
+
         },
         getError(fieldName) {
             return this.errors[fieldName];
@@ -254,12 +257,12 @@ export default {
                     return "";
             }
         },
-        showModal(){
+        showModal() {
             $("#delivery_partner").modal("show");
         }
     },
     watch: {
-        partnerItem: function(item){
+        partnerItem: function (item) {
             this.errors = {};
             this.partner.id = item.id;
             this.partner.code = item.code;
