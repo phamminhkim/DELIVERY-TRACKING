@@ -26,9 +26,9 @@ class DeliveryPartnerRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:delivery_partners,code',
                 'name' => 'required|string',
-                'api_url' => 'required|string',
-                'api_key' => 'required|string',
-                'api_secret' => 'required|string',
+                'api_url' => 'nullable|string',
+                'api_key' => 'nullable|string',
+                'api_secret' => 'nullable|string',
                 //'is_external' => 'required',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
@@ -36,12 +36,9 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
-                'api_url.required' => 'Yêu cầu nhập api_url.',
                 'api_url.string' => 'Api Url phải là chuỗi.',
-                'api_key.required' => 'Yêu cầu nhập api_key.',
-                'api_key.string' => 'Api key phải là chuỗi.',
-                'api_secret.required' => 'Yêu cầu nhập api_secret.',
-                'api_secret.string' => 'Api secret phải là chuỗi.',
+                'api_key.string' => 'Api Key phải là chuỗi.',
+                'api_secret.string' => 'Api Secret phải là chuỗi.',
 
             ]);
 
@@ -54,11 +51,12 @@ class DeliveryPartnerRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['is_external'] = true;
+                $this->data['is_active'] = true;
                 $partner = DeliveryPartner::create($this->data);
 
                 return $partner;
             }
-
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -70,21 +68,16 @@ class DeliveryPartnerRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string',
                 'name' => 'required|string',
-                'api_url' => 'required|string',
-                'api_key' => 'required|string',
-                'api_secret' => 'required|string',
-                //'is_external' => 'required',
+                'api_url' => 'nullable|string',
+                'api_key' => 'nullable|string',
+                'api_secret' => 'nullable|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
-                //'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
-                'api_url.required' => 'Yêu cầu nhập api_url.',
                 'api_url.string' => 'Api Url phải là chuỗi.',
-                'api_key.required' => 'Yêu cầu nhập api_key.',
                 'api_key.string' => 'Api key phải là chuỗi.',
-                'api_secret.required' => 'Yêu cầu nhập api_secret.',
                 'api_secret.string' => 'Api secret phải là chuỗi.',
             ]);
 
