@@ -79,7 +79,7 @@
                             <span>{{ data.value.name }}</span>
                         </template>
                         <template #cell(status)="data">
-                            <span class="badge bg-primary">{{
+                            <span :class="data.value.badge_class">{{
                                 data.value.name
                             }}</span>
                         </template>

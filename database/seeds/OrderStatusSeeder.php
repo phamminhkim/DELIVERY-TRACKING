@@ -17,22 +17,27 @@ class OrderStatusSeeder extends Seeder
             [
                 'id' => '10',
                 'name' => 'Đang xử lí đơn hàng',
+                'badge_class' => 'badge badge-secondary'
             ],
             [
                 'id' => '20',
                 'name' => 'Đã duyệt & đang soạn hàng',
+                'badge_class' => 'badge badge-info'
             ],
             [
                 'id' => '30',
                 'name' => 'Đang vận chuyển',
+                'badge_class' => 'badge badge-primary'
             ],
             [
                 'id' => '40',
                 'name' => 'Đã giao một phần',
+                'badge_class' => 'badge badge-warning'
             ],
             [
                 'id' => '100',
                 'name' => 'Đã giao xong',
+                'badge_class' => 'badge badge-success'
             ],
         ];
 
