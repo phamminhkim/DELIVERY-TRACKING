@@ -51,7 +51,7 @@
                     <div class="row">
                         <b-table responsive hover striped :bordered="true" :current-page="pagination.current_page"
                             :per-page="pagination.item_per_page" :filter="filter" :fields="fields"
-                            :items="delivery_partners" :tbody-tr-class="rowClass">
+                            :items="items" :tbody-tr-class="rowClass">
                             <template #cell(index)="data">
                                 {{
                                     data.index +
@@ -91,8 +91,8 @@
                     <!-- end phân trang -->
 
                     <!-- tạo form -->
-                    <DialogAddUpdateDeliveryPartners ref="dialog" :isEdit="is_edit_modal" :partnerItem="partner_item"
-                        :fetchData="fetchData"></DialogAddUpdateDeliveryPartners>
+                    <CRUDForm ref="dialog" :isEdit="is_edit_modal" :partnerItem="editing_item"
+                        :fetchData="fetchData"></CRUDForm>
 
                     <!-- end tạo form -->
                 </div>
@@ -106,12 +106,12 @@
 import Vue from "vue";
 import toastr from "toastr";
 import "toastr/toastr.scss";
-import ApiHandler from "../ApiHandler";
-import DialogAddUpdateDeliveryPartners from "./dialogs/DialogAddUpdateDeliveryPartners.vue";
+import ApiHandler from "../../ApiHandler";
+import CRUDForm from "./CRUDForm.vue";
 export default {
     components: {
         Vue,
-        DialogAddUpdateDeliveryPartners
+        CRUDForm
     },
     data() {
         return {
@@ -120,24 +120,9 @@ export default {
             form_title: "Đối tác vận chuyển",
             form_icon: "fas fa-truck",
 
-            // token: "Bearer " + window.Laravel.access_token,
-
             search_placeholder: "Tìm kiếm..",
-            // is_loading: false   ,
-            // edit: false,
-            // errors: {},
-            // partner: {
-            //     id: "",
-            //     code: "",
-            //     name: "",
-            //     api_url: "",
-            //     api_key: "",
-            //     api_secret: "",
-            //     is_external: "",
-            //     is_active: "",
-            // },
-            // ---------------------------
-            partner_item: {
+            
+           editing_item: {
                 id: "",
                 code: "",
                 name: "",
@@ -228,7 +213,7 @@ export default {
                 },
             ],
 
-            delivery_partners: [],
+            items: [],
             page_url_partner: "/api/master/delivery-partners",
             page_url_create_partner: "/api/master/delivery-partners",
             page_url_update_partner: "/api/master/delivery-partners",
@@ -243,7 +228,7 @@ export default {
             try {
                 let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
-                    this.delivery_partners = result.data;
+                    this.items = result.data;
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -251,67 +236,7 @@ export default {
                 this.showMessage("error", "Lỗi", error.message);
             }
         },
-        // addPartner() {
-        //     if (!this.formValidate()) return;
-        //     var page_url = this.page_url_create_partner;
-        //     var page_url_update = this.page_url_update_partner;
-        //     if (this.edit === false) {
-        //         fetch(page_url, {
-        //             method: "POST",
-        //             body: JSON.stringify(this.partner),
-        //             headers: {
-        //                 Authorization: this.token,
-        //                 "content-type": "application/json",
-        //             },
-        //         })
-        //             .then((res) => res.json())
-        //             .then((data) => {
-        //                 if (data.success == true) {
-        //                     this.reset();
-        //                     this.showMessage("success", "Thêm thành công");
-        //                     this.fetchData();
-        //                     $("#delivery_partner").modal("hide");
-        //                 } else {
-        //                     this.errors = data.errors;
-        //                     this.showMessage(
-        //                         "error",
-        //                         "Thêm mới không thành công"
-        //                     );
-        //                     this.fetchData();
-        //                     this.reset();
-        //                 }
-        //             })
-        //             .catch((err) => {})
-        //             .finally(() => {
-        //                 this.is_loading = false;
-        //             });
-        //     } else {
-        //         //update
-        //         fetch(page_url_update + "/" + this.partner.id, {
-        //             method: "PUT",
-        //             body: JSON.stringify(this.partner),
-        //             headers: {
-        //                 Authorization: this.token,
-        //                 "content-type": "application/json",
-        //             },
-        //         })
-        //             .then((res) => res.json())
-        //             .then((data) => {
-        //                 if (data.success == true) {
-        //                     this.showMessage("success", "Cập nhật thành công");
-        //                     $("#delivery_partner").modal("hide");
-        //                 } else {
-        //                     this.errors = data.errors;
-        //                     this.showMessage(
-        //                         "error",
-        //                         "Cập nhật không thành công"
-        //                     );
-        //                 }
-        //                 this.fetchData();
-        //             })
-        //             .catch((err) => console.log(err));
-        //     }
-        // },
+    
         deletePartner(id) {
             if (confirm("Bạn muốn xoá?")) {
                 fetch(`${this.page_url_destroy_partner}/${id}`, {
@@ -331,19 +256,8 @@ export default {
         },
 
         editPartner(item) {
-            // this.edit = true;
-            // this.errors = {};
-            // this.partner.id = item.id;
-            // this.partner.code = item.code;
-            // this.partner.name = item.name;
-            // this.partner.api_url = item.api_url;
-            // this.partner.api_key = item.api_key;
-            // this.partner.api_secret = item.api_secret;
-            // $("#delivery_partner").modal("show");
-
-            // ------------------------------
             this.is_edit_modal = true;
-            this.partner_item = item;
+            this.editing_item = item;
             this.$refs.dialog.showModal();
         },
         reset() {
@@ -356,12 +270,6 @@ export default {
             this.partner.is_active = "";
         },
         showModal() {
-            // this.edit = false;
-            // this.errors = {};
-            // // $("#delivery_partner").modal("show");
-            // this.reset();
-
-            // --------------------
             this.is_edit_modal = false;
             this.$refs.dialog.showModal();
         },
@@ -369,87 +277,11 @@ export default {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
-        // showMessage(type, title, message) {
-        //     if (!title) title = "Information";
-        //     toastr.options = {
-        //         positionClass: "toast-bottom-right",
-        //         toastClass: this.getToastClassByType(type),
-        //     };
-        //     toastr[type](message, title);
-        //     //this.reset()
-        // },
-        // getToastClassByType(type) {
-        //     switch (type) {
-        //         case "success":
-        //             return "toastr-bg-green";
-        //         case "error":
-        //             return "toastr-bg-red";
-        //         case "warning":
-        //             return "toastr-bg-yellow";
-        //         default:
-        //             return "";
-        //     }
-        // },
-        // hasError(fieldName) {
-        //     return fieldName in this.errors;
-        // },
-        // getError(fieldName) {
-        //     return this.errors[fieldName];
-        // },
-        // clearError(event) {
-        //     Vue.delete(this.errors, event.target.name);
-        // },
-        // formValidate() {
-        //     const errors = {};
-        //     const pushError = (field_name, error) => {
-        //         if (field_name in errors) {
-        //             errors[field_name].push(error);
-        //         } else {
-        //             errors[field_name] = [error];
-        //         }
-        //     };
-        //     const validator = {
-        //         code: () => {
-        //             if (this.partner.code.length === 0) {
-        //                 pushError("code", "Yêu cầu nhập mã kho.");
-        //             }
-        //         },
-        //         name: () => {
-        //             if (this.partner.name.length === 0) {
-        //                 pushError("name", "Yêu cầu nhập mã nhà vận chuyển.");
-        //             }
-        //         },
-        //         api_url: () => {
-        //             const url_regex =
-        //                 /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g;
-        //             if (this.partner.api_url.length === 0) {
-        //                 pushError("api_url", "Yêu cầu nhập api_url.");
-        //             }
-        //             if (this.partner.api_url.match(url_regex) === null) {
-        //                 pushError("api_url", "api_url phải là một URL");
-        //             }
-        //         },
-        //         api_key: () => {
-        //             if (this.partner.api_key.length === 0) {
-        //                 pushError("api_key", "Yêu cầu nhập api_key.");
-        //             }
-        //         },
-        //         api_secret: () => {
-        //             if (this.partner.api_secret.length === 0) {
-        //                 pushError("api_secret", "Yêu cầu nhập api_secret.");
-        //             }
-        //         },
-        //     };
-        //     Object.keys(validator).forEach((key) => {
-        //         validator[key]();
-        //     });
-        //     this.errors = errors;
-        //     return Object.keys(errors).length === 0;
-        // },
+
     },
     computed: {
         rows() {
-            return this.delivery_partners.length;
+            return this.items.length;
         },
     },
 };
