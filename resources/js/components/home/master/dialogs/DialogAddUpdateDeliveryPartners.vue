@@ -307,6 +307,7 @@ export default {
         },
         hasError(fieldName) {
             return fieldName in this.errors;
+
         },
         getError(fieldName) {
             return this.errors[fieldName];

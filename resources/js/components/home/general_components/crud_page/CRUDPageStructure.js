@@ -1,5 +1,5 @@
-class PageHeader {
-    constructor(header = {}) {
+class Header {
+    constructor(header) {
         Object.assign(
             this,
             {
@@ -11,7 +11,7 @@ class PageHeader {
     }
 }
 class TableField {
-    constructor(table_field = {}) {
+    constructor(table_field) {
         Object.assign(
             this,
             {
@@ -30,32 +30,78 @@ class TableField {
     }
 }
 
-class TableCell{
-    constructor(table_cell){
+class TableCell {
+    constructor(table_cell) {
         Object.assign(
             this,
             {
                 value: '',
-                label: '',
-                type: 'text'
+                key: '',
+                type: 'text' // 'text', 'bool', 'number', 'image'
             },
             table_cell
         )
     }
-    static ArrayToTableCells(table_cells_array = []){
-        return table_cells_array.map(table_item => {
-            return new TableItem(table_item);
+    static ArrayToTableCells(table_cells_array = []) {
+        return table_cells_array.map(table_cell => {
+            return new TableCell(table_cell);
         });
     }
 }
-
 class Table {
     constructor(table) {
-
+        Object.assign(
+            this,
+            {
+                table_fields: [],
+                table_cells: []
+            },
+            {
+                table_fields: TableField.ArrayToTableFields(table?.table_fields),
+                table_cells: TableCell.ArrayToTableCells(table?.table_cells)
+            }
+        )
     }
 }
+
+class FormField {
+    constructor(form_field){
+        Object.assign(
+            this,
+            {
+                label: '',
+                type: '', //html input type
+                key: '',
+                required: true
+            },
+            form_field
+        )
+    }
+    static ArrayToFormFields(form_fields_array = []){
+        return form_fields_array.map(form_field => {
+            return new FormField(form_field);
+        })
+    }
+}
+class Form {
+    constructor(form) {
+        Object.assign(
+            this,
+            {
+
+            },
+            form
+        )
+    }
+}
+
 
 class CRUDPageStructure {
 
 
 }
+
+
+
+
+export default CRUDPageStructure;
