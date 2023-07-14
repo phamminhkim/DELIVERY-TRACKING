@@ -24,8 +24,8 @@ class UserRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
 
                 'name' => 'required|string',
-                // 'email' => 'required|string',
-                // 'phone_number' => 'required|string',
+                'email' => 'nullable|string|unique:users,email',
+                'phone_number' => 'nullable|string',
             ], [
 
                 'name.required' => 'Yêu cầu nhập tên User.',
@@ -46,6 +46,7 @@ class UserRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['active'] = true;
                 $user = User::create($this->data);
                 return $user;
             }
@@ -60,13 +61,14 @@ class UserRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
 
                 'name' => 'required|string',
-                // 'email' => 'required|string',
-                // 'phone_number' => 'required|string',
+                'email' => 'nullable|string|unique:users,email',
+                'phone_number' => 'nullable|string',
             ], [
 
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
+                'email.unique' =>'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
 
 
