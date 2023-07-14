@@ -3,7 +3,7 @@
     <div class="modal fade" id="delivery_partner" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form @submit.prevent="addPartner">
+                <form @submit.prevent="addItem">
                     <div class="modal-header">
                         <h4 class="modal-title">
                             <span v-if="!edit">Thêm mới nhà vận chuyển</span>
@@ -160,7 +160,7 @@ export default {
         }
     },
     methods: {
-        async addPartner() {
+        async addItem() {
             if (this.is_loading) return;
             // if (!this.formValidate()) return;
             var page_url = this.page_url_create_partner;

@@ -169,8 +169,8 @@
                     <!-- tạo form -->
                     <DialogAddUpdateDeliveryPartners
                         ref="AddUpdateDialog"
-                        :isEdit="is_editing"
-                        :partnerItem="editing_item"
+                        :is_editing="is_editing"
+                        :editing_item="editing_item"
                         :refetchData="fetchData"
                     ></DialogAddUpdateDeliveryPartners>
 
@@ -301,6 +301,7 @@ export default {
                 );
                 if (result.success) {
                     this.delivery_partners = result.data;
+                    this.fetchData();
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }

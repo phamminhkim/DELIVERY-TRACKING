@@ -1,11 +1,6 @@
 <template>
     <!-- tạo form -->
-    <div
-        class="modal fade"
-        id="DialogAddUpdateDeliveryPartner"
-        tabindex="-1"
-        role="dialog"
-    >
+    <div class="modal fade" id="DialogAddUpdateDeliveryPartner" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form @submit.prevent="addPartner">
@@ -14,17 +9,11 @@
                             <span>
                                 {{
                                     is_editing
-                                        ? "Cập nhật nhà vận chuyển"
-                                        : "Thêm mới nhà vận chuyển"
-                                }}</span
-                            >
+                                    ? "Cập nhật nhà vận chuyển"
+                                    : "Thêm mới nhà vận chuyển"
+                                }}</span>
                         </h4>
-                        <button
-                            type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            aria-label="Close"
-                        >
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -33,28 +22,12 @@
                         <div class="form-group">
                             <label>Mã của nhà vận chuyển</label>
                             <small class="text-danger">(*)</small>
-                            <input
-                                v-model="partner.code"
-                                class="form-control"
-                                id="code"
-                                name="code"
-                                placeholder="Nhập mã nhà vận chuyển.."
-                                v-bind:class="
-                                    hasError('code') ? 'is-invalid' : ''
-                                "
-                                type="text"
-                                required
-                            />
-                            <span
-                                v-if="hasError('code')"
-                                class="invalid-feedback"
-                                role="alert"
-                            >
+                            <input v-model="partner.code" class="form-control" id="code" name="code"
+                                placeholder="Nhập mã nhà vận chuyển.." v-bind:class="hasError('code') ? 'is-invalid' : ''
+                                    " type="text" required />
+                            <span v-if="hasError('code')" class="invalid-feedback" role="alert">
                                 <!-- <strong>{{ getError('code') }}</strong> -->
-                                <div
-                                    v-for="(error, index) in getError('code')"
-                                    :key="index"
-                                >
+                                <div v-for="(error, index) in getError('code')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div>
@@ -63,28 +36,12 @@
                         <div class="form-group">
                             <label>Tên nhà vận chuyển</label>
                             <small class="text-danger">(*)</small>
-                            <input
-                                v-model="partner.name"
-                                class="form-control"
-                                id="name"
-                                name="name"
-                                placeholder="Nhập tên nhà vận chuyển.."
-                                v-bind:class="
-                                    hasError('name') ? 'is-invalid' : ''
-                                "
-                                type="text"
-                                required
-                            />
-                            <span
-                                v-if="hasError('name')"
-                                class="invalid-feedback"
-                                role="alert"
-                            >
+                            <input v-model="partner.name" class="form-control" id="name" name="name"
+                                placeholder="Nhập tên nhà vận chuyển.." v-bind:class="hasError('name') ? 'is-invalid' : ''
+                                    " type="text" required />
+                            <span v-if="hasError('name')" class="invalid-feedback" role="alert">
                                 <!-- <strong>{{ getError('name') }}</strong> -->
-                                <div
-                                    v-for="(error, index) in getError('name')"
-                                    :key="index"
-                                >
+                                <div v-for="(error, index) in getError('name')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div>
@@ -93,28 +50,13 @@
                         <div class="form-group">
                             <label>Api Url</label>
                             <small class="text-danger"></small>
-                            <input
-                                v-model="partner.api_url"
-                                class="form-control"
-                                id="api_url"
-                                name="api_url"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển"
-                                v-bind:class="
-                                    hasError('api_url') ? 'is-invalid' : ''
-                                "
-                                type="url"
-                            />
-                            <span
-                                v-if="hasError('api_url')"
-                                class="invalid-feedback"
-                                role="alert"
-                            >
-                                <div
-                                    v-for="(error, index) in getError(
-                                        'api_url'
-                                    )"
-                                    :key="index"
-                                >
+                            <input v-model="partner.api_url" class="form-control" id="api_url" name="api_url"
+                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_url') ? 'is-invalid' : ''
+                                    " type="url" />
+                            <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
+                                <div v-for="(error, index) in getError(
+                                    'api_url'
+                                )" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div>
@@ -122,29 +64,14 @@
                         </div>
                         <div class="form-group">
                             <label>Api Key</label>
-                            <input
-                                v-model="partner.api_key"
-                                class="form-control"
-                                id="api_key"
-                                name="api_key"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển"
-                                v-bind:class="
-                                    hasError('api_key') ? 'is-invalid' : ''
-                                "
-                                type="text"
-                            />
-                            <span
-                                v-if="hasError('api_key')"
-                                class="invalid-feedback"
-                                role="alert"
-                            >
+                            <input v-model="partner.api_key" class="form-control" id="api_key" name="api_key"
+                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_key') ? 'is-invalid' : ''
+                                    " type="text" />
+                            <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
                                 <!-- <strong>{{ getError('api_key') }}</strong> -->
-                                <div
-                                    v-for="(error, index) in getError(
-                                        'api_key'
-                                    )"
-                                    :key="index"
-                                >
+                                <div v-for="(error, index) in getError(
+                                    'api_key'
+                                )" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div>
@@ -152,29 +79,14 @@
                         </div>
                         <div class="form-group">
                             <label>Api Secret</label>
-                            <input
-                                v-model="partner.api_secret"
-                                class="form-control"
-                                id="api_secret"
-                                name="api_secret"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển"
-                                v-bind:class="
-                                    hasError('api_secret') ? 'is-invalid' : ''
-                                "
-                                type="password"
-                            />
-                            <span
-                                v-if="hasError('api_secret')"
-                                class="invalid-feedback"
-                                role="alert"
-                            >
+                            <input v-model="partner.api_secret" class="form-control" id="api_secret" name="api_secret"
+                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_secret') ? 'is-invalid' : ''
+                                    " type="password" />
+                            <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
                                 <!-- <strong>{{ getError('api_secret') }}</strong> -->
-                                <div
-                                    v-for="(error, index) in getError(
-                                        'api_secret'
-                                    )"
-                                    :key="index"
-                                >
+                                <div v-for="(error, index) in getError(
+                                    'api_secret'
+                                )" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div>
@@ -183,18 +95,10 @@
                     </div>
 
                     <div class="modal-footer justify-content-between">
-                        <button
-                            type="submit"
-                            title="Submit"
-                            class="btn btn-primary"
-                        >
+                        <button type="submit" title="Submit" class="btn btn-primary">
                             {{ is_editing ? "Cập nhật" : "Tạo mới" }}
                         </button>
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
                             Đóng
                         </button>
                     </div>
@@ -250,25 +154,23 @@ export default {
         async updatePartner() {
             try {
                 let data = await this.api_handler
-                    .put(this.page_url_update_partner, this.partner)
+                    .put(`${this.page_url_update_partner}/${this.partner.id}`, this.partner)
                     .finally(() => {
                         this.is_loading = false;
                     });
 
-                if (data.success) {
-                    this.showMessage("success", "Cập nhật thành công");
-                    this.closeDialog();
-                } else {
-                    this.errors = data.errors;
-                    this.showMessage(
-                        "error",
-                        "Cập nhật không thành công",
-                        data.message
-                    );
-                }
+                this.showMessage("success", "Cập nhật thành công");
+                this.closeDialog();
+
                 this.refetchData();
             } catch (error) {
                 this.showMessage("error", "Lỗi", error.message);
+                this.errors = data.errors;
+                this.showMessage(
+                    "error",
+                    "Cập nhật không thành công",
+                    data.message
+                );
             }
         },
         async createPartner() {
@@ -278,20 +180,18 @@ export default {
                     .finally(() => {
                         this.is_loading = false;
                     });
-                if (data.success) {
-                    this.showMessage("success", "Thêm thành công");
-                    this.refetchData();
-                    this.closeDialog();
-                } else {
-                    this.errors = data.errors;
-                    this.showMessage(
-                        "error",
-                        "Thêm mới không thành công",
-                        data.message
-                    );
-                }
+                this.showMessage("success", "Thêm thành công");
+                this.refetchData();
+                this.closeDialog();
+
             } catch (error) {
                 this.showMessage("error", "Lỗi", error.message);
+                this.errors = data.errors;
+                this.showMessage(
+                    "error",
+                    "Thêm mới không thành công",
+                    data.message
+                );
             }
         },
         closeDialog() {
