@@ -32,7 +32,6 @@ class APIHandler {
                 headers: this.getHeaders(),
                 params: queries,
             })
-            console.log('in post')
             const data = response.data;
 
             return data;

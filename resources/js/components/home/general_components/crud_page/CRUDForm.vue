@@ -1,6 +1,6 @@
 <template>
     <!-- tạo form -->
-    <div class="modal fade" id="DialogAddUpdateDeliveryPartner" tabindex="-1" role="dialog">
+    <div class="modal fade" id="DialogAddUpdateCRUDPage" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form @submit.prevent="addPartner">

@@ -3,6 +3,7 @@ import DeliveryPartners from "../components/home/master/DeliveryPartners.vue";
 import Users from "../components/home/master/DeliveryUsers.vue";
 import Customers from "../components/home/master/DeliveryCustomers.vue";
 import MenuRouterConfig from "../components/home/master/MenuRouterConfig.vue";
+import TestCRUDPage from "../components/home/general_components/crud_page/TestCRUDPage.vue"
 const routes = [
     {
         path: "/",
@@ -34,6 +35,11 @@ const routes = [
         component: MenuRouterConfig,
         name: "MenuRouterConfig",
     },
+    {
+        path: '/test',
+        component: TestCRUDPage,
+        name: 'TestCRUDPage'
+    }
 ];
 
 export default routes;

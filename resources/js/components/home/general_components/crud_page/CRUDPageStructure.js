@@ -6,7 +6,9 @@ class Header {
                 title: 'This is title',
                 title_icon: 'fas fa-truck'
             },
-            header
+            {
+                ...header
+            }
         )
     }
 }
@@ -20,7 +22,9 @@ class TableField {
                 sortable: false,
                 class: 'text-nowrap'
             },
-            table_field
+            {
+                ...table_field
+            }
         )
     }
     static ArrayToTableFields(table_fields_array = []) {
@@ -35,11 +39,13 @@ class TableCell {
         Object.assign(
             this,
             {
-                value: '',
-                key: '',
-                type: 'text' // 'text', 'bool', 'number', 'image'
+                key_of_value: '',
+                target_label: '',
+                type: 'text' // 'text', 'bool', 'number', 'image', 'template'
             },
-            table_cell
+            {
+                ...table_cell
+            }
         )
     }
     static ArrayToTableCells(table_cells_array = []) {
@@ -57,6 +63,7 @@ class Table {
                 table_cells: []
             },
             {
+                ...table,
                 table_fields: TableField.ArrayToTableFields(table?.table_fields),
                 table_cells: TableCell.ArrayToTableCells(table?.table_cells)
             }
@@ -70,11 +77,13 @@ class FormField {
             this,
             {
                 label: '',
-                type: '', //html input type
+                type: 'text', //html input type
                 key: '',
                 required: true
             },
-            form_field
+            {
+                ...form_field,
+            }
         )
     }
     static ArrayToFormFields(form_fields_array = []){
@@ -88,20 +97,38 @@ class Form {
         Object.assign(
             this,
             {
-
+                form_name: '',
+                form_fields: []
             },
-            form
+            {
+                ...form,
+                form_fields: FormField.ArrayToFormFields(form?.form_fields)
+            }
         )
     }
 }
 
 
 class CRUDPageStructure {
-
+    constructor(crud_page_structure){
+        Object.assign(
+            this,
+            {
+                header: new Header(),
+                table: new Table(),
+                form: new Form(),
+                api_url: '',
+            },
+            {
+                ...crud_page_structure,
+                header: new Header(crud_page_structure?.header),
+                table: new Table(crud_page_structure?.table),
+                form: new Form(crud_page_structure?.form),
+            }
+        )
+    }
 
 }
-
-
 
 
 export default CRUDPageStructure;
