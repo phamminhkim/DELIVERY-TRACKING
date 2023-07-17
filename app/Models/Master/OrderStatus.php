@@ -9,6 +9,7 @@ class OrderStatus extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name'
+        'name',
+        'badge_class',
     ];
 }

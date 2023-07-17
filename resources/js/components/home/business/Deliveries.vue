@@ -76,7 +76,7 @@
                             :per-page="pagination.item_per_page"
                             :filter="search_pattern"
                             :fields="fields"
-                            :items="customers"
+                            :items="delivery_partners"
                             :tbody-tr-class="rowClass"
                         >
                             <template #cell(index)="data">
@@ -87,7 +87,14 @@
                                     1
                                 }}
                             </template>
-
+                            <template #cell(is_external)="data">
+                                <span
+                                    v-if="data.item.is_external"
+                                    class="badge bg-primary"
+                                    >Đối tác ngoài</span
+                                >
+                                <span v-else class="badge bg-info">Nội bộ</span>
+                            </template>
                             <template #cell(is_active)="data">
                                 <span
                                     class="badge bg-success"
@@ -114,7 +121,7 @@
 
                                     <button
                                         class="btn btn-xs mr-1"
-                                        @click="deleteCustomer(data.item.id)"
+                                        @click="deletePartner(data.item.id)"
                                     >
                                         <i
                                             class="fas fa-trash text-red bigger-120"
@@ -160,13 +167,6 @@
                     <!-- end phân trang -->
 
                     <!-- tạo form -->
-                    <DialogAddUpdateCustomers
-                        ref="AddUpdateDialog"
-                        :is_editing="is_editing"
-                        :editing_item="editing_item"
-                        :refetchData="fetchData"
-                    ></DialogAddUpdateCustomers>
-
                     <!-- end tạo form -->
                 </div>
             </div>
@@ -176,20 +176,16 @@
 </template>
 
 <script>
-import Vue from "vue";
 import ApiHandler from "../ApiHandler";
-import DialogAddUpdateCustomers from "./dialogs/DialogAddUpdateCustomers.vue";
+
 export default {
-    components: {
-        Vue,
-        DialogAddUpdateCustomers,
-    },
+    components: {},
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
             form_title: window.Laravel.form_title,
-            form_icon: " fas fa-people-arrows",
+            form_icon: "fas fa-truck",
 
             search_placeholder: "Tìm kiếm..",
             search_pattern: "",
@@ -224,29 +220,34 @@ export default {
                 },
                 {
                     key: "name",
-                    label: "Tên khách hàng",
+                    label: "Tên nhà vận chuyển",
                     sortable: true,
                     class: "text-nowrap",
                 },
                 {
-                    key: "email",
-                    label: "Email",
+                    key: "api_url",
+                    label: "API Url",
                     sortable: true,
                     class: "text-nowrap",
                 },
                 {
-                    key: "phone_number",
-                    label: "Số điện thoại",
+                    key: "api_key",
+                    label: "API Key",
                     sortable: true,
                     class: "text-nowrap",
                 },
                 {
-                    key: "address",
-                    label: "Địa chỉ",
+                    key: "api_secret",
+                    label: "API Secret",
                     sortable: true,
                     class: "text-nowrap",
                 },
-
+                {
+                    key: "is_external",
+                    label: "Phạm vị",
+                    sortable: true,
+                    class: "text-nowrap text-center",
+                },
                 {
                     key: "is_active",
                     label: "Khả dụng",
@@ -261,9 +262,9 @@ export default {
                 },
             ],
 
-            customers: [],
-            page_url_customer: "/api/master/customers",
-            page_url_destroy_customer: "/api/master/customers",
+            delivery_partners: [],
+            page_url_partner: "/api/master/delivery-partners",
+            page_url_destroy_partner: "/api/master/delivery-partners",
         };
     },
     created() {
@@ -272,9 +273,9 @@ export default {
     methods: {
         async fetchData() {
             try {
-                let result = await this.api_handler.get(this.page_url_customer);
+                let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
-                    this.customers = result.data;
+                    this.delivery_partners = result.data;
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -282,15 +283,15 @@ export default {
                 this.showMessage("error", "Lỗi", error.message);
             }
         },
-        async deleteCustomer(id) {
+        async deletePartner(id) {
             if (confirm("Bạn muốn xoá?")) {
                 let result = await this.api_handler.delete(
-                    `${this.page_url_destroy_customer}/${id}`
+                    `${this.page_url_destroy_partner}/${id}`
                 );
                 if (result.success) {
-                    this.customers = result.data;
+                    this.delivery_partners = result.data;
                     this.fetchData();
-                    this.showMessage('success', 'Xóa thành công');
+                    this.showMessage("success", "Xóa thành công");
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -298,12 +299,12 @@ export default {
         },
         showCreateDialog() {
             this.is_editing = false;
-            $("#DialogAddUpdateCustomer").modal("show");
+            $("#DialogAddUpdateDeliveryPartner").modal("show");
         },
         showEditDialog(item) {
             this.is_editing = true;
             this.editing_item = item;
-            $("#DialogAddUpdateCustomer").modal("show");
+            $("#DialogAddUpdateDeliveryPartner").modal("show");
         },
         rowClass(item, type) {
             if (!item || type !== "row") return;
@@ -332,7 +333,7 @@ export default {
     },
     computed: {
         rows() {
-            return this.customers.length;
+            return this.delivery_partners.length;
         },
     },
 };

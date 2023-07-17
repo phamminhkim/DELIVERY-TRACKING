@@ -53,6 +53,14 @@ Vue.component(
     require("./components/home/menu/MenuRouterChildren.vue").default
 );
 Vue.component(
+    "deliveries",
+    require("./components/home/business/Deliveries.vue").default
+);
+Vue.component(
+    "orders",
+    require("./components/home/business/Orders.vue").default
+);
+Vue.component(
     "admin-container",
     require("./components/AdminContainer.vue").default
 );

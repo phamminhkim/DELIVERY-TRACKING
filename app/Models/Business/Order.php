@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\Company;
+use App\Models\Master\Customer;
 use App\Models\Master\OrderStatus;
 use App\Models\Master\Warehouse;
 use App\Traits\Uuids;
@@ -75,7 +76,7 @@ class Order extends Model
 
     public function customer_reviews()
     {
-        return $this->hasMany(CustomerReview::class);
+        return $this->hasMany(OrderCustomerReview::class);
     }
 
 

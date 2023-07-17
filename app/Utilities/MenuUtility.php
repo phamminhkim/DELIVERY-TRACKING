@@ -18,7 +18,8 @@ class MenuUtility
                     $new_menu->title = $menu['title'];
                     $new_menu->parent_id = $parent_id;
                     $new_menu->link = $menu['link'];
-                    $new_menu->icon = $menu['icon'];
+                    $new_menu->query_string = $menu['query_string'] ?? '';
+                    $new_menu->icon = $menu['icon'] ?? '';
                     $new_menu->order = 0;
                     $new_menu->left = 0;
                     $new_menu->right = 0;
@@ -35,7 +36,8 @@ class MenuUtility
                     'parent_id' => intval($parent_id),
                     'title' => $menu['title'],
                     'link' => $menu['link'],
-                    'icon' => $menu['icon'],
+                    'query_string' => $menu['query_string'] ?? '',
+                    'icon' => $menu['icon'] ?? '',
                 );
                 $tree_array = array_merge($tree_array, $tree_sub_array);
             } catch (\Throwable $th) {

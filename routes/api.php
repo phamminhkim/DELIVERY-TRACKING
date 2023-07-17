@@ -114,10 +114,14 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
-        Route::prefix('/delivery')->group(function () {
+        Route::prefix('/deliveries')->group(function () {
             Route::post('/', [DeliveryController::class, 'createDelivery']);
             Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);
+        });
+
+        Route::prefix('/orders')->group(function () {
+            Route::get('/', [OrderController::class, 'getOrders']);
         });
     });
 });

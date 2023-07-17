@@ -27,17 +27,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
-    
+
     <script>
         try {
-
             window.Laravel = {!! json_encode([
                 'csrfToken' => csrf_token(),
                 'access_token' => $access_token,
                 'current_user' => Auth::user(),
             ]) !!};
-
-            //console.log( window.Laravel.access_token);
         } catch (err) {
 
         }
@@ -52,9 +49,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
                     class="fas fa-bars text-secondary"></i></a>
 
-            <router-link to="/" class="navbar-brand">
-                {{-- <img src="template/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-             style="opacity: .8"> --}}
+            <router-link to="/dashboard" class="navbar-brand">
                 <strong>DELIVERY TRACKING</strong>
             </router-link>
 
@@ -71,8 +66,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             data-target="#user-profile">
                             <img src="{{ Auth::user()->avatar }}" class="user-image img-circle elevation-2"
                                 alt="User a">
-                            <span class="d-none d-md-inline">{{ Auth::user()->name }} -
-                                {{ Auth::user()->username }}</span>
+                            <strong class="d-none d-md-inline">{{ Auth::user()->name }}</strong>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="user-profile"
                             style="left: inherit; right: -8px; border: 0; margin-top: 8px">
@@ -81,7 +75,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 <img src="{{ Auth::user()->avatar }}" class="img-circle elevation-2" alt="User Image">
 
                                 <p class="nav-link">
-                                    {{ Auth::user()->name }} - {{ Auth::user()->username }}
+                                    <strong> {{ Auth::user()->name }} </strong>
                                     <small>Thành viên từ {{ Auth::user()->created_at }}</small>
                                 </p>
                             </li>
@@ -138,14 +132,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- /.content-wrapper -->
 
         <!-- Main Footer -->
-        {{-- <footer class="main-footer">
-    <!-- To the right -->
-    <div class="float-right d-none d-sm-inline">
-      Anything you want
-    </div>
-    <!-- Default to the left -->
-    <strong>Copyright &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
-  </footer> --}}
+        <footer class="main-footer">
+            <!-- To the right -->
+            <div class="float-right d-none d-sm-inline">
+                Thien Long Corporation
+            </div>
+            <!-- Default to the left -->
+            <strong>Liên hệ hỗ trợ: </strong> Phòng CNTT - Tập đoàn Thiên Long
+        </footer>
     </div>
     <!-- ./wrapper -->
 

@@ -90,7 +90,11 @@ export default {
         },
         getLinkHref(menu) {
             if (!menu.has_children) {
-                return menu.link;
+                return (
+                    menu.link +
+                    (menu.query_string != "" ? "?" : "") +
+                    menu.query_string
+                );
             } else return "#";
         },
         hasMenuPendingCount(menu) {

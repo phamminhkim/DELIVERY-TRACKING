@@ -12,6 +12,7 @@ class MenuRouter extends Model
         'parent_id',
         'order',
         'link',
+        'query_string',
         'icon',
         'left',
         'right',

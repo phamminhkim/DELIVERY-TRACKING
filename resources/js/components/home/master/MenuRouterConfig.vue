@@ -127,9 +127,24 @@
                                             <a
                                                 v-else
                                                 target="_blank"
-                                                :href="slotProps.data.link"
+                                                :href="
+                                                    slotProps.data.link +
+                                                    (slotProps.data.query_string
+                                                        ? '?' +
+                                                          slotProps.data
+                                                              .query_string
+                                                        : '')
+                                                "
                                             >
-                                                {{ slotProps.data.link }}
+                                                {{ slotProps.data.link
+                                                }}{{
+                                                    slotProps.data
+                                                        .query_string != ""
+                                                        ? "?" +
+                                                          slotProps.data
+                                                              .query_string
+                                                        : ""
+                                                }}
                                             </a>
                                             <button
                                                 class="btn btn-xs"
@@ -170,7 +185,7 @@
 
         <dialog-add-update-menu-router
             :menu="menu"
-            :edit="edit"
+            :is_editing="is_editing"
             @onCreateMenu="onCreateMenu"
             @onUpdateMenu="onUpdateMenu"
         >
@@ -203,7 +218,7 @@ export default {
 
             current_tree: [],
 
-            edit: false,
+            is_editing: false,
             loading: false,
 
             token: "",
@@ -224,6 +239,7 @@ export default {
                 title: menu.title,
                 icon: menu.icon,
                 link: menu.link,
+                query_string: menu.query_string,
             });
             this.saveMenus();
         },
@@ -234,6 +250,7 @@ export default {
                     node.title = menu.title;
                     node.icon = menu.icon;
                     node.link = menu.link;
+                    node.query_string = menu.query_string;
                     return false;
                 }
             });
@@ -255,7 +272,7 @@ export default {
                     console.log(err);
                     this.loading = false;
                 });
-            this.edit = false;
+            this.is_editing = false;
         },
         saveMenus() {
             let data = this.$refs.nested_tree_menus.getPureData();
@@ -298,16 +315,16 @@ export default {
             this.saveMenus();
         },
         showDialogCreateMenu() {
-            this.edit = false;
+            this.is_editing = false;
             this.menu = {};
 
-            $("#DialogCreateMenu").modal("show");
+            $("#DialogAddUpdateMenuRouter").modal("show");
         },
         editItem(menu) {
-            this.edit = true;
+            this.is_editing = true;
             this.menu = menu;
             //console.log(this.$refs.nested_tree_menus.getPureData());
-            $("#DialogCreateMenu").modal("show");
+            $("#DialogAddUpdateMenuRouter").modal("show");
         },
         deleteItem(menu) {
             if (confirm("Bạn có chắc chắn muốn xóa menu này?")) {
@@ -348,6 +365,7 @@ export default {
                     title: menu.title,
                     icon: menu.icon,
                     link: menu.link,
+                    query_string: menu.query_string,
                 };
 
                 if (childs_id && childs_id.length > 0) {

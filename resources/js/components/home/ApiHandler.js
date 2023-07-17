@@ -46,7 +46,7 @@ class APIHandler {
             const response = await axios.put(api_url, body, {
                 headers: this.getHeaders(),
                 params: queries,
-            })
+            });
             const data = response.data;
 
             return data;
@@ -62,7 +62,7 @@ class APIHandler {
             const response = await axios.post(api_url, body, {
                 headers: this.getHeaders(),
                 params: queries,
-            })
+            });
             const data = response.data;
 
             return data;
@@ -77,7 +77,7 @@ class APIHandler {
             const response = await axios.delete(api_url, {
                 headers: this.getHeaders(),
                 params: queries,
-            })
+            });
             const data = response.data;
 
             return data;
