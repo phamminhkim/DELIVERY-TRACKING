@@ -9,7 +9,7 @@ class Route extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name', 'path', 'component', 'breadcrumb'
+        'name', 'path', 'component'
     ];
     protected $hidden = [
         'id'
