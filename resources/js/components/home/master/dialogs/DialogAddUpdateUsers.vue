@@ -26,11 +26,11 @@
                                 placeholder="Nhập tên người dùng.." v-bind:class="hasError('name') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('name') }}</strong> -->
-                                <div v-for="(error, index) in getError('name')" :key="index">
+                                <strong>{{ getError('name') }}</strong>
+                                <!-- <div v-for="(error, index) in getError('name')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
-                                </div>
+                                </div> -->
                             </span>
                         </div>
                         <div class="form-group">
@@ -38,13 +38,13 @@
                             <!-- <small class="text-danger">(*)</small> -->
                             <input v-model="user.email" class="form-control" id="email" name="email"
                                 placeholder="Nhập email.." v-bind:class="hasError('email') ? 'is-invalid' : ''
-                                    " type="text" unique />
+                                    " type="email" unique />
                             <span v-if="hasError('email')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('email') }}</strong> -->
-                                <div v-for="(error, index) in getError('email')" :key="index">
+                                <strong>{{ getError('email') }}</strong>
+                                <!-- <div v-for="(error, index) in getError('email')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
-                                </div>
+                                </div> -->
                             </span>
                         </div>
                         <div class="form-group">
@@ -52,12 +52,9 @@
                             <!-- <small class="text-danger"></small> -->
                             <input v-model="user.phone_number" class="form-control" id="phone_number" name="phone_number"
                                 placeholder="Nhập số điện thoại..." v-bind:class="hasError('phone_number') ? 'is-invalid' : ''
-                                    " type="text" />
+                                    " type="number" />
                             <span v-if="hasError('phone_number')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError('phone_number')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('email') }}</strong>
                             </span>
                         </div>
                     </div>
@@ -130,13 +127,9 @@ export default {
                 this.closeDialog();
                 this.refetchData();
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
-                this.showMessage(
-                    "error",
-                    "Cập nhật không thành công",
-                    data.message
-                );
+                this.errors = error.response.data.errors;
+                this.showMessage("error","Cập nhật không thành công");
+                this.refetchData();
             }
         },
         async createUser() {
@@ -146,18 +139,15 @@ export default {
                     .finally(() => {
                         this.is_loading = false;
                     });
+                this.reset();
                 this.showMessage("success", "Thêm thành công");
                 this.refetchData();
                 this.closeDialog();
 
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
-                this.showMessage(
-                    "error",
-                    "Thêm mới không thành công",
-                    data.message
-                );
+                this.errors = error.response.data.errors;
+                this.showMessage("error","Thêm mới không thành công",);
+                this.refetchData();
             }
         },
         closeDialog() {

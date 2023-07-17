@@ -61,14 +61,14 @@ class UserRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
 
                 'name' => 'required|string',
-                'email' => 'nullable|string|unique:users,email',
+                'email' => 'nullable|string',
                 'phone_number' => 'nullable|string',
             ], [
 
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
-                'email.unique' =>'Email không được trùng',
+                //'email.unique' =>'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
 
 

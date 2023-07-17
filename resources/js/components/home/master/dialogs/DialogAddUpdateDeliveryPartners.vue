@@ -26,11 +26,8 @@
                                 placeholder="Nhập mã nhà vận chuyển.." v-bind:class="hasError('code') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('code') }}</strong> -->
-                                <div v-for="(error, index) in getError('code')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('code') }}</strong>
+
                             </span>
                         </div>
                         <div class="form-group">
@@ -40,11 +37,8 @@
                                 placeholder="Nhập tên nhà vận chuyển.." v-bind:class="hasError('name') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('name') }}</strong> -->
-                                <div v-for="(error, index) in getError('name')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('name') }}</strong>
+
                             </span>
                         </div>
                         <div class="form-group">
@@ -54,12 +48,7 @@
                                 placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_url') ? 'is-invalid' : ''
                                     " type="url" />
                             <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError(
-                                    'api_url'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('api_url') }}</strong>
                             </span>
                         </div>
                         <div class="form-group">
@@ -68,28 +57,18 @@
                                 placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_key') ? 'is-invalid' : ''
                                     " type="text" />
                             <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('api_key') }}</strong> -->
-                                <div v-for="(error, index) in getError(
-                                    'api_key'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('api_key') }}</strong>
+
                             </span>
                         </div>
                         <div class="form-group">
                             <label>Api Secret</label>
                             <input v-model="partner.api_secret" class="form-control" id="api_secret" name="api_secret"
                                 placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_secret') ? 'is-invalid' : ''
-                                    " type="password" />
+                                    " type="text" />
                             <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('api_secret') }}</strong> -->
-                                <div v-for="(error, index) in getError(
-                                    'api_secret'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('api_secret') }}</strong>
+
                             </span>
                         </div>
                     </div>
@@ -166,8 +145,7 @@ export default {
 
                 this.refetchData();
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
+                this.errors = error.response.data.errors;
                 this.showMessage(
                     "error",
                     "Cập nhật không thành công",
@@ -187,8 +165,7 @@ export default {
                 this.closeDialog();
 
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
+                this.errors = error.response.data.errors;
                 this.showMessage(
                     "error",
                     "Thêm mới không thành công",

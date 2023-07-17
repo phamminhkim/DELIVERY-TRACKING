@@ -298,6 +298,7 @@ export default {
         },
         showCreateDialog() {
             this.is_editing = false;
+
             $("#DialogAddUpdateCustomer").modal("show");
         },
         showEditDialog(item) {

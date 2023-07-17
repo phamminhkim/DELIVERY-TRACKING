@@ -26,11 +26,11 @@
                                 placeholder="Nhập mã khách hàng.." v-bind:class="hasError('code') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('code') }}</strong> -->
-                                <div v-for="(error, index) in getError('code')" :key="index">
+                                <strong>{{ getError('code') }}</strong>
+                                <!-- <div v-for="(error, index) in getError('code')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
-                                </div>
+                                </div> -->
                             </span>
                         </div>
                         <div class="form-group">
@@ -40,11 +40,11 @@
                                 placeholder="Nhập tên khách hàng.." v-bind:class="hasError('name') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('name') }}</strong> -->
-                                <div v-for="(error, index) in getError('name')" :key="index">
+                                <strong>{{ getError('name') }}</strong>
+                                <!-- <div v-for="(error, index) in getError('name')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
-                                </div>
+                                </div> -->
                             </span>
                         </div>
                         <div class="form-group">
@@ -52,12 +52,9 @@
                             <small class="text-danger"></small>
                             <input v-model="customer.email" class="form-control" id="email" name="email"
                                 placeholder="Nhập Email..." v-bind:class="hasError('email') ? 'is-invalid' : ''
-                                    " type="text" unique />
+                                    " type="email" unique />
                             <span v-if="hasError('email')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError('email')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('email') }}</strong>
                             </span>
                         </div>
                         <div class="form-group">
@@ -67,10 +64,7 @@
                                     " type="number" />
                             <span v-if="hasError('phone_number')" class="invalid-feedback" role="alert">
 
-                                <div v-for="(error, index) in getError('phone_number')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('phone_number') }}</strong>
                             </span>
                         </div>
                         <div class="form-group">
@@ -80,12 +74,7 @@
                                     " type="text" />
                             <span v-if="hasError('address')" class="invalid-feedback" role="alert">
 
-                                <div v-for="(error, index) in getError(
-                                    'address'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
+                                <strong>{{ getError('address') }}</strong>
                             </span>
                         </div>
                     </div>
@@ -158,11 +147,10 @@ export default {
 
                 this.showMessage("success", "Cập nhật thành công");
                 this.closeDialog();
-
                 this.refetchData();
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
+                //this.showMessage("error", "Lỗi", error.message);
+                this.errors = error.response.data.errors;
                 this.showMessage(
                     "error",
                     "Cập nhật không thành công",
@@ -177,13 +165,14 @@ export default {
                     .finally(() => {
                         this.is_loading = false;
                     });
+
                 this.showMessage("success", "Thêm thành công");
                 this.refetchData();
                 this.closeDialog();
 
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
+                //this.showMessage("error", "Lỗi", error.message);
+                this.errors = error.response.data.errors;
                 this.showMessage(
                     "error",
                     "Thêm mới không thành công",
