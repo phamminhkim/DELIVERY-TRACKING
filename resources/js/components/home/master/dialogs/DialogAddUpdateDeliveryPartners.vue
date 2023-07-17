@@ -111,6 +111,8 @@
 
 <script>
 import APIHandler from "../../ApiHandler";
+import toastr from 'toastr';
+import 'toastr/toastr.scss';
 
 export default {
     name: "DialogAddUpdateDeliveryPartners",

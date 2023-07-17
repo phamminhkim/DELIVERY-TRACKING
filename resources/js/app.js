@@ -62,6 +62,27 @@ Vue.component(
     require("./components/AdminContainer.vue").default
 );
 
+Vue.prototype.$showMessage = function (type, title, message) {
+    if (!title) title = "Information";
+    toastr.options = {
+        positionClass: "toast-bottom-right",
+        toastClass: this.$getToastClassByType(type),
+    };
+    toastr[type](message, title);
+};
+
+Vue.prototype.$getToastClassByType = function (type) {
+    switch (type) {
+        case "success":
+            return "toastr-bg-green";
+        case "error":
+            return "toastr-bg-red";
+        case "warning":
+            return "toastr-bg-yellow";
+        default:
+            return "";
+    }
+};
 toastr.options = {
     positionClass: "toast-bottom-right",
 };
