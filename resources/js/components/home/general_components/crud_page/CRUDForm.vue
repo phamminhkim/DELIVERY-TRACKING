@@ -3,14 +3,14 @@
     <div class="modal fade" id="DialogAddUpdateCRUDPage" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form @submit.prevent="addPartner">
+                <form @submit.prevent="addItem">
                     <div class="modal-header">
                         <h4 class="modal-title">
                             <span>
                                 {{
                                     is_editing
-                                    ? "Cập nhật nhà vận chuyển"
-                                    : "Thêm mới nhà vận chuyển"
+                                    ? `Cập nhật ${formStructure.form_name}`
+                                    : `Thêm mới ${formStructure.form_name}`
                                 }}</span>
                         </h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -19,14 +19,26 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group" v-for="(form_field, index) in formStructure.form_fields" :key="index">
+                            <label>{{ form_field.label }}</label>
+                            <small v-if="form_field.required" class="text-danger">(*)</small>
+                            <input v-model="item[form_field.key]" class="form-control" :id="form_field.key"
+                                :name="form_field.key" :placeholder="form_field.placeholder" v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''
+                                    " :type="form_field.type" :required="form_field.required" />
+                            <span v-if="hasError(form_field.key)" class="invalid-feedback" role="alert">
+                                <div v-for="(error, index) in getError(form_field.key)" :key="index">
+                                    <strong>{{ error }}</strong>
+                                    <br />
+                                </div>
+                            </span>
+                        </div>
+                        <!-- <div class="form-group">
                             <label>Mã của nhà vận chuyển</label>
                             <small class="text-danger">(*)</small>
                             <input v-model="partner.code" class="form-control" id="code" name="code"
                                 placeholder="Nhập mã nhà vận chuyển.." v-bind:class="hasError('code') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('code') }}</strong> -->
                                 <div v-for="(error, index) in getError('code')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
@@ -40,7 +52,6 @@
                                 placeholder="Nhập tên nhà vận chuyển.." v-bind:class="hasError('name') ? 'is-invalid' : ''
                                     " type="text" required />
                             <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('name') }}</strong> -->
                                 <div v-for="(error, index) in getError('name')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
@@ -68,7 +79,6 @@
                                 placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_key') ? 'is-invalid' : ''
                                     " type="text" />
                             <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('api_key') }}</strong> -->
                                 <div v-for="(error, index) in getError(
                                     'api_key'
                                 )" :key="index">
@@ -83,7 +93,6 @@
                                 placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_secret') ? 'is-invalid' : ''
                                     " type="password" />
                             <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                <!-- <strong>{{ getError('api_secret') }}</strong> -->
                                 <div v-for="(error, index) in getError(
                                     'api_secret'
                                 )" :key="index">
@@ -91,7 +100,7 @@
                                     <br />
                                 </div>
                             </span>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="modal-footer justify-content-between">
@@ -113,11 +122,14 @@
 import APIHandler from "../../ApiHandler";
 
 export default {
-    name: "DialogAddUpdateDeliveryPartners",
+    name: "DialogAddUpdateDeliveryItems",
     props: {
         is_editing: Boolean,
         editing_item: Object,
         refetchData: Function,
+        formStructure: Object,
+        page_url_create: String,
+        page_url_update: String,
     },
     data() {
         return {
@@ -125,36 +137,31 @@ export default {
 
             is_loading: false,
             errors: {},
-            partner: {
-                id: "",
-                code: "",
-                name: "",
-                api_url: "",
-                api_key: "",
-                api_secret: "",
-                is_external: "",
-                is_active: "",
-            },
+            item: {},
 
-            page_url_create_partner: "/api/master/delivery-partners",
-            page_url_update_partner: "/api/master/delivery-partners",
         };
     },
+    created() {
+        this.formStructure.form_fields.forEach(field => {
+            this.item[field.key] = "".f;
+        })
+    },
     methods: {
-        async addPartner() {
+        async addItem() {
             if (this.is_loading) return;
             this.is_loading = true;
 
             if (this.is_editing === false) {
-                this.createPartner();
+                this.createItem();
             } else {
-                this.updatePartner();
+                this.updateItem();
             }
         },
-        async updatePartner() {
+        async updateItem() {
             try {
+                console.log(this.item);
                 let data = await this.api_handler
-                    .put(`${this.page_url_update_partner}/${this.partner.id}`, this.partner)
+                    .put(`${this.page_url_update}/${this.item.id}`, this.item)
                     .finally(() => {
                         this.is_loading = false;
                     });
@@ -171,12 +178,14 @@ export default {
                     "Cập nhật không thành công",
                     data.message
                 );
+                this.resetForm();
             }
         },
-        async createPartner() {
+        async createItem() {
             try {
+                console.log(this.item);
                 let data = await this.api_handler
-                    .post(this.page_url_create_partner, this.partner)
+                    .post(this.page_url_create, this.item)
                     .finally(() => {
                         this.is_loading = false;
                     });
@@ -186,15 +195,19 @@ export default {
 
             } catch (error) {
                 this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
-                this.showMessage(
-                    "error",
-                    "Thêm mới không thành công",
-                    data.message
-                );
+                console.log(error);
+                // this.errors = data.errors;
+                // this.showMessage(
+                //     "error",
+                //     "Thêm mới không thành công",
+                //     data.message
+                // );
+                this.resetForm();
             }
         },
         closeDialog() {
+            this.clearFormErrors();
+            this.resetForm();
             $("#DialogAddUpdateCRUDPage").modal("hide");
         },
         showMessage(type, title, message) {
@@ -224,16 +237,19 @@ export default {
                     return "";
             }
         },
+        resetForm() {
+            this.formStructure.form_fields.forEach(field => {
+                this.item[field.key] = "";
+            })
+        },
+        clearFormErrors() {
+            this.errors = {}
+        }
     },
     watch: {
         editing_item: function (item) {
             this.errors = {};
-            this.partner.id = item.id;
-            this.partner.code = item.code;
-            this.partner.name = item.name;
-            this.partner.api_url = item.api_url;
-            this.partner.api_key = item.api_key;
-            this.partner.api_secret = item.api_secret;
+            this.item = { ...item };
         },
     },
 };

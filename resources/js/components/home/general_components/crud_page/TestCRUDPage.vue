@@ -32,14 +32,6 @@ export default {
             },
             table: {
                 table_fields: [
-                    //must have fields
-                    // {
-                    //     key: "index",
-                    //     label: "STT",
-                    //     sortable: true,
-                    //     class: "text-nowrap text-center",
-                    // },
-
                     {
                         key: "code",
                         label: "Mã",
@@ -88,17 +80,6 @@ export default {
                         sortable: true,
                         class: "text-nowrap text-center",
                     },
-
-
-
-                    // must have fields
-                    // {
-                    //     key: "action",
-                    //     label: "Hành động",
-                    //     sortable: true,
-                    //     class: "text-nowrap text-center",
-                    // },
-                    
                 ],
                 table_cells: [
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
@@ -123,10 +104,39 @@ export default {
                 form_fields: [
                     {
                         label: 'Mã của nhà vận chuyển',
+                        placeholder: 'Nhập mã nhà vận chuyển..',
                         key: 'code',
-                        type: 'text',
+                        type: 'text', //html input type
                         required: true,
                     },
+                    {
+                        label: 'Mã của nhà vận chuyển',
+                        placeholder: 'Nhập tên nhà vận chuyển',
+                        key: 'name',
+                        type: 'text',
+                        required: true
+                    },
+                    {
+                        label: 'Api Url',
+                        placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+                        key: 'api_url',
+                        type: 'url',
+                        required: false
+                    },
+                    {
+                        label: 'Api Key',
+                        placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+                        key: 'api_key',
+                        type: 'text',
+                        required: false
+                    },
+                    {
+                        label: 'Api Secret',
+                        placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+                        key: 'api_secret',
+                        type: 'password',
+                        required: false
+                    }
                 ]
             },
             api_url: '/api/master/delivery-partners'

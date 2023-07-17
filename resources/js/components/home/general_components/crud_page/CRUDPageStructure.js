@@ -90,6 +90,7 @@ class FormField {
             this,
             {
                 label: '',
+                placeholder: '',
                 type: 'text', //html input type
                 key: '',
                 required: true

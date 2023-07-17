@@ -110,6 +110,9 @@
                             :is_editing="is_editing"
                             :editing_item="editing_item"
                             :refetchData="fetchData"
+                            :formStructure="page_structure.form"
+                            :page_url_create="page_structure.api_url"
+                            :page_url_update="page_structure.api_url"
                             ></CRUDForm>
 
                         <!-- end tạo form -->
@@ -183,6 +186,8 @@ export default {
                 let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
                     // this.items = result.data;
+                    
+                    //hard code để test
                     this.items = result.data.map(data => {
                         const edit_data = data;
                         edit_data['image'] = 'http://delivery.thienlong.com:8000/1.jpg';
