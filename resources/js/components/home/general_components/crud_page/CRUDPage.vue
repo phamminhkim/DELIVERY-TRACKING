@@ -62,27 +62,18 @@
                                 }}
                             </template>
 
-                            <!-- <template #cell(is_external)="data">
-                                <span v-if="data.item.is_external" class="badge bg-primary">Đối tác ngoài</span>
-                                <span v-else class="badge  bg-info">Nội bộ</span>
-                            </template>
-                            <template #cell(is_active)="data">
-                                <span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
-                                <span class="badge bg-warning" v-if="data.item.is_active == 0">Ngưng hoạt động</span>
-                            </template> -->
 
-                            <template v-for="(table_template_type_cell) in templateTypeColumn"
-                                #[cell(table_template_type_cell.target_label)]="data">
-                                <slot :name="`cell(${table_template_type_cell.target_label})`" v-bind="data" >
+                            <template v-for="(table_cell, index) in this.page_structure.table.table_cells"
+                                #[`cell(${table_cell.target_key})`]="data">
+
+                                <slot v-if="table_cell.type === 'template'" :name="`cell(${table_cell.target_key})`" v-bind="data" >
                                 </slot>
-                            </template>
 
-                            <template v-for="(table_image_type_cell, index) in imageTypeColumn"
-                                #[cell(table_image_type_cell.target_label)]="data">
-                                <b-img :src="data.item[table_image_type_cell.key_of_value]" width="100"
+                                <b-img v-if="table_cell.type === 'image'" :src="data.item[table_cell.target_key]" width="100"
                                     :key="index"></b-img>
-                            </template>
 
+                            </template>
+                            
                             <template #cell(action)="data">
                                 <div class="margin">
                                     <button class="btn btn-xs mr-1" @click="showEditDialog(data.item)">
@@ -109,12 +100,12 @@
                         <div class="col-md-3">
                             <b-pagination v-model="pagination.current_page" :total-rows="rows"
                                 :per-page="pagination.item_per_page" size="sm" class="ml-1"></b-pagination>
-                            ./CrudForm.vue
                         </div>
                         <!-- end phân trang -->
 
                         <!-- tạo form -->
-                        <CRUDForm>
+
+                            <CRUDForm
                             ref="AddUpdateDialog"
                             :is_editing="is_editing"
                             :editing_item="editing_item"
@@ -171,63 +162,6 @@ export default {
                 ],
             },
 
-            // fields: [
-            //     {
-            //         key: "index",
-            //         label: "STT",
-            //         sortable: true,
-            //         class: "text-nowrap text-center",
-            //     },
-            //     {
-            //         key: "code",
-            //         label: "Mã",
-            //         sortable: true,
-            //         class: "text-nowrap text-center",
-            //     },
-            //     {
-            //         key: "name",
-            //         label: "Tên nhà vận chuyển",
-            //         sortable: true,
-            //         class: "text-nowrap",
-            //     },
-            //     {
-            //         key: "api_url",
-            //         label: "API Url",
-            //         sortable: true,
-            //         class: "text-nowrap",
-            //     },
-            //     {
-            //         key: "api_key",
-            //         label: "API Key",
-            //         sortable: true,
-            //         class: "text-nowrap",
-            //     },
-            //     {
-            //         key: "api_secret",
-            //         label: "API Secret",
-            //         sortable: true,
-            //         class: "text-nowrap",
-            //     },
-            //     {
-            //         key: "is_external",
-            //         label: "Phạm vị",
-            //         sortable: true,
-            //         class: "text-nowrap text-center",
-            //     },
-            //     {
-            //         key: "is_active",
-            //         label: "Khả dụng",
-            //         sortable: true,
-            //         class: "text-nowrap text-center",
-            //     },
-            //     {
-            //         key: "action",
-            //         label: "Hành động",
-            //         sortable: true,
-            //         class: "text-nowrap text-center",
-            //     },
-            // ],
-
             fields: [],
 
             items: [],
@@ -248,7 +182,12 @@ export default {
             try {
                 let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
-                    this.items = result.data;
+                    // this.items = result.data;
+                    this.items = result.data.map(data => {
+                        const edit_data = data;
+                        edit_data['image'] = 'http://delivery.thienlong.com:8000/1.jpg';
+                        return edit_data;
+                    });
                 } else {
                     this.showMessage("error", "Lỗi", result.message);
                 }
@@ -307,17 +246,6 @@ export default {
         rows() {
             return this.items.length;
         },
-        templateTypeColumn() {
-            return this.page_structure.table.table_cells.filter(table_cell => {
-                return table_cell.type === 'template';
-            })
-        },
-        imageTypeColumn() {
-            return this.page_structure.table.table_cells.filter(table_cell => {
-                return table_cell.type === 'iamge';
-            })
-        }
-
     },
 };
 </script>
