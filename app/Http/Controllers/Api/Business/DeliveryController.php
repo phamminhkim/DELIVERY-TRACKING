@@ -34,6 +34,18 @@ class DeliveryController extends ResponseController
         }
     }
 
+    public function getDeliveries(Request $request)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->getDeliveries();
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function confirmPickupDelivery(Request $request, $delivery_id)
     {
         $handler = BusinessRepository::deliveryRequest($request);

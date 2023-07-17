@@ -6,7 +6,6 @@ const router = new VueRouter({
 });
 
 getRoutes().then((routes) => {
-    console.log("Fetched routes data:", routes);
     routes.forEach((route) => {
         addRoute(route);
     });

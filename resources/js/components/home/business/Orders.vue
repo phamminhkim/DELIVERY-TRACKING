@@ -151,9 +151,6 @@ export default {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
-            form_title: "Quản lý đơn hàng",
-            form_icon: "fas fa-truck",
-
             search_placeholder: "Tìm kiếm..",
             search_pattern: "",
 
@@ -261,10 +258,10 @@ export default {
                 if (result.success) {
                     this.orders = result.data;
                 } else {
-                    this.showMessage("error", "Lỗi", result.message);
+                    this.$showMessage("error", "Lỗi", result.message);
                 }
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
+                this.$showMessage("error", "Lỗi", error.message);
             } finally {
                 this.is_loading = false;
             }
@@ -280,26 +277,6 @@ export default {
         rowClass(item, type) {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
-        },
-        showMessage(type, title, message) {
-            if (!title) title = "Information";
-            toastr.options = {
-                positionClass: "toast-bottom-right",
-                toastClass: this.getToastClassByType(type),
-            };
-            toastr[type](message, title);
-        },
-        getToastClassByType(type) {
-            switch (type) {
-                case "success":
-                    return "toastr-bg-green";
-                case "error":
-                    return "toastr-bg-red";
-                case "warning":
-                    return "toastr-bg-yellow";
-                default:
-                    return "";
-            }
         },
     },
     computed: {
