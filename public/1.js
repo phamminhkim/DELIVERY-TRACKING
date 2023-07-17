@@ -108,24 +108,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               if (!confirm("Bạn muốn xoá?")) {
-                _context2.next = 5;
+                _context2.next = 12;
                 break;
               }
-              _context2.next = 3;
+              _context2.prev = 1;
+              _context2.next = 4;
               return _this2.api_handler["delete"]("".concat(_this2.page_url_destroy_partner, "/").concat(id));
-            case 3:
+            case 4:
               result = _context2.sent;
-              if (result.success) {
-                _this2.items = result.data;
-                _this2.fetchData();
-              } else {
-                _this2.showMessage("error", "Lỗi", result.message);
-              }
-            case 5:
+              _this2.items = result.data;
+              _this2.fetchData();
+              _context2.next = 12;
+              break;
+            case 9:
+              _context2.prev = 9;
+              _context2.t0 = _context2["catch"](1);
+              _this2.showMessage("error", "Lỗi", _context2.t0);
+            case 12:
             case "end":
               return _context2.stop();
           }
-        }, _callee2);
+        }, _callee2, null, [[1, 9]]);
       }))();
     },
     showCreateDialog: function showCreateDialog() {
@@ -198,8 +201,8 @@ var render = function render() {
   }, [_c("h5", {
     staticClass: "m-0 text-dark"
   }, [_c("i", {
-    "class": _vm.form_icon
-  }), _vm._v("\n                            " + _vm._s(_vm.form_title) + "\n                        ")])]), _vm._v(" "), _c("div", {
+    "class": _vm.page_structure.header.title_icon
+  }), _vm._v("\n                            " + _vm._s(_vm.page_structure.header.title) + "\n                        ")])]), _vm._v(" "), _c("div", {
     staticClass: "col-sm-6"
   }, [_c("div", {
     staticClass: "float-sm-right"

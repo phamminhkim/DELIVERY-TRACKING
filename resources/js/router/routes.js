@@ -6,7 +6,8 @@ import MenuRouterConfig from "../components/home/master/MenuRouterConfig.vue";
 import Orders from "../components/home/business/Orders.vue";
 import Deliveries from "../components/home/business/Deliveries.vue";
 
-import TestCRUDPage from "../components/home/general_components/crud_page/TestCRUDPage.vue"
+import TestCRUDPage_DeliveryPartners from "../components/home/general_components/crud_page/TestCRUDPage_DeliveryPartners.vue"
+import TestCRUDPage_Users from '../components/home/general_components/crud_page/TestCRUDPage_Users.vue'
 const routes = [
     {
         path: "/dashboard",
@@ -65,10 +66,16 @@ const routes = [
         },
     },
     {
-        path: '/test',
-        component: TestCRUDPage,
-        name: 'TestCRUDPage'
-    }
+        path: '/test_partners',
+        component: TestCRUDPage_DeliveryPartners,
+        name: 'TestCRUDPagePartners'
+    },
+    {
+        path: '/test_users',
+        component: TestCRUDPage_Users,
+        name: 'TestCRUDPageUsers'
+    },
+
 ];
 
 export default routes;

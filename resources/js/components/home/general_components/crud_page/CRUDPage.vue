@@ -7,8 +7,8 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <h5 class="m-0 text-dark">
-                                <i :class="form_icon" />
-                                {{ form_title }}
+                                <i :class="page_structure.header.title_icon" />
+                                {{ page_structure.header.title }}
                             </h5>
                         </div>
                         <div class="col-sm-6">
@@ -202,15 +202,17 @@ export default {
         },
         async deletePartner(id) {
             if (confirm("Bạn muốn xoá?")) {
-                let result = await this.api_handler.delete(
-                    `${this.page_url_destroy_partner}/${id}`
-                );
-                if (result.success) {
+                try {
+                    let result = await this.api_handler.delete(
+                        `${this.page_url_destroy_partner}/${id}`
+                    );
                     this.items = result.data;
                     this.fetchData();
-                } else {
-                    this.showMessage("error", "Lỗi", result.message);
                 }
+                catch(error){
+                    this.showMessage("error", "Lỗi", error);
+                }
+
             }
         },
         showCreateDialog() {

@@ -26,10 +26,12 @@
                                 :name="form_field.key" :placeholder="form_field.placeholder" v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''
                                     " :type="form_field.type" :required="form_field.required" />
                             <span v-if="hasError(form_field.key)" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError(form_field.key)" :key="index">
+                                <!-- <div v-for="(error, index) in getError(form_field.key)" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
-                                </div>
+                                </div> -->
+                                <strong>{{ getError(form_field.key) }}</strong>
+
                             </span>
                         </div>
                         <!-- <div class="form-group">
@@ -120,7 +122,8 @@
 
 <script>
 import APIHandler from "../../ApiHandler";
-
+import toastr from 'toastr';
+import 'toastr/toastr.scss';
 export default {
     name: "DialogAddUpdateDeliveryItems",
     props: {
@@ -196,7 +199,7 @@ export default {
             } catch (error) {
                 this.showMessage("error", "Lỗi", error.message);
                 console.log(error);
-                // this.errors = data.errors;
+                this.errors = error.response.data.errors;
                 // this.showMessage(
                 //     "error",
                 //     "Thêm mới không thành công",
