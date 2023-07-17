@@ -87,6 +87,12 @@ toastr.options = {
     positionClass: "toast-bottom-right",
 };
 
+Vue.filter("formatDateTime", function (value) {
+    if (value) {
+        return moment(String(value)).format("DD/MM/YYYY HH:mm");
+    }
+});
+
 const app = new Vue({
     el: "#app",
     data() {

@@ -12,6 +12,7 @@ class Delivery extends Model
     use Uuids;
 
     protected $fillable = [
+        'delivery_code',
         'company_code',
         'delivery_partner_id',
         'sap_so_number',

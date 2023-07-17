@@ -11,7 +11,9 @@ use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
 use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Image;
+use App\Models\Master\OrderStatus;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +31,22 @@ class DeliveryRepository extends RepositoryAbs
                     $query->whereNull('complete_delivery_date');
                 }
             }
-            $delivery = $query->with(['company', 'partner', 'pickup'])->get();
-            return $delivery;
+            $deliveries = $query->with(['company', 'partner', 'pickup', 'orders'])->get();
+            foreach ($deliveries as $delivery) {
+                if ($delivery->complete_delivery_date) {
+                    $delivery['status'] = EnumsOrderStatus::Delivered;
+                } else if ($delivery->start_delivery_date) {
+                    $delivery['status'] = EnumsOrderStatus::Delivering;
+
+                    // Check if any order is delivered or partly delivered
+
+                } else {
+                    $delivery['status'] = EnumsOrderStatus::Preparing;
+                }
+
+                $delivery['status'] = OrderStatus::find($delivery['status']);
+            }
+            return $deliveries;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -326,7 +342,10 @@ class DeliveryRepository extends RepositoryAbs
             } else {
                 DB::beginTransaction();
                 $delivery_partner = DeliveryPartner::where('code', $this->data['delivery_partner_code'])->first();
+                $delivery_code = UniqueIdUtility::generateDeliveryUniqueCode($delivery_partner);
+
                 $delivery = Delivery::create([
+                    'delivery_code' => $delivery_code,
                     'company_code' => $this->data['company_code'],
                     'delivery_partner_id' => $delivery_partner->id,
                     'start_delivery_at' => null,

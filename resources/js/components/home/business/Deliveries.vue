@@ -74,6 +74,11 @@
                                 1
                             }}
                         </template>
+                        <template #cell(status)="data">
+                            <span :class="data.value.badge_class">{{
+                                data.value.name
+                            }}</span>
+                        </template>
                         <template #cell(action)="data">
                             <div class="margin">
                                 <button
@@ -128,13 +133,16 @@
             </div>
         </div>
         <!-- end container -->
+        <dialog-delivery-info :delivery_id="viewing_delivery_id" />
     </b-overlay>
 </template>
 
 <script>
 import ApiHandler from "../ApiHandler";
+import DialogDeliveryInfo from "./dialogs/DialogDeliveryInfo.vue";
+
 export default {
-    components: {},
+    components: { DialogDeliveryInfo },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -148,6 +156,7 @@ export default {
             is_editing: false,
             is_loading: false,
             editing_item: {},
+            viewing_delivery_id: null,
 
             pagination: {
                 item_per_page: 10,
@@ -166,6 +175,7 @@ export default {
                     key: "selection",
                     label: "All",
                     stickyColumn: true,
+                    width: "40px",
                 },
                 {
                     key: "index",
@@ -176,6 +186,12 @@ export default {
                 {
                     key: "partner.name",
                     label: "Mã ĐVVC",
+                    sortable: true,
+                    class: "text-nowrap text-center",
+                },
+                {
+                    key: "delivery_code",
+                    label: "Mã vận đơn",
                     sortable: true,
                     class: "text-nowrap text-center",
                 },
@@ -206,7 +222,6 @@ export default {
                 {
                     key: "action",
                     label: "Hành động",
-                    sortable: true,
                     class: "text-nowrap text-center",
                 },
             ],
@@ -247,6 +262,10 @@ export default {
             } finally {
                 this.is_loading = false;
             }
+        },
+        showInfoDialog(delivery) {
+            this.viewing_delivery_id = delivery.id;
+            $("#DialogDeliveryInfo").modal("show");
         },
         selectAll() {
             this.selected_ids = [];
