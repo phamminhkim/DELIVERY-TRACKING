@@ -1,5 +1,14 @@
 <template>
-    <CRUDPage :structure="page_structure"></CRUDPage>
+    <CRUDPage :structure="page_structure">
+        <template #cell(is_external)="data">
+            <span v-if="data.item.is_external" class="badge bg-primary">Đối tác ngoài</span>
+            <span v-else class="badge bg-info">Nội bộ</span>
+        </template>
+        <template #cell(is_active)="data">
+            <span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
+            <span class="badge bg-warning" v-if="data.item.is_active == 0">Ngưng hoạt động</span>
+        </template>
+    </CRUDPage>
 </template>
 
 <script>
@@ -23,12 +32,14 @@ export default {
             },
             table: {
                 table_fields: [
-                    {
-                        key: "index",
-                        label: "STT",
-                        sortable: true,
-                        class: "text-nowrap text-center",
-                    },
+                    //must have fields
+                    // {
+                    //     key: "index",
+                    //     label: "STT",
+                    //     sortable: true,
+                    //     class: "text-nowrap text-center",
+                    // },
+
                     {
                         key: "code",
                         label: "Mã",
@@ -72,14 +83,39 @@ export default {
                         class: "text-nowrap text-center",
                     },
                     {
-                        key: "action",
-                        label: "Hành động",
+                        key: "image",
+                        label: "Hình ảnh",
                         sortable: true,
                         class: "text-nowrap text-center",
                     },
+
+
+
+                    // must have fields
+                    // {
+                    //     key: "action",
+                    //     label: "Hành động",
+                    //     sortable: true,
+                    //     class: "text-nowrap text-center",
+                    // },
+                    
                 ],
                 table_cells: [
-
+                    //theo lý thuyết nên có đủ khai báo cho tất cả các cells
+                    // {...},
+                    // {...}
+                    {
+                        target_key: 'is_external',
+                        type: 'template' // 'text', 'bool', 'number', 'image', 'template'
+                    },
+                    {
+                        target_key: 'is_active',
+                        type: 'template' // 'text', 'bool', 'number', 'image', 'template'
+                    },
+                    {
+                        target_key: 'image',
+                        type: 'image'
+                    }
                 ]
             },
             form: {

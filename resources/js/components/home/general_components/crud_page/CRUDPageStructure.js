@@ -39,8 +39,7 @@ class TableCell {
         Object.assign(
             this,
             {
-                key_of_value: '',
-                target_label: '',
+                target_key: '',
                 type: 'text' // 'text', 'bool', 'number', 'image', 'template'
             },
             {
@@ -49,7 +48,7 @@ class TableCell {
         )
     }
     static ArrayToTableCells(table_cells_array = []) {
-        return table_cells_array.map(table_cell => {
+        return table_cells_array?.map(table_cell => {
             return new TableCell(table_cell);
         });
     }
@@ -64,7 +63,21 @@ class Table {
             },
             {
                 ...table,
-                table_fields: TableField.ArrayToTableFields(table?.table_fields),
+                table_fields: [
+                    new TableCell({
+                        key: "index",
+                        label: "STT",
+                        sortable: true,
+                        class: "text-nowrap text-center",
+                    }), 
+                    ...TableField.ArrayToTableFields(table?.table_fields), 
+                    new TableCell({
+                        key: "action",
+                        label: "Hành động",
+                        sortable: true,
+                        class: "text-nowrap text-center",
+                    })
+                ],
                 table_cells: TableCell.ArrayToTableCells(table?.table_cells)
             }
         )
@@ -72,7 +85,7 @@ class Table {
 }
 
 class FormField {
-    constructor(form_field){
+    constructor(form_field) {
         Object.assign(
             this,
             {
@@ -86,7 +99,7 @@ class FormField {
             }
         )
     }
-    static ArrayToFormFields(form_fields_array = []){
+    static ArrayToFormFields(form_fields_array = []) {
         return form_fields_array.map(form_field => {
             return new FormField(form_field);
         })
@@ -110,7 +123,7 @@ class Form {
 
 
 class CRUDPageStructure {
-    constructor(crud_page_structure){
+    constructor(crud_page_structure) {
         Object.assign(
             this,
             {

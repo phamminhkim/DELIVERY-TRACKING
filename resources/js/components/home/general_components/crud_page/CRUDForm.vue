@@ -195,7 +195,7 @@ export default {
             }
         },
         closeDialog() {
-            $("#DialogAddUpdateDeliveryPartner").modal("hide");
+            $("#DialogAddUpdateCRUDPage").modal("hide");
         },
         showMessage(type, title, message) {
             if (!title) title = "Information";
