@@ -1,4 +1,4 @@
-(window["webpackJsonp"] = window["webpackJsonp"] || []).push([[6],{
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([[10],{
 
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/general_components/crud_page/TestCRUDPage_Users.vue?vue&type=script&lang=js&":
 /*!***************************************************************************************************************************************************************************************************************!*\
@@ -132,6 +132,17 @@ var render = function render() {
 var staticRenderFns = [];
 render._withStripped = true;
 
+
+/***/ }),
+
+/***/ "./resources/js/components/home/general_components/crud_page/CRUDPage.vue":
+/*!********************************************************************************!*\
+  !*** ./resources/js/components/home/general_components/crud_page/CRUDPage.vue ***!
+  \********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, exports) {
+
+throw new Error("Module build failed (from ./node_modules/vue-loader/lib/index.js):\nError: ENOENT: no such file or directory, open 'C:\\Users\\thinh\\Desktop\\Intern\\TLG_DeliveryTracking\\resources\\js\\components\\home\\general_components\\crud_page\\CRUDPage.vue'");
 
 /***/ }),
 
