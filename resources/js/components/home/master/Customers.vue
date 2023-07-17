@@ -17,7 +17,7 @@
                                     class="btn btn-info btn-sm"
                                     @click="showCreateDialog()"
                                 >
-                                    <i class="fa fa-plus"></i>
+                                    <i class="fas fa-people-arrows"></i>
                                     Tạo mới
                                 </button>
                             </div>
