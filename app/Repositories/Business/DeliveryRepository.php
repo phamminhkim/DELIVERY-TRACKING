@@ -20,6 +20,22 @@ use Illuminate\Support\Str;
 
 class DeliveryRepository extends RepositoryAbs
 {
+    public function getDeliveries()
+    {
+        try {
+            $query = Delivery::query();
+            if ($this->request->filled('filter')) {
+                if ($this->request->filter == 'undone') {
+                    $query->whereNull('complete_delivery_date');
+                }
+            }
+            $delivery = $query->with(['company', 'partner', 'pickup'])->get();
+            return $delivery;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
     public function getDeliveryByQrScan($qr_token)
     {
         try {

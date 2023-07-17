@@ -118,6 +118,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::prefix('/deliveries')->group(function () {
+            Route::get('/', [DeliveryController::class, 'getDeliveries']);
             Route::post('/', [DeliveryController::class, 'createDelivery']);
             Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);

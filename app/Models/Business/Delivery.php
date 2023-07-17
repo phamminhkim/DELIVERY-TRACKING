@@ -30,6 +30,11 @@ class Delivery extends Model
         'delivery_partner_id',
         'created_by'
     ];
+    protected $casts = [
+        'start_delivery_date' => 'datetime:Y-m-d H:i:s',
+        'complete_delivery_date' => 'datetime:Y-m-d H:i:s',
+        'created_at' => 'datetime:Y-m-d H:i:s',
+    ];
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_code', 'code');
