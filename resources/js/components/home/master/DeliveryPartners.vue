@@ -310,6 +310,7 @@ export default {
         },
         showCreateDialog() {
             this.is_editing = false;
+            this.editing_item = {};
             $("#DialogAddUpdateDeliveryPartner").modal("show");
         },
         showEditDialog(item) {

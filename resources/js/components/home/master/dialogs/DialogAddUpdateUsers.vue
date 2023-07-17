@@ -139,7 +139,6 @@ export default {
                     .finally(() => {
                         this.is_loading = false;
                     });
-                this.reset();
                 this.showMessage("success", "Thêm thành công");
                 this.refetchData();
                 this.closeDialog();
@@ -181,13 +180,7 @@ export default {
                     return "";
             }
         },
-        reset() {
-        this.user.id = '';
-        this.user.name = '';
-        this.user.email = null;
-        this.user.phone_number = null;
-        this.user.active= '';
-        },
+
     },
     watch: {
         editing_item: function (item) {

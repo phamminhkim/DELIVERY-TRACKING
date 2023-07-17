@@ -286,6 +286,7 @@ export default {
         },
         showCreateDialog() {
             this.is_editing = false;
+            this.editing_item = {};
             $("#DialogAddUpdateUser").modal("show");
         },
         showEditDialog(item) {
@@ -317,6 +318,7 @@ export default {
                     return "";
             }
         },
+
     },
     computed: {
         rows() {
