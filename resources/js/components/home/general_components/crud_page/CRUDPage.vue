@@ -66,14 +66,15 @@
                             <template v-for="(table_cell, index) in this.page_structure.table.table_cells"
                                 #[`cell(${table_cell.target_key})`]="data">
 
-                                <slot v-if="table_cell.type === 'template'" :name="`cell(${table_cell.target_key})`" v-bind="data" >
+                                <slot v-if="table_cell.type === 'template'" :name="`cell(${table_cell.target_key})`"
+                                    v-bind="data">
                                 </slot>
 
-                                <b-img v-if="table_cell.type === 'image'" :src="data.item[table_cell.target_key]" width="100"
-                                    :key="index"></b-img>
+                                <b-img v-if="table_cell.type === 'image'" :src="data.item[table_cell.target_key]"
+                                    width="100" :key="index"></b-img>
 
                             </template>
-                            
+
                             <template #cell(action)="data">
                                 <div class="margin">
                                     <button class="btn btn-xs mr-1" @click="showEditDialog(data.item)">
@@ -105,15 +106,9 @@
 
                         <!-- tạo form -->
 
-                            <CRUDForm
-                            ref="AddUpdateDialog"
-                            :is_editing="is_editing"
-                            :editing_item="editing_item"
-                            :refetchData="fetchData"
-                            :formStructure="page_structure.form"
-                            :page_url_create="page_structure.api_url"
-                            :page_url_update="page_structure.api_url"
-                            ></CRUDForm>
+                        <CRUDForm ref="AddUpdateDialog" :is_editing="is_editing" :editing_item="editing_item"
+                            :refetchData="fetchData" :formStructure="page_structure.form"
+                            :page_url_create="page_structure.api_url" :page_url_update="page_structure.api_url"></CRUDForm>
 
                         <!-- end tạo form -->
                     </div>
@@ -170,7 +165,7 @@ export default {
             items: [],
 
             page_url_partner: '',
-            page_url_destroy_partner:'',
+            page_url_destroy_partner: '',
         };
     },
     created() {
@@ -179,6 +174,7 @@ export default {
         this.page_url_partner = this.page_structure.api_url;
         this.page_url_destroy_partner = this.page_structure.api_url;
         this.fetchData();
+
     },
     methods: {
         async fetchData() {
@@ -186,7 +182,7 @@ export default {
                 let result = await this.api_handler.get(this.page_url_partner);
                 if (result.success) {
                     // this.items = result.data;
-                    
+
                     //hard code để test
                     this.items = result.data.map(data => {
                         const edit_data = data;
@@ -209,7 +205,7 @@ export default {
                     this.items = result.data;
                     this.fetchData();
                 }
-                catch(error){
+                catch (error) {
                     this.showMessage("error", "Lỗi", error);
                 }
 
@@ -217,6 +213,7 @@ export default {
         },
         showCreateDialog() {
             this.is_editing = false;
+            this.editing_item = {};
             $("#DialogAddUpdateCRUDPage").modal("show");
         },
         showEditDialog(item) {

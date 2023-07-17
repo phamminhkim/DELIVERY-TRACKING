@@ -181,10 +181,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
     },
     resetForm: function resetForm() {
-      var _this5 = this;
-      this.formStructure.form_fields.forEach(function (field) {
-        _this5.item[field.key] = "";
-      });
+      this.item = {};
     },
     clearFormErrors: function clearFormErrors() {
       this.errors = {};

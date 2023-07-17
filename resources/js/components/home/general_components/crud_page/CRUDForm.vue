@@ -26,10 +26,6 @@
                                 :name="form_field.key" :placeholder="form_field.placeholder" v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''
                                     " :type="form_field.type" :required="form_field.required" />
                             <span v-if="hasError(form_field.key)" class="invalid-feedback" role="alert">
-                                <!-- <div v-for="(error, index) in getError(form_field.key)" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div> -->
                                 <strong>{{ getError(form_field.key) }}</strong>
 
                             </span>
@@ -153,7 +149,7 @@ export default {
         async addItem() {
             if (this.is_loading) return;
             this.is_loading = true;
-
+            
             if (this.is_editing === false) {
                 this.createItem();
             } else {
@@ -164,66 +160,66 @@ export default {
             try {
                 console.log(this.item);
                 let data = await this.api_handler
-                    .put(`${this.page_url_update}/${this.item.id}`, this.item)
+                .put(`${this.page_url_update}/${this.item.id}`, this.item)
                     .finally(() => {
                         this.is_loading = false;
                     });
-
-                this.showMessage("success", "Cập nhật thành công");
-                this.closeDialog();
-
-                this.refetchData();
-            } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
-                this.showMessage(
-                    "error",
-                    "Cập nhật không thành công",
-                    data.message
-                );
-                this.resetForm();
-            }
-        },
-        async createItem() {
-            try {
+                    
+                    this.showMessage("success", "Cập nhật thành công");
+                    this.closeDialog();
+                    
+                    this.refetchData();
+                } catch (error) {
+                    this.showMessage("error", "Lỗi", error.message);
+                    this.errors = data.errors;
+                    this.showMessage(
+                        "error",
+                        "Cập nhật không thành công",
+                        data.message
+                        );
+                        this.resetForm();
+                    }
+                },
+                async createItem() {
+                    try {
                 console.log(this.item);
                 let data = await this.api_handler
                     .post(this.page_url_create, this.item)
                     .finally(() => {
                         this.is_loading = false;
                     });
-                this.showMessage("success", "Thêm thành công");
-                this.refetchData();
-                this.closeDialog();
-
-            } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
-                console.log(error);
-                this.errors = error.response.data.errors;
-                // this.showMessage(
-                //     "error",
-                //     "Thêm mới không thành công",
-                //     data.message
-                // );
-                this.resetForm();
-            }
-        },
-        closeDialog() {
-            this.clearFormErrors();
-            this.resetForm();
-            $("#DialogAddUpdateCRUDPage").modal("hide");
-        },
-        showMessage(type, title, message) {
-            if (!title) title = "Information";
-            toastr.options = {
-                positionClass: "toast-bottom-right",
-                toastClass: this.getToastClassByType(type),
+                    this.showMessage("success", "Thêm thành công");
+                    this.refetchData();
+                    this.closeDialog();
+                    
+                } catch (error) {
+                    this.showMessage("error", "Lỗi", error.message);
+                    console.log(error);
+                    this.errors = error.response.data.errors;
+                    // this.showMessage(
+                        //     "error",
+                        //     "Thêm mới không thành công",
+                        //     data.message
+                        // );
+                        this.resetForm();
+                    }
+                },
+                closeDialog() {
+                    this.clearFormErrors();
+                    this.resetForm();
+                    $("#DialogAddUpdateCRUDPage").modal("hide");
+                },
+                showMessage(type, title, message) {
+                    if (!title) title = "Information";
+                    toastr.options = {
+                        positionClass: "toast-bottom-right",
+                        toastClass: this.getToastClassByType(type),
             };
             toastr[type](message, title);
         },
         hasError(fieldName) {
             return fieldName in this.errors;
-
+            
         },
         getError(fieldName) {
             return this.errors[fieldName];
@@ -232,18 +228,16 @@ export default {
             switch (type) {
                 case "success":
                     return "toastr-bg-green";
-                case "error":
-                    return "toastr-bg-red";
-                case "warning":
-                    return "toastr-bg-yellow";
-                default:
-                    return "";
+                    case "error":
+                        return "toastr-bg-red";
+                        case "warning":
+                            return "toastr-bg-yellow";
+                            default:
+                                return "";
             }
         },
         resetForm() {
-            this.formStructure.form_fields.forEach(field => {
-                this.item[field.key] = "";
-            })
+            this.item = {};
         },
         clearFormErrors() {
             this.errors = {}
@@ -255,6 +249,7 @@ export default {
             this.item = { ...item };
         },
     },
+
 };
 </script>
 
