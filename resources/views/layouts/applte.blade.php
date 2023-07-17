@@ -33,6 +33,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             window.Laravel = {!! json_encode([
                 'csrfToken' => csrf_token(),
                 'access_token' => $access_token,
+                'routes' => $routes,
                 'current_user' => Auth::user(),
             ]) !!};
         } catch (err) {

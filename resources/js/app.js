@@ -32,17 +32,14 @@ Vue.component(
     "delivery-partners",
     require("./components/home/master/DeliveryPartners.vue").default
 );
+Vue.component("users", require("./components/home/master/Users.vue").default);
 Vue.component(
-    "delivery-users",
-    require("./components/home/master/DeliveryUsers.vue").default
-);
-Vue.component(
-    "delivery-customers",
-    require("./components/home/master/DeliveryCustomers.vue").default
+    "customers",
+    require("./components/home/master/Customers.vue").default
 );
 Vue.component(
     "menu-router-config",
-    require("./components/home/master/MenuRouterConfig.vue").default
+    require("./components/home/master/MenuRouterConfigs.vue").default
 );
 Vue.component(
     "menu-router",
