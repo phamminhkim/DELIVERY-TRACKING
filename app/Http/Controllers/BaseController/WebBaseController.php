@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\BaseController;
 
 use App\Http\Controllers\Controller;
+use App\Models\System\Route;
 use App\Utilities\MenuUtility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,8 +31,9 @@ class WebBaseController  extends ResponseController
                 }
             }
             $menus = MenuUtility::getMenusForUser(Auth::user()->id);
+            $routes = Route::all();
 
-            view()->share(compact('access_token', 'menus'));
+            view()->share(compact('access_token', 'menus', 'routes'));
             return $next($request);
         });
     }

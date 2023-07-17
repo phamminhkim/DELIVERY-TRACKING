@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Master\DistributionChannelController;
 use App\Http\Controllers\Api\Master\SaleDistrictController;
 use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 
 
@@ -32,6 +33,8 @@ use App\Http\Controllers\Api\Master\MenuRouterController;
 */
 
 Route::middleware('auth:api')->group(function () {
+    Route::get('/routes', [RouteController::class, 'getRoutes']);
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
