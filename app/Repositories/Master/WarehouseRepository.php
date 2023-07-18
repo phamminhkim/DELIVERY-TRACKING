@@ -120,8 +120,8 @@ class WarehouseRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-         'company_code' => 'required|integer|exists:companies,code',
-                'code' => 'required|string|unique:warehouses,code',
+                'company_code' => 'required|integer|exists:companies,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
             ], [
                 'company_code.required' => 'Yêu cầu nhập ID công ty.',
@@ -141,7 +141,13 @@ class WarehouseRepository extends RepositoryAbs
                         return false;
                     }
                 }
+
             } else {
+                $company = Company::where('code', $this->data['company_code'])->first();
+                if (!$company) {
+                    $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
+                    return false;
+                }
                 $warehouse = Warehouse::findOrFail($id);
                 $warehouse->update($this->data);
 
