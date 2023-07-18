@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Master\WarehouseController;
 use App\Http\Controllers\Api\Master\DeliveryPartnerController;
 use App\Http\Controllers\Api\Master\CompanyController;
 use App\Http\Controllers\Api\Master\CustomerController;
+use App\Http\Controllers\Api\Master\CustomerPhoneController;
 use App\Http\Controllers\Api\Master\EmployeeController;
 use App\Http\Controllers\Api\Master\DistributionChannelController;
 use App\Http\Controllers\Api\Master\SaleDistrictController;
@@ -62,6 +63,12 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [CustomerController::class, 'createNewCustomer']);
             Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
             Route::delete('/{id}', [CustomerController::class, 'deleteExistingCustomer']);
+        });
+        Route::prefix('/customer-phones')->group(function () {
+            Route::get('/', [CustomerPhoneController::class, 'getAvailableCustomerPhones']);
+            Route::post('/', [CustomerPhoneController::class, 'createNewCustomerPhone']);
+            Route::put('/{id}', [CustomerPhoneController::class, 'updateExistingCustomerPhone']);
+            Route::delete('/{id}', [CustomerPhoneController::class, 'deleteExistingCustomerPhone']);
         });
         Route::prefix('/employees')->group(function () {
             Route::get('/', [EmployeeController::class, 'getAvailableEmployees']);

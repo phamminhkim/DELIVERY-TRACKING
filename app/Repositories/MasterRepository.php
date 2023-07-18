@@ -12,6 +12,7 @@ use App\Repositories\Master\MenuRouterRepository;
 use App\Repositories\Master\SaleDistrictRepository;
 use App\Repositories\Master\SaleGroupRepository;
 use App\Repositories\Master\UserRepository;
+use App\Repositories\Master\CustomerPhoneRepository;
 
 
 
@@ -62,5 +63,9 @@ class MasterRepository
     public static function menuRouterRequest(Request $request)
     {
         return new MenuRouterRepository($request);
+    }
+    public static function customerPhoneRequest(Request $request)
+    {
+        return new CustomerPhoneRepository($request);
     }
 }
