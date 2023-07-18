@@ -176,6 +176,7 @@
                             :form_structure="page_structure.form"
                             :page_url_create="page_structure.api_url"
                             :page_url_update="page_structure.api_url"
+                            :dialog_name="dialog_name"
                         ></CrudDialog>
 
                         <!-- end tạo form -->
@@ -261,7 +262,7 @@ export default {
                         this.fetchData();
                         this.$showMessage(
                             "success",
-                            "Thành công",
+                            "Xóa thành công",
                             result.message
                         );
                     } else {

@@ -58,75 +58,6 @@
                                 <strong>{{ getError(form_field.key) }}</strong>
                             </span>
                         </div>
-                        <!-- <div class="form-group">
-                            <label>Mã của nhà vận chuyển</label>
-                            <small class="text-danger">(*)</small>
-                            <input v-model="partner.code" class="form-control" id="code" name="code"
-                                placeholder="Nhập mã nhà vận chuyển.." v-bind:class="hasError('code') ? 'is-invalid' : ''
-                                    " type="text" required />
-                            <span v-if="hasError('code')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError('code')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label>Tên nhà vận chuyển</label>
-                            <small class="text-danger">(*)</small>
-                            <input v-model="partner.name" class="form-control" id="name" name="name"
-                                placeholder="Nhập tên nhà vận chuyển.." v-bind:class="hasError('name') ? 'is-invalid' : ''
-                                    " type="text" required />
-                            <span v-if="hasError('name')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError('name')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label>Api Url</label>
-                            <small class="text-danger"></small>
-                            <input v-model="partner.api_url" class="form-control" id="api_url" name="api_url"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_url') ? 'is-invalid' : ''
-                                    " type="url" />
-                            <span v-if="hasError('api_url')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError(
-                                    'api_url'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label>Api Key</label>
-                            <input v-model="partner.api_key" class="form-control" id="api_key" name="api_key"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_key') ? 'is-invalid' : ''
-                                    " type="text" />
-                            <span v-if="hasError('api_key')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError(
-                                    'api_key'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label>Api Secret</label>
-                            <input v-model="partner.api_secret" class="form-control" id="api_secret" name="api_secret"
-                                placeholder="Chỉ nhập nếu có tích hợp API nhà vận chuyển" v-bind:class="hasError('api_secret') ? 'is-invalid' : ''
-                                    " type="password" />
-                            <span v-if="hasError('api_secret')" class="invalid-feedback" role="alert">
-                                <div v-for="(error, index) in getError(
-                                    'api_secret'
-                                )" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div>
-                            </span>
-                        </div> -->
                     </div>
 
                     <div class="modal-footer justify-content-between">
@@ -165,6 +96,7 @@ export default {
         form_structure: Object,
         page_url_create: String,
         page_url_update: String,
+        dialog_name: String,
     },
     data() {
         return {
@@ -177,7 +109,7 @@ export default {
     },
     created() {
         this.form_structure.form_fields.forEach((field) => {
-            this.item[field.key] = "".f;
+            this.item[field.key] = "";
         });
     },
     methods: {
@@ -200,14 +132,14 @@ export default {
                         this.is_loading = false;
                     });
 
-                this.showMessage("success", "Cập nhật thành công");
+                this.$showMessage("success", "Cập nhật thành công");
                 this.closeDialog();
 
                 this.refetchData();
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
+                this.$showMessage("error", "Lỗi", error.message);
                 this.errors = data.errors;
-                this.showMessage(
+                this.$showMessage(
                     "error",
                     "Cập nhật không thành công",
                     data.message
@@ -223,51 +155,26 @@ export default {
                     .finally(() => {
                         this.is_loading = false;
                     });
-                this.showMessage("success", "Thêm thành công");
+                this.$showMessage("success", "Thêm thành công");
                 this.refetchData();
                 this.closeDialog();
             } catch (error) {
-                this.showMessage("error", "Lỗi", error.message);
+                this.$showMessage("error", "Lỗi", error.message);
                 console.log(error);
                 this.errors = error.response.data.errors;
-                // this.showMessage(
-                //     "error",
-                //     "Thêm mới không thành công",
-                //     data.message
-                // );
                 this.resetForm();
             }
         },
         closeDialog() {
             this.clearFormErrors();
             this.resetForm();
-            $("#DialogAddUpdateCRUDPage").modal("hide");
-        },
-        showMessage(type, title, message) {
-            if (!title) title = "Information";
-            toastr.options = {
-                positionClass: "toast-bottom-right",
-                toastClass: this.getToastClassByType(type),
-            };
-            toastr[type](message, title);
+            $("#" + this.dialog_name).modal("hide");
         },
         hasError(fieldName) {
             return fieldName in this.errors;
         },
         getError(fieldName) {
             return this.errors[fieldName];
-        },
-        getToastClassByType(type) {
-            switch (type) {
-                case "success":
-                    return "toastr-bg-green";
-                case "error":
-                    return "toastr-bg-red";
-                case "warning":
-                    return "toastr-bg-yellow";
-                default:
-                    return "";
-            }
         },
         resetForm() {
             this.item = {};
