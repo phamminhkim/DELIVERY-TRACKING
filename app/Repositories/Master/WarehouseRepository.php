@@ -39,8 +39,13 @@ class WarehouseRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->toArray();
-                return false;
+                $errors = $validator->errors();
+                foreach ($this->data as $warehouse => $validator) {
+                    if ($errors->has($warehouse)) {
+                        $this->errors[$warehouse] = $errors->first($warehouse);
+                        return false;
+                    }
+                }
             } else {
                 $company = Company::where('code', $this->data['company_code'])->first();
                 if (!$company) {
@@ -115,8 +120,8 @@ class WarehouseRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'company_code' => 'required|integer|exists:companies,code',
-                'code' => 'required|string',
+         'company_code' => 'required|integer|exists:companies,code',
+                'code' => 'required|string|unique:warehouses,code',
                 'name' => 'required|string',
             ], [
                 'company_code.required' => 'Yêu cầu nhập ID công ty.',
@@ -128,7 +133,6 @@ class WarehouseRepository extends RepositoryAbs
                 'name.required' => 'Yêu cầu nhập tên kho.',
                 'name.string' => 'Tên kho phải là chuỗi.',
             ]);
-
             if ($validator->fails()) {
                 $errors = $validator->errors();
                 foreach ($this->data as $warehouse => $validator) {
@@ -138,19 +142,14 @@ class WarehouseRepository extends RepositoryAbs
                     }
                 }
             } else {
-                $company = Company::where('code', $this->data['company_code'])->first();
-                if (!$company) {
-                    $this->errors[] = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
-                    return false;
-                }
                 $warehouse = Warehouse::findOrFail($id);
                 $warehouse->update($this->data);
+
                 return $warehouse;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-            return false;
         }
     }
     public function deleteExistingWarehouse($id)

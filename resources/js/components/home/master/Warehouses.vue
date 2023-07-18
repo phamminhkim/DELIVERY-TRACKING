@@ -59,10 +59,10 @@ export default {
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
                     // {...},
                     // {...}
-                    // {
-                    //     target_key: "is_active",
-                    //     type: "template", // 'text', 'bool', 'number', 'image', 'template'
-                    // },
+                    {
+                        target_key: "is_active",
+                        type: "template", // 'text', 'bool', 'number', 'image', 'template'
+                    },
                     // {
                     //     target_key: "image",
                     //     type: "image",
