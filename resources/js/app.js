@@ -62,6 +62,11 @@ Vue.component(
     require("./components/AdminContainer.vue").default
 );
 
+// Vue.component(
+//     'sale-groups',
+//     require("./components/home/master/SaleGroups.vue").default
+// );
+
 Vue.prototype.$showMessage = function (type, title, message) {
     if (!title) title = "Information";
     toastr.options = {

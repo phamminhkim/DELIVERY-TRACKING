@@ -138,7 +138,7 @@ export default {
                 this.refetchData();
             } catch (error) {
                 this.$showMessage("error", "Lỗi", error.message);
-                this.errors = data.errors;
+                this.errors = error.response.data.errors;
                 this.$showMessage(
                     "error",
                     "Cập nhật không thành công",
