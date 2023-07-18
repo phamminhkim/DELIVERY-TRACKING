@@ -1,6 +1,6 @@
 <template>
     <!-- tạo form -->
-    <div class="modal fade" id="DialogAddUpdateCRUDPage" tabindex="-1" role="dialog">
+    <div class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form @submit.prevent="addItem">
@@ -9,25 +9,53 @@
                             <span>
                                 {{
                                     is_editing
-                                    ? `Cập nhật ${formStructure.form_name}`
-                                    : `Thêm mới ${formStructure.form_name}`
-                                }}</span>
+                                        ? `Cập nhật ${form_structure.form_name}`
+                                        : `Thêm mới ${form_structure.form_name}`
+                                }}</span
+                            >
                         </h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
 
                     <div class="modal-body">
-                        <div class="form-group" v-for="(form_field, index) in formStructure.form_fields" :key="index">
+                        <div
+                            class="form-group"
+                            v-for="(
+                                form_field, index
+                            ) in form_structure.form_fields"
+                            :key="index"
+                        >
                             <label>{{ form_field.label }}</label>
-                            <small v-if="form_field.required" class="text-danger">(*)</small>
-                            <input v-model="item[form_field.key]" class="form-control" :id="form_field.key"
-                                :name="form_field.key" :placeholder="form_field.placeholder" v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''
-                                    " :type="form_field.type" :required="form_field.required" />
-                            <span v-if="hasError(form_field.key)" class="invalid-feedback" role="alert">
+                            <small
+                                v-if="form_field.required"
+                                class="text-danger"
+                                >(*)</small
+                            >
+                            <input
+                                v-model="item[form_field.key]"
+                                class="form-control"
+                                :id="form_field.key"
+                                :name="form_field.key"
+                                :placeholder="form_field.placeholder"
+                                v-bind:class="
+                                    hasError(form_field.key) ? 'is-invalid' : ''
+                                "
+                                :type="form_field.type"
+                                :required="form_field.required"
+                            />
+                            <span
+                                v-if="hasError(form_field.key)"
+                                class="invalid-feedback"
+                                role="alert"
+                            >
                                 <strong>{{ getError(form_field.key) }}</strong>
-
                             </span>
                         </div>
                         <!-- <div class="form-group">
@@ -102,10 +130,18 @@
                     </div>
 
                     <div class="modal-footer justify-content-between">
-                        <button type="submit" title="Submit" class="btn btn-primary">
+                        <button
+                            type="submit"
+                            title="Submit"
+                            class="btn btn-primary"
+                        >
                             {{ is_editing ? "Cập nhật" : "Tạo mới" }}
                         </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
                             Đóng
                         </button>
                     </div>
@@ -118,15 +154,15 @@
 
 <script>
 import APIHandler from "../../ApiHandler";
-import toastr from 'toastr';
-import 'toastr/toastr.scss';
+import toastr from "toastr";
+import "toastr/toastr.scss";
 export default {
     name: "DialogAddUpdateDeliveryItems",
     props: {
         is_editing: Boolean,
         editing_item: Object,
         refetchData: Function,
-        formStructure: Object,
+        form_structure: Object,
         page_url_create: String,
         page_url_update: String,
     },
@@ -137,13 +173,12 @@ export default {
             is_loading: false,
             errors: {},
             item: {},
-
         };
     },
     created() {
-        this.formStructure.form_fields.forEach(field => {
+        this.form_structure.form_fields.forEach((field) => {
             this.item[field.key] = "".f;
-        })
+        });
     },
     methods: {
         async addItem() {
@@ -191,7 +226,6 @@ export default {
                 this.showMessage("success", "Thêm thành công");
                 this.refetchData();
                 this.closeDialog();
-
             } catch (error) {
                 this.showMessage("error", "Lỗi", error.message);
                 console.log(error);
@@ -219,7 +253,6 @@ export default {
         },
         hasError(fieldName) {
             return fieldName in this.errors;
-
         },
         getError(fieldName) {
             return this.errors[fieldName];
@@ -240,8 +273,8 @@ export default {
             this.item = {};
         },
         clearFormErrors() {
-            this.errors = {}
-        }
+            this.errors = {};
+        },
     },
     watch: {
         editing_item: function (item) {
@@ -249,7 +282,6 @@ export default {
             this.item = { ...item };
         },
     },
-
 };
 </script>
 

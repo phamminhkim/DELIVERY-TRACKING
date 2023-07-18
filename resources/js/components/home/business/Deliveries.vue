@@ -185,7 +185,7 @@ export default {
                 },
                 {
                     key: "partner.name",
-                    label: "Mã ĐVVC",
+                    label: "Đơn vị vận chuyển",
                     sortable: true,
                     class: "text-nowrap text-center",
                 },
