@@ -1,27 +1,28 @@
 <template>
-    <CrudPage
-    :structure="page_structure"
-    ></CrudPage>
+    <CrudPage :structure="page_structure">
+    
+    </CrudPage>
+
 </template>
 
 <script>
 import Vue from 'vue';
 import CrudPage from '../general/crudform/CrudPage.vue';
 export default {
-    name: 'SaleGroups',
+    name: 'DistributionChannels',
     components: {
         Vue,
-        CrudPage
+        CrudPage,
     },
     data() {
-        return {
-            page_structure: {}
+        return{
+            page_structure: {},
         }
     },
-    created() {
+    created(){
         this.page_structure = {
             header: {
-                title: "SaleGroups",
+                title: "Kênh phân phối",
                 title_icon: "fas fa-truck",
             },
             table: {
@@ -34,7 +35,7 @@ export default {
                     },
                     {
                         key: "name",
-                        label: "Tên SaleGroups",
+                        label: "Tên kênh phân phối",
                         sortable: true,
                         class: "text-nowrap",
                     },
@@ -46,8 +47,8 @@ export default {
                 ],
             },
             form: {
-                unique_name: "sale-groups",
-                form_name: "Sale Groups",
+                unique_name: "distribution-channels",
+                form_name: "kênh phân phối",
                 form_fields: [
                     {
                         label: "Mã (code)",
@@ -57,17 +58,18 @@ export default {
                         required: true,
                     },
                     {
-                        label: "Tên sale group",
-                        placeholder: "Nhập tên sale group..",
+                        label: "Tên kênh phân phối",
+                        placeholder: "Nhập tên kênh phân phối..",
                         key: "name",
                         type: "text", //html input type
                         required: true,
                     },
                 ],
             },
-            api_url: "/api/master/sale-groups",
+            api_url: "/api/master/distribution-channels",
         };
     }
+
 
 }
 </script>

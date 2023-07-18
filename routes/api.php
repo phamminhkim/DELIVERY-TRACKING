@@ -42,7 +42,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
             Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
-            Route::patch('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
+            Route::put('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
         });
         Route::prefix('/delivery-partners')->group(function () {
