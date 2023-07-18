@@ -56,6 +56,10 @@ class Delivery extends Model
     {
         return $this->hasMany(DeliveryToken::class);
     }
+    public function primary_token()
+    {
+        return $this->hasOne(DeliveryToken::class)->where('is_primary', true);
+    }
     public function timelines()
     {
         return $this->hasMany(DeliveryTimeline::class);

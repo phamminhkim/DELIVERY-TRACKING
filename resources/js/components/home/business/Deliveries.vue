@@ -9,6 +9,7 @@
                             <button
                                 type="button"
                                 class="btn btn-info btn-sm ml-1 mt-1"
+                                @click="printDeliveryQrCode"
                             >
                                 <strong>
                                     <i class="fas fa-print mr-1 text-bold" />In
@@ -133,7 +134,10 @@
             </div>
         </div>
         <!-- end container -->
-        <dialog-delivery-info :delivery_id="viewing_delivery_id" />
+        <dialog-delivery-info
+            :delivery_id="viewing_delivery_id"
+            v-on:printQrCode="printQrCode"
+        />
     </b-overlay>
 </template>
 
@@ -262,6 +266,48 @@ export default {
             } finally {
                 this.is_loading = false;
             }
+        },
+        printDeliveryQrCode() {
+            if (
+                this.selected_ids.length === 0 ||
+                this.selected_ids.length > 1
+            ) {
+                this.$showMessage(
+                    "warning",
+                    "Cảnh báo",
+                    "Vui lòng chọn 1 vận đơn để in"
+                );
+                return;
+            }
+            this.printQrCode(this.selected_ids[0]);
+        },
+        async printQrCode(delivery_id) {
+            try {
+                this.is_loading = true;
+                let result = await this.api_handler.post(
+                    "api/admin/deliveries/" + delivery_id + "/print-qr"
+                );
+                if (result.success) {
+                    this.openPrintDialog(result.data);
+                } else {
+                    this.$showMessage("error", "Lỗi", result.message);
+                }
+            } catch (error) {
+                this.$showMessage("error", "Lỗi", error.message);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+
+        openPrintDialog(image_data) {
+            let print_window = window.open("", "_blank");
+            print_window.document.write(
+                "<html><head><title>Print QR</title></head><body>"
+            );
+            print_window.document.write(image_data);
+            print_window.document.write("</body></html>");
+            print_window.document.close();
+            print_window.print();
         },
         showInfoDialog(delivery) {
             this.viewing_delivery_id = delivery.id;

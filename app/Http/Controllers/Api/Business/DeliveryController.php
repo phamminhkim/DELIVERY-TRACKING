@@ -46,6 +46,18 @@ class DeliveryController extends ResponseController
         }
     }
 
+    public function printDeliveryQrCodeById(Request $request, $delivery_id)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->printDeliveryQrCodeById($delivery_id);
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function confirmPickupDelivery(Request $request, $delivery_id)
     {
         $handler = BusinessRepository::deliveryRequest($request);

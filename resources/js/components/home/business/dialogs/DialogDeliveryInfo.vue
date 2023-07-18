@@ -230,15 +230,19 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-info mr-auto">
+                        <button
+                            type="button"
+                            class="btn btn-info mr-auto"
+                            @click="printQrCode"
+                        >
                             <i class="fas fa-print" /> In vận đơn
                         </button>
-                        <button type="button" class="btn btn-primary">
+                        <!-- <button type="button" class="btn btn-primary">
                             <i class="fas fa-edit" />
                         </button>
                         <button type="button" class="btn btn-danger">
                             <i class="fas fa-trash" />
-                        </button>
+                        </button> -->
                         <button
                             type="button"
                             class="btn btn-secondary"
@@ -333,6 +337,9 @@ export default {
             } finally {
                 this.is_loading = false;
             }
+        },
+        printQrCode() {
+            this.$emit("printQrCode", this.delivery_id);
         },
     },
 };

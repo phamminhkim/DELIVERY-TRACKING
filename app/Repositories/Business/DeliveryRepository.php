@@ -111,6 +111,28 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
+    public function printDeliveryQrCodeById($delivery_id)
+    {
+        try {
+            $delivery = Delivery::find($delivery_id);
+            if (!$delivery) {
+                $this->message = 'Đơn vận chuyển không tồn tại.';
+                return false;
+            }
+            $token = $delivery->primary_token;
+            if (!$token) {
+                $this->message = 'Mã Qr không tồn tại.';
+                return false;
+            }
+
+            $qr_code = \QrCode::size(50)->errorCorrection('H')->generate($token->token);
+            return strval($qr_code);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function confirmPickupDelivery($delivery_id)
     {
         try {
