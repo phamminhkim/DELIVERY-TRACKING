@@ -36,7 +36,13 @@ class DistributionChannelRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $distributionChannel => $validator) {
+                    if ($errors->has($distributionChannel)) {
+                        $this->errors[$distributionChannel] = $errors->first($distributionChannel);
+                        return false;
+                    }
+                }
             } else {
                 $distributionChannel = DistributionChannel::create($this->data);
 
@@ -86,13 +92,13 @@ class DistributionChannelRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:distribution_channels,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
 
             ], [
                 'code.required' => 'Yêu cầu nhập mã kênh.',
                 'code.string' => 'Mã kênh phải là chuỗi.',
-                'code.unique' => 'Mã kênh đã tồn tại.',
+                //'code.unique' => 'Mã kênh đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên kênh phân phối.',
                 'name.string' => 'Tên kênh phân phối phải là chuỗi.',
 
@@ -100,7 +106,13 @@ class DistributionChannelRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $distributionChannel => $validator) {
+                    if ($errors->has($distributionChannel)) {
+                        $this->errors[$distributionChannel] = $errors->first($distributionChannel);
+                        return false;
+                    }
+                }
             } else {
                 $distributionChannel = DistributionChannel::findOrFail($id);
                 $distributionChannel->update($this->data);

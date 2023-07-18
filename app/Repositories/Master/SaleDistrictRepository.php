@@ -36,7 +36,13 @@ class SaleDistrictRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $saleDistrict => $validator) {
+                    if ($errors->has($saleDistrict)) {
+                        $this->errors[$saleDistrict] = $errors->first($saleDistrict);
+                        return false;
+                    }
+                }
             } else {
                 $saleDistrict = SaleDistrict::create($this->data);
 
@@ -86,13 +92,13 @@ class SaleDistrictRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:sale_districts,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
 
             ], [
                 'code.required' => 'Yêu cầu nhập mã kênh.',
                 'code.string' => 'Mã kênh phải là chuỗi.',
-                'code.unique' => 'Mã kênh đã tồn tại.',
+                //'code.unique' => 'Mã kênh đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên Sale District.',
                 'name.string' => 'Tên Sale District phải là chuỗi.',
 
@@ -100,7 +106,13 @@ class SaleDistrictRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $saleDistrict => $validator) {
+                    if ($errors->has($saleDistrict)) {
+                        $this->errors[$saleDistrict] = $errors->first($saleDistrict);
+                        return false;
+                    }
+                }
             } else {
                 $saleDistrict = SaleDistrict::findOrFail($id);
                 $saleDistrict->update($this->data);

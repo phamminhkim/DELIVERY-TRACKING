@@ -36,7 +36,13 @@ class SaleGroupRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $saleGroup => $validator) {
+                    if ($errors->has($saleGroup)) {
+                        $this->errors[$saleGroup] = $errors->first($saleGroup);
+                        return false;
+                    }
+                }
             } else {
                 $saleGroup = SaleGroup::create($this->data);
 
@@ -87,13 +93,13 @@ class SaleGroupRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:sale_groups,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
 
             ], [
                 'code.required' => 'Yêu cầu nhập mã Group.',
                 'code.string' => 'Mã Group phải là chuỗi.',
-                'code.unique' => 'Mã Group đã tồn tại.',
+                //'code.unique' => 'Mã Group đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên Sale Group.',
                 'name.string' => 'Tên Sale Group phải là chuỗi.',
 
@@ -101,7 +107,13 @@ class SaleGroupRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $saleGroup => $validator) {
+                    if ($errors->has($saleGroup)) {
+                        $this->errors[$saleGroup] = $errors->first($saleGroup);
+                        return false;
+                    }
+                }
             } else {
                 $saleGroup = SaleGroup::findOrFail($id);
                 $saleGroup->update($this->data);

@@ -38,7 +38,13 @@ class WarehouseRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $warehouse => $validator) {
+                    if ($errors->has($warehouse)) {
+                        $this->errors[$warehouse] = $errors->first($warehouse);
+                        return false;
+                    }
+                }
             } else {
                 $warehouse = Warehouse::create($this->request);
 
@@ -105,7 +111,7 @@ class WarehouseRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'company_id' => 'required|integer|exists:companies,id',
-                'code' => 'required|string|unique:warehouses,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
             ], [
                 'company_id.required' => 'Yêu cầu nhập ID công ty.',
@@ -113,13 +119,19 @@ class WarehouseRepository extends RepositoryAbs
                 'company_id.exists' => 'Công ty được chọn không tồn tại.',
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
-                'code.unique' => 'Mã kho đã tồn tại.',
+                //'code.unique' => 'Mã kho đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên kho.',
                 'name.string' => 'Tên kho phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
+                $errors = $validator->errors();
+                foreach ($this->data as $warehouse => $validator) {
+                    if ($errors->has($warehouse)) {
+                        $this->errors[$warehouse] = $errors->first($warehouse);
+                        return false;
+                    }
+                }
             } else {
                 $warehouse = Warehouse::findOrFail($id);
                 $warehouse->update($this->data);
