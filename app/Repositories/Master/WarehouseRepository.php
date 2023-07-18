@@ -6,6 +6,7 @@ use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Master\Company;
+
 class WarehouseRepository extends RepositoryAbs
 {
     public function getAvailableWarehouses()
@@ -23,13 +24,13 @@ class WarehouseRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'company_id' => 'required|integer|exists:companies,id',
+                'company_code' => 'required|integer|exists:companies,code',
                 'code' => 'required|string|unique:warehouses,code',
                 'name' => 'required|string',
             ], [
-                'company_id.required' => 'Yêu cầu nhập ID công ty.',
-                'company_id.integer' => 'ID công ty phải là số nguyên.',
-                'company_id.exists' => 'Công ty được chọn không tồn tại.',
+                'company_code.required' => 'Yêu cầu nhập ID công ty.',
+                'company_code.integer' => 'ID công ty phải là số nguyên.',
+                'company_code.exists' => 'Công ty được chọn không tồn tại.',
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
                 'code.unique' => 'Mã kho đã tồn tại.',
@@ -38,21 +39,25 @@ class WarehouseRepository extends RepositoryAbs
             ]);
 
             if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $warehouse => $validator) {
-                    if ($errors->has($warehouse)) {
-                        $this->errors[$warehouse] = $errors->first($warehouse);
-                        return false;
-                    }
-                }
+                $this->errors = $validator->errors()->toArray();
+                return false;
             } else {
-                $warehouse = Warehouse::create($this->request);
-
+                $company = Company::where('code', $this->data['company_code'])->first();
+                if (!$company) {
+                    $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
+                    return false;
+                }
+                $warehouse = Warehouse::create([
+                    'company_code' => $company->code,
+                    'code' => $this->data['code'],
+                    'name' => $this->data['name'],
+                ]);
                 return $warehouse;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
 
@@ -67,7 +72,7 @@ class WarehouseRepository extends RepositoryAbs
             'error_count' => 0,
         );
         foreach ($this->data as $warehouse) {
-           // dd("test2");
+            // dd("test2");
             $validator = Validator::make($warehouse, [
                 'company_code' => 'required|integer|exists:companies,code',
                 'code' => 'required|string',
@@ -80,7 +85,7 @@ class WarehouseRepository extends RepositoryAbs
             } else {
                 //dd("abc");
                 $company = Company::where('code', $warehouse['company_code'])->first();
-               // dd($company);
+                // dd($company);
                 if (!$company) {
                     $result['error_count']++;
                     $this->errors[] = 'Không tìm thấy công ty có mã ' . $warehouse['company_code'];
@@ -110,13 +115,13 @@ class WarehouseRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'company_id' => 'required|integer|exists:companies,id',
+                'company_code' => 'required|integer|exists:companies,code',
                 'code' => 'required|string',
                 'name' => 'required|string',
             ], [
-                'company_id.required' => 'Yêu cầu nhập ID công ty.',
-                'company_id.integer' => 'ID công ty phải là số nguyên.',
-                'company_id.exists' => 'Công ty được chọn không tồn tại.',
+                'company_code.required' => 'Yêu cầu nhập ID công ty.',
+                'company_code.integer' => 'ID công ty phải là số nguyên.',
+                'company_code.exists' => 'Công ty được chọn không tồn tại.',
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
                 //'code.unique' => 'Mã kho đã tồn tại.',
@@ -133,14 +138,19 @@ class WarehouseRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $company = Company::where('code', $this->data['company_code'])->first();
+                if (!$company) {
+                    $this->errors[] = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
+                    return false;
+                }
                 $warehouse = Warehouse::findOrFail($id);
                 $warehouse->update($this->data);
-
                 return $warehouse;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
     public function deleteExistingWarehouse($id)
