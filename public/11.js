@@ -133,6 +133,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     showCreateDialog: function showCreateDialog() {
       this.is_editing = false;
+      this.editing_item = {};
       $("#DialogAddUpdateCRUDPage").modal("show");
     },
     showEditDialog: function showEditDialog(item) {
