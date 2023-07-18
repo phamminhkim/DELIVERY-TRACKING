@@ -87,7 +87,12 @@
 import APIHandler from "../../ApiHandler";
 import toastr from "toastr";
 import "toastr/toastr.scss";
+import Vue from 'vue';
 export default {
+    name: 'CrudDialog',
+    components: {
+        Vue
+    },
     props: {
         is_editing: Boolean,
         editing_item: Object,
