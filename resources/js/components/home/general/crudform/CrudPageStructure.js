@@ -3,13 +3,13 @@ class Header {
         Object.assign(
             this,
             {
-                title: 'This is title',
-                title_icon: 'fas fa-truck'
+                title: "This is title",
+                title_icon: "fas fa-truck",
             },
             {
-                ...header
+                ...header,
             }
-        )
+        );
     }
 }
 class TableField {
@@ -17,18 +17,18 @@ class TableField {
         Object.assign(
             this,
             {
-                key: '',
-                label: '',
+                key: "",
+                label: "",
                 sortable: false,
-                class: 'text-nowrap'
+                class: "text-nowrap",
             },
             {
-                ...table_field
+                ...table_field,
             }
-        )
+        );
     }
     static ArrayToTableFields(table_fields_array = []) {
-        return table_fields_array.map(table_field => {
+        return table_fields_array.map((table_field) => {
             return new TableField(table_field);
         });
     }
@@ -39,16 +39,16 @@ class TableCell {
         Object.assign(
             this,
             {
-                target_key: '',
-                type: 'text' // 'text', 'bool', 'number', 'image', 'template'
+                target_key: "",
+                type: "text", // 'text', 'bool', 'number', 'image', 'template'
             },
             {
-                ...table_cell
+                ...table_cell,
             }
-        )
+        );
     }
     static ArrayToTableCells(table_cells_array = []) {
-        return table_cells_array?.map(table_cell => {
+        return table_cells_array?.map((table_cell) => {
             return new TableCell(table_cell);
         });
     }
@@ -59,7 +59,7 @@ class Table {
             this,
             {
                 table_fields: [],
-                table_cells: []
+                table_cells: [],
             },
             {
                 ...table,
@@ -69,18 +69,18 @@ class Table {
                         label: "STT",
                         sortable: true,
                         class: "text-nowrap text-center",
-                    }), 
-                    ...TableField.ArrayToTableFields(table?.table_fields), 
+                    }),
+                    ...TableField.ArrayToTableFields(table?.table_fields),
                     new TableCell({
                         key: "action",
                         label: "Hành động",
                         sortable: true,
                         class: "text-nowrap text-center",
-                    })
+                    }),
                 ],
-                table_cells: TableCell.ArrayToTableCells(table?.table_cells)
+                table_cells: TableCell.ArrayToTableCells(table?.table_cells),
             }
-        )
+        );
     }
 }
 
@@ -89,21 +89,21 @@ class FormField {
         Object.assign(
             this,
             {
-                label: '',
-                placeholder: '',
-                type: 'text', //html input type
-                key: '',
-                required: true
+                label: "",
+                placeholder: "",
+                type: "text", //html input type
+                key: "",
+                required: true,
             },
             {
                 ...form_field,
             }
-        )
+        );
     }
     static ArrayToFormFields(form_fields_array = []) {
-        return form_fields_array.map(form_field => {
+        return form_fields_array.map((form_field) => {
             return new FormField(form_field);
-        })
+        });
     }
 }
 class Form {
@@ -111,19 +111,19 @@ class Form {
         Object.assign(
             this,
             {
-                form_name: '',
-                form_fields: []
+                unique_name: "",
+                form_name: "",
+                form_fields: [],
             },
             {
                 ...form,
-                form_fields: FormField.ArrayToFormFields(form?.form_fields)
+                form_fields: FormField.ArrayToFormFields(form?.form_fields),
             }
-        )
+        );
     }
 }
 
-
-class CRUDPageStructure {
+class CrudPageStructure {
     constructor(crud_page_structure) {
         Object.assign(
             this,
@@ -131,7 +131,7 @@ class CRUDPageStructure {
                 header: new Header(),
                 table: new Table(),
                 form: new Form(),
-                api_url: '',
+                api_url: "",
             },
             {
                 ...crud_page_structure,
@@ -139,10 +139,8 @@ class CRUDPageStructure {
                 table: new Table(crud_page_structure?.table),
                 form: new Form(crud_page_structure?.form),
             }
-        )
+        );
     }
-
 }
 
-
-export default CRUDPageStructure;
+export default CrudPageStructure;

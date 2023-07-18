@@ -21,6 +21,15 @@
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group">
+                                    <label>Đơn vị vận chuyển</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        :value="delivery.partner.name"
+                                        readonly
+                                    />
+                                </div>
+                                <div class="form-group">
                                     <label>Mã vận đơn</label>
                                     <input
                                         type="text"
