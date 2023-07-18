@@ -1,20 +1,19 @@
 <template>
     <CrudPage :structure="page_structure">
-        <template #cell(active)="data">
-            <span class="badge bg-success" v-if="data.item.active == 1"
-                >Đang hoạt động</span
-            >
-            <span class="badge bg-warning" v-else-if="data.item.active == 0"
-                >Ngưng hoạt động</span
-            >
+        <template #cell(is_active)="data">
+            <span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
+            <span class="badge bg-warning" v-else-if="data.item.is_active == 0">Ngưng hoạt động</span>
         </template>
     </CrudPage>
 </template>
 
 <script>
+import Vue from 'vue';
 import CrudPage from "../general/crudform/CrudPage.vue";
 export default {
+    name: 'Customers',
     components: {
+        Vue,
         CrudPage,
     },
     data() {
@@ -31,8 +30,14 @@ export default {
             table: {
                 table_fields: [
                     {
+                        key: "code",
+                        label: "Mã (code)",
+                        sortable: true,
+                        class: "text-nowrap"
+                    },
+                    {
                         key: "name",
-                        label: "Tên người dùng",
+                        label: "Tên khách hàng",
                         sortable: true,
                         class: "text-nowrap",
                     },
@@ -48,16 +53,15 @@ export default {
                         sortable: true,
                         class: "text-nowrap",
                     },
-
                     {
-                        key: "active",
-                        label: "Khả dụng",
+                        key: "address",
+                        label: "Địa chỉ",
                         sortable: true,
-                        class: "text-nowrap text-center",
+                        class: "text-nowrap"
                     },
                     {
-                        key: "image",
-                        label: "Hình ảnh",
+                        key: "is_active",
+                        label: "Khả dụng",
                         sortable: true,
                         class: "text-nowrap text-center",
                     },
@@ -67,12 +71,8 @@ export default {
                     // {...},
                     // {...}
                     {
-                        target_key: "active",
+                        target_key: "is_active",
                         type: "template", // 'text', 'bool', 'number', 'image', 'template'
-                    },
-                    {
-                        target_key: "image",
-                        type: "image",
                     },
                 ],
             },
@@ -81,8 +81,15 @@ export default {
                 form_name: "khách hàng",
                 form_fields: [
                     {
-                        label: "Tên người dùng",
-                        placeholder: "Nhập tên người dùng..",
+                        label: "Mã (code)",
+                        placeholder: "Nhập mã (code)..",
+                        key: "code",
+                        type: "text",
+                        required: true
+                    },
+                    {
+                        label: "Tên khách hàng",
+                        placeholder: "Nhập tên khách hàng..",
                         key: "name",
                         type: "text", //html input type
                         required: true,
@@ -92,18 +99,25 @@ export default {
                         placeholder: "Nhập email..",
                         key: "email",
                         type: "email",
-                        required: false,
+                        required: true,
                     },
                     {
                         label: "Số điện thoại",
                         placeholder: "Nhập số điện thoại..",
                         key: "phone_number",
                         type: "text",
-                        required: false,
+                        required: true,
                     },
+                    {
+                        label: "Địa chỉ",
+                        placeholder: "Nhập địa chỉ..",
+                        key: "address",
+                        type: "text",
+                        required: true
+                    }
                 ],
             },
-            api_url: "/api/master/users",
+            api_url: "/api/master/customers",
         };
     },
 };

@@ -18,9 +18,12 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import CrudPage from "../general/crudform/CrudPage.vue";
 export default {
+    name: 'DeliveryPartners',
     components: {
+        Vue,
         CrudPage,
     },
     data() {
@@ -77,13 +80,7 @@ export default {
                         label: "Khả dụng",
                         sortable: true,
                         class: "text-nowrap text-center",
-                    },
-                    {
-                        key: "image",
-                        label: "Hình ảnh",
-                        sortable: true,
-                        class: "text-nowrap text-center",
-                    },
+                    }
                 ],
                 table_cells: [
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
@@ -96,10 +93,6 @@ export default {
                     {
                         target_key: "is_active",
                         type: "template", // 'text', 'bool', 'number', 'image', 'template'
-                    },
-                    {
-                        target_key: "image",
-                        type: "image",
                     },
                 ],
             },

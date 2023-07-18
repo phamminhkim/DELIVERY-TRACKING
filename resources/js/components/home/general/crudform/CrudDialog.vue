@@ -88,7 +88,6 @@ import APIHandler from "../../ApiHandler";
 import toastr from "toastr";
 import "toastr/toastr.scss";
 export default {
-    name: "DialogAddUpdateDeliveryItems",
     props: {
         is_editing: Boolean,
         editing_item: Object,

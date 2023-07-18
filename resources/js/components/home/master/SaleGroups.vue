@@ -43,44 +43,29 @@ export default {
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
                     // {...},
                     // {...}
-                    {
-                        target_key: "active",
-                        type: "template", // 'text', 'bool', 'number', 'image', 'template'
-                    },
-                    {
-                        target_key: "image",
-                        type: "image",
-                    },
                 ],
             },
             form: {
-                unique_name: "customers",
-                form_name: "khách hàng",
+                unique_name: "sale-groups",
+                form_name: "Sale Groups",
                 form_fields: [
                     {
-                        label: "Tên người dùng",
-                        placeholder: "Nhập tên người dùng..",
+                        label: "Mã (code)",
+                        placeholder: "Nhập mã..",
+                        key: "code",
+                        type: "text",
+                        required: false,
+                    },
+                    {
+                        label: "Tên sale group",
+                        placeholder: "Nhập tên sale group..",
                         key: "name",
                         type: "text", //html input type
                         required: true,
                     },
-                    {
-                        label: "Email",
-                        placeholder: "Nhập email..",
-                        key: "email",
-                        type: "email",
-                        required: false,
-                    },
-                    {
-                        label: "Số điện thoại",
-                        placeholder: "Nhập số điện thoại..",
-                        key: "phone_number",
-                        type: "text",
-                        required: false,
-                    },
                 ],
             },
-            api_url: "/api/master/sale_groups",
+            api_url: "/api/master/sale-groups",
         };
     }
 

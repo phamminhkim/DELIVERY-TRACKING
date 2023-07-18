@@ -243,11 +243,7 @@ export default {
         async fetchData() {
             try {
                 let result = await this.api_handler.get(this.api_item_data);
-                if (result.success) {
-                    this.items = result.data;
-                } else {
-                    this.$showMessage("error", "Lỗi", result.message);
-                }
+                this.items = result.data;                
             } catch (error) {
                 this.$showMessage("error", "Lỗi", error.message);
             }
