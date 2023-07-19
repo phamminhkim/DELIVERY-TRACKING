@@ -74,13 +74,13 @@ class CustomerPhoneRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'customer_id' => 'required|string|exists:customers,id',
+                'customer_id' => 'required|exists:customers,id',
                 'phone_number' => 'required|string',
                 'name' => 'required|string',
                 'description' => 'required|string',
             ], [
                 'customer_id.required' => 'Yêu cầu nhập ID khách hàng.',
-                'customer_id.string' => 'ID khách hàng phải là chuỗi.',
+                // 'customer_id.string' => 'ID khách hàng phải là chuỗi.',
                 'customer_id.exists' => 'ID khách hàng không tồn tại.',
                 'phone_number.required' => 'Yêu cầu nhập số điện thoại.',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
