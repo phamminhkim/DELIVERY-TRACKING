@@ -27,10 +27,10 @@ class MasterRepository
         return new WarehouseRepository($request);
     }
 
-    //public static function companyRequest(Request $request)
-    //{
-    //    return new CompanyRepository($request);
-    //}
+    public static function companyRequest(Request $request)
+    {
+       return new CompanyRepository($request);
+    }
     public static function customerRequest(Request $request)
     {
         return new CustomerRepository($request);

@@ -56,8 +56,8 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/companies')->group(function () {
             Route::get('/', [CompanyController::class, 'getAvailableCompanies']);
             Route::post('/', [CompanyController::class, 'createNewCompany']);
-            Route::put('/{id}', [CompanyController::class, 'updateExistingCompany']);
-            Route::delete('/{id}', [CompanyController::class, 'deleteExistingCompany']);
+            Route::put('/{code}', [CompanyController::class, 'updateExistingCompany']);
+            Route::delete('/{code}', [CompanyController::class, 'deleteExistingCompany']);
         });
         Route::prefix('/customers')->group(function () {
             Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
