@@ -13,6 +13,7 @@ use App\Repositories\Master\SaleDistrictRepository;
 use App\Repositories\Master\SaleGroupRepository;
 use App\Repositories\Master\UserRepository;
 use App\Repositories\Master\CustomerPhoneRepository;
+use App\Repositories\Master\OrderReviewOptionRepository;
 
 
 
@@ -67,5 +68,9 @@ class MasterRepository
     public static function customerPhoneRequest(Request $request)
     {
         return new CustomerPhoneRepository($request);
+    }
+    public static function orderReviewOptionRequest(Request $request)
+    {
+        return new OrderReviewOptionRepository($request);
     }
 }

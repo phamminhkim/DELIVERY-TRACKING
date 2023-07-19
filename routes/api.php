@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Business\DeliveryController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
+use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -99,6 +100,12 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+        });
+        Route::prefix('/order-review-options')->group(function () {
+            Route::get('/', [OrderReviewOptionController::class, 'getAvailableOrderReviewOptions']);
+            Route::post('/', [OrderReviewOptionController::class, 'createNewOrderReviewOption']);
+            Route::put('/{id}', [OrderReviewOptionController::class, 'updateExistingOrderReviewOption']);
+            Route::delete('/{id}', [OrderReviewOptionController::class, 'deleteExistingOrderReviewOption']);
         });
         Route::prefix('/menu-routers')->group(function () {
             Route::delete('/{id}', [MenuRouterController::class, 'deleteConfigMenu']);
