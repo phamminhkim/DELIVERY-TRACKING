@@ -33,25 +33,25 @@ export default {
                         key: "customer_id",
                         label: "ID khách hàng",
                         sortable: true,
-                        class: "text-nowrap"
+                        class: "text-nowrap text-center"
                     },
                     {
                         key: "phone_number",
                         label: "Số điện thoại",
                         sortable: true,
-                        class: "text-nowrap"
+                        class: "text-nowrap text-center"
                     },
                     {
                         key: "name",
                         label: "Tên gợi nhớ",
                         sortable: true,
-                        class: "text-nowrap"
+                        class: "text-nowrap text-center"
                     },
                     {
                         key: "description",
                         label: "Mô tả",
                         sortable: true,
-                        class: "text-nowrap"
+                        class: "text-nowrap text-center"
                     },
                     {
                         key: "is_active",

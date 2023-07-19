@@ -1,6 +1,6 @@
 <template>
     <CrudPage :structure="page_structure">
-    
+
     </CrudPage>
 
 </template>
@@ -31,13 +31,13 @@ export default {
                         key: "code",
                         label: "Mã (code)",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-nowrap text-center",
                     },
                     {
                         key: "name",
                         label: "Tên kênh phân phối",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-nowrap text-center",
                     },
                 ],
                 table_cells: [

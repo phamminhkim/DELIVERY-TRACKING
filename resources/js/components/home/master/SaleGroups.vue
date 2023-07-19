@@ -30,13 +30,13 @@ export default {
                         key: "code",
                         label: "Mã (code)",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "name",
-                        label: "Tên SaleGroups",
+                        label: "Tên Sale Group",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-nowrap text-center",
                     },
                 ],
                 table_cells: [

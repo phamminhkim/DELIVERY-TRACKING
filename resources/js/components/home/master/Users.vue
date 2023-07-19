@@ -33,19 +33,19 @@ export default {
                         key: "name",
                         label: "Tên người dùng",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-nowrap text-center",
                     },
                     {
                         key: "email",
                         label: "Email",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "phone_number",
                         label: "Số điện thoại",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-nowrap text-center",
                     },
                     {
                         key: "active",

@@ -45,7 +45,7 @@ export default {
                         key: "email",
                         label: "Email",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "phone_number",
@@ -57,7 +57,7 @@ export default {
                         key: "address",
                         label: "Địa chỉ",
                         sortable: true,
-                        class: "text-nowrap"
+                        class: "text-center"
                     },
                     {
                         key: "is_active",

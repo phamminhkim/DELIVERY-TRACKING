@@ -30,7 +30,7 @@ export default {
                         key: "name",
                         label: "Tên",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                 ],
                 table_cells: [

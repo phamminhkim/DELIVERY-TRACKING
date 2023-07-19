@@ -34,39 +34,15 @@ export default {
                         key: "code",
                         label: "Mã (code)",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "name",
                         label: "Tên Sale",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
-                    // {
-                    //     key: "email",
-                    //     label: "Email",
-                    //     sortable: true,
-                    //     class: "text-nowrap",
-                    // },
-                    // {
-                    //     key: "phone_number",
-                    //     label: "Số điện thoại",
-                    //     sortable: true,
-                    //     class: "text-nowrap",
-                    // },
 
-                    // {
-                    //     key: "is_active",
-                    //     label: "Khả dụng",
-                    //     sortable: true,
-                    //     class: "text-nowrap text-center",
-                    // },
-                    // {
-                    //     key: "image",
-                    //     label: "Hình ảnh",
-                    //     sortable: true,
-                    //     class: "text-nowrap text-center",
-                    // },
                 ],
                 // table_cells: [
                 //     //theo lý thuyết nên có đủ khai báo cho tất cả các cells

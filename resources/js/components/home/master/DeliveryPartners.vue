@@ -55,19 +55,19 @@ export default {
                         key: "api_url",
                         label: "API Url",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "api_key",
                         label: "API Key",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "api_secret",
                         label: "API Secret",
                         sortable: true,
-                        class: "text-nowrap",
+                        class: "text-center",
                     },
                     {
                         key: "is_external",
