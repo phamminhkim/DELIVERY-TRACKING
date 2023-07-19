@@ -39,13 +39,13 @@ export default {
                         key: "email",
                         label: "Email",
                         sortable: true,
-                        class: "text-nowrap ",
+                        class: "text-nowrap  ",
                     },
                     {
                         key: "phone_number",
                         label: "Số điện thoại",
                         sortable: true,
-                        class: "text-nowrap text-center",
+                        class: "text-nowrap",
                     },
                     {
                         key: "active",
