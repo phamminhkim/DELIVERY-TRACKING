@@ -63,10 +63,6 @@ export default {
                         target_key: "is_active",
                         type: "template", // 'text', 'bool', 'number', 'image', 'template'
                     },
-                    // {
-                    //     target_key: "image",
-                    //     type: "image",
-                    // },
                 ],
             },
             form: {
