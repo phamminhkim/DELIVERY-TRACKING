@@ -33,13 +33,13 @@ export default {
                         key: "name",
                         label: "Tên người dùng",
                         sortable: true,
-                        class: "text-nowrap text-center",
+                        class: "text-nowrap ",
                     },
                     {
                         key: "email",
                         label: "Email",
                         sortable: true,
-                        class: "text-center",
+                        class: "text-nowrap ",
                     },
                     {
                         key: "phone_number",

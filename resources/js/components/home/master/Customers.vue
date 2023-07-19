@@ -57,7 +57,7 @@ export default {
                         key: "address",
                         label: "Địa chỉ",
                         sortable: true,
-                        class: "text-center"
+                        class: "text-nowrap text-center"
                     },
                     {
                         key: "is_active",
