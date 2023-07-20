@@ -12,7 +12,6 @@ class OrderStatusSeeder extends Seeder
      */
     public function run()
     {
-        // Create some companies
         $statuses = [
             [
                 'id' => '10',

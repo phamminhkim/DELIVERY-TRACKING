@@ -184,12 +184,20 @@ class OrderRepository extends RepositoryAbs
                     $query->where('status_id', '<', EnumsOrderStatus::Delivered);
                 }
             }
+            if ($this->request->filled('search')) {
+                $query->where('sap_so_number', $this->request->search_query)->orWhere('sap_so_number', 'like', '%' . $this->request->search_query . '%');
+            }
 
-            $customer_phone = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
-            if ($customer_phone) {
-                $query->where('customer_id', $customer_phone->customer_id);
+            $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');
+            if ($customer_phones) {
+                $query->whereIn('customer_id', $customer_phones);
 
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                if ($this->request->filled('limit')) {
+                    $query = $query->limit($this->request->limit);
+                }
+
+                $orders = $query->get();
                 return $orders;
             } else {
                 $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
