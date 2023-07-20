@@ -74,7 +74,7 @@ class ZaloAuthController extends ResponseController
                 ->first();
 
             if ($account && $account->user) {
-                if ($account->user->phone_number == '') {
+                if ($account->user->phone_number != '') {
 
                     return $this->responseSuccess([], 'User already exists and has phone number verified');
                 } else {
