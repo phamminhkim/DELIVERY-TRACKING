@@ -161,6 +161,9 @@ class OrderRepository extends RepositoryAbs
                     $query->where('status_id', '<', EnumsOrderStatus::Delivered);
                 }
             }
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
             $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
             return $orders;
         } catch (\Exception $exception) {
