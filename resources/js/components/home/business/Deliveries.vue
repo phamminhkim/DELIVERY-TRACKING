@@ -8,6 +8,16 @@
                         <div class="form-group row">
                             <button
                                 type="button"
+                                class="btn btn-success btn-sm ml-1 mt-1"
+                            >
+                                <strong>
+                                    <i
+                                        class="fas fa-truck-loading mr-1 text-bold"
+                                    />Tạo vận đơn</strong
+                                >
+                            </button>
+                            <button
+                                type="button"
                                 class="btn btn-info btn-sm ml-1 mt-1"
                                 @click="printDeliveryQrCode"
                             >
