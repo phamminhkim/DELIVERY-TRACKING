@@ -13,11 +13,7 @@ class CompanyRepository extends RepositoryAbs
     {
         try {
             $companies = DB::table('companies')->get();
-            $edited_companies = $companies->map(function($company){
-                $company->id = $company->code;
-                return $company;
-            });
-            return $edited_companies;
+            return $companies;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -63,12 +59,11 @@ class CompanyRepository extends RepositoryAbs
             $company = Company::where('code', $code)->firstOrFail();
 
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:companies,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã công ty.',
                 'code.string' => 'Mã công ty phải là chuỗi.',
-                'code.unique' => 'Mã công ty đã tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên công ty.',
                 'name.string' => 'Tên công ty phải là chuỗi.',
             ]);

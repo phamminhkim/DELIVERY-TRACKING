@@ -122,7 +122,7 @@
 
                                     <button
                                         class="btn btn-xs mr-1"
-                                        @click="deleteItem(data.item.id)"
+                                        @click="deleteItem(data.item[primary_key])"
                                     >
                                         <i
                                             class="fas fa-trash text-red bigger-120"
@@ -177,6 +177,7 @@
                             :page_url_create="page_structure.api_url"
                             :page_url_update="page_structure.api_url"
                             :dialog_name="dialog_name"
+                            :primary_key="primary_key"
                         ></CrudDialog>
 
                         <!-- end tạo form -->
@@ -201,6 +202,10 @@ export default {
     },
     props: {
         structure: Object,
+        primary_key: {
+            type: String,
+            default: 'id'
+        },
     },
     data() {
         return {

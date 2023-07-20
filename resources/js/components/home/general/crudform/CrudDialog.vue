@@ -101,6 +101,7 @@ export default {
         page_url_create: String,
         page_url_update: String,
         dialog_name: String,
+        primary_key: String,
     },
     data() {
         return {
@@ -131,7 +132,7 @@ export default {
             try {
                 console.log(this.item);
                 let data = await this.api_handler
-                    .put(`${this.page_url_update}/${this.item.id}`, this.item)
+                    .put(`${this.page_url_update}/${this.item[this.primay_key]}`, this.item)
                     .finally(() => {
                         this.is_loading = false;
                     });

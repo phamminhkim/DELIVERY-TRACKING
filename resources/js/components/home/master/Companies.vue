@@ -1,5 +1,5 @@
 <template>
-    <CrudPage :structure="page_structure" >
+    <CrudPage :structure="page_structure" primary_key="code">
         <template #cell(is_active)="data">
             <span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
             <span class="badge bg-warning" v-else-if="data.item.is_active == 0">Ngưng hoạt động</span>
