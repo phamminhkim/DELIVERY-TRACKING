@@ -4,11 +4,15 @@ namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Order;
+use App\Models\Business\OrderCustomerReview;
 use App\Models\Master\Customer;
+use App\Models\Master\CustomerPhone;
+use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OrderRepository extends RepositoryAbs
@@ -162,6 +166,136 @@ class OrderRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function getOrdersByCustomer()
+    {
+        try {
+            $query = Order::query();
+            if ($this->request->filled('from_date')) {
+                $query->whereDate('sap_so_created_date', '>=', $this->request->from_date);
+            }
+            if ($this->request->filled('to_date')) {
+                $query->whereDate('sap_so_created_date', '<=', $this->request->to_date);
+            }
+            if ($this->request->filled('status')) {
+                if ($this->request->status == 'undone') {
+                    $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+                }
+            }
+
+            $customer_phone = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
+            if ($customer_phone) {
+                $query->where('customer_id', $customer_phone->customer_id);
+
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+                return $orders;
+            } else {
+                $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function getOrderById($order_id)
+    {
+        try {
+            $order = Order::find($order_id);
+            if ($order) {
+                $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                return $order;
+            } else {
+                $this->message = 'Không tìm thấy đơn hàng có id ' . $order_id;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function confirmOrder($order_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'reviews' => 'required|array',
+                'reviews.*' => 'required|exists:order_review_options,id',
+                'note' => 'nullable|string|max:120',
+                'images' => 'nullable|array',
+            ], [
+                'reviews.required' => 'Danh sách đánh giá là bắt buộc.',
+                'reviews.array' => 'Danh sách đánh giá phải là một mảng.',
+                'reviews.*.required' => 'Đánh giá là bắt buộc.',
+                'reviews.*.exists' => 'Đánh giá :input không tồn tại.',
+                'note.max' => 'Ghi chú không được vượt quá 120 ký tự.',
+                'images.array' => 'Danh sách hình ảnh phải là một mảng.',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $order = Order::find($order_id);
+                if (!$order) {
+                    $this->message = 'Đơn hàng không tồn tại.';
+                    return false;
+                }
+                if ($order->status_id != EnumsOrderStatus::Delivered) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể đánh giá.';
+                    return false;
+                }
+                $customer_phone = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
+                if (!$customer_phone || $order->customer_id != $customer_phone->customer_id) {
+                    $this->message = 'Bạn không có quyền đánh giá đơn hàng này.';
+                    return false;
+                }
+
+                DB::beginTransaction();
+                $review = $order->customer_reviews()->create([
+                    'review_content' => $this->data['note'] ?? '',
+                ]);
+                $review->criteria()->sync($this->data['reviews']);
+                $this->storeReviewImages($review, $this->data['images'] ?? []);
+                DB::commit();
+
+                return $order;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    private function storeReviewImages($review, $upload_images)
+    {
+        foreach ($upload_images as $upload_image) {
+            $image_data = $upload_image['thumbUrl'];
+
+            $name = uniqid();
+            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
+            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
+
+            $image_raw_data = base64_decode($image_base64);
+            $image_props = getimagesizefromstring($image_raw_data);
+            $width = $image_props[0];
+            $height = $image_props[1];
+            $size = strlen($image_raw_data);
+
+            $image = new Image();
+            $image->name = $name;
+            $image->owner_id = $this->current_user->id;
+            $image->ext = $extension;
+            $image->width = $width;
+            $image->height = $height;
+            $image->size = $size;
+
+            $random_string = str_random(10);
+            $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
+            $image->url = 'images/' . $file_name;
+
+            Storage::disk('images')->put($file_name, $image_data);
+
+            $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }
     }
 }

@@ -216,7 +216,6 @@ class DeliveryRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                DB::beginTransaction();
                 $delivery = Delivery::find($delivery_id);
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
@@ -239,6 +238,7 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
 
+                DB::beginTransaction();
                 $confirm = $order->driver_confirms()->create([
                     'complete_delivery_date' => date('Y-m-d H:i:s'),
                     'confirm_status' => $this->data['confirm_status'],
@@ -247,7 +247,7 @@ class DeliveryRepository extends RepositoryAbs
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
                 ]);
-                $this->storeImageImages($confirm, $this->data['images'] ?? []);
+                $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
                     $delivery->timelines()->create([
@@ -308,7 +308,7 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    private function storeImageImages($confirm, $upload_images)
+    private function storeConfirmImages($confirm, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
             $image_data = $upload_image['thumbUrl'];

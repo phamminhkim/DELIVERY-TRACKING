@@ -22,6 +22,42 @@ class OrderController extends ResponseController
         }
     }
 
+    public function getOrdersByCustomer(Request $request)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $orders = $handler->getOrdersByCustomer();
+
+        if ($orders) {
+            return $this->responseSuccess($orders);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function getOrderById(Request $request, $order_id)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $order = $handler->getOrderById($order_id);
+
+        if ($order) {
+            return $this->responseSuccess($order);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function confirmOrder(Request $request, $order_id)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $order = $handler->confirmOrder($order_id);
+
+        if ($order) {
+            return $this->responseSuccess($order);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function syncFromSAP(Request $request)
     {
         $handler = BusinessRepository::orderRequest($request);
