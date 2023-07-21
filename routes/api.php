@@ -147,6 +147,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrders']);
+            Route::get('/minified', [OrderController::class, 'getMinifiedOrders']);
         });
     });
 });
