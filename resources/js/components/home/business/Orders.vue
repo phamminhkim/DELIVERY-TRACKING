@@ -169,7 +169,11 @@
 				<div class="row mb-1">
 					<div class="col-md-9">
 						<div class="form-group row">
-							<button type="button" class="btn btn-success btn-sm ml-1 mt-1">
+							<button
+								type="button"
+								class="btn btn-success btn-sm ml-1 mt-1"
+								@click="showCreateDialog"
+							>
 								<strong>
 									<i class="fas fa-truck-loading mr-1 text-bold" />Tạo vận
 									đơn</strong
@@ -299,10 +303,10 @@
 </template>
 
 <script>
-	import Treeselect from '@riophae/vue-treeselect'
-	import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-	import ApiHandler, { APIRequest } from '../ApiHandler'
-	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue'
+	import Treeselect from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+	import ApiHandler, { APIRequest } from '../ApiHandler';
+	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 
 	export default {
 		components: {
@@ -319,6 +323,7 @@
 				filter_data: {},
 				is_select_all: false,
 				selected_ids: [],
+				creating_delivery_order_ids: [],
 
 				is_editing: false,
 				is_loading: false,
@@ -410,17 +415,17 @@
 				api_url_orders: '/api/admin/orders',
 				api_url_customers: '/api/master/customers',
 				api_url_warehouses: '/api/master/warehouses',
-			}
+			};
 		},
 		created() {
-			this.fetchData()
+			this.fetchData();
 		},
 		watch: {
 			'$route.query': {
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query) {
-						this.fetchData(new_query)
+						this.fetchData(new_query);
 					}
 				},
 			},
@@ -428,37 +433,26 @@
 		methods: {
 			async fetchData(query) {
 				try {
-					if (this.is_loading) return
-					this.is_loading = true
-					// let result = await this.api_handler.get(
-					// 	this.api_url_orders,
-					// 	this.api_url_customers,
-					// 	query,
-					// )
-					console.log(query)
-					const [orders, customers] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', this.api_url_orders, query),
-						new APIRequest('get', this.api_url_customers),
-					])
+					if (this.is_loading) return;
+					this.is_loading = true;
 
-					this.orders = orders
-					// this.customers = customers.map((customer) => {
-					// 	return { id: customer.id, label: customer.name }
-					// })
-					// this.warehouses = result.data.map((warehouses) => {
-					// 	return { id: warehouses.id, label: warehouses.name }
-					// })
+					const [orders] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', this.api_url_orders, query),
+						// new APIRequest('get', this.api_url_customers),
+					]);
+
+					this.orders = orders;
 				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error.message)
+					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
-					this.is_loading = false
+					this.is_loading = false;
 				}
 			},
 			selectAll() {
-				this.selected_ids = []
+				this.selected_ids = [];
 				if (this.is_select_all) {
 					for (let i in this.orders) {
-						this.selected_ids.push(this.orders[i].id)
+						this.selected_ids.push(this.orders[i].id);
 					}
 				}
 			},
@@ -471,18 +465,19 @@
 			//     });
 			// },
 			rowClass(item, type) {
-				if (!item || type !== 'row') return
-				if (item.status === 'awesome') return 'table-success'
+				if (!item || type !== 'row') return;
+				if (item.status === 'awesome') return 'table-success';
 			},
 			showCreateDialog() {
-				this.creating_delivery_order_ids = this.selected_ids
-				$('#DialogCreateDelivery').modal('show')
+				this.creating_delivery_order_ids = this.selected_ids;
+				$('#DialogCreateDelivery').modal('show');
+				this.selected_ids = [];
 			},
 		},
 		computed: {
 			rows() {
-				return this.orders.length
+				return this.orders.length;
 			},
 		},
-	}
+	};
 </script>

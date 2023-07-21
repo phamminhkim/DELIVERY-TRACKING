@@ -8,7 +8,7 @@
 	>
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="">
+				<form @submit.prevent="createNewDelivery">
 					<div class="modal-header">
 						<h4 class="modal-title">
 							<span> Tạo vận đơn mới </span>
@@ -44,6 +44,25 @@
 						<div class="form-group">
 							<label>Danh sách đơn hàng đã chọn</label>
 							<small class="text-danger">(*)</small>
+							<div class="row mb-3">
+								<div class="col-md-10">
+									<treeselect
+										v-model="order_ids_waiting_to_add"
+										:multiple="true"
+										:options="order_options"
+										placeholder="Chọn đơn vị vận chuyển.."
+									/>
+								</div>
+								<div class="col-md-2">
+									<button
+										id="add-waiting-list-btn"
+										class="btn btn-primary"
+										@click.prevent="pushWaitingOrdersToList"
+									>
+										Thêm
+									</button>
+								</div>
+							</div>
 							<div class="row">
 								<div class="col-md-5 ml-auto">
 									<div class="input-group input-group-sm mt-1 mb-1">
@@ -65,7 +84,6 @@
 									</div>
 								</div>
 							</div>
-
 							<b-table
 								responsive
 								hover
@@ -75,7 +93,7 @@
 								:per-page="pagination.item_per_page"
 								:filter="search_pattern"
 								:fields="fields"
-								:items="form.orders"
+								:items="selected_orders"
 								:tbody-tr-class="rowClass"
 							>
 								<template #cell(warehouse)="data">
@@ -130,7 +148,12 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
-						<button type="submit" title="Submit" class="btn btn-primary">
+						<button
+							type="submit"
+							title="Submit"
+							class="btn btn-primary"
+							id="submit-btn"
+						>
 							Tạo mới
 						</button>
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -144,10 +167,10 @@
 </template>
 
 <script>
-	import Vue from 'vue'
-	import Treeselect from '@riophae/vue-treeselect'
-	import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-	import APIHandler, { APIRequest } from '../../ApiHandler'
+	import Vue from 'vue';
+	import Treeselect from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+	import APIHandler, { APIRequest } from '../../ApiHandler';
 
 	export default {
 		name: 'DialogCreateDelivery',
@@ -169,6 +192,10 @@
 				},
 				company_options: [],
 				delivery_partner_options: [],
+
+				selected_orders: [],
+				order_options: [],
+				order_ids_waiting_to_add: [],
 
 				pagination: {
 					item_per_page: 10,
@@ -204,64 +231,107 @@
 						class: 'text-nowrap text-center',
 					},
 				],
-			}
+			};
 		},
 		created() {
-			this.fetchMasterData()
+			this.fetchMasterData();
 		},
 		watch: {
 			order_ids: async function (new_order_ids) {
 				const { data } = await this.api_handler.get('/api/admin/orders', {
 					ids: new_order_ids.length === 0 ? [null] : new_order_ids,
-				})
-				this.form.orders = data
+				});
+				this.form.orders = [...new_order_ids];
+				this.selected_orders = [...data];
 			},
 		},
 		methods: {
 			async fetchMasterData() {
 				try {
-					const [companies, delivery_partners] =
+					const [companies, delivery_partners, orders] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/companies'),
 							new APIRequest('get', '/api/master/delivery-partners'),
-						])
+							new APIRequest('get', '/api/admin/orders/minified'),
+						]);
 
-					this.company_options = [
-						...companies.map((company) => {
-							return {
-								id: company.code,
-								label: `(${company.code}) ${company.name}`,
-							}
-						}),
-					]
+					this.company_options = companies.map((company) => {
+						return {
+							id: company.code,
+							label: `(${company.code}) ${company.name}`,
+						};
+					});
 
-					this.delivery_partner_options = [
-						...delivery_partners.map((delivery_partner) => {
-							return {
-								id: delivery_partner.code,
-								label: `(${delivery_partner.code}) ${delivery_partner.name}`,
-							}
-						}),
-					]
+					this.delivery_partner_options = delivery_partners.map((delivery_partner) => {
+						return {
+							id: delivery_partner.code,
+							label: `(${delivery_partner.code}) ${delivery_partner.name}`,
+						};
+					});
+					this.order_options = orders.map((order) => {
+						return {
+							id: order.id,
+							label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
+						};
+					});
 				} catch (error) {
-					console.log(error)
+					console.log(error);
 				}
 			},
 			rowClass(item, type) {
-				if (!item || type !== 'row') return
-				if (item.status === 'awesome') return 'table-success'
+				if (!item || type !== 'row') return;
+				if (item.status === 'awesome') return 'table-success';
 			},
 			removeOrder(index) {
-				this.form.orders.splice(index, 1)
+				this.form.orders.splice(index, 1);
+				this.selected_orders.splice(index, 1);
 			},
-			addOrder(order) {
-				this.form.orders.push(order)
+			async addOrders(orders) {
+				try {
+					const { data } = await this.api_handler.get('/api/admin/orders', {
+						ids: orders.length === 0 ? [null] : orders,
+					});
+					this.form.orders.push(...orders);
+					this.selected_orders.push(...data);
+				} catch (err) {
+					console.log(err);
+				}
+			},
+			async pushWaitingOrdersToList() {
+				if (this.order_ids_waiting_to_add.length === 0) return;
+				await this.addOrders(this.order_ids_waiting_to_add);
+				this.order_ids_waiting_to_add = [];
+			},
+			async createNewDelivery() {
+				try {
+					const { data } = await this.api_handler.post(
+						'/api/admin/deliveries',
+						{},
+						{
+							company_code: this.form.company,
+							delivery_partner_code: this.form.delivery_partner,
+							orders: this.form.orders.map((order_id) => {
+								return {
+									id: order_id,
+								};
+							}),
+						},
+					);
+					this.form = {
+						company: null,
+						delivery_partner: null,
+						orders: [],
+					};
+					this.selected_orders = [];
+				} catch (err) {
+					console.log(err);
+				}
 			},
 		},
 		computed: {
 			rows() {
-				return this.form.orders.length
+				return this.form.orders.length;
 			},
 		},
-	}
+	};
 </script>
