@@ -29,6 +29,8 @@ class DeliveryRepository extends RepositoryAbs
             if ($this->request->filled('filter')) {
                 if ($this->request->filter == 'undone') {
                     $query->whereNull('complete_delivery_date');
+                } else if ($this->request->filter == 'delivering') {
+                    $query->whereNotNull('start_delivery_date')->whereNull('complete_delivery_date');
                 }
             }
             $deliveries = $query->with(['company', 'partner', 'pickup', 'orders'])->get();

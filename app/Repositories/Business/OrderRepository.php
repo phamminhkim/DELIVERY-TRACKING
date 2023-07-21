@@ -159,6 +159,8 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('filter')) {
                 if ($this->request->filter == 'undone') {
                     $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+                } else if ($this->request->filter == 'delivering') {
+                    $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
                 }
             }
             if ($this->request->filled('ids')) {
