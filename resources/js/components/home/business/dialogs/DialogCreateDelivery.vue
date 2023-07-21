@@ -33,17 +33,21 @@
                         <div class="form-group">
                             <label>Danh sách đơn hàng đã chọn</label>
                             <small class="text-danger">(*)</small>
-                            <div class="col-md-3">
-                                <div class="input-group input-group-sm mt-1 mb-1">
-                                    <input type="search" class="form-control -control-navbar" v-model="search_pattern"
-                                        :placeholder="search_placeholder" aria-label="Search" />
-                                    <div class="input-group-append">
-                                        <button class="btn btn-default" style="background: #1b1a1a; color: white">
-                                            <i class="fas fa-search"></i>
-                                        </button>
+                            <div class="row">
+                                <div class="col-md-5 ml-auto">
+                                    <div class="input-group input-group-sm mt-1 mb-1">
+                                        <input type="search" class="form-control -control-navbar" v-model="search_pattern"
+                                            :placeholder="search_placeholder" aria-label="Search" />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-default" style="background: #1b1a1a; color: white">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
+
                             <b-table responsive hover striped :bordered="true" :current-page="pagination.current_page"
                                 :per-page="pagination.item_per_page" :filter="search_pattern" :fields="fields"
                                 :items="form.orders" :tbody-tr-class="rowClass">
@@ -51,8 +55,17 @@
                                 <template #cell(warehouse)="data">
                                     <span>{{ data.value.name }}</span>
                                 </template>
+
+                                <template #cell(action)="data">
+                                    <div class="margin">
+
+                                        <button class="btn btn-xs mr-1" @click="removeOrder(data.index)">
+                                            <i class="fas fa-trash text-red bigger-120" title="Delete"></i>
+                                        </button>
+                                    </div>
+                                </template>
                             </b-table>
-                            <!-- <div class="row">
+                            <div class="row">
                                 <label class="col-form-label-sm col-md-2" style="text-align: left" for="">Số lượng mỗi
                                     trang:</label>
                                 <div class="col-md-2">
@@ -65,7 +78,7 @@
                                     <b-pagination v-model="pagination.current_page" :total-rows="rows"
                                         :per-page="pagination.item_per_page" size="sm" class="ml-1"></b-pagination>
                                 </div>
-                            </div> -->
+                            </div>
                         </div>
                     </div>
 
@@ -160,7 +173,7 @@ export default {
         order_ids: async function (new_order_ids) {
             const { data } = await this.api_handler.get('/api/admin/orders',
                 {
-                    ids: new_order_ids.length === 0 ? ['null'] : new_order_ids
+                    ids: new_order_ids.length === 0 ? [null] : new_order_ids
                 }
             );
             this.form.orders = data;
@@ -204,11 +217,17 @@ export default {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
+        removeOrder(index) {
+            this.form.orders.splice(index, 1);
+        },
+        addOrder(order) {
+            this.form.orders.push(order);
+        }
     },
     computed: {
         rows() {
             return this.form.orders.length;
         },
-    }
+    },
 }
 </script>
