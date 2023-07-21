@@ -1,5 +1,14 @@
 import axios from "axios";
 
+
+class APIRequest {
+    constructor(type = 'get', api_url = '/', queries = {}, body = {}) {
+        this.type = type;
+        this.api_url = api_url;
+        this.queries = queries;
+        this.body = body;
+    }
+}
 class APIHandler {
     constructor(token) {
         this.token = token;
@@ -26,7 +35,7 @@ class APIHandler {
         }
     }
 
-    async post(api_url, body = {}, queries = {}) {
+    async post(api_url, queries = {}, body = {}) {
         try {
             const response = await axios.post(api_url, body, {
                 headers: this.getHeaders(),
@@ -41,7 +50,7 @@ class APIHandler {
         }
     }
 
-    async put(api_url, body = {}, queries = {}) {
+    async put(api_url, queries = {}, body = {}) {
         try {
             const response = await axios.put(api_url, body, {
                 headers: this.getHeaders(),
@@ -56,7 +65,7 @@ class APIHandler {
         }
     }
 
-    async patch(api_url, body = {}, queries = {}) {
+    async patch(api_url, queries = {}, body = {}) {
         queries._method = "PATCH";
         try {
             const response = await axios.post(api_url, body, {
@@ -86,6 +95,39 @@ class APIHandler {
             throw error;
         }
     }
+
+    async handleMultipleRequest(requests) {
+        try {
+            const responses = await Promise.all(
+                requests.map(req => {
+                    if (req.type == 'get') {
+                        return this.get(req.api_url, req.queries);
+                    }
+                    else if (req.type == 'post') {
+                        return this.post(req.api_url, req.queries, req.body);
+                    }
+                    else if(req.type == 'patch'){
+                        return this.patch(req.api_url, req.queries, req.body);
+                    }
+                    else if(type== 'put'){
+                        return this.put(req.api_url, req.queries, req.body);
+                    }
+                    else if(type == 'delete'){
+                        return this.delete(eq.api_url, req.queries, req.body);
+                    }
+                })
+            );        
+            return responses.map(res => res.data);
+            
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
 }
 
+
+export {
+    APIRequest
+}
 export default APIHandler;
