@@ -193,6 +193,8 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('status')) {
                 if ($this->request->status == 'undone') {
                     $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+                } else if ($this->request->status == 'delivering') {
+                    $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
                 }
             }
             if ($this->request->filled('search')) {
