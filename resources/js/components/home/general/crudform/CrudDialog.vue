@@ -1,6 +1,6 @@
 <template>
     <!-- tạo form -->
-    <div class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal fade" :id="dialog_name" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form @submit.prevent="addItem">

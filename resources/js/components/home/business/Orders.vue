@@ -123,6 +123,7 @@
                             <button
                                 type="button"
                                 class="btn btn-success btn-sm ml-1 mt-1"
+                                @click="showCreateDialog"
                             >
                                 <strong>
                                     <i
@@ -251,6 +252,9 @@
                 <!-- end phân trang -->
 
                 <!-- tạo form -->
+                <DialogCreateDelivery
+                :order_ids="creating_delivery_order_ids"
+                />
                 <!-- end tạo form -->
             </div>
         </div>
@@ -262,9 +266,12 @@
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import ApiHandler from "../ApiHandler";
+import DialogCreateDelivery from "./dialogs/DialogCreateDelivery.vue";
+
 export default {
     components: {
         Treeselect,
+        DialogCreateDelivery
     },
     data() {
         return {
@@ -275,6 +282,7 @@ export default {
 
             is_select_all: false,
             selected_ids: [],
+            creating_delivery_order_ids: [],
 
             is_editing: false,
             is_loading: false,
@@ -411,6 +419,10 @@ export default {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
+        showCreateDialog(){
+            this.creating_delivery_order_ids = this.selected_ids;
+            $('#DialogCreateDelivery').modal('show');
+        }
     },
     computed: {
         rows() {

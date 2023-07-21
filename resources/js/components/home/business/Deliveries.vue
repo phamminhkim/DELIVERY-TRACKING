@@ -9,6 +9,8 @@
                             <button
                                 type="button"
                                 class="btn btn-success btn-sm ml-1 mt-1"
+                                @click="showCreateDialog"
+                                
                             >
                                 <strong>
                                     <i
@@ -148,15 +150,21 @@
             :delivery_id="viewing_delivery_id"
             v-on:printQrCode="printQrCode"
         />
+
+        <dialog-create-delivery ref="dialog_create"/>
     </b-overlay>
 </template>
 
 <script>
 import ApiHandler from "../ApiHandler";
 import DialogDeliveryInfo from "./dialogs/DialogDeliveryInfo.vue";
+import DialogCreateDelivery from "./dialogs/DialogCreateDelivery.vue";
 
 export default {
-    components: { DialogDeliveryInfo },
+    components: { 
+        DialogDeliveryInfo,
+        DialogCreateDelivery
+    },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -335,6 +343,9 @@ export default {
             if (!item || type !== "row") return;
             if (item.status === "awesome") return "table-success";
         },
+        showCreateDialog(){
+            $('#DialogCreateDelivery').modal('show')
+        }
     },
     computed: {
         rows() {
