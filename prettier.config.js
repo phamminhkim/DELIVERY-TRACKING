@@ -12,7 +12,7 @@ module.exports = {
 	singleQuote: true,
 
 	// Avoid using semicolons at the end of lines (Vue's convention).
-	semi: false,
+	semi: true,
 
 	// Use trailing commas when multi-line (Vue's convention) to avoid git diffs with fewer lines.
 	trailingComma: 'all',
@@ -30,12 +30,12 @@ module.exports = {
 				parser: 'php',
 			},
 		},
-        {
-            files: '*.vue',
-            options: {
-                parser: 'vue',
-            },
-        }
+		{
+			files: '*.vue',
+			options: {
+				parser: 'vue',
+			},
+		}
 	],
 
 	vue: {
