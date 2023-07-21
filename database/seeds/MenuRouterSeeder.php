@@ -113,6 +113,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản lí đơn hàng',
             ],
             [
+                'title' => "Đang vận chuyển",
+                'icon' => "nav-icon",
+                'link' => "orders",
+                'query_string' => "filter=delivering",
+                'parent' => 'Quản lí đơn hàng',
+            ],
+            [
                 'title' => "Tất cả",
                 'icon' => "nav-icon",
                 'link' => "deliveries",
@@ -124,6 +131,13 @@ class MenuRouterSeeder extends Seeder
                 'icon' => "nav-icon",
                 'link' => "deliveries",
                 'query_string' => "filter=undone",
+                'parent' => 'Quản lí vận đơn',
+            ],
+            [
+                'title' => "Đang vận chuyển",
+                'icon' => "nav-icon",
+                'link' => "deliveries",
+                'query_string' => "filter=delivering",
                 'parent' => 'Quản lí vận đơn',
             ],
             [
