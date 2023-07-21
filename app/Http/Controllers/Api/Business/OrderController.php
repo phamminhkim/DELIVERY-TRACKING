@@ -22,6 +22,18 @@ class OrderController extends ResponseController
         }
     }
 
+    public function getMinifiedOrders(Request $request)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $orders = $handler->getOrders(true);
+
+        if ($orders) {
+            return $this->responseSuccess($orders);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function getOrdersByCustomer(Request $request)
     {
         $handler = BusinessRepository::orderRequest($request);

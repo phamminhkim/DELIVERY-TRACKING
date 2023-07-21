@@ -152,7 +152,7 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function getOrders()
+    public function getOrders($is_minified = false)
     {
         try {
             $query = Order::query();
@@ -164,7 +164,13 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
-            $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+
+            if ($is_minified) {
+                $query->with(['customer', 'warehouse', 'status']);
+            } else {
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+            }
+
             return $orders;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
