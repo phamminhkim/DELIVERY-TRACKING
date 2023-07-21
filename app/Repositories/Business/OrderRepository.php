@@ -162,7 +162,7 @@ class OrderRepository extends RepositoryAbs
                 }
             }
             if ($this->request->filled('ids')) {
-                $query->whereIn('id', explode(",", $this->request->ids));
+                $query->whereIn('id', $this->request->ids);
             }
             $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
             return $orders;
