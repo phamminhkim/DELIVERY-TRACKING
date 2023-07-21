@@ -301,7 +301,7 @@
 <script>
 	import Treeselect from '@riophae/vue-treeselect'
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-	import ApiHandler from '../ApiHandler'
+	import ApiHandler, { APIRequest } from '../ApiHandler'
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue'
 
 	export default {
@@ -430,22 +430,24 @@
 				try {
 					if (this.is_loading) return
 					this.is_loading = true
-					let result = await this.api_handler.get(
-						this.api_url_orders,
-						this.api_url_customers,
-						query,
-					)
-					if (result.success) {
-						this.orders = result.data
-						this.customers = result.data.map((customer) => {
-							return { id: customer.id, label: customer.name }
-						})
-						this.warehouses = result.data.map((warehouses) => {
-							return { id: warehouses.id, label: warehouses.name }
-						})
-					} else {
-						this.$showMessage('error', 'Lỗi', result.message)
-					}
+					// let result = await this.api_handler.get(
+					// 	this.api_url_orders,
+					// 	this.api_url_customers,
+					// 	query,
+					// )
+					console.log(query)
+					const [orders, customers] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', this.api_url_orders, query),
+						new APIRequest('get', this.api_url_customers),
+					])
+
+					this.orders = orders
+					// this.customers = customers.map((customer) => {
+					// 	return { id: customer.id, label: customer.name }
+					// })
+					// this.warehouses = result.data.map((warehouses) => {
+					// 	return { id: warehouses.id, label: warehouses.name }
+					// })
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message)
 				} finally {

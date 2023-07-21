@@ -8,7 +8,7 @@
 	>
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="addItem">
+				<form @submit.prevent="">
 					<div class="modal-header">
 						<h4 class="modal-title">
 							<span> Tạo vận đơn mới </span>
