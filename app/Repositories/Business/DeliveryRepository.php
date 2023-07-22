@@ -103,6 +103,17 @@ class DeliveryRepository extends RepositoryAbs
             }
 
             $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+            if ($delivery->complete_delivery_date) {
+                $delivery['status'] = EnumsOrderStatus::Delivered;
+            } else if ($delivery->start_delivery_date) {
+                $delivery['status'] = EnumsOrderStatus::Delivering;
+
+                // Check if any order is delivered or partly delivered
+
+            } else {
+                $delivery['status'] = EnumsOrderStatus::Preparing;
+            }
+            $delivery['status'] = OrderStatus::find($delivery['status']);
             foreach ($delivery->orders as $order) {
                 $order->unsetRelation('pivot');
             }
