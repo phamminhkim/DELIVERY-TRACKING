@@ -27,6 +27,7 @@
 								:multiple="false"
 								:options="company_options"
 								placeholder="Chọn công ty.."
+								required
 							/>
 						</div>
 
@@ -38,6 +39,7 @@
 								:multiple="false"
 								:options="delivery_partner_options"
 								placeholder="Chọn đơn vị vận chuyển.."
+								required
 							/>
 						</div>
 
@@ -49,8 +51,8 @@
 									<treeselect
 										v-model="order_ids_waiting_to_add"
 										:multiple="true"
-										:options="order_options"
-										placeholder="Chọn đơn vị vận chuyển.."
+										:options="renderedOnOptionOrderList"
+										placeholder="Chọn đơn hàng được vận chuyển.."
 									/>
 								</div>
 								<div class="col-md-2">
@@ -64,6 +66,11 @@
 								</div>
 							</div>
 							<div class="row">
+								<div class="col-md-7">
+									<span class="text-danger" role="alert">
+										<strong> {{ error_message }} </strong>
+									</span>
+								</div>
 								<div class="col-md-5 ml-auto">
 									<div class="input-group input-group-sm mt-1 mb-1">
 										<input
@@ -93,7 +100,7 @@
 								:per-page="pagination.item_per_page"
 								:filter="search_pattern"
 								:fields="fields"
-								:items="selected_orders"
+								:items="renderedOnTableOrderList"
 								:tbody-tr-class="rowClass"
 							>
 								<template #cell(warehouse)="data">
@@ -104,7 +111,8 @@
 									<div class="margin">
 										<button
 											class="btn btn-xs mr-1"
-											@click="removeOrder(data.index)"
+											@click.prevent="removeOrder(data.item)"
+											id="remove-order-btn"
 										>
 											<i
 												class="fas fa-trash text-red bigger-120"
@@ -167,7 +175,7 @@
 </template>
 
 <script>
-	import Vue from 'vue';
+	import Vue, { reactive } from 'vue';
 	import Treeselect from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../../ApiHandler';
@@ -188,13 +196,13 @@
 				form: {
 					company: null,
 					delivery_partner: null,
-					orders: [],
+					orders: {}, // use plain object like a HashMap
 				},
 				company_options: [],
 				delivery_partner_options: [],
 
-				selected_orders: [],
-				order_options: [],
+				selected_orders: {}, // use plain object like a HashMap,
+				order_options: {}, //use plain object like a HashMap
 				order_ids_waiting_to_add: [],
 
 				pagination: {
@@ -231,6 +239,8 @@
 						class: 'text-nowrap text-center',
 					},
 				],
+
+				error_message: '',
 			};
 		},
 		created() {
@@ -241,8 +251,12 @@
 				const { data } = await this.api_handler.get('/api/admin/orders', {
 					ids: new_order_ids.length === 0 ? [null] : new_order_ids,
 				});
-				this.form.orders = [...new_order_ids];
-				this.selected_orders = [...data];
+				this.form.orders = {};
+				this.selected_orders = {};
+				data.forEach((order) => {
+					this.form.orders[order.id] = order.id;
+					this.selected_orders[order.id] = order;
+				});
 			},
 		},
 		methods: {
@@ -252,7 +266,9 @@
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/companies'),
 							new APIRequest('get', '/api/master/delivery-partners'),
-							new APIRequest('get', '/api/admin/orders/minified'),
+							new APIRequest('get', '/api/admin/orders/minified', {
+								filter: 'can-delivery',
+							}),
 						]);
 
 					this.company_options = companies.map((company) => {
@@ -268,11 +284,11 @@
 							label: `(${delivery_partner.code}) ${delivery_partner.name}`,
 						};
 					});
-					this.order_options = orders.map((order) => {
-						return {
+					orders.forEach((order) => {
+						this.addPropertyToObject(this.order_options, order.id, {
 							id: order.id,
 							label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
-						};
+						});
 					});
 				} catch (error) {
 					console.log(error);
@@ -282,17 +298,25 @@
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
 			},
-			removeOrder(index) {
-				this.form.orders.splice(index, 1);
-				this.selected_orders.splice(index, 1);
+			removeOrder(order) {
+				this.removePropertyFromObject(this.form.orders, order.id);
+				this.removePropertyFromObject(this.selected_orders, order.id);
+				this.addPropertyToObject(this.order_options, order.id, {
+					id: order.id,
+					label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
+				});
 			},
-			async addOrders(orders) {
+			async addOrders(order_ids) {
 				try {
 					const { data } = await this.api_handler.get('/api/admin/orders', {
-						ids: orders.length === 0 ? [null] : orders,
+						ids: order_ids.length === 0 ? [null] : order_ids,
 					});
-					this.form.orders.push(...orders);
-					this.selected_orders.push(...data);
+					data.forEach((order) => {
+						console.log(order);
+						this.addPropertyToObject(this.form.orders, order.id, order.id);
+						this.addPropertyToObject(this.selected_orders, order.id, order);
+						this.removePropertyFromObject(this.order_options, order.id);
+					});
 				} catch (err) {
 					console.log(err);
 				}
@@ -303,6 +327,10 @@
 				this.order_ids_waiting_to_add = [];
 			},
 			async createNewDelivery() {
+				if (Object.keys(this.form.orders).length === 0) {
+					this.error_message = 'Danh sách đơn hàng là bắt buộc.';
+					return;
+				}
 				try {
 					const { data } = await this.api_handler.post(
 						'/api/admin/deliveries',
@@ -310,27 +338,52 @@
 						{
 							company_code: this.form.company,
 							delivery_partner_code: this.form.delivery_partner,
-							orders: this.form.orders.map((order_id) => {
+							orders: Object.values(this.form.orders).map((order_id) => {
 								return {
 									id: order_id,
 								};
 							}),
 						},
 					);
-					this.form = {
-						company: null,
-						delivery_partner: null,
-						orders: [],
-					};
-					this.selected_orders = [];
-				} catch (err) {
-					console.log(err);
+
+					this.$emit('onDeliveryCreated', data);
+					this.$showMessage('success', 'Tạo vận đơn thành công');
+					this.resetForm();
+					this.closeDialog();
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
+					this.error_message = error.response.data.message;
 				}
+			},
+			resetForm() {
+				this.form = {
+					company: null,
+					delivery_partner: null,
+					orders: {},
+				};
+				this.selected_orders = {};
+				this.error_message = '';
+			},
+			closeDialog() {
+				$('#DialogCreateDelivery').modal('hide');
+			},
+			addPropertyToObject(obj, key, value) {
+				this.$set(obj, key, value);
+			},
+			removePropertyFromObject(obj, key) {
+				this.$delete(obj, key);
 			},
 		},
 		computed: {
 			rows() {
 				return this.form.orders.length;
+			},
+			renderedOnTableOrderList() {
+				return Object.values(this.selected_orders);
+			},
+			renderedOnOptionOrderList() {
+				return Object.values(this.order_options);
 			},
 		},
 	};
