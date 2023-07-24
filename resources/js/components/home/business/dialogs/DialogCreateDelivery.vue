@@ -192,7 +192,7 @@
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
-
+				is_loading: false,
 				form: {
 					company: null,
 					delivery_partner: null,
@@ -332,23 +332,29 @@
 					return;
 				}
 				try {
-					const { data } = await this.api_handler.post(
-						'/api/admin/deliveries',
-						{},
-						{
-							company_code: this.form.company,
-							delivery_partner_code: this.form.delivery_partner,
-							orders: Object.values(this.form.orders).map((order_id) => {
-								return {
-									id: order_id,
-								};
-							}),
-						},
-					);
+					if (this.is_loading) return;
+					this.is_loading = true;
+					const { data } = await this.api_handler
+						.post(
+							'/api/admin/deliveries',
+							{},
+							{
+								company_code: this.form.company,
+								delivery_partner_code: this.form.delivery_partner,
+								orders: Object.values(this.form.orders).map((order_id) => {
+									return {
+										id: order_id,
+									};
+								}),
+							},
+						)
+						.finally(() => {
+							this.resetForm();
+							this.is_loading = false;
+						});
 
 					this.$emit('onDeliveryCreated', data);
 					this.$showMessage('success', 'Tạo vận đơn thành công');
-					this.resetForm();
 					this.closeDialog();
 				} catch (error) {
 					console.log(error);

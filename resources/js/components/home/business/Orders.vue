@@ -12,6 +12,7 @@
 									type="button"
 									class="btn btn-warning btn-xs"
 									@click="is_show_search = !is_show_search"
+									v-b-toggle.collapse-1
 								>
 									<span v-if="!is_show_search">Hiện tìm kiếm</span>
 									<span v-if="is_show_search">Ẩn tìm kiếm</span>
@@ -20,6 +21,7 @@
 									type="button"
 									class="btn btn-warning btn-xs"
 									@click="is_show_search = !is_show_search"
+									v-b-toggle.collapse-1
 								>
 									<i v-if="is_show_search" class="fas fa-angle-up"></i>
 									<i v-else class="fas fa-angle-down"></i>
@@ -35,7 +37,7 @@
 						<div class="row"></div>
 					</div>
 				</div>
-				<div class="row" v-if="is_show_search">
+				<b-collapse class="row" id="collapse-1">
 					<div class="col-sm-12">
 						<div class="card">
 							<div class="card-body">
@@ -164,7 +166,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</b-collapse>
 
 				<div class="row mb-1">
 					<div class="col-md-9">
@@ -505,7 +507,6 @@
 				};
 				const status_filter = (status_id) => {
 					if (this.form_filter.statuses.length === 0) return true;
-					console.log(status_id in this.form_filter.statuses);
 					return this.form_filter.statuses.includes(status_id);
 				};
 				const customer_filter = (customer_code) => {
