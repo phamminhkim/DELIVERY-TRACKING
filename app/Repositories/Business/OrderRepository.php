@@ -201,7 +201,7 @@ class OrderRepository extends RepositoryAbs
                 }
             }
             if ($this->request->filled('search')) {
-                $query->where('sap_so_number', $this->request->search_query)->orWhere('sap_so_number', 'like', '%' . $this->request->search_query . '%');
+                $query->where('sap_so_number', $this->request->search)->orWhere('sap_so_number', 'like', '%' . $this->request->search . '%');
             }
 
             $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');

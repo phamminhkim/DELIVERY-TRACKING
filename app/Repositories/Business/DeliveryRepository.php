@@ -9,6 +9,7 @@ use App\Models\Business\DeliveryTokenScan;
 use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
+use App\Models\Master\CustomerPhone;
 use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
@@ -54,7 +55,7 @@ class DeliveryRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getDeliveryByQrScan($qr_token)
+    public function getDeliveryByQrScan($qr_token, $is_customer)
     {
         try {
             $delivery_token = DeliveryToken::where('token', $qr_token)->first();
@@ -78,7 +79,7 @@ class DeliveryRepository extends RepositoryAbs
                     'result' => 'Fetch delivery with id ' . strval($delivery_token->delivery_id)
                 ]);
 
-                return $this->getDeliveryById($delivery_token->delivery_id);
+                return $this->getDeliveryById($delivery_token->delivery_id, $is_customer);
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -93,7 +94,7 @@ class DeliveryRepository extends RepositoryAbs
             ]);
         }
     }
-    public function getDeliveryById($delivery_id)
+    public function getDeliveryById($delivery_id, $is_customer)
     {
         try {
             $delivery = Delivery::find($delivery_id);
@@ -101,15 +102,29 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
+            if ($is_customer) {
+                $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');
+                if ($customer_phones) {
+                    $query = $delivery->orders()->whereIn('customer_id', $customer_phones);
+                    $delivery->orders = $query->get();
+                    if ($delivery->orders->count() == 0) {
+                        $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
+                    }
 
-            $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                    $delivery->load(['company', 'partner', 'timelines', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                } else {
+                    $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
+                }
+            } else {
+                $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+            }
+
             if ($delivery->complete_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivered;
             } else if ($delivery->start_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivering;
 
                 // Check if any order is delivered or partly delivered
-
             } else {
                 $delivery['status'] = EnumsOrderStatus::Preparing;
             }
