@@ -92,7 +92,7 @@
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
-											v-model="form_filter.customer_code"
+											v-model="form_filter.customers"
 											:options="customers"
 										/>
 									</div>
@@ -108,7 +108,7 @@
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
-											v-model="form_filter.warehouse"
+											v-model="form_filter.warehouses"
 											:options="warehouses"
 										/>
 									</div>
@@ -334,8 +334,8 @@
 					start_date: '',
 					end_date: '',
 					status: [],
-					customer_code: [],
-					warehouse: [],
+					customers: [],
+					warehouses: [],
 					sap_so_number: [],
 					sap_do_number: [],
 				},
@@ -413,8 +413,8 @@
 
 				orders: [],
 				api_url_orders: '/api/admin/orders',
-				api_url_customers: '/api/master/customers',
-				api_url_warehouses: '/api/master/warehouses',
+				// api_url_customers: '/api/master/customers',
+				// api_url_warehouses: '/api/master/warehouses',
 			};
 		},
 		created() {
@@ -438,10 +438,23 @@
 
 					const [orders] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_orders, query),
-						// new APIRequest('get', this.api_url_customers),
 					]);
 
 					this.orders = orders;
+					this.warehouses = this.orders.map((order) => {
+							return {
+								id: order.warehouse.id,
+								label: order.warehouse.name,
+							}
+						},
+					)
+                    this.customers = this.orders.map((order) => {
+							return {
+								id: order.customer.code,
+								label: order.customer.name,
+							}
+						},
+					)
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -456,14 +469,6 @@
 					}
 				}
 			},
-			// mapToTreeselectCustomers(customers) {
-			//     return customers.map(customers => {
-			//         return {
-			//             id: customers.id,
-			//             label: `${customers.code} - ${customers.name}`,
-			//         };
-			//     });
-			// },
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
