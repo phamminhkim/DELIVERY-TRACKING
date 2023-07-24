@@ -76,7 +76,7 @@
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
-											v-model="form_filter.status"
+											v-model="form_filter.statuses"
 											:options="order_statuses"
 										/>
 									</div>
@@ -124,7 +124,7 @@
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
-											v-model="form_filter.sap_so_number"
+											v-model="form_filter.sap_so_numbers"
 											:options="sap_so_number_options"
 										/>
 									</div>
@@ -138,7 +138,7 @@
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
-											v-model="form_filter.sap_do_number"
+											v-model="form_filter.sap_do_numbers"
 											:options="sap_do_number_options"
 										/>
 									</div>
@@ -147,7 +147,7 @@
 									<button
 										type="submit"
 										class="btn btn-warning btn-sm mt-1 mb-1"
-										@click="filter_data()"
+										@click="filterData()"
 									>
 										<i class="fa fa-search"></i>
 										Tìm
@@ -213,7 +213,7 @@
 						:per-page="pagination.item_per_page"
 						:filter="search_pattern"
 						:fields="fields"
-						:items="orders"
+						:items="orders_rendered"
 						:tbody-tr-class="rowClass"
 					>
 						<template #head(selection)>
@@ -320,7 +320,6 @@
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
 
-				filter_data: {},
 				is_select_all: false,
 				selected_ids: [],
 				creating_delivery_order_ids: [],
@@ -333,11 +332,11 @@
 				form_filter: {
 					start_date: '',
 					end_date: '',
-					status: [],
+					statuses: [],
 					customers: [],
 					warehouses: [],
-					sap_so_number: [],
-					sap_do_number: [],
+					sap_so_numbers: [],
+					sap_do_numbers: [],
 				},
 				customer_options: [],
 				warehouse_options: [],
@@ -414,9 +413,8 @@
 				],
 
 				orders: [],
+				orders_rendered: [],
 				api_url_orders: '/api/admin/orders',
-				// api_url_customers: '/api/master/customers',
-				// api_url_warehouses: '/api/master/warehouses',
 			};
 		},
 		created() {
@@ -443,6 +441,7 @@
 					]);
 
 					this.orders = orders;
+					this.orders_rendered = orders;
 					let warehouses_set = {}; //use object like a set
 					let customers_set = {};
 					let sap_do_number_set = {};
@@ -494,10 +493,66 @@
 				$('#DialogCreateDelivery').modal('show');
 				this.selected_ids = [];
 			},
+			filterData() {
+				const from_date_filter = (date) => {
+					if (this.form_filter.start_date.length === 0) return true;
+					console.log(new Date(this.form_filter.start_date));
+					return new Date(date) >= new Date(this.form_filter.start_date);
+				};
+				const to_date_filter = (date) => {
+					if (this.form_filter.end_date.length === 0) return true;
+					return new Date(date) <= new Date(this.form_filter.end_date);
+				};
+				const status_filter = (status_id) => {
+					if (this.form_filter.statuses.length === 0) return true;
+					console.log(status_id in this.form_filter.statuses);
+					return this.form_filter.statuses.includes(status_id);
+				};
+				const customer_filter = (customer_code) => {
+					if (this.form_filter.customers.length === 0) return true;
+					return this.form_filter.customers.includes(customer_code);
+				};
+				const warehouse_filter = (warehouse_id) => {
+					if (this.form_filter.warehouses.length === 0) return true;
+					return this.form_filter.warehouses.includes(warehouse_id);
+				};
+				const sap_so_number_filter = (sap_so_number) => {
+					if (this.form_filter.sap_so_numbers.length === 0) return true;
+					return this.form_filter.sap_so_numbers.includes(sap_so_number);
+				};
+				const sap_do_number_filter = (sap_do_number) => {
+					if (this.form_filter.sap_do_numbers.length === 0) return true;
+					return this.form_filter.sap_do_numbers.includes(sap_do_number);
+				};
+
+				this.orders_rendered = this.orders.filter((order) => {
+					return (
+						from_date_filter(order.sap_so_created_date) &&
+						to_date_filter(order.sap_so_created_date) &&
+						status_filter(order.status.id) &&
+						customer_filter(order.customer.code) &&
+						warehouse_filter(order.warehouse.id) &&
+						sap_so_number_filter(order.sap_so_number) &&
+						sap_do_number_filter(order.sap_do_number)
+					);
+				});
+			},
+			clearFilter() {
+				this.orders_rendered = this.orders;
+				this.form_filter = {
+					start_date: '',
+					end_date: '',
+					status: [],
+					customers: [],
+					warehouses: [],
+					sap_so_number: [],
+					sap_do_number: [],
+				};
+			},
 		},
 		computed: {
 			rows() {
-				return this.orders.length;
+				return this.orders_rendered.length;
 			},
 		},
 	};
