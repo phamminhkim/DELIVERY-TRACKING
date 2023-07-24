@@ -494,11 +494,11 @@
 				this.creating_delivery_order_ids = this.selected_ids;
 				$('#DialogCreateDelivery').modal('show');
 				this.selected_ids = [];
+				this.is_select_all = false;
 			},
 			filterData() {
 				const from_date_filter = (date) => {
 					if (this.form_filter.start_date.length === 0) return true;
-					console.log(new Date(this.form_filter.start_date));
 					return new Date(date) >= new Date(this.form_filter.start_date);
 				};
 				const to_date_filter = (date) => {
