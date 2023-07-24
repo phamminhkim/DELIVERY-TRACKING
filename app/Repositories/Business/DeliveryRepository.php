@@ -102,18 +102,27 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
+            foreach ($delivery->orders as $order) {
+                $order->unsetRelation('pivot');
+            }
             if ($is_customer) {
                 $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');
                 if ($customer_phones) {
-                    $query = $delivery->orders()->whereIn('customer_id', $customer_phones);
-                    $delivery->orders = $query->get();
+                    $my_orders = $delivery->orders->whereIn('customer_id', $customer_phones);
+                    $my_orders->load('status', 'detail', 'receiver', 'driver_confirms', 'driver_confirms.images');
+                    $my_orders = $my_orders->map(function ($order) {
+                        return $order->toArray();
+                    })->values()->toArray();
                     if ($delivery->orders->count() == 0) {
                         $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
+                        return false;
                     }
-
-                    $delivery->load(['company', 'partner', 'timelines', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                    $delivery->load(['company', 'partner', 'timelines']);
+                    unset($delivery->orders);
+                    $delivery->orders = $my_orders;
                 } else {
                     $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
+                    return false;
                 }
             } else {
                 $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
@@ -129,9 +138,6 @@ class DeliveryRepository extends RepositoryAbs
                 $delivery['status'] = EnumsOrderStatus::Preparing;
             }
             $delivery['status'] = OrderStatus::find($delivery['status']);
-            foreach ($delivery->orders as $order) {
-                $order->unsetRelation('pivot');
-            }
             return $delivery;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

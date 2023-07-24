@@ -35,7 +35,7 @@ class DeliveryController extends ResponseController
     public function getDeliveryById(Request $request, $delivery_id)
     {
         $handler = BusinessRepository::deliveryRequest($request);
-        $response = $handler->getDeliveryById($delivery_id);
+        $response = $handler->getDeliveryById($delivery_id, false);
 
         if ($response) {
             return $this->responseSuccess($response);
