@@ -128,6 +128,8 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('customer')->group(function () {
+        Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getCustomerDeliveryByQrScan']);
+
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrdersByCustomer']);
             Route::get('/{order_id}', [OrderController::class, 'getOrderById']);
