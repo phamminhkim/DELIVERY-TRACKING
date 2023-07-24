@@ -45,7 +45,7 @@
 										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
 										>Từ ngày</label
 									>
-									<div class="col-sm-2">
+									<div class="col-sm-4">
 										<input
 											type="date"
 											v-model="form_filter.start_date"
@@ -57,7 +57,7 @@
 										for=""
 										>Đến ngày</label
 									>
-									<div class="col-sm-2">
+									<div class="col-sm-4">
 										<input
 											type="date"
 											v-model="form_filter.end_date"
@@ -71,7 +71,7 @@
 										for=""
 										>Trạng thái</label
 									>
-									<div class="col-sm-6 mt-1 mb-1">
+									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
 											placeholder="All"
 											:multiple="true"
@@ -87,13 +87,13 @@
 										for=""
 										>Khách hàng</label
 									>
-									<div class="col-sm-6 mt-1 mb-1">
+									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.customers"
-											:options="customers"
+											:options="customer_options"
 										/>
 									</div>
 								</div>
@@ -103,13 +103,13 @@
 										for=""
 										>Kho hàng</label
 									>
-									<div class="col-sm-6 mt-1 mb-1">
+									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.warehouses"
-											:options="warehouses"
+											:options="warehouse_options"
 										/>
 									</div>
 								</div>
@@ -119,13 +119,13 @@
 										for=""
 										>SO</label
 									>
-									<div class="col-sm-2">
+									<div class="col-sm-4">
 										<treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_so_number"
-											:options="orders"
+											:options="sap_so_number_options"
 										/>
 									</div>
 									<label
@@ -133,13 +133,13 @@
 										for=""
 										>DO</label
 									>
-									<div class="col-sm-2">
+									<div class="col-sm-4">
 										<treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_do_number"
-											:options="orders"
+											:options="sap_do_number_options"
 										/>
 									</div>
 								</div>
@@ -339,6 +339,10 @@
 					sap_so_number: [],
 					sap_do_number: [],
 				},
+				customer_options: [],
+				warehouse_options: [],
+				sap_so_number_options: [],
+				sap_do_number_options: [],
 				order_statuses: [
 					{ id: 10, label: 'Đang xử lí đơn hàng' },
 					{ id: 20, label: 'Đã duyệt & đang soạn hàng' },
@@ -346,8 +350,6 @@
 					{ id: 40, label: 'Đã giao một phần' },
 					{ id: 100, label: 'Đã giao xong' },
 				],
-				customers: [],
-				warehouses: [],
 
 				pagination: {
 					item_per_page: 10,
@@ -441,20 +443,34 @@
 					]);
 
 					this.orders = orders;
-					this.warehouses = this.orders.map((order) => {
-							return {
-								id: order.warehouse.id,
-								label: order.warehouse.name,
-							}
-						},
-					)
-                    this.customers = this.orders.map((order) => {
-							return {
-								id: order.customer.code,
-								label: order.customer.name,
-							}
-						},
-					)
+					let warehouses_set = {}; //use object like a set
+					let customers_set = {};
+					let sap_do_number_set = {};
+					let sap_so_number_set = {};
+
+					orders.forEach((order) => {
+						warehouses_set[order.warehouse.id] = {
+							id: order.warehouse.id,
+							label: order.warehouse.name,
+						};
+						customers_set[order.customer.code] = {
+							id: order.customer.code,
+							label: order.customer.name,
+						};
+						sap_do_number_set[order.sap_do_number] = {
+							id: order.sap_do_number,
+							label: order.sap_do_number,
+						};
+						sap_so_number_set[order.sap_so_number] = {
+							id: order.sap_so_number,
+							label: order.sap_so_number,
+						};
+					});
+
+					this.customer_options = Array.from(Object.values(customers_set));
+					this.warehouse_options = Array.from(Object.values(warehouses_set));
+					this.sap_do_number_options = Array.from(Object.values(sap_do_number_set));
+					this.sap_so_number_options = Array.from(Object.values(sap_so_number_set));
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
