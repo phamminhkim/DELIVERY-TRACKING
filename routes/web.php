@@ -94,10 +94,9 @@ Route::get('access-token', function () {
 });
 
 Route::post('/print-qr', function(Request $req){
-    $qr_code = $req->all()['qr_code'];
-    $qr_code = str_replace("\n", "", addcslashes($qr_code, '"'));
+    $qr_codes = $req->all()['qr_codes'];
 
-    return view('app.print_qr_code', compact('qr_code'));
+    return view('app.print_qr_code', compact('qr_codes'));
     
 });
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

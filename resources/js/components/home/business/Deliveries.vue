@@ -144,9 +144,10 @@
 </template>
 
 <script>
-	import ApiHandler from '../ApiHandler';
+	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogDeliveryInfo from './dialogs/DialogDeliveryInfo.vue';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
+	import APIHandler from '../ApiHandler';
 
 	export default {
 		components: {
@@ -264,45 +265,44 @@
 					this.is_loading = false;
 				}
 			},
-			printDeliveryQrCode() {
-				if (this.selected_ids.length === 0 || this.selected_ids.length > 1) {
+			async printDeliveryQrCode() {
+				if (this.selected_ids.length === 0) {
 					this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn 1 vận đơn để in');
 					return;
 				}
-				this.printQrCode(this.selected_ids[0]);
+				await this.printQrCode(this.selected_ids).finally(() => {
+					this.selected_ids = [];
+				});
 			},
-			async printQrCode(delivery_id) {
+			async printQrCode(delivery_ids) {
 				try {
 					this.is_loading = true;
-					let result = await this.api_handler.post(
-						'api/admin/deliveries/' + delivery_id + '/print-qr',
+					// let result = await this.api_handler.post(
+					// 	'api/admin/deliveries/' + delivery_id + '/print-qr',
+					// );
+
+					const qr_codes = await this.api_handler.handleMultipleRequest(
+						delivery_ids.map((id) => {
+							return new APIRequest('post', `api/admin/deliveries/${id}/print-qr`);
+						}),
 					);
-					if (result.success) {
-						this.openPrintDialog(result.data);
-					} else {
-						this.$showMessage('error', 'Lỗi', result.message);
-					}
+					this.openPrintDialog(qr_codes);
 				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error.message);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				} finally {
 					this.is_loading = false;
 				}
 			},
 
-			async openPrintDialog(image_data) {
+			async openPrintDialog(image_datas) {
 				const print_qr_view = await this.api_handler.post(
 					'/print-qr',
 					{},
-					{ qr_code: image_data },
+					{ qr_codes: image_datas },
 				);
-				console.log(image_data);
 				let print_window = window.open('', '_blank');
-				// print_window.document.write('<html><head><title>Print QR</title></head><body>');
-				// print_window.document.write(image_data);
-				// print_window.document.write('</body></html>');
 				print_window.document.write(print_qr_view);
 				print_window.document.close();
-				// print_window.postMessage('đây là message', '*');
 				print_window.print();
 			},
 			showInfoDialog(delivery) {
