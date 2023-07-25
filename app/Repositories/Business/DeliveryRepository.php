@@ -159,7 +159,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
 
-            $qr_code = \QrCode::size(50)->errorCorrection('H')->generate($token->token);
+            $qr_code = \QrCode::size(100)->errorCorrection('H')->generate($token->token);
             return strval($qr_code);
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
