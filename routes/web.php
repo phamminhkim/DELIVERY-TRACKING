@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Api\Business\ApplicationController;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -92,4 +93,11 @@ Route::get('access-token', function () {
     echo $access_token ?? "Không có token";
 });
 
+Route::post('/print-qr', function(Request $req){
+    $qr_code = $req->all()['qr_code'];
+    $qr_code = str_replace("\n", "", addcslashes($qr_code, '"'));
+
+    return view('app.print_qr_code', compact('qr_code'));
+    
+});
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

@@ -289,12 +289,20 @@
 				}
 			},
 
-			openPrintDialog(image_data) {
+			async openPrintDialog(image_data) {
+				const print_qr_view = await this.api_handler.post(
+					'/print-qr',
+					{},
+					{ qr_code: image_data },
+				);
+				console.log(image_data);
 				let print_window = window.open('', '_blank');
-				print_window.document.write('<html><head><title>Print QR</title></head><body>');
-				print_window.document.write(image_data);
-				print_window.document.write('</body></html>');
+				// print_window.document.write('<html><head><title>Print QR</title></head><body>');
+				// print_window.document.write(image_data);
+				// print_window.document.write('</body></html>');
+				print_window.document.write(print_qr_view);
 				print_window.document.close();
+				// print_window.postMessage('đây là message', '*');
 				print_window.print();
 			},
 			showInfoDialog(delivery) {

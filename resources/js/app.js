@@ -62,6 +62,7 @@ Vue.component(
     require("./components/AdminContainer.vue").default
 );
 
+
 // Vue.component(
 //     'sale-groups',
 //     require("./components/home/master/SaleGroups.vue").default
