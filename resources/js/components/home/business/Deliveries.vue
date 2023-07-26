@@ -156,7 +156,7 @@
 		},
 		data() {
 			return {
-				api_handler: new ApiHandler(window.Laravel.access_token),
+				api_handler: new APIHandler(window.Laravel.access_token),
 
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
@@ -295,14 +295,15 @@
 			},
 
 			async openPrintDialog(image_datas) {
-				const print_qr_view = await this.api_handler.post(
-					'/print-qr',
+				const print_url = await this.api_handler.post(
+					'/gen-qr-view',
 					{},
-					{ qr_codes: image_datas },
+					{
+						qr_codes: image_datas,
+					},
 				);
-				let print_window = window.open('', '_blank');
-				print_window.document.write(print_qr_view);
-				print_window.document.close();
+
+				let print_window = window.open(print_url, '_blank');
 				print_window.onload = function () {
 					print_window.focus();
 					print_window.print();

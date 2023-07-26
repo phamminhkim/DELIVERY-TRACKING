@@ -3,9 +3,11 @@
 
 use App\Http\Controllers\Api\Business\ApplicationController;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -93,10 +95,20 @@ Route::get('access-token', function () {
     echo $access_token ?? "Không có token";
 });
 
-Route::post('/print-qr', function(Request $req){
+Route::post('/gen-qr-view', function(Request $req){
     $qr_codes = $req->all()['qr_codes'];
-
-    return view('app.print_qr_code', compact('qr_codes'));
-    
+    $hashed_qr_codes = md5(serialize(asort($qr_codes)));
+    $html_content = view('app.print_qr_code', compact('qr_codes'))->render();
+    $directory = public_path('print_qr');
+    if (!File::exists($directory)) {
+        File::makeDirectory($directory, 0755, true);
+    }
+    $path = sprintf("%s/%s.html", $directory, $hashed_qr_codes);
+    if(File::exists($path)){
+        return asset(sprintf("print_qr/%s.html", $hashed_qr_codes));
+    }    
+    File::put($path, $html_content);
+    return asset(sprintf("print_qr/%s.html", $hashed_qr_codes));
 });
+
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

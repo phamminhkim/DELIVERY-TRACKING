@@ -7,6 +7,7 @@
 /public/css/app.css
 /public/[0-9]*.js
 /public/7.js
+/public/print_qr
 /public/css/app.css
 /public/mix-manifest.json
 /storage/*.key
