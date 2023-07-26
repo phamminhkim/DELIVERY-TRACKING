@@ -13,10 +13,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script>
-        const qr_codes = @json($qr_codes);
-        const parser = new DOMParser();
-    </script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.title', 'TL Delivery Tracking') }}</title>
+
     <style>
         * {
             padding: 0;
@@ -88,12 +88,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 
     <script>
-        console.log(qr_codes);
+        // const api_handler = new APIHandler(window.Laravel.access_token);
+        const qr_codes = @json($qr_codes);
+        const parser = new DOMParser();
         qr_codes.forEach((qr_code, index) => {
             let svgDoc = parser.parseFromString(qr_codes[index], "image/svg+xml");
             let svgElement = svgDoc.documentElement;
             let container = document.getElementById(`svg-container-${index}`);
-            console.log(container);
             container.appendChild(svgElement);
         });
     </script>

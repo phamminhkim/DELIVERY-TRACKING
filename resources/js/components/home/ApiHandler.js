@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import buildURL from "axios/lib/helpers/buildURL";
 
 class APIRequest {
     constructor(type = 'get', api_url = '/', queries = {}, body = {}) {
@@ -106,28 +106,31 @@ class APIHandler {
                     else if (req.type == 'post') {
                         return this.post(req.api_url, req.queries, req.body);
                     }
-                    else if(req.type == 'patch'){
+                    else if (req.type == 'patch') {
                         return this.patch(req.api_url, req.queries, req.body);
                     }
-                    else if(type== 'put'){
+                    else if (type == 'put') {
                         return this.put(req.api_url, req.queries, req.body);
                     }
-                    else if(type == 'delete'){
+                    else if (type == 'delete') {
                         return this.delete(eq.api_url, req.queries, req.body);
                     }
                 })
-            );        
+            );
             return responses.map(res => res.data);
-            
+
         }
         catch (err) {
             console.log(err);
         }
     }
+
+    createURL(api_url, queries = {}) {
+        return buildURL(api_url, queries);
+    }
 }
 
-
 export {
-    APIRequest
+    APIRequest,
 }
 export default APIHandler;
