@@ -303,7 +303,11 @@
 				let print_window = window.open('', '_blank');
 				print_window.document.write(print_qr_view);
 				print_window.document.close();
-				print_window.print();
+				print_window.onload = function () {
+					print_window.focus();
+					print_window.print();
+					print_window.close();
+				};
 			},
 			showInfoDialog(delivery) {
 				this.viewing_delivery_id = delivery.id;
