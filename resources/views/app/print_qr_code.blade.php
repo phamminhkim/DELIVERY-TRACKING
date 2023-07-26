@@ -47,25 +47,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
             bottom: 0.2cm;
         }
 
-        .so-number {
+        .do-number {
             position: absolute;
             top: 0.1cm;
-            right: 0.5cm;
+            right: 1cm;
         }
 
-        .so-number>p {
-            font-size: 0.4cm
+        .do-number>p {
+            font-size: 0.4cm;
+            font-family: monospace;
         }
 
-        .do-number {
+        .so-number {
             position: absolute;
             left: -0.5cm;
             top: 1.7cm;
             transform: rotate(-90deg);
         }
 
-        .do-number>p {
-            font-size: 0.4cm
+        .so-number>p {
+            font-size: 0.4cm;
+            font-family: monospace;
+
         }
     </style>
 </head>
@@ -75,16 +78,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
         @for ($i = 0; $i < count($qr_datas); $i++)
             <div class="card-container">
                 <div id="svg-container-{{ $i }}" class="svg-container">
-                    <div class="so-number">
-                        <p>Code:
-                            {{ !empty($qr_datas[$i]['delivery_code']) ? $qr_datas[$i]['delivery_code'] : 'Z000000ZZZ0ZZ' }}
-                        </p>
-                    </div>
                     <div class="do-number">
                         <p>DO:
                             {{ !empty($qr_datas[$i]['sap_do_number']) ? $qr_datas[$i]['sap_do_number'] : '0000000000' }}
                         </p>
                     </div>
+                    <div class="so-number">
+                        <p>
+                            {{ !empty($qr_datas[$i]['delivery_code']) ? $qr_datas[$i]['delivery_code'] : 'Z000000ZZZ0ZZ' }}
+                        </p>
+                    </div>
+
                 </div>
             </div>
         @endfor
