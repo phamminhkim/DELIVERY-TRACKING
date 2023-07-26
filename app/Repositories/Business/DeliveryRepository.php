@@ -16,6 +16,7 @@ use App\Models\Master\OrderStatus;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -161,6 +162,43 @@ class DeliveryRepository extends RepositoryAbs
 
             $qr_code = \QrCode::size(100)->errorCorrection('H')->generate($token->token);
             return strval($qr_code);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function printDeliveriesQrCodeByIds($delivery_ids)
+    {
+        try {
+            $query = Delivery::query();
+            $deliveies = $query->whereIn('id', $delivery_ids)->with(['orders'])->get();
+            $qr_datas = [];
+            foreach($deliveies as $delivery){
+                $token = $delivery->primary_token;
+                $qr_code = strval(\QrCode::size(100)->errorCorrection('H')->generate($token->token));
+                $delivery_code = $delivery->delivery_code;
+                foreach($delivery->orders as $order){
+                    $qr_datas[] = [
+                        'delivery_code' => $delivery_code,
+                        'sap_do_number' => $order->sap_do_number,
+                        'qr_code' => $qr_code
+                    ];
+                }
+            }
+            sort($delivery_ids);
+            $hashed_ids = md5(serialize($delivery_ids));
+            $html_content = view('app.print_qr_code', compact('qr_datas'))->render();
+            $directory = public_path('print_qr');
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+            $path = sprintf("%s/%s.html", $directory, $hashed_ids);
+            if(File::exists($path)){
+                return asset(sprintf("print_qr/%s.html", $hashed_ids));
+            }    
+            File::put($path, $html_content);
+            return asset(sprintf("print_qr/%s.html", $hashed_ids));
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

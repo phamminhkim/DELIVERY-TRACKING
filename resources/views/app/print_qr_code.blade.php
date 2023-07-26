@@ -50,7 +50,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         .so-number {
             position: absolute;
             top: 0.1cm;
-            right: 1cm;
+            right: 0.5cm;
         }
 
         .so-number>p {
@@ -59,7 +59,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
         .do-number {
             position: absolute;
-            left: -0.2cm;
+            left: -0.5cm;
             top: 1.7cm;
             transform: rotate(-90deg);
         }
@@ -72,14 +72,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <body>
     <div class="container">
-        @for ($i = 0; $i < count($qr_codes); $i++)
+        @for ($i = 0; $i < count($qr_datas); $i++)
             <div class="card-container">
                 <div id="svg-container-{{ $i }}" class="svg-container">
                     <div class="so-number">
-                        <p>SO: 3080313038</p>
+                        <p>Code:
+                            {{ !empty($qr_datas[$i]['delivery_code']) ? $qr_datas[$i]['delivery_code'] : 'Z000000ZZZ0ZZ' }}
+                        </p>
                     </div>
                     <div class="do-number">
-                        <p>DO: 3080313038</p>
+                        <p>DO:
+                            {{ !empty($qr_datas[$i]['sap_do_number']) ? $qr_datas[$i]['sap_do_number'] : '0000000000' }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -89,10 +93,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <script>
         // const api_handler = new APIHandler(window.Laravel.access_token);
-        const qr_codes = @json($qr_codes);
+        const qr_datas = @json($qr_datas);
         const parser = new DOMParser();
-        qr_codes.forEach((qr_code, index) => {
-            let svgDoc = parser.parseFromString(qr_codes[index], "image/svg+xml");
+        qr_datas.forEach((qr_data, index) => {
+            let svgDoc = parser.parseFromString(qr_data.qr_code, "image/svg+xml");
             let svgElement = svgDoc.documentElement;
             let container = document.getElementById(`svg-container-${index}`);
             container.appendChild(svgElement);

@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
+use App\Models\Business\Delivery;
 
 /*
 |--------------------------------------------------------------------------
@@ -141,6 +142,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/deliveries')->group(function () {
             Route::get('/', [DeliveryController::class, 'getDeliveries']);
             Route::get('/{id}', [DeliveryController::class, 'getDeliveryById']);
+            Route::post('/print-qrs', [DeliveryController::class, 'printDeliveriesQrCodeByIds']);
             Route::post('/{id}/print-qr', [DeliveryController::class, 'printDeliveryQrCodeById']);
             Route::post('/', [DeliveryController::class, 'createDelivery']);
             Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);

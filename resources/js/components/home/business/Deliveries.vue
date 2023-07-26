@@ -281,12 +281,23 @@
 					// 	'api/admin/deliveries/' + delivery_id + '/print-qr',
 					// );
 
-					const qr_codes = await this.api_handler.handleMultipleRequest(
-						delivery_ids.map((id) => {
-							return new APIRequest('post', `api/admin/deliveries/${id}/print-qr`);
-						}),
+					// const qr_codes = await this.api_handler.handleMultipleRequest(
+					// 	delivery_ids.map((id) => {
+					// 		return new APIRequest('post', `api/admin/deliveries/${id}/print-qr`);
+					// 	}),
+					// );
+					// this.openPrintDialog(qr_codes);
+					const { data } = await this.api_handler.post(
+						'api/admin/deliveries/print-qrs',
+						{},
+						{
+							delivery_ids: delivery_ids,
+						},
 					);
-					this.openPrintDialog(qr_codes);
+					const print_url = data;
+					let print_window = window.open(print_url, '_blank');
+
+					print_window.print();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				} finally {
