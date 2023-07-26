@@ -315,8 +315,11 @@
 				);
 
 				let print_window = window.open(print_url, '_blank');
-
-				print_window.print();
+				print_window.onload = function () {
+					print_window.focus();
+					print_window.print();
+					print_window.close();
+				};
 			},
 			showInfoDialog(delivery) {
 				this.viewing_delivery_id = delivery.id;
