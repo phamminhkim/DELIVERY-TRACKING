@@ -176,7 +176,7 @@ class DeliveryRepository extends RepositoryAbs
             $qr_datas = [];
             foreach($deliveies as $delivery){
                 $token = $delivery->primary_token;
-                $qr_code = strval(\QrCode::size(100)->errorCorrection('H')->generate($token->token));
+                $qr_code = strval(\QrCode::size(100)->errorCorrection('H')->generate(sprintf('%s/scan-qr/%s', config('app.url'), $token->token)));
                 $delivery_code = $delivery->delivery_code;
                 foreach($delivery->orders as $order){
                     $qr_datas[] = [
