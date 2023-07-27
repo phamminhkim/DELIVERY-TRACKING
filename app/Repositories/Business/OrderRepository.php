@@ -14,6 +14,7 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class OrderRepository extends RepositoryAbs
 {
@@ -282,7 +283,7 @@ class OrderRepository extends RepositoryAbs
                 $this->storeReviewImages($review, $this->data['images'] ?? []);
                 DB::commit();
 
-                return $order;
+                return true;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -313,7 +314,7 @@ class OrderRepository extends RepositoryAbs
             $image->height = $height;
             $image->size = $size;
 
-            $random_string = str_random(10);
+            $random_string = Str::random(10);
             $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 

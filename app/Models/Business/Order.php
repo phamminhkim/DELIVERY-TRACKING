@@ -66,7 +66,7 @@ class Order extends Model
 
     public function deliveries()
     {
-        return $this->belongsToMany(Delivery::class, 'order_deliveries');
+         return $this->belongsToMany(Delivery::class, 'order_deliveries');
     }
 
     public function driver_confirms()

@@ -26,7 +26,7 @@ class OrderCustomerReview extends Model
     }
     public function criteria()
     {
-        return $this->belongsToMany(CustomerReviewCriteria::class, 'order_customer_review_criteria', 'review_id', 'criteria_id');
+        return $this->belongsToMany(OrderCustomerReviewCriteria::class, 'order_customer_review_criterias', 'review_id', 'criteria_id');
     }
     public function images()
     {
