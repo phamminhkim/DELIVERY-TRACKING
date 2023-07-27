@@ -105,8 +105,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
             container.appendChild(svgElement);
         });
 
-        window.onload = function() {
-            window.print();
+        window.self.onload = function() {
+            window.self.print();
         };
     </script>
 </body>

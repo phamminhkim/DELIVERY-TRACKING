@@ -339,7 +339,7 @@ export default {
             }
         },
         printQrCode() {
-            this.$emit("printQrCode", this.delivery_id);
+            this.$emit("printQrCode", [this.delivery_id]);
         },
     },
 };
