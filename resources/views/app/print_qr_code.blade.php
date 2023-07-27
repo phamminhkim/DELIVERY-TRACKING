@@ -96,7 +96,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 
     <script>
-        // const api_handler = new APIHandler(window.Laravel.access_token);
         const qr_datas = @json($qr_datas);
         const parser = new DOMParser();
         qr_datas.forEach((qr_data, index) => {
@@ -105,6 +104,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
             let container = document.getElementById(`svg-container-${index}`);
             container.appendChild(svgElement);
         });
+
+        window.onload = function() {
+            window.print();
+        };
     </script>
 </body>
 

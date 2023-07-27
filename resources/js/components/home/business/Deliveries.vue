@@ -277,16 +277,6 @@
 			async printQrCode(delivery_ids) {
 				try {
 					this.is_loading = true;
-					// let result = await this.api_handler.post(
-					// 	'api/admin/deliveries/' + delivery_id + '/print-qr',
-					// );
-
-					// const qr_codes = await this.api_handler.handleMultipleRequest(
-					// 	delivery_ids.map((id) => {
-					// 		return new APIRequest('post', `api/admin/deliveries/${id}/print-qr`);
-					// 	}),
-					// );
-					// this.openPrintDialog(qr_codes);
 					const { data } = await this.api_handler.post(
 						'api/admin/deliveries/print-qrs',
 						{},
@@ -295,9 +285,7 @@
 						},
 					);
 					const print_url = data;
-					let print_window = window.open(print_url, '_blank');
-
-					print_window.print();
+					this.openPrintDialog(print_url);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				} finally {
@@ -305,21 +293,8 @@
 				}
 			},
 
-			async openPrintDialog(image_datas) {
-				const print_url = await this.api_handler.post(
-					'/gen-qr-view',
-					{},
-					{
-						qr_codes: image_datas,
-					},
-				);
-
-				let print_window = window.open(print_url, '_blank');
-				print_window.onload = function () {
-					print_window.focus();
-					print_window.print();
-					print_window.close();
-				};
+			openPrintDialog(print_url) {
+				window.open(print_url, '_blank');
 			},
 			showInfoDialog(delivery) {
 				this.viewing_delivery_id = delivery.id;
