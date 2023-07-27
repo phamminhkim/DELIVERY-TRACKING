@@ -70,7 +70,7 @@ class DeliveryController extends ResponseController
     public function printDeliveriesQrCodeByIds(Request $request)
     {
         $handler = BusinessRepository::deliveryRequest($request);
-        $response = $handler->printDeliveriesQrCodeByIds($request->all()['delivery_ids']);
+        $response = $handler->printDeliveriesQrCodeByIds();
 
         if ($response) {
             return $this->responseSuccess($response);

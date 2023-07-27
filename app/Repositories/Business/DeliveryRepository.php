@@ -168,9 +168,10 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function printDeliveriesQrCodeByIds($delivery_ids)
+    public function printDeliveriesQrCodeByIds()
     {
         try {
+            $delivery_ids = $this->data['delivery_ids'];
             $query = Delivery::query();
             $deliveies = $query->whereIn('id', $delivery_ids)->with(['orders'])->get();
             $qr_datas = [];
