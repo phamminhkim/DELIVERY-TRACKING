@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
- 
+use App\Models\Master\Employee;
 use App\Models\SocialAccount;
 use App\User;
 use Laravel\Socialite\Contracts\Provider;
@@ -79,6 +79,42 @@ class SocialAccountService
             $account->user()->associate($user);
             $account->save();
 
+            return $user;
+        }
+    }
+
+    public function createOrGetUserFromOnetl($data)
+    {
+       
+        $avatar =  $data['avatar'] ?? ''; 
+        $name = $data['name']; 
+        $username = $data['username']; 
+        $phone_number = $data['phone_number'] ?? ''; 
+        $email = $data['email'] ?? ''; 
+        $company_id = $data['company_id'] ?? ''; 
+        
+        $user = User::where('username',$username )->first();
+        
+        if ($user) {
+            return $user;
+        } else {
+
+            $user = User::create([
+                'name' => $name,
+                'avatar' => $avatar,
+                'email' => $email,
+                'username' => $username,
+                'phone_number' => $phone_number
+            ]);
+
+            $employee = new Employee([
+                'user_id' =>  $user->id,
+                'company_code' => $company_id,
+                'code' => $username,
+                'name' => $name,
+                'email' => $email,
+                'phone_number' => $phone_number,
+            ]);
             return $user;
         }
     }

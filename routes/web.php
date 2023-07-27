@@ -72,6 +72,8 @@ Route::get('login/{social}/callback', [
 Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
 Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
 
+Route::get('/auth/onetl', 'Auth\SocialAuthController@redirectToOnetlUrl');
+Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallback');
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);

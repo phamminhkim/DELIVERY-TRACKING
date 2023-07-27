@@ -252,14 +252,18 @@
                 </form>
                 <div class="social-auth-links text-center">
                     <p>- HOẶC -</p>
-                    <a href=" {{ url('login/facebook') }}" class="btn btn-block"
+                    {{-- <a href=" {{ url('login/facebook') }}" class="btn btn-block"
                         style="background-color: #3b5998; font-weight: 600; color: #fff">
                         Đăng nhập bằng Facebook
                     </a>
                     <a href=" {{ url('login/google') }}" class="btn btn-block"
                         style="background-color: #E54040; font-weight: 600; color: #fff">
                         Đăng nhập bằng Google
-                    </a>
+                    </a> --}}
+                    <a href=" {{ url('/auth/onetl') }}" class="btn btn-block"
+                    style="background-color: #3b5998; font-weight: 600; color: #fff">
+                    Đăng nhập OneThienLong
+                </a>
                 </div>
                 <a href="{{ route('login') }}" class="text-center">I already have a membership</a>
             </div>

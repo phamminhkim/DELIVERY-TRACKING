@@ -72,4 +72,32 @@ class SocialAuthController extends Controller
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
+    public function redirectToOnetlUrl(Request $request)
+    {
+        $handler = SystemRepository::oneTLRequest($request);
+        $authorize_url = $handler->UserAuthorizeUrl();
+
+        if ($authorize_url) {
+            return redirect($authorize_url);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function handleOnetlCallback(Request $request)  
+    {
+        $handler = SystemRepository::oneTLRequest($request);
+        $is_success = $handler->UserCallback();
+
+        if ($is_success) {
+            return redirect()->to('/');
+            return redirect()->intended('/');
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+
+    
 }
