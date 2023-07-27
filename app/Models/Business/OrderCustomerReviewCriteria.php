@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderCustomerReviewCriteria extends Model
 {
+    protected $table = 'order_customer_review_criterias';
     protected $hidden = [
         'review_id',
         'criteria_id',
