@@ -268,8 +268,8 @@ class OrderRepository extends RepositoryAbs
                     $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể đánh giá.';
                     return false;
                 }
-                $customer_phone = CustomerPhone::where('phone_number', $this->current_user->phone_number)->first();
-                if (!$customer_phone || $order->customer_id != $customer_phone->customer_id) {
+                $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
+                if (!$customer_ids || !in_array($order->customer_id, $customer_ids)) {
                     $this->message = 'Bạn không có quyền đánh giá đơn hàng này.';
                     return false;
                 }
