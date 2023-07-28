@@ -110,24 +110,38 @@
 									/>
 								</div>
 							</div>
-							<div class="col-6">
+							<div
+								class="col-6"
+								style="display: flex; flex-direction: column; gap: 1rem"
+							>
 								<label class="mb-3"> Đánh giá </label>
-								<b-card
+								<div
+									class="card-rate"
 									v-for="(review, index) in order.customer_reviews"
 									:key="index"
 									header-tag="header"
 								>
-									<template #header>
-										<div
-											v-for="(criteria, idx) in review.criterias"
-											:key="`${index}_${idx}`"
-											class="criteria"
-										>
-											{{ criteria.name }}
+									<div class="time">
+										<i class="far fa-clock"></i> 2023-04-7 15:30:00
+									</div>
+									<div class="line"></div>
+									<div class="container-rate">
+										<div class="box-rate">
+											<div class="rate">
+												<div
+													v-for="(criteria, idx) in review.criterias"
+													:key="`${index}_${idx}`"
+													class="criteria"
+												>
+													{{ criteria.name }}
+												</div>
+											</div>
+											<div class="review-content">
+												{{ review.review_content }}
+											</div>
 										</div>
-									</template>
-									<b-card-text>{{ review.review_content }}</b-card-text>
-								</b-card>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -198,14 +212,66 @@
 </script>
 
 <style>
+	.container-rate {
+		width: 100%;
+		padding: 1.5rem;
+	}
+
+	.card-rate {
+		border-radius: 0.5rem;
+		width: 100%;
+		display: flex;
+		gap: 1px;
+		flex-direction: column;
+		padding: 1rem 0rem;
+		box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+	}
+
+	.box-rate {
+		display: flex;
+		width: 100%;
+		gap: 1px;
+		margin-bottom: 1rem;
+	}
+
+	.review-content {
+		width: 69%;
+		box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+		padding: 0 0.5rem;
+		border-radius: 0.5rem;
+		height: fit-content;
+		min-height: 5rem;
+	}
+
+	.rate {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		flex-direction: column;
+		width: 30%;
+	}
+	.line {
+		border: 1px solid black;
+		opacity: 0.1;
+	}
+
 	.criteria {
+		padding: 0.3rem;
 		background-color: rgb(23, 162, 184);
 		color: white;
-		padding: 3px 10px 3px 10px;
 		border-radius: 10px !important;
 		margin-right: 10px !important;
 		display: inline-block;
 		font-size: 12px;
 		font-weight: 700;
+		text-align: center;
+	}
+	.time {
+		color: #999;
+		display: flex;
+		justify-content: flex-end;
+		font-size: 12px;
+		margin-right: 0.5rem;
+		align-items: center;
 	}
 </style>
