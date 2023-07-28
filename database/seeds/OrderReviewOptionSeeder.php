@@ -3,7 +3,7 @@
 use App\Models\Master\OrderReviewOption;
 use Illuminate\Database\Seeder;
 
-class CustomerReviewOption extends Seeder
+class OrderReviewOptionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
