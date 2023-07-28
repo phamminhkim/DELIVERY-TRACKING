@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Master\Employee;
 use App\Models\SocialAccount;
 use App\User;
+use Exception;
 use Laravel\Socialite\Contracts\Provider;
 class SocialAccountService
 {
@@ -85,7 +86,7 @@ class SocialAccountService
 
     public function createOrGetUserFromOnetl($data)
     {
-       
+       try {
         $avatar =  $data['avatar'] ?? ''; 
         $name = $data['name']; 
         $username = $data['username']; 
@@ -98,7 +99,12 @@ class SocialAccountService
         if ($user) {
             return $user;
         } else {
-
+            //validate trùng email
+            $user = User::where('email',$email )->first(); 
+            if($user){
+                throw new Exception ('Không thể tạo tài khoản. Email đã tồn tại trên hệ thống');
+            }
+           
             $user = User::create([
                 'name' => $name,
                 'avatar' => $avatar,
@@ -107,7 +113,7 @@ class SocialAccountService
                 'phone_number' => $phone_number
             ]);
 
-            $employee = new Employee([
+            Employee::create([
                 'user_id' =>  $user->id,
                 'company_code' => $company_id,
                 'code' => $username,
@@ -117,6 +123,12 @@ class SocialAccountService
             ]);
             return $user;
         }
+        
+       } catch (\Throwable $th) {
+           
+           throw $th;
+       }
+        
     }
     
 }

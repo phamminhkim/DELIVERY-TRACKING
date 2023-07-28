@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\BaseController\ResponseController;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use App\Services\SocialAccountService;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
-class SocialAuthController extends Controller
+class SocialAuthController extends ResponseController
 {
     public function redirectToProvider($provider)
     {
@@ -85,19 +86,15 @@ class SocialAuthController extends Controller
         }
     }
 
-    public function handleOnetlCallback(Request $request)  
+    public function handleOnetlCallback(Request $request)
     {
         $handler = SystemRepository::oneTLRequest($request);
         $is_success = $handler->UserCallback();
 
         if ($is_success) {
-            return redirect()->to('/');
             return redirect()->intended('/');
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return  view('errors.login')->with('message', $handler->getMessage());
         }
     }
-
-
-    
 }

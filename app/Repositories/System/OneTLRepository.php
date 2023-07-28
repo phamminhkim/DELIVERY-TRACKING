@@ -6,6 +6,7 @@ use App\Models\System\ServiceToken;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\SocialAccountService;
 use App\User;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -46,36 +47,46 @@ class OneTLRepository extends RepositoryAbs
 
     public function UserCallback()
     {
+        try {
+            $http = new \GuzzleHttp\Client;
+            $body = '';
+            if ($this->request->code) {
+                $response = $http->post($this->url . '/oauth/token', [
+                    'form_params' => [
+                        'grant_type' => 'authorization_code',
+                        'client_id' => $this->client_id,
+                        'client_secret' => $this->client_secret,
+                        'redirect_uri' =>  $this->redirect,
+                        'code' => $this->request->code
+                    ],
+                ]);
 
-        $http = new \GuzzleHttp\Client;
-        $body = '';
-        //dd($request->code);
-        if ($this->request->code) {
-            //$response = $http->post('http://onethienlong.local:80/oauth/token', [
-            $response = $http->post($this->url . '/oauth/token', [
-                'form_params' => [
-                    'grant_type' => 'authorization_code',
-                    'client_id' => $this->client_id,
-                    'client_secret' => $this->client_secret,
-                    'redirect_uri' =>  $this->redirect,
-                    'code' => $this->request->code
-                ],
-            ]);
-
-            $body = json_decode((string) $response->getBody(), true);
-            $response = $http->get($this->url . '/api/user/myinfo', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $body['access_token'],
-                ],
-            ]);
-            $res = json_decode((string) $response->getBody(), true);
-            $data = $res['data'];
-            //dd($data['avatar']);
-            $data['avatar'] = $this->url .  $data['avatar'];
-            $service = new SocialAccountService;
-            $user = $service->createOrGetUserFromOnetl($data);
-            Auth::login($user);
-            return true;
+                $body = json_decode((string) $response->getBody(), true);
+                $response = $http->get($this->url . '/api/user/myinfo', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $body['access_token'],
+                    ],
+                ]);
+                $res = json_decode((string) $response->getBody(), true);
+                $data = $res['data'];
+                $avatar =  $data['avatar'];
+                if($avatar[0] != '/'){
+                    $avatar = '/'.$avatar;
+                }
+                $data['avatar'] = $this->url . $avatar;
+                $service = new SocialAccountService;
+                $user = $service->createOrGetUserFromOnetl($data);
+                Auth::login($user);
+                return true;
+            }
+        }
+        catch(ClientException $th){
+            return false;
+        } 
+        catch (\Throwable $th) {
+           $this->message = $th->getMessage();
+           return false;
+           
         }
        
     }
