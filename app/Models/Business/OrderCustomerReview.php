@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\Image;
+use App\Models\Master\OrderReviewOption;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderCustomerReview extends Model
@@ -24,9 +25,11 @@ class OrderCustomerReview extends Model
     {
         return $this->belongsTo(Customer::class);
     }
-    public function criteria()
+    public function criterias()
     {
-        return $this->belongsToMany(OrderCustomerReviewCriteria::class, 'order_customer_review_criterias', 'review_id', 'criteria_id');
+         return $this->belongsToMany(OrderReviewOption::class, 'order_customer_review_criterias', 'review_id', 'criteria_id')
+                    ->withPivot('id')
+                    ->as('pivot');
     }
     public function images()
     {
