@@ -121,7 +121,7 @@ class SocialAccountService
                 'name' => $name,
                 'email' => $email,
                 'phone_number' => $phone_number,
-                '$address' => $address,
+                'address' => $address,
             ]);
             return $user;
         }
