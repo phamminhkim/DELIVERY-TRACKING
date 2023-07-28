@@ -93,6 +93,7 @@ class SocialAccountService
         $phone_number = $data['phone_number'] ?? ''; 
         $email = $data['email'] ?? ''; 
         $company_id = $data['company_id'] ?? ''; 
+        $address = $data['address'] ?? ''; 
         
         $user = User::where('username',$username )->first();
         
@@ -120,6 +121,7 @@ class SocialAccountService
                 'name' => $name,
                 'email' => $email,
                 'phone_number' => $phone_number,
+                '$address' => $address,
             ]);
             return $user;
         }
