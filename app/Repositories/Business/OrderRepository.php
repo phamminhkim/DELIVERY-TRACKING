@@ -174,7 +174,7 @@ class OrderRepository extends RepositoryAbs
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews'])->get();
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criteria', 'customer_reviews.images'])->get();
             }
 
             return $orders;
