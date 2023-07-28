@@ -115,7 +115,17 @@
 								<b-card
 									v-for="(review, index) in order.customer_reviews"
 									:key="index"
+									header-tag="header"
 								>
+									<template #header>
+										<div
+											v-for="(criteria, idx) in review.criterias"
+											:key="`${index}_${idx}`"
+											class="criteria"
+										>
+											{{ criteria.name }}
+										</div>
+									</template>
 									<b-card-text>{{ review.review_content }}</b-card-text>
 								</b-card>
 							</div>
@@ -186,3 +196,16 @@
 		},
 	};
 </script>
+
+<style>
+	.criteria {
+		background-color: rgb(23, 162, 184);
+		color: white;
+		padding: 3px 10px 3px 10px;
+		border-radius: 10px !important;
+		margin-right: 10px !important;
+		display: inline-block;
+		font-size: 12px;
+		font-weight: 700;
+	}
+</style>
