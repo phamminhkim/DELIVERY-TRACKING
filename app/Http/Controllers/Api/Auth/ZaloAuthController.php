@@ -122,13 +122,16 @@ class ZaloAuthController extends ResponseController
                 Auth::login($user);
                 $user_login = Auth::user();
                 $access_token = $user_login->createToken('authToken')->accessToken;
+                $res['phone_number'] = $user->phone_number;
                 $res['access_token'] = $access_token;
+              
                 if ($user) {
-                    if ($user->active == 1) {
-                        return $this->responseSuccess($res, 'Logged in successfully');
-                    } else {
-                        return $this->responseError('User is not active');
-                    }
+                    return $this->responseSuccess($res, 'Logged in successfully');
+                    // if ($user->active == 1) {
+                    //     return $this->responseSuccess($res, 'Logged in successfully');
+                    // } else {
+                    //     return $this->responseError('User is not active');
+                    // }
                 } else {
                     return $this->responseError('Login failed');
                 }
