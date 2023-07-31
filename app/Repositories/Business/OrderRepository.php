@@ -279,7 +279,7 @@ class OrderRepository extends RepositoryAbs
                 $review = $order->customer_reviews()->create([
                     'review_content' => $this->data['note'] ?? '',
                 ]);
-                $review->criteria()->sync($this->data['reviews']);
+                $review->criterias()->sync($this->data['reviews']);
                 $this->storeReviewImages($review, $this->data['images'] ?? []);
                 DB::commit();
 
