@@ -285,10 +285,12 @@
 						};
 					});
 					orders.forEach((order) => {
-						this.addPropertyToObject(this.order_options, order.id, {
-							id: order.id,
-							label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
-						});
+						if (order.sap_so_number && order.sap_do_number) {
+							this.addPropertyToObject(this.order_options, order.id, {
+								id: order.id,
+								label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
+							});
+						}
 					});
 				} catch (error) {
 					console.log(error);
