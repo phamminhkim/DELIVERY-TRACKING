@@ -167,3 +167,6 @@ Route::prefix('auth')->group(function () {
         Route::post('/update-phone-number', [ZaloAuthController::class, 'updatePhoneNumber']);
     });
 });
+Route::prefix('webhook')->group(function () {
+    Route::post('zalo/process', [ZaloAuthController::class, 'processWebHook']);
+});

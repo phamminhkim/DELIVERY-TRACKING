@@ -295,6 +295,7 @@
 				</div>
 				<!-- end phân trang -->
 
+				<DialogOrderInfo :order="viewing_order" />
 				<!-- tạo form -->
 				<DialogCreateDelivery :order_ids="creating_delivery_order_ids" />
 				<!-- end tạo form -->
@@ -309,11 +310,13 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
+	import DialogOrderInfo from './dialogs/DialogOrderInfo.vue';
 
 	export default {
 		components: {
 			Treeselect,
 			DialogCreateDelivery,
+			DialogOrderInfo,
 		},
 		data() {
 			return {
@@ -416,6 +419,8 @@
 
 				orders: [],
 				orders_rendered: [],
+
+				viewing_order: {},
 				api_url_orders: '/api/admin/orders',
 			};
 		},
@@ -549,6 +554,11 @@
 					sap_so_number: [],
 					sap_do_number: [],
 				};
+			},
+
+			showInfoDialog(order) {
+				this.viewing_order = order;
+				$('#DialogOrderInfo').modal('show');
 			},
 		},
 		computed: {
