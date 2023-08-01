@@ -16,6 +16,5 @@ class DatabaseSeeder extends Seeder
         $this->call(OrderReviewOptionSeeder::class);
         $this->call(MenuRouterSeeder::class);
         $this->call(RouterSeeder::class);
-        $this->call(UserSeeder::class);
     }
 }
