@@ -19,7 +19,7 @@ class ZaloAuthController extends ResponseController
     public function __construct()
     {
 
-        $this->middleware('auth:api')->except(['checkExistUser', 'verifyUserPhone', 'login']);
+        $this->middleware('auth:api')->except(['checkExistUser', 'verifyUserPhone', 'login','processWebHook']);
     }
     /**
      * Kiểm tra tài khoản user zalo đã được đăng ký chưa.
@@ -157,5 +157,27 @@ class ZaloAuthController extends ResponseController
             $user->save();
             return $this->responseSuccess('Updated in successfully');
         }
+    }
+    /**
+     * Webhook
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function processWebHook(Request $request)
+    {
+        $data = [
+            "app_id" => $request->app_id,
+            "user_id_by_app"  => $request->user_id_by_app,
+            "event_name"  => $request->event_name,
+            "timestamp"  => $request->timestamp,
+            "sender"  =>  $request->sender,
+            "recipient"  => $request->recipient,
+            "message" => $request->message
+        ] ;
+        Log::info("webhook:".  $data);
+         
+        return $this->responseOk();
+        
     }
 }
