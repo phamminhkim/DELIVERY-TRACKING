@@ -172,6 +172,7 @@ class DeliveryRepository extends RepositoryAbs
     {
         try {
             $delivery_ids = $this->data['delivery_ids'];
+            $print_config = $this->data['print_config'];
             $query = Delivery::query();
             $deliveies = $query->whereIn('id', $delivery_ids)->with(['orders'])->get();
             $qr_datas = [];
@@ -190,8 +191,8 @@ class DeliveryRepository extends RepositoryAbs
                 }
             }
             sort($delivery_ids);
-            $hashed_ids = md5(serialize($delivery_ids));
-            $html_content = view('app.print_qr_code', compact('qr_datas'))->render();
+            $hashed_ids = md5(serialize([serialize($delivery_ids), serialize($print_config)]));
+            $html_content = view('app.print_qr_code', compact('qr_datas', 'print_config'))->render();
             $directory = public_path('print_qr');
             if (!File::exists($directory)) {
                 File::makeDirectory($directory, 0755, true);
