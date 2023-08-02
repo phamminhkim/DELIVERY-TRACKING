@@ -44,8 +44,9 @@ class LoginController extends Controller
     
     protected function credentials(Request $request)
     {
-       
+      
         $this->dbUser = User::where('email', $request->email)->first();
+       
         if ($this->dbUser) {
             $credentails['email'] = $request->email;
             $credentails['password'] = $request->password;
@@ -55,7 +56,7 @@ class LoginController extends Controller
             $credentails['password'] = $request->password;
             // $credentails =  $request->only($this->login_field, 'password');
             $this->login_field = 'username';
-}
+}           
         if ($this->dbUser) {
             return $credentails; // $request->only($this->username(), 'password');
         } else {
@@ -77,16 +78,16 @@ class LoginController extends Controller
      * @param  mixed  $user
      * @return mixed
      */
-    protected function authenticated(Request $request, $user)
-    {   
-      
-        if (!$user->email_verified_at != null) {
+    // protected function authenticated(Request $request, $user)
+    // {   
+        
+    //     if (!$user->email_verified_at != null) {
            
-            auth()->logout();
-            return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');
-        }
-        return redirect()->intended($this->redirectPath());
-    }
+    //         auth()->logout();
+    //         return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');
+    //     }
+    //     return redirect()->intended($this->redirectPath());
+    // }
     public function username()
     {
         return $this->login_field;
