@@ -27,7 +27,7 @@ use Wilkques\PKCE\Generator;
 */
 
 //
-Auth::routes(['verify' => true]);
+// Auth::routes(['verify' => true]);
 
 
 Auth::routes();
