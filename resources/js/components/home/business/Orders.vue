@@ -431,7 +431,7 @@
 			'$route.query': {
 				immediate: true,
 				handler(new_query, old_query) {
-					if (new_query !== old_query) {
+					if (new_query !== old_query && Object.keys(new_query).length > 0) {
 						this.fetchData(new_query);
 					}
 				},

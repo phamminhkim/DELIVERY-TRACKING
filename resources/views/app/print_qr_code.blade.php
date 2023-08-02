@@ -24,15 +24,15 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
 
         .container {
-            margin-left: 0.2cm;
-            padding-top: 0.15cm;
+            margin-left: 0cm;
+            padding-top: 0cm;
         }
 
         .card-container {
-            width: 5.2cm;
-            height: 3.5cm;
-            margin-bottom: 0.35cm;
-            border: 1px solid #000;
+            width: 5.0cm;
+            height: 3.0cm;
+            /* border: 1px solid #000; */
+            box-sizing: border-box;
         }
 
         .svg-container {
@@ -54,19 +54,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
 
         .do-number>p {
-            font-size: 0.4cm;
+            font-size: 0.39cm;
             font-family: monospace;
         }
 
         .so-number {
             position: absolute;
-            left: -0.5cm;
-            top: 1.7cm;
+            left: -0.7cm;
+            top: 1.3cm;
             transform: rotate(-90deg);
         }
 
         .so-number>p {
-            font-size: 0.4cm;
+            font-size: 0.39cm;
             font-family: monospace;
 
         }
