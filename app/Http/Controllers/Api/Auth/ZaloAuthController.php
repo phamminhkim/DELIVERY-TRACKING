@@ -175,8 +175,8 @@ class ZaloAuthController extends ResponseController
             "recipient"  => $request->recipient,
             "message" => $request->message
         ] ;
-        Log::info("webhook:".  $data);
-         
+        //Log::info("webhook:".  $data);
+        //Hàm này xử lý dữ liệu không quá 2 giây. Nếu quá 2 giây Zalo sẽ báo webhook này không hoạt động.
         return $this->responseOk();
         
     }

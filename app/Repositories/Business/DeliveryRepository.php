@@ -14,6 +14,7 @@ use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\QrCodeUtility;
 use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -160,7 +161,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
 
-            $qr_code = \QrCode::size(80)->errorCorrection('H')->generate($token->token);
+            $qr_code = QrCodeUtility::generateImage($token->token);
             return strval($qr_code);
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -179,7 +180,7 @@ class DeliveryRepository extends RepositoryAbs
             foreach($deliveies as $delivery){
                 $token = $delivery->primary_token;
                 $converting_url = sprintf('%s/scan-qr/%s', config('app.url'), $token->token);
-                $qr_code = \QrCode::size(80)->errorCorrection('H')->generate($converting_url);
+                $qr_code = QrCodeUtility::generateImage($converting_url);
                 $qr_code_xml = strval($qr_code);
                 $delivery_code = $delivery->delivery_code;
                 foreach($delivery->orders as $order){
@@ -487,7 +488,7 @@ class DeliveryRepository extends RepositoryAbs
                     'description' => 'Tạo & in đơn vận chuyển.',
                 ]);
 
-                $qr_code = \QrCode::size(200)->errorCorrection('H')->generate($generated_token->token);
+                $qr_code = QrCodeUtility::generateImage($generated_token->token);
                 DB::commit();
 
                 $result = array(
