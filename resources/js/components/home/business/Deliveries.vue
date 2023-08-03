@@ -163,6 +163,24 @@
 
 				is_select_all: false,
 				selected_ids: [],
+				print_config: {
+					dimension: {
+						width: '5cm',
+						height: '3cm',
+					},
+					DO: {
+						left: '1.243541666666651cm',
+						top: '0cm',
+					},
+					SO: {
+						left: '-0.79374999999999cm',
+						top: '1.164166666666652cm',
+					},
+					qr_code: {
+						left: '1.534583333333314cm',
+						top: '0.661458333333325cm',
+					},
+				},
 
 				is_editing: false,
 				is_loading: false,
@@ -282,6 +300,7 @@
 						{},
 						{
 							delivery_ids: delivery_ids,
+							print_config: this.print_config,
 						},
 					);
 					const print_url = data;

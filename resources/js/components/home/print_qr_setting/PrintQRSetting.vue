@@ -33,7 +33,6 @@
 						/>
 					</div>
 				</div>
-
 				<div class="form-group row">
 					<label class="col-form-label-sm col-sm-2 col-form-label text-left">DO:</label>
 					<label class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
@@ -59,7 +58,6 @@
 						/>
 					</div>
 				</div>
-
 				<div class="form-group row">
 					<label class="col-form-label-sm col-sm-2 col-form-label text-left">SO:</label>
 					<label class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
@@ -117,20 +115,16 @@
 			<div class="card-body">
 				<div class="visualize-container">
 					<div
-						class="card-container"
+						class="barcode-container"
 						:style="`width: ${print_config.dimension.width}; height: ${print_config.dimension.height}`"
 					>
-						<DraggableDiv class="do-number" v-model="print_config.DO" div_id="DO">
-							<p>DO:0000000000</p>
-						</DraggableDiv>
-						<DraggableDiv
-							class="so-number"
-							v-model="print_config.SO"
-							div_id="so-number"
-						>
+						<DraggableDiv class="so-number" v-model="print_config.SO">
 							<p>Z000000ZZZ0ZZ</p>
 						</DraggableDiv>
-						<DraggableDiv v-model="print_config.qr_code" div_id="QR">
+						<DraggableDiv class="do-number" v-model="print_config.DO">
+							<p>DO:0000000000</p>
+						</DraggableDiv>
+						<DraggableDiv v-model="print_config.qr_code">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								version="1.1"
@@ -190,6 +184,12 @@
 </script>
 
 <style>
+	* {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+	}
 	.visualize-container {
 		min-height: 300px;
 		display: flex;
@@ -197,9 +197,10 @@
 		align-items: center;
 	}
 
-	.card-container {
+	.barcode-container {
 		box-sizing: border-box;
 		border: 1px solid black;
+		position: relative;
 	}
 
 	.do-number {
@@ -223,5 +224,8 @@
 		font-size: 0.39cm;
 		font-family: monospace;
 		margin-bottom: 0;
+	}
+	.drag-draggable {
+		position: absolute;
 	}
 </style>

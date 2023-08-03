@@ -10,6 +10,8 @@ window.Vue = require("vue");
 import router from "./router";
 import VueRouter from "vue-router";
 import moment from "moment";
+import drag from "v-drag"
+
 
 Vue.filter("formatDate", function (value) {
     if (value) {
@@ -23,6 +25,9 @@ Vue.use(BootstrapVueIcons);
 
 Vue.use(ElementUI);
 
+Vue.use(drag, {
+
+});
 Vue.component(
     "example-component",
     require("./components/ExampleComponent.vue").default

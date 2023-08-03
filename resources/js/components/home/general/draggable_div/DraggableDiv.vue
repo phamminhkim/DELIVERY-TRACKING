@@ -1,11 +1,11 @@
 <template>
 	<div
-		:ref="`draggable-div-${div_id}`"
-		v-drag="{ handle: `.drag-handler-${div_id}` }"
+		:ref="`draggable-div`"
+		v-drag
 		@v-drag-end="elementDraged"
-		:style="`wdiv_idth: fit-content; top: ${value.top}; left: ${value.left};`"
+		:style="`top: ${value.top}; left: ${value.left}; position: absolute;`"
 	>
-		<slot :class="`drag-handler-${div_id}`"></slot>
+		<slot :class="`drag-handler`"></slot>
 	</div>
 </template>
 
@@ -14,20 +14,20 @@
 		name: 'DraggableDiv',
 		props: {
 			value: Object,
-			div_id: String,
 		},
 		methods: {
 			elementDraged: function (event) {
 				event.preventDefault();
-				const top = this.convertPxToCm(this.$refs[`draggable-div-${div_id}`].style.top);
-				const left = this.convertPxToCm(this.$refs[`draggable-div-${div_id}`].style.left);
+				const top = this.convertPxToCm(this.$refs[`draggable-div`].style.top);
+				const left = this.convertPxToCm(this.$refs[`draggable-div`].style.left);
 				this.value.top = top;
 				this.value.left = left;
 				this.$emit('input', this.value);
+				console.log('emit');
 			},
 			convertPxToCm(pixcelStyle) {
 				const pixcel = Number(pixcelStyle.slice(0, pixcelStyle.indexOf('px')));
-				return `${pixcel * 0.02645833}cm`;
+				return `${pixcel * 0.026458333333333}cm`;
 			},
 		},
 	};
