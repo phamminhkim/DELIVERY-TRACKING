@@ -30,6 +30,7 @@
         "bootstrap-vue": "^2.23.1",
         "element-ui": "^2.15.13",
         "toastr": "^2.1.4",
+        "v-drag": "^3.0.9",
         "vue-draggable-nested-tree": "^3.0.0-beta3"
     }
 }
