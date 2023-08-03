@@ -103,7 +103,7 @@ class ZaloAuthController extends ResponseController
             return $this->responseError($validator->errors());
         } else {
             $zalo_access_token = $request->access_token;
-            $zalo_user_phone = $request->phone_number;
+            // $zalo_user_phone = $request->phone_number;
             $config = array(
                 'app_id' => config("services.zalo.client_id"),
                 'app_secret' =>  config("services.zalo.client_secret")
@@ -116,7 +116,7 @@ class ZaloAuthController extends ResponseController
             //dd($result);//check ở đây
             if (isset($result) && isset($result['id'])) {
                 $service = new SocialAccountService;
-                $result['phone_number'] = $zalo_user_phone;
+                // $result['phone_number'] = $zalo_user_phone;
                 $user = $service->createOrGetUserFromZalo($result);
 
                 Auth::login($user);
