@@ -30,13 +30,13 @@ class OrderRepository extends RepositoryAbs
                 '*.sap_do_number' => 'nullable|string|max:20',
                 '*.approveds.sap_so_finance_approval_date' => 'nullable|date',
                 '*.details.delivery_address' => 'nullable|string|max:255',
-                '*.details.note' => 'nullable|string|max:200',
+                '*.details.note' => 'nullable|string|max:255',
                 '*.details.total_item' => 'required|numeric',
                 '*.details.total_weight' => 'required|numeric',
                 '*.details.total_value' => 'required|numeric',
                 '*.receivers.receiver_name' => 'required|string|max:255',
                 '*.receivers.receiver_phone' => 'nullable|string|max:255',
-                '*.warehouse_code' => 'required|string|exists:warehouses,code',
+                //'*.warehouse_code' => 'required|string|exists:warehouses,code',
                 '*.is_deleted' => 'nullable|boolean'
             ], [
                 '*.company_code.required' => 'Mã công ty là bắt buộc.',

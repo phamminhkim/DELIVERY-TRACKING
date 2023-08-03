@@ -15,7 +15,10 @@ class CreatePrintConfigsTable extends Migration
     {
         Schema::create('print_configs', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('name');
+            $table->string('config');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign("user_id")->references("id")->on("users");
         });
     }
 

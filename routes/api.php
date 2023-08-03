@@ -141,7 +141,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::prefix('/deliveries')->group(function () {
             Route::get('/', [DeliveryController::class, 'getDeliveries']);
+            Route::get('/print-configs', [DeliveryController::class, 'getPrintConfigsOfUser']);
             Route::get('/{id}', [DeliveryController::class, 'getDeliveryById']);
+            Route::post('/print-configs', [DeliveryController::class, 'createPrintQRConfig']);
+            Route::delete('/print-configs/{print_config_id}', [DeliveryController::class, 'deletePrintQRConfig']);
             Route::post('/print-qrs', [DeliveryController::class, 'printDeliveriesQrCodeByIds']);
             Route::post('/{id}/print-qr', [DeliveryController::class, 'printDeliveryQrCodeById']);
             Route::post('/', [DeliveryController::class, 'createDelivery']);

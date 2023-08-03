@@ -187,22 +187,22 @@
 
                 <div class="social-auth-links text-center mb-3">
                     <p>- HOẶC -</p>
-                    {{-- <a href=" {{ url('login/facebook') }}" class="btn btn-block"
+                    {{-- {{-- <a href=" {{ url('login/facebook') }}" class="btn btn-block"
                         style="background-color: #3b5998; font-weight: 600; color: #fff">
                         Đăng nhập bằng Facebook
-                    </a>
+                    </a> --}}
                     <a href=" {{ url('login/google') }}" class="btn btn-block"
                         style="background-color: #E54040; font-weight: 600; color: #fff">
                         Đăng nhập bằng Google
                     </a>
-                    <a href=" {{ url('login/zalo') }}" class="btn btn-block"
+                    {{-- <a href=" {{ url('login/zalo') }}" class="btn btn-block"
                         style="background-color: #0180C7; font-weight: 600; color: #fff">
                         Đăng nhập bằng Zalo
                     </a> --}}
                     <a href=" {{ url('auth/onetl') }}" class="btn btn-block"
-                    style="background-color: #0180C7; font-weight: 600; color: #fff">
-                    Đăng nhập OneThienLong
-                </a>
+                        style="background-color: #0180C7; font-weight: 600; color: #fff">
+                        Đăng nhập OneThienLong
+                    </a>
                 </div>
                 <!-- /.social-auth-links -->
 
