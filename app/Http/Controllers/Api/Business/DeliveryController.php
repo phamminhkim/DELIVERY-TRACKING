@@ -56,6 +56,40 @@ class DeliveryController extends ResponseController
         }
     }
 
+    public function getPrintConfigsOfUser(Request $request){
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->getPrintConfigsOfUser();
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function createPrintQRConfig(Request $request)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->createPrintQRConfig();
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function deletePrintQRConfig(Request $request, $print_config_id)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->deletePrintQRConfig($print_config_id);
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function printDeliveryQrCodeById(Request $request, $delivery_id)
     {
         $handler = BusinessRepository::deliveryRequest($request);

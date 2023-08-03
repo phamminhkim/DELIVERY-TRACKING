@@ -23,7 +23,6 @@
 				this.value.top = top;
 				this.value.left = left;
 				this.$emit('input', this.value);
-				console.log('emit');
 			},
 			convertPxToCm(pixcelStyle) {
 				const pixcel = Number(pixcelStyle.slice(0, pixcelStyle.indexOf('px')));

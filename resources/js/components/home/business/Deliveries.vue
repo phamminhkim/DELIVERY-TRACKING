@@ -26,6 +26,29 @@
 								>
 							</button>
 						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<treeselect
+									v-model="print_config_selected"
+									:multiple="false"
+									:options="print_config_options"
+									placeholder="Chọn cấu hình in"
+									required
+								/>
+							</div>
+							<div class="col-md-4">
+								<button
+									type="button"
+									class="btn btn-warning btn-sm ml-1 mt-1"
+									@click="showPrintSettingDialog"
+								>
+									<strong>
+										<i class="fas fa-plus mr-1 text-bold" />Tạo cấu hình
+										in</strong
+									>
+								</button>
+							</div>
+						</div>
 					</div>
 					<div class="col-md-3">
 						<div class="input-group input-group-sm mt-1 mb-1">
@@ -131,12 +154,14 @@
 					</div>
 				</div>
 				<!-- end phân trang -->
-
-				<!-- tạo form -->
-				<!-- end tạo form -->
 			</div>
 		</div>
 		<!-- end container -->
+
+		<DialogCreatePrintQRSetting
+			@onPrintQRSettingCreated="onPrintQRSettingCreated"
+		></DialogCreatePrintQRSetting>
+
 		<dialog-delivery-info :delivery_id="viewing_delivery_id" v-on:printQrCode="printQrCode" />
 
 		<dialog-create-delivery ref="dialog_create" @onDeliveryCreated="onDeliveryCreated" />
@@ -145,14 +170,19 @@
 
 <script>
 	import ApiHandler, { APIRequest } from '../ApiHandler';
+	import Treeselect from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import DialogDeliveryInfo from './dialogs/DialogDeliveryInfo.vue';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 	import APIHandler from '../ApiHandler';
+	import DialogCreatePrintQRSetting from './dialogs/DialogCreatePrintQRSetting.vue';
 
 	export default {
 		components: {
 			DialogDeliveryInfo,
 			DialogCreateDelivery,
+			DialogCreatePrintQRSetting,
+			Treeselect,
 		},
 		data() {
 			return {
@@ -163,24 +193,31 @@
 
 				is_select_all: false,
 				selected_ids: [],
-				print_config: {
-					dimension: {
-						width: '5cm',
-						height: '3cm',
-					},
-					DO: {
-						left: '1.243541666666651cm',
-						top: '0cm',
-					},
-					SO: {
-						left: '-0.79374999999999cm',
-						top: '1.164166666666652cm',
-					},
-					qr_code: {
-						left: '1.534583333333314cm',
-						top: '0.661458333333325cm',
+				print_config_default: {
+					id: 'default',
+					name: 'Mặc định',
+					config: {
+						dimension: {
+							width: '5cm',
+							height: '3cm',
+						},
+						DO: {
+							left: '1.243541666666651cm',
+							top: '0cm',
+						},
+						SO: {
+							left: '-0.79374999999999cm',
+							top: '1.164166666666652cm',
+						},
+						qr_code: {
+							left: '1.534583333333314cm',
+							top: '0.661458333333325cm',
+						},
 					},
 				},
+				print_configs: [],
+				print_config_options: [],
+				print_config_selected: null,
 
 				is_editing: false,
 				is_loading: false,
@@ -255,6 +292,7 @@
 		},
 		created() {
 			this.fetchData();
+			this.fetchPrintQRConfigOptions();
 		},
 		watch: {
 			'$route.query': {
@@ -283,6 +321,38 @@
 					this.is_loading = false;
 				}
 			},
+			async fetchPrintQRConfigOptions() {
+				try {
+					const { data } = await this.api_handler.get(
+						`${this.api_url_deliveries}/print-configs`,
+					);
+					this.print_configs = [
+						this.print_config_default,
+						...data.map((print_config_option) => {
+							let opt = print_config_option;
+							opt.config = JSON.parse(opt.config);
+							return opt;
+						}),
+					];
+
+					this.print_config_options = this.print_configs.map((print_config) => {
+						return {
+							id: print_config.id,
+							label: print_config.name,
+						};
+					});
+					this.print_config_selected = this.print_config_default.id;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				}
+			},
+			onPrintQRSettingCreated(print_config_created) {
+				this.print_configs.push(print_config_created);
+				this.print_config_options.push({
+					id: print_config_created.id,
+					label: print_config_created.name,
+				});
+			},
 			async printDeliveryQrCode() {
 				if (this.selected_ids.length === 0) {
 					this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn 1 vận đơn để in');
@@ -295,12 +365,15 @@
 			async printQrCode(delivery_ids) {
 				try {
 					this.is_loading = true;
+					const config = this.print_configs.filter((print_config) => {
+						return print_config.id === this.print_config_selected;
+					})[0].config;
 					const { data } = await this.api_handler.post(
 						'api/admin/deliveries/print-qrs',
 						{},
 						{
 							delivery_ids: delivery_ids,
-							print_config: this.print_config,
+							print_config: config,
 						},
 					);
 					const print_url = data;
@@ -333,6 +406,9 @@
 			},
 			showCreateDialog() {
 				$('#DialogCreateDelivery').modal('show');
+			},
+			showPrintSettingDialog() {
+				$('#DialogCreatePrintQRSetting').modal('show');
 			},
 			async onDeliveryCreated(delivery_response) {
 				try {

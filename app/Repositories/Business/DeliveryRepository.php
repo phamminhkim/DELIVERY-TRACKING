@@ -9,6 +9,7 @@ use App\Models\Business\DeliveryTokenScan;
 use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
+use App\Models\Business\PrintConfig;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Image;
@@ -147,6 +148,59 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
+    public function getPrintConfigsOfUser(){
+        $user_id = $this->current_user->id;
+        $print_configs = PrintConfig::query()->where('user_id', '=', $user_id)->get();
+        return $print_configs;
+    }
+    public function createPrintQRConfig(){
+        try {
+            $validator = Validator::make($this->data, [
+                'name' => 'required|string',
+                'config' => 'required|string',
+            ], [
+                'name.required' => 'Tên cấu hình là bắt buộc.',
+                'config.required' => 'Cấu hình là bắt buộc.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $print_config = PrintConfig::create([
+                    'name' => $this->data['name'],
+                    'config'=> $this->data['config'],
+                    'user_id' => $this->current_user->id
+                ]);
+                DB::commit();
+                
+                return $print_config;
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }        
+    }
+
+    public function deletePrintQRConfig($print_config_id){
+        try {
+            $print_config = Delivery::find($print_config_id);
+            if (!$print_config) {
+                $this->message = 'Đơn vận chuyển không tồn tại.';
+                return false;
+            }
+            DB::beginTransaction();
+            $print_config->delete();
+            DB::commit();
+
+            return true;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
     public function printDeliveryQrCodeById($delivery_id)
     {
         try {
@@ -192,7 +246,7 @@ class DeliveryRepository extends RepositoryAbs
                 }
             }
             sort($delivery_ids);
-            $hashed_ids = md5(serialize([serialize($delivery_ids), serialize($print_config)]));
+            $hashed_ids = hash("sha256",serialize([serialize($delivery_ids), serialize($print_config)]));
             $html_content = view('app.print_qr_code', compact('qr_datas', 'print_config'))->render();
             $directory = public_path('print_qr');
             if (!File::exists($directory)) {
@@ -618,7 +672,6 @@ class DeliveryRepository extends RepositoryAbs
     public function deleteDelivery($delivery_id)
     {
         try {
-
             $delivery = Delivery::find($delivery_id);
             if (!$delivery) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Business\PrintConfig;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -37,4 +38,8 @@ class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function print_configs(){
+        return $this->hasMany(PrintConfig::class);
+    }
 }
