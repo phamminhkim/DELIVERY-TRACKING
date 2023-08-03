@@ -36,7 +36,7 @@ class OrderRepository extends RepositoryAbs
                 '*.details.total_value' => 'required|numeric',
                 '*.receivers.receiver_name' => 'required|string|max:255',
                 '*.receivers.receiver_phone' => 'nullable|string|max:255',
-                '*.warehouse_code' => 'required|string|exists:warehouses,code',
+                //'*.warehouse_code' => 'required|string|exists:warehouses,code',
                 '*.is_deleted' => 'nullable|boolean'
             ], [
                 '*.company_code.required' => 'Mã công ty là bắt buộc.',
