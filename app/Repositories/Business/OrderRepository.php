@@ -30,7 +30,7 @@ class OrderRepository extends RepositoryAbs
                 '*.sap_do_number' => 'nullable|string|max:20',
                 '*.approveds.sap_so_finance_approval_date' => 'nullable|date',
                 '*.details.delivery_address' => 'nullable|string|max:255',
-                '*.details.note' => 'nullable|string|max:255',
+                '*.details.note' => 'nullable|string',
                 '*.details.total_item' => 'required|numeric',
                 '*.details.total_weight' => 'required|numeric',
                 '*.details.total_value' => 'required|numeric',
