@@ -42,6 +42,28 @@
 								required
 							/>
 						</div>
+                        <div class="form-group">
+							<label>Chọn địa chỉ giao hàng</label>
+							<small class="text-danger">(*)</small>
+							<treeselect
+								v-model="form.delivery"
+								:multiple="false"
+								:options="address_options"
+								placeholder="Chọn địa chỉ giao hàng.."
+								required
+							/>
+						</div>
+                        <div class="form-group">
+							<label>Chọn thời hạn giao hàng</label>
+							<small class="text-danger">(*)</small>
+							<treeselect
+								v-model="form.estimate_delivery"
+								:multiple="false"
+								:options="estimate_delivery_date_options"
+								placeholder="Chọn thời hạn giao hàng.."
+								required
+							/>
+						</div>
 
 						<div class="form-group">
 							<label>Danh sách đơn hàng đã chọn</label>
@@ -196,10 +218,14 @@
 				form: {
 					company: null,
 					delivery_partner: null,
+                    delivery: null,
+                    estimate_delivery: null,
 					orders: {}, // use plain object like a HashMap
 				},
 				company_options: [],
 				delivery_partner_options: [],
+                address_options:[],
+                estimate_delivery_date_options:[],
 
 				selected_orders: {}, // use plain object like a HashMap,
 				order_options: {}, //use plain object like a HashMap
@@ -262,10 +288,11 @@
 		methods: {
 			async fetchMasterData() {
 				try {
-					const [companies, delivery_partners, orders] =
+					const [companies, delivery_partners,deliveries, orders] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/companies'),
 							new APIRequest('get', '/api/master/delivery-partners'),
+							new APIRequest('get', '/api/admin/deliveries'),
 							new APIRequest('get', '/api/admin/orders/minified', {
 								filter: 'can-delivery',
 							}),
@@ -284,6 +311,19 @@
 							label: `(${delivery_partner.code}) ${delivery_partner.name}`,
 						};
 					});
+                    this.address_options = deliveries.map((delivery) => {
+						return {
+							id: delivery.address,
+							label: delivery.address,
+						};
+					});
+                    this.estimate_delivery_date_options = deliveries.map((estimate_delivery) => {
+						return {
+							id: estimate_delivery.estimate_delivery_date,
+							label: estimate_delivery.estimate_delivery_date,
+						};
+					});
+
 					orders.forEach((order) => {
 						if (order.sap_so_number && order.sap_do_number) {
 							this.addPropertyToObject(this.order_options, order.id, {

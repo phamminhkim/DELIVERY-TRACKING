@@ -290,6 +290,18 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+                    {
+						key: 'address',
+						label: 'Địa chỉ giao hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+                    {
+						key: 'estimate_delivery_date',
+						label: 'Thời hạn giao hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
 					{
 						key: 'status',
 						label: 'Trạng thái',
