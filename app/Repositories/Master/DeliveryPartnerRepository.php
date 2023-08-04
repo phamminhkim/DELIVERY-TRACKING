@@ -26,9 +26,9 @@ class DeliveryPartnerRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:delivery_partners,code',
                 'name' => 'required|string',
-                'api_url' => 'nullable|string',
-                'api_key' => 'nullable|string',
-                'api_secret' => 'nullable|string',
+                'api_url' => 'string|nullable',
+                'api_key' => 'string|nullable',
+                'api_secret' => 'string|nullable',
                 //'is_external' => 'required',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
@@ -39,7 +39,6 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'api_url.string' => 'Api Url phải là chuỗi.',
                 'api_key.string' => 'Api Key phải là chuỗi.',
                 'api_secret.string' => 'Api Secret phải là chuỗi.',
-
             ]);
 
             if ($validator->fails()) {
@@ -53,7 +52,15 @@ class DeliveryPartnerRepository extends RepositoryAbs
             } else {
                 $this->data['is_external'] = true;
                 $this->data['is_active'] = true;
-                $partner = DeliveryPartner::create($this->data);
+                $partner = DeliveryPartner::create([
+                    'code' => $this->data['code'],
+                    'name' => $this->data['name'],
+                    'is_external' => true,
+                    'is_active' => true,
+                    'api_url' => $this->data['api_url'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                ]);
 
                 return $partner;
             }
@@ -68,17 +75,18 @@ class DeliveryPartnerRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'code' => 'required|string',
                 'name' => 'required|string',
-                'api_url' => 'nullable|string',
-                'api_key' => 'nullable|string',
-                'api_secret' => 'nullable|string',
+                'api_url' => 'string|nullable',
+                'api_key' => 'string|nullable',
+                'api_secret' => 'string|nullable',
+                //'is_external' => 'required',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên nhà vận chuyển.',
                 'name.string' => 'Tên nhà vận chuyển phải là chuỗi.',
                 'api_url.string' => 'Api Url phải là chuỗi.',
-                'api_key.string' => 'Api key phải là chuỗi.',
-                'api_secret.string' => 'Api secret phải là chuỗi.',
+                'api_key.string' => 'Api Key phải là chuỗi.',
+                'api_secret.string' => 'Api Secret phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
@@ -91,7 +99,16 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 }
             } else {
                 $partner = DeliveryPartner::findOrFail($id);
-                $partner->update($this->data);
+                $partner -> fill([
+                    'code' => $this->data['code'],
+                    'name' => $this->data['name'],
+                    'is_external' => true,
+                    'is_active' => true,
+                    'api_url' => $this->data['api_url'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                ]);
+                $partner->save();
 
                 return $partner;
             }

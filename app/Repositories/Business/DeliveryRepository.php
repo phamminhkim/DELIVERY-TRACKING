@@ -185,7 +185,7 @@ class DeliveryRepository extends RepositoryAbs
 
     public function deletePrintQRConfig($print_config_id){
         try {
-            $print_config = Delivery::find($print_config_id);
+            $print_config = PrintConfig::find($print_config_id);
             if (!$print_config) {
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;

@@ -108,7 +108,7 @@ export default {
                         required: true,
                     },
                     {
-                        label: "Mã của nhà vận chuyển",
+                        label: "Tên của nhà vận chuyển",
                         placeholder: "Nhập tên nhà vận chuyển",
                         key: "name",
                         type: "text",
