@@ -43,26 +43,25 @@
 							/>
 						</div>
                         <div class="form-group">
-							<label>Chọn địa chỉ giao hàng</label>
-							<small class="text-danger">(*)</small>
-							<treeselect
-								v-model="form.delivery"
-								:multiple="false"
-								:options="address_options"
-								placeholder="Chọn địa chỉ giao hàng.."
-								required
-							/>
-						</div>
+                            <label>Chọn địa chỉ giao hàng</label>
+                            <small class="text-danger">(*)</small>
+                            <input
+                                type="text"
+                                v-model="deliveries.address"
+                                placeholder="Nhập địa chỉ giao hàng..."
+                                required
+                                class="form-control"
+
+                            />
+                        </div>
                         <div class="form-group">
 							<label>Chọn thời hạn giao hàng</label>
-							<small class="text-danger">(*)</small>
-							<treeselect
-								v-model="form.estimate_delivery"
-								:multiple="false"
-								:options="estimate_delivery_date_options"
-								placeholder="Chọn thời hạn giao hàng.."
-								required
-							/>
+							<!-- <small class="text-danger">(*)</small> -->
+                            <input
+                                type="date"
+                                v-model="deliveries.estimate_delivery_date"
+                                class="form-control"
+                            />
 						</div>
 
 						<div class="form-group">
@@ -215,17 +214,19 @@
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 				is_loading: false,
+
 				form: {
 					company: null,
 					delivery_partner: null,
-                    delivery: null,
-                    estimate_delivery: null,
 					orders: {}, // use plain object like a HashMap
 				},
 				company_options: [],
 				delivery_partner_options: [],
-                address_options:[],
-                estimate_delivery_date_options:[],
+                deliveries: {
+                    address: null,
+                    estimate_delivery_date: null,
+                },
+
 
 				selected_orders: {}, // use plain object like a HashMap,
 				order_options: {}, //use plain object like a HashMap
@@ -311,18 +312,7 @@
 							label: `(${delivery_partner.code}) ${delivery_partner.name}`,
 						};
 					});
-                    this.address_options = deliveries.map((delivery) => {
-						return {
-							id: delivery.address,
-							label: delivery.address,
-						};
-					});
-                    this.estimate_delivery_date_options = deliveries.map((estimate_delivery) => {
-						return {
-							id: estimate_delivery.estimate_delivery_date,
-							label: estimate_delivery.estimate_delivery_date,
-						};
-					});
+
 
 					orders.forEach((order) => {
 						if (order.sap_so_number && order.sap_do_number) {
@@ -388,6 +378,7 @@
 										id: order_id,
 									};
 								}),
+
 							},
 						)
 						.finally(() => {
