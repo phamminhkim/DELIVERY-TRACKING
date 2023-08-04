@@ -109,9 +109,12 @@
 			},
 			async updateItem() {
 				try {
-					console.log(this.item);
 					let data = await this.api_handler
-						.put(`${this.page_url_update}/${this.item[this.primay_key]}`, this.item)
+						.put(
+							`${this.page_url_update}/${this.item[this.primary_key]}`,
+							{},
+							this.item,
+						)
 						.finally(() => {
 							this.is_loading = false;
 						});
