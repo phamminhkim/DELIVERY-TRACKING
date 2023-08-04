@@ -73,7 +73,7 @@ class DeliveryPartnerRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string:delivery_partners,code',
+                'code' => 'required|string',
                 'name' => 'required|string',
                 'api_url' => 'string|nullable',
                 'api_key' => 'string|nullable',
