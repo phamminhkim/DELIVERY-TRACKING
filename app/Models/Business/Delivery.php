@@ -15,11 +15,9 @@ class Delivery extends Model
         'delivery_code',
         'company_code',
         'delivery_partner_id',
-        'sap_so_number',
-        'sap_so_created_date',
-        'sap_po_number',
-        'sap_do_number',
+        'address',
         'start_delivery_date',
+        'estimate_delivery_date',
         'complete_delivery_date',
         'created_by'
     ];
