@@ -1,0 +1,85 @@
+name: Deploy dev branch to shipdemo.thienlong.vn
+
+on:
+    push:
+        branches: ['mod_dev']
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set up SSH
+              uses: webfactory/ssh-agent@v0.5.0
+              with:
+                  ssh-private-key: ${{ secrets.TEST_SSH_PRIVATE_KEY }}
+
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Create www directory
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  mkdir -p ${{ vars.TEST_PROJECT_DIRECTORY }}
+                  EOF
+
+            - name: Copy codebase to EC2
+              run: |
+                  rsync -r -a -v -e "ssh -o StrictHostKeyChecking=no" --rsync-path="rsync" --delete $GITHUB_WORKSPACE/ ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }}:${{ vars.TEST_PROJECT_DIRECTORY }}
+
+            - name: Get Composer Cache Directory
+              id: composer-cache
+              run: echo "composer_cache_dir=$(composer config cache-files-dir)" >> $GITHUB_ENV
+
+            - name: Cache Composer Dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ env.composer_cache_dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-
+
+            - name: Get npm Cache Directory
+              id: npm-cache
+              run: echo "npm_cache_dir=$(npm config get cache)" >> $GITHUB_ENV
+
+            - name: Cache npm Dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ env.npm_cache_dir }}
+                  key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-npm-
+
+            - name: Locate the project directory and install dependencies
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  cd ${{ vars.TEST_PROJECT_DIRECTORY }}
+                  composer install --optimize-autoloader --no-interaction
+                  npm ci
+                  EOF
+
+            - name: Clear cache and optimize
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  cd ${{ vars.TEST_PROJECT_DIRECTORY }}
+                  php artisan optimize:clear
+                  EOF
+
+            - name: Database migration
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  cd ${{ vars.TEST_PROJECT_DIRECTORY }}
+                  php artisan migrate
+                  EOF
+
+            - name: Build and deploy the project
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  cd ${{ vars.TEST_PROJECT_DIRECTORY }}
+
+                  # Dump the Composer autoloader
+                  composer dump-autoload
+
+                  # Build Vue.js
+                  npm run build
+                  EOF
