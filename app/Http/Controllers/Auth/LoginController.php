@@ -78,16 +78,16 @@ class LoginController extends Controller
      * @param  mixed  $user
      * @return mixed
      */
-    // protected function authenticated(Request $request, $user)
-    // {   
-        
-    //     if (!$user->email_verified_at != null) {
-           
-    //         auth()->logout();
-    //         return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');
-    //     }
-    //     return redirect()->intended($this->redirectPath());
-    // }
+     protected function authenticated(Request $request, $user)
+     {   
+      
+         //if (!$user->email_verified_at != null) {
+         //
+         //    auth()->logout();
+         //    return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');
+         //}
+         return redirect()->intended($this->redirectPath());
+     }
     public function username()
     {
         return $this->login_field;
