@@ -27,7 +27,14 @@
 							</button>
 						</div>
 						<div class="row">
-							<div class="col-md-6">
+							<div class="col-md-2 align-center text-right">
+								<span
+									class="align-middle"
+									style="font-weight: bold; font-size: 14px"
+									>Cấu hình in:</span
+								>
+							</div>
+							<div class="col-md-4">
 								<treeselect
 									v-model="print_config_selected"
 									:multiple="false"
@@ -36,14 +43,24 @@
 									required
 								/>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-6">
 								<button
 									type="button"
-									class="btn btn-warning btn-sm ml-1 mt-1"
+									class="btn btn-warning btn-sm"
 									@click="showPrintSettingDialog"
 								>
 									<strong>
 										<i class="fas fa-plus mr-1 text-bold" />Tạo cấu hình
+										in</strong
+									>
+								</button>
+								<button
+									v-if="print_config_selected != print_config_default.id"
+									class="btn btn-danger btn-sm"
+									@click.prevent="deletePrintConfig(print_config_selected)"
+								>
+									<strong>
+										<i class="fas fa-trash mr-1 text-bold" />Xóa cấu hình
 										in</strong
 									>
 								</button>
@@ -365,9 +382,13 @@
 			async printQrCode(delivery_ids) {
 				try {
 					this.is_loading = true;
-					const config = this.print_configs.filter((print_config) => {
-						return print_config.id === this.print_config_selected;
-					})[0].config;
+
+					const config = this.print_config_selected
+						? this.print_configs.filter((print_config) => {
+								return print_config.id === this.print_config_selected;
+						  })[0].config
+						: this.print_config_default.config;
+
 					const { data } = await this.api_handler.post(
 						'api/admin/deliveries/print-qrs',
 						{},
@@ -418,6 +439,25 @@
 					this.deliveries.push(data);
 				} catch (error) {
 					console.log(error);
+				}
+			},
+			async deletePrintConfig(print_config_id) {
+				try {
+					await this.api_handler.delete(
+						`${this.api_url_deliveries}/print-configs/${print_config_id}`,
+					);
+					for (let i in this.print_configs) {
+						if (this.print_configs[i].id == print_config_id) {
+							this.print_configs.splice(i, 1);
+							this.print_config_options.splice(i, 1);
+							this.print_config_selected = this.print_config_default.id;
+							break;
+						}
+					}
+					this.$showMessage('success', 'Xóa thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error);
 				}
 			},
 		},
