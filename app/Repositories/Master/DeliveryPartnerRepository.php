@@ -99,13 +99,15 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 }
             } else {
                 $partner = DeliveryPartner::findOrFail($id);
-                $partner->code = $this->data['code'];
-                $partner->name = $this->data['name'];
-                $partner->api_url = $this->data['api_url'] ?? ''; // Sử dụng giá trị mặc định là chuỗi rỗng
-                $partner->api_key = $this->data['api_key'] ?? ''; // Sử dụng giá trị mặc định là chuỗi rỗng
-                $partner->api_secret = $this->data['api_secret'] ?? ''; // Sử dụng giá trị mặc định là chuỗi rỗng
-                $partner->is_external = true;
-                $partner->is_active = true;
+                $partner -> fill([
+                    'code' => $this->data['code'],
+                    'name' => $this->data['name'],
+                    'is_external' => true,
+                    'is_active' => true,
+                    'api_url' => $this->data['api_url'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                ]);
                 $partner->save();
 
                 return $partner;
