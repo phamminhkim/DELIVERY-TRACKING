@@ -18,7 +18,7 @@ jobs:
 
             - name: Create www directory
               run: |
-                  ssh -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
+                  ssh -v -o StrictHostKeyChecking=no ${{ vars.TEST_VPS_USERNAME }}@${{ vars.TEST_VPS_HOST }} <<EOF
                   mkdir -p ${{ vars.TEST_PROJECT_DIRECTORY }}
                   EOF
 
