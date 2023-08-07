@@ -70,11 +70,11 @@ class OrderRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $result = array(
-                    'insert_list' => 0,
-                    'update_list' => 0,
-                    'skip_list' => 0,
-                    'delete_list' => 0,
-                    'error_list' => 0,
+                    'insert_list' => [],
+                    'update_list' => [],
+                    'skip_list' => [],
+                    'delete_list' => [],
+                    'error_list' => [],
                 );
 
                 DB::beginTransaction();
