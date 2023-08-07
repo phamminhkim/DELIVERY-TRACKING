@@ -71,11 +71,11 @@ class OrderRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $result = array(
-                    'insert_count' => 0,
-                    'update_count' => 0,
-                    'skip_count' => 0,
-                    'delete_count' => 0,
-                    'error_count' => 0,
+                    'insert_list' => [],
+                    'update_list' => [],
+                    'skip_list' => [],
+                    'delete_list' => [],
+                    'error_list' => [],
                 );
 
                 DB::beginTransaction();
@@ -84,26 +84,26 @@ class OrderRepository extends RepositoryAbs
                         $order = Order::where('sap_so_number', $order['sap_so_number'])->first();
                         if ($order) {
                             $order->delete();
-                            $result['delete_count']++;
+                            $result['delete_list'][] = $order['sap_so_number'];
                         } else {
-                            $result['skip_count']++;
+                            $result['skip_list'][] = $order['sap_so_number'];
                         }
                     } else {
                         $customer = Customer::where('code', $order['customer_code'])->first();
                         if (!$customer) {
-                            $result['error_count']++;
+                            $result['error_list'][] = $order['sap_so_number'];
                             $this->errors[] = 'Không tìm thấy khách hàng có mã ' . $order['customer_code'];
                             continue;
                         }
                         $warehouse = Warehouse::where('code', $order['warehouse_code'])->first();
                         if (!$warehouse) {
-                            $result['error_count']++;
+                            $result['error_list'][] = $order['sap_so_number'];
                             $this->errors[] = 'Không tìm thấy kho có mã ' . $order['warehouse_code'];
                             continue;
                         }
                         $existing_order = Order::where('sap_so_number', $order['sap_so_number'])->first();
                         if ($existing_order && $existing_order->status_id > EnumsOrderStatus::Pending) {
-                            $result['skip_count']++;
+                            $result['skip_list'][] = $order['sap_so_number'];
                             continue;
                         }
 
@@ -119,6 +119,7 @@ class OrderRepository extends RepositoryAbs
                                 'sap_do_number' => $order['sap_do_number'] ?? '',
                                 'status_id' => EnumsOrderStatus::Pending,
                                 'warehouse_id' => $warehouse->id,
+                                'is_draft' => $order['is_draft'] ?? false,
                             ]
                         );
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
@@ -138,9 +139,9 @@ class OrderRepository extends RepositoryAbs
                         ]);
 
                         if ($created_order->wasRecentlyCreated || $created_order->getChanges()) {
-                            $result['insert_count']++;
+                            $result['insert_list'][] = $order['sap_so_number'];
                         } else {
-                            $result['update_count']++;
+                            $result['update_list'][] = $order['sap_so_number'];
                         }
                     }
                 }
