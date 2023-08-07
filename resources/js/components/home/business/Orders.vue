@@ -75,7 +75,7 @@
 									>
 									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
-											placeholder="All"
+											placeholder="Chọn trạng thái đơn hàng.."
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.statuses"
@@ -91,11 +91,13 @@
 									>
 									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
-											placeholder="All"
+											placeholder="Chọn khách hàng.."
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.customers"
-											:options="customer_options"
+											:async="true"
+											:load-options="loadOptions"
+											:normalizer="normalizerOption"
 										/>
 									</div>
 								</div>
@@ -107,11 +109,12 @@
 									>
 									<div class="col-sm-10 mt-1 mb-1">
 										<treeselect
-											placeholder="All"
+											placeholder="Chọn kho hàng.."
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.warehouses"
 											:options="warehouse_options"
+											:normalizer="normalizerOption"
 										/>
 									</div>
 								</div>
@@ -122,12 +125,18 @@
 										>SO</label
 									>
 									<div class="col-sm-4">
-										<treeselect
+										<!-- <treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_so_numbers"
 											:options="sap_so_number_options"
+										/> -->
+										<input
+											type="text"
+											v-model="form_filter.sap_so_number"
+											placeholder="Nhập SO.."
+											class="form-control"
 										/>
 									</div>
 									<label
@@ -136,12 +145,18 @@
 										>DO</label
 									>
 									<div class="col-sm-4">
-										<treeselect
+										<!-- <treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_do_numbers"
 											:options="sap_do_number_options"
+										/> -->
+										<input
+											type="text"
+											v-model="form_filter.sap_do_number"
+											placeholder="Nhập DO.."
+											class="form-control"
 										/>
 									</div>
 								</div>
@@ -149,7 +164,7 @@
 									<button
 										type="submit"
 										class="btn btn-warning btn-sm mt-1 mb-1"
-										@click="filterData()"
+										@click.prevent="filterData()"
 									>
 										<i class="fa fa-search"></i>
 										Tìm
@@ -157,7 +172,7 @@
 									<button
 										type="reset"
 										class="btn btn-secondary btn-sm mt-1 mb-1"
-										@click="clearFilter()"
+										@click.prevent="clearFilter()"
 									>
 										<i class="fa fa-reset"></i>
 										Xóa bộ lọc
@@ -215,7 +230,7 @@
 						:per-page="pagination.item_per_page"
 						:filter="search_pattern"
 						:fields="fields"
-						:items="orders_rendered"
+						:items="orders"
 						:tbody-tr-class="rowClass"
 					>
 						<template #head(selection)>
@@ -306,7 +321,7 @@
 </template>
 
 <script>
-	import Treeselect from '@riophae/vue-treeselect';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
@@ -340,13 +355,12 @@
 					statuses: [],
 					customers: [],
 					warehouses: [],
-					sap_so_numbers: [],
-					sap_do_numbers: [],
+					sap_so_number: '',
+					sap_do_number: '',
 				},
 				customer_options: [],
 				warehouse_options: [],
-				sap_so_number_options: [],
-				sap_do_number_options: [],
+
 				order_statuses: [
 					{ id: 10, label: 'Đang xử lí đơn hàng' },
 					{ id: 20, label: 'Đã duyệt & đang soạn hàng' },
@@ -418,14 +432,13 @@
 				],
 
 				orders: [],
-				orders_rendered: [],
 
 				viewing_order: {},
 				api_url_orders: '/api/admin/orders',
 			};
 		},
-		created() {
-			this.fetchData();
+		async created() {
+			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
@@ -440,47 +453,23 @@
 		methods: {
 			async fetchData(query) {
 				try {
-					if (this.is_loading) return;
-					this.is_loading = true;
-
 					const [orders] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_orders, query),
 					]);
 
 					this.orders = orders;
-					this.orders_rendered = orders;
-					let warehouses_set = {}; //use object like a set
-					let customers_set = {};
-					let sap_do_number_set = {};
-					let sap_so_number_set = {};
-
-					orders.forEach((order) => {
-						warehouses_set[order.warehouse.id] = {
-							id: order.warehouse.id,
-							label: order.warehouse.name,
-						};
-						customers_set[order.customer.code] = {
-							id: order.customer.code,
-							label: order.customer.name,
-						};
-						sap_do_number_set[order.sap_do_number] = {
-							id: order.sap_do_number,
-							label: order.sap_do_number,
-						};
-						sap_so_number_set[order.sap_so_number] = {
-							id: order.sap_so_number,
-							label: order.sap_so_number,
-						};
-					});
-
-					this.customer_options = Array.from(Object.values(customers_set));
-					this.warehouse_options = Array.from(Object.values(warehouses_set));
-					this.sap_do_number_options = Array.from(Object.values(sap_do_number_set));
-					this.sap_so_number_options = Array.from(Object.values(sap_so_number_set));
 				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error.message);
-				} finally {
-					this.is_loading = false;
+					this.$showMessage('error', 'Lỗi', error);
+				}
+			},
+			async fetchFilterOptions() {
+				try {
+					const [warehouses] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', 'api/master/warehouses/minified'),
+					]);
+					this.warehouse_options = warehouses;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
 				}
 			},
 			selectAll() {
@@ -501,61 +490,62 @@
 				this.selected_ids = [];
 				this.is_select_all = false;
 			},
-			filterData() {
-				const from_date_filter = (date) => {
-					if (this.form_filter.start_date.length === 0) return true;
-					return new Date(date) >= new Date(this.form_filter.start_date);
-				};
-				const to_date_filter = (date) => {
-					if (this.form_filter.end_date.length === 0) return true;
-					return new Date(date) <= new Date(this.form_filter.end_date);
-				};
-				const status_filter = (status_id) => {
-					if (this.form_filter.statuses.length === 0) return true;
-					return this.form_filter.statuses.includes(status_id);
-				};
-				const customer_filter = (customer_code) => {
-					if (this.form_filter.customers.length === 0) return true;
-					return this.form_filter.customers.includes(customer_code);
-				};
-				const warehouse_filter = (warehouse_id) => {
-					if (this.form_filter.warehouses.length === 0) return true;
-					return this.form_filter.warehouses.includes(warehouse_id);
-				};
-				const sap_so_number_filter = (sap_so_number) => {
-					if (this.form_filter.sap_so_numbers.length === 0) return true;
-					return this.form_filter.sap_so_numbers.includes(sap_so_number);
-				};
-				const sap_do_number_filter = (sap_do_number) => {
-					if (this.form_filter.sap_do_numbers.length === 0) return true;
-					return this.form_filter.sap_do_numbers.includes(sap_do_number);
-				};
+			async filterData() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
 
-				this.orders_rendered = this.orders.filter((order) => {
-					return (
-						from_date_filter(order.sap_so_created_date) &&
-						to_date_filter(order.sap_so_created_date) &&
-						status_filter(order.status.id) &&
-						customer_filter(order.customer.code) &&
-						warehouse_filter(order.warehouse.id) &&
-						sap_so_number_filter(order.sap_so_number) &&
-						sap_do_number_filter(order.sap_do_number)
-					);
-				});
+					const { data } = await this.api_handler.get(this.api_url_orders, {
+						from_date: this.form_filter.start_date,
+						to_date: this.form_filter.end_date,
+						status_ids: this.form_filter.statuses,
+						customer_ids: this.form_filter.customers,
+						warehouse_ids: this.form_filter.warehouses,
+						sap_so_number: this.form_filter.sap_so_number,
+						sap_do_number: this.form_filter.sap_do_number,
+					});
+					this.orders = data;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
 			},
-			clearFilter() {
-				this.orders_rendered = this.orders;
-				this.form_filter = {
-					start_date: '',
-					end_date: '',
-					status: [],
-					customers: [],
-					warehouses: [],
-					sap_so_number: [],
-					sap_do_number: [],
+			async clearFilter() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					this.form_filter.start_date = '';
+					this.form_filter.end_date = '';
+					this.form_filter.statuses = [];
+					this.form_filter.customers = [];
+					this.form_filter.warehouses = [];
+					this.form_filter.sap_so_number = '';
+					this.form_filter.sap_do_number = '';
+
+					await this.fetchData();
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			normalizerOption(node) {
+				return {
+					id: node.id,
+					label: node.name,
 				};
 			},
-
+			async loadOptions({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get('api/master/customers/minified', {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
+				}
+			},
 			showInfoDialog(order) {
 				this.viewing_order = order;
 				$('#DialogOrderInfo').modal('show');
@@ -563,7 +553,7 @@
 		},
 		computed: {
 			rows() {
-				return this.orders_rendered.length;
+				return this.orders.length;
 			},
 		},
 	};

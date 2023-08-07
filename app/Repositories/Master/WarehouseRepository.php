@@ -9,11 +9,14 @@ use App\Models\Master\Company;
 
 class WarehouseRepository extends RepositoryAbs
 {
-    public function getAvailableWarehouses()
+    public function getAvailableWarehouses($is_minified)
     {
         try {
-            $warehouses = Warehouse::all();
-
+            $query = Warehouse::query();
+            if($is_minified){
+                $query->select('id', 'name');
+            }
+            $warehouses = $query->get();
             return $warehouses;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

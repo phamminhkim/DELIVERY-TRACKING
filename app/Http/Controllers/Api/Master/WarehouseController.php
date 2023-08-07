@@ -12,7 +12,18 @@ class WarehouseController extends ResponseController
     public function getAvailableWarehouses(Request $request)
     {
         $handler = MasterRepository::warehouseRequest($request);
-        $warehouses = $handler->getAvailableWarehouses();
+        $warehouses = $handler->getAvailableWarehouses(false);
+
+        if ($warehouses) {
+            return $this->responseSuccess($warehouses);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getAvailableWarehousesMinified(Request $request)
+    {
+        $handler = MasterRepository::warehouseRequest($request);
+        $warehouses = $handler->getAvailableWarehouses(true);
 
         if ($warehouses) {
             return $this->responseSuccess($warehouses);

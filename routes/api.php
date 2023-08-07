@@ -43,6 +43,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
+            Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
             Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
             Route::put('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
@@ -61,6 +62,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{code}', [CompanyController::class, 'deleteExistingCompany']);
         });
         Route::prefix('/customers')->group(function () {
+            Route::get('/minified', [CustomerController::class, 'getAvailableCustomersMinified']);
             Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
             Route::post('/', [CustomerController::class, 'createNewCustomer']);
             Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
