@@ -27,7 +27,7 @@
 							</button>
 						</div>
 						<div class="row">
-							<div class="col-md-2 align-center text-right">
+							<div class="col-md-3 align-center text-right">
 								<span
 									class="align-middle"
 									style="font-weight: bold; font-size: 14px"
@@ -43,26 +43,23 @@
 									required
 								/>
 							</div>
-							<div class="col-md-6">
+							<div class="col-md-5">
 								<button
 									type="button"
 									class="btn btn-warning btn-sm"
 									@click="showPrintSettingDialog"
 								>
-									<strong>
-										<i class="fas fa-plus mr-1 text-bold" />Tạo cấu hình
-										in</strong
-									>
+									<strong> <i class="fas fa-plus mr-1 text-bold" />Tạo</strong>
 								</button>
 								<button
-									v-if="print_config_selected != print_config_default.id"
+									v-if="
+										print_config_selected &&
+										print_config_selected != print_config_default.id
+									"
 									class="btn btn-danger btn-sm"
 									@click.prevent="deletePrintConfig(print_config_selected)"
 								>
-									<strong>
-										<i class="fas fa-trash mr-1 text-bold" />Xóa cấu hình
-										in</strong
-									>
+									<strong> <i class="fas fa-trash mr-1 text-bold" />Xóa</strong>
 								</button>
 							</div>
 						</div>
@@ -290,13 +287,13 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-                    {
+					{
 						key: 'address',
 						label: 'Địa chỉ giao hàng',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-                    {
+					{
 						key: 'estimate_delivery_date',
 						label: 'Thời hạn giao hàng',
 						sortable: true,

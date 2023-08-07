@@ -446,6 +446,18 @@
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
 						this.fetchData(new_query);
+						if (new_query.filter == 'undone') {
+							this.form_filter.statuses = [10, 20, 30, 40];
+						}
+						if (new_query.filter == 'delivering') {
+							this.form_filter.statuses = [30, 40];
+						}
+						if (new_query.filter == 'can-delivery') {
+							this.form_filter.statuses = [10];
+						}
+						if (new_query.filter == 'all') {
+							this.form_filter.statuses = [10, 20, 30, 40, 100];
+						}
 					}
 				},
 			},

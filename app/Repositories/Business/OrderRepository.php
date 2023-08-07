@@ -169,6 +169,9 @@ class OrderRepository extends RepositoryAbs
                 }
             }
 
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
 
             $from_date = Carbon::now()->subMonths(1);
             $to_date = Carbon::now();
@@ -197,11 +200,6 @@ class OrderRepository extends RepositoryAbs
                 $query->where('sap_do_number', 'LIKE', '%'.$this->request->sap_do_number.'%');
             }
 
-
-
-            if ($this->request->filled('ids')) {
-                $query->whereIn('id', $this->request->ids);
-            }
 
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
