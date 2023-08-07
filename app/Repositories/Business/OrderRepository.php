@@ -118,6 +118,7 @@ class OrderRepository extends RepositoryAbs
                                 'sap_do_number' => $order['sap_do_number'] ?? '',
                                 'status_id' => EnumsOrderStatus::Pending,
                                 'warehouse_id' => $warehouse->id,
+                                'is_draft' => $order['is_draft'] ?? false,
                             ]
                         );
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
