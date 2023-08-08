@@ -535,6 +535,8 @@ class DeliveryRepository extends RepositoryAbs
                         'delivery_id' => $delivery->id,
                         'start_delivery_at' => null,
                         'complete_delivery_at' => null,
+                        'estimate_delivery_at' => $delivery->estimate_delivery_date,
+                        'address' => $delivery->address
                     ]);
                 }
                 $delivery->timelines()->create([
