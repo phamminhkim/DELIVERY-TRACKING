@@ -10,12 +10,21 @@ class CustomerController extends ResponseController
 {
     public function getAvailableCustomers(Request $request)
     {
-
         $handler = MasterRepository::customerRequest($request);
         $customers = $handler->getAvailableCustomers(false);
 
         if ($customers) {
             return $this->responseSuccess($customers);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getCustomerById(Request $request, $id) {
+        $handler = MasterRepository::customerRequest($request);
+        $customer = $handler->getCustomerById($id);
+
+        if ($customer) {
+            return $this->responseSuccess($customer);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }

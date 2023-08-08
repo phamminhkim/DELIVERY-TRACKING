@@ -28,6 +28,15 @@ class CustomerRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    public function getCustomerById($id) {
+          try {
+            $customer = Customer::find($id);
+            return $customer;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
     public function createNewCustomer()
     {
         try {
