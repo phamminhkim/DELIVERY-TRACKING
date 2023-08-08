@@ -189,10 +189,12 @@
 			},
 			formatValue(value) {
 				if (!value) return '';
+				if (value.includes('vnđ')) return value;
 				return value + ' vnđ';
 			},
 			formatWeight(weight) {
 				if (!weight) return '';
+				if (weight.includes('kg')) return weight;
 				return weight + ' kg';
 			},
 			formatOrder() {
