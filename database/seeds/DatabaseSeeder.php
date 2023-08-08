@@ -1,5 +1,6 @@
 <?php
 
+use App\Utilities\RedisUtility;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CompanySeeder::class);
         $this->call(OrderStatusSeeder::class);
         $this->call(OrderReviewOptionSeeder::class);
+        $this->call(RoleAndPermissionSeeder::class);
         $this->call(MenuRouterSeeder::class);
         $this->call(RouterSeeder::class);
     }

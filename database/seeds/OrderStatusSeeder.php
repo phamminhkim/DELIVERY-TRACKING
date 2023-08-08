@@ -44,5 +44,7 @@ class OrderStatusSeeder extends Seeder
             if (!OrderStatus::where('id', $status['id'])->exists())
                 OrderStatus::create($status);
         }
+
+        $this->command->info('OrderStatusSeeder has been completed!');
     }
 }

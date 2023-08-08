@@ -2,10 +2,13 @@
 
 namespace App\Models\Master;
 
+use App\Traits\FullTextSearch;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
+
+    use FullTextSearch;
     protected $fillable = [
         'code',
         'name',
@@ -18,8 +21,16 @@ class Customer extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $searchable = [
+        'code', 
+        'name', 
+        'email',
+        'phone_number',
+        'address'
+    ];
     public function phones()
     {
         return $this->hasMany(CustomerPhone::class);
     }
+
 }

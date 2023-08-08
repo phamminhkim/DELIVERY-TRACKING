@@ -47,5 +47,7 @@ class OrderReviewOptionSeeder extends Seeder
             if (!OrderReviewOption::where('id', $review['id'])->exists())
                 OrderReviewOption::create($review);
         }
+    
+        $this->command->info('OrderReviewOptionSeeder has been completed!');
     }
 }

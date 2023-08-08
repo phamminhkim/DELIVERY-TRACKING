@@ -11,6 +11,7 @@ use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -167,9 +168,38 @@ class OrderRepository extends RepositoryAbs
                     $query->where('status_id', EnumsOrderStatus::Pending);
                 }
             }
+
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
+
+            $from_date = Carbon::now()->subMonths(1);
+            $to_date = Carbon::now();
+            if($this->request->filled('from_date')){
+                $from_date = $this->request->from_date;
+            }
+            if($this->request->filled('to_date')){
+                $to_date = $this->request->to_date;
+            }
+            $query->whereDate('sap_so_created_date', '>=', $from_date);
+            $query->whereDate('sap_so_created_date', '<=', $to_date);
+            if($this->request->filled('status_ids')){
+                $query->whereIn('status_id', $this->request->status_ids);
+            }
+            if($this->request->filled('customer_ids')){
+                $query->whereIn('customer_id', $this->request->customer_ids);
+            }
+            if($this->request->filled('warehouse_ids')){
+                $query->whereIn('warehouse_id', $this->request->warehouse_ids);
+            }
+            if($this->request->filled('sap_so_number')){
+                $query->where('sap_so_number', 'LIKE', '%'.$this->request->sap_so_number.'%');
+
+            }
+            if($this->request->filled('sap_do_number')){
+                $query->where('sap_do_number', 'LIKE', '%'.$this->request->sap_do_number.'%');
+            }
+
 
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();

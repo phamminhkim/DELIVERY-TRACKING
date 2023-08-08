@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Master\MenuRouter;
 use App\Models\System\Route;
+use App\Utilities\RedisUtility;
 use Illuminate\Database\Seeder;
 
 class RouterSeeder extends Seeder
@@ -90,6 +92,21 @@ class RouterSeeder extends Seeder
         foreach ($routes as $route) {
             if (!Route::where('path', $route['path'])->where('component', $route['component'])->exists()) {
                 Route::create($route);
+            }
+        }
+        
+        $this->assignRouteIntoMenuRouter();
+        RedisUtility::deleteByCategory('routes');
+        $this->command->info('Routes seeded!');
+    }
+
+    public function assignRouteIntoMenuRouter() {
+        $menu_routers = MenuRouter::all();
+        foreach ($menu_routers as $menu_router) {
+            $route = Route::where('path', '/'.$menu_router->link)->first();
+            if ($route) {
+                $menu_router->route_id = $route->id;
+                $menu_router->save();
             }
         }
     }

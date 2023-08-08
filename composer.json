@@ -21,6 +21,7 @@
         "predis/predis": "^2.2",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "socialiteproviders/zalo": "^5.0",
+        "spatie/laravel-permission": "^5.10",
         "wilkques/pkce-php": "^2.0",
         "zaloplatform/zalo-php-sdk": "^4.0"
     },

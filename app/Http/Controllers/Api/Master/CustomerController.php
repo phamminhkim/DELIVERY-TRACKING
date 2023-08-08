@@ -12,7 +12,19 @@ class CustomerController extends ResponseController
     {
 
         $handler = MasterRepository::customerRequest($request);
-        $customers = $handler->getAvailableCustomers();
+        $customers = $handler->getAvailableCustomers(false);
+
+        if ($customers) {
+            return $this->responseSuccess($customers);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getAvailableCustomersMinified(Request $request)
+    {
+
+        $handler = MasterRepository::customerRequest($request);
+        $customers = $handler->getAvailableCustomers(true);
 
         if ($customers) {
             return $this->responseSuccess($customers);

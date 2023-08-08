@@ -23,10 +23,11 @@ class RedisUtility
     {
         Redis::hset($category, $key, $value);
     }
-    public static function getByCategory($category, $key)
+    public static function getByCategory($category, $key, $json_decode)
     {
         if (Redis::ping() == 'PONG' && Redis::hexists($category, $key)) {
-            return Redis::hget($category, $key);
+            $value = Redis::hget($category, $key);
+            return $json_decode ? json_decode($value) : $value;
         }
         return null;
     }

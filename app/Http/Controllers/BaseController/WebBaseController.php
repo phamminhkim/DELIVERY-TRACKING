@@ -30,9 +30,10 @@ class WebBaseController  extends ResponseController
                     $request->session()->put('user', $access_token);
                 }
             }
-            $menus = MenuUtility::getMenusForUser(Auth::user()->id);
-            $routes = Route::all();
-
+            $menus_and_routes = MenuUtility::getMenusAndRoutesForUser(Auth::user()->id);
+            $menus = $menus_and_routes['menus'];
+            $routes = $menus_and_routes['routes'];
+            
             view()->share(compact('access_token', 'menus', 'routes'));
             return $next($request);
         });

@@ -9,10 +9,19 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerRepository extends RepositoryAbs
 {
-    public function getAvailableCustomers()
+    public function getAvailableCustomers($is_minified)
     {
         try {
-            $customers = Customer::all();
+            $query = Customer::query();
+            if($this->request->filled('search')){
+                $query = Customer::search($this->request->search);
+                $query->limit(200);   
+            }
+            if($is_minified){
+                $query->select('id', 'name');
+            }
+
+            $customers = $query->get();
             return $customers;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\System\Route;
 use Illuminate\Database\Eloquent\Model;
 
 class MenuRouter extends Model
@@ -9,6 +10,7 @@ class MenuRouter extends Model
     public $timestamps = false;
     protected $fillable = [
         'title',
+        'route_id',
         'parent_id',
         'order',
         'link',
@@ -30,5 +32,10 @@ class MenuRouter extends Model
     public function parents()
     {
         return $this->hasOne(MenuRouter::class, 'id', 'parent_id');
+    }
+
+    public function route()
+    {
+        return $this->belongsTo(Route::class);
     }
 }

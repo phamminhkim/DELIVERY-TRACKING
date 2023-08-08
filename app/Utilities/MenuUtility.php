@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Models\Master\MenuRouter;
+use App\Models\System\Route;
 use App\User;
 
 class MenuUtility
@@ -15,6 +16,7 @@ class MenuUtility
                 $tree_sub_array = array();
                 if (!isset($menu['id'])) {
                     $new_menu = new MenuRouter();
+                    $new_menu->route_id = $menu['route_id'] ?? null;
                     $new_menu->title = $menu['title'];
                     $new_menu->parent_id = $parent_id;
                     $new_menu->link = $menu['link'];
@@ -33,6 +35,7 @@ class MenuUtility
                 }
                 $tree_array[] = array(
                     'id' => $menu['id'],
+                    'route_id' => $menu['route_id'] ?? null,
                     'parent_id' => intval($parent_id),
                     'title' => $menu['title'],
                     'link' => $menu['link'],
@@ -47,21 +50,26 @@ class MenuUtility
 
         return $tree_array;
     }
-
-    public static function getMenusForUser($user_id)
+    public static function getUserMenus($user_id) {
+        return MenuRouter::where('is_active', true)->get();
+    }
+    public static function getMenusAndRoutesForUser($user_id)
     {
         $menus = array();
-        $cache_menus = RedisUtility::getByCategory('menu-tree', $user_id);
-        if ($cache_menus) {
+        $routes = array();
+        $cache_menus = RedisUtility::getByCategory('menu-tree', $user_id, false);
+        $cache_routes = RedisUtility::getByCategory('routes', $user_id, true);
+        if ($cache_menus && $cache_routes) {
             $menus = $cache_menus;
+            $routes = $cache_routes;
         } else {
-            $raw_role_menus = MenuRouter::all();
+            $raw_role_menus = MenuUtility::getUserMenus($user_id);
+            $routes = Route::whereIn('id', $raw_role_menus->pluck('route_id')->toArray())->get();
 
             $role_menus = array();
             foreach ($raw_role_menus as $menu) {
                 $role_menus[$menu->id] = $menu;
             }
-
             $module_menus = array();
             foreach ($role_menus as  $role_menu) {
                 $menu_tree = MenuUtility::getNestedSetMenuTreeTop($role_menu);
@@ -83,9 +91,10 @@ class MenuUtility
             }
 
             RedisUtility::saveWithCategoryExpire('menu-tree', $user_id, $menus, 3600);
+            RedisUtility::saveWithCategoryExpire('routes', $user_id, $routes, 3600);
         }
 
-        return $menus;
+        return array('menus' => $menus, 'routes' => $routes);
     }
     public static function getNestedSetMenuTreeTop($menu)
     {

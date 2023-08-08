@@ -15,7 +15,7 @@ class MenuRouterRepository extends RepositoryAbs
     public function getConfigMenus()
     {
         try {
-            $all_menus = MenuRouter::where('is_active', 1)->orderBy('parent_id')->orderBy('order')->get();
+            $all_menus = MenuRouter::where('is_active', 1)->with('route')->orderBy('parent_id')->orderBy('order')->get();
 
             $list_menus = array();
             $tree_menus = array();
@@ -57,6 +57,7 @@ class MenuRouterRepository extends RepositoryAbs
             $i = 0;
             foreach ($menus as $row) {
                 $menu = MenuRouter::find($row['id']);
+                $menu->route_id = $row['route_id'] ?? null;
                 $menu->parent_id = $row['parent_id'];
                 $menu->order = ++$i;
                 $menu->title = $row['title'];
@@ -68,7 +69,6 @@ class MenuRouterRepository extends RepositoryAbs
                 $menu->is_active = true;
                 $menu->save();
             }
-
             $transformer = new NestedSetSync();
             $transformer->traverseUpdate();
             RedisUtility::deleteByCategory('menu-tree');

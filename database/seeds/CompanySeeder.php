@@ -45,5 +45,7 @@ class CompanySeeder extends Seeder
             if (!Company::where('code', $company['code'])->exists())
                 Company::create($company);
         }
+
+        $this->command->info('CompanySeeder has been completed!');
     }
 }
