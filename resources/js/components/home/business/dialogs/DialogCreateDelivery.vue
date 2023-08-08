@@ -20,7 +20,7 @@
 
 					<div class="modal-body">
 						<div class="form-group">
-							<label>Chọn công ty</label>
+							<label>Công ty</label>
 							<small class="text-danger">(*)</small>
 							<treeselect
 								v-model="form.company"
@@ -30,20 +30,22 @@
 								required
 							/>
 						</div>
-
 						<div class="form-group">
-							<label>Chọn đơn vị vận chuyển</label>
+							<label>Khách hàng/Nhà phân phối</label>
 							<small class="text-danger">(*)</small>
 							<treeselect
-								v-model="form.delivery_partner"
-								:multiple="false"
-								:options="delivery_partner_options"
-								placeholder="Chọn đơn vị vận chuyển.."
-								required
+								placeholder="Chọn khách hàng.."
+								:disable-branch-nodes="false"
+								v-model="customer_of_delivery"
+								:async="true"
+								:load-options="loadOptions"
+								:normalizer="normalizerOption"
+								searchPromptText="Nhập tên khách hàng để tìm kiếm.."
+								@select="onSelectCustomer"
 							/>
 						</div>
 						<div class="form-group">
-							<label>Chọn địa chỉ giao hàng</label>
+							<label>Địa chỉ giao hàng</label>
 							<small class="text-danger">(*)</small>
 							<input
 								type="text"
@@ -54,7 +56,18 @@
 							/>
 						</div>
 						<div class="form-group">
-							<label>Chọn thời hạn giao hàng</label>
+							<label>Đơn vị vận chuyển</label>
+							<small class="text-danger">(*)</small>
+							<treeselect
+								v-model="form.delivery_partner"
+								:multiple="false"
+								:options="delivery_partner_options"
+								placeholder="Chọn đơn vị vận chuyển.."
+								required
+							/>
+						</div>
+						<div class="form-group">
+							<label>Thời hạn giao hàng</label>
 							<!-- <small class="text-danger">(*)</small> -->
 							<input
 								type="date"
@@ -90,25 +103,6 @@
 									<span class="text-danger" role="alert">
 										<strong> {{ error_message }} </strong>
 									</span>
-								</div>
-								<div class="col-md-5 ml-auto">
-									<div class="input-group input-group-sm mt-1 mb-1">
-										<input
-											type="search"
-											class="form-control -control-navbar"
-											v-model="search_pattern"
-											:placeholder="search_placeholder"
-											aria-label="Search"
-										/>
-										<div class="input-group-append">
-											<button
-												class="btn btn-default"
-												style="background: #1b1a1a; color: white"
-											>
-												<i class="fas fa-search"></i>
-											</button>
-										</div>
-									</div>
 								</div>
 							</div>
 							<b-table
@@ -196,7 +190,7 @@
 
 <script>
 	import Vue, { reactive } from 'vue';
-	import Treeselect from '@riophae/vue-treeselect';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../../ApiHandler';
 
@@ -221,6 +215,7 @@
 					address: null,
 					estimate_delivery_date: null,
 				},
+				customer_of_delivery: null,
 				company_options: [],
 				delivery_partner_options: [],
 
@@ -408,6 +403,32 @@
 			},
 			removePropertyFromObject(obj, key) {
 				this.$delete(obj, key);
+			},
+			normalizerOption(node) {
+				return {
+					id: node.id,
+					label: node.name,
+				};
+			},
+			async loadOptions({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get('api/master/customers/minified', {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
+				}
+			},
+			async onSelectCustomer(node, instanceId) {
+				try {
+					const customer_id = node.id;
+					const { data } = await this.api_handler.get(
+						`api/master/customers/${customer_id}`,
+					);
+					this.form.address = data.address;
+				} catch (err) {
+					console.log(err);
+				}
 			},
 		},
 		computed: {

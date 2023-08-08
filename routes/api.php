@@ -64,6 +64,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/customers')->group(function () {
             Route::get('/minified', [CustomerController::class, 'getAvailableCustomersMinified']);
             Route::get('/', [CustomerController::class, 'getAvailableCustomers']);
+            Route::get('/{id}', [CustomerController::class, 'getCustomerById']);
             Route::post('/', [CustomerController::class, 'createNewCustomer']);
             Route::put('/{id}', [CustomerController::class, 'updateExistingCustomer']);
             Route::delete('/{id}', [CustomerController::class, 'deleteExistingCustomer']);
