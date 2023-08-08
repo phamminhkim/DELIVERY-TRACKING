@@ -123,18 +123,10 @@
 						<template #cell(status)="data">
 							<span :class="data.value.badge_class">{{ data.value.name }}</span>
 						</template>
-						<template #cell(action)="data">
-							<div class="margin">
-								<button
-									class="btn btn-xs mr-1 text-info"
-									@click="showInfoDialog(data.item)"
-								>
-									<i
-										class="fas fa-info-circle mr-1"
-										title="Xem thông tin chi tiết"
-									/>Xem thông tin chi tiết
-								</button>
-							</div>
+						<template #cell(delivery_code)="data">
+							<a href="#" @click="showInfoDialog(data.item)">
+								{{ data.value }}
+							</a>
 						</template>
 					</b-table>
 				</div>
@@ -258,17 +250,24 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'partner.name',
-						label: 'Đơn vị vận chuyển',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
 						key: 'delivery_code',
 						label: 'Mã vận đơn',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+					{
+						key: 'status',
+						label: 'Trạng thái',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'partner.name',
+						label: 'Đơn vị vận chuyển',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+
 					{
 						key: 'created_at',
 						label: 'Ngày tạo vận đơn',
@@ -299,17 +298,11 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					{
-						key: 'status',
-						label: 'Trạng thái',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'action',
-						label: 'Hành động',
-						class: 'text-nowrap text-center',
-					},
+					// {
+					// 	key: 'action',
+					// 	label: 'Hành động',
+					// 	class: 'text-nowrap text-center',
+					// },
 				],
 
 				deliveries: [],

@@ -107,20 +107,24 @@ class OrderRepository extends RepositoryAbs
                             continue;
                         }
 
+                        $data = [
+                            'company_code' => $order['company_code'],
+                            'customer_id' => $customer->id,
+                            'sap_so_created_date' => $order['sap_so_created_date'],
+                            'sap_po_number' => $order['sap_po_number'] ?? '',
+                            'sap_do_number' => $order['sap_do_number'] ?? '',
+                            'status_id' => EnumsOrderStatus::Pending,
+                            'warehouse_id' => $warehouse->id,
+                            'is_draft' => $order['is_draft'] ?? false,
+                        ];
+                        if (!Order::where('sap_so_number', $order['sap_so_number'])->exists()) {
+                            $data['id'] =  Str::uuid()->toString();
+                        }
                         $created_order = Order::updateOrCreate(
                             [
                                 'sap_so_number' => $order['sap_so_number']
                             ],
-                            [
-                                'company_code' => $order['company_code'],
-                                'customer_id' => $customer->id,
-                                'sap_so_created_date' => $order['sap_so_created_date'],
-                                'sap_po_number' => $order['sap_po_number'] ?? '',
-                                'sap_do_number' => $order['sap_do_number'] ?? '',
-                                'status_id' => EnumsOrderStatus::Pending,
-                                'warehouse_id' => $warehouse->id,
-                                'is_draft' => $order['is_draft'] ?? false,
-                            ]
+                            $data
                         );
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
@@ -159,30 +163,31 @@ class OrderRepository extends RepositoryAbs
     {
         try {
             $query = Order::query();
-            if ($this->request->filled('filter')) {
-                if ($this->request->filter == 'undone') {
-                    $query->where('status_id', '<', EnumsOrderStatus::Delivered);
-                } else if ($this->request->filter == 'delivering') {
-                    $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
-                } else if ($this->request->filter == 'can-delivery') {
-                    $query->where('status_id', EnumsOrderStatus::Pending);
-                }
-            }
+            // if ($this->request->filled('filter')) {
+            //     if ($this->request->filter == 'undone') {
+            //         $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+            //     } else if ($this->request->filter == 'delivering') {
+            //         $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
+            //     } else if ($this->request->filter == 'can-delivery') {
+            //         $query->where('status_id', EnumsOrderStatus::Pending);
+            //     }
+            // }
 
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
 
-            $from_date = Carbon::now()->subMonths(1);
-            $to_date = Carbon::now();
+            // $from_date = Carbon::now()->subMonths(1);
+            // $to_date = Carbon::now();
             if($this->request->filled('from_date')){
                 $from_date = $this->request->from_date;
+                $query->whereDate('sap_so_created_date', '>=', $from_date);
             }
             if($this->request->filled('to_date')){
                 $to_date = $this->request->to_date;
+                $query->whereDate('sap_so_created_date', '<=', $to_date);
             }
-            $query->whereDate('sap_so_created_date', '>=', $from_date);
-            $query->whereDate('sap_so_created_date', '<=', $to_date);
+            
             if($this->request->filled('status_ids')){
                 $query->whereIn('status_id', $this->request->status_ids);
             }
