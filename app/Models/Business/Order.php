@@ -14,7 +14,7 @@ class Order extends Model
     use Uuids;
 
     protected $fillable = [
-        'company_code', 'customer_id', 'sap_so_number', 'sap_so_created_date', 'sap_po_number', 'sap_do_number', 'status_id', 'warehouse_id', 'updated_at', 'is_draft'
+       'id', 'company_code', 'customer_id', 'sap_so_number', 'sap_so_created_date', 'sap_po_number', 'sap_do_number', 'status_id', 'warehouse_id', 'updated_at', 'is_draft'
     ];
     protected $casts = [
         'sap_so_created_date' => 'datetime',

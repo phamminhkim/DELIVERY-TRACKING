@@ -107,20 +107,24 @@ class OrderRepository extends RepositoryAbs
                             continue;
                         }
 
+                        $data = [
+                            'company_code' => $order['company_code'],
+                            'customer_id' => $customer->id,
+                            'sap_so_created_date' => $order['sap_so_created_date'],
+                            'sap_po_number' => $order['sap_po_number'] ?? '',
+                            'sap_do_number' => $order['sap_do_number'] ?? '',
+                            'status_id' => EnumsOrderStatus::Pending,
+                            'warehouse_id' => $warehouse->id,
+                            'is_draft' => $order['is_draft'] ?? false,
+                        ];
+                        if (!Order::where('sap_so_number', $order['sap_so_number'])->exists()) {
+                            $data['id'] =  Str::uuid()->toString();
+                        }
                         $created_order = Order::updateOrCreate(
                             [
                                 'sap_so_number' => $order['sap_so_number']
                             ],
-                            [
-                                'company_code' => $order['company_code'],
-                                'customer_id' => $customer->id,
-                                'sap_so_created_date' => $order['sap_so_created_date'],
-                                'sap_po_number' => $order['sap_po_number'] ?? '',
-                                'sap_do_number' => $order['sap_do_number'] ?? '',
-                                'status_id' => EnumsOrderStatus::Pending,
-                                'warehouse_id' => $warehouse->id,
-                                'is_draft' => $order['is_draft'] ?? false,
-                            ]
+                            $data
                         );
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
