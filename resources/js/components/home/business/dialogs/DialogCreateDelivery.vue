@@ -42,26 +42,25 @@
 								required
 							/>
 						</div>
-                        <div class="form-group">
-                            <label>Chọn địa chỉ giao hàng</label>
-                            <small class="text-danger">(*)</small>
-                            <input
-                                type="text"
-                                v-model="deliveries.address"
-                                placeholder="Nhập địa chỉ giao hàng..."
-                                required
-                                class="form-control"
-
-                            />
-                        </div>
-                        <div class="form-group">
+						<div class="form-group">
+							<label>Chọn địa chỉ giao hàng</label>
+							<small class="text-danger">(*)</small>
+							<input
+								type="text"
+								v-model="form.address"
+								placeholder="Nhập địa chỉ giao hàng..."
+								required
+								class="form-control"
+							/>
+						</div>
+						<div class="form-group">
 							<label>Chọn thời hạn giao hàng</label>
 							<!-- <small class="text-danger">(*)</small> -->
-                            <input
-                                type="date"
-                                v-model="deliveries.estimate_delivery_date"
-                                class="form-control"
-                            />
+							<input
+								type="date"
+								v-model="form.estimate_delivery_date"
+								class="form-control"
+							/>
 						</div>
 
 						<div class="form-group">
@@ -219,14 +218,11 @@
 					company: null,
 					delivery_partner: null,
 					orders: {}, // use plain object like a HashMap
+					address: null,
+					estimate_delivery_date: null,
 				},
 				company_options: [],
 				delivery_partner_options: [],
-                deliveries: {
-                    address: null,
-                    estimate_delivery_date: null,
-                },
-
 
 				selected_orders: {}, // use plain object like a HashMap,
 				order_options: {}, //use plain object like a HashMap
@@ -289,7 +285,7 @@
 		methods: {
 			async fetchMasterData() {
 				try {
-					const [companies, delivery_partners,deliveries, orders] =
+					const [companies, delivery_partners, deliveries, orders] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/companies'),
 							new APIRequest('get', '/api/master/delivery-partners'),
@@ -312,7 +308,6 @@
 							label: `(${delivery_partner.code}) ${delivery_partner.name}`,
 						};
 					});
-
 
 					orders.forEach((order) => {
 						if (order.sap_so_number && order.sap_do_number) {
@@ -378,7 +373,8 @@
 										id: order_id,
 									};
 								}),
-
+								address: this.form.address,
+								estimate_delivery_date: this.form.estimate_delivery_date,
 							},
 						)
 						.finally(() => {

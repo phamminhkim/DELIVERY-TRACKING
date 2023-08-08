@@ -159,30 +159,31 @@ class OrderRepository extends RepositoryAbs
     {
         try {
             $query = Order::query();
-            if ($this->request->filled('filter')) {
-                if ($this->request->filter == 'undone') {
-                    $query->where('status_id', '<', EnumsOrderStatus::Delivered);
-                } else if ($this->request->filter == 'delivering') {
-                    $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
-                } else if ($this->request->filter == 'can-delivery') {
-                    $query->where('status_id', EnumsOrderStatus::Pending);
-                }
-            }
+            // if ($this->request->filled('filter')) {
+            //     if ($this->request->filter == 'undone') {
+            //         $query->where('status_id', '<', EnumsOrderStatus::Delivered);
+            //     } else if ($this->request->filter == 'delivering') {
+            //         $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
+            //     } else if ($this->request->filter == 'can-delivery') {
+            //         $query->where('status_id', EnumsOrderStatus::Pending);
+            //     }
+            // }
 
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
 
-            $from_date = Carbon::now()->subMonths(1);
-            $to_date = Carbon::now();
+            // $from_date = Carbon::now()->subMonths(1);
+            // $to_date = Carbon::now();
             if($this->request->filled('from_date')){
                 $from_date = $this->request->from_date;
+                $query->whereDate('sap_so_created_date', '>=', $from_date);
             }
             if($this->request->filled('to_date')){
                 $to_date = $this->request->to_date;
+                $query->whereDate('sap_so_created_date', '<=', $to_date);
             }
-            $query->whereDate('sap_so_created_date', '>=', $from_date);
-            $query->whereDate('sap_so_created_date', '<=', $to_date);
+            
             if($this->request->filled('status_ids')){
                 $query->whereIn('status_id', $this->request->status_ids);
             }

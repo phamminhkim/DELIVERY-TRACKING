@@ -355,8 +355,8 @@
 					statuses: [],
 					customers: [],
 					warehouses: [],
-					sap_so_number: '',
-					sap_do_number: '',
+					sap_so_number: undefined,
+					sap_do_number: undefined,
 				},
 				customer_options: [],
 				warehouse_options: [],
@@ -438,6 +438,8 @@
 			};
 		},
 		async created() {
+			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
+			this.form_filter.end_date = this.formatDate(new Date());
 			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
 		},
 		watch: {
@@ -448,15 +450,19 @@
 						this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
+							this.fetchData();
 						}
 						if (new_query.filter == 'delivering') {
 							this.form_filter.statuses = [30, 40];
+							this.fetchData();
 						}
 						if (new_query.filter == 'can-delivery') {
 							this.form_filter.statuses = [10];
+							this.fetchData();
 						}
 						if (new_query.filter == 'all') {
 							this.form_filter.statuses = [10, 20, 30, 40, 100];
+							this.fetchData();
 						}
 					}
 				},
@@ -466,7 +472,15 @@
 			async fetchData(query) {
 				try {
 					const [orders] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', this.api_url_orders, query),
+						new APIRequest('get', this.api_url_orders, {
+							from_date: this.form_filter.start_date,
+							to_date: this.form_filter.end_date,
+							status_ids: this.form_filter.statuses,
+							customer_ids: this.form_filter.customers,
+							warehouse_ids: this.form_filter.warehouses,
+							sap_so_number: this.form_filter.sap_so_number,
+							sap_do_number: this.form_filter.sap_do_number,
+						}),
 					]);
 
 					this.orders = orders;
@@ -528,13 +542,15 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					this.form_filter.start_date = '';
-					this.form_filter.end_date = '';
+					this.form_filter.start_date = this.formatDate(
+						this.subtractDate(new Date(), 0, 1, 0),
+					);
+					this.form_filter.end_date = this.formatDate(new Date());
 					this.form_filter.statuses = [];
 					this.form_filter.customers = [];
 					this.form_filter.warehouses = [];
-					this.form_filter.sap_so_number = '';
-					this.form_filter.sap_do_number = '';
+					this.form_filter.sap_so_number = undefined;
+					this.form_filter.sap_do_number = undefined;
 
 					await this.fetchData();
 				} catch (error) {
@@ -561,6 +577,23 @@
 			showInfoDialog(order) {
 				this.viewing_order = order;
 				$('#DialogOrderInfo').modal('show');
+			},
+			subtractDate(date, sub_date = 0, sub_month = 0, sub_year = 0) {
+				date.setDate(date.getDate() - sub_date);
+				date.setMonth(date.getMonth() - sub_month);
+				date.setFullYear(date.getFullYear() - sub_year);
+				return date;
+			},
+			formatDate(date) {
+				var d = new Date(date),
+					month = '' + (d.getMonth() + 1),
+					day = '' + d.getDate(),
+					year = d.getFullYear();
+
+				if (month.length < 2) month = '0' + month;
+				if (day.length < 2) day = '0' + day;
+
+				return [year, month, day].join('-');
 			},
 		},
 		computed: {
