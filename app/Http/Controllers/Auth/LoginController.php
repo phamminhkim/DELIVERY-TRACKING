@@ -86,7 +86,7 @@ class LoginController extends Controller
          //    auth()->logout();
          //    return back()->with('warning', 'Chúng tôi đã gửi email đến tài khoản của bạn, vui lòng xác thực để kích hoạt tài khoản.');
          //}
-         return redirect()->intended($this->redirectPath());
+         return redirect()->to('/'); //->intended($this->redirectPath());
      }
     public function username()
     {
