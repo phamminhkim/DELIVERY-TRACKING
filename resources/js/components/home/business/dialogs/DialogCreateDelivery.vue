@@ -33,6 +33,16 @@
 						<div class="form-group">
 							<label>Khách hàng/Nhà phân phối</label>
 							<small class="text-danger">(*)</small>
+							<treeselect
+								placeholder="Chọn khách hàng.."
+								:disable-branch-nodes="false"
+								v-model="customer_of_delivery"
+								:async="true"
+								:load-options="loadOptions"
+								:normalizer="normalizerOption"
+								searchPromptText="Nhập tên khách hàng để tìm kiếm.."
+								@select="onSelectCustomer"
+							/>
 						</div>
 						<div class="form-group">
 							<label>Địa chỉ giao hàng</label>
@@ -180,7 +190,7 @@
 
 <script>
 	import Vue, { reactive } from 'vue';
-	import Treeselect from '@riophae/vue-treeselect';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../../ApiHandler';
 
@@ -205,6 +215,7 @@
 					address: null,
 					estimate_delivery_date: null,
 				},
+				customer_of_delivery: null,
 				company_options: [],
 				delivery_partner_options: [],
 
@@ -392,6 +403,32 @@
 			},
 			removePropertyFromObject(obj, key) {
 				this.$delete(obj, key);
+			},
+			normalizerOption(node) {
+				return {
+					id: node.id,
+					label: node.name,
+				};
+			},
+			async loadOptions({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get('api/master/customers/minified', {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
+				}
+			},
+			async onSelectCustomer(node, instanceId) {
+				try {
+					const customer_id = node.id;
+					const { data } = await this.api_handler.get(
+						`api/master/customers/${customer_id}`,
+					);
+					this.form.address = data.address;
+				} catch (err) {
+					console.log(err);
+				}
 			},
 		},
 		computed: {

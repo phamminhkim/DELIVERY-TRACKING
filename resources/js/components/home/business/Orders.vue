@@ -98,6 +98,7 @@
 											:async="true"
 											:load-options="loadOptions"
 											:normalizer="normalizerOption"
+											searchPromptText="Nhập tên khách hàng để tìm kiếm.."
 										/>
 									</div>
 								</div>
