@@ -435,7 +435,7 @@
 				orders: [],
 
 				viewing_order: {},
-				api_url_orders: '/api/admin/orders',
+				api_url_orders: '/api/partner/orders',
 			};
 		},
 		async created() {
