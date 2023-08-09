@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\Company;
+use App\Models\Master\Customer;
 use App\Models\Master\DeliveryPartner;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuids;
@@ -15,6 +16,7 @@ class Delivery extends Model
         'delivery_code',
         'company_code',
         'delivery_partner_id',
+        'customer_id',
         'address',
         'start_delivery_date',
         'estimate_delivery_date',
@@ -41,6 +43,10 @@ class Delivery extends Model
     public function partner()
     {
         return $this->belongsTo(DeliveryPartner::class, 'delivery_partner_id');
+    }
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'custoemr_id');
     }
     public function pickup()
     {
