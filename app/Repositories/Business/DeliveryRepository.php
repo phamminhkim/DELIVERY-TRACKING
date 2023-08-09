@@ -382,6 +382,7 @@ class DeliveryRepository extends RepositoryAbs
                 $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                    $order_delivery->update(['complete_delivery_date' => date('Y-m-d H:i:s')]);
                     $delivery->timelines()->create([
                         'event' => 'confirm_fully_order_delivery',
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
