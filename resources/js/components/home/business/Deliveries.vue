@@ -127,6 +127,9 @@
 							<a href="#" @click="showInfoDialog(data.item)">
 								{{ data.value }}
 							</a>
+							<b-badge variant="danger" v-if="data.item.is_new"
+								><i class="fas fa-fire text-white"></i>Mới
+							</b-badge>
 						</template>
 					</b-table>
 				</div>
@@ -443,7 +446,8 @@
 					const { data } = await this.api_handler.get(
 						`${this.api_url_deliveries}/${delivery_response.delivery_id}`,
 					);
-					this.deliveries.push(data);
+					data.is_new = true;
+					this.deliveries.unshift(data);
 				} catch (error) {
 					console.log(error);
 				}

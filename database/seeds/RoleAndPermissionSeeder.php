@@ -21,7 +21,7 @@ class RoleAndPermissionSeeder extends Seeder
             'admin-warehouse',
             'user-driver',
             'user-customer',
-            'system-sap',
+            'user-sap',
             'user-normal'
         ];
 
