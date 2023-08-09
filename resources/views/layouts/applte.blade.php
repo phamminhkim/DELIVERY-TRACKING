@@ -18,7 +18,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title>{{ config('app.title', 'TL Delivery Tracking') }}</title>
 
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ asset('js/app.js') }}?version={{ $version }}" defer></script>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="/template/plugins/fontawesome-free/css/all.min.css">
