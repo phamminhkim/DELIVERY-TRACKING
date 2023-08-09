@@ -39,23 +39,24 @@ class FixBase64Images extends Command
      */
     public function handle()
     {
-       $images = Image::all();
+        $images = Image::all();
 
         foreach ($images as $image) {
             $url = $image->url;
-            $content = Storage::disk('images')->get($url);
-
+            $path = str_replace('images/', '', $url); // Removing "images/" prefix
+            $content = Storage::disk('images')->get($path);
+        
             // Check if the content looks like a Base64 encoded image
             if (substr($content, 0, 11) == 'data:image/') {
                 $image_base64 = substr($content, strpos($content, ",") + 1);
                 $image_raw_data = base64_decode($image_base64);
-
+            
                 // Override the existing file with the decoded image data
-                Storage::disk('images')->put($url, $image_raw_data);
+                Storage::disk('images')->put($path, $image_raw_data);
                 $this->info("Fixed image with URL: {$url}");
             }
         }
-
+    
         $this->info('Image fixing process completed.');
     }
 }
