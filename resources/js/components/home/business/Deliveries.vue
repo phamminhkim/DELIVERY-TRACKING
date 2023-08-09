@@ -262,12 +262,17 @@
 						class: 'text-nowrap text-center',
 					},
 					{
+						key: 'customer.name',
+						label: 'Khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
 						key: 'partner.name',
 						label: 'Đơn vị vận chuyển',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-
 					{
 						key: 'created_at',
 						label: 'Ngày tạo vận đơn',
