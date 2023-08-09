@@ -38,7 +38,7 @@ class DeliveryRepository extends RepositoryAbs
                     $query->whereNotNull('start_delivery_date')->whereNull('complete_delivery_date');
                 }
             }
-            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->get();
+            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('created_at')->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = EnumsOrderStatus::Delivered;
