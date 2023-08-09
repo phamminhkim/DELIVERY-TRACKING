@@ -13,11 +13,11 @@ class CustomerRepository extends RepositoryAbs
     {
         try {
             $query = Customer::query();
-            if($this->request->filled('search')){
+            if ($this->request->filled('search')){
                 $query = Customer::search($this->request->search);
                 $query->limit(200);   
             }
-            if($is_minified){
+            if ($is_minified){
                 $query->select('id', 'name');
             }
 
