@@ -4,6 +4,7 @@ namespace App\Repositories\Master;
 
 use App\User;
 use App\Repositories\Abstracts\RepositoryAbs;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserRepository extends RepositoryAbs
@@ -24,17 +25,18 @@ class UserRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
 
                 'name' => 'required|string',
+                'password' => 'required|string',
                 'email' => 'nullable|string|unique:users,email',
                 'phone_number' => 'nullable|string',
             ], [
 
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
+                'password.required' => 'Mật khẩu là bắt buộc',
+                'password.string' => 'Mật khẩu phải là chuỗi',
                 'email.string' => 'Email phải là chuỗi.',
                 'email.unique' => 'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
-
-
             ]);
 
             if ($validator->fails()) {
@@ -47,6 +49,7 @@ class UserRepository extends RepositoryAbs
                 }
             } else {
                 $this->data['active'] = true;
+                $this->data['password'] = Hash::make($this->data['password']);
                 $user = User::create($this->data);
                 return $user;
             }
@@ -62,12 +65,14 @@ class UserRepository extends RepositoryAbs
 
                 'name' => 'required|string',
                 'email' => 'nullable|string',
+                'password' => 'nullable|string',
                 'phone_number' => 'nullable|string',
             ], [
 
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
+                'password.string' => 'Password phải là chuỗi',
                 //'email.unique' =>'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
 
@@ -83,6 +88,7 @@ class UserRepository extends RepositoryAbs
                 }
             } else {
                 $user = User::findOrFail($id);
+                $this->data['password'] = Hash::make($this->data['password']);
                 $user->update($this->data);
 
                 return $user;

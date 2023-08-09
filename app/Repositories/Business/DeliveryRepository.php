@@ -10,6 +10,7 @@ use App\Models\Business\Order;
 use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
 use App\Models\Business\PrintConfig;
+use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DeliveryPartner;
 use App\Models\Master\Image;
@@ -37,7 +38,7 @@ class DeliveryRepository extends RepositoryAbs
                     $query->whereNotNull('start_delivery_date')->whereNull('complete_delivery_date');
                 }
             }
-            $deliveries = $query->with(['company', 'partner', 'pickup', 'orders'])->get();
+            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = EnumsOrderStatus::Delivered;
@@ -120,7 +121,7 @@ class DeliveryRepository extends RepositoryAbs
                         $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
                         return false;
                     }
-                    $delivery->load(['company', 'partner', 'timelines']);
+                    $delivery->load(['company', 'customer', 'partner', 'timelines']);
                     unset($delivery->orders);
                     $delivery->orders = $my_orders;
                 } else {
@@ -128,7 +129,7 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
             } else {
-                $delivery->load(['company', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
             }
 
             if ($delivery->complete_delivery_date) {
@@ -381,6 +382,7 @@ class DeliveryRepository extends RepositoryAbs
                 $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                    $order_delivery->update(['complete_delivery_date' => date('Y-m-d H:i:s')]);
                     $delivery->timelines()->create([
                         'event' => 'confirm_fully_order_delivery',
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
@@ -477,6 +479,7 @@ class DeliveryRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'company_code' => 'required|string|exists:companies,code',
                 'delivery_partner_code' => 'required|string|exists:delivery_partners,code',
+                'customer_id' => 'required|exists:customers,id',
                 'orders' => 'required|array',
                 'orders.*.id' => 'required|uuid|exists:orders',
             ], [
@@ -484,6 +487,8 @@ class DeliveryRepository extends RepositoryAbs
                 'company_code.exists' => 'Mã công ty không tồn tại.',
                 'delivery_partner_code.required' => 'Mã đối tác giao hàng là bắt buộc.',
                 'delivery_partner_code.exists' => 'Mã đối tác giao hàng không tồn tại.',
+                'customer_id.required' => 'Id khách hàng là bắt buộc.',
+                'customer_id.exists' => 'Id khách hàng không tồn tại.',
                 'orders.required' => 'Danh sách đơn hàng là bắt buộc.',
                 'orders.*.id.required' => 'Mã đơn hàng là bắt buộc.',
                 'orders.*.id.uuid' => 'Mã đơn hàng không đúng định dạng.',
@@ -496,11 +501,13 @@ class DeliveryRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $delivery_partner = DeliveryPartner::where('code', $this->data['delivery_partner_code'])->first();
                 $delivery_code = UniqueIdUtility::generateDeliveryUniqueCode($delivery_partner);
+                $customer = Customer::find($this->data['customer_id']);
 
                 $delivery = Delivery::create([
                     'delivery_code' => $delivery_code,
                     'company_code' => $this->data['company_code'],
                     'delivery_partner_id' => $delivery_partner->id,
+                    'customer_id' => $customer->id,
                     'start_delivery_at' => null,
                     'complete_delivery_at' => null,
                     'created_by' => $this->current_user->id

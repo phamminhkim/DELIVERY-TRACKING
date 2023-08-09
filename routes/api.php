@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use Illuminate\Http\Request;
@@ -141,7 +142,7 @@ Route::middleware('auth:api')->group(function () {
         });
     });
 
-    Route::prefix('admin')->group(function () {
+    Route::prefix('partner')->group(function () {
         Route::prefix('/deliveries')->group(function () {
             Route::get('/', [DeliveryController::class, 'getDeliveries']);
             Route::get('/print-configs', [DeliveryController::class, 'getPrintConfigsOfUser']);
@@ -158,6 +159,15 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrders']);
             Route::get('/minified', [OrderController::class, 'getMinifiedOrders']);
+        });
+    });
+
+    Route::prefix('admin')->group(function () {
+        Route::prefix('/roles')->group(function () {
+            Route::get('/', [RoleController::class, 'getAvailableRoles']);
+            Route::post('/', [RoleController::class, 'createNewRole']);
+            Route::put('/{id}', [RoleController::class, 'updateExistingRole']);
+            Route::delete('/{id}', [RoleController::class, 'deleteExistingRole']);
         });
     });
 });

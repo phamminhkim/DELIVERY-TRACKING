@@ -306,10 +306,10 @@
 				],
 
 				deliveries: [],
-				api_url_deliveries: '/api/admin/deliveries',
+				api_url_deliveries: '/api/partner/deliveries',
 			};
 		},
-		created() {
+		async created() {
 			this.fetchData();
 			this.fetchPrintQRConfigOptions();
 		},
@@ -392,7 +392,7 @@
 						: this.print_config_default.config;
 
 					const { data } = await this.api_handler.post(
-						'api/admin/deliveries/print-qrs',
+						'api/partner/deliveries/print-qrs',
 						{},
 						{
 							delivery_ids: delivery_ids,

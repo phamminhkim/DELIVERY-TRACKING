@@ -11,7 +11,7 @@ class OrderDelivery extends Model
         'order_id',
         'delivery_id',
         'start_delivery_date',
-        'end_delivery_date',
+        'complete_delivery_date',
     ];
     protected $hidden = [
         'order_id',
