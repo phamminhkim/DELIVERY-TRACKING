@@ -22,14 +22,14 @@ class RoleRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'name' =>'required|string|unique:roles,name,NULL,id,guard,' . $this->data['guard'],
-                'guard' => 'required|string',
+                'name' =>'required|string|unique:roles,name,NULL,id,guard_name,' . $this->data['guard_name'],
+                'guard_name' => 'required|string',
             ], [
                 'name.required' => 'Tên role là bắt buộc.',
                 'name.string' => 'Tên role phải là một chuỗi.',
                 'name.unique' => 'Tên và guard đã tồn tại.',
-                'guard.required' => 'Guard là bắt buộc.',
-                'guard.string' => 'Guard phải là một chuỗi.',
+                'guard_name.required' => 'Guard là bắt buộc.',
+                'guard_name.string' => 'Guard phải là một chuỗi.',
             ]);
 
             if ($validator->fails()) {
@@ -55,12 +55,12 @@ class RoleRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'name' =>'required|string',
-                'guard' => 'required|string',
+                'guard_name' => 'required|string',
             ], [
                 'name.required' => 'Tên role là bắt buộc.',
                 'name.string' => 'Tên role phải là một chuỗi.',
-                'guard.required' => 'Guard là bắt buộc.',
-                'guard.string' => 'Guard phải là một chuỗi.',
+                'guard_name.required' => 'Guard là bắt buộc.',
+                'guard_name.string' => 'Guard phải là một chuỗi.',
             ]);
 
             if ($validator->fails()) {

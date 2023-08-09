@@ -33,7 +33,7 @@ class CustomerPhoneSeeder extends Seeder
                     'customer_id' => $customer->id,
                     'name' => $customerPhone['name'] ,
                     'description' => $customerPhone['name'] ,
-                    'phone_number' => $customerPhone['phone_number'] ,
+                    'phone_number' => "84" . substr($customerPhone['phone_number'],1, strlen($customerPhone['phone_number'])-1)  ,
                     'is_active' => true,
                 ]);
             }
