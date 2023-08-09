@@ -28,7 +28,7 @@ class ZaloRepository extends RepositoryAbs
     {
         $existing_token = ServiceToken::where('provider', 'zalo')->where('category', 'oa_access_token')->first();
         if ($existing_token) {
-            if ($existing_token->expired_at > date('Y-m-d H:i:s')) {
+            if ($existing_token->expired_at > now()) {
                 return $existing_token->access_token;
             } else {
                 Log::info("ZaloOA access token has expired at "  . $existing_token->expired_at->format('Y-m-d H:i:s'));

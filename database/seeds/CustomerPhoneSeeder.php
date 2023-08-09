@@ -14,28 +14,25 @@ class CustomerPhoneSeeder extends Seeder
     public function run()
     {
         $customerPhones = [
-            [
-                'code' => '600128',
-                'name' => 'NGUYỄN THỊ ĐỊNH',
-                'phone_number' => "0343084437",
-                'is_active' => true,
-            ],
-           
+            array("code"=>"102056","name"=>"NGUYỄN THỊ ĐỊNH","phone_number"=>"0343084437"),
         ];
 
         foreach ($customerPhones as $customerPhone) {
             $customer = Customer::where('code', $customerPhone['code'])->first();
             if ($customer){
                 $customerPhone['customer_id'] = $customer->id;
+                $phone_number = "84" . substr($customerPhone['phone_number'],1, strlen($customerPhone['phone_number'])-1);
+                if(!CustomerPhone::where('customer_id',$customer->id)->where('phone_number', $phone_number)->exists()){
+                    CustomerPhone::create([
 
-                CustomerPhone::create([
+                        'customer_id' => $customer->id,
+                        'name' => $customerPhone['name'] ,
+                        'description' => $customerPhone['name'] ,
+                        'phone_number' => $phone_number ,
+                        'is_active' => true,
+                    ]);
+                }
 
-                    'customer_id' => $customer->id,
-                    'name' => $customerPhone['name'] ,
-                    'description' => $customerPhone['name'] ,
-                    'phone_number' => "84" . substr($customerPhone['phone_number'],1, strlen($customerPhone['phone_number'])-1)  ,
-                    'is_active' => true,
-                ]);
             }
            
         }

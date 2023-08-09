@@ -342,7 +342,7 @@ class OrderRepository extends RepositoryAbs
             $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 
-            Storage::disk('images')->put($file_name, $image_data);
+            Storage::disk('images')->put($file_name, $image_raw_data);
 
             $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }
