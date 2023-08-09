@@ -36,7 +36,7 @@
 							<treeselect
 								placeholder="Chọn khách hàng.."
 								:disable-branch-nodes="false"
-								v-model="customer_of_delivery"
+								v-model="form.customer_id"
 								:async="true"
 								:load-options="loadOptions"
 								:normalizer="normalizerOption"
@@ -214,8 +214,8 @@
 					orders: {}, // use plain object like a HashMap
 					address: null,
 					estimate_delivery_date: null,
+					customer_id: null,
 				},
-				customer_of_delivery: null,
 				company_options: [],
 				delivery_partner_options: [],
 
@@ -372,6 +372,7 @@
 								}),
 								address: this.form.address,
 								estimate_delivery_date: this.form.estimate_delivery_date,
+								customer_id: this.form.customer_id,
 							},
 						)
 						.finally(() => {
