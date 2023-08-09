@@ -309,7 +309,7 @@
 				api_url_deliveries: '/api/admin/deliveries',
 			};
 		},
-		created() {
+		async created() {
 			this.fetchData();
 			this.fetchPrintQRConfigOptions();
 		},

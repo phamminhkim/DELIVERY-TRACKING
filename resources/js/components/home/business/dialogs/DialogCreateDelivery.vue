@@ -280,15 +280,17 @@
 		methods: {
 			async fetchMasterData() {
 				try {
-					const [companies, delivery_partners, deliveries, orders] =
-						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/companies'),
-							new APIRequest('get', '/api/master/delivery-partners'),
-							new APIRequest('get', '/api/admin/deliveries'),
-							new APIRequest('get', '/api/admin/orders/minified', {
-								filter: 'can-delivery',
-							}),
-						]);
+					const [
+						companies,
+						delivery_partners,
+						// orders
+					] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/companies'),
+						new APIRequest('get', '/api/master/delivery-partners'),
+						// new APIRequest('get', '/api/admin/orders/minified', {
+						// 	filter: 'can-delivery',
+						// }),
+					]);
 
 					this.company_options = companies.map((company) => {
 						return {
@@ -304,14 +306,14 @@
 						};
 					});
 
-					orders.forEach((order) => {
-						if (order.sap_so_number && order.sap_do_number) {
-							this.addPropertyToObject(this.order_options, order.id, {
-								id: order.id,
-								label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
-							});
-						}
-					});
+					// orders.forEach((order) => {
+					// 	if (order.sap_so_number && order.sap_do_number) {
+					// 		this.addPropertyToObject(this.order_options, order.id, {
+					// 			id: order.id,
+					// 			label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
+					// 		});
+					// 	}
+					// });
 				} catch (error) {
 					console.log(error);
 				}
@@ -422,10 +424,23 @@
 			async onSelectCustomer(node, instanceId) {
 				try {
 					const customer_id = node.id;
-					const { data } = await this.api_handler.get(
-						`api/master/customers/${customer_id}`,
-					);
-					this.form.address = data.address;
+					const [customer, orders_of_customer] =
+						await this.api_handler.handleMultipleRequest([
+							new APIRequest('get', `api/master/customers/${customer_id}`),
+							new APIRequest('get', `api/admin/orders/minified`, {
+								customer_id: customer_id,
+							}),
+						]);
+					this.form.address = customer.address;
+					this.order_options = {};
+					orders_of_customer.forEach((order) => {
+						if (order.sap_so_number && order.sap_do_number) {
+							this.addPropertyToObject(this.order_options, order.id, {
+								id: order.id,
+								label: `SO: (${order.sap_so_number}), DO: (${order.sap_do_number})`,
+							});
+						}
+					});
 				} catch (err) {
 					console.log(err);
 				}

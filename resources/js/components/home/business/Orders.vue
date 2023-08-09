@@ -448,7 +448,7 @@
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						this.fetchData(new_query);
+						// this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -474,8 +474,14 @@
 				try {
 					const [orders] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_orders, {
-							from_date: this.form_filter.start_date,
-							to_date: this.form_filter.end_date,
+							from_date:
+								this.form_filter.start_date.length == 0
+									? undefined
+									: this.form_filter.start_date,
+							to_date:
+								this.form_filter.end_date.length == 0
+									? undefined
+									: this.form_filter.end_date,
 							status_ids: this.form_filter.statuses,
 							customer_ids: this.form_filter.customers,
 							warehouse_ids: this.form_filter.warehouses,
