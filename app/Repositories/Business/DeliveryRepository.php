@@ -69,7 +69,7 @@ class DeliveryRepository extends RepositoryAbs
                 DeliveryTokenScan::create([
                     'token_id' => null,
                     'scan_by' => $this->current_user->id,
-                    'scan_at' => date('Y-m-d H:i:s'),
+                    'scan_at' => now(),
                     'is_success' => false,
                     'result' => 'Invalid QR code'
                 ]);
@@ -78,7 +78,7 @@ class DeliveryRepository extends RepositoryAbs
             } else {
                 $delivery_token->scans()->create([
                     'scan_by' => $this->current_user->id,
-                    'scan_at' => date('Y-m-d H:i:s'),
+                    'scan_at' => now(),
                     'is_success' => true,
                     'result' => 'Fetch delivery with id ' . strval($delivery_token->delivery_id)
                 ]);
@@ -92,7 +92,7 @@ class DeliveryRepository extends RepositoryAbs
             DeliveryTokenScan::create([
                 'token_id' => $delivery_token ? $delivery_token->id : null,
                 'scan_by' => $this->current_user->id,
-                'scan_at' => date('Y-m-d H:i:s'),
+                'scan_at' => now(),
                 'is_success' => false,
                 'result' => $exception->getMessage()
             ]);
@@ -294,19 +294,19 @@ class DeliveryRepository extends RepositoryAbs
 
                 DB::beginTransaction();
                 $delivery->pickup()->create([
-                    'pickup_at' => date('Y-m-d H:i:s'),
+                    'pickup_at' => now(),
                     'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
                     'driver_note' => $this->data['driver_note'] ?? '',
                     'driver_plate_number' => $this->data['driver_plate_number'],
                 ]);
-                $delivery->update(['start_delivery_date' => date('Y-m-d H:i:s')]);
+                $delivery->update(['start_delivery_date' => now()]);
 
                 $delivery->orders->each(function ($order) use ($delivery) {
                     $order->update(['status_id' => EnumsOrderStatus::Delivering]);
                     OrderDelivery::where('order_id', $order->id)
                         ->where('delivery_id', $delivery->id)
-                        ->update(['start_delivery_date' => date('Y-m-d H:i:s')]);
+                        ->update(['start_delivery_date' => now()]);
                 });
                 $delivery->timelines()->create([
                     'event' => 'confirm_pickup_delivery',
@@ -372,7 +372,7 @@ class DeliveryRepository extends RepositoryAbs
 
                 DB::beginTransaction();
                 $confirm = $order->driver_confirms()->create([
-                    'complete_delivery_date' => date('Y-m-d H:i:s'),
+                    'complete_delivery_date' => now(),
                     'confirm_status' => $this->data['confirm_status'],
                     'driver_phone' => $this->current_user->phone_number,
                     'driver_name' => $this->data['driver_name'],
@@ -382,7 +382,7 @@ class DeliveryRepository extends RepositoryAbs
                 $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
                 if ($this->data['confirm_status'] == 'fully') {
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
-                    $order_delivery->update(['complete_delivery_date' => date('Y-m-d H:i:s')]);
+                    $order_delivery->update(['complete_delivery_date' => now()]);
                     $delivery->timelines()->create([
                         'event' => 'confirm_fully_order_delivery',
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
@@ -426,7 +426,7 @@ class DeliveryRepository extends RepositoryAbs
                 return false;
             }
             DB::beginTransaction();
-            $delivery->update(['complete_delivery_date' => date('Y-m-d H:i:s')]);
+            $delivery->update(['complete_delivery_date' => now()]);
             $delivery->timelines()->create([
                 'event' => 'complete_delivery',
                 'description' => 'Đơn vận chuyển hoàn tất.',
