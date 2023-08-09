@@ -266,7 +266,7 @@
 		},
 		watch: {
 			order_ids: async function (new_order_ids) {
-				const { data } = await this.api_handler.get('/api/admin/orders', {
+				const { data } = await this.api_handler.get('/api/partner/orders', {
 					ids: new_order_ids.length === 0 ? [null] : new_order_ids,
 				});
 				this.form.orders = {};
@@ -287,7 +287,7 @@
 					] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/companies'),
 						new APIRequest('get', '/api/master/delivery-partners'),
-						// new APIRequest('get', '/api/admin/orders/minified', {
+						// new APIRequest('get', '/api/partner/orders/minified', {
 						// 	filter: 'can-delivery',
 						// }),
 					]);
@@ -332,7 +332,7 @@
 			},
 			async addOrders(order_ids) {
 				try {
-					const { data } = await this.api_handler.get('/api/admin/orders', {
+					const { data } = await this.api_handler.get('/api/partner/orders', {
 						ids: order_ids.length === 0 ? [null] : order_ids,
 					});
 					data.forEach((order) => {
@@ -360,7 +360,7 @@
 					this.is_loading = true;
 					const { data } = await this.api_handler
 						.post(
-							'/api/admin/deliveries',
+							'/api/partner/deliveries',
 							{},
 							{
 								company_code: this.form.company,
@@ -427,7 +427,7 @@
 					const [customer, orders_of_customer] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', `api/master/customers/${customer_id}`),
-							new APIRequest('get', `api/admin/orders/minified`, {
+							new APIRequest('get', `api/partner/orders/minified`, {
 								customer_id: customer_id,
 							}),
 						]);

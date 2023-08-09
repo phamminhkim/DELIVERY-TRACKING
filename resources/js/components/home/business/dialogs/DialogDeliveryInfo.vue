@@ -286,7 +286,7 @@
 				try {
 					this.is_loading = true;
 					let result = await this.api_handler.get(
-						'api/admin/deliveries/' + this.delivery_id,
+						'api/partner/deliveries/' + this.delivery_id,
 					);
 					if (result.success) {
 						this.delivery = result.data;

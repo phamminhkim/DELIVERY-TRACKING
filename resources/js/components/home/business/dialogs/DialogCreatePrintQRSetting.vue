@@ -245,7 +245,7 @@
 			async createNewSetting() {
 				try {
 					const { data } = await this.api_handler.post(
-						'api/admin/deliveries/print-configs',
+						'api/partner/deliveries/print-configs',
 						{},
 						{
 							name: this.name,
