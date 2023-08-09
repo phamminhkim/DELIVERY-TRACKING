@@ -86,6 +86,11 @@ class RouterSeeder extends Seeder
                 'name' => 'Nhóm sale',
                 'path' => '/sale-groups',
                 'component' => 'home/master/SaleGroups'
+            ],
+            [
+                'name' => 'Vai trò',
+                'path' => '/roles',
+                'component' => 'home/admin/Roles'
             ]
         ];
 
