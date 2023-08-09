@@ -132,7 +132,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/complete-delivery/{delivery_id}', [DeliveryController::class, 'completeDelivery']);
     });
 
-    Route::prefix('customer')->middleware(['role:admin-system'])->group(function () {
+    Route::prefix('customer')->group(function () {
         Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getCustomerDeliveryByQrScan']);
 
         Route::prefix('/orders')->group(function () {
