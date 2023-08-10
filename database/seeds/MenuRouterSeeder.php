@@ -99,6 +99,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản trị hệ thống',
             ],
             [
+                'title' => "Vai trò",
+                'icon' => "fas fa-user-tag",
+                'link' => "roles",
+                'query_string' => "",
+                'parent' => 'Quản trị hệ thống',
+            ],
+            [
                 'title' => "Tất cả",
                 'icon' => "nav-icon",
                 'link' => "orders",

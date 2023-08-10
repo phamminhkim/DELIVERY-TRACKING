@@ -198,7 +198,7 @@ class OrderRepository extends RepositoryAbs
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.images'])->get();
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])->get();
             }
 
             return $orders;
@@ -233,7 +233,7 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
@@ -265,7 +265,7 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function confirmOrder($order_id)
+    public function reviewOrder($order_id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -302,6 +302,7 @@ class OrderRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $review = $order->customer_reviews()->create([
                     'review_content' => $this->data['note'] ?? '',
+                    'user_id' => $this->current_user->id
                 ]);
                 $review->criterias()->sync($this->data['reviews']);
                 $this->storeReviewImages($review, $this->data['images'] ?? []);
@@ -342,7 +343,7 @@ class OrderRepository extends RepositoryAbs
             $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 
-            Storage::disk('images')->put($file_name, $image_data);
+            Storage::disk('images')->put($file_name, $image_raw_data);
 
             $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }
