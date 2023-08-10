@@ -186,32 +186,32 @@
                 </form>
 
                 <div class="social-auth-links text-center mb-3">
-                    <p>- HOẶC -</p>
+                    {{-- <p>- HOẶC -</p> --}}
                     {{-- {{-- <a href=" {{ url('login/facebook') }}" class="btn btn-block"
                         style="background-color: #3b5998; font-weight: 600; color: #fff">
                         Đăng nhập bằng Facebook
                     </a> --}}
-                    <a href=" {{ url('login/google') }}" class="btn btn-block"
+                    {{-- <a href=" {{ url('login/google') }}" class="btn btn-block"
                         style="background-color: #E54040; font-weight: 600; color: #fff">
                         Đăng nhập bằng Google
-                    </a>
+                    </a> --}}
                     {{-- <a href=" {{ url('login/zalo') }}" class="btn btn-block"
                         style="background-color: #0180C7; font-weight: 600; color: #fff">
                         Đăng nhập bằng Zalo
                     </a> --}}
-                    <a href=" {{ url('auth/onetl') }}" class="btn btn-block"
+                    {{-- <a href=" {{ url('auth/onetl') }}" class="btn btn-block"
                         style="background-color: #0180C7; font-weight: 600; color: #fff">
                         Đăng nhập OneThienLong
-                    </a>
+                    </a> --}}
                 </div>
                 <!-- /.social-auth-links -->
 
                 {{-- <p class="mb-1">
                     <a href="{{ route('password.request') }}">Quên mật khẩu</a>
                 </p> --}}
-                <p class="mb-0">
+                {{-- <p class="mb-0">
                     <a href="{{ route('register') }}" class="text-center">Đăng ký tài khoản mới</a>
-                </p>
+                </p> --}}
             </div>
             <!-- /.login-card-body -->
         </div>
