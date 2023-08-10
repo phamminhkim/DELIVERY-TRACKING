@@ -224,7 +224,11 @@
 										{{ item.delivery_info.complete_delivery_date }}
 									</template> -->
 									<template #cell(confirm_delivery_date)="{ item }">
-										{{ item.delivery_info.confirm_delivery_date }}
+										{{
+											item.delivery_info.confirm_delivery_date
+												? item.delivery_info.confirm_delivery_date
+												: '-'
+										}}
 									</template>
 								</b-table>
 							</div>
