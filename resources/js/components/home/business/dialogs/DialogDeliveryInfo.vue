@@ -193,7 +193,7 @@
 										>Vận đơn đã hoàn thành, không thể chỉnh sửa</span
 									>
 								</div>
-								<b-table :items="items" :fields="fields">
+								<b-table :items="order_items" :fields="fields">
 									<template #cell(total_item)="{ item }">
 										{{ item.detail.total_item }}
 									</template>
@@ -237,6 +237,7 @@
 							class="btn btn-success"
 							@click="updateDelivery"
 							:disabled="isImmutable"
+							v-if="isEdited"
 						>
 							Lưu chỉnh sửa
 						</button>
@@ -253,6 +254,7 @@
 	import ApiHandler, { APIRequest } from '../../ApiHandler';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+	import sha256 from 'crypto-js/sha256';
 	export default {
 		components: {
 			Treeselect,
@@ -267,7 +269,7 @@
 				is_loading: false,
 				delivery: {},
 
-				items: [],
+				order_items: [],
 				fields: [
 					{
 						key: 'sap_so_number',
@@ -309,16 +311,18 @@
 				order_ids_waiting_to_add: [],
 				order_options: [],
 				order_options_backup: [],
+
+				original_hashed_orders: '',
 			};
 		},
 		watch: {
 			async delivery_id() {
 				if (this.delivery_id) {
 					await this.getDeliveryInfo();
-					this.items = structuredClone(this.delivery.orders);
+					this.order_items = structuredClone(this.delivery.orders);
 				} else {
 					this.delivery = {};
-					this.items = [];
+					this.order_items = [];
 				}
 			},
 		},
@@ -367,6 +371,11 @@
 			isImmutable() {
 				return this.delivery?.status?.id == 100;
 			},
+			isEdited() {
+				return (
+					sha256(this.order_items?.toString()).toString() != this.original_hashed_orders
+				);
+			},
 		},
 		methods: {
 			async getDeliveryInfo() {
@@ -387,6 +396,9 @@
 						};
 					});
 					this.order_options_backup = structuredClone(this.order_options);
+					this.original_hashed_orders = sha256(
+						this.delivery.orders?.toString(),
+					).toString();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -397,21 +409,21 @@
 				this.$emit('printQrCode', [this.delivery_id]);
 			},
 			removeOrder(order_id) {
-				for (let index in this.items) {
-					if (order_id === this.items[index].id) {
-						const order = this.items[index];
+				for (let index in this.order_items) {
+					if (order_id === this.order_items[index].id) {
+						const order = this.order_items[index];
 						this.order_options.push({
 							id: order.id,
 							label: `SO (${order.sap_so_number}), DO (${order.sap_do_number})`,
 						});
-						this.items.splice(index, 1);
+						this.order_items.splice(index, 1);
 
 						return;
 					}
 				}
 			},
 			onShownModal() {
-				this.items = structuredClone(this.delivery.orders);
+				this.order_items = structuredClone(this.delivery.orders);
 				this.order_options = structuredClone(this.order_options_backup);
 			},
 			async pushWaitingOrdersToList() {
@@ -420,13 +432,11 @@
 				const { data } = await this.api_handler.get('api/partner/orders', {
 					ids: order_ids.length === 0 ? [null] : order_ids,
 				});
-				console.log(data);
-				this.items.push(...data);
-				for (let index in this.order_options) {
-					if (this.order_ids_waiting_to_add.includes(this.order_options[index].id)) {
-						this.order_options.splice(index, 1);
-					}
-				}
+				this.order_items.push(...data);
+
+				this.order_options = this.order_options.filter(
+					(order_option) => !this.order_ids_waiting_to_add.includes(order_option.id),
+				);
 				this.order_ids_waiting_to_add = [];
 			},
 			async updateDelivery() {
@@ -436,7 +446,7 @@
 						`api/partner/deliveries/${this.delivery.id}`,
 						{},
 						{
-							orders: this.items,
+							orders: this.order_items,
 						},
 					);
 					await this.getDeliveryInfo();
