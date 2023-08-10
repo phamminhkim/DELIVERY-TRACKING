@@ -4,12 +4,14 @@ namespace App\Models\Business;
 
 use App\Models\Master\Image;
 use App\Models\Master\OrderReviewOption;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderCustomerReview extends Model
 {
     protected $fillable = [
         'review_content',
+        'user_id'
     ];
     protected $hidden = [
         'order_id',
@@ -24,6 +26,10 @@ class OrderCustomerReview extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+     public function user()
+    {
+        return $this->belongsTo(User::class);
     }
     public function criterias()
     {

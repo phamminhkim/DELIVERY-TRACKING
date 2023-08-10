@@ -57,11 +57,21 @@ class OrderController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-
     public function confirmOrder(Request $request, $order_id)
     {
         $handler = BusinessRepository::orderRequest($request);
         $order = $handler->confirmOrder($order_id);
+
+        if ($order) {
+            return $this->responseSuccess($order);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function reviewOrder(Request $request, $order_id)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $order = $handler->reviewOrder($order_id);
 
         if ($order) {
             return $this->responseSuccess($order);

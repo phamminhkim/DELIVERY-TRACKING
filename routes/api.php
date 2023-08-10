@@ -139,6 +139,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [OrderController::class, 'getOrdersByCustomer']);
             Route::get('/{order_id}', [OrderController::class, 'getOrderById']);
             Route::post('/{order_id}/confirm', [OrderController::class, 'confirmOrder']);
+            Route::post('/{order_id}/review', [OrderController::class, 'reviewOrder']);
         });
     });
 

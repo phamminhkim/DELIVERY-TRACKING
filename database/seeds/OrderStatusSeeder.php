@@ -21,7 +21,7 @@ class OrderStatusSeeder extends Seeder
             [
                 'id' => '20',
                 'name' => 'Đã duyệt & đang soạn hàng',
-                'badge_class' => 'badge badge-info'
+                'badge_class' => 'badge badge-dark'
             ],
             [
                 'id' => '30',
@@ -36,13 +36,24 @@ class OrderStatusSeeder extends Seeder
             [
                 'id' => '100',
                 'name' => 'Đã giao xong',
+                'badge_class' => 'badge badge-info'
+            ],
+            [
+                'id' => '200',
+                'name' => 'Đã nhận hàng',
                 'badge_class' => 'badge badge-success'
             ],
         ];
 
         foreach ($statuses as $status) {
-            if (!OrderStatus::where('id', $status['id'])->exists())
+            $exist_status = OrderStatus::where('id', $status['id'])->first();
+            if (!$exist_status)
                 OrderStatus::create($status);
+            else {
+                $exist_status->name = $status['name'];
+                $exist_status->badge_class = $status['badge_class'];
+                $exist_status->save();
+            }
         }
 
         $this->command->info('OrderStatusSeeder has been completed!');

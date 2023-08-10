@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
+use App\Models\Business\OrderDelivery;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\Image;
@@ -198,7 +199,7 @@ class OrderRepository extends RepositoryAbs
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.images'])->get();
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])->get();
             }
 
             return $orders;
@@ -233,7 +234,7 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.images']);
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
@@ -264,8 +265,40 @@ class OrderRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-
     public function confirmOrder($order_id)
+    {
+        try {
+            $order = Order::find($order_id);
+            if (!$order) {
+                $this->message = 'Đơn hàng không tồn tại.';
+                return false;
+            }
+            if ($order->status_id != EnumsOrderStatus::Delivered) {
+                $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể xác nhận.';
+                return false;
+            }
+            $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
+            if (!$customer_ids || !in_array($order->customer_id, $customer_ids)) {
+                $this->message = 'Bạn không có quyền xác nhận đơn hàng này.';
+                return false;
+            }
+
+            DB::beginTransaction();
+            $order->update(['status_id' => EnumsOrderStatus::Received]);
+            OrderDelivery::where('order_id', $order->id)
+            ->update([
+                    'confirm_delivery_date' => now(),
+                    'confirm_user_id' => $this->current_user->id
+                ]);
+            DB::commit();
+
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function reviewOrder($order_id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -289,8 +322,8 @@ class OrderRepository extends RepositoryAbs
                     $this->message = 'Đơn hàng không tồn tại.';
                     return false;
                 }
-                if ($order->status_id != EnumsOrderStatus::Delivered) {
-                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể đánh giá.';
+                if ($order->status_id != EnumsOrderStatus::Received) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được nhận, không thể đánh giá.';
                     return false;
                 }
                 $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
@@ -302,6 +335,7 @@ class OrderRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $review = $order->customer_reviews()->create([
                     'review_content' => $this->data['note'] ?? '',
+                    'user_id' => $this->current_user->id
                 ]);
                 $review->criterias()->sync($this->data['reviews']);
                 $this->storeReviewImages($review, $this->data['images'] ?? []);
