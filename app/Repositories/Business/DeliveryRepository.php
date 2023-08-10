@@ -115,7 +115,8 @@ class DeliveryRepository extends RepositoryAbs
                     $my_orders = $delivery->orders->whereIn('customer_id', $customer_phones);
                     $my_orders->load('status', 'detail', 'receiver', 'driver_confirms', 'driver_confirms.images');
                     $my_orders = $my_orders->map(function ($order) {
-                        return $order->toArray();
+                        $orders = $order->toArray();
+                        return $orders;
                     })->values()->toArray();
                     if ($delivery->orders->count() == 0) {
                         $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
@@ -129,7 +130,13 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
             } else {
-                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.delivery_info', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $my_orders = $delivery->orders->map(function ($order) {
+                        $orders = $order->toArray();
+                        return $orders;
+                    })->values()->toArray();
+                unset($delivery->orders);
+                $delivery->orders = $my_orders;
             }
 
             if ($delivery->complete_delivery_date) {

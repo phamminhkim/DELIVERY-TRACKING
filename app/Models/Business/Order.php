@@ -85,6 +85,11 @@ class Order extends Model
          return $this->belongsToMany(Delivery::class, 'order_deliveries');
     }
 
+    public function delivery_info()
+    {
+         return $this->hasOne(OrderDelivery::class, 'order_id', 'id');
+    }
+
     public function driver_confirms()
     {
         return $this->hasMany(OrderDriverConfirm::class);
