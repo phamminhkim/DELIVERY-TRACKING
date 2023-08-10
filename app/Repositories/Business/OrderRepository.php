@@ -352,7 +352,7 @@ class OrderRepository extends RepositoryAbs
     private function storeReviewImages($review, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            $image_data = $upload_image['thumbUrl'];
+            $image_data = $upload_image['preview'];
 
             $name = uniqid();
             $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
