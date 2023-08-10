@@ -220,6 +220,19 @@
 								</b-table>
 							</div>
 						</div>
+						<div class="row">
+							<div class="col-12 d-flex">
+								<button
+									type="button"
+									class="btn btn-success ml-auto"
+									@click="updateDelivery"
+									:disabled="isImmutable"
+									v-if="isEdited"
+								>
+									Lưu chỉnh sửa
+								</button>
+							</div>
+						</div>
 					</div>
 
 					<div class="modal-footer">
@@ -232,15 +245,7 @@
                         <button type="button" class="btn btn-danger">
                             <i class="fas fa-trash" />
                         </button> -->
-						<button
-							type="button"
-							class="btn btn-success"
-							@click="updateDelivery"
-							:disabled="isImmutable"
-							v-if="isEdited"
-						>
-							Lưu chỉnh sửa
-						</button>
+
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">
 							Đóng
 						</button>

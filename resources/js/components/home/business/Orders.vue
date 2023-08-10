@@ -472,6 +472,7 @@
 		methods: {
 			async fetchData(query) {
 				try {
+					this.is_loading = true;
 					const [orders] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_orders, {
 							from_date:
@@ -493,6 +494,8 @@
 					this.orders = orders;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
 				}
 			},
 			async fetchFilterOptions() {
