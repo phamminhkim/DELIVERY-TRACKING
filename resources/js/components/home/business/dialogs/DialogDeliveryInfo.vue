@@ -369,7 +369,7 @@
 				return timelines;
 			},
 			isImmutable() {
-				return this.delivery?.status?.id == 100;
+				return this.delivery?.status?.id >= 100;
 			},
 			isEdited() {
 				return (
