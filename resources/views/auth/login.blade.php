@@ -119,7 +119,8 @@
 @section('content')
     <div class="login-box">
         <div class="login-logo">
-            <b>Đăng nhập</b>
+            <img src="/icon_tl.png" alt="TL Logo" class="brand-image m-auto" style="opacity: 0.8;width:20%"> 
+            Thiên Long System
         </div>
         <!-- /.login-logo -->
         <div class="card">
