@@ -58,10 +58,10 @@ class OrderController extends ResponseController
         }
     }
 
-    public function confirmOrder(Request $request, $order_id)
+    public function reviewOrder(Request $request, $order_id)
     {
         $handler = BusinessRepository::orderRequest($request);
-        $order = $handler->confirmOrder($order_id);
+        $order = $handler->reviewOrder($order_id);
 
         if ($order) {
             return $this->responseSuccess($order);
