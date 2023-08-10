@@ -217,6 +217,15 @@
 											></i>
 										</button>
 									</template>
+									<!-- <template #cell(start_delivery_date)="{ item }">
+										{{ item.delivery_info.start_delivery_date }}
+									</template>
+									<template #cell(complete_delivery_date)="{ item }">
+										{{ item.delivery_info.complete_delivery_date }}
+									</template> -->
+									<template #cell(confirm_delivery_date)="{ item }">
+										{{ item.delivery_info.confirm_delivery_date }}
+									</template>
 								</b-table>
 							</div>
 						</div>
@@ -297,6 +306,24 @@
 					{
 						key: 'total_weight',
 						label: 'Trọng lượng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					// {
+					// 	key: 'start_delivery_date',
+					// 	label: 'Ngày bắt đầu giao',
+					// 	sortable: true,
+					// 	class: 'text-nowrap text-center',
+					// },
+					// {
+					// 	key: 'complete_delivery_date',
+					// 	label: 'Ngày giao đến',
+					// 	sortable: true,
+					// 	class: 'text-nowrap text-center',
+					// },
+					{
+						key: 'confirm_delivery_date',
+						label: 'Ngày xác nhận',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},

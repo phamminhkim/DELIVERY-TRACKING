@@ -34,6 +34,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             width: 1cm;
             height: 1cm;
             box-sizing: border-box;
+            border: 0;
         }
 
         .svg-container {
@@ -123,7 +124,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
             card_container.style.width = print_config.dimension.width;
             card_container.style.height = print_config.dimension.height;
         });
-
+        const height = Number(print_config.dimension.height.split('cm')[0]);
+        card_container_class[card_container_class.length - 1].style.height = `${height - 0.1}cm`;
 
         let do_class = document.querySelectorAll('.do-number');
         do_class.forEach(do_class => {
