@@ -612,6 +612,10 @@ class DeliveryRepository extends RepositoryAbs
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
                 }
+                if($delivery->complete_delivery_date){
+                    $this->message = 'Vận đơn đã hoàn thành, không thể chỉnh sửa.';
+                    return false;
+                }
                 DB::beginTransaction();
 
                 $new_order_ids = array_map(function ($item) {

@@ -174,6 +174,7 @@
 											:multiple="true"
 											:options="order_options"
 											placeholder="Chọn đơn hàng được vận chuyển.."
+											:disabled="isImmutable"
 										/>
 									</div>
 									<div class="col-md-2">
@@ -181,10 +182,16 @@
 											id="add-waiting-list-btn"
 											class="btn btn-primary"
 											@click.prevent="pushWaitingOrdersToList"
+											:disabled="isImmutable"
 										>
 											Thêm
 										</button>
 									</div>
+								</div>
+								<div class="row">
+									<span class="text-danger col-12" v-if="isImmutable"
+										>Vận đơn đã hoàn thành, không thể chỉnh sửa</span
+									>
 								</div>
 								<b-table :items="items" :fields="fields">
 									<template #cell(total_item)="{ item }">
@@ -199,7 +206,11 @@
 										}}</span>
 									</template>
 									<template #cell(action)="{ item }">
-										<button class="btn btn-xs" @click="removeOrder(item.id)">
+										<button
+											class="btn btn-xs"
+											@click="removeOrder(item.id)"
+											:disabled="isImmutable"
+										>
 											<i
 												class="fas fa-trash text-red bigger-120"
 												title="Delete"
@@ -221,7 +232,12 @@
                         <button type="button" class="btn btn-danger">
                             <i class="fas fa-trash" />
                         </button> -->
-						<button type="button" class="btn btn-success" @click="updateDelivery">
+						<button
+							type="button"
+							class="btn btn-success"
+							@click="updateDelivery"
+							:disabled="isImmutable"
+						>
 							Lưu chỉnh sửa
 						</button>
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -347,6 +363,9 @@
 				}
 
 				return timelines;
+			},
+			isImmutable() {
+				return this.delivery?.status?.id == 100;
 			},
 		},
 		methods: {
