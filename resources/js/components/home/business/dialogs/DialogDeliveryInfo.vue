@@ -259,7 +259,7 @@
 									</template> -->
 									<template #cell(confirm_delivery_date)="{ item }">
 										{{
-											item.delivery_info.confirm_delivery_date
+											item.delivery_info?.confirm_delivery_date
 												? item.delivery_info.confirm_delivery_date
 												: '-'
 										}}

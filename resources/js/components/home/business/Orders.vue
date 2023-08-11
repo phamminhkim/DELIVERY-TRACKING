@@ -197,6 +197,15 @@
 									đơn</strong
 								>
 							</button>
+							<export-excel
+								class="btn btn-info btn-sm ml-1 mt-1"
+								:data="orders"
+								:fields="excel_fields"
+								style="font-weight: 800"
+								name="orders_exported.xls"
+							>
+								<i class="fas fa-file-excel mr-1" />Xuất file excel
+							</export-excel>
 						</div>
 					</div>
 					<div class="col-md-3">
@@ -327,7 +336,6 @@
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 	import DialogOrderInfo from './dialogs/DialogOrderInfo.vue';
-
 	export default {
 		components: {
 			Treeselect,
@@ -437,6 +445,15 @@
 
 				viewing_order: {},
 				api_url_orders: '/api/partner/orders',
+
+				excel_fields: {
+					'Mã KH': 'customer.code',
+					'Kho hàng': 'warehouse.name',
+					SO: 'sap_so_number',
+					DO: 'sap_do_number',
+					'Bên nhận': 'receiver.receiver_name',
+					'Trạng thái': 'status.name',
+				},
 			};
 		},
 		async created() {

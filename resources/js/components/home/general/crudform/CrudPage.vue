@@ -218,6 +218,7 @@
 		created() {
 			this.page_structure = new CrudPageStructure(this.structure);
 			this.fields = this.page_structure.table.table_fields;
+			console.log(this.fields);
 			this.api_item_data = this.page_structure.api_url;
 			this.fetchData();
 		},

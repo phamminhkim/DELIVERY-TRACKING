@@ -64,18 +64,19 @@ class Table {
             {
                 ...table,
                 table_fields: [
-                    new TableCell({
+                    new TableField({
                         key: "index",
                         label: "STT",
                         sortable: true,
                         class: "text-nowrap text-center",
                     }),
                     ...TableField.ArrayToTableFields(table?.table_fields),
-                    new TableCell({
+                    new TableField({
                         key: "action",
                         label: "Hành động",
                         sortable: true,
                         class: "text-nowrap text-center",
+                        stickyColumn: true
                     }),
                 ],
                 table_cells: TableCell.ArrayToTableCells(table?.table_cells),
