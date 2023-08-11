@@ -129,6 +129,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/delivery/{delivery_id}', [DeliveryController::class, 'getDeliveryById']);
         Route::post('/confirm-pickup/{delivery_id}', [DeliveryController::class, 'confirmPickupDelivery']);
         Route::post('/confirm-delivery/{delivery_id}/{order_id}', [DeliveryController::class, 'confirmOrderDelivery']);
+        Route::post('/confirm-delivery/{delivery_id}', [DeliveryController::class, 'confirmDelivery']);
         Route::post('/complete-delivery/{delivery_id}', [DeliveryController::class, 'completeDelivery']);
     });
 

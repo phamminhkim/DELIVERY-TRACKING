@@ -34,7 +34,7 @@ class Delivery extends Model
     protected $casts = [
         'start_delivery_date' => 'datetime:Y-m-d H:i:s',
         'complete_delivery_date' => 'datetime:Y-m-d H:i:s',
-        'estimate_delivery_date' => 'datetime:Y-m-d H:i:s',
+        'estimate_delivery_date' => 'datetime:Y-m-d',
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
     public function company()
