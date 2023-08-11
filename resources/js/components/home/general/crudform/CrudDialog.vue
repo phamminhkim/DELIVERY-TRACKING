@@ -36,6 +36,24 @@
 								v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
 								:type="form_field.type"
 								:required="form_field.required"
+								v-if="form_field.type != 'treeselect'"
+							/>
+							<treeselect
+								v-else
+								:placeholder="form_field.placeholder"
+								:multiple="form_field.treeselect.multiple"
+								v-model="item[form_field.key]"
+								:options="options_for_treeselect_fields[form_field.key]"
+								:required="form_field.required"
+								v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
+								:normalizer="
+									(node) => {
+										return {
+											id: node[form_field.treeselect.option_id_key],
+											label: node[form_field.treeselect.option_label_key],
+										};
+									}
+								"
 							/>
 							<span
 								v-if="hasError(form_field.key)"
@@ -66,11 +84,13 @@
 	import APIHandler from '../../ApiHandler';
 	import toastr from 'toastr';
 	import 'toastr/toastr.scss';
-	import Vue from 'vue';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+
 	export default {
 		name: 'CrudDialog',
 		components: {
-			Vue,
+			Treeselect,
 		},
 		props: {
 			is_editing: Boolean,
@@ -89,11 +109,25 @@
 				is_loading: false,
 				errors: {},
 				item: {},
+
+				options_for_treeselect_fields: {},
 			};
 		},
-		created() {
-			this.form_structure.form_fields.forEach((field) => {
-				this.item[field.key] = '';
+		async created() {
+			this.form_structure.form_fields.forEach(async (field) => {
+				if (field.type != 'treeselect') {
+					this.item[field.key] = '';
+				} else {
+					if (field.treeselect.multiple) {
+						this.item[field.key] = [];
+					} else {
+						this.item[field.key] = null;
+					}
+					const [options] = await this.api_handler.handleMultipleRequest([
+						field.treeselect.api_for_options_request,
+					]);
+					this.options_for_treeselect_fields[field.key] = options;
+				}
 			});
 		},
 		methods: {

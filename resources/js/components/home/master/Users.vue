@@ -10,6 +10,7 @@
 <script>
 	import Vue from 'vue';
 	import CrudPage from '../general/crudform/CrudPage.vue';
+	import { APIRequest } from '../ApiHandler';
 	export default {
 		name: 'Users',
 		components: {
@@ -92,6 +93,22 @@
 							key: 'phone_number',
 							type: 'number',
 							required: false,
+						},
+						{
+							label: 'Roles',
+							placeholder: 'Nhập roles..',
+							key: 'role_ids',
+							type: 'treeselect',
+							required: true,
+							treeselect: {
+								multiple: true,
+								option_id_key: 'id',
+								option_label_key: 'label',
+								api_for_options_request: new APIRequest(
+									'get',
+									'/api/admin/roles?format=treeselect',
+								),
+							},
 						},
 					],
 				},
