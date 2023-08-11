@@ -234,7 +234,7 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
