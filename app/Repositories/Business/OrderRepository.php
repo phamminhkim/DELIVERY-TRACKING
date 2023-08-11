@@ -352,13 +352,8 @@ class OrderRepository extends RepositoryAbs
    private function storeReviewImages($review, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            // You can generate a unique name based on the original name, or use any naming strategy you prefer
-            $name = uniqid() . '.' . $upload_image->getClientOriginalExtension();
+            $name = uniqid();
 
-            // Saving the file to the 'images' disk
-            $path = Storage::disk('images')->put($name, file_get_contents($upload_image));
-
-            // Getting image properties
             $image_properties = getimagesize($upload_image);
             $width = $image_properties[0];
             $height = $image_properties[1];
@@ -372,6 +367,11 @@ class OrderRepository extends RepositoryAbs
             $image->height = $height;
             $image->size = $size;
             $image->url = 'images/' . $name; // Adjust the URL as needed for your application
+            $random_string = Str::random(10);
+            $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
+            $image->url = 'images/' . $file_name;
+
+            Storage::disk('images')->put($name, file_get_contents($upload_image));
 
             $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }
