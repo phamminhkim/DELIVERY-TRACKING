@@ -2,16 +2,16 @@
 
 namespace App\Repositories\Admin;
 
+use App\Models\System\Role;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 
 class RoleRepository extends RepositoryAbs
 {
      public function getAvailableRoles()
     {
         try {
-            $roles = Role::get();
+            $roles = Role::with('menus')->get();
             return $roles;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\System\Role;
 use App\Models\System\Route;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,5 +38,10 @@ class MenuRouter extends Model
     public function route()
     {
         return $this->belongsTo(Route::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_menu', 'id', 'menu_id');
     }
 }

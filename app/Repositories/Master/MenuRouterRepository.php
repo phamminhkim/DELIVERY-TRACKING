@@ -15,7 +15,7 @@ class MenuRouterRepository extends RepositoryAbs
     public function getConfigMenus()
     {
         try {
-            $all_menus = MenuRouter::where('is_active', 1)->with('route')->orderBy('parent_id')->orderBy('order')->get();
+            $all_menus = MenuRouter::where('is_active', 1)->with(['route', 'roles'])->orderBy('parent_id')->orderBy('order')->get();
 
             $list_menus = array();
             $tree_menus = array();
