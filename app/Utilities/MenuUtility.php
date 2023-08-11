@@ -37,6 +37,7 @@ class MenuUtility
                     'id' => $menu['id'],
                     'route_id' => $menu['route_id'] ?? null,
                     'parent_id' => intval($parent_id),
+                    'role_ids' => $menu['role_ids'] ?? [],
                     'title' => $menu['title'],
                     'link' => $menu['link'],
                     'query_string' => $menu['query_string'] ?? '',
