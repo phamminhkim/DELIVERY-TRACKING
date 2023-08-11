@@ -368,6 +368,7 @@
 					{ id: 30, label: 'Đang vận chuyển' },
 					{ id: 40, label: 'Đã giao một phần' },
 					{ id: 100, label: 'Đã giao xong' },
+					{ id: 200, label: 'Đã nhận hàng' },
 				],
 
 				pagination: {
@@ -462,7 +463,7 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'all') {
-							this.form_filter.statuses = [10, 20, 30, 40, 100];
+							this.form_filter.statuses = [10, 20, 30, 40, 100, 200];
 							this.fetchData();
 						}
 					}
