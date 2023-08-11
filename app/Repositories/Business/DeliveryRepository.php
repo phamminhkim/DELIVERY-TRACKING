@@ -412,6 +412,75 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
+    public function confirmDelivery($delivery_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'confirm_status' => 'required|in:fully,partly',
+                'driver_name' => 'required|string|max:50',
+                'driver_note' => 'nullable|string|max:120',
+                'driver_plate_number' => 'required|string|max:20',
+                'images' => 'nullable|array',
+            ], [
+                'confirm_status.required' => 'Trạng thái xác nhận là bắt buộc.',
+                'confirm_status.in' => 'Trạng thái xác nhận không hợp lệ.',
+                'driver_name.required' => 'Tên tài xế là bắt buộc.',
+                'driver_name.string' => 'Tên tài xế không đúng định dạng.',
+                'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
+                'driver_note.string' => 'Ghi chú tài xế không đúng định dạng.',
+                'driver_note.max' => 'Ghi chú tài xế không được vượt quá 120 ký tự.',
+                'driver_plate_number.required' => 'Biển số xe là bắt buộc.',
+                'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
+                'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
+                'images.array' => 'Danh sách hình ảnh không đúng định dạng.',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $delivery = Delivery::find($delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                }
+                $orders = $delivery->orders()->where('status_id', '<', EnumsOrderStatus::Delivered)->get();
+               
+                DB::beginTransaction();
+                foreach ($orders as $order) {
+                    $confirm = $order->driver_confirms()->create([
+                        'complete_delivery_date' => now(),
+                        'confirm_status' => $this->data['confirm_status'],
+                        'driver_phone' => $this->current_user->phone_number,
+                        'driver_name' => $this->data['driver_name'],
+                        'driver_note' => $this->data['driver_note'] ?? '',
+                        'driver_plate_number' => $this->data['driver_plate_number'],
+                    ]);
+                    $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
+                    if ($this->data['confirm_status'] == 'fully') {
+                        $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                        $order->delivery_info->update(['complete_delivery_date' => now()]);
+                        $delivery->timelines()->create([
+                            'event' => 'confirm_fully_order_delivery',
+                            'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
+                        ]);
+                    } else {
+                        $order->update(['status_id' => EnumsOrderStatus::PartlyDelivered]);
+                        $delivery->timelines()->create([
+                            'event' => 'confirm_partly_order_delivery',
+                            'description' => 'Giao một phần hàng trong đơn hàng ' . $order->sap_so_number . '.',
+                        ]);
+                    }
+                }
+                DB::commit();
+
+                return $orders;
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function completeDelivery($delivery_id)
     {
         try {
