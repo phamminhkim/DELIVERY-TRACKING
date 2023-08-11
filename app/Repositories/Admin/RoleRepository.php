@@ -11,8 +11,26 @@ class RoleRepository extends RepositoryAbs
      public function getAvailableRoles()
     {
         try {
-            $roles = Role::with('menus')->get();
-            return $roles;
+            $query = Role::query();
+            $roles = $query->get();
+            $result = array();
+
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                        foreach ($roles as $role) {
+                            $item = array(
+                                'id' => $role->id,
+                                'label' => $role->name . ' (' . $role->guard_name . ')',
+                                'object' => $role
+                            );
+                            array_push($result, $item);
+                        }
+                }
+            }
+            else {
+                $result = $roles;
+            }
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

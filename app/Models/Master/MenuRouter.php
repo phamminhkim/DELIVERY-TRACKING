@@ -42,6 +42,6 @@ class MenuRouter extends Model
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_menu', 'id', 'menu_id');
+        return $this->belongsToMany(Role::class, 'role_menu', 'menu_id', 'role_id')->withTimestamps();
     }
 }

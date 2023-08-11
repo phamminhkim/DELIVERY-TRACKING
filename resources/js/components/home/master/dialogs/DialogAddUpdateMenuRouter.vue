@@ -79,6 +79,17 @@
 								:options="tree_routes"
 							/>
 						</div>
+						<div v-if="!menu.children || menu.children.length == 0" class="form-group">
+							<label>Roles </label>
+							<treeselect
+								placeholder="Any roles"
+								:multiple="true"
+								:disable-branch-nodes="true"
+								v-model="menu.role_ids"
+								@input="updateMenuRoute"
+								:options="tree_roles"
+							/>
+						</div>
 
 						<div class="form-group">
 							<label for="name">Hiển thị thực tế </label>
@@ -122,6 +133,7 @@
 		props: {
 			menu: Object,
 			tree_routes: Array,
+			tree_roles: Array,
 			is_editing: Boolean,
 		},
 		methods: {

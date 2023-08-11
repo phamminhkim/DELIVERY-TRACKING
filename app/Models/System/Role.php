@@ -9,6 +9,6 @@ class Role extends SpatieRole
 {
     public function menus()
     {
-        return $this->belongsToMany(MenuRouter::class, 'role_menu', 'id', 'menu_id');
+        return $this->belongsToMany(MenuRouter::class, 'role_menu', 'role_id', 'menu_id')->withTimestamps();
     }
 }

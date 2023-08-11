@@ -32,6 +32,8 @@ class MenuRouterRepository extends RepositoryAbs
                 if ($parent_id == 0) {
                     $root_tree_menus[] = $child_id;
                 }
+                $menu->role_ids = $menu->roles->pluck('id')->toArray();
+                unset($menu->roles);
                 $list_menus[$menu->id] = $menu;
             }
 
@@ -59,6 +61,7 @@ class MenuRouterRepository extends RepositoryAbs
                 $menu = MenuRouter::find($row['id']);
                 $menu->route_id = $row['route_id'] ?? null;
                 $menu->parent_id = $row['parent_id'];
+                $menu->roles()->sync($row['role_ids']);
                 $menu->order = ++$i;
                 $menu->title = $row['title'];
                 $menu->link = $row['link'];
