@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Master;
 
+use App\Models\System\Role;
 use App\User;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Hash;
@@ -12,7 +13,13 @@ class UserRepository extends RepositoryAbs
     public function getAvailableUsers()
     {
         try {
-            $users = User::all();
+           $users = User::with('roles')->get()->map(function ($user) {
+                $user->role_ids = $user->roles->pluck('id')->toArray();
+                unset($user->roles);
+                return $user;
+            });
+
+              
             return $users;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -23,7 +30,6 @@ class UserRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'name' => 'required|string',
                 'password' => 'required|string',
                 'email' => 'nullable|string|unique:users,email',
@@ -91,6 +97,8 @@ class UserRepository extends RepositoryAbs
                 $this->data['password'] = Hash::make($this->data['password']);
                 $user->update($this->data);
 
+                $roles = Role::whereIn('id', $this->data['role_ids'])->get();
+                $user->syncRoles($roles);
                 return $user;
             }
         } catch (\Exception $exception) {
