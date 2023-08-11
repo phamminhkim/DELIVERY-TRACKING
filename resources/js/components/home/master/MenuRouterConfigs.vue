@@ -146,6 +146,7 @@
 
 											<button
 												class="btn btn-xs"
+												:disabled="slotProps.data.children.length == 0"
 												@click="deleteItem(slotProps.data)"
 											>
 												<i class="fas fa-trash text-red"></i>
