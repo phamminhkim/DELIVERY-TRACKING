@@ -349,34 +349,29 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    private function storeReviewImages($review, $upload_images)
+   private function storeReviewImages($review, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            $image_data = $upload_image['preview'];
+            // You can generate a unique name based on the original name, or use any naming strategy you prefer
+            $name = uniqid() . '.' . $upload_image->getClientOriginalExtension();
 
-            $name = uniqid();
-            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
-            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
+            // Saving the file to the 'images' disk
+            $path = Storage::disk('images')->put($name, file_get_contents($upload_image));
 
-            $image_raw_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_raw_data);
-            $width = $image_props[0];
-            $height = $image_props[1];
-            $size = strlen($image_raw_data);
+            // Getting image properties
+            $image_properties = getimagesize($upload_image);
+            $width = $image_properties[0];
+            $height = $image_properties[1];
+            $size = $upload_image->getSize();
 
             $image = new Image();
             $image->name = $name;
             $image->owner_id = $this->current_user->id;
-            $image->ext = $extension;
+            $image->ext = $upload_image->getClientOriginalExtension();
             $image->width = $width;
             $image->height = $height;
             $image->size = $size;
-
-            $random_string = Str::random(10);
-            $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
-            $image->url = 'images/' . $file_name;
-
-            Storage::disk('images')->put($file_name, $image_raw_data);
+            $image->url = 'images/' . $name; // Adjust the URL as needed for your application
 
             $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }
