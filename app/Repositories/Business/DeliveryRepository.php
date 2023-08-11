@@ -515,8 +515,10 @@ class DeliveryRepository extends RepositoryAbs
                     'company_code' => $this->data['company_code'],
                     'delivery_partner_id' => $delivery_partner->id,
                     'customer_id' => $customer->id,
-                    'start_delivery_at' => null,
-                    'complete_delivery_at' => null,
+                    'start_delivery_date' => null,
+                    'complete_delivery_date' => null,
+                    'estimate_delivery_date' => $this->data['estimate_delivery_date'],
+                    'address' => $this->data['address'],
                     'created_by' => $this->current_user->id
                 ]);
 
