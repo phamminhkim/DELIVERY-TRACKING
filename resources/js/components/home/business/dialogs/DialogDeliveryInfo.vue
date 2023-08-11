@@ -31,6 +31,15 @@
 									/>
 								</div>
 								<div class="form-group">
+									<label>Khách hàng</label>
+									<input
+										type="text"
+										class="form-control"
+										:value="delivery.customer.name"
+										readonly
+									/>
+								</div>
+								<div class="form-group">
 									<label>Mã vận đơn</label>
 									<input
 										type="text"
@@ -85,6 +94,31 @@
 											class="form-control datetimepicker-input"
 											data-target="#delivery_start_date"
 											:value="delivery.start_delivery_date ?? 'Chưa bắt đầu'"
+											readonly
+										/>
+									</div>
+								</div>
+								<div class="form-group">
+									<label>Ngày dự tính</label>
+									<div
+										class="input-group date"
+										id="delivery_estimate_date"
+										data-target-input="nearest"
+									>
+										<div
+											class="input-group-append"
+											data-target="#delivery_estimate_date"
+											data-toggle="datetimepicker"
+										>
+											<div class="input-group-text">
+												<i class="fa fa-calendar"></i>
+											</div>
+										</div>
+										<input
+											type="text"
+											class="form-control datetimepicker-input"
+											data-target="#delivery_estimate_date"
+											:value="delivery.estimate_delivery_date"
 											readonly
 										/>
 									</div>
