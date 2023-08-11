@@ -11,6 +11,7 @@ import router from "./router";
 import VueRouter from "vue-router";
 import moment from "moment";
 import drag from "v-drag"
+import excel from 'vue-excel-export'
 
 
 Vue.filter("formatDate", function (value) {
@@ -19,6 +20,7 @@ Vue.filter("formatDate", function (value) {
     }
 });
 Vue.use(VueRouter);
+Vue.use(excel)
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
