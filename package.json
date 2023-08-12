@@ -26,13 +26,13 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.4.0",
+        "@progress/kendo-vue-excel-export": "^3.12.0",
         "@riophae/vue-treeselect": "^0.4.0",
         "bootstrap-vue": "^2.23.1",
         "crypto-js": "^4.1.1",
         "element-ui": "^2.15.13",
         "toastr": "^2.1.4",
         "v-drag": "^3.0.9",
-        "vue-draggable-nested-tree": "^3.0.0-beta3",
-        "vue-excel-export": "^0.1.3"
+        "vue-draggable-nested-tree": "^3.0.0-beta3"
     }
 }
