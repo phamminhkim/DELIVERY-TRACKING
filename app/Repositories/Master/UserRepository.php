@@ -15,7 +15,6 @@ class UserRepository extends RepositoryAbs
         try {
            $users = User::with('roles')->get()->map(function ($user) {
                 $user->role_ids = $user->roles->pluck('id')->toArray();
-                unset($user->roles);
                 return $user;
             });
 
@@ -94,7 +93,9 @@ class UserRepository extends RepositoryAbs
                 }
             } else {
                 $user = User::findOrFail($id);
-                $this->data['password'] = Hash::make($this->data['password']);
+                if (isset($this->data['password'])) {
+                    $this->data['password'] = Hash::make($this->data['password']);
+                }
                 $user->update($this->data);
 
                 $roles = Role::whereIn('id', $this->data['role_ids'])->get();

@@ -3,77 +3,84 @@
 	<div class="modal fade" :id="dialog_name" tabindex="-1" role="dialog">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="addItem">
-					<div class="modal-header">
-						<h4 class="modal-title">
-							<span>
-								{{
-									is_editing
-										? `Cập nhật ${form_structure.form_name}`
-										: `Thêm mới ${form_structure.form_name}`
-								}}</span
+				<b-overlay :show="is_loading" rounded="sm">
+					<form @submit.prevent="addItem">
+						<div class="modal-header">
+							<h4 class="modal-title">
+								<span>
+									{{
+										is_editing
+											? `Cập nhật ${form_structure.form_name}`
+											: `Thêm mới ${form_structure.form_name}`
+									}}</span
+								>
+							</h4>
+							<button
+								type="button"
+								class="close"
+								data-dismiss="modal"
+								aria-label="Close"
 							>
-						</h4>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-
-					<div class="modal-body">
-						<div
-							class="form-group"
-							v-for="(form_field, index) in form_structure.form_fields"
-							:key="index"
-						>
-							<label>{{ form_field.label }}</label>
-							<small v-if="form_field.required" class="text-danger">(*)</small>
-							<input
-								v-model="item[form_field.key]"
-								class="form-control"
-								:id="form_field.key"
-								:name="form_field.key"
-								:placeholder="form_field.placeholder"
-								v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
-								:type="form_field.type"
-								:required="form_field.required"
-								v-if="form_field.type != 'treeselect'"
-							/>
-							<treeselect
-								v-else
-								:placeholder="form_field.placeholder"
-								:multiple="form_field.treeselect.multiple"
-								v-model="item[form_field.key]"
-								:options="options_for_treeselect_fields[form_field.key]"
-								:required="form_field.required"
-								v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
-								:normalizer="
-									(node) => {
-										return {
-											id: node[form_field.treeselect.option_id_key],
-											label: node[form_field.treeselect.option_label_key],
-										};
-									}
-								"
-							/>
-							<span
-								v-if="hasError(form_field.key)"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError(form_field.key) }}</strong>
-							</span>
+								<span aria-hidden="true">&times;</span>
+							</button>
 						</div>
-					</div>
 
-					<div class="modal-footer justify-content-between">
-						<button type="submit" title="Submit" class="btn btn-primary">
-							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
-						</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">
-							Đóng
-						</button>
-					</div>
-				</form>
+						<div class="modal-body">
+							<div
+								class="form-group"
+								v-for="(form_field, index) in form_structure.form_fields"
+								:key="index"
+							>
+								<label>{{ form_field.label }}</label>
+								<small v-if="form_field.required" class="text-danger">(*)</small>
+								<input
+									v-model="item[form_field.key]"
+									class="form-control"
+									:id="form_field.key"
+									:name="form_field.key"
+									:placeholder="form_field.placeholder"
+									v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
+									:type="form_field.type"
+									:required="form_field.required"
+									v-if="form_field.type != 'treeselect'"
+								/>
+								<treeselect
+									v-else
+									:placeholder="form_field.placeholder"
+									:multiple="form_field.treeselect.multiple"
+									v-model="item[form_field.key]"
+									:options="options_for_treeselect_fields[form_field.key]"
+									:required="form_field.required"
+									v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
+									:normalizer="
+										(node) => {
+											return {
+												id: node[form_field.treeselect.option_id_key],
+												label: node[form_field.treeselect.option_label_key],
+											};
+										}
+									"
+								/>
+								<span
+									v-if="hasError(form_field.key)"
+									class="invalid-feedback"
+									role="alert"
+								>
+									<strong>{{ getError(form_field.key) }}</strong>
+								</span>
+							</div>
+						</div>
+
+						<div class="modal-footer justify-content-between">
+							<button type="submit" title="Submit" class="btn btn-primary">
+								{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
+							</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">
+								Đóng
+							</button>
+						</div>
+					</form>
+				</b-overlay>
 			</div>
 		</div>
 	</div>
@@ -161,7 +168,6 @@
 					this.$showMessage('error', 'Lỗi', error.message);
 					this.errors = error.response.data.errors;
 					this.$showMessage('error', 'Cập nhật không thành công', data.message);
-					this.resetForm();
 				}
 			},
 			async createItem() {

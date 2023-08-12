@@ -1,5 +1,11 @@
 <template>
 	<CrudPage :structure="page_structure">
+		<template #cell(roles)="data">
+			<span v-for="role in data.value" :key="role.id" class="badge bg-info mr-1">{{
+				role.name
+			}}</span>
+		</template>
+
 		<template #cell(active)="data">
 			<span class="badge bg-success" v-if="data.item.active == 1">Đang hoạt động</span>
 			<span class="badge bg-warning" v-if="data.item.active == 0">Ngưng hoạt động</span>
@@ -49,6 +55,12 @@
 							class: 'text-nowrap',
 						},
 						{
+							key: 'roles',
+							label: 'Vai trò',
+							sortable: true,
+							class: 'text-nowrap text-center',
+						},
+						{
 							key: 'active',
 							label: 'Khả dụng',
 							sortable: true,
@@ -58,6 +70,10 @@
 					table_cells: [
 						{
 							target_key: 'active',
+							type: 'template',
+						},
+						{
+							target_key: 'roles',
 							type: 'template',
 						},
 					],
@@ -82,10 +98,10 @@
 						},
 						{
 							label: 'Password',
-							placeholder: 'Nhập mật khẩu..',
+							placeholder: 'Nếu có đổi mật khẩu, nhập tại đây..',
 							key: 'password',
 							type: 'password',
-							required: true,
+							required: false,
 						},
 						{
 							label: 'Số điện thoại',
