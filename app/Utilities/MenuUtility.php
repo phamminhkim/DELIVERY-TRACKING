@@ -52,7 +52,20 @@ class MenuUtility
         return $tree_array;
     }
     public static function getUserMenus($user_id) {
-        return MenuRouter::where('is_active', true)->get();
+        $user = User::find($user_id);
+        if ($user) {
+            $user_roles = $user->roles->pluck('name');
+
+            $menus = MenuRouter::where('is_active', true)
+                    ->where(function ($query) use ($user_roles) {
+                        $query->whereDoesntHave('roles')
+                            ->orWhereHas('roles', function ($query) use ($user_roles) {
+                                $query->whereIn('name', $user_roles);
+                            });
+                    })->get();
+            return $menus;
+        }
+        else return [];
     }
     public static function getMenusAndRoutesForUser($user_id)
     {
