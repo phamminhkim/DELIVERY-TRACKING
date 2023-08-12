@@ -509,30 +509,26 @@ class DeliveryRepository extends RepositoryAbs
     private function storeConfirmImages($confirm, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            $image_data = $upload_image['thumbUrl'];
-
             $name = uniqid();
-            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
-            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
 
-            $image_raw_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_raw_data);
-            $width = $image_props[0];
-            $height = $image_props[1];
-            $size = strlen($image_raw_data);
+            $image_properties = getimagesize($upload_image);
+            $width = $image_properties[0];
+            $height = $image_properties[1];
+            $size = $upload_image->getSize();
 
             $image = new Image();
             $image->name = $name;
             $image->owner_id = $this->current_user->id;
-            $image->ext = $extension;
+            $image->ext = $upload_image->getClientOriginalExtension();
             $image->width = $width;
             $image->height = $height;
             $image->size = $size;
-
-            $file_name = $image->name . '.' . $image->ext;
+            $image->url = 'images/' . $name; // Adjust the URL as needed for your application
+            $random_string = Str::random(10);
+            $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 
-            Storage::disk('images')->put($file_name, $image_data);
+            Storage::disk('images')->put($file_name, file_get_contents($upload_image));
 
             $confirm->images()->save($image, ['imageable_id' => $confirm->id, 'imageable_type' => OrderDriverConfirm::class]);
         }
