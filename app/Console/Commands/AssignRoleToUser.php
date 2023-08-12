@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\User;
+use App\Utilities\RedisUtility;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Role;
 
@@ -55,6 +56,7 @@ class AssignRoleToUser extends Command
         }
 
         $user->assignRole($role_name);
+        RedisUtility::deleteByCategory('menu-tree');
         $this->info("Role {$role_name} has been assigned to user {$username}.");
 
         return 0; // success code
