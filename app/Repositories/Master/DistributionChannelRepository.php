@@ -11,8 +11,26 @@ class DistributionChannelRepository extends RepositoryAbs
     public function getAvailableDistributionChannels()
     {
         try {
-            $distributionChannels = DistributionChannel::all();
-            return $distributionChannels;
+            $query = DistributionChannel::query();
+            $channels = $query->get();
+            $result = array();
+
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                        foreach ($channels as $channel) {
+                            $item = array(
+                                'id' => $channel->id,
+                                'label' => $channel->name . ' (' . $channel->code . ')',
+                                'object' => $channel
+                            );
+                            array_push($result, $item);
+                        }
+                }
+            }
+            else {
+                $result = $channels;
+            }
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

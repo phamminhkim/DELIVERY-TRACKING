@@ -11,4 +11,9 @@ class DistributionChannel extends Model
         'code',
         'name'
     ];
+
+    public function delivery_partners()
+    {
+        return $this->belongsToMany(DeliveryPartner::class, 'partner_channel');
+    }
 }

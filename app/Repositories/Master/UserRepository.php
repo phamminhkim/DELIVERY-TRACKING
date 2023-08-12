@@ -14,13 +14,28 @@ class UserRepository extends RepositoryAbs
     public function getAvailableUsers()
     {
         try {
-           $users = User::with('roles')->get()->map(function ($user) {
+           $users = User::with(['roles', 'delivery_partners'])->get()->map(function ($user) {
                 $user->role_ids = $user->roles->pluck('id')->toArray();
                 return $user;
             });
+            $result = array();
 
-              
-            return $users;
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                        foreach ($users as $user) {
+                            $item = array(
+                                'id' => $user->id,
+                                'label' => $user->name,
+                                'object' => $user
+                            );
+                            array_push($result, $item);
+                        }
+                }
+            }
+            else {
+                $result = $users;
+            }
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -57,6 +72,9 @@ class UserRepository extends RepositoryAbs
                 $this->data['active'] = true;
                 $this->data['password'] = Hash::make($this->data['password']);
                 $user = User::create($this->data);
+                $roles = Role::whereIn('id', $this->data['role_ids'])->get();
+                $user->syncRoles($roles);
+                RedisUtility::deleteByCategoryAndKey('menu-tree', $user->id);
                 return $user;
             }
         } catch (\Exception $exception) {
