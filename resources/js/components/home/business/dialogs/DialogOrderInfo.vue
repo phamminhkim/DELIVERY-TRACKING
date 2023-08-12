@@ -140,6 +140,19 @@
 												{{ review.review_content }}
 											</div>
 										</div>
+										<div class="box-images">
+											<div
+												class="image-container"
+												v-for="image in review.images"
+												:key="image.url"
+											>
+												<expandable-image
+													:src="`/${image.url}`"
+													alt=""
+													class="image"
+												/>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -210,6 +223,12 @@
 				this.formatOrder();
 			},
 		},
+		mounted() {
+			const viewportMeta = document.createElement('meta');
+			viewportMeta.name = 'viewport';
+			viewportMeta.content = 'width=device-width, initial-scale=1';
+			document.head.appendChild(viewportMeta);
+		},
 	};
 </script>
 
@@ -275,5 +294,26 @@
 		font-size: 12px;
 		margin-right: 0.5rem;
 		align-items: center;
+	}
+	.box-images {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+	.image-container {
+		width: 46.7%;
+		height: 250px;
+		margin-right: 1rem;
+		margin-bottom: 1rem;
+	}
+	.image-container > .image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+	.image-container > .image > img {
+		height: 100%;
 	}
 </style>

@@ -199,6 +199,17 @@
 							</div>
 						</div>
 						<div class="row">
+							<div class="col-12 box-images">
+								<div
+									class="image-container"
+									v-for="image in driver_confirm_image_urls"
+									:key="image.url"
+								>
+									<expandable-image :src="`/${image.url}`" alt="" class="image" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
 							<div class="form-group col-12">
 								<label>Danh sách đơn hàng ({{ delivery.orders.length }})</label>
 								<div class="row mb-3">
@@ -307,6 +318,7 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import sha256 from 'crypto-js/sha256';
+	import VueExpandableImage from 'vue-expandable-image';
 	export default {
 		components: {
 			Treeselect,
@@ -398,6 +410,11 @@
 		},
 		mounted() {
 			$(this.$refs.DialogDeliveryInfo).on('show.bs.modal', this.onShownModal);
+
+			const viewportMeta = document.createElement('meta');
+			viewportMeta.name = 'viewport';
+			viewportMeta.content = 'width=device-width, initial-scale=1';
+			document.head.appendChild(viewportMeta);
 		},
 		computed: {
 			timelines() {
@@ -445,6 +462,17 @@
 				return (
 					sha256(this.order_items?.toString()).toString() != this.original_hashed_orders
 				);
+			},
+			driver_confirm_image_urls() {
+				let image_urls = [];
+				this.delivery.orders.forEach((order) => {
+					order.driver_confirms.forEach((confirm) => {
+						confirm.images.forEach((image) => {
+							image_urls.push(image.url);
+						});
+					});
+				});
+				return image_urls;
 			},
 		},
 		methods: {
@@ -532,5 +560,26 @@
 <style scoped>
 	th {
 		text-align: center;
+	}
+	.box-images {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+	.image-container {
+		width: 18%;
+		height: 250px;
+		margin-right: 1rem;
+		margin-bottom: 1rem;
+	}
+	.image-container > .image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+	.image-container > .image > img {
+		height: 100%;
 	}
 </style>
