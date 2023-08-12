@@ -79,7 +79,7 @@
 								:options="tree_routes"
 							/>
 						</div>
-						<div v-if="!menu.children || menu.children.length == 0" class="form-group">
+						<div class="form-group">
 							<label>Roles </label>
 							<treeselect
 								placeholder="Any roles"
