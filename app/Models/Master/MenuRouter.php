@@ -32,7 +32,7 @@ class MenuRouter extends Model
         return $this->hasMany(MenuRouter::class, 'parent_id', 'id')->orderBy('order');
     }
 
-    public function parents()
+    public function parent()
     {
         return $this->hasOne(MenuRouter::class, 'id', 'parent_id');
     }

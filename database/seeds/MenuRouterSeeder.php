@@ -44,8 +44,11 @@ class MenuRouterSeeder extends Seeder
                 unset($menu['parent']);
                 $existing_menu = MenuRouter::create($menu);
             }
-
+        
             $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
+            if ($existing_menu->parent) {
+                $role_names = array_merge($role_names, $existing_menu->parent->roles->pluck('name')->toArray());
+            }
             $roles = Role::whereIn('name', $role_names)->get();
             $existing_menu->guard_name = 'web';
             $existing_menu->assignRole($roles);
