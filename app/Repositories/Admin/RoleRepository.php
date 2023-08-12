@@ -4,6 +4,7 @@ namespace App\Repositories\Admin;
 
 use App\Models\System\Role;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\RedisUtility;
 use Illuminate\Support\Facades\Validator;
 
 class RoleRepository extends RepositoryAbs
@@ -104,6 +105,7 @@ class RoleRepository extends RepositoryAbs
         try {
             $role = Role::findOrFail($id);
             $role->delete();
+            RedisUtility::deleteByCategory('menu-tree');
             return true;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

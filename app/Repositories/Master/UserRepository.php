@@ -5,6 +5,7 @@ namespace App\Repositories\Master;
 use App\Models\System\Role;
 use App\User;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\RedisUtility;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -67,21 +68,17 @@ class UserRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'name' => 'required|string',
                 'email' => 'nullable|string',
                 'password' => 'nullable|string',
                 'phone_number' => 'nullable|string',
             ], [
-
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
                 'password.string' => 'Password phải là chuỗi',
                 //'email.unique' =>'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
-
-
             ]);
             if ($validator->fails()) {
                 $errors = $validator->errors();
@@ -100,6 +97,7 @@ class UserRepository extends RepositoryAbs
 
                 $roles = Role::whereIn('id', $this->data['role_ids'])->get();
                 $user->syncRoles($roles);
+                RedisUtility::deleteByCategoryAndKey('menu-tree', $user->id);
                 return $user;
             }
         } catch (\Exception $exception) {

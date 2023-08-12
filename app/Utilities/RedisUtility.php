@@ -39,4 +39,8 @@ class RedisUtility
     {
         Redis::del($key);
     }
+    public static function deleteByCategoryAndKey($category, $key)
+    {
+        Redis::hdel($category, $key);
+    }
 }
