@@ -202,10 +202,10 @@
 							<div class="col-12 box-images">
 								<div
 									class="image-container"
-									v-for="image in driver_confirm_image_urls"
-									:key="image.url"
+									v-for="image_url in driver_confirm_image_urls"
+									:key="image_url"
 								>
-									<expandable-image :src="`/${image.url}`" alt="" class="image" />
+									<expandable-image :src="`/${image_url}`" alt="" class="image" />
 								</div>
 							</div>
 						</div>
