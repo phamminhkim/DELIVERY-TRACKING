@@ -78,6 +78,7 @@ class MenuRouterSeeder extends Seeder
                 'roles' => [
                     'admin-system',
                     'admin-warehouse',
+                    'admin-partner',
                     'user-sap'
                 ]
             ],
@@ -89,6 +90,7 @@ class MenuRouterSeeder extends Seeder
                 'roles' => [
                     'admin-system',
                     'admin-warehouse',
+                    'admin-partner',
                     'user-sap'
                 ]
             ],

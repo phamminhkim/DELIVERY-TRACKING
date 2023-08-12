@@ -19,6 +19,7 @@ class RoleAndPermissionSeeder extends Seeder
         $roles = [
             'admin-system',
             'admin-warehouse',
+            'admin-partner',
             'user-driver',
             'user-customer',
             'user-sap',
