@@ -149,6 +149,7 @@ class DeliveryRepository extends RepositoryAbs
                 $delivery['status'] = EnumsOrderStatus::Preparing;
             }
             $delivery['status'] = OrderStatus::find($delivery['status']);
+            $delivery['can_single_confirm'] = true;
             return $delivery;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
