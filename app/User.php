@@ -3,6 +3,8 @@
 namespace App;
 
 use App\Business\PrintConfig;
+use App\Models\Master\DeliveryPartner;
+use App\Traits\HasUserMorphs;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,6 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove bắt buộc verify
 {
+    use HasUserMorphs;
     use Notifiable, HasApiTokens;
     use HasRoles;
 
@@ -43,5 +46,10 @@ class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove 
 
     public function print_configs(){
         return $this->hasMany(PrintConfig::class);
+    }
+
+    public function delivery_partners()
+    {
+         return $this->morphedByMany(DeliveryPartner::class, 'morphable', 'user_morphs');
     }
 }

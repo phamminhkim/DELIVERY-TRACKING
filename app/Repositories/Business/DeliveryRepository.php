@@ -115,7 +115,8 @@ class DeliveryRepository extends RepositoryAbs
                     $my_orders = $delivery->orders->whereIn('customer_id', $customer_phones);
                     $my_orders->load('status', 'detail', 'receiver', 'driver_confirms', 'driver_confirms.images');
                     $my_orders = $my_orders->map(function ($order) {
-                        return $order->toArray();
+                        $orders = $order->toArray();
+                        return $orders;
                     })->values()->toArray();
                     if ($delivery->orders->count() == 0) {
                         $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
@@ -129,7 +130,13 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
             } else {
-                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.delivery_info', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $my_orders = $delivery->orders->map(function ($order) {
+                        $orders = $order->toArray();
+                        return $orders;
+                    })->values()->toArray();
+                unset($delivery->orders);
+                $delivery->orders = $my_orders;
             }
 
             if ($delivery->complete_delivery_date) {
@@ -142,6 +149,7 @@ class DeliveryRepository extends RepositoryAbs
                 $delivery['status'] = EnumsOrderStatus::Preparing;
             }
             $delivery['status'] = OrderStatus::find($delivery['status']);
+            $delivery['can_single_confirm'] = true;
             return $delivery;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -405,6 +413,64 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
+    public function confirmDelivery($delivery_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'driver_name' => 'required|string|max:50',
+                'driver_note' => 'nullable|string|max:120',
+                'driver_plate_number' => 'required|string|max:20',
+                'images' => 'nullable|array',
+            ], [
+                'driver_name.required' => 'Tên tài xế là bắt buộc.',
+                'driver_name.string' => 'Tên tài xế không đúng định dạng.',
+                'driver_name.max' => 'Tên tài xế không được vượt quá 50 ký tự.',
+                'driver_note.string' => 'Ghi chú tài xế không đúng định dạng.',
+                'driver_note.max' => 'Ghi chú tài xế không được vượt quá 120 ký tự.',
+                'driver_plate_number.required' => 'Biển số xe là bắt buộc.',
+                'driver_plate_number.string' => 'Biển số xe không đúng định dạng.',
+                'driver_plate_number.max' => 'Biển số xe không được vượt quá 20 ký tự.',
+                'images.array' => 'Danh sách hình ảnh không đúng định dạng.',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $delivery = Delivery::find($delivery_id);
+                if (!$delivery) {
+                    $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                }
+                $orders = $delivery->orders()->where('status_id', '<', EnumsOrderStatus::Delivered)->get();
+               
+                DB::beginTransaction();
+                foreach ($orders as $order) {
+                    $confirm = $order->driver_confirms()->create([
+                        'complete_delivery_date' => now(),
+                        'confirm_status' => 'fully',
+                        'driver_phone' => $this->current_user->phone_number,
+                        'driver_name' => $this->data['driver_name'],
+                        'driver_note' => $this->data['driver_note'] ?? '',
+                        'driver_plate_number' => $this->data['driver_plate_number'],
+                    ]);
+                    $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
+                    $order->update(['status_id' => EnumsOrderStatus::Delivered]);
+                        $order->delivery_info->update(['complete_delivery_date' => now()]);
+                        $delivery->timelines()->create([
+                            'event' => 'confirm_fully_order_delivery',
+                            'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
+                        ]);
+                }
+                DB::commit();
+
+                return $orders;
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function completeDelivery($delivery_id)
     {
         try {
@@ -444,30 +510,26 @@ class DeliveryRepository extends RepositoryAbs
     private function storeConfirmImages($confirm, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            $image_data = $upload_image['thumbUrl'];
-
             $name = uniqid();
-            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
-            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
 
-            $image_raw_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_raw_data);
-            $width = $image_props[0];
-            $height = $image_props[1];
-            $size = strlen($image_raw_data);
+            $image_properties = getimagesize($upload_image);
+            $width = $image_properties[0];
+            $height = $image_properties[1];
+            $size = $upload_image->getSize();
 
             $image = new Image();
             $image->name = $name;
             $image->owner_id = $this->current_user->id;
-            $image->ext = $extension;
+            $image->ext = $upload_image->getClientOriginalExtension();
             $image->width = $width;
             $image->height = $height;
             $image->size = $size;
-
-            $file_name = $image->name . '.' . $image->ext;
+            $image->url = 'images/' . $name; // Adjust the URL as needed for your application
+            $random_string = Str::random(10);
+            $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 
-            Storage::disk('images')->put($file_name, $image_data);
+            Storage::disk('images')->put($file_name, file_get_contents($upload_image));
 
             $confirm->images()->save($image, ['imageable_id' => $confirm->id, 'imageable_type' => OrderDriverConfirm::class]);
         }
@@ -508,8 +570,10 @@ class DeliveryRepository extends RepositoryAbs
                     'company_code' => $this->data['company_code'],
                     'delivery_partner_id' => $delivery_partner->id,
                     'customer_id' => $customer->id,
-                    'start_delivery_at' => null,
-                    'complete_delivery_at' => null,
+                    'start_delivery_date' => null,
+                    'complete_delivery_date' => null,
+                    'estimate_delivery_date' => $this->data['estimate_delivery_date'],
+                    'address' => $this->data['address'],
                     'created_by' => $this->current_user->id
                 ]);
 
@@ -610,6 +674,10 @@ class DeliveryRepository extends RepositoryAbs
                 $delivery = Delivery::find($delivery_id);
                 if (!$delivery) {
                     $this->message = 'Đơn vận chuyển không tồn tại.';
+                    return false;
+                }
+                if($delivery->complete_delivery_date){
+                    $this->message = 'Vận đơn đã hoàn thành, không thể chỉnh sửa.';
                     return false;
                 }
                 DB::beginTransaction();

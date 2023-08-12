@@ -1,5 +1,11 @@
 <template>
-	<div class="modal fade" id="DialogDeliveryInfo" tabindex="-1" role="dialog">
+	<div
+		class="modal fade"
+		id="DialogDeliveryInfo"
+		tabindex="-1"
+		role="dialog"
+		ref="DialogDeliveryInfo"
+	>
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<b-overlay :show="is_loading" rounded="sm">
@@ -21,6 +27,15 @@
 										type="text"
 										class="form-control"
 										:value="delivery.partner.name"
+										readonly
+									/>
+								</div>
+								<div class="form-group">
+									<label>Khách hàng</label>
+									<input
+										type="text"
+										class="form-control"
+										:value="delivery.customer.name"
 										readonly
 									/>
 								</div>
@@ -84,6 +99,31 @@
 									</div>
 								</div>
 								<div class="form-group">
+									<label>Ngày dự tính</label>
+									<div
+										class="input-group date"
+										id="delivery_estimate_date"
+										data-target-input="nearest"
+									>
+										<div
+											class="input-group-append"
+											data-target="#delivery_estimate_date"
+											data-toggle="datetimepicker"
+										>
+											<div class="input-group-text">
+												<i class="fa fa-calendar"></i>
+											</div>
+										</div>
+										<input
+											type="text"
+											class="form-control datetimepicker-input"
+											data-target="#delivery_estimate_date"
+											:value="delivery.estimate_delivery_date"
+											readonly
+										/>
+									</div>
+								</div>
+								<div class="form-group">
 									<label>Ngày hoàn thành vận chuyển</label>
 									<div
 										class="input-group date"
@@ -109,44 +149,6 @@
 											readonly
 										/>
 									</div>
-								</div>
-								<div class="form-group">
-									<label>Danh sách đơn hàng ({{ delivery.orders.length }})</label>
-									<table class="table table-bordered">
-										<thead>
-											<tr>
-												<th style="width: 10px">#</th>
-												<th>SO</th>
-												<th>DO</th>
-												<th>Số thùng</th>
-												<th>Trọng lượng</th>
-												<th>Trạng thái</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr
-												v-for="(order, index) in delivery.orders"
-												:key="order.id"
-											>
-												<td>{{ index + 1 }}</td>
-												<td>
-													{{ order.sap_so_number }}
-												</td>
-												<td>
-													{{ order.sap_do_number }}
-												</td>
-												<td>
-													{{ order.detail.total_item }}
-												</td>
-												<td>{{ order.detail.total_weight }} kg</td>
-												<td width="35px">
-													<span :class="order.status.badge_class">{{
-														order.status.name
-													}}</span>
-												</td>
-											</tr>
-										</tbody>
-									</table>
 								</div>
 							</div>
 							<div class="col-5">
@@ -196,6 +198,99 @@
 								</div>
 							</div>
 						</div>
+						<div class="row">
+							<div class="col-12 box-images">
+								<div
+									class="image-container"
+									v-for="image_url in driver_confirm_image_urls"
+									:key="image_url"
+								>
+									<expandable-image :src="`/${image_url}`" alt="" class="image" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group col-12">
+								<label>Danh sách đơn hàng ({{ delivery.orders.length }})</label>
+								<div class="row mb-3">
+									<div class="col-md-10">
+										<treeselect
+											v-model="order_ids_waiting_to_add"
+											:multiple="true"
+											:options="order_options"
+											placeholder="Chọn đơn hàng được vận chuyển.."
+											:disabled="isImmutable"
+										/>
+									</div>
+									<div class="col-md-2">
+										<button
+											id="add-waiting-list-btn"
+											class="btn btn-primary"
+											@click.prevent="pushWaitingOrdersToList"
+											:disabled="isImmutable"
+										>
+											Thêm
+										</button>
+									</div>
+								</div>
+								<div class="row">
+									<span class="text-danger col-12" v-if="isImmutable"
+										>Vận đơn đã hoàn thành, không thể chỉnh sửa</span
+									>
+								</div>
+								<b-table :items="order_items" :fields="fields">
+									<template #cell(total_item)="{ item }">
+										{{ item.detail.total_item }}
+									</template>
+									<template #cell(total_weight)="{ item }">
+										{{ item.detail.total_weight }} kg
+									</template>
+									<template #cell(status)="{ item }">
+										<span :class="item.status.badge_class">{{
+											item.status.name
+										}}</span>
+									</template>
+									<template #cell(action)="{ item }">
+										<button
+											class="btn btn-xs"
+											@click="removeOrder(item.id)"
+											:disabled="isImmutable"
+										>
+											<i
+												class="fas fa-trash text-red bigger-120"
+												title="Delete"
+											></i>
+										</button>
+									</template>
+									<!-- <template #cell(start_delivery_date)="{ item }">
+										{{ item.delivery_info.start_delivery_date }}
+									</template>
+									<template #cell(complete_delivery_date)="{ item }">
+										{{ item.delivery_info.complete_delivery_date }}
+									</template> -->
+									<template #cell(confirm_delivery_date)="{ item }">
+										{{
+											item.delivery_info?.confirm_delivery_date
+												? item.delivery_info.confirm_delivery_date
+												: '-'
+										}}
+									</template>
+								</b-table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-12 d-flex">
+								<button
+									type="button"
+									class="btn btn-success ml-auto"
+									@click="updateDelivery"
+									:disabled="isImmutable"
+									v-if="isEdited"
+								>
+									Lưu chỉnh sửa
+								</button>
+							</div>
+						</div>
 					</div>
 
 					<div class="modal-footer">
@@ -208,6 +303,7 @@
                         <button type="button" class="btn btn-danger">
                             <i class="fas fa-trash" />
                         </button> -->
+
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">
 							Đóng
 						</button>
@@ -218,9 +314,15 @@
 	</div>
 </template>
 <script>
-	import ApiHandler from '../../ApiHandler';
-
+	import ApiHandler, { APIRequest } from '../../ApiHandler';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+	import sha256 from 'crypto-js/sha256';
+	import VueExpandableImage from 'vue-expandable-image';
 	export default {
+		components: {
+			Treeselect,
+		},
 		props: {
 			delivery_id: String,
 		},
@@ -230,16 +332,89 @@
 
 				is_loading: false,
 				delivery: {},
+
+				order_items: [],
+				fields: [
+					{
+						key: 'sap_so_number',
+						label: 'SO',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'sap_do_number',
+						label: 'DO',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'total_item',
+						label: 'Số thùng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'total_weight',
+						label: 'Trọng lượng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					// {
+					// 	key: 'start_delivery_date',
+					// 	label: 'Ngày bắt đầu giao',
+					// 	sortable: true,
+					// 	class: 'text-nowrap text-center',
+					// },
+					// {
+					// 	key: 'complete_delivery_date',
+					// 	label: 'Ngày giao đến',
+					// 	sortable: true,
+					// 	class: 'text-nowrap text-center',
+					// },
+					{
+						key: 'confirm_delivery_date',
+						label: 'Ngày xác nhận',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'status',
+						label: 'Trạng thái',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'action',
+						label: 'Hành động',
+						class: 'text-nowrap text-center',
+					},
+				],
+
+				order_ids_waiting_to_add: [],
+				order_options: [],
+				order_options_backup: [],
+
+				original_hashed_orders: '',
 			};
 		},
 		watch: {
-			delivery_id() {
+			async delivery_id() {
 				if (this.delivery_id) {
-					this.getDeliveryInfo();
+					await this.getDeliveryInfo();
+					this.order_items = structuredClone(this.delivery.orders);
 				} else {
 					this.delivery = {};
+					this.order_items = [];
 				}
 			},
+		},
+		mounted() {
+			$(this.$refs.DialogDeliveryInfo).on('show.bs.modal', this.onShownModal);
+
+			const viewportMeta = document.createElement('meta');
+			viewportMeta.name = 'viewport';
+			viewportMeta.content = 'width=device-width, initial-scale=1';
+			document.head.appendChild(viewportMeta);
 		},
 		computed: {
 			timelines() {
@@ -280,6 +455,25 @@
 
 				return timelines;
 			},
+			isImmutable() {
+				return this.delivery?.status?.id >= 100;
+			},
+			isEdited() {
+				return (
+					sha256(this.order_items?.toString()).toString() != this.original_hashed_orders
+				);
+			},
+			driver_confirm_image_urls() {
+				let image_urls = [];
+				this.delivery.orders.forEach((order) => {
+					order.driver_confirms.forEach((confirm) => {
+						confirm.images.forEach((image) => {
+							image_urls.push(image.url);
+						});
+					});
+				});
+				return image_urls;
+			},
 		},
 		methods: {
 			async getDeliveryInfo() {
@@ -288,11 +482,21 @@
 					let result = await this.api_handler.get(
 						'api/partner/deliveries/' + this.delivery_id,
 					);
-					if (result.success) {
-						this.delivery = result.data;
-					} else {
-						this.$showMessage('error', 'Lỗi', result.message);
-					}
+					this.delivery = result.data;
+					const { data } = await this.api_handler.get('api/partner/orders/minified', {
+						customer_id: this.delivery.customer.id,
+						status_ids: [10],
+					});
+					this.order_options = data.map((order) => {
+						return {
+							id: order.id,
+							label: `SO (${order.sap_so_number}), DO (${order.sap_do_number})`,
+						};
+					});
+					this.order_options_backup = structuredClone(this.order_options);
+					this.original_hashed_orders = sha256(
+						this.delivery.orders?.toString(),
+					).toString();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -302,11 +506,80 @@
 			printQrCode() {
 				this.$emit('printQrCode', [this.delivery_id]);
 			},
+			removeOrder(order_id) {
+				for (let index in this.order_items) {
+					if (order_id === this.order_items[index].id) {
+						const order = this.order_items[index];
+						this.order_options.push({
+							id: order.id,
+							label: `SO (${order.sap_so_number}), DO (${order.sap_do_number})`,
+						});
+						this.order_items.splice(index, 1);
+
+						return;
+					}
+				}
+			},
+			onShownModal() {
+				this.order_items = structuredClone(this.delivery.orders);
+				this.order_options = structuredClone(this.order_options_backup);
+			},
+			async pushWaitingOrdersToList() {
+				if (this.order_ids_waiting_to_add.length === 0) return;
+				const order_ids = this.order_ids_waiting_to_add;
+				const { data } = await this.api_handler.get('api/partner/orders', {
+					ids: order_ids.length === 0 ? [null] : order_ids,
+				});
+				this.order_items.push(...data);
+
+				this.order_options = this.order_options.filter(
+					(order_option) => !this.order_ids_waiting_to_add.includes(order_option.id),
+				);
+				this.order_ids_waiting_to_add = [];
+			},
+			async updateDelivery() {
+				try {
+					this.is_loading = true;
+					const update_result = await this.api_handler.patch(
+						`api/partner/deliveries/${this.delivery.id}`,
+						{},
+						{
+							orders: this.order_items,
+						},
+					);
+					await this.getDeliveryInfo();
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
 		},
 	};
 </script>
 <style scoped>
 	th {
 		text-align: center;
+	}
+	.box-images {
+		display: flex;
+		flex-wrap: wrap;
+		width: 100%;
+	}
+	.image-container {
+		width: 18%;
+		height: 250px;
+		margin-right: 1rem;
+		margin-bottom: 1rem;
+	}
+	.image-container > .image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+	.image-container > .image > img {
+		height: 100%;
 	}
 </style>

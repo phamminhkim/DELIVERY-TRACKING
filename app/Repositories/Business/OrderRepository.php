@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
+use App\Models\Business\OrderDelivery;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\Image;
@@ -198,7 +199,7 @@ class OrderRepository extends RepositoryAbs
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.images'])->get();
+                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])->get();
             }
 
             return $orders;
@@ -233,7 +234,7 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.images']);
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
@@ -264,8 +265,40 @@ class OrderRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-
     public function confirmOrder($order_id)
+    {
+        try {
+            $order = Order::find($order_id);
+            if (!$order) {
+                $this->message = 'Đơn hàng không tồn tại.';
+                return false;
+            }
+            if ($order->status_id != EnumsOrderStatus::Delivered) {
+                $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể xác nhận.';
+                return false;
+            }
+            $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
+            if (!$customer_ids || !in_array($order->customer_id, $customer_ids)) {
+                $this->message = 'Bạn không có quyền xác nhận đơn hàng này.';
+                return false;
+            }
+
+            DB::beginTransaction();
+            $order->update(['status_id' => EnumsOrderStatus::Received]);
+            OrderDelivery::where('order_id', $order->id)
+            ->update([
+                    'confirm_delivery_date' => now(),
+                    'confirm_user_id' => $this->current_user->id
+                ]);
+            DB::commit();
+
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function reviewOrder($order_id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -289,8 +322,8 @@ class OrderRepository extends RepositoryAbs
                     $this->message = 'Đơn hàng không tồn tại.';
                     return false;
                 }
-                if ($order->status_id != EnumsOrderStatus::Delivered) {
-                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể đánh giá.';
+                if ($order->status_id != EnumsOrderStatus::Received) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được nhận, không thể đánh giá.';
                     return false;
                 }
                 $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
@@ -302,6 +335,7 @@ class OrderRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $review = $order->customer_reviews()->create([
                     'review_content' => $this->data['note'] ?? '',
+                    'user_id' => $this->current_user->id
                 ]);
                 $review->criterias()->sync($this->data['reviews']);
                 $this->storeReviewImages($review, $this->data['images'] ?? []);
@@ -315,34 +349,29 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    private function storeReviewImages($review, $upload_images)
+   private function storeReviewImages($review, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
-            $image_data = $upload_image['thumbUrl'];
-
             $name = uniqid();
-            $extension = substr($image_data, strpos($image_data, "/") + 1, strpos($image_data, ";") - strpos($image_data, "/") - 1);
-            $image_base64 = substr($image_data, strpos($image_data, ",") + 1);
 
-            $image_raw_data = base64_decode($image_base64);
-            $image_props = getimagesizefromstring($image_raw_data);
-            $width = $image_props[0];
-            $height = $image_props[1];
-            $size = strlen($image_raw_data);
+            $image_properties = getimagesize($upload_image);
+            $width = $image_properties[0];
+            $height = $image_properties[1];
+            $size = $upload_image->getSize();
 
             $image = new Image();
             $image->name = $name;
             $image->owner_id = $this->current_user->id;
-            $image->ext = $extension;
+            $image->ext = $upload_image->getClientOriginalExtension();
             $image->width = $width;
             $image->height = $height;
             $image->size = $size;
-
+            $image->url = 'images/' . $name; // Adjust the URL as needed for your application
             $random_string = Str::random(10);
             $file_name = $image->name . '_' . $random_string . '.' . $image->ext;
             $image->url = 'images/' . $file_name;
 
-            Storage::disk('images')->put($file_name, $image_raw_data);
+            Storage::disk('images')->put($file_name, file_get_contents($upload_image));
 
             $review->images()->save($image, ['imageable_id' => $review->id, 'imageable_type' => OrderCustomerReview::class]);
         }

@@ -28,7 +28,7 @@
 								</button>
 							</div>
 							<!-- <button type="button" :title="$t('form.filter')" onclick="location.reload(true)" class="btn btn-secondary  btn-xs ml-1" ><i class="fas fa-redo-alt" title="Refresh"></i></button> -->
-							<button @click="filter_data()" class="btn btn-secondary btn-xs ml-1">
+							<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
 								<i class="fas fa-sync-alt" title="Tải lại"></i>
 							</button>
 						</div>
@@ -197,6 +197,9 @@
 									đơn</strong
 								>
 							</button>
+							<button class="btn btn-info btn-sm ml-1 mt-1" @click="exportToExcel">
+								<strong><i class="fas fa-file-excel mr-1" />Xuất file excel</strong>
+							</button>
 						</div>
 					</div>
 					<div class="col-md-3">
@@ -327,7 +330,7 @@
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 	import DialogOrderInfo from './dialogs/DialogOrderInfo.vue';
-
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	export default {
 		components: {
 			Treeselect,
@@ -368,6 +371,7 @@
 					{ id: 30, label: 'Đang vận chuyển' },
 					{ id: 40, label: 'Đã giao một phần' },
 					{ id: 100, label: 'Đã giao xong' },
+					{ id: 200, label: 'Đã nhận hàng' },
 				],
 
 				pagination: {
@@ -462,7 +466,7 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'all') {
-							this.form_filter.statuses = [10, 20, 30, 40, 100];
+							this.form_filter.statuses = [10, 20, 30, 40, 100, 200];
 							this.fetchData();
 						}
 					}
@@ -472,6 +476,7 @@
 		methods: {
 			async fetchData(query) {
 				try {
+					this.is_loading = true;
 					const [orders] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_orders, {
 							from_date:
@@ -493,6 +498,8 @@
 					this.orders = orders;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
 				}
 			},
 			async fetchFilterOptions() {
@@ -601,6 +608,44 @@
 				if (day.length < 2) day = '0' + day;
 
 				return [year, month, day].join('-');
+			},
+			exportToExcel() {
+				saveExcel({
+					data: this.orders,
+					fileName: 'orders_exported',
+					columns: [
+						{
+							field: 'customer.code',
+							title: 'Mã khách hàng',
+						},
+						{
+							field: 'warehouse.name',
+							title: 'Kho hàng',
+						},
+						{
+							field: 'sap_so_number',
+							title: 'SO',
+						},
+						{
+							field: 'sap_do_number',
+							title: 'DO',
+						},
+						{
+							field: 'receiver.receiver_name',
+							title: 'Bên nhận',
+						},
+						{
+							field: 'status.name',
+							title: 'Trạng thái',
+						},
+					],
+				});
+				// 'Mã KH': 'customer.code',
+				// 	'Kho hàng': 'warehouse.name',
+				// 	SO: 'sap_so_number',
+				// 	DO: 'sap_do_number',
+				// 	'Bên nhận': 'receiver.receiver_name',
+				// 	'Trạng thái': 'status.name',
 			},
 		},
 		computed: {

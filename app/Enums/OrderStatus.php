@@ -9,4 +9,5 @@ abstract class OrderStatus
     const Delivering = 30;
     const PartlyDelivered = 40;
     const Delivered = 100;
+    const Received = 200;
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Master\MenuRouter;
+use App\Models\System\Role;
 use App\Utilities\NestedSetSync;
 use App\Utilities\RedisUtility;
 use Illuminate\Database\Seeder;
@@ -16,26 +17,41 @@ class MenuRouterSeeder extends Seeder
     {
         $order = 0;
         foreach ($this->getMenuLevel1() as $menu) {
-            if (!MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->exists()) {
+            $existing_menu = MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->first();
+            if (!$existing_menu) {
                 $menu['order'] = $order++;
                 $menu['parent_id'] = 0;
                 $menu['left'] = 0;
                 $menu['right'] = 0;
                 $menu['is_active'] = true;
-                MenuRouter::create($menu);
+                $existing_menu = MenuRouter::create($menu);
             }
+            
+            $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
+            $roles = Role::whereIn('name', $role_names)->get();
+            $existing_menu->guard_name = 'web';
+            $existing_menu->assignRole($roles);
         }
 
         foreach ($this->getMenuLevel2() as $menu) {
-            if (!MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->exists()) {
+            $existing_menu = MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->first();
+            if (!$existing_menu) {
                 $menu['order'] = $order++;
                 $menu['parent_id'] = MenuRouter::where('title', $menu['parent'])->first()->id;
                 $menu['left'] = 0;
                 $menu['right'] = 0;
                 $menu['is_active'] = true;
                 unset($menu['parent']);
-                MenuRouter::create($menu);
+                $existing_menu = MenuRouter::create($menu);
             }
+        
+            $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
+            if ($existing_menu->parent) {
+                $role_names = array_merge($role_names, $existing_menu->parent->roles->pluck('name')->toArray());
+            }
+            $roles = Role::whereIn('name', $role_names)->get();
+            $existing_menu->guard_name = 'web';
+            $existing_menu->assignRole($roles);
         }
 
         $transformer = new NestedSetSync();
@@ -58,25 +74,43 @@ class MenuRouterSeeder extends Seeder
                 'title' => "Quản lí đơn hàng",
                 'icon' => "fas fa-shopping-cart",
                 'link' => "#",
-                'query_string' => ""
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                    'admin-warehouse',
+                    'admin-partner',
+                    'user-sap'
+                ]
             ],
             [
                 'title' => "Quản lí vận đơn",
                 'icon' => "fas fa-truck-moving",
                 'link' => "#",
-                'query_string' => ""
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                    'admin-warehouse',
+                    'admin-partner',
+                    'user-sap'
+                ]
             ],
             [
                 'title' => "Quản lí dữ liệu",
                 'icon' => "fas fa-database",
                 'link' => "#",
-                'query_string' => ""
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                ]
             ],
             [
                 'title' => "Quản trị hệ thống",
                 'icon' => "fas fa-user-secret",
                 'link' => "#",
-                'query_string' => ""
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                ]
             ]
         ];
     }

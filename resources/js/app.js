@@ -11,8 +11,6 @@ import router from "./router";
 import VueRouter from "vue-router";
 import moment from "moment";
 import drag from "v-drag"
-
-
 Vue.filter("formatDate", function (value) {
     if (value) {
         return moment(String(value)).format("DD/MM/YYYY");

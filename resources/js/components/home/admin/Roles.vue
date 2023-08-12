@@ -10,7 +10,7 @@
 <script>
 	import CrudPage from '../general/crudform/CrudPage.vue';
 	import Vue from 'vue';
-
+	import { APIRequest } from '../ApiHandler';
 	export default {
 		components: {
 			CrudPage,

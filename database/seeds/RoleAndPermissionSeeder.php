@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\System\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RoleAndPermissionSeeder extends Seeder
@@ -19,6 +19,7 @@ class RoleAndPermissionSeeder extends Seeder
         $roles = [
             'admin-system',
             'admin-warehouse',
+            'admin-partner',
             'user-driver',
             'user-customer',
             'user-sap',

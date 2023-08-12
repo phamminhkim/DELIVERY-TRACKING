@@ -146,6 +146,7 @@
 
 											<button
 												class="btn btn-xs"
+												:disabled="slotProps.data.children.length == 0"
 												@click="deleteItem(slotProps.data)"
 											>
 												<i class="fas fa-trash text-red"></i>
@@ -167,6 +168,7 @@
 		<dialog-add-update-menu-router
 			:menu="menu"
 			:tree_routes="tree_routes"
+			:tree_roles="tree_roles"
 			:is_editing="is_editing"
 			@onCreateMenu="onCreateMenu"
 			@onUpdateMenu="onUpdateMenu"
@@ -199,6 +201,7 @@
 				root_tree_menus: [],
 
 				tree_routes: [],
+				tree_roles: [],
 
 				current_tree: [],
 
@@ -210,12 +213,14 @@
 				api_save_menu_routers: '/api/master/menu-routers/save-configs',
 				api_delete_menu_routers: '/api/master/menu-routers/',
 				api_get_tree_routes: '/api/routes?format=treeselect',
+				api_get_tree_roles: '/api/admin/roles?format=treeselect',
 			};
 		},
 		created() {
 			this.token = 'Bearer ' + window.Laravel.access_token;
 			this.fetchMenus();
 			this.fetchTreeRoutes();
+			this.fetchTreeRoles();
 		},
 
 		methods: {
@@ -228,6 +233,7 @@
 					query_string: menu.query_string,
 					route_id: menu.route_id,
 					route: menu.route,
+					role_ids: menu.role_ids,
 				});
 				this.saveMenus();
 			},
@@ -242,6 +248,7 @@
 						node.query_string = menu.query_string;
 						node.route_id = menu.route_id;
 						node.route = menu.route;
+						node.role_ids = menu.role_ids;
 						return false;
 					}
 				});
@@ -273,6 +280,21 @@
 					.then((res) => res.json())
 					.then((res) => {
 						this.tree_routes = res.data;
+						this.loading = false;
+					})
+					.catch((err) => {
+						console.log(err);
+						this.loading = false;
+					});
+			},
+			fetchTreeRoles() {
+				this.loading = true;
+
+				var page_url = this.api_get_tree_roles;
+				fetch(page_url, { headers: { Authorization: this.token } })
+					.then((res) => res.json())
+					.then((res) => {
+						this.tree_roles = res.data;
 						this.loading = false;
 					})
 					.catch((err) => {
@@ -374,6 +396,7 @@
 						query_string: menu.query_string,
 						route_id: menu.route_id,
 						route: menu.route,
+						role_ids: menu.role_ids,
 					};
 
 					if (childs_id && childs_id.length > 0) {

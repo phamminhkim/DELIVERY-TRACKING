@@ -2,17 +2,36 @@
 
 namespace App\Repositories\Admin;
 
+use App\Models\System\Role;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\RedisUtility;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 
 class RoleRepository extends RepositoryAbs
 {
      public function getAvailableRoles()
     {
         try {
-            $roles = Role::get();
-            return $roles;
+            $query = Role::query();
+            $roles = $query->get();
+            $result = array();
+
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                        foreach ($roles as $role) {
+                            $item = array(
+                                'id' => $role->id,
+                                'label' => $role->name . ' (' . $role->guard_name . ')',
+                                'object' => $role
+                            );
+                            array_push($result, $item);
+                        }
+                }
+            }
+            else {
+                $result = $roles;
+            }
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -86,6 +105,7 @@ class RoleRepository extends RepositoryAbs
         try {
             $role = Role::findOrFail($id);
             $role->delete();
+            RedisUtility::deleteByCategory('menu-tree');
             return true;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

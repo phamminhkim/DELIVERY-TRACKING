@@ -2,8 +2,10 @@
 
 namespace App\Repositories\Master;
 
+use App\Models\System\Role;
 use App\User;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Utilities\RedisUtility;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,8 +14,28 @@ class UserRepository extends RepositoryAbs
     public function getAvailableUsers()
     {
         try {
-            $users = User::all();
-            return $users;
+           $users = User::with(['roles', 'delivery_partners'])->get()->map(function ($user) {
+                $user->role_ids = $user->roles->pluck('id')->toArray();
+                return $user;
+            });
+            $result = array();
+
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                        foreach ($users as $user) {
+                            $item = array(
+                                'id' => $user->id,
+                                'label' => $user->name,
+                                'object' => $user
+                            );
+                            array_push($result, $item);
+                        }
+                }
+            }
+            else {
+                $result = $users;
+            }
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -23,7 +45,6 @@ class UserRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'name' => 'required|string',
                 'password' => 'required|string',
                 'email' => 'nullable|string|unique:users,email',
@@ -51,6 +72,9 @@ class UserRepository extends RepositoryAbs
                 $this->data['active'] = true;
                 $this->data['password'] = Hash::make($this->data['password']);
                 $user = User::create($this->data);
+                $roles = Role::whereIn('id', $this->data['role_ids'])->get();
+                $user->syncRoles($roles);
+                RedisUtility::deleteByCategoryAndKey('menu-tree', $user->id);
                 return $user;
             }
         } catch (\Exception $exception) {
@@ -62,21 +86,17 @@ class UserRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'name' => 'required|string',
                 'email' => 'nullable|string',
                 'password' => 'nullable|string',
                 'phone_number' => 'nullable|string',
             ], [
-
                 'name.required' => 'Yêu cầu nhập tên User.',
                 'name.string' => 'Tên User phải là chuỗi.',
                 'email.string' => 'Email phải là chuỗi.',
                 'password.string' => 'Password phải là chuỗi',
                 //'email.unique' =>'Email không được trùng',
                 'phone_number.string' => 'Số điện thoại phải là chuỗi.',
-
-
             ]);
             if ($validator->fails()) {
                 $errors = $validator->errors();
@@ -88,9 +108,14 @@ class UserRepository extends RepositoryAbs
                 }
             } else {
                 $user = User::findOrFail($id);
-                $this->data['password'] = Hash::make($this->data['password']);
+                if (isset($this->data['password'])) {
+                    $this->data['password'] = Hash::make($this->data['password']);
+                }
                 $user->update($this->data);
 
+                $roles = Role::whereIn('id', $this->data['role_ids'])->get();
+                $user->syncRoles($roles);
+                RedisUtility::deleteByCategoryAndKey('menu-tree', $user->id);
                 return $user;
             }
         } catch (\Exception $exception) {

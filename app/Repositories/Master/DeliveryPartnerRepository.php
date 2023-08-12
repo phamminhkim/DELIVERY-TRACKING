@@ -3,17 +3,23 @@
 namespace App\Repositories\Master;
 
 use App\Models\Master\DeliveryPartner;
+use App\Models\Master\DistributionChannel;
+use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class DeliveryPartnerRepository extends RepositoryAbs
 {
     public function getAvailablePartners()
     {
         try {
-            // $partners = DeliveryPartner::all();
-            $partners = DB::table('delivery_partners')->get();
+            $partners = DeliveryPartner::with(['users', 'distribution_channels'])->get()->map(function ($partner) {
+                $partner->channel_ids = $partner->distribution_channels->pluck('id')->toArray();
+                $partner->user_ids = $partner->users->pluck('user_id')->toArray();
+                return $partner;
+            });
             return $partners;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -61,7 +67,11 @@ class DeliveryPartnerRepository extends RepositoryAbs
                     'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                 ]);
-
+                foreach ($this->data['user_ids'] as $userId) {
+                    $userMorph = new UserMorph(['user_id' => $userId]);
+                    $partner->users()->save($userMorph);
+                }
+                $partner->distribution_channels()->sync($this->data['channel_ids']);
                 return $partner;
             }
         } catch (\Exception $exception) {
@@ -108,8 +118,16 @@ class DeliveryPartnerRepository extends RepositoryAbs
                     'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                 ]);
-                $partner->save();
+                // Detach all existing relationships
+                $partner->users()->delete();
 
+                // Attach new relationships
+                foreach ($this->data['user_ids'] as $userId) {
+                    $userMorph = new UserMorph(['user_id' => $userId]);
+                    $partner->users()->save($userMorph);
+                }
+                $partner->distribution_channels()->sync($this->data['channel_ids']);
+                $partner->save();
                 return $partner;
             }
         } catch (\Exception $exception) {

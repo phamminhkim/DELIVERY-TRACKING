@@ -430,6 +430,7 @@
 							new APIRequest('get', `api/master/customers/${customer_id}`),
 							new APIRequest('get', `api/partner/orders/minified`, {
 								customer_id: customer_id,
+								status_ids: [10], //pending
 							}),
 						]);
 					this.form.address = customer.address;
