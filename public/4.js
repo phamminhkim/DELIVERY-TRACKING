@@ -1,1 +1,169 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[4],{294:function(t,s,e){"use strict";e(99)},295:function(t,s,e){(t.exports=e(9)(!1)).push([t.i,".action-link[data-v-123bd956]{cursor:pointer}",""])},312:function(t,s,e){"use strict";e.r(s);function o(t){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}var n={data:function(){return{accessToken:null,tokens:[],scopes:[],form:{name:"",scopes:[],errors:[]}}},ready:function(){this.prepareComponent()},mounted:function(){this.prepareComponent()},methods:{prepareComponent:function(){this.getTokens(),this.getScopes(),$("#modal-create-token").on("shown.bs.modal",(function(){$("#create-token-name").focus()}))},getTokens:function(){var t=this;axios.get("/oauth/personal-access-tokens").then((function(s){t.tokens=s.data}))},getScopes:function(){var t=this;axios.get("/oauth/scopes").then((function(s){t.scopes=s.data}))},showCreateTokenForm:function(){$("#modal-create-token").modal("show")},store:function(){var t=this;this.accessToken=null,this.form.errors=[],axios.post("/oauth/personal-access-tokens",this.form).then((function(s){t.form.name="",t.form.scopes=[],t.form.errors=[],t.tokens.push(s.data.token),t.showAccessToken(s.data.accessToken)})).catch((function(s){"object"===o(s.response.data)?t.form.errors=_.flatten(_.toArray(s.response.data.errors)):t.form.errors=["Something went wrong. Please try again."]}))},toggleScope:function(t){this.scopeIsAssigned(t)?this.form.scopes=_.reject(this.form.scopes,(function(s){return s==t})):this.form.scopes.push(t)},scopeIsAssigned:function(t){return _.indexOf(this.form.scopes,t)>=0},showAccessToken:function(t){$("#modal-create-token").modal("hide"),this.accessToken=t,$("#modal-access-token").modal("show")},revoke:function(t){var s=this;axios.delete("/oauth/personal-access-tokens/"+t.id).then((function(t){s.getTokens()}))}}},a=(e(294),e(2)),i=Object(a.a)(n,(function(){var t=this,s=t._self._c;return s("div",[s("div",[s("div",{staticClass:"card card-default"},[s("div",{staticClass:"card-header"},[s("div",{staticStyle:{display:"flex","justify-content":"space-between","align-items":"center"}},[s("span",[t._v("\n                        Personal Access Tokens\n                    ")]),t._v(" "),s("a",{staticClass:"action-link",attrs:{tabindex:"-1"},on:{click:t.showCreateTokenForm}},[t._v("\n                        Create New Token\n                    ")])])]),t._v(" "),s("div",{staticClass:"card-body"},[0===t.tokens.length?s("p",{staticClass:"mb-0"},[t._v("\n                    You have not created any personal access tokens.\n                ")]):t._e(),t._v(" "),t.tokens.length>0?s("table",{staticClass:"table table-responsive table-borderless mb-0"},[t._m(0),t._v(" "),s("tbody",t._l(t.tokens,(function(e){return s("tr",[s("td",{staticStyle:{"vertical-align":"middle"}},[t._v("\n                                "+t._s(e.name)+"\n                            ")]),t._v(" "),s("td",{staticStyle:{"vertical-align":"middle"}},[s("a",{staticClass:"action-link text-danger",on:{click:function(s){return t.revoke(e)}}},[t._v("\n                                    Delete\n                                ")])])])})),0)]):t._e()])])]),t._v(" "),s("div",{staticClass:"modal fade",attrs:{id:"modal-create-token",tabindex:"-1",role:"dialog"}},[s("div",{staticClass:"modal-dialog"},[s("div",{staticClass:"modal-content"},[t._m(1),t._v(" "),s("div",{staticClass:"modal-body"},[t.form.errors.length>0?s("div",{staticClass:"alert alert-danger"},[t._m(2),t._v(" "),s("br"),t._v(" "),s("ul",t._l(t.form.errors,(function(e){return s("li",[t._v("\n                                "+t._s(e)+"\n                            ")])})),0)]):t._e(),t._v(" "),s("form",{attrs:{role:"form"},on:{submit:function(s){return s.preventDefault(),t.store.apply(null,arguments)}}},[s("div",{staticClass:"form-group row"},[s("label",{staticClass:"col-md-4 col-form-label"},[t._v("Name")]),t._v(" "),s("div",{staticClass:"col-md-6"},[s("input",{directives:[{name:"model",rawName:"v-model",value:t.form.name,expression:"form.name"}],staticClass:"form-control",attrs:{id:"create-token-name",type:"text",name:"name"},domProps:{value:t.form.name},on:{input:function(s){s.target.composing||t.$set(t.form,"name",s.target.value)}}})])]),t._v(" "),t.scopes.length>0?s("div",{staticClass:"form-group row"},[s("label",{staticClass:"col-md-4 col-form-label"},[t._v("Scopes")]),t._v(" "),s("div",{staticClass:"col-md-6"},t._l(t.scopes,(function(e){return s("div",[s("div",{staticClass:"checkbox"},[s("label",[s("input",{attrs:{type:"checkbox"},domProps:{checked:t.scopeIsAssigned(e.id)},on:{click:function(s){return t.toggleScope(e.id)}}}),t._v("\n\n                                                "+t._s(e.id)+"\n                                        ")])])])})),0)]):t._e()])]),t._v(" "),s("div",{staticClass:"modal-footer"},[s("button",{staticClass:"btn btn-secondary",attrs:{type:"button","data-dismiss":"modal"}},[t._v("Close")]),t._v(" "),s("button",{staticClass:"btn btn-primary",attrs:{type:"button"},on:{click:t.store}},[t._v("\n                        Create\n                    ")])])])])]),t._v(" "),s("div",{staticClass:"modal fade",attrs:{id:"modal-access-token",tabindex:"-1",role:"dialog"}},[s("div",{staticClass:"modal-dialog"},[s("div",{staticClass:"modal-content"},[t._m(3),t._v(" "),s("div",{staticClass:"modal-body"},[s("p",[t._v("\n                        Here is your new personal access token. This is the only time it will be shown so don't lose it!\n                        You may now use this token to make API requests.\n                    ")]),t._v(" "),s("textarea",{staticClass:"form-control",attrs:{rows:"10"}},[t._v(t._s(t.accessToken))])]),t._v(" "),t._m(4)])])])])}),[function(){var t=this._self._c;return t("thead",[t("tr",[t("th",[this._v("Name")]),this._v(" "),t("th")])])},function(){var t=this._self._c;return t("div",{staticClass:"modal-header"},[t("h4",{staticClass:"modal-title"},[this._v("\n                        Create Token\n                    ")]),this._v(" "),t("button",{staticClass:"close",attrs:{type:"button","data-dismiss":"modal","aria-hidden":"true"}},[this._v("×")])])},function(){var t=this._self._c;return t("p",{staticClass:"mb-0"},[t("strong",[this._v("Whoops!")]),this._v(" Something went wrong!")])},function(){var t=this._self._c;return t("div",{staticClass:"modal-header"},[t("h4",{staticClass:"modal-title"},[this._v("\n                        Personal Access Token\n                    ")]),this._v(" "),t("button",{staticClass:"close",attrs:{type:"button","data-dismiss":"modal","aria-hidden":"true"}},[this._v("×")])])},function(){var t=this._self._c;return t("div",{staticClass:"modal-footer"},[t("button",{staticClass:"btn btn-secondary",attrs:{type:"button","data-dismiss":"modal"}},[this._v("Close")])])}],!1,null,"123bd956",null);s.default=i.exports},99:function(t,s,e){var o=e(295);"string"==typeof o&&(o=[[t.i,o,""]]);var n={hmr:!0,transform:void 0,insertInto:void 0};e(10)(o,n);o.locals&&(t.exports=o.locals)}}]);
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([[4],{
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _general_crudform_CrudPage_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../general/crudform/CrudPage.vue */ "./resources/js/components/home/general/crudform/CrudPage.vue");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    CrudPage: _general_crudform_CrudPage_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
+    Vue: vue__WEBPACK_IMPORTED_MODULE_1___default.a
+  },
+  data: function data() {
+    return {
+      page_structure: {}
+    };
+  },
+  created: function created() {
+    this.page_structure = {
+      header: {
+        title: 'Vai trò (role)',
+        title_icon: 'fas fa-user-circle'
+      },
+      table: {
+        table_fields: [{
+          key: 'name',
+          label: 'Tên vai trò',
+          sortable: true,
+          "class": 'text-center'
+        }, {
+          key: 'guard_name',
+          label: 'Guard',
+          sortable: true,
+          "class": 'text-center'
+        }]
+      },
+      form: {
+        unique_name: 'roles',
+        form_name: 'Vai trò',
+        form_fields: [{
+          label: 'Tên vai trò',
+          placeholder: 'Nhập tên vai trò..',
+          key: 'name',
+          type: 'text',
+          //html input type
+          required: true
+        }, {
+          label: 'Tên guard',
+          placeholder: 'Nhập tên guard..',
+          key: 'guard_name',
+          type: 'text',
+          //html input type
+          required: true
+        }]
+      },
+      api_url: '/api/admin/roles'
+    };
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10&":
+/*!*************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10& ***!
+  \*************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function render() {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("CrudPage", {
+    attrs: {
+      structure: _vm.page_structure
+    }
+  });
+};
+var staticRenderFns = [];
+render._withStripped = true;
+
+
+/***/ }),
+
+/***/ "./resources/js/components/home/admin/Roles.vue":
+/*!******************************************************!*\
+  !*** ./resources/js/components/home/admin/Roles.vue ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Roles.vue?vue&type=template&id=70eaab10& */ "./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10&");
+/* harmony import */ var _Roles_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Roles.vue?vue&type=script&lang=js& */ "./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Roles_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/home/admin/Roles.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Roles_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib??vue-loader-options!./Roles.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/admin/Roles.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Roles_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10&":
+/*!*************************************************************************************!*\
+  !*** ./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10& ***!
+  \*************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!../../../../../node_modules/vue-loader/lib??vue-loader-options!./Roles.vue?vue&type=template&id=70eaab10& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/admin/Roles.vue?vue&type=template&id=70eaab10&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Roles_vue_vue_type_template_id_70eaab10___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ })
+
+}]);
