@@ -5,9 +5,11 @@ namespace App\Models\Master;
 use App\Models\System\Role;
 use App\Models\System\Route;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 class MenuRouter extends Model
 {
+    use HasRoles;
     public $timestamps = false;
     protected $fillable = [
         'title',
