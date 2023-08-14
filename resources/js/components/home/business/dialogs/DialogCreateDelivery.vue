@@ -109,6 +109,7 @@
 								responsive
 								hover
 								striped
+								show-empty
 								:bordered="true"
 								:current-page="pagination.current_page"
 								:per-page="pagination.item_per_page"
@@ -117,6 +118,10 @@
 								:items="renderedOnTableOrderList"
 								:tbody-tr-class="rowClass"
 							>
+								<template #empty="scope">
+									<h6 class="text-center">Hãy thêm đơn hàng để tạo vận đơn</h6>
+								</template>
+
 								<template #cell(warehouse)="data">
 									<span>{{ data.value.name }}</span>
 								</template>
