@@ -53,6 +53,10 @@ class Delivery extends Model
     {
         return $this->hasOne(DeliveryPickup::class);
     }
+    public function info() 
+    {
+        return $this->hasOne(OrderDelivery::class, 'delivery_id', 'id');
+    }
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_deliveries');
