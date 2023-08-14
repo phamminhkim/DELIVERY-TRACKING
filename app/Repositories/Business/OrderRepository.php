@@ -3,6 +3,7 @@
 namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus as EnumsOrderStatus;
+use App\Models\Business\DeliveryTimeline;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
 use App\Models\Business\OrderDelivery;
@@ -199,7 +200,9 @@ class OrderRepository extends RepositoryAbs
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
-                $orders = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])->get();
+                $orders = $query
+                ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info' , 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
+                ->get();
             }
 
             return $orders;
