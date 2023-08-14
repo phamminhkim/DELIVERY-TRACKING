@@ -90,6 +90,7 @@
 						responsive
 						hover
 						striped
+						show-empty
 						:bordered="true"
 						:current-page="pagination.current_page"
 						:per-page="pagination.item_per_page"
@@ -98,6 +99,9 @@
 						:items="deliveries"
 						:tbody-tr-class="rowClass"
 					>
+						<template #empty="scope">
+							<h6 class="text-center">Không có vận đơn nào để hiển thị</h6>
+						</template>
 						<template #head(selection)>
 							<b-form-checkbox
 								class="ml-1"

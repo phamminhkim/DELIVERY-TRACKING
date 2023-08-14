@@ -61,6 +61,7 @@
 							responsive
 							hover
 							striped
+							show-empty
 							:bordered="true"
 							:current-page="pagination.current_page"
 							:per-page="pagination.item_per_page"
@@ -69,6 +70,10 @@
 							:items="items"
 							:tbody-tr-class="rowClass"
 						>
+							<template #empty="scope">
+								<h6 class="text-center">Không có thông tin</h6>
+							</template>
+
 							<template #cell(index)="data">
 								{{
 									data.index +
