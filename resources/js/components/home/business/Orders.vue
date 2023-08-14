@@ -323,8 +323,11 @@
 				<!-- end tạo form -->
 			</div>
 		</div>
+
 		<!-- end container -->
-	</b-overlay>
+
+
+
 </template>
 
 <script>
