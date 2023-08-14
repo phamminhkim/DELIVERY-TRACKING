@@ -39,6 +39,9 @@ class OrderRepository extends RepositoryAbs
                 '*.details.total_value' => 'required|numeric',
                 '*.receivers.receiver_name' => 'required|string|max:255',
                 '*.receivers.receiver_phone' => 'nullable|string|max:255',
+                '*.sale.distribution_channel' => 'required|numeric|exists:distribution_channels,id',
+                '*.sale.sale_group' => 'required|numeric|exists:sale_groups,id',
+                '*.sale.sale_district' => 'required|numeric|exists:sale_districts,id',
                 //'*.warehouse_code' => 'required|string|exists:warehouses,code',
                 '*.is_deleted' => 'nullable|boolean'
             ], [
@@ -66,6 +69,9 @@ class OrderRepository extends RepositoryAbs
                 '*.receivers.receiver_phone.max' => 'Số điện thoại người nhận không được vượt quá 255 ký tự.',
                 '*.warehouse_code.required' => 'Mã kho là bắt buộc.',
                 '*.warehouse_code.exists' => 'Mã kho :input không tồn tại.',
+                '*.sale.distribution_channel.exists' => 'Mã kênh phân phối :input không tồn tại.',
+                '*.sale.sale_group.exists' => 'Mã nhóm bán hàng :input không tồn tại.',
+                '*.sale.sale_district.exists' => 'Mã khu vực bán hàng :input không tồn tại.',
                 '*.is_deleted.boolean' => 'Trạng thái xóa phải là true hoặc false.'
             ]);
 
@@ -142,6 +148,11 @@ class OrderRepository extends RepositoryAbs
                             'receiver_name' => $order['receivers']['receiver_name'],
                             'receiver_phone' => $order['receivers']['receiver_phone'] ?? '',
                             'note' => $order['receivers']['note'] ?? '',
+                        ]);
+                        $created_order->sale()->updateOrCreate(['order_id' => $created_order['id']], [
+                            'distribution_channel_id' => $order['sale']['distribution_channel'],
+                            'sale_district_id' => $order['sale']['sale_district'],
+                            'sale_group_id' => $order['sale']['sale_group'],
                         ]);
 
                         if ($created_order->wasRecentlyCreated || $created_order->getChanges()) {
