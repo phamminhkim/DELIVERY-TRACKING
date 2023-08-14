@@ -122,7 +122,7 @@ class DeliveryRepository extends RepositoryAbs
                         $this->message = 'Không tìm thấy đơn hàng nào của khách hàng có số điện thoại ' . $this->current_user->phone_number;
                         return false;
                     }
-                    $delivery->load(['company', 'customer', 'partner', 'timelines']);
+                    $delivery->load(['company', 'customer', 'partner', 'info', 'timelines']);
                     unset($delivery->orders);
                     $delivery->orders = $my_orders;
                 } else {
@@ -130,7 +130,7 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
             } else {
-                $delivery->load(['company', 'customer', 'partner', 'timelines', 'orders', 'orders.delivery_info', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
+                $delivery->load(['company', 'customer', 'partner', 'info', 'timelines', 'orders', 'orders.delivery_info', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
                 $my_orders = $delivery->orders->map(function ($order) {
                         $orders = $order->toArray();
                         return $orders;
@@ -139,11 +139,14 @@ class DeliveryRepository extends RepositoryAbs
                 $delivery->orders = $my_orders;
             }
 
-            if ($delivery->complete_delivery_date) {
+            if ($delivery->info->confirm_delivery_date) {
+                $delivery['status'] = EnumsOrderStatus::Received;
+            }
+            else if ($delivery->complete_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivered;
-            } else if ($delivery->start_delivery_date) {
+            } 
+            else if ($delivery->start_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivering;
-
                 // Check if any order is delivered or partly delivered
             } else {
                 $delivery['status'] = EnumsOrderStatus::Preparing;
