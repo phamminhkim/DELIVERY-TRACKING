@@ -164,45 +164,58 @@ class OrderRepository extends RepositoryAbs
     public function getOrders($is_minified = false)
     {
         try {
+            if (!$this->current_user->hasAnyRole('admin-system', 'admin-warehouse', 'user-partner')) {
+                return [];
+            }
+
             $query = Order::query();
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
-            if ($this->request->filled('from_date')){
+            if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
                 $query->whereDate('sap_so_created_date', '>=', $from_date);
             }
-            if ($this->request->filled('to_date')){
+            if ($this->request->filled('to_date')) {
                 $to_date = $this->request->to_date;
                 $query->whereDate('sap_so_created_date', '<=', $to_date);
             }
-            if ($this->request->filled('status_ids')){
+            if ($this->request->filled('status_ids')) {
                 $query->whereIn('status_id', $this->request->status_ids);
             }
-            if ($this->request->filled('customer_id')){
+            if ($this->request->filled('customer_id')) {
                 $query->where('customer_id', $this->request->customer_id);
             }
-            if ($this->request->filled('customer_ids')){
+            if ($this->request->filled('customer_ids')) {
                 $query->whereIn('customer_id', $this->request->customer_ids);
             }
-            if ($this->request->filled('warehouse_ids')){
+            if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
-            if ($this->request->filled('sap_so_number')){
-                $query->where('sap_so_number', 'LIKE', '%'.$this->request->sap_so_number.'%');
+            if ($this->request->filled('sap_so_number')) {
+                $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
             }
-            if ($this->request->filled('sap_do_number')){
-                $query->where('sap_do_number', 'LIKE', '%'.$this->request->sap_do_number.'%');
+            if ($this->request->filled('sap_do_number')) {
+                $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
             }
 
+            if ($this->current_user->hasRole('user-partner')) {
+                $channel_ids = $this->current_user->delivery_partners->flatMap(function ($partner) {
+                    return $partner->distribution_channels;
+                })->pluck('id')->toArray();
+
+                $query->whereHas('sale', function ($q) use ($channel_ids) {
+                    $q->whereIn('distribution_channel_id', $channel_ids);
+                });
+            }
 
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
                 $orders = $query
-                ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info' , 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
-                ->get();
+                    ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
+                    ->get();
             }
 
             return $orders;
@@ -237,7 +250,7 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews' , 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
@@ -289,7 +302,7 @@ class OrderRepository extends RepositoryAbs
             DB::beginTransaction();
             $order->update(['status_id' => EnumsOrderStatus::Received]);
             OrderDelivery::where('order_id', $order->id)
-            ->update([
+                ->update([
                     'confirm_delivery_date' => now(),
                     'confirm_user_id' => $this->current_user->id
                 ]);
@@ -352,7 +365,7 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-   private function storeReviewImages($review, $upload_images)
+    private function storeReviewImages($review, $upload_images)
     {
         foreach ($upload_images as $upload_image) {
             $name = uniqid();
