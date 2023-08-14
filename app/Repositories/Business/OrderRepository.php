@@ -9,8 +9,11 @@ use App\Models\Business\OrderCustomerReview;
 use App\Models\Business\OrderDelivery;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
+use App\Models\Master\DistributionChannel;
 use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
+use App\Models\Master\SaleDistrict;
+use App\Models\Master\SaleGroup;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Carbon\Carbon;
@@ -150,9 +153,9 @@ class OrderRepository extends RepositoryAbs
                             'note' => $order['receivers']['note'] ?? '',
                         ]);
                         $created_order->sale()->updateOrCreate(['order_id' => $created_order['id']], [
-                            'distribution_channel_id' => $order['sales']['distribution_channel'],
-                            'sale_district_id' => $order['sales']['sale_district'],
-                            'sale_group_id' => $order['sales']['sale_group'],
+                            'distribution_channel_id' => DistributionChannel::where('code', $order['sales']['distribution_channel'])->first()->id,
+                            'sale_district_id' => SaleDistrict::where('code', $order['sales']['sale_district'])->first()->id,
+                            'sale_group_id' => SaleGroup::where('code', $order['sales']['sale_group'])->first()->id,
                         ]);
 
                         if ($created_order->wasRecentlyCreated || $created_order->getChanges()) {
