@@ -315,7 +315,6 @@
 				<!-- end phân trang -->
 
 				<DialogOrderInfo :order="viewing_order" />
-				<!-- tạo form -->
 				<DialogCreateDelivery :order_ids="creating_delivery_order_ids" />
 				<!-- end tạo form -->
 			</div>
@@ -640,12 +639,6 @@
 						},
 					],
 				});
-				// 'Mã KH': 'customer.code',
-				// 	'Kho hàng': 'warehouse.name',
-				// 	SO: 'sap_so_number',
-				// 	DO: 'sap_do_number',
-				// 	'Bên nhận': 'receiver.receiver_name',
-				// 	'Trạng thái': 'status.name',
 			},
 		},
 		computed: {

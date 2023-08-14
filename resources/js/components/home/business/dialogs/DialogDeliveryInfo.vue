@@ -294,18 +294,31 @@
 					</div>
 
 					<div class="modal-footer">
-						<button type="button" class="btn btn-info mr-auto" @click="printQrCode">
+						<button
+							v-if="!isOpenFromOrderDialog"
+							type="button"
+							class="btn btn-info mr-auto"
+							@click="printQrCode"
+						>
 							<i class="fas fa-print" /> In vận đơn
 						</button>
-						<!-- <button type="button" class="btn btn-primary">
-                            <i class="fas fa-edit" />
-                        </button>
-                        <button type="button" class="btn btn-danger">
-                            <i class="fas fa-trash" />
-                        </button> -->
 
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">
+						<button
+							v-if="!isOpenFromOrderDialog"
+							type="button"
+							class="btn btn-secondary"
+							data-dismiss="modal"
+						>
 							Đóng
+						</button>
+						<button
+							v-else
+							class="btn btn-primary"
+							data-bs-target="#DialogOrderInfo"
+							data-bs-toggle="modal"
+							@click="backToOrderDialog"
+						>
+							Quay lại đơn hàng
 						</button>
 					</div>
 				</b-overlay>
@@ -325,6 +338,7 @@
 		},
 		props: {
 			delivery_id: String,
+			isOpenFromOrderDialog: Boolean,
 		},
 		data() {
 			return {
@@ -359,18 +373,6 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					// {
-					// 	key: 'start_delivery_date',
-					// 	label: 'Ngày bắt đầu giao',
-					// 	sortable: true,
-					// 	class: 'text-nowrap text-center',
-					// },
-					// {
-					// 	key: 'complete_delivery_date',
-					// 	label: 'Ngày giao đến',
-					// 	sortable: true,
-					// 	class: 'text-nowrap text-center',
-					// },
 					{
 						key: 'confirm_delivery_date',
 						label: 'Ngày xác nhận',
@@ -553,6 +555,9 @@
 				} finally {
 					this.is_loading = false;
 				}
+			},
+			backToOrderDialog() {
+				$('#DialogDeliveryInfo').modal('hide');
 			},
 		},
 	};

@@ -32,4 +32,7 @@ class OrderDelivery extends Model
     {
         return $this->belongsTo(User::class, 'confirm_user_id');
     }
+    public function timelines(){
+        return $this->hasMany(DeliveryTimeline::class, 'delivery_id', 'delivery_id');
+    }
 }

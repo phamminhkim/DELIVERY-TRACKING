@@ -14,7 +14,7 @@
 
 					<div v-if="Object.values(order).length !== 0" class="modal-body">
 						<div class="row">
-							<div class="col-6">
+							<div class="col-4">
 								<div class="form-group">
 									<label>Người nhận</label>
 									<input
@@ -111,7 +111,7 @@
 								</div>
 							</div>
 							<div
-								class="col-6"
+								class="col-4"
 								style="display: flex; flex-direction: column; gap: 1rem"
 							>
 								<label class="mb-3"> Đánh giá </label>
@@ -156,6 +156,62 @@
 									</div>
 								</div>
 							</div>
+							<div class="col-4">
+								<label class="mb-3"> Lịch sử </label>
+								<div class="timeline">
+									<template v-for="item in timelines">
+										<div
+											v-if="item.type == 'date'"
+											v-bind:key="item.index"
+											class="time-label"
+										>
+											<span class="bg-green">
+												{{ item.day }}
+											</span>
+										</div>
+										<div
+											v-else-if="item.type == 'continue'"
+											v-bind:key="item.index1"
+										>
+											<i
+												class="fas fa-clock text-gray"
+												style="
+													margin-bottom: 15px;
+													margin-right: 10px;
+													position: relative;
+												"
+											>
+											</i>
+										</div>
+										<div v-else v-bind:key="item.index2">
+											<i v-if="item.icon" :class="item.icon"> </i>
+											<i v-else class="fas fa-clock text-gray"> </i>
+											<div class="timeline-item">
+												<span class="time"
+													><i class="far fa-clock"></i>
+													{{ item.created_at | formatDateTime }}</span
+												>
+												<h3 class="timeline-header">
+													{{ item.title }}
+												</h3>
+												<div class="timeline-body" v-if="item.content">
+													{{ item.content }}
+												</div>
+											</div>
+										</div>
+									</template>
+								</div>
+								<div class="d-flex justify-content-center">
+									<a
+										@click="
+											showDeliveryInfoDialog(order?.delivery_info?.delivery)
+										"
+										href="#"
+									>
+										#{{ order?.delivery_info?.delivery?.delivery_code }}
+									</a>
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -167,13 +223,23 @@
 				</b-overlay>
 			</div>
 		</div>
+		<dialog-delivery-info :delivery_id="viewing_delivery_id" isOpenFromOrderDialog />
 	</div>
 </template>
 
 <script>
+	import DialogDeliveryInfo from './DialogDeliveryInfo.vue';
 	export default {
 		props: {
 			order: Object,
+		},
+		components: {
+			DialogDeliveryInfo,
+		},
+		data() {
+			return {
+				viewing_delivery_id: null,
+			};
 		},
 		methods: {
 			formatDate(date) {
@@ -196,7 +262,6 @@
 				if (min.length < 2) min = '0' + min;
 				if (sec.length < 2) sec = '0' + sec;
 
-				console.log([hour, min, sec]);
 				const time_string = `${hour}:${min}:${sec}`;
 				return date_string + ' ' + time_string;
 			},
@@ -216,6 +281,51 @@
 				);
 				this.order.detail.total_value = this.formatValue(this.order.detail.total_value);
 				this.order.detail.total_weight = this.formatWeight(this.order.detail.total_weight);
+			},
+			showDeliveryInfoDialog(delivery) {
+				this.viewing_delivery_id = delivery.id;
+				$('#DialogDeliveryInfo').modal('show');
+			},
+		},
+		computed: {
+			timelines() {
+				var delivery_timelines = this.order?.delivery_info?.delivery?.timelines;
+				var current_day_string = null;
+
+				var timelines = [];
+				if (delivery_timelines) {
+					delivery_timelines.forEach((timeline) => {
+						var created_date = new Date(timeline.timestamp);
+
+						var day_string =
+							created_date.getUTCFullYear() +
+							'-' +
+							(created_date.getUTCMonth() + 1) +
+							'-' +
+							created_date.getUTCDate();
+
+						var item = {
+							type: 'event',
+							title: timeline.event,
+							icon: timeline.icon ?? 'fas fa-clock text-gray',
+							created_at: timeline.timestamp,
+							content: timeline.description,
+						};
+						timelines.unshift({ ...item });
+
+						// Ngày mới
+						if (current_day_string != day_string) {
+							current_day_string = day_string;
+							var current_day = {
+								type: 'date',
+								day: day_string,
+							};
+							timelines.unshift({ ...current_day });
+						}
+					});
+				}
+
+				return timelines;
 			},
 		},
 		watch: {
@@ -315,5 +425,10 @@
 	}
 	.image-container > .image > img {
 		height: 100%;
+	}
+	@media (min-width: 1200px) {
+		.modal-xl {
+			max-width: 1800px;
+		}
 	}
 </style>
