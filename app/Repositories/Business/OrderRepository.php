@@ -164,7 +164,7 @@ class OrderRepository extends RepositoryAbs
     public function getOrders($is_minified = false)
     {
         try {
-            if (!$this->current_user->hasAnyRole('admin-system', 'admin-warehouse', 'user-partner')) {
+            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
                 return [];
             }
 
@@ -199,7 +199,7 @@ class OrderRepository extends RepositoryAbs
                 $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
             }
 
-            if ($this->current_user->hasRole('user-partner')) {
+            if ($this->current_user->hasRole('admin-partner')) {
                 $channel_ids = $this->current_user->delivery_partners->flatMap(function ($partner) {
                     return $partner->distribution_channels;
                 })->pluck('id')->toArray();
