@@ -113,7 +113,7 @@ class DeliveryRepository extends RepositoryAbs
                 $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');
                 if ($customer_phones) {
                     $my_orders = $delivery->orders->whereIn('customer_id', $customer_phones);
-                    $my_orders->load('status', 'detail', 'receiver', 'driver_confirms', 'driver_confirms.images');
+                    $my_orders->load('status', 'detail', 'receiver', 'driver_confirms', 'driver_confirms.images', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.images');
                     $my_orders = $my_orders->map(function ($order) {
                         $orders = $order->toArray();
                         return $orders;
