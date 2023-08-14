@@ -136,7 +136,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <footer class="main-footer">
             <!-- To the right -->
             <div class="float-right d-none d-sm-inline">
-                Thien Long Corporation
+                Thien Long Corporation - Version {{ $version }}
             </div>
             <!-- Default to the left -->
             <strong>Liên hệ hỗ trợ: </strong> Phòng CNTT - Tập đoàn Thiên Long
