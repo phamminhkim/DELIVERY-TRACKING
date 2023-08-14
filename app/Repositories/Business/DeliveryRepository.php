@@ -38,6 +38,30 @@ class DeliveryRepository extends RepositoryAbs
                     $query->whereNotNull('start_delivery_date')->whereNull('complete_delivery_date');
                 }
             }
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+            if ($this->request->filled('from_date')) {
+                $from_date = $this->request->from_date;
+                $query->whereDate('start_delivery_date', '>=', $from_date);
+            }
+            if ($this->request->filled('to_date')) {
+                $to_date = $this->request->to_date;
+                $query->whereDate('start_delivery_date', '<=', $to_date);
+            }
+            if ($this->request->filled('customer_id')) {
+                $query->where('customer_id', $this->request->customer_id);
+            }
+            if ($this->request->filled('customer_ids')) {
+                $query->whereIn('customer_id', $this->request->customer_ids);
+            }
+            if ($this->request->filled('sap_so_number')) {
+                $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
+            }
+            if ($this->request->filled('sap_do_number')) {
+                $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
+            }
+
             $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('created_at')->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
@@ -144,7 +168,7 @@ class DeliveryRepository extends RepositoryAbs
             }
             else if ($delivery->complete_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivered;
-            } 
+            }
             else if ($delivery->start_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivering;
                 // Check if any order is delivered or partly delivered
@@ -185,14 +209,14 @@ class DeliveryRepository extends RepositoryAbs
                     'user_id' => $this->current_user->id
                 ]);
                 DB::commit();
-                
+
                 return $print_config;
             }
         } catch (\Exception $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-        }        
+        }
     }
 
     public function deletePrintQRConfig($print_config_id){
@@ -267,7 +291,7 @@ class DeliveryRepository extends RepositoryAbs
             $path = sprintf("%s/%s.html", $directory, $hashed_ids);
             if(File::exists($path)){
                 return asset(sprintf("print_qr/%s.html", $hashed_ids));
-            }    
+            }
             File::put($path, $html_content);
             return asset(sprintf("print_qr/%s.html", $hashed_ids));
         } catch (\Exception $exception) {
@@ -444,7 +468,7 @@ class DeliveryRepository extends RepositoryAbs
                     return false;
                 }
                 $orders = $delivery->orders()->where('status_id', '<', EnumsOrderStatus::Delivered)->get();
-               
+
                 DB::beginTransaction();
                 foreach ($orders as $order) {
                     $confirm = $order->driver_confirms()->create([
