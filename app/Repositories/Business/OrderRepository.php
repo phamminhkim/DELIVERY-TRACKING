@@ -164,7 +164,7 @@ class OrderRepository extends RepositoryAbs
     public function getOrders($is_minified = false)
     {
         try {
-            if (!$this->current_user->hasRole('admin-system|admin-warehouse|user-partner')) {
+            if (!$this->current_user->hasAnyRole('admin-system', 'admin-warehouse', 'user-partner')) {
                 return [];
             }
 
@@ -214,8 +214,8 @@ class OrderRepository extends RepositoryAbs
                 $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
             } else {
                 $orders = $query
-                ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info' , 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
-                ->get();
+                    ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
+                    ->get();
             }
 
             return $orders;

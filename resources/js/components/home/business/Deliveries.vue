@@ -1,166 +1,171 @@
 <template>
-	<!-- container -->
-	<div class="container-fluid">
-		<div>
-			<div class="row mb-1">
-				<div class="col-md-9">
-					<div class="form-group row">
-						<button
-							type="button"
-							class="btn btn-success btn-sm ml-1 mt-1"
-							@click="showCreateDialog"
-						>
-							<strong>
-								<i class="fas fa-truck-loading mr-1 text-bold" />Tạo vận đơn</strong
-							>
-						</button>
-						<button
-							type="button"
-							class="btn btn-info btn-sm ml-1 mt-1"
-							@click="printDeliveryQrCode"
-						>
-							<strong> <i class="fas fa-print mr-1 text-bold" />In vận đơn</strong>
-						</button>
-					</div>
-					<div class="row">
-						<div class="col-md-3 align-center text-right">
-							<span class="align-middle" style="font-weight: bold; font-size: 14px"
-								>Cấu hình in:</span
-							>
-						</div>
-						<div class="col-md-4">
-							<treeselect
-								v-model="print_config_selected"
-								:multiple="false"
-								:options="print_config_options"
-								placeholder="Chọn cấu hình in"
-								required
-							/>
-						</div>
-						<div class="col-md-5">
+	<b-overlay :show="is_loading" rounded="sm">
+		<!-- container -->
+		<div class="container-fluid">
+			<div>
+				<div class="row mb-1">
+					<div class="col-md-9">
+						<div class="form-group row">
 							<button
 								type="button"
-								class="btn btn-warning btn-sm"
-								@click="showPrintSettingDialog"
+								class="btn btn-success btn-sm ml-1 mt-1"
+								@click="showCreateDialog"
 							>
-								<strong> <i class="fas fa-plus mr-1 text-bold" />Tạo</strong>
+								<strong>
+									<i class="fas fa-truck-loading mr-1 text-bold" />Tạo vận
+									đơn</strong
+								>
 							</button>
 							<button
-								v-if="
-									print_config_selected &&
-									print_config_selected != print_config_default.id
-								"
-								class="btn btn-danger btn-sm"
-								@click.prevent="deletePrintConfig(print_config_selected)"
+								type="button"
+								class="btn btn-info btn-sm ml-1 mt-1"
+								@click="printDeliveryQrCode"
 							>
-								<strong> <i class="fas fa-trash mr-1 text-bold" />Xóa</strong>
+								<strong>
+									<i class="fas fa-print mr-1 text-bold" />In vận đơn</strong
+								>
 							</button>
+						</div>
+						<div class="row">
+							<div class="col-md-3 align-center text-right">
+								<span
+									class="align-middle"
+									style="font-weight: bold; font-size: 14px"
+									>Cấu hình in:</span
+								>
+							</div>
+							<div class="col-md-4">
+								<treeselect
+									v-model="print_config_selected"
+									:multiple="false"
+									:options="print_config_options"
+									placeholder="Chọn cấu hình in"
+									required
+								/>
+							</div>
+							<div class="col-md-5">
+								<button
+									type="button"
+									class="btn btn-warning btn-sm"
+									@click="showPrintSettingDialog"
+								>
+									<strong> <i class="fas fa-plus mr-1 text-bold" />Tạo</strong>
+								</button>
+								<button
+									v-if="
+										print_config_selected &&
+										print_config_selected != print_config_default.id
+									"
+									class="btn btn-danger btn-sm"
+									@click.prevent="deletePrintConfig(print_config_selected)"
+								>
+									<strong> <i class="fas fa-trash mr-1 text-bold" />Xóa</strong>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="input-group input-group-sm mt-1 mb-1">
+							<input
+								type="search"
+								class="form-control -control-navbar"
+								v-model="search_pattern"
+								:placeholder="search_placeholder"
+								aria-label="Search"
+							/>
+							<div class="input-group-append">
+								<button
+									class="btn btn-default"
+									style="background: #1b1a1a; color: white"
+								>
+									<i class="fas fa-search"></i>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="col-md-3">
-					<div class="input-group input-group-sm mt-1 mb-1">
-						<input
-							type="search"
-							class="form-control -control-navbar"
-							v-model="search_pattern"
-							:placeholder="search_placeholder"
-							aria-label="Search"
-						/>
-						<div class="input-group-append">
-							<button
-								class="btn btn-default"
-								style="background: #1b1a1a; color: white"
-							>
-								<i class="fas fa-search"></i>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- tạo nút edit và delete -->
-			<div class="row">
-				<b-table
-					responsive
-					hover
-					striped
-					show-empty
-					:busy="is_loading"
-					:bordered="true"
-					:current-page="pagination.current_page"
-					:per-page="pagination.item_per_page"
-					:filter="search_pattern"
-					:fields="fields"
-					:items="deliveries"
-					:tbody-tr-class="rowClass"
-				>
-					<template #empty="scope">
-						<h6 class="text-center">Không có vận đơn nào để hiển thị</h6>
-					</template>
-					<template #table-busy>
-						<div class="text-center text-primary my-2">
-							<b-spinner class="align-middle" type="grow"></b-spinner>
-							<strong>Đang tải dữ liệu...</strong>
-						</div>
-					</template>
-					<template #head(selection)>
-						<b-form-checkbox
-							class="ml-1"
-							v-model="is_select_all"
-							@change="selectAll"
-						></b-form-checkbox>
-					</template>
-					<template v-slot:cell(selection)="data">
-						<b-form-checkbox class="ml-1" :value="data.item.id" v-model="selected_ids">
-						</b-form-checkbox>
-					</template>
-					<template #cell(index)="data">
-						{{
-							data.index +
-							(pagination.current_page - 1) * pagination.item_per_page +
-							1
-						}}
-					</template>
-					<template #cell(status)="data">
-						<span :class="data.value.badge_class">{{ data.value.name }}</span>
-					</template>
-					<template #cell(delivery_code)="data">
-						<a href="#" @click="showInfoDialog(data.item)">
-							{{ data.value }}
-						</a>
-						<b-badge variant="danger" v-if="data.item.is_new"
-							><i class="fas fa-fire text-white"></i>Mới
-						</b-badge>
-					</template>
-				</b-table>
-			</div>
-			<!-- end tạo nút -->
-			<!-- phân trang -->
-			<div class="row">
-				<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
-					>Số lượng mỗi trang:</label
-				>
-				<div class="col-md-2">
-					<b-form-select
-						size="sm"
-						v-model="pagination.item_per_page"
-						:options="pagination.page_options"
-					>
-					</b-form-select>
-				</div>
-				<label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
-				<div class="col-md-3">
-					<b-pagination
-						v-model="pagination.current_page"
-						:total-rows="rows"
+				<!-- tạo nút edit và delete -->
+				<div class="row">
+					<b-table
+						responsive
+						hover
+						striped
+						:bordered="true"
+						:current-page="pagination.current_page"
 						:per-page="pagination.item_per_page"
-						size="sm"
-						class="ml-1"
-					></b-pagination>
+						:filter="search_pattern"
+						:fields="fields"
+						:items="deliveries"
+						:tbody-tr-class="rowClass"
+					>
+						<template #head(selection)>
+							<b-form-checkbox
+								class="ml-1"
+								v-model="is_select_all"
+								@change="selectAll"
+							></b-form-checkbox>
+						</template>
+						<template v-slot:cell(selection)="data">
+							<b-form-checkbox
+								class="ml-1"
+								:value="data.item.id"
+								v-model="selected_ids"
+							>
+							</b-form-checkbox>
+						</template>
+						<template #cell(index)="data">
+							{{
+								data.index +
+								(pagination.current_page - 1) * pagination.item_per_page +
+								1
+							}}
+						</template>
+						<template #cell(status)="data">
+							<span :class="data.value.badge_class">{{ data.value.name }}</span>
+						</template>
+						<template #cell(delivery_code)="data">
+							<a href="#" @click="showInfoDialog(data.item)">
+								{{ data.value }}
+							</a>
+							<b-badge variant="danger" v-if="data.item.is_new"
+								><i class="fas fa-fire text-white"></i>Mới
+							</b-badge>
+						</template>
+					</b-table>
 				</div>
+				<!-- end tạo nút -->
+				<!-- phân trang -->
+				<div class="row">
+					<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
+						>Số lượng mỗi trang:</label
+					>
+					<div class="col-md-2">
+						<b-form-select
+							size="sm"
+							v-model="pagination.item_per_page"
+							:options="pagination.page_options"
+						>
+						</b-form-select>
+					</div>
+					<label
+						class="col-form-label-sm col-md-1"
+						style="text-align: left"
+						for=""
+					></label>
+					<div class="col-md-3">
+						<b-pagination
+							v-model="pagination.current_page"
+							:total-rows="rows"
+							:per-page="pagination.item_per_page"
+							size="sm"
+							class="ml-1"
+						></b-pagination>
+					</div>
+				</div>
+				<!-- end phân trang -->
 			</div>
-			<!-- end phân trang -->
 		</div>
+		<!-- end container -->
 
 		<DialogCreatePrintQRSetting
 			@onPrintQRSettingCreated="onPrintQRSettingCreated"
@@ -174,8 +179,8 @@
 </template>
 
 <script>
+    import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import Treeselect from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import DialogDeliveryInfo from './dialogs/DialogDeliveryInfo.vue';
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
@@ -188,6 +193,7 @@
 			DialogCreateDelivery,
 			DialogCreatePrintQRSetting,
 			Treeselect,
+            //TreeselectFilter,
 		},
 		data() {
 			return {
@@ -195,6 +201,25 @@
 
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
+                is_show_search: false,
+
+                form_filter: {
+					start_date: '',
+					end_date: '',
+					statuses: [],
+					customers: [],
+					sap_so_number: undefined,
+				},
+                customer_options: [],
+
+                order_statuses: [
+					{ id: 10, label: 'Đang xử lí đơn hàng' },
+					{ id: 20, label: 'Đã duyệt & đang soạn hàng' },
+					{ id: 30, label: 'Đang vận chuyển' },
+					{ id: 40, label: 'Đã giao một phần' },
+					{ id: 100, label: 'Đã giao xong' },
+					{ id: 200, label: 'Đã nhận hàng' },
+				],
 
 				is_select_all: false,
 				selected_ids: [],
@@ -313,9 +338,13 @@
 				api_url_deliveries: '/api/partner/deliveries',
 			};
 		},
+
 		async created() {
 			this.fetchData();
 			this.fetchPrintQRConfigOptions();
+
+            this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
+			this.form_filter.end_date = this.formatDate(new Date());
 		},
 		watch: {
 			'$route.query': {
@@ -323,6 +352,23 @@
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
 						this.fetchData(new_query);
+                        if (new_query.filter == 'undone') {
+							this.form_filter.statuses = [10, 20, 30, 40];
+							this.fetchData();
+						}
+						if (new_query.filter == 'delivering') {
+							this.form_filter.statuses = [30, 40];
+							this.fetchData();
+						}
+						if (new_query.filter == 'can-delivery') {
+							this.form_filter.statuses = [10];
+							this.fetchData();
+						}
+						if (new_query.filter == 'all') {
+							this.form_filter.statuses = [10, 20, 30, 40, 100, 200];
+							this.fetchData();
+						}
+
 					}
 				},
 			},
@@ -332,6 +378,23 @@
 				try {
 					if (this.is_loading) return;
 					this.is_loading = true;
+                    const [deliveries] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', this.api_url_deliveries, {
+							from_date:
+								this.form_filter.start_date.length == 0
+									? undefined
+									: this.form_filter.start_date,
+							to_date:
+								this.form_filter.end_date.length == 0
+									? undefined
+									: this.form_filter.end_date,
+
+							status: this.form_filter.statuses,
+							customer_ids: this.form_filter.customers,
+							sap_so_number: this.form_filter.sap_so_number,
+						}),
+					]);
+                    this.deliveries = deliveries;
 					let result = await this.api_handler.get(this.api_url_deliveries, query);
 					if (result.success) {
 						this.deliveries = result.data;
@@ -342,6 +405,59 @@
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
 					this.is_loading = false;
+				}
+			},
+            async filterData() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					const { data } = await this.api_handler.get(this.api_url_deliveries, {
+						from_date: this.form_filter.start_date,
+						to_date: this.form_filter.end_date,
+						status: this.form_filter.statuses,
+						customer_ids: this.form_filter.customers,
+						sap_so_number: this.form_filter.sap_so_number,
+					});
+					this.deliveries = data;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async clearFilter() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					this.form_filter.start_date = this.formatDate(
+						this.subtractDate(new Date(), 0, 1, 0),
+					);
+					this.form_filter.end_date = this.formatDate(new Date());
+					this.form_filter.statuses = [];
+					this.form_filter.customers = [];
+					this.form_filter.sap_so_number = undefined;
+					await this.fetchData();
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			normalizerOption(node) {
+				return {
+					id: node.id,
+					label: node.name,
+				};
+			},
+            async loadOptions({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get('api/master/customers/minified', {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
 				}
 			},
 			async fetchPrintQRConfigOptions() {
@@ -412,12 +528,30 @@
 				}
 			},
 
+
 			openPrintDialog(print_url) {
 				window.open(print_url, '_blank');
 			},
 			showInfoDialog(delivery) {
 				this.viewing_delivery_id = delivery.id;
 				$('#DialogDeliveryInfo').modal('show');
+			},
+            subtractDate(date, sub_date = 0, sub_month = 0, sub_year = 0) {
+				date.setDate(date.getDate() - sub_date);
+				date.setMonth(date.getMonth() - sub_month);
+				date.setFullYear(date.getFullYear() - sub_year);
+				return date;
+			},
+            formatDate(date) {
+				var d = new Date(date),
+					month = '' + (d.getMonth() + 1),
+					day = '' + d.getDate(),
+					year = d.getFullYear();
+
+				if (month.length < 2) month = '0' + month;
+				if (day.length < 2) day = '0' + day;
+
+				return [year, month, day].join('-');
 			},
 			selectAll() {
 				this.selected_ids = [];
