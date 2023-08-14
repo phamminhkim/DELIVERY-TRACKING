@@ -572,7 +572,7 @@
 		width: 100%;
 	}
 	.image-container {
-		width: 18%;
+		width: 13%;
 		height: 250px;
 		margin-right: 1rem;
 		margin-bottom: 1rem;

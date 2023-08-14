@@ -208,7 +208,7 @@
 										"
 										href="#"
 									>
-										#{{ order?.delivery_info?.delivery?.delivery_code }}
+										{{ order?.delivery_info?.delivery?.delivery_code }}
 									</a>
 								</div>
 							</div>
