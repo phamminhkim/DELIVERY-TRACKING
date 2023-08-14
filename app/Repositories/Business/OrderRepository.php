@@ -39,9 +39,9 @@ class OrderRepository extends RepositoryAbs
                 '*.details.total_value' => 'required|numeric',
                 '*.receivers.receiver_name' => 'required|string|max:255',
                 '*.receivers.receiver_phone' => 'nullable|string|max:255',
-                '*.sales.distribution_channel' => 'required|numeric|exists:distribution_channels,id',
-                '*.sales.sale_group' => 'required|numeric|exists:sale_groups,id',
-                '*.sales.sale_district' => 'required|numeric|exists:sale_districts,id',
+                '*.sales.distribution_channel' => 'required|numeric|exists:distribution_channels,code',
+                '*.sales.sale_group' => 'required|numeric|exists:sale_groups,code',
+                '*.sales.sale_district' => 'required|numeric|exists:sale_districts,code',
                 //'*.warehouse_code' => 'required|string|exists:warehouses,code',
                 '*.is_deleted' => 'nullable|boolean'
             ], [
