@@ -9,8 +9,11 @@ use App\Models\Business\OrderCustomerReview;
 use App\Models\Business\OrderDelivery;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
+use App\Models\Master\DistributionChannel;
 use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
+use App\Models\Master\SaleDistrict;
+use App\Models\Master\SaleGroup;
 use App\Models\Master\Warehouse;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Carbon\Carbon;
@@ -39,6 +42,9 @@ class OrderRepository extends RepositoryAbs
                 '*.details.total_value' => 'required|numeric',
                 '*.receivers.receiver_name' => 'required|string|max:255',
                 '*.receivers.receiver_phone' => 'nullable|string|max:255',
+                '*.sales.distribution_channel' => 'required|numeric|exists:distribution_channels,code',
+                '*.sales.sale_group' => 'required|numeric|exists:sale_groups,code',
+                '*.sales.sale_district' => 'required|numeric|exists:sale_districts,code',
                 //'*.warehouse_code' => 'required|string|exists:warehouses,code',
                 '*.is_deleted' => 'nullable|boolean'
             ], [
@@ -66,6 +72,9 @@ class OrderRepository extends RepositoryAbs
                 '*.receivers.receiver_phone.max' => 'Số điện thoại người nhận không được vượt quá 255 ký tự.',
                 '*.warehouse_code.required' => 'Mã kho là bắt buộc.',
                 '*.warehouse_code.exists' => 'Mã kho :input không tồn tại.',
+                '*.sales.distribution_channel.exists' => 'Mã kênh phân phối :input không tồn tại.',
+                '*.sales.sale_group.exists' => 'Mã nhóm bán hàng :input không tồn tại.',
+                '*.sales.sale_district.exists' => 'Mã khu vực bán hàng :input không tồn tại.',
                 '*.is_deleted.boolean' => 'Trạng thái xóa phải là true hoặc false.'
             ]);
 
@@ -143,6 +152,11 @@ class OrderRepository extends RepositoryAbs
                             'receiver_phone' => $order['receivers']['receiver_phone'] ?? '',
                             'note' => $order['receivers']['note'] ?? '',
                         ]);
+                        $created_order->sale()->updateOrCreate(['order_id' => $created_order['id']], [
+                            'distribution_channel_id' => DistributionChannel::where('code', $order['sales']['distribution_channel'])->first()->id,
+                            'sale_district_id' => SaleDistrict::where('code', $order['sales']['sale_district'])->first()->id,
+                            'sale_group_id' => SaleGroup::where('code', $order['sales']['sale_group'])->first()->id,
+                        ]);
 
                         if ($created_order->wasRecentlyCreated || $created_order->getChanges()) {
                             $result['insert_list'][] = $order['sap_so_number'];
@@ -164,7 +178,7 @@ class OrderRepository extends RepositoryAbs
     public function getOrders($is_minified = false)
     {
         try {
-            if (!$this->current_user->hasAnyRole('admin-system', 'admin-warehouse', 'user-partner')) {
+            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
                 return [];
             }
 
@@ -199,7 +213,7 @@ class OrderRepository extends RepositoryAbs
                 $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
             }
 
-            if ($this->current_user->hasRole('user-partner')) {
+            if ($this->current_user->hasRole('admin-partner')) {
                 $channel_ids = $this->current_user->delivery_partners->flatMap(function ($partner) {
                     return $partner->distribution_channels;
                 })->pluck('id')->toArray();

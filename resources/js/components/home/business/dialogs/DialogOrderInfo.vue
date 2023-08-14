@@ -16,7 +16,19 @@
 						<div class="row">
 							<div class="col-4">
 								<div class="form-group">
-									<label>Người nhận</label>
+									<label class="d-flex justify-content-between">
+										Người nhận
+										<a
+											@click="
+												showDeliveryInfoDialog(
+													order?.delivery_info?.delivery,
+												)
+											"
+											href="#"
+										>
+											{{ order?.delivery_info?.delivery?.delivery_code }}
+										</a>
+									</label>
 									<input
 										type="text"
 										class="form-control"
@@ -201,7 +213,7 @@
 										</div>
 									</template>
 								</div>
-								<div class="d-flex justify-content-center">
+								<!-- <div class="d-flex justify-content-center">
 									<a
 										@click="
 											showDeliveryInfoDialog(order?.delivery_info?.delivery)
@@ -210,7 +222,7 @@
 									>
 										{{ order?.delivery_info?.delivery?.delivery_code }}
 									</a>
-								</div>
+								</div> -->
 							</div>
 						</div>
 					</div>
