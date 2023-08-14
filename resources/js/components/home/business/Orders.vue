@@ -273,7 +273,7 @@
 					<template #cell(receiver)="data">
 						<span>{{ data.value.receiver_name }}</span>
 					</template>
-					<template #cell(action)="data">
+					<!-- <template #cell(action)="data">
 						<div class="margin">
 							<button
 								class="btn btn-xs mr-1 text-info"
@@ -285,6 +285,9 @@
 								/>Xem thông tin chi tiết
 							</button>
 						</div>
+					</template> -->
+					<template #cell(sap_so_number)="data">
+						<a @click="showInfoDialog(data.item)" href="#">{{ data.value }}</a>
 					</template>
 				</b-table>
 			</div>
@@ -428,12 +431,12 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					{
-						key: 'action',
-						label: 'Hành động',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
+					// {
+					// 	key: 'action',
+					// 	label: 'Hành động',
+					// 	sortable: true,
+					// 	class: 'text-nowrap text-center',
+					// },
 				],
 
 				orders: [],
