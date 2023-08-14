@@ -1,179 +1,177 @@
 <template>
-	<b-overlay :show="is_loading" rounded="sm">
-		<!-- container -->
-		<div class="container-fluid">
-			<div class="content-header">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-sm-6">
-							<h5 class="m-0 text-dark">
-								<i :class="page_structure.header.title_icon" />
-								{{ page_structure.header.title }}
-							</h5>
-						</div>
-						<div class="col-sm-6">
-							<div class="float-sm-right">
-								<button class="btn btn-info btn-sm" @click="showCreateDialog()">
-									<i class="fa fa-plus"></i>
-									Tạo mới
-								</button>
-							</div>
+	<!-- container -->
+	<div class="container-fluid">
+		<div class="content-header">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-sm-6">
+						<h5 class="m-0 text-dark">
+							<i :class="page_structure.header.title_icon" />
+							{{ page_structure.header.title }}
+						</h5>
+					</div>
+					<div class="col-sm-6">
+						<div class="float-sm-right">
+							<button class="btn btn-info btn-sm" @click="showCreateDialog()">
+								<i class="fa fa-plus"></i>
+								Tạo mới
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="card">
-				<div class="card-body">
-					<div class="row">
-						<div class="col-md-9">
-							<div class="form-group row">
-								<button type="button" class="btn btn-warning btn-sm ml-1 mt-1">
-									<strong>
-										<i class="fas fa-check mr-1 text-bold" />Cập nhật chức
-										năng</strong
-									>
-								</button>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="input-group input-group-sm mt-1 mb-1">
-								<input
-									type="search"
-									class="form-control -control-navbar"
-									v-model="search_pattern"
-									:placeholder="search_placeholder"
-									aria-label="Search"
-								/>
-								<div class="input-group-append">
-									<button
-										class="btn btn-default"
-										style="background: #1b1a1a; color: white"
-									>
-										<i class="fas fa-search"></i>
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- tạo nút edit và delete -->
-					<div class="row">
-						<b-table
-							responsive
-							hover
-							striped
-							show-empty
-							:bordered="true"
-							:current-page="pagination.current_page"
-							:per-page="pagination.item_per_page"
-							:filter="search_pattern"
-							:fields="fields"
-							:items="items"
-							:tbody-tr-class="rowClass"
-						>
-							<template #empty="scope">
-								<h6 class="text-center">Không có thông tin</h6>
-							</template>
-
-							<template #cell(index)="data">
-								{{
-									data.index +
-									(pagination.current_page - 1) * pagination.item_per_page +
-									1
-								}}
-							</template>
-
-							<template
-								v-for="(table_cell, index) in this.page_structure.table.table_cells"
-								#[`cell(${table_cell.target_key})`]="data"
-							>
-								<slot
-									v-if="table_cell.type === 'template'"
-									:name="`cell(${table_cell.target_key})`"
-									v-bind="data"
-								>
-								</slot>
-
-								<b-img
-									v-if="table_cell.type === 'image'"
-									:src="data.item[table_cell.target_key]"
-									width="100"
-									:key="index"
-								></b-img>
-							</template>
-
-							<template #cell(action)="data">
-								<div class="margin">
-									<button
-										class="btn btn-xs mr-1"
-										@click="showEditDialog(data.item)"
-									>
-										<i class="fas fa-edit text-green" title="Edit"></i>
-									</button>
-
-									<button
-										class="btn btn-xs mr-1"
-										@click="deleteItem(data.item[primary_key])"
-									>
-										<i
-											class="fas fa-trash text-red bigger-120"
-											title="Delete"
-										></i>
-									</button>
-								</div>
-							</template>
-						</b-table>
-					</div>
-					<!-- end tạo nút -->
-					<!-- phân trang -->
-					<div class="row">
-						<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
-							>Số lượng mỗi trang:</label
-						>
-						<div class="col-md-2">
-							<b-form-select
-								size="sm"
-								v-model="pagination.item_per_page"
-								:options="pagination.page_options"
-							>
-							</b-form-select>
-						</div>
-						<label
-							class="col-form-label-sm col-md-1"
-							style="text-align: left"
-							for=""
-						></label>
-						<div class="col-md-3">
-							<b-pagination
-								v-model="pagination.current_page"
-								:total-rows="rows"
-								:per-page="pagination.item_per_page"
-								size="sm"
-								class="ml-1"
-							></b-pagination>
-						</div>
-						<!-- end phân trang -->
-
-						<!-- tạo form -->
-
-						<CrudDialog
-							:id="dialog_name"
-							:is_editing="is_editing"
-							:editing_item="editing_item"
-							:refetchData="fetchData"
-							:form_structure="page_structure.form"
-							:page_url_create="page_structure.api_url"
-							:page_url_update="page_structure.api_url"
-							:dialog_name="dialog_name"
-							:primary_key="primary_key"
-						></CrudDialog>
-
-						<!-- end tạo form -->
-					</div>
-				</div>
-			</div>
-			<!-- end container -->
 		</div>
-	</b-overlay>
+		<div class="card">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-9">
+						<div class="form-group row">
+							<button type="button" class="btn btn-warning btn-sm ml-1 mt-1">
+								<strong>
+									<i class="fas fa-check mr-1 text-bold" />Cập nhật chức
+									năng</strong
+								>
+							</button>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="input-group input-group-sm mt-1 mb-1">
+							<input
+								type="search"
+								class="form-control -control-navbar"
+								v-model="search_pattern"
+								:placeholder="search_placeholder"
+								aria-label="Search"
+							/>
+							<div class="input-group-append">
+								<button
+									class="btn btn-default"
+									style="background: #1b1a1a; color: white"
+								>
+									<i class="fas fa-search"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- tạo nút edit và delete -->
+				<div class="row">
+					<b-table
+						responsive
+						hover
+						striped
+						show-empty
+						:busy="is_loading"
+						:bordered="true"
+						:current-page="pagination.current_page"
+						:per-page="pagination.item_per_page"
+						:filter="search_pattern"
+						:fields="fields"
+						:items="items"
+						:tbody-tr-class="rowClass"
+					>
+						<template #empty="scope">
+							<h6 class="text-center">Không có thông tin</h6>
+						</template>
+						<template #table-busy>
+							<div class="text-center text-primary my-2">
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+						</template>
+						<template #cell(index)="data">
+							{{
+								data.index +
+								(pagination.current_page - 1) * pagination.item_per_page +
+								1
+							}}
+						</template>
+
+						<template
+							v-for="(table_cell, index) in this.page_structure.table.table_cells"
+							#[`cell(${table_cell.target_key})`]="data"
+						>
+							<slot
+								v-if="table_cell.type === 'template'"
+								:name="`cell(${table_cell.target_key})`"
+								v-bind="data"
+							>
+							</slot>
+
+							<b-img
+								v-if="table_cell.type === 'image'"
+								:src="data.item[table_cell.target_key]"
+								width="100"
+								:key="index"
+							></b-img>
+						</template>
+
+						<template #cell(action)="data">
+							<div class="margin">
+								<button class="btn btn-xs mr-1" @click="showEditDialog(data.item)">
+									<i class="fas fa-edit text-green" title="Edit"></i>
+								</button>
+
+								<button
+									class="btn btn-xs mr-1"
+									@click="deleteItem(data.item[primary_key])"
+								>
+									<i class="fas fa-trash text-red bigger-120" title="Delete"></i>
+								</button>
+							</div>
+						</template>
+					</b-table>
+				</div>
+				<!-- end tạo nút -->
+				<!-- phân trang -->
+				<div class="row">
+					<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
+						>Số lượng mỗi trang:</label
+					>
+					<div class="col-md-2">
+						<b-form-select
+							size="sm"
+							v-model="pagination.item_per_page"
+							:options="pagination.page_options"
+						>
+						</b-form-select>
+					</div>
+					<label
+						class="col-form-label-sm col-md-1"
+						style="text-align: left"
+						for=""
+					></label>
+					<div class="col-md-3">
+						<b-pagination
+							v-model="pagination.current_page"
+							:total-rows="rows"
+							:per-page="pagination.item_per_page"
+							size="sm"
+							class="ml-1"
+						></b-pagination>
+					</div>
+					<!-- end phân trang -->
+
+					<!-- tạo form -->
+
+					<CrudDialog
+						:id="dialog_name"
+						:is_editing="is_editing"
+						:editing_item="editing_item"
+						:refetchData="fetchData"
+						:form_structure="page_structure.form"
+						:page_url_create="page_structure.api_url"
+						:page_url_update="page_structure.api_url"
+						:dialog_name="dialog_name"
+						:primary_key="primary_key"
+					></CrudDialog>
+
+					<!-- end tạo form -->
+				</div>
+			</div>
+		</div>
+		<!-- end container -->
+	</div>
 </template>
 
 <script>
