@@ -1,327 +1,327 @@
 <template>
-	<b-overlay :show="is_loading" rounded="sm">
-		<!-- container -->
-		<div class="container-fluid">
-			<div>
-				<div class="row">
-					<div class="col-md-9">
-						<div class="form-group row">
-							<!-- <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus"></i>Tạo hợp đồng</button> -->
-							<div class="btn-group">
-								<button
-									type="button"
-									class="btn btn-warning btn-xs"
-									@click="is_show_search = !is_show_search"
-									v-b-toggle.collapse-1
-								>
-									<span v-if="!is_show_search">Hiện tìm kiếm</span>
-									<span v-if="is_show_search">Ẩn tìm kiếm</span>
-								</button>
-								<button
-									type="button"
-									class="btn btn-warning btn-xs"
-									@click="is_show_search = !is_show_search"
-									v-b-toggle.collapse-1
-								>
-									<i v-if="is_show_search" class="fas fa-angle-up"></i>
-									<i v-else class="fas fa-angle-down"></i>
-								</button>
-							</div>
-							<!-- <button type="button" :title="$t('form.filter')" onclick="location.reload(true)" class="btn btn-secondary  btn-xs ml-1" ><i class="fas fa-redo-alt" title="Refresh"></i></button> -->
-							<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
-								<i class="fas fa-sync-alt" title="Tải lại"></i>
+	<!-- container -->
+	<div class="container-fluid">
+		<div>
+			<div class="row">
+				<div class="col-md-9">
+					<div class="form-group row">
+						<!-- <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus"></i>Tạo hợp đồng</button> -->
+						<div class="btn-group">
+							<button
+								type="button"
+								class="btn btn-warning btn-xs"
+								@click="is_show_search = !is_show_search"
+								v-b-toggle.collapse-1
+							>
+								<span v-if="!is_show_search">Hiện tìm kiếm</span>
+								<span v-if="is_show_search">Ẩn tìm kiếm</span>
+							</button>
+							<button
+								type="button"
+								class="btn btn-warning btn-xs"
+								@click="is_show_search = !is_show_search"
+								v-b-toggle.collapse-1
+							>
+								<i v-if="is_show_search" class="fas fa-angle-up"></i>
+								<i v-else class="fas fa-angle-down"></i>
 							</button>
 						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="row"></div>
+						<!-- <button type="button" :title="$t('form.filter')" onclick="location.reload(true)" class="btn btn-secondary  btn-xs ml-1" ><i class="fas fa-redo-alt" title="Refresh"></i></button> -->
+						<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
+							<i class="fas fa-sync-alt" title="Tải lại"></i>
+						</button>
 					</div>
 				</div>
-				<b-collapse class="row" id="collapse-1">
-					<div class="col-sm-12">
-						<div class="card">
-							<div class="card-body">
-								<div class="form-group row">
-									<label
-										for="start_date"
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
-										>Từ ngày</label
-									>
-									<div class="col-sm-4">
-										<input
-											type="date"
-											v-model="form_filter.start_date"
-											class="form-control form-control-sm mt-1"
-										/>
-									</div>
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
-										for=""
-										>Đến ngày</label
-									>
-									<div class="col-sm-4">
-										<input
-											type="date"
-											v-model="form_filter.end_date"
-											class="form-control form-control-sm mt-1"
-										/>
-									</div>
+				<div class="col-md-3">
+					<div class="row"></div>
+				</div>
+			</div>
+			<b-collapse class="row" id="collapse-1">
+				<div class="col-sm-12">
+					<div class="card">
+						<div class="card-body">
+							<div class="form-group row">
+								<label
+									for="start_date"
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+									>Từ ngày</label
+								>
+								<div class="col-sm-4">
+									<input
+										type="date"
+										v-model="form_filter.start_date"
+										class="form-control form-control-sm mt-1"
+									/>
 								</div>
-								<div class="form-group row">
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-										for=""
-										>Trạng thái</label
-									>
-									<div class="col-sm-10 mt-1 mb-1">
-										<treeselect
-											placeholder="Chọn trạng thái đơn hàng.."
-											:multiple="true"
-											:disable-branch-nodes="false"
-											v-model="form_filter.statuses"
-											:options="order_statuses"
-										/>
-									</div>
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+									for=""
+									>Đến ngày</label
+								>
+								<div class="col-sm-4">
+									<input
+										type="date"
+										v-model="form_filter.end_date"
+										class="form-control form-control-sm mt-1"
+									/>
 								</div>
-								<div class="form-group row">
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-										for=""
-										>Khách hàng</label
-									>
-									<div class="col-sm-10 mt-1 mb-1">
-										<treeselect
-											placeholder="Chọn khách hàng.."
-											:multiple="true"
-											:disable-branch-nodes="false"
-											v-model="form_filter.customers"
-											:async="true"
-											:load-options="loadOptions"
-											:normalizer="normalizerOption"
-											searchPromptText="Nhập tên khách hàng để tìm kiếm.."
-										/>
-									</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Trạng thái</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn trạng thái đơn hàng.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.statuses"
+										:options="order_statuses"
+									/>
 								</div>
-								<div class="form-group row">
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-										for=""
-										>Kho hàng</label
-									>
-									<div class="col-sm-10 mt-1 mb-1">
-										<treeselect
-											placeholder="Chọn kho hàng.."
-											:multiple="true"
-											:disable-branch-nodes="false"
-											v-model="form_filter.warehouses"
-											:options="warehouse_options"
-											:normalizer="normalizerOption"
-										/>
-									</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Khách hàng</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn khách hàng.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.customers"
+										:async="true"
+										:load-options="loadOptions"
+										:normalizer="normalizerOption"
+										searchPromptText="Nhập tên khách hàng để tìm kiếm.."
+									/>
 								</div>
-								<div class="form-group row">
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
-										for=""
-										>SO</label
-									>
-									<div class="col-sm-4">
-										<!-- <treeselect
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Kho hàng</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn kho hàng.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.warehouses"
+										:options="warehouse_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+									for=""
+									>SO</label
+								>
+								<div class="col-sm-4">
+									<!-- <treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_so_numbers"
 											:options="sap_so_number_options"
 										/> -->
-										<input
-											type="text"
-											v-model="form_filter.sap_so_number"
-											placeholder="Nhập SO.."
-											class="form-control"
-										/>
-									</div>
-									<label
-										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
-										for=""
-										>DO</label
-									>
-									<div class="col-sm-4">
-										<!-- <treeselect
+									<input
+										type="text"
+										v-model="form_filter.sap_so_number"
+										placeholder="Nhập SO.."
+										class="form-control"
+									/>
+								</div>
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+									for=""
+									>DO</label
+								>
+								<div class="col-sm-4">
+									<!-- <treeselect
 											placeholder="All"
 											:multiple="true"
 											:disable-branch-nodes="false"
 											v-model="form_filter.sap_do_numbers"
 											:options="sap_do_number_options"
 										/> -->
-										<input
-											type="text"
-											v-model="form_filter.sap_do_number"
-											placeholder="Nhập DO.."
-											class="form-control"
-										/>
-									</div>
-								</div>
-								<div class="col-md-12" style="text-align: center">
-									<button
-										type="submit"
-										class="btn btn-warning btn-sm mt-1 mb-1"
-										@click.prevent="filterData()"
-									>
-										<i class="fa fa-search"></i>
-										Tìm
-									</button>
-									<button
-										type="reset"
-										class="btn btn-secondary btn-sm mt-1 mb-1"
-										@click.prevent="clearFilter()"
-									>
-										<i class="fa fa-reset"></i>
-										Xóa bộ lọc
-									</button>
+									<input
+										type="text"
+										v-model="form_filter.sap_do_number"
+										placeholder="Nhập DO.."
+										class="form-control"
+									/>
 								</div>
 							</div>
-						</div>
-					</div>
-				</b-collapse>
-
-				<div class="row mb-1">
-					<div class="col-md-9">
-						<div class="form-group row">
-							<button
-								type="button"
-								class="btn btn-success btn-sm ml-1 mt-1"
-								@click="showCreateDialog"
-							>
-								<strong>
-									<i class="fas fa-truck-loading mr-1 text-bold" />Tạo vận
-									đơn</strong
-								>
-							</button>
-							<button class="btn btn-info btn-sm ml-1 mt-1" @click="exportToExcel">
-								<strong><i class="fas fa-file-excel mr-1" />Xuất file excel</strong>
-							</button>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="input-group input-group-sm mt-1 mb-1">
-							<input
-								type="search"
-								class="form-control -control-navbar"
-								v-model="search_pattern"
-								:placeholder="search_placeholder"
-								aria-label="Search"
-							/>
-							<div class="input-group-append">
+							<div class="col-md-12" style="text-align: center">
 								<button
-									class="btn btn-default"
-									style="background: #1b1a1a; color: white"
+									type="submit"
+									class="btn btn-warning btn-sm mt-1 mb-1"
+									@click.prevent="filterData()"
 								>
-									<i class="fas fa-search"></i>
+									<i class="fa fa-search"></i>
+									Tìm
+								</button>
+								<button
+									type="reset"
+									class="btn btn-secondary btn-sm mt-1 mb-1"
+									@click.prevent="clearFilter()"
+								>
+									<i class="fa fa-reset"></i>
+									Xóa bộ lọc
 								</button>
 							</div>
 						</div>
 					</div>
 				</div>
-				<!-- tạo nút edit và delete -->
+			</b-collapse>
 
-				<div class="row">
-					<b-table
-						responsive
-						hover
-						striped
-						:bordered="true"
-						:current-page="pagination.current_page"
-						:per-page="pagination.item_per_page"
-						:filter="search_pattern"
-						:fields="fields"
-						:items="orders"
-						:tbody-tr-class="rowClass"
-					>
-						<template #head(selection)>
-							<b-form-checkbox
-								class="ml-1"
-								v-model="is_select_all"
-								@change="selectAll"
-							></b-form-checkbox>
-						</template>
-						<template v-slot:cell(selection)="data">
-							<b-form-checkbox
-								class="ml-1"
-								:value="data.item.id"
-								v-model="selected_ids"
-							>
-							</b-form-checkbox>
-						</template>
-						<template #cell(index)="data">
-							{{
-								data.index +
-								(pagination.current_page - 1) * pagination.item_per_page +
-								1
-							}}
-						</template>
-						<template #cell(warehouse)="data">
-							<span>{{ data.value.name }}</span>
-						</template>
-						<template #cell(status)="data">
-							<span :class="data.value.badge_class">{{ data.value.name }}</span>
-						</template>
-						<template #cell(receiver)="data">
-							<span>{{ data.value.receiver_name }}</span>
-						</template>
-						<template #cell(action)="data">
-							<div class="margin">
-								<button
-									class="btn btn-xs mr-1 text-info"
-									@click="showInfoDialog(data.item)"
-								>
-									<i
-										class="fas fa-info-circle mr-1"
-										title="Xem thông tin chi tiết"
-									/>Xem thông tin chi tiết
-								</button>
-							</div>
-						</template>
-					</b-table>
-				</div>
-				<!-- end tạo nút -->
-				<!-- phân trang -->
-				<div class="row">
-					<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
-						>Số lượng mỗi trang:</label
-					>
-					<div class="col-md-2">
-						<b-form-select
-							size="sm"
-							v-model="pagination.item_per_page"
-							:options="pagination.page_options"
+			<div class="row mb-1">
+				<div class="col-md-9">
+					<div class="form-group row">
+						<button
+							type="button"
+							class="btn btn-success btn-sm ml-1 mt-1"
+							@click="showCreateDialog"
 						>
-						</b-form-select>
-					</div>
-					<label
-						class="col-form-label-sm col-md-1"
-						style="text-align: left"
-						for=""
-					></label>
-					<div class="col-md-3">
-						<b-pagination
-							v-model="pagination.current_page"
-							:total-rows="rows"
-							:per-page="pagination.item_per_page"
-							size="sm"
-							class="ml-1"
-						></b-pagination>
+							<strong>
+								<i class="fas fa-truck-loading mr-1 text-bold" />Tạo vận đơn</strong
+							>
+						</button>
+						<button class="btn btn-info btn-sm ml-1 mt-1" @click="exportToExcel">
+							<strong><i class="fas fa-file-excel mr-1" />Xuất file excel</strong>
+						</button>
 					</div>
 				</div>
-				<!-- end phân trang -->
-
-				<DialogOrderInfo :order="viewing_order" />
-				<!-- tạo form -->
-				<DialogCreateDelivery :order_ids="creating_delivery_order_ids" />
-				<!-- end tạo form -->
+				<div class="col-md-3">
+					<div class="input-group input-group-sm mt-1 mb-1">
+						<input
+							type="search"
+							class="form-control -control-navbar"
+							v-model="search_pattern"
+							:placeholder="search_placeholder"
+							aria-label="Search"
+						/>
+						<div class="input-group-append">
+							<button
+								class="btn btn-default"
+								style="background: #1b1a1a; color: white"
+							>
+								<i class="fas fa-search"></i>
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
+			<!-- tạo nút edit và delete -->
+
+			<div class="row">
+				<b-table
+					responsive
+					hover
+					striped
+					show-empty
+					:busy="is_loading"
+					:bordered="true"
+					:current-page="pagination.current_page"
+					:per-page="pagination.item_per_page"
+					:filter="search_pattern"
+					:fields="fields"
+					:items="orders"
+					:tbody-tr-class="rowClass"
+				>
+					<template #empty="scope">
+						<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
+					</template>
+					<template #table-busy>
+						<div class="text-center text-primary my-2">
+							<b-spinner class="align-middle" type="grow"></b-spinner>
+							<strong>Đang tải dữ liệu...</strong>
+						</div>
+					</template>
+					<template #head(selection)>
+						<b-form-checkbox
+							class="ml-1"
+							v-model="is_select_all"
+							@change="selectAll"
+						></b-form-checkbox>
+					</template>
+					<template v-slot:cell(selection)="data">
+						<b-form-checkbox class="ml-1" :value="data.item.id" v-model="selected_ids">
+						</b-form-checkbox>
+					</template>
+					<template #cell(index)="data">
+						{{
+							data.index +
+							(pagination.current_page - 1) * pagination.item_per_page +
+							1
+						}}
+					</template>
+					<template #cell(warehouse)="data">
+						<span>{{ data.value.name }}</span>
+					</template>
+					<template #cell(status)="data">
+						<span :class="data.value.badge_class">{{ data.value.name }}</span>
+					</template>
+					<template #cell(receiver)="data">
+						<span>{{ data.value.receiver_name }}</span>
+					</template>
+					<template #cell(action)="data">
+						<div class="margin">
+							<button
+								class="btn btn-xs mr-1 text-info"
+								@click="showInfoDialog(data.item)"
+							>
+								<i
+									class="fas fa-info-circle mr-1"
+									title="Xem thông tin chi tiết"
+								/>Xem thông tin chi tiết
+							</button>
+						</div>
+					</template>
+				</b-table>
+			</div>
+			<!-- end tạo nút -->
+			<!-- phân trang -->
+			<div class="row">
+				<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
+					>Số lượng mỗi trang:</label
+				>
+				<div class="col-md-2">
+					<b-form-select
+						size="sm"
+						v-model="pagination.item_per_page"
+						:options="pagination.page_options"
+					>
+					</b-form-select>
+				</div>
+				<label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
+				<div class="col-md-3">
+					<b-pagination
+						v-model="pagination.current_page"
+						:total-rows="rows"
+						:per-page="pagination.item_per_page"
+						size="sm"
+						class="ml-1"
+					></b-pagination>
+				</div>
+			</div>
+			<!-- end phân trang -->
+
+			<DialogOrderInfo :order="viewing_order" />
+			<!-- tạo form -->
+			<DialogCreateDelivery :order_ids="creating_delivery_order_ids" />
+			<!-- end tạo form -->
 		</div>
-		<!-- end container -->
-	</b-overlay>
+	</div>
+	<!-- end container -->
 </template>
 
 <script>
