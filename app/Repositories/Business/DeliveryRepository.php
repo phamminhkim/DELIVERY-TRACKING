@@ -31,7 +31,7 @@ class DeliveryRepository extends RepositoryAbs
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
-                return [];
+                return collect([]);
             }
 
             $query = Delivery::query();
