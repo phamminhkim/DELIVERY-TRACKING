@@ -325,7 +325,6 @@
 			DialogCreateDelivery,
 			DialogCreatePrintQRSetting,
 			Treeselect,
-			//TreeselectFilter,
 		},
 		data() {
 			return {
@@ -483,7 +482,7 @@
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						this.fetchData(new_query);
+						//this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -520,18 +519,19 @@
 									? undefined
 									: this.form_filter.end_date,
 
-							status: this.form_filter.statuses,
+							status_ids: this.form_filter.statuses,
 							customer_ids: this.form_filter.customers,
 							sap_so_number: this.form_filter.sap_so_number,
 						}),
 					]);
-					this.deliveries = deliveries;
+
 					let result = await this.api_handler.get(this.api_url_deliveries, query);
 					if (result.success) {
 						this.deliveries = result.data;
 					} else {
 						this.$showMessage('error', 'Lỗi', result.message);
 					}
+                    this.deliveries = deliveries;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -546,7 +546,7 @@
 					const { data } = await this.api_handler.get(this.api_url_deliveries, {
 						from_date: this.form_filter.start_date,
 						to_date: this.form_filter.end_date,
-						status: this.form_filter.statuses,
+						status_ids: this.form_filter.statuses,
 						customer_ids: this.form_filter.customers,
 						sap_so_number: this.form_filter.sap_so_number,
 					});
