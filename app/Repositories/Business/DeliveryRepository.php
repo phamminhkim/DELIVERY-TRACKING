@@ -47,7 +47,7 @@ class DeliveryRepository extends RepositoryAbs
             }
             if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
-                $query->whereDate('created_at','>=', $from_date);
+                $query->whereDate('created_at', '>=', $from_date);
             }
             if ($this->request->filled('to_date')) {
                 $to_date = $this->request->to_date;
@@ -66,9 +66,9 @@ class DeliveryRepository extends RepositoryAbs
                 });
             }
             if ($this->current_user->hasRole('admin-partner')) {
-                $channel_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
+                $delivery_partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
 
-                $query->whereIn('channel_id', $channel_ids);
+                $query->whereIn('delivery_partner_id', $delivery_partner_ids);
             }
 
             $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('created_at')->get();
@@ -85,9 +85,6 @@ class DeliveryRepository extends RepositoryAbs
                 }
 
                 $delivery['status'] = OrderStatus::find($delivery['status']);
-
-
-
             }
             //filter status
             // dd($deliveries);
@@ -96,7 +93,6 @@ class DeliveryRepository extends RepositoryAbs
                 $deliveries = $deliveries->filter(function ($delivery) use ($status_ids) {
                     return in_array($delivery->status->id, $status_ids);
                 })->values();
-
             }
             return $deliveries;
         } catch (\Exception $exception) {
