@@ -30,6 +30,10 @@ class DeliveryRepository extends RepositoryAbs
     public function getDeliveries()
     {
         try {
+            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
+                return [];
+            }
+
             $query = Delivery::query();
             if ($this->request->filled('filter')) {
                 if ($this->request->filter == 'undone') {
@@ -43,11 +47,11 @@ class DeliveryRepository extends RepositoryAbs
             }
             if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
-                $query->whereDate('start_delivery_date', '>=', $from_date);
+                $query->whereDate('created_at','>=', $from_date);
             }
             if ($this->request->filled('to_date')) {
                 $to_date = $this->request->to_date;
-                $query->whereDate('start_delivery_date', '<=', $to_date);
+                $query->whereDate('created_at',  '<=', $to_date);
             }
             if ($this->request->filled('customer_id')) {
                 $query->where('customer_id', $this->request->customer_id);
@@ -56,10 +60,15 @@ class DeliveryRepository extends RepositoryAbs
                 $query->whereIn('customer_id', $this->request->customer_ids);
             }
             if ($this->request->filled('sap_so_number')) {
-                $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
+                $sap_so_number = $this->request->sap_so_number;
+                $query->whereHas('orders', function ($subQuery) use ($sap_so_number) {
+                    $subQuery->where('sap_so_number', 'LIKE', '%' . $sap_so_number . '%');
+                });
             }
-            if ($this->request->filled('sap_do_number')) {
-                $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
+            if ($this->current_user->hasRole('admin-partner')) {
+                $channel_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
+
+                $query->whereIn('channel_id', $channel_ids);
             }
 
             $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('created_at')->get();
@@ -76,6 +85,18 @@ class DeliveryRepository extends RepositoryAbs
                 }
 
                 $delivery['status'] = OrderStatus::find($delivery['status']);
+
+
+
+            }
+            //filter status
+            // dd($deliveries);
+            if ($this->request->filled('status_ids')) {
+                $status_ids = $this->request->status_ids;
+                $deliveries = $deliveries->filter(function ($delivery) use ($status_ids) {
+                    return in_array($delivery->status->id, $status_ids);
+                })->values();
+
             }
             return $deliveries;
         } catch (\Exception $exception) {
@@ -156,20 +177,18 @@ class DeliveryRepository extends RepositoryAbs
             } else {
                 $delivery->load(['company', 'customer', 'partner', 'info', 'timelines', 'orders', 'orders.delivery_info', 'orders.status', 'orders.detail', 'orders.receiver', 'orders.driver_confirms', 'orders.driver_confirms.images',]);
                 $my_orders = $delivery->orders->map(function ($order) {
-                        $orders = $order->toArray();
-                        return $orders;
-                    })->values()->toArray();
+                    $orders = $order->toArray();
+                    return $orders;
+                })->values()->toArray();
                 unset($delivery->orders);
                 $delivery->orders = $my_orders;
             }
 
             if ($delivery->info->confirm_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Received;
-            }
-            else if ($delivery->complete_delivery_date) {
+            } else if ($delivery->complete_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivered;
-            }
-            else if ($delivery->start_delivery_date) {
+            } else if ($delivery->start_delivery_date) {
                 $delivery['status'] = EnumsOrderStatus::Delivering;
                 // Check if any order is delivered or partly delivered
             } else {
@@ -184,12 +203,14 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function getPrintConfigsOfUser(){
+    public function getPrintConfigsOfUser()
+    {
         $user_id = $this->current_user->id;
         $print_configs = PrintConfig::query()->where('user_id', '=', $user_id)->get();
         return $print_configs;
     }
-    public function createPrintQRConfig(){
+    public function createPrintQRConfig()
+    {
         try {
             $validator = Validator::make($this->data, [
                 'name' => 'required|string',
@@ -205,7 +226,7 @@ class DeliveryRepository extends RepositoryAbs
                 DB::beginTransaction();
                 $print_config = PrintConfig::create([
                     'name' => $this->data['name'],
-                    'config'=> $this->data['config'],
+                    'config' => $this->data['config'],
                     'user_id' => $this->current_user->id
                 ]);
                 DB::commit();
@@ -219,7 +240,8 @@ class DeliveryRepository extends RepositoryAbs
         }
     }
 
-    public function deletePrintQRConfig($print_config_id){
+    public function deletePrintQRConfig($print_config_id)
+    {
         try {
             $print_config = PrintConfig::find($print_config_id);
             if (!$print_config) {
@@ -267,13 +289,13 @@ class DeliveryRepository extends RepositoryAbs
             $query = Delivery::query();
             $deliveies = $query->whereIn('id', $delivery_ids)->with(['orders'])->get();
             $qr_datas = [];
-            foreach($deliveies as $delivery){
+            foreach ($deliveies as $delivery) {
                 $token = $delivery->primary_token;
                 $converting_url = sprintf('%s/scan-qr/%s', config('app.url'), $token->token);
                 $qr_code = QrCodeUtility::generateImage($converting_url);
                 $qr_code_xml = strval($qr_code);
                 $delivery_code = $delivery->delivery_code;
-                foreach($delivery->orders as $order){
+                foreach ($delivery->orders as $order) {
                     $qr_datas[] = [
                         'delivery_code' => $delivery_code,
                         'sap_do_number' => $order->sap_do_number,
@@ -282,14 +304,14 @@ class DeliveryRepository extends RepositoryAbs
                 }
             }
             sort($delivery_ids);
-            $hashed_ids = hash("sha256",serialize([serialize($delivery_ids), serialize($print_config)]));
+            $hashed_ids = hash("sha256", serialize([serialize($delivery_ids), serialize($print_config)]));
             $html_content = view('app.print_qr_code', compact('qr_datas', 'print_config'))->render();
             $directory = public_path('print_qr');
             if (!File::exists($directory)) {
                 File::makeDirectory($directory, 0755, true);
             }
             $path = sprintf("%s/%s.html", $directory, $hashed_ids);
-            if(File::exists($path)){
+            if (File::exists($path)) {
                 return asset(sprintf("print_qr/%s.html", $hashed_ids));
             }
             File::put($path, $html_content);
@@ -481,11 +503,11 @@ class DeliveryRepository extends RepositoryAbs
                     ]);
                     $this->storeConfirmImages($confirm, $this->data['images'] ?? []);
                     $order->update(['status_id' => EnumsOrderStatus::Delivered]);
-                        $order->delivery_info->update(['complete_delivery_date' => now()]);
-                        $delivery->timelines()->create([
-                            'event' => 'confirm_fully_order_delivery',
-                            'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
-                        ]);
+                    $order->delivery_info->update(['complete_delivery_date' => now()]);
+                    $delivery->timelines()->create([
+                        'event' => 'confirm_fully_order_delivery',
+                        'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
+                    ]);
                 }
                 DB::commit();
 
@@ -703,7 +725,7 @@ class DeliveryRepository extends RepositoryAbs
                     $this->message = 'Đơn vận chuyển không tồn tại.';
                     return false;
                 }
-                if($delivery->complete_delivery_date){
+                if ($delivery->complete_delivery_date) {
                     $this->message = 'Vận đơn đã hoàn thành, không thể chỉnh sửa.';
                     return false;
                 }
