@@ -43,11 +43,11 @@ class DeliveryRepository extends RepositoryAbs
             }
             if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
-                $query->whereDate('start_delivery_date', '>=', $from_date);
+                $query->whereDate('created_at','>=', $from_date);
             }
             if ($this->request->filled('to_date')) {
                 $to_date = $this->request->to_date;
-                $query->whereDate('start_delivery_date', '<=', $to_date);
+                $query->whereDate('created_at',  '<=', $to_date);
             }
             if ($this->request->filled('customer_id')) {
                 $query->where('customer_id', $this->request->customer_id);
@@ -56,10 +56,10 @@ class DeliveryRepository extends RepositoryAbs
                 $query->whereIn('customer_id', $this->request->customer_ids);
             }
             if ($this->request->filled('sap_so_number')) {
-                $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
-            }
-            if ($this->request->filled('sap_do_number')) {
-                $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
+                $sap_so_number = $this->request->sap_so_number;
+                $query->whereHas('orders', function ($subQuery) use ($sap_so_number) {
+                    $subQuery->where('sap_so_number', 'LIKE', '%' . $sap_so_number . '%');
+                });
             }
 
             $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('created_at')->get();
@@ -76,6 +76,18 @@ class DeliveryRepository extends RepositoryAbs
                 }
 
                 $delivery['status'] = OrderStatus::find($delivery['status']);
+
+
+
+            }
+            //filter status
+            // dd($deliveries);
+            if ($this->request->filled('status_ids')) {
+                $status_ids = $this->request->status_ids;
+                $deliveries = $deliveries->filter(function ($delivery) use ($status_ids) {
+                    return in_array($delivery->status->id, $status_ids);
+                })->values();
+
             }
             return $deliveries;
         } catch (\Exception $exception) {
