@@ -482,7 +482,7 @@
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						//this.fetchData(new_query);
+						this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -506,7 +506,7 @@
 		methods: {
 			async fetchData(query) {
 				try {
-					if (this.is_loading) return;
+					//if (this.is_loading) return;
 					this.is_loading = true;
 					const [deliveries] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_deliveries, {
@@ -524,14 +524,14 @@
 							sap_so_number: this.form_filter.sap_so_number,
 						}),
 					]);
-
+                    this.deliveries = deliveries;
 					let result = await this.api_handler.get(this.api_url_deliveries, query);
 					if (result.success) {
 						this.deliveries = result.data;
 					} else {
 						this.$showMessage('error', 'Lỗi', result.message);
 					}
-                    this.deliveries = deliveries;
+
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {

@@ -1,5 +1,5 @@
 <template>
-	<b-overlay :show="is_loading" rounded="sm">
+	<!-- <b-overlay :show="is_loading" rounded="sm"> -->
 		<!-- container -->
 		<div class="container-fluid">
 			<div>
@@ -230,6 +230,7 @@
 						hover
 						striped
                         show-empty
+                        :busy="is_loading"
 						:bordered="true"
 						:current-page="pagination.current_page"
 						:per-page="pagination.item_per_page"
@@ -256,6 +257,12 @@
                         <template #empty="scope">
 							<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
 						</template>
+                        <template #table-busy>
+						<div class="text-center text-primary my-2">
+							<b-spinner class="align-middle" type="grow"></b-spinner>
+							<strong>Đang tải dữ liệu...</strong>
+						</div>
+					    </template>
 						<template #cell(index)="data">
 							{{
 								data.index +
@@ -325,7 +332,7 @@
 			</div>
 		</div>
 		<!-- end container -->
-	</b-overlay>
+	<!-- </b-overlay> -->
 </template>
 
 <script>
