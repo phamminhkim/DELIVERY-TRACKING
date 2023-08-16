@@ -3,19 +3,19 @@
 namespace App\Models\System;
 
 use Illuminate\Database\Eloquent\Model;
-
 class ServiceToken extends Model
 {
-    public $timestamps = false;
+    // public $timestamps = false;
 
     protected $fillable = [
         'provider',
         'category',
         'access_token',
         'refresh_token',
-        'expires_at',
+        'expired_at',
     ];
     protected $casts = [
-        'expires_at' => 'datetime'
+        'expired_at' => 'datetime'
     ];
 }
+
