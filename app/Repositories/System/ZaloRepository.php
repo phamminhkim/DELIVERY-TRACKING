@@ -71,7 +71,7 @@ class ZaloRepository extends RepositoryAbs
                     'category' => 'oa_access_token',
                     'access_token' => $access_token,
                     'refresh_token' => $refresh_token,
-                    'expired_at' => $expired_at
+                    'expired_at' =>  $expired_at->format('Y-m-d H:i:s')
                 ]);
                 Log::info("Update ZaloOA access token, expired at " . $expired_at->format('Y-m-d H:i:s'));
             }
