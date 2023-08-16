@@ -471,18 +471,18 @@
 		},
 
 		async created() {
-			this.fetchData();
+			//this.fetchData();
 			this.fetchPrintQRConfigOptions();
-
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
+            await Promise.all([this.fetchData()]);
 		},
 		watch: {
 			'$route.query': {
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						this.fetchData(new_query);
+						//this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -525,12 +525,12 @@
 						}),
 					]);
                     this.deliveries = deliveries;
-					let result = await this.api_handler.get(this.api_url_deliveries, query);
-					if (result.success) {
-						this.deliveries = result.data;
-					} else {
-						this.$showMessage('error', 'Lỗi', result.message);
-					}
+					// let result = await this.api_handler.get(this.api_url_deliveries, query);
+					// if (result.success) {
+					// 	this.deliveries = result.data;
+					// } else {
+					// 	this.$showMessage('error', 'Lỗi', result.message);
+					// }
 
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
