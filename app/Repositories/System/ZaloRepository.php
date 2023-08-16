@@ -62,7 +62,7 @@ class ZaloRepository extends RepositoryAbs
             if ($existing_token) {
                 $existing_token->access_token = $access_token;
                 $existing_token->refresh_token = $refresh_token;
-                $existing_token->expired_at = $expired_at;
+                $existing_token->expired_at =  $expired_at->format('Y-m-d H:i:s');
                 $existing_token->save();
                 Log::info("Import ZaloOA access token, expired at " . $expired_at->format('Y-m-d H:i:s'));
             } else {
