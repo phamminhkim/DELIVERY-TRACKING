@@ -328,6 +328,45 @@ class OrderRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function confirmMultipleOrders()
+    {
+        try {
+            $order_ids = $this->data->order_ids;
+            $orders = Order::whereIn('id', $order_ids)->get();
+            if (count($orders) != count($order_ids)) {
+                $this->message = 'Có đơn hàng không tồn tại.';
+                return false;
+            }
+            foreach ($orders as $order) {
+                if ($order->status_id != EnumsOrderStatus::Delivered) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể xác nhận.';
+                    return false;
+                }
+                $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
+                if (!$customer_ids || !in_array($order->customer_id, $customer_ids)) {
+                    $this->message = 'Bạn không có quyền xác nhận đơn hàng này.';
+                    return false;
+                }
+            }
+
+            DB::beginTransaction();
+            foreach ($orders as $order) {
+                $order->update(['status_id' => EnumsOrderStatus::Received]);
+                OrderDelivery::where('order_id', $order->id)
+                    ->update([
+                        'confirm_delivery_date' => now(),
+                        'confirm_user_id' => $this->current_user->id
+                    ]);
+                DB::commit();
+            }
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function reviewOrder($order_id)
     {
         try {
