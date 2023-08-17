@@ -157,7 +157,7 @@ class ZaloRepository extends RepositoryAbs
 
         return $response->getDecodedBody();
     }
-
+    //Hàm này gửi tin nhắn khi user là 
     public function sendOaMessage($user_id, $message)
     {
         $zalo = $this->getInstance();
@@ -170,5 +170,9 @@ class ZaloRepository extends RepositoryAbs
 
         $response = $zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $oa_access_token, $msg_text);
         return $response->getDecodedBody();
+    }
+    public static function sendOaMessageTransaction($user_web_id, $message)
+    {
+        
     }
 }
