@@ -1,5 +1,11 @@
 <template>
-	<div class="modal fade" id="DialogAddUpdateMenuRouter" tabindex="-1" role="dialog">
+	<div
+		class="modal fade"
+		id="DialogAddUpdateMenuRouter"
+		tabindex="-1"
+		role="dialog"
+		data-backdrop="static"
+	>
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<form @submit.prevent="submitDataForm">

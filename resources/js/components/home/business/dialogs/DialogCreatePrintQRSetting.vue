@@ -1,5 +1,11 @@
 <template>
-	<div class="modal fade" id="DialogCreatePrintQRSetting" tabindex="-1" role="dialog">
+	<div
+		class="modal fade"
+		id="DialogCreatePrintQRSetting"
+		tabindex="-1"
+		role="dialog"
+		data-backdrop="static"
+	>
 		<div class="modal-dialog modal-xl">
 			<div class="modal-content">
 				<form @submit.prevent="createNewSetting">
