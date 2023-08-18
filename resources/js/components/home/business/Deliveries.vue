@@ -261,6 +261,15 @@
 					<template #cell(status)="data">
 						<span :class="data.value.badge_class">{{ data.value.name }}</span>
 					</template>
+					<template #cell(estimate_delivery_date)="data">
+						<span>{{ data.value }}</span>
+						<b-badge variant="danger" v-if="data.item.is_late_deadline"
+							><i class="fas fa-fire text-white mr-1"></i>Trễ hạn
+						</b-badge>
+						<b-badge variant="danger" v-if="data.item.is_near_deadline"
+							>Gần đến hạn
+						</b-badge>
+					</template>
 					<template #cell(delivery_code)="data">
 						<a href="#" @click="showInfoDialog(data.item)">
 							{{ data.value }}
@@ -417,6 +426,12 @@
 						class: 'text-nowrap text-center',
 					},
 					{
+						key: 'estimate_delivery_date',
+						label: 'Thời hạn giao hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
 						key: 'customer.name',
 						label: 'Khách hàng',
 						sortable: true,
@@ -452,12 +467,6 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					{
-						key: 'estimate_delivery_date',
-						label: 'Thời hạn giao hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
 					// {
 					// 	key: 'action',
 					// 	label: 'Hành động',
@@ -475,7 +484,7 @@
 			this.fetchPrintQRConfigOptions();
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
-            await Promise.all([this.fetchData()]);
+			await Promise.all([this.fetchData()]);
 		},
 		watch: {
 			'$route.query': {
@@ -524,14 +533,13 @@
 							sap_so_number: this.form_filter.sap_so_number,
 						}),
 					]);
-                    this.deliveries = deliveries;
+					this.deliveries = deliveries;
 					// let result = await this.api_handler.get(this.api_url_deliveries, query);
 					// if (result.success) {
 					// 	this.deliveries = result.data;
 					// } else {
 					// 	this.$showMessage('error', 'Lỗi', result.message);
 					// }
-
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
