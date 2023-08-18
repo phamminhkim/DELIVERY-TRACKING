@@ -332,7 +332,7 @@ class OrderRepository extends RepositoryAbs
     public function confirmMultipleOrders()
     {
         try {
-            $order_ids = $this->data->order_ids;
+            $order_ids = $this->data['order_ids'];
             $orders = Order::whereIn('id', $order_ids)->get();
             if (count($orders) != count($order_ids)) {
                 $this->message = 'Có đơn hàng không tồn tại.';
