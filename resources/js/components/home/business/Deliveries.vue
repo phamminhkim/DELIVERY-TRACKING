@@ -262,8 +262,7 @@
 						<span :class="data.value.badge_class">{{ data.value.name }}</span>
 					</template>
 					<template #cell(estimate_delivery_date)="data">
-						<span>{{ data.value }}</span
-						><br />
+						<span>{{ data.value }}</span>
 						<b-badge variant="danger" v-if="data.item.is_late_deadline"
 							><i class="fas fa-fire text-white mr-1"></i>Trễ hạn
 						</b-badge>
