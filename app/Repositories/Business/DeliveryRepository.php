@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class DeliveryRepository extends RepositoryAbs
 {
@@ -71,7 +72,8 @@ class DeliveryRepository extends RepositoryAbs
                 $query->whereIn('delivery_partner_id', $delivery_partner_ids);
             }
 
-            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByRaw('estimate_delivery_date - CURDATE() ASC')->get();
+            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])
+                ->orderByRaw('CASE WHEN estimate_delivery_date IS NULL THEN 1 ELSE 0 END, DATEDIFF(estimate_delivery_date, CURDATE()) ASC')->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = EnumsOrderStatus::Delivered;
@@ -85,10 +87,10 @@ class DeliveryRepository extends RepositoryAbs
                 }
 
                 if ($delivery['status'] >= EnumsOrderStatus::Preparing && $delivery['status'] < EnumsOrderStatus::Delivered && $delivery->estimate_delivery_date) {
-                    if ($delivery->estimate_delivery_date < now()) {
-                        $delivery['is_late_deadline'] = true;
-                    } else if ($delivery->estimate_delivery_date->isToday()) {
+                    if ($delivery->estimate_delivery_date->isToday()) {
                         $delivery['is_near_deadline'] = true;
+                    } else if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
+                        $delivery['is_late_deadline'] = true;
                     }
                 }
 

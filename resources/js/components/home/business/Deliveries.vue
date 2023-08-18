@@ -266,7 +266,7 @@
 						<b-badge variant="danger" v-if="data.item.is_late_deadline"
 							><i class="fas fa-fire text-white mr-1"></i>Trễ hạn
 						</b-badge>
-						<b-badge variant="danger" v-if="data.item.is_near_deadline"
+						<b-badge variant="warning" v-if="data.item.is_near_deadline"
 							>Gần đến hạn
 						</b-badge>
 					</template>
