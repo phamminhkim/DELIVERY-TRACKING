@@ -71,7 +71,7 @@ class DeliveryRepository extends RepositoryAbs
                 $query->whereIn('delivery_partner_id', $delivery_partner_ids);
             }
 
-            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByDesc('estimate_delivery_date')->get();
+            $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])->orderByRaw('estimate_delivery_date - CURDATE() ASC')->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = EnumsOrderStatus::Delivered;
@@ -87,7 +87,7 @@ class DeliveryRepository extends RepositoryAbs
                 if ($delivery['status'] >= EnumsOrderStatus::Preparing && $delivery['status'] < EnumsOrderStatus::Delivered && $delivery->estimate_delivery_date) {
                     if ($delivery->estimate_delivery_date < now()) {
                         $delivery['is_late_deadline'] = true;
-                    } else if ($delivery->estimate_delivery_date->diffInDays(now()) <= 1) {
+                    } else if ($delivery->estimate_delivery_date->isToday()) {
                         $delivery['is_near_deadline'] = true;
                     }
                 }
