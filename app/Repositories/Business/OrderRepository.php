@@ -32,7 +32,7 @@ class OrderRepository extends RepositoryAbs
                 '*.customer_code' => 'required|string|exists:customers,code',
                 '*.sap_so_number' => 'required|string|max:20',
                 '*.sap_so_created_date' => 'required|date',
-                '*.sap_po_number' => 'nullable|string|max:20',
+                '*.sap_po_number' => 'nullable|string|max:50',
                 '*.sap_do_number' => 'nullable|string|max:20',
                 '*.approveds.sap_so_finance_approval_date' => 'nullable|date',
                 '*.details.delivery_address' => 'nullable|string|max:255',
@@ -56,7 +56,7 @@ class OrderRepository extends RepositoryAbs
                 '*.sap_so_number.max' => 'Số đơn hàng SAP không được vượt quá 20 ký tự.',
                 '*.sap_so_created_date.required' => 'Ngày tạo đơn hàng SAP là bắt buộc.',
                 '*.sap_so_created_date.date' => 'Ngày tạo đơn hàng SAP :input không hợp lệ.',
-                '*.sap_po_number.max' => 'Số đơn hàng PO không được vượt quá 20 ký tự.',
+                '*.sap_po_number.max' => 'Số đơn hàng PO không được vượt quá 50 ký tự.',
                 '*.sap_do_number.max' => 'Số đơn hàng DO không được vượt quá 20 ký tự.',
                 '*.approveds.sap_so_finance_approval_date.date' => 'Ngày phê duyệt tài chính SAP SO :input không hợp lệ.',
                 '*.details.delivery_address.max' => 'Địa chỉ giao hàng không được vượt quá 255 ký tự.',
@@ -328,6 +328,45 @@ class OrderRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function confirmMultipleOrders()
+    {
+        try {
+            $order_ids = $this->data['order_ids'];
+            $orders = Order::whereIn('id', $order_ids)->get();
+            if (count($orders) != count($order_ids)) {
+                $this->message = 'Có đơn hàng không tồn tại.';
+                return false;
+            }
+            foreach ($orders as $order) {
+                if ($order->status_id != EnumsOrderStatus::Delivered) {
+                    $this->message = 'Đơn hàng ' . $order->sap_so_number . ' chưa được giao, không thể xác nhận.';
+                    return false;
+                }
+                $customer_ids = CustomerPhone::where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id')->toArray();
+                if (!$customer_ids || !in_array($order->customer_id, $customer_ids)) {
+                    $this->message = 'Bạn không có quyền xác nhận đơn hàng này.';
+                    return false;
+                }
+            }
+
+            DB::beginTransaction();
+            foreach ($orders as $order) {
+                $order->update(['status_id' => EnumsOrderStatus::Received]);
+                OrderDelivery::where('order_id', $order->id)
+                    ->update([
+                        'confirm_delivery_date' => now(),
+                        'confirm_user_id' => $this->current_user->id
+                    ]);
+                DB::commit();
+            }
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function reviewOrder($order_id)
     {
         try {

@@ -62,7 +62,7 @@ class ZaloRepository extends RepositoryAbs
             if ($existing_token) {
                 $existing_token->access_token = $access_token;
                 $existing_token->refresh_token = $refresh_token;
-                $existing_token->expired_at = $expired_at;
+                $existing_token->expired_at =  $expired_at->format('Y-m-d H:i:s');
                 $existing_token->save();
                 Log::info("Import ZaloOA access token, expired at " . $expired_at->format('Y-m-d H:i:s'));
             } else {
@@ -157,7 +157,7 @@ class ZaloRepository extends RepositoryAbs
 
         return $response->getDecodedBody();
     }
-
+    //Hàm này gửi tin nhắn khi user là 
     public function sendOaMessage($user_id, $message)
     {
         $zalo = $this->getInstance();
@@ -170,5 +170,9 @@ class ZaloRepository extends RepositoryAbs
 
         $response = $zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $oa_access_token, $msg_text);
         return $response->getDecodedBody();
+    }
+    public static function sendOaMessageTransaction($user_web_id, $message)
+    {
+        
     }
 }
