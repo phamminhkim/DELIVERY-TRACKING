@@ -15,7 +15,7 @@ class DeliveryPartnerRepository extends RepositoryAbs
     public function getAvailablePartners()
     {
         try {
-            $partners = DeliveryPartner::with(['users', 'distribution_channels'])->get()->map(function ($partner) {
+            $partners = DeliveryPartner::with(['users', 'distribution_channels'])->withCount('users')->get()->map(function ($partner) {
                 $partner->channel_ids = $partner->distribution_channels->pluck('id')->toArray();
                 $partner->user_ids = $partner->users->pluck('user_id')->toArray();
                 return $partner;
@@ -109,7 +109,7 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 }
             } else {
                 $partner = DeliveryPartner::findOrFail($id);
-                $partner -> fill([
+                $partner->fill([
                     'code' => $this->data['code'],
                     'name' => $this->data['name'],
                     'is_external' => true,
