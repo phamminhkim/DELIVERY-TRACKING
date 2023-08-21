@@ -87,8 +87,8 @@ class CustomerPhoneRepository extends RepositoryAbs
                 'phone_number' => 'required|string',
                 'name' => 'required|string',
                 'description' => 'required|string',
-                'is_active' => 'required|boolean',
-                'is_receive_message' => 'required|boolean',
+                'is_active' => 'boolean',
+                'is_receive_message' => 'boolean',
             ], [
                 'customer_id.required' => 'Yêu cầu nhập ID khách hàng.',
                 // 'customer_id.string' => 'ID khách hàng phải là chuỗi.',

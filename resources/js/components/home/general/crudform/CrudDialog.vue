@@ -75,7 +75,6 @@
 												hasError(form_field.key) ? 'is-invalid' : ''
 											"
 											:type="form_field.type"
-											:required="form_field.required"
 										/>
 									</div>
 								</div>
