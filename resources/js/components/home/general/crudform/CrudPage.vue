@@ -70,7 +70,7 @@
 						:items="items"
 						:tbody-tr-class="rowClass"
 					>
-						<template #empty="scope">
+						<template #empty>
 							<h6 class="text-center">Không có thông tin</h6>
 						</template>
 						<template #table-busy>
@@ -164,6 +164,8 @@
 						:page_url_update="page_structure.api_url"
 						:dialog_name="dialog_name"
 						:primary_key="primary_key"
+						@itemCreated="itemCreated"
+						@itemUpdated="itemUpdated"
 					></CrudDialog>
 
 					<!-- end tạo form -->
@@ -221,7 +223,6 @@
 		created() {
 			this.page_structure = new CrudPageStructure(this.structure);
 			this.fields = this.page_structure.table.table_fields;
-			console.log(this.fields);
 			this.api_item_data = this.page_structure.api_url;
 			this.fetchData();
 		},
@@ -243,7 +244,12 @@
 						this.is_loading = true;
 						let result = await this.api_handler.delete(`${this.api_item_data}/${id}`);
 						if (result.success) {
-							this.fetchData();
+							// this.fetchData();
+							let index = this.items.findIndex(
+								(item) => item[this.primary_key] === id,
+							);
+							this.items.splice(index, 1);
+
 							this.$showMessage('success', 'Xóa thành công', result.message);
 						} else {
 							this.$showMessage('error', 'Lỗi', result.message);
@@ -258,7 +264,6 @@
 			showCreateDialog() {
 				this.is_editing = false;
 				this.editing_item = {};
-				console.log('#' + this.dialog_name);
 				$('#' + this.dialog_name).modal('show');
 			},
 			showEditDialog(item) {
@@ -269,6 +274,16 @@
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
+			},
+			itemCreated(item) {
+				this.items.splice(0, 0, item);
+			},
+			itemUpdated(item) {
+				console.log(item);
+				let index = this.items.findIndex(
+					(x) => x[this.primary_key] === item[this.primary_key],
+				);
+				this.items.splice(index, 1, item);
 			},
 		},
 		computed: {

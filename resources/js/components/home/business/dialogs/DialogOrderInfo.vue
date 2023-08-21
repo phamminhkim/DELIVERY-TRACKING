@@ -93,7 +93,7 @@
 								</div>
 
 								<div class="form-group">
-									<label>Số lượng</label>
+									<label>Số thùng</label>
 									<input
 										type="text"
 										class="form-control"

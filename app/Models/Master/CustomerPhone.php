@@ -11,6 +11,7 @@ class CustomerPhone extends Model
     ];
     protected $casts = [
         'is_active' => 'boolean',
+        'is_receive_sms' => 'boolean',
     ];
 
     public function customer()

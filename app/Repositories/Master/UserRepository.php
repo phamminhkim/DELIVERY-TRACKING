@@ -14,7 +14,7 @@ class UserRepository extends RepositoryAbs
     public function getAvailableUsers()
     {
         try {
-           $users = User::with(['roles', 'delivery_partners'])->get()->map(function ($user) {
+            $users = User::with(['roles', 'social_accounts', 'delivery_partners'])->get()->map(function ($user) {
                 $user->role_ids = $user->roles->pluck('id')->toArray();
                 return $user;
             });
@@ -22,17 +22,16 @@ class UserRepository extends RepositoryAbs
 
             if ($this->request->filled('format')) {
                 if ($this->request->format == 'treeselect') {
-                        foreach ($users as $user) {
-                            $item = array(
-                                'id' => $user->id,
-                                'label' => $user->name,
-                                'object' => $user
-                            );
-                            array_push($result, $item);
-                        }
+                    foreach ($users as $user) {
+                        $item = array(
+                            'id' => $user->id,
+                            'label' => $user->name,
+                            'object' => $user
+                        );
+                        array_push($result, $item);
+                    }
                 }
-            }
-            else {
+            } else {
                 $result = $users;
             }
             return $result;
