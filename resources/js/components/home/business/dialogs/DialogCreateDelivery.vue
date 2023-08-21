@@ -33,6 +33,22 @@
 						<div class="form-group">
 							<label>Khách hàng/Nhà phân phối</label>
 							<small class="text-danger">(*)</small>
+							<!-- <text-input-search
+							
+								:show_icon="false"
+								:show_combobox="true"
+								:fields="fields_search"
+								:url="api/master/customers/minified"
+								key_search="code"
+								other_display="name"
+								 
+								:value="form.customer_id"
+								key_return="id"
+								v-on:selectedItem="selectedItemVendor"
+								value_placeholder="Chọn khách hàng.."
+								 
+								:required="true"
+							></text-input-search> -->
 							<treeselect
 								placeholder="Chọn khách hàng.."
 								:disable-branch-nodes="false"
@@ -198,12 +214,14 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../../ApiHandler';
+	import TextInputSearch from '../../general/controls/TextInputSearch.vue';
 
 	export default {
 		name: 'DialogCreateDelivery',
 		components: {
 			Vue,
 			Treeselect,
+			TextInputSearch,
 		},
 		props: {
 			order_ids: Array,

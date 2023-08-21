@@ -5,6 +5,11 @@
 				role.name
 			}}</span>
 		</template>
+		<template #cell(social_accounts)="data">
+			<span v-for="account in data.value" :key="account.id" class="badge bg-primary mr-1">{{
+				account.provider.replace('Provider', '')
+			}}</span>
+		</template>
 
 		<template #cell(active)="data">
 			<span class="badge bg-success" v-if="data.item.active == 1">Đang hoạt động</span>
@@ -55,6 +60,12 @@
 							class: 'text-nowrap',
 						},
 						{
+							key: 'social_accounts',
+							label: 'Tài khoản tích hợp',
+							sortable: true,
+							class: 'text-nowrap text-center',
+						},
+						{
 							key: 'roles',
 							label: 'Vai trò',
 							sortable: true,
@@ -74,6 +85,10 @@
 						},
 						{
 							target_key: 'roles',
+							type: 'template',
+						},
+						{
+							target_key: 'social_accounts',
 							type: 'template',
 						},
 					],

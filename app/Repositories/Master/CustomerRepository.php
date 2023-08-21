@@ -17,6 +17,9 @@ class CustomerRepository extends RepositoryAbs
                 $query = Customer::search($this->request->search);
                 $query->limit(200);   
             }
+            if($this->request->filled('ids')){
+                $query->whereIn('id', $this->request->ids);
+            }
             if ($is_minified){
                 $query->select('id', 'name');
             }
