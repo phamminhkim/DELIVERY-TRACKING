@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Master\SapMaterial;
 use App\Repositories\Master\WarehouseRepository;
 use App\Repositories\Master\DeliveryPartnerRepository;
 use App\Repositories\Master\CompanyRepository;
@@ -14,10 +15,7 @@ use App\Repositories\Master\SaleGroupRepository;
 use App\Repositories\Master\UserRepository;
 use App\Repositories\Master\CustomerPhoneRepository;
 use App\Repositories\Master\OrderReviewOptionRepository;
-
-
-
-
+use App\Repositories\Master\SapMaterialRepository;
 use Illuminate\Http\Request;
 
 class MasterRepository
@@ -29,7 +27,7 @@ class MasterRepository
 
     public static function companyRequest(Request $request)
     {
-       return new CompanyRepository($request);
+        return new CompanyRepository($request);
     }
     public static function customerRequest(Request $request)
     {
@@ -51,6 +49,10 @@ class MasterRepository
     public static function saleDistrictRequest(Request $request)
     {
         return new SaleDistrictRepository($request);
+    }
+    public static function sapMaterialRequest(Request $request)
+    {
+        return new SapMaterialRepository($request);
     }
 
     public static function deliveryPartnerRequest(Request $request)

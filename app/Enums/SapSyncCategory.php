@@ -9,5 +9,5 @@ abstract class SapSyncCategory
     const Warehouse = 3;
     const SaleDistrict = 4;
     const SaleGroup = 5;
-
+    const SapMaterial = 6;
 }

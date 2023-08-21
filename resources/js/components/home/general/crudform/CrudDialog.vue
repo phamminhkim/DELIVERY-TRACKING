@@ -33,19 +33,8 @@
 							>
 								<label>{{ form_field.label }}</label>
 								<small v-if="form_field.required" class="text-danger">(*)</small>
-								<input
-									v-model="item[form_field.key]"
-									class="form-control"
-									:id="form_field.key"
-									:name="form_field.key"
-									:placeholder="form_field.placeholder"
-									v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
-									:type="form_field.type"
-									:required="form_field.required"
-									v-if="form_field.type != 'treeselect'"
-								/>
 								<treeselect
-									v-else
+									v-if="form_field.type == 'treeselect'"
 									:placeholder="form_field.placeholder"
 									:multiple="form_field.treeselect.multiple"
 									v-model="item[form_field.key]"
@@ -60,6 +49,46 @@
 											};
 										}
 									"
+									:async="form_field.treeselect.async"
+									:load-options="
+										(param) =>
+											loadOptions(
+												param,
+												form_field.treeselect.api_async_load_options,
+											)
+									"
+									:ref="form_field.key"
+									:defaultOptions="options_for_treeselect_fields[form_field.key]"
+								/>
+
+								<div
+									class="input-group-prepend"
+									v-else-if="form_field.type == 'checkbox'"
+								>
+									<div class="input-group-text">
+										<input
+											v-model="item[form_field.key]"
+											:id="form_field.key"
+											:name="form_field.key"
+											:placeholder="form_field.placeholder"
+											v-bind:class="
+												hasError(form_field.key) ? 'is-invalid' : ''
+											"
+											:type="form_field.type"
+										/>
+									</div>
+								</div>
+
+								<input
+									v-model="item[form_field.key]"
+									class="form-control"
+									:id="form_field.key"
+									:name="form_field.key"
+									:placeholder="form_field.placeholder"
+									v-bind:class="hasError(form_field.key) ? 'is-invalid' : ''"
+									:type="form_field.type"
+									:required="form_field.required"
+									v-else
 								/>
 								<span
 									v-if="hasError(form_field.key)"
@@ -88,7 +117,7 @@
 </template>
 
 <script>
-	import APIHandler from '../../ApiHandler';
+	import APIHandler, { APIRequest } from '../../ApiHandler';
 	import toastr from 'toastr';
 	import 'toastr/toastr.scss';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
@@ -122,18 +151,24 @@
 		},
 		async created() {
 			this.form_structure.form_fields.forEach(async (field) => {
-				if (field.type != 'treeselect') {
-					this.item[field.key] = '';
-				} else {
+				if (field.type == 'treeselect') {
 					if (field.treeselect.multiple) {
 						this.item[field.key] = [];
 					} else {
 						this.item[field.key] = null;
 					}
-					const [options] = await this.api_handler.handleMultipleRequest([
-						field.treeselect.api_for_options_request,
-					]);
+					let [options] = field.treeselect.async
+						? [[]]
+						: await this.api_handler.handleMultipleRequest([
+								field.treeselect.api_for_options_request,
+						  ]);
 					this.options_for_treeselect_fields[field.key] = options;
+				} else if (field.type == 'checkbox') {
+					this.item[field.key] = field.checkbox.default_value
+						? field.checkbox.default_value
+						: false;
+				} else {
+					this.item[field.key] = '';
 				}
 			});
 		},
@@ -172,7 +207,6 @@
 			},
 			async createItem() {
 				try {
-					console.log(this.item);
 					let data = await this.api_handler
 						.post(this.page_url_create, {}, this.item)
 						.finally(() => {
@@ -205,11 +239,47 @@
 			clearFormErrors() {
 				this.errors = {};
 			},
+			async loadOptions({ action, searchQuery, callback }, api_async_load_options) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get(api_async_load_options, {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
+				}
+			},
 		},
 		watch: {
-			editing_item: function (item) {
+			editing_item: async function (item) {
 				this.errors = {};
-				this.item = { ...item };
+				this.item = structuredClone(item);
+				const treeselect_async_fields = this.form_structure?.form_fields?.filter(
+					(field) => {
+						return field.type == 'treeselect' && field.treeselect.async;
+					},
+				);
+				if (treeselect_async_fields.length > 0) {
+					const treeselect_async_field_options =
+						await this.api_handler.handleMultipleRequest(
+							treeselect_async_fields.map((field) => {
+								return new APIRequest(
+									'get',
+									field.treeselect.api_async_load_options,
+									{
+										ids: [item[field.treeselect.key_async_field]],
+									},
+								);
+							}),
+						);
+					treeselect_async_fields.forEach((field, index) => {
+						this.options_for_treeselect_fields[field.key] =
+							treeselect_async_field_options[index];
+
+						this.$refs[field.key][0].forest.nodeMap[
+							this.options_for_treeselect_fields[field.key][0].id
+						].label = this.options_for_treeselect_fields[field.key][0].name;
+					});
+				}
 			},
 		},
 	};

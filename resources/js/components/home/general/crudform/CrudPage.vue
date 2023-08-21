@@ -70,7 +70,7 @@
 						:items="items"
 						:tbody-tr-class="rowClass"
 					>
-						<template #empty="scope">
+						<template #empty>
 							<h6 class="text-center">Không có thông tin</h6>
 						</template>
 						<template #table-busy>
@@ -221,7 +221,6 @@
 		created() {
 			this.page_structure = new CrudPageStructure(this.structure);
 			this.fields = this.page_structure.table.table_fields;
-			console.log(this.fields);
 			this.api_item_data = this.page_structure.api_url;
 			this.fetchData();
 		},
@@ -258,7 +257,6 @@
 			showCreateDialog() {
 				this.is_editing = false;
 				this.editing_item = {};
-				console.log('#' + this.dialog_name);
 				$('#' + this.dialog_name).modal('show');
 			},
 			showEditDialog(item) {
