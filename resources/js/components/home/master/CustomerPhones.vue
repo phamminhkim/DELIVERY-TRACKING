@@ -38,8 +38,8 @@
 				table: {
 					table_fields: [
 						{
-							key: 'customer_id',
-							label: 'ID khách hàng',
+							key: 'customer_name',
+							label: 'Khách hàng',
 							sortable: true,
 							class: 'text-nowrap text-center',
 						},
@@ -90,8 +90,8 @@
 					form_name: 'số điện thoại khách hàng',
 					form_fields: [
 						{
-							label: 'ID khách hàng',
-							placeholder: 'Nhập ID khách hàng..',
+							label: 'Khách hàng',
+							placeholder: 'Nhập khách hàng..',
 							key: 'customer_id',
 							type: 'treeselect',
 							required: true,

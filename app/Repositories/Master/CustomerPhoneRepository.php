@@ -12,7 +12,11 @@ class CustomerPhoneRepository extends RepositoryAbs
     public function getAvailableCustomerPhones()
     {
         try {
-            $customer_phones = CustomerPhone::all();
+            $query = CustomerPhone::query();
+            $query->leftJoin('customers', 'customers.id', '=', 'customer_phones.customer_id')
+                ->select('customer_phones.*', 'customers.name as customer_name');
+
+            $customer_phones = $query->get();
             return $customer_phones;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
