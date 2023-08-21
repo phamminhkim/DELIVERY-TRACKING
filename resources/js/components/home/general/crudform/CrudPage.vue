@@ -164,6 +164,8 @@
 						:page_url_update="page_structure.api_url"
 						:dialog_name="dialog_name"
 						:primary_key="primary_key"
+						@itemCreated="itemCreated"
+						@itemUpdated="itemUpdated"
 					></CrudDialog>
 
 					<!-- end tạo form -->
@@ -242,7 +244,12 @@
 						this.is_loading = true;
 						let result = await this.api_handler.delete(`${this.api_item_data}/${id}`);
 						if (result.success) {
-							this.fetchData();
+							// this.fetchData();
+							let index = this.items.findIndex(
+								(item) => item[this.primary_key] === id,
+							);
+							this.items.splice(index, 1);
+
 							this.$showMessage('success', 'Xóa thành công', result.message);
 						} else {
 							this.$showMessage('error', 'Lỗi', result.message);
@@ -267,6 +274,16 @@
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
+			},
+			itemCreated(item) {
+				this.items.splice(0, 0, item);
+			},
+			itemUpdated(item) {
+				console.log(item);
+				let index = this.items.findIndex(
+					(x) => x[this.primary_key] === item[this.primary_key],
+				);
+				this.items.splice(index, 1, item);
 			},
 		},
 		computed: {

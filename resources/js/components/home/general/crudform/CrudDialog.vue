@@ -198,7 +198,8 @@
 					this.$showMessage('success', 'Cập nhật thành công');
 					this.closeDialog();
 
-					this.refetchData();
+					// this.refetchData();
+					this.$emit('itemUpdated', data.data);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 					this.errors = error.response.data.errors;
@@ -213,7 +214,8 @@
 							this.is_loading = false;
 						});
 					this.$showMessage('success', 'Thêm thành công');
-					this.refetchData();
+					// this.refetchData();
+					this.$emit('itemCreated', data.data);
 					this.closeDialog();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
