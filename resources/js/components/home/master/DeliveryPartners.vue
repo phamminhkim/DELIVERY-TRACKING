@@ -4,6 +4,11 @@
 			<span v-if="data.item.is_external" class="badge bg-primary">Đối tác ngoài</span>
 			<span v-else class="badge bg-info">Nội bộ</span>
 		</template>
+		<template #cell(distribution_channels)="data">
+			<span v-for="channel in data.value" :key="channel.id" class="badge bg-info mr-1">{{
+				channel.name
+			}}</span>
+		</template>
 		<template #cell(is_active)="data">
 			<span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
 			<span class="badge bg-warning" v-else-if="data.item.is_active == 0"
@@ -49,26 +54,20 @@
 							class: 'text-nowrap',
 						},
 						{
-							key: 'api_url',
-							label: 'API Url',
-							sortable: true,
-							class: 'text-center',
-						},
-						{
-							key: 'api_key',
-							label: 'API Key',
-							sortable: true,
-							class: 'text-center',
-						},
-						{
-							key: 'api_secret',
-							label: 'API Secret',
-							sortable: true,
-							class: 'text-center',
-						},
-						{
 							key: 'is_external',
-							label: 'Phạm vị',
+							label: 'Phạm vi',
+							sortable: true,
+							class: 'text-nowrap text-center',
+						},
+						{
+							key: 'users_count',
+							label: 'Số lượng tài khoản',
+							sortable: true,
+							class: 'text-nowrap text-center',
+						},
+						{
+							key: 'distribution_channels',
+							label: 'Kênh phân phối',
 							sortable: true,
 							class: 'text-nowrap text-center',
 						},
@@ -85,6 +84,10 @@
 						// {...}
 						{
 							target_key: 'is_external',
+							type: 'template', // 'text', 'bool', 'number', 'image', 'template'
+						},
+						{
+							target_key: 'distribution_channels',
 							type: 'template', // 'text', 'bool', 'number', 'image', 'template'
 						},
 						{
