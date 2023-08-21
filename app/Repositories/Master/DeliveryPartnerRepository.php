@@ -128,6 +128,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 }
                 $partner->distribution_channels()->sync($this->data['channel_ids']);
                 $partner->save();
+                $partner->load(['users', 'distribution_channels']);
+                $partner->users_count = $partner->users()->count();
                 return $partner;
             }
         } catch (\Exception $exception) {
