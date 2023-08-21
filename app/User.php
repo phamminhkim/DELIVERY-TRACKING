@@ -4,6 +4,7 @@ namespace App;
 
 use App\Business\PrintConfig;
 use App\Models\Master\DeliveryPartner;
+use App\Models\SocialAccount;
 use App\Traits\HasUserMorphs;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,7 +24,7 @@ class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove 
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'active', 'avatar','phone_number','username'
+        'name', 'email', 'password', 'active', 'avatar', 'phone_number', 'username'
     ];
 
     /**
@@ -44,12 +45,18 @@ class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove 
         'email_verified_at' => 'datetime',
     ];
 
-    public function print_configs(){
+    public function print_configs()
+    {
         return $this->hasMany(PrintConfig::class);
     }
 
     public function delivery_partners()
     {
-         return $this->morphedByMany(DeliveryPartner::class, 'morphable', 'user_morphs');
+        return $this->morphedByMany(DeliveryPartner::class, 'morphable', 'user_morphs');
+    }
+
+    public function social_accounts()
+    {
+        return $this->hasMany(SocialAccount::class);
     }
 }
