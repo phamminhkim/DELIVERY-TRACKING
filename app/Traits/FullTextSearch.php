@@ -32,7 +32,10 @@ trait FullTextSearch
  
         return $searchTerm;
     }
- 
+
+    public function scopeFullTextWildcards($query, $term){
+        return $this->fullTextWildcards($term);
+    }
     /**
      * Scope a query that matches a full text search of term.
      *
