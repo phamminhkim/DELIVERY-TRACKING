@@ -15,6 +15,10 @@ class CustomerPhoneRepository extends RepositoryAbs
             $query = CustomerPhone::query();
             $query->leftJoin('customers', 'customers.id', '=', 'customer_phones.customer_id')
                 ->select('customer_phones.*', 'customers.name as customer_name');
+            if($this->request->filled('search')){ 
+                $query = $query->search($this->request->search);
+                $query->orWhereRaw("MATCH (customers.name) AGAINST (? IN BOOLEAN MODE)", $query->fullTextWildcards($this->request->search));
+            }
 
             $customer_phones = $query->get();
             return $customer_phones;
