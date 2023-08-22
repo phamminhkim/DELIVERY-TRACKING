@@ -22,11 +22,10 @@ class Customer extends Model
     ];
 
     protected $searchable = [
-        'code', 
-        'name', 
-        'email',
-        'phone_number',
-        'address'
+        'customers.code', 
+        'customers.name', 
+        'customers.email',
+        'customers.phone_number',
     ];
     public function phones()
     {

@@ -12,9 +12,10 @@ class CustomerRepository extends RepositoryAbs
     public function getAvailableCustomers($is_minified)
     {
         try {
+            
             $query = Customer::query();
             if ($this->request->filled('search')){
-                $query = Customer::search($this->request->search);
+                $query = $query->search($this->request->search);
                 $query->limit(200);   
             }
             if($this->request->filled('ids')){

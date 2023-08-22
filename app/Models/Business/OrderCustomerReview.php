@@ -16,7 +16,6 @@ class OrderCustomerReview extends Model
     protected $hidden = [
         'order_id',
         'customer_id',
-        'created_at',
         'updated_at'
     ];
     public function order()

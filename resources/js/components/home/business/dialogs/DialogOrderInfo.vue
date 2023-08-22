@@ -134,7 +134,8 @@
 									header-tag="header"
 								>
 									<div class="time">
-										<i class="far fa-clock"></i> 2023-04-7 15:30:00
+										<i class="far fa-clock"></i>
+										{{ formatDate(review.created_at) }}
 									</div>
 									<div class="line"></div>
 									<div class="container-rate">
@@ -201,7 +202,7 @@
 											<div class="timeline-item">
 												<span class="time"
 													><i class="far fa-clock"></i>
-													{{ item.created_at | formatDateTime }}</span
+													{{ item.created_at }}</span
 												>
 												<h3 class="timeline-header">
 													{{ item.title }}
@@ -257,18 +258,19 @@
 			formatDate(date) {
 				if (!date) return '';
 				let d = new Date(date);
-				let month = '' + (d.getMonth() + 1);
-				let day = '' + d.getDate();
-				let year = d.getFullYear();
+				// return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-GB');
+				let month = '' + (d.getUTCMonth() + 1);
+				let day = '' + d.getUTCDate();
+				let year = d.getUTCFullYear();
 
 				if (month.length < 2) month = '0' + month;
 				if (day.length < 2) day = '0' + day;
 
 				const date_string = [year, month, day].join('-');
 
-				let hour = '' + d.getHours();
-				let min = '' + d.getMinutes();
-				let sec = '' + d.getSeconds();
+				let hour = '' + d.getUTCHours();
+				let min = '' + d.getUTCMinutes();
+				let sec = '' + d.getUTCSeconds();
 
 				if (hour.length < 2) hour = '0' + hour;
 				if (min.length < 2) min = '0' + min;

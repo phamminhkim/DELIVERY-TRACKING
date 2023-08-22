@@ -37,18 +37,31 @@
 					<div class="col-md-3">
 						<div class="input-group input-group-sm mt-1 mb-1">
 							<input
-								type="search"
 								class="form-control -control-navbar"
 								v-model="search_pattern"
 								:placeholder="search_placeholder"
-								aria-label="Search"
+								v-on:keyup.enter="
+									page_structure.table.fulltextsearch ? onSearching() : undefined
+								"
 							/>
 							<div class="input-group-append">
 								<button
 									class="btn btn-default"
 									style="background: #1b1a1a; color: white"
+									@click="
+										page_structure.table.fulltextsearch
+											? onSearching()
+											: undefined
+									"
 								>
 									<i class="fas fa-search"></i>
+								</button>
+								<button
+									class="btn btn-danger"
+									v-if="page_structure.table.fulltextsearch"
+									@click="clearSearching()"
+								>
+									<i class="fas fa-times"></i>
 								</button>
 							</div>
 						</div>
@@ -65,10 +78,10 @@
 						:bordered="true"
 						:current-page="pagination.current_page"
 						:per-page="pagination.item_per_page"
-						:filter="search_pattern"
 						:fields="fields"
-						:items="items"
+						:items="rendered_items"
 						:tbody-tr-class="rowClass"
+						:filter="!page_structure.table.fulltextsearch ? search_pattern : undefined"
 					>
 						<template #empty>
 							<h6 class="text-center">Không có thông tin</h6>
@@ -216,6 +229,7 @@
 				fields: [],
 
 				items: [],
+				rendered_items: [],
 
 				api_item_data: '',
 			};
@@ -231,7 +245,8 @@
 				try {
 					this.is_loading = true;
 					let result = await this.api_handler.get(this.api_item_data);
-					this.items = result.data;
+					if (this.page_structure.table.fulltextsearch) this.items = result.data;
+					this.rendered_items = result.data;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -245,10 +260,16 @@
 						let result = await this.api_handler.delete(`${this.api_item_data}/${id}`);
 						if (result.success) {
 							// this.fetchData();
-							let index = this.items.findIndex(
+							if (this.page_structure.table.fulltextsearch) {
+								let index = this.items.findIndex(
+									(item) => item[this.primary_key] === id,
+								);
+								this.items.splice(index, 1);
+							}
+							let index = this.rendered_items.findIndex(
 								(item) => item[this.primary_key] === id,
 							);
-							this.items.splice(index, 1);
+							this.rendered_items.splice(index, 1);
 
 							this.$showMessage('success', 'Xóa thành công', result.message);
 						} else {
@@ -276,19 +297,44 @@
 				if (item.status === 'awesome') return 'table-success';
 			},
 			itemCreated(item) {
-				this.items.splice(0, 0, item);
+				if (this.page_structure.table.fulltextsearch) this.items.splice(0, 0, item);
+				this.rendered_items.splice(0, 0, item);
 			},
 			itemUpdated(item) {
-				console.log(item);
-				let index = this.items.findIndex(
+				if (this.page_structure.table.fulltextsearch) {
+					let index = this.items.findIndex(
+						(x) => x[this.primary_key] === item[this.primary_key],
+					);
+					this.items.splice(index, 1, item);
+				}
+				let index = this.rendered_items.findIndex(
 					(x) => x[this.primary_key] === item[this.primary_key],
 				);
-				this.items.splice(index, 1, item);
+				this.rendered_items.splice(index, 1, item);
+			},
+			async onSearching() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+					const { data } = await this.api_handler.get(this.api_item_data, {
+						search: this.search_pattern,
+					});
+					this.rendered_items = data;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			clearSearching() {
+				this.search_pattern = '';
+				this.rendered_items = this.items;
 			},
 		},
 		computed: {
 			rows() {
-				return this.items.length;
+				// return this.items.length;
+				return this.rendered_items.length;
 			},
 			dialog_name() {
 				return 'DialogCrudPage' + (this.structure ? this.structure.form.unique_name : '');

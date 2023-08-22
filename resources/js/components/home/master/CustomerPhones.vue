@@ -84,6 +84,7 @@
 							type: 'template', // 'text', 'bool', 'number', 'image', 'template'
 						},
 					],
+					fulltextsearch: true,
 				},
 				form: {
 					unique_name: 'customer-phones',
