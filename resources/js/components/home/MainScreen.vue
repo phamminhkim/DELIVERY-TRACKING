@@ -21,7 +21,7 @@
 					</div>
 
 					<div class="card-body" style="display: block">
-						<div class="row">
+						<!-- <div class="row">
 							<div class="col-12 col-sm-6 col-md-3">
 								<div class="info-box">
 									<span class="info-box-icon bg-info elevation-1"
@@ -106,15 +106,15 @@
 								<div class="progress-group">
 									Số đơn trễ hạn / Số đơn đang giao
 									<span class="float-right"
-										><b>{{ dashboard.late_orders_count }}</b
-										>/{{ dashboard.delivering_orders_count }}</span
+										><b>{{ dashboard_statistic.late_orders_count }}</b
+										>/{{ dashboard_statistic.delivering_orders_count }}</span
 									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-primary"
 											:style="`width: ${calculatePercent(
-												dashboard.late_orders_count,
-												dashboard.delivering_orders_count,
+												dashboard_statistic.late_orders_count,
+												dashboard_statistic.delivering_orders_count,
 											)}%`"
 										></div>
 									</div>
@@ -123,21 +123,21 @@
 								<div class="progress-group">
 									Số đơn chưa đánh giá / Số đơn đã nhận hàng
 									<span class="float-right"
-										><b>{{ dashboard.no_reviewed_orders_count }}</b
-										>/{{ dashboard.received_orders_count }}</span
+										><b>{{ dashboard_statistic.no_reviewed_orders_count }}</b
+										>/{{ dashboard_statistic.received_orders_count }}</span
 									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-danger"
 											:style="`width: ${calculatePercent(
-												dashboard.no_reviewed_orders_count,
-												dashboard.received_orders_count,
+												dashboard_statistic.no_reviewed_orders_count,
+												dashboard_statistic.received_orders_count,
 											)}%`"
 										></div>
 									</div>
 								</div>
 
-								<!-- <div class="progress-group">
+								<div class="progress-group">
 									<span class="progress-text">Visit Premium Page</span>
 									<span class="float-right"><b>480</b>/800</span>
 									<div class="progress progress-sm">
@@ -146,20 +146,100 @@
 											style="width: 60%"
 										></div>
 									</div>
-								</div> -->
+								</div>
 
 								<div class="progress-group">
 									Số đơn chưa xác nhận / Số đơn đã giao
 									<span class="float-right"
-										><b>{{ dashboard.no_confirmed_orders_count }}</b
-										>/{{ dashboard.delivered_orders_count }}</span
+										><b>{{ dashboard_statistic.no_confirmed_orders_count }}</b
+										>/{{ dashboard_statistic.delivered_orders_count }}</span
 									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-warning"
 											:style="`width: ${calculatePercent(
-												dashboard.no_confirmed_orders_count,
-												dashboard.delivered_orders_count,
+												dashboard_statistic.no_confirmed_orders_count,
+												dashboard_statistic.delivered_orders_count,
+											)}%`"
+										></div>
+									</div>
+								</div>
+							</div>
+						</div> -->
+
+						<div class="row">
+							<div class="col-md-8 d-flex flex-column">
+								<div
+									v-for="(criteria_statistic, index) in criteria_statistics"
+									:key="index"
+								>
+									<div class="info-box">
+										<span class="info-box-icon bg-info elevation-1"
+											><i class="fas fa-cog"></i
+										></span>
+										<div class="info-box-content">
+											<span class="info-box-text">{{
+												criteria_statistic.name
+											}}</span>
+											<span class="info-box-number">
+												{{ criteria_statistic.amount }}
+												<!-- <small>%</small> -->
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-4">
+								<p class="text-center">
+									<strong>Goal Completion</strong>
+								</p>
+								<div class="progress-group">
+									Số đơn trễ hạn / Số đơn đang giao
+									<span class="float-right"
+										><b>{{ dashboard_statistic.late_orders_count }}</b
+										>/{{ dashboard_statistic.delivering_orders_count }}</span
+									>
+									<div class="progress progress-sm">
+										<div
+											class="progress-bar bg-primary"
+											:style="`width: ${calculatePercent(
+												dashboard_statistic.late_orders_count,
+												dashboard_statistic.delivering_orders_count,
+											)}%`"
+										></div>
+									</div>
+								</div>
+
+								<div class="progress-group">
+									Số đơn chưa đánh giá / Số đơn đã nhận hàng
+									<span class="float-right"
+										><b>{{ dashboard_statistic.no_reviewed_orders_count }}</b
+										>/{{ dashboard_statistic.received_orders_count }}</span
+									>
+									<div class="progress progress-sm">
+										<div
+											class="progress-bar bg-danger"
+											:style="`width: ${calculatePercent(
+												dashboard_statistic.no_reviewed_orders_count,
+												dashboard_statistic.received_orders_count,
+											)}%`"
+										></div>
+									</div>
+								</div>
+
+								<div class="progress-group">
+									Số đơn chưa xác nhận / Số đơn đã giao
+									<span class="float-right"
+										><b>{{ dashboard_statistic.no_confirmed_orders_count }}</b
+										>/{{ dashboard_statistic.delivered_orders_count }}</span
+									>
+									<div class="progress progress-sm">
+										<div
+											class="progress-bar bg-warning"
+											:style="`width: ${calculatePercent(
+												dashboard_statistic.no_confirmed_orders_count,
+												dashboard_statistic.delivered_orders_count,
 											)}%`"
 										></div>
 									</div>
@@ -219,7 +299,7 @@
 
 <script>
 	import Treeselect from '@riophae/vue-treeselect';
-	import APIHandler from './ApiHandler';
+	import APIHandler, { APIRequest } from './ApiHandler';
 	export default {
 		components: {
 			Treeselect,
@@ -238,7 +318,8 @@
 					{ id: 5, label: 'Đơn hàng đã hủy' },
 				],
 
-				dashboard: {},
+				dashboard_statistic: {},
+				criteria_statistics: [],
 			};
 		},
 		async created() {
@@ -246,8 +327,13 @@
 		},
 		methods: {
 			async fetchcData() {
-				const { data } = await this.api_handler.get('/api/dashboard');
-				this.dashboard = data;
+				const [dashboard_statistic, criteria_statistics] =
+					await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/dashboard'),
+						new APIRequest('get', '/api/dashboard/criteria'),
+					]);
+				this.dashboard_statistic = dashboard_statistic;
+				this.criteria_statistics = criteria_statistics;
 			},
 			calculatePercent(amount, total) {
 				return Math.floor((amount / total) * 100);
