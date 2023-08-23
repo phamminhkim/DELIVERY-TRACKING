@@ -115,11 +115,11 @@
 											</div>
 										</div>
 										<input
-											type="text"
+											type="date"
 											class="form-control datetimepicker-input"
 											data-target="#delivery_estimate_date"
-											:value="delivery.estimate_delivery_date"
-											readonly
+											:readonly="isImmutable"
+											v-model="estimate_delivery_date"
 										/>
 									</div>
 								</div>
@@ -396,7 +396,9 @@
 				order_options: [],
 				order_options_backup: [],
 
-				original_hashed_orders: '',
+				original_hashed: '',
+
+				estimate_delivery_date: '',
 			};
 		},
 		watch: {
@@ -404,9 +406,13 @@
 				if (this.delivery_id) {
 					await this.getDeliveryInfo();
 					this.order_items = structuredClone(this.delivery.orders);
+					this.estimate_delivery_date = structuredClone(
+						this.delivery.estimate_delivery_date,
+					);
 				} else {
 					this.delivery = {};
 					this.order_items = [];
+					this.estimate_delivery_date = '';
 				}
 			},
 		},
@@ -462,7 +468,8 @@
 			},
 			isEdited() {
 				return (
-					sha256(this.order_items?.toString()).toString() != this.original_hashed_orders
+					sha256(this.order_items?.toString() + this.estimate_delivery_date).toString() !=
+					this.original_hashed
 				);
 			},
 			driver_confirm_image_urls() {
@@ -496,8 +503,8 @@
 						};
 					});
 					this.order_options_backup = structuredClone(this.order_options);
-					this.original_hashed_orders = sha256(
-						this.delivery.orders?.toString(),
+					this.original_hashed = sha256(
+						this.delivery.orders?.toString() + this.delivery.estimate_delivery_date,
 					).toString();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
@@ -525,6 +532,7 @@
 			onShownModal() {
 				this.order_items = structuredClone(this.delivery.orders);
 				this.order_options = structuredClone(this.order_options_backup);
+				this.estimate_delivery_date = structuredClone(this.delivery.estimate_delivery_date);
 			},
 			async pushWaitingOrdersToList() {
 				if (this.order_ids_waiting_to_add.length === 0) return;
@@ -547,6 +555,7 @@
 						{},
 						{
 							orders: this.order_items,
+							estimate_delivery_date: this.estimate_delivery_date,
 						},
 					);
 					await this.getDeliveryInfo();
