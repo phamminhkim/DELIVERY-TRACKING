@@ -104,28 +104,40 @@
 									<strong>Goal Completion</strong>
 								</p>
 								<div class="progress-group">
-									Add Products to Cart
-									<span class="float-right"><b>160</b>/200</span>
+									Số đơn trễ hạn / Số đơn đang giao
+									<span class="float-right"
+										><b>{{ dashboard.late_orders_count }}</b
+										>/{{ dashboard.delivering_orders_count }}</span
+									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-primary"
-											style="width: 80%"
+											:style="`width: ${calculatePercent(
+												dashboard.late_orders_count,
+												dashboard.delivering_orders_count,
+											)}%`"
 										></div>
 									</div>
 								</div>
 
 								<div class="progress-group">
-									Complete Purchase
-									<span class="float-right"><b>310</b>/400</span>
+									Số đơn chưa đánh giá / Số đơn đã nhận hàng
+									<span class="float-right"
+										><b>{{ dashboard.no_reviewed_orders_count }}</b
+										>/{{ dashboard.received_orders_count }}</span
+									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-danger"
-											style="width: 75%"
+											:style="`width: ${calculatePercent(
+												dashboard.no_reviewed_orders_count,
+												dashboard.received_orders_count,
+											)}%`"
 										></div>
 									</div>
 								</div>
 
-								<div class="progress-group">
+								<!-- <div class="progress-group">
 									<span class="progress-text">Visit Premium Page</span>
 									<span class="float-right"><b>480</b>/800</span>
 									<div class="progress progress-sm">
@@ -134,15 +146,21 @@
 											style="width: 60%"
 										></div>
 									</div>
-								</div>
+								</div> -->
 
 								<div class="progress-group">
-									Send Inquiries
-									<span class="float-right"><b>250</b>/500</span>
+									Số đơn chưa xác nhận / Số đơn đã giao
+									<span class="float-right"
+										><b>{{ dashboard.no_confirmed_orders_count }}</b
+										>/{{ dashboard.delivered_orders_count }}</span
+									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-warning"
-											style="width: 50%"
+											:style="`width: ${calculatePercent(
+												dashboard.no_confirmed_orders_count,
+												dashboard.delivered_orders_count,
+											)}%`"
 										></div>
 									</div>
 								</div>
@@ -201,13 +219,14 @@
 
 <script>
 	import Treeselect from '@riophae/vue-treeselect';
-
+	import APIHandler from './ApiHandler';
 	export default {
 		components: {
 			Treeselect,
 		},
 		data() {
 			return {
+				api_handler: new APIHandler(window.Laravel.access_token),
 				token: 'Bearer ' + window.Laravel.access_token,
 
 				filter_time: null,
@@ -218,9 +237,22 @@
 					{ id: 4, label: 'Đơn hàng đã giao' },
 					{ id: 5, label: 'Đơn hàng đã hủy' },
 				],
+
+				dashboard: {},
 			};
 		},
-		created() {},
+		async created() {
+			await this.fetchcData();
+		},
+		methods: {
+			async fetchcData() {
+				const { data } = await this.api_handler.get('/api/dashboard');
+				this.dashboard = data;
+			},
+			calculatePercent(amount, total) {
+				return Math.floor((amount / total) * 100);
+			},
+		},
 	};
 </script>
 
