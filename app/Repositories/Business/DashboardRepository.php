@@ -34,23 +34,28 @@ class DashboardRepository extends RepositoryAbs
             // $totalDeliveredOrders = $query->where('status', 'delivered')->count();
             // $unconfirmedOrders = $query->where('status', 'delivered')->whereNull('confirmed_at')->count();
             // $unevaluatedOrders = $query->where('status', 'received')->whereNull('evaluation_id')->count();
+
             $delivering_orders_count = $query->where('status_id', OrderStatus::Delivering)->count();
             $late_orders_count = $query->where('status_id', '>=', OrderStatus::Preparing)
                 ->where('status_id', '<', OrderStatus::Delivered)
                 ->whereHas('deliveries', function ($query) {
                     $query->where('estimate_delivery_date', '<', Carbon::today());
                 })->count();
+            $delivered_orders_count = $query->where('status_id', OrderStatus::Delivered)->count();
             $no_confirmed_orders_count = $query->where('status_id', OrderStatus::Delivered)
                 ->whereHas('delivery_info', function ($query) {
                     $query->whereNull('confirm_delivery_date');
                 })->count();
-            $no_reviewed_orders_count = $query->where('status_id', '>=', OrderStatus::Delivered)
+            $received_orders_count = $query->where('status_id', OrderStatus::Received)->count();
+            $no_reviewed_orders_count = $query->where('status_id', OrderStatus::Received)
                 ->whereHas('customer_reviews')->count();
 
             $data = array(
                 'delivering_orders_count' => $delivering_orders_count,
                 'late_orders_count' => $late_orders_count,
+                'delivered_orders_count' => $delivered_orders_count,
                 'no_confirmed_orders_count' => $no_confirmed_orders_count,
+                'received_orders_count' => $received_orders_count,
                 'no_reviewed_orders_count' => $no_reviewed_orders_count,
             );
             return $data;
