@@ -4,6 +4,7 @@ namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus;
 use App\Models\Business\Order;
+use App\Models\Business\OrderCustomerReviewCriteria;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Carbon\Carbon;
 
@@ -62,6 +63,24 @@ class DashboardRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+    public function getCriteriaStatistic(){
+        try {
+            $query = OrderCustomerReviewCriteria::query();
+            $query->join('order_customer_reviews', 'order_customer_reviews.id', '=', 'order_customer_review_criterias.review_id')
+                ->join('order_review_options', 'order_review_options.id', '=', 'order_customer_review_criterias.criteria_id')
+                //thêm filter chỗ này 
+            ->selectRaw('order_review_options.name as criteria, COUNT(order_review_options.name) as amount')
+            ->groupBy('order_review_options.name')
+            ;
+
+            return $query->get();
+
+        }
+        catch(\Exception $exception){
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace(); 
         }
     }
 }
