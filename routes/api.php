@@ -45,7 +45,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::get('/dashboard', [DashboardController::class, 'getStatistic']);
-    Route::get('/dashboard-criteria', [DashboardController::class, 'getCriteriaStatistic']);
+    Route::get('/dashboard/criteria', [DashboardController::class, 'getCriteriaStatistic']);
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);

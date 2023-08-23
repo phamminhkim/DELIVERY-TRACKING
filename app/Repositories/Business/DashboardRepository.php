@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Enums\OrderStatus;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReviewCriteria;
+use App\Models\Master\OrderReviewOption;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Carbon\Carbon;
 
@@ -65,22 +66,39 @@ class DashboardRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getCriteriaStatistic(){
+    public function getCriteriaStatistic()
+    {
         try {
-            $query = OrderCustomerReviewCriteria::query();
-            $query->join('order_customer_reviews', 'order_customer_reviews.id', '=', 'order_customer_review_criterias.review_id')
-                ->join('order_review_options', 'order_review_options.id', '=', 'order_customer_review_criterias.criteria_id')
-                //thêm filter chỗ này 
-            ->selectRaw('order_review_options.name as criteria, COUNT(order_review_options.name) as amount')
-            ->groupBy('order_review_options.name')
-            ;
+            $delivery_partner_ids = $this->request->filled('delivery_partner_ids') ? $this->request->delivery_partner_ids : [];
+            $customer_ids = $this->request->filled('customer_ids') ? $this->request->customer_ids : [];
+            $month_year = $this->request->filled('month_year') ? $this->request->month_year : Carbon::now()->format('m-Y');
+            list($month, $year) = explode('-', $month_year);
+
+            $query = OrderReviewOption::query()
+                ->select('order_review_options.id', 'order_review_options.name')
+                ->selectRaw('COUNT(order_customer_reviews.order_id) as amount')
+                ->join('order_customer_review_criterias', 'order_review_options.id', '=', 'order_customer_review_criterias.criteria_id')
+                ->join('order_customer_reviews', 'order_customer_reviews.id', '=', 'order_customer_review_criterias.review_id')
+                ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
+                ->groupBy('order_review_options.id', 'order_review_options.name');
+
+            // Apply filters
+            if ($this->request->filled('customer_ids')) {
+                $query->whereIn('orders.customer_id', $customer_ids);
+            }
+            if ($this->request->filled('delivery_partner_ids') || $this->request->filled('month_year')) {
+                $query->whereHas('orders.deliveries', function ($query) use ($delivery_partner_ids, $month, $year) {
+                    if ($this->request->filled('delivery_partner_ids')) {
+                        $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                    }
+                    $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
+                });
+            }
 
             return $query->get();
-
-        }
-        catch(\Exception $exception){
+        } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace(); 
+            $this->errors = $exception->getTrace();
         }
     }
 }
