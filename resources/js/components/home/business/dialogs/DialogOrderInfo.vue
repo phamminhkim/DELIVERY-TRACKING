@@ -135,7 +135,7 @@
 								>
 									<div class="time">
 										<i class="far fa-clock"></i>
-										{{ formatDate(review.created_at) }}
+										{{ review.created_at | formatDateTime }}
 									</div>
 									<div class="line"></div>
 									<div class="container-rate">
@@ -202,7 +202,7 @@
 											<div class="timeline-item">
 												<span class="time"
 													><i class="far fa-clock"></i>
-													{{ item.created_at }}</span
+													{{ item.created_at | formatDateTime }}</span
 												>
 												<h3 class="timeline-header">
 													{{ item.title }}
