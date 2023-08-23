@@ -29,6 +29,7 @@
         "@progress/kendo-vue-excel-export": "^3.12.0",
         "@riophae/vue-treeselect": "^0.4.0",
         "bootstrap-vue": "^2.23.1",
+        "chart.js": "^4.3.3",
         "crypto-js": "^4.1.1",
         "element-ui": "^2.15.13",
         "toastr": "^2.1.4",
