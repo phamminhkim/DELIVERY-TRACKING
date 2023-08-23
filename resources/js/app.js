@@ -98,7 +98,7 @@ toastr.options = {
 
 Vue.filter("formatDateTime", function (value) {
     if (value) {
-        return moment(String(value)).format("DD/MM/YYYY HH:mm");
+        return moment.utc(String(value)).format("DD/MM/YYYY HH:mm");
     }
 });
 
