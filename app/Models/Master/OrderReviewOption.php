@@ -14,6 +14,6 @@ class OrderReviewOption extends Model
 
     public function criteria()
     {
-        return $this->hasMany(OrderCustomerReviewCriteria::class, 'review_option_id');
+        return $this->hasMany(OrderCustomerReviewCriteria::class, 'criteria_id', 'id');
     }
 }
