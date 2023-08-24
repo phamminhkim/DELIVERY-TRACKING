@@ -42,7 +42,7 @@
 
 							<div class="col-md-4">
 								<p class="text-center">
-									<strong>Goal Completion</strong>
+									<strong>Thống kê giao hàng</strong>
 								</p>
 								<div class="progress-group">
 									Số đơn đúng hạn / Số đơn đang giao
@@ -56,7 +56,10 @@
 											:style="`width: ${calculatePercent(
 												dashboard_statistic.ontime_orders_count,
 												dashboard_statistic.delivering_orders_count,
-											)}%`"
+											)}% ; background-color: ${getColor(
+												dashboard_statistic.ontime_orders_count,
+												dashboard_statistic.delivering_orders_count,
+											)}`"
 										></div>
 									</div>
 								</div>
@@ -72,7 +75,10 @@
 											:style="`width: ${calculatePercent(
 												dashboard_statistic.confirmed_orders_count,
 												dashboard_statistic.delivered_orders_count,
-											)}%`"
+											)}% ; background-color: ${getColor(
+												dashboard_statistic.confirmed_orders_count,
+												dashboard_statistic.delivered_orders_count,
+											)}`"
 										></div>
 									</div>
 								</div>
@@ -88,7 +94,10 @@
 											:style="`width: ${calculatePercent(
 												dashboard_statistic.reviewed_orders_count,
 												dashboard_statistic.received_orders_count,
-											)}%`"
+											)}% ; background-color: ${getColor(
+												dashboard_statistic.reviewed_orders_count,
+												dashboard_statistic.received_orders_count,
+											)}`"
 										></div>
 									</div>
 								</div>
@@ -185,6 +194,12 @@
 			},
 			calculatePercent(amount, total) {
 				return Math.floor((amount / total) * 100);
+			},
+			getProcessColor(current_value, total_value) {
+				const percent = this.calculatePercent(current_value, total_value);
+				const red = 255 - (percent * 255) / 100;
+				const green = (percent * 255) / 100;
+				return `rgb(${red}, ${green}, 0)`;
 			},
 		},
 	};
