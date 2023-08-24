@@ -205,22 +205,39 @@
 		},
 		methods: {
 			async fetchcData() {
-				const [dashboard_statistic, criteria_statistics, filter_delivery_partner_options] =
-					await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/dashboard'),
-						new APIRequest('get', '/api/dashboard/criteria'),
+				try {
+					const [
+						dashboard_statistic,
+						criteria_statistics,
+						filter_delivery_partner_options,
+					] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/dashboard', {
+							delivery_partner_ids: this.filter_delivery_partner
+								? [this.filter_delivery_partner]
+								: undefined,
+							month_year: this.filter_time ? this.filter_time : undefined,
+						}),
+						new APIRequest('get', '/api/dashboard/criteria', {
+							delivery_partner_ids: this.filter_delivery_partner
+								? [this.filter_delivery_partner]
+								: undefined,
+							month_year: this.filter_time ? this.filter_time : undefined,
+						}),
 						new APIRequest('get', '/api/master/delivery-partners'),
 					]);
-				this.dashboard_statistic = dashboard_statistic;
-				this.criteria_statistics = criteria_statistics;
-				this.filter_delivery_partner_options = filter_delivery_partner_options.map(
-					(delivery_partner) => {
-						return {
-							id: delivery_partner.id,
-							label: delivery_partner.name,
-						};
-					},
-				);
+					this.dashboard_statistic = dashboard_statistic;
+					this.criteria_statistics = criteria_statistics;
+					this.filter_delivery_partner_options = filter_delivery_partner_options.map(
+						(delivery_partner) => {
+							return {
+								id: delivery_partner.id,
+								label: delivery_partner.name,
+							};
+						},
+					);
+				} catch (error) {
+					console.log(error);
+				}
 			},
 			onSelect() {
 				console.log(this.filter_time, this.filter_delivery_partner);
@@ -244,6 +261,7 @@
 					}
 				}
 				this.filter_time_options = filter_time_options;
+				this.filter_time = this.filter_time_options[0].id;
 			},
 
 			calculatePercent(amount, total) {
@@ -264,6 +282,14 @@
 				}
 
 				return `rgb(${red}, ${green}, 0)`;
+			},
+		},
+		watch: {
+			filter_delivery_partner: async function (newVal, oldVal) {
+				await this.fetchcData();
+			},
+			filter_time: async function (newVal, oldVal) {
+				await this.fetchcData();
 			},
 		},
 	};
