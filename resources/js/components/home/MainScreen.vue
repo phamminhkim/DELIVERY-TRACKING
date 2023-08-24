@@ -22,7 +22,261 @@
 					</div>
 				</div>
 
-				<div class="card-body" style="display: block">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="card">
+							<div class="card-header">
+								<h3 class="card-title">Thống kê giao hàng</h3>
+								<div class="card-tools">
+									<button
+										type="button"
+										class="btn btn-tool"
+										data-card-widget="collapse"
+									>
+										<i class="fas fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="card-body p-0" style="display: block">
+								<ul class="nav nav-pills flex-column">
+									<li class="nav-item statistic">
+										<div class="progress-group">
+											Số đơn đúng hạn / Số đơn đang giao
+											<span class="float-right"
+												><b>{{ dashboard_statistic.ontime_orders_count }}</b
+												>/{{
+													dashboard_statistic.delivering_orders_count
+												}}</span
+											>
+											<b-progress
+												:max="dashboard_statistic.delivering_orders_count"
+												show-progress
+												height="1.5rem"
+											>
+												<b-progress-bar
+													:style="`background-color: ${getProcessColor(
+														dashboard_statistic.ontime_orders_count,
+														dashboard_statistic.delivering_orders_count,
+													)}`"
+													:value="dashboard_statistic.ontime_orders_count"
+													:label="`${calculatePercent(
+														dashboard_statistic.ontime_orders_count,
+														dashboard_statistic.delivering_orders_count,
+													)}%`"
+												></b-progress-bar
+											></b-progress>
+										</div>
+									</li>
+									<li class="nav-item statistic">
+										<div class="progress-group">
+											Số đơn đã xác nhận nhận hàng / Số đơn đã giao
+											<span class="float-right"
+												><b>{{
+													dashboard_statistic.confirmed_orders_count
+												}}</b
+												>/{{
+													dashboard_statistic.delivered_orders_count
+												}}</span
+											>
+											<b-progress
+												:max="dashboard_statistic.delivered_orders_count"
+												show-progress
+												height="1.5rem"
+											>
+												<b-progress-bar
+													:style="`background-color: ${getProcessColor(
+														dashboard_statistic.confirmed_orders_count,
+														dashboard_statistic.delivered_orders_count,
+													)}`"
+													:value="
+														dashboard_statistic.confirmed_orders_count
+													"
+													:label="`${calculatePercent(
+														dashboard_statistic.confirmed_orders_count,
+														dashboard_statistic.delivered_orders_count,
+													)}%`"
+												></b-progress-bar
+											></b-progress>
+										</div>
+									</li>
+									<li class="nav-item statistic">
+										<div class="progress-group">
+											Số đơn đã đánh giá / Số đơn đã nhận hàng
+											<span class="float-right"
+												><b>{{
+													dashboard_statistic.reviewed_orders_count
+												}}</b
+												>/{{
+													dashboard_statistic.received_orders_count
+												}}</span
+											>
+											<b-progress
+												:max="dashboard_statistic.received_orders_count"
+												show-progress
+												height="1.5rem"
+											>
+												<b-progress-bar
+													:style="`background-color: ${getProcessColor(
+														dashboard_statistic.reviewed_orders_count,
+														dashboard_statistic.received_orders_count,
+													)}`"
+													:value="
+														dashboard_statistic.reviewed_orders_count
+													"
+													:label="`${calculatePercent(
+														dashboard_statistic.reviewed_orders_count,
+														dashboard_statistic.received_orders_count,
+													)}%`"
+												></b-progress-bar
+											></b-progress>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-8">
+						<div class="card">
+							<div class="card-header">
+								<h3 class="card-title">Folders</h3>
+								<div class="card-tools">
+									<button
+										type="button"
+										class="btn btn-tool"
+										data-card-widget="collapse"
+									>
+										<i class="fas fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="card-body p-0" style="display: block">
+								<ul class="nav nav-pills flex-column">
+									<li
+										v-for="(criteria_statistic, index) in criteria_statistics"
+										:key="index"
+										class="nav-item"
+									>
+										<!-- <a
+											href="#"
+											class="nav-link"
+											:v-b-toggle="`collapse-${index}`"
+										>
+											<i class="fas fa-inbox"></i>
+											{{ criteria_statistic.name }}
+											<span class="badge bg-primary float-right">{{
+												criteria_statistic.amount
+											}}</span>
+										</a> -->
+										<a
+											href="#"
+											class="nav-link"
+											v-b-toggle="`collapse-${index}`"
+											><i class="fas fa-inbox"></i>
+											{{ criteria_statistic.name }}
+											<span class="badge bg-primary float-right">{{
+												criteria_statistic.amount
+											}}</span></a
+										>
+										<b-collapse
+											:id="`collapse-${index}`"
+											accordion="my-accordion"
+										>
+											<div
+												style="
+													overflow-y: scroll;
+													height: 122px;
+													margin-left: 20px;
+													margin-right: 20px;
+													border: 1px solid #e9ecef;
+												"
+											>
+												<ul class="nav nav-pills flex-column">
+													<li class="nav-item active">
+														<a href="#" class="nav-link">
+															<i class="fas fa-inbox"></i> Inbox
+															<span
+																class="badge bg-primary float-right"
+																>12</span
+															>
+														</a>
+													</li>
+													<li class="nav-item">
+														<a href="#" class="nav-link">
+															<i class="far fa-envelope"></i> Sent
+														</a>
+													</li>
+													<li class="nav-item">
+														<a href="#" class="nav-link">
+															<i class="far fa-file-alt"></i> Drafts
+														</a>
+													</li>
+													<li class="nav-item">
+														<a href="#" class="nav-link">
+															<i class="fas fa-filter"></i> Junk
+															<span
+																class="badge bg-warning float-right"
+																>65</span
+															>
+														</a>
+													</li>
+													<li class="nav-item">
+														<a href="#" class="nav-link">
+															<i class="far fa-trash-alt"></i> Trash
+														</a>
+													</li>
+												</ul>
+											</div>
+										</b-collapse>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">Folders</h3>
+						<div class="card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="collapse">
+								<i class="fas fa-minus"></i>
+							</button>
+						</div>
+					</div>
+					<div class="card-body p-0" style="display: block">
+						<ul class="nav nav-pills flex-column">
+							<li class="nav-item active">
+								<a href="#" class="nav-link">
+									<i class="fas fa-inbox"></i> Inbox
+									<span class="badge bg-primary float-right">12</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+									<i class="far fa-envelope"></i> Sent
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+									<i class="far fa-file-alt"></i> Drafts
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+									<i class="fas fa-filter"></i> Junk
+									<span class="badge bg-warning float-right">65</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link">
+									<i class="far fa-trash-alt"></i> Trash
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- <div class="card-body" style="display: block">
 					<div class="row">
 						<div class="col-md-8 d-flex flex-column">
 							<div
@@ -118,7 +372,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> -->
 
 				<div class="card-footer" style="display: block">
 					<div class="row">
@@ -299,5 +553,11 @@
 	.title {
 		font-size: 1.5rem;
 		font-weight: 500;
+	}
+	.statistic {
+		margin: 5px 10px 5px 10px !important;
+	}
+	.card-header {
+		background-color: transparent;
 	}
 </style>
