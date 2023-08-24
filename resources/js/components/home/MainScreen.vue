@@ -2,25 +2,27 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-12">
-				<div class="card">
-					<div class="card-header">
-						<h5 class="card-title">Monthly Recap Report</h5>
-
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse">
-								<i class="fas fa-minus"></i>
-							</button>
-						</div>
+				<div class="header d-flex">
+					<p class="title" style="flex: 6">Monthly Recap Report</p>
+					<div style="flex: 3">
 						<treeselect
-							placeholder="Chọn bộ lọc.."
-							:multiple="true"
-							:disable-branch-nodes="false"
-							v-model="filter_time"
-							:options="filter_options"
+							placeholder="Chọn đơn vị vận chuyển.."
+							v-model="filter_delivery_partner"
+							:options="filter_delivery_partner_options"
+							@select="onSelect"
 						/>
 					</div>
+					<div style="flex: 1">
+						<treeselect
+							placeholder="Chọn tháng.."
+							v-model="filter_time"
+							:options="filter_time_options"
+							@select="onSelect"
+						/>
+					</div>
+				</div>
 
-					<div class="card-body" style="display: block">
+				<!-- <div class="card-body" style="display: block">
 						<div class="row">
 							<div class="col-md-8 d-flex flex-column">
 								<div
@@ -94,9 +96,9 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
-					<div class="card-footer" style="display: block">
+				<!-- <div class="card-footer" style="display: block">
 						<div class="row">
 							<div class="col-sm-3 col-6">
 								<div class="description-block border-right">
@@ -138,8 +140,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
+					</div> -->
 			</div>
 		</div>
 	</div>
@@ -157,32 +158,72 @@
 				api_handler: new APIHandler(window.Laravel.access_token),
 				token: 'Bearer ' + window.Laravel.access_token,
 
+				// filter_time: null,
+				// filter_options: [
+				// 	{ id: 1, label: 'Đơn hàng mới' },
+				// 	{ id: 2, label: 'Đơn hàng đã xác nhận' },
+				// 	{ id: 3, label: 'Đơn hàng đang giao' },
+				// 	{ id: 4, label: 'Đơn hàng đã giao' },
+				// 	{ id: 5, label: 'Đơn hàng đã hủy' },
+				// ],
+
 				filter_time: null,
-				filter_options: [
-					{ id: 1, label: 'Đơn hàng mới' },
-					{ id: 2, label: 'Đơn hàng đã xác nhận' },
-					{ id: 3, label: 'Đơn hàng đang giao' },
-					{ id: 4, label: 'Đơn hàng đã giao' },
-					{ id: 5, label: 'Đơn hàng đã hủy' },
-				],
+				filter_time_options: [],
+
+				filter_delivery_partner: null,
+				filter_delivery_partner_options: [],
 
 				dashboard_statistic: {},
 				criteria_statistics: [],
 			};
 		},
 		async created() {
+			this.generateFilterTimeOption();
 			await this.fetchcData();
 		},
 		methods: {
 			async fetchcData() {
-				const [dashboard_statistic, criteria_statistics] =
+				const [dashboard_statistic, criteria_statistics, filter_delivery_partner_options] =
 					await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/dashboard'),
 						new APIRequest('get', '/api/dashboard/criteria'),
+						new APIRequest('get', '/api/master/delivery-partners'),
 					]);
 				this.dashboard_statistic = dashboard_statistic;
 				this.criteria_statistics = criteria_statistics;
+				this.filter_delivery_partner_options = filter_delivery_partner_options.map(
+					(delivery_partner) => {
+						return {
+							id: delivery_partner.id,
+							label: delivery_partner.name,
+						};
+					},
+				);
 			},
+			onSelect() {
+				console.log(this.filter_time, this.filter_delivery_partner);
+			},
+			generateFilterTimeOption() {
+				const currentYear = new Date().getFullYear();
+				const currentMonth = new Date().getMonth() + 1;
+				const filter_time_options = [];
+				for (let year = currentYear; year >= 2023; year--) {
+					for (let month = 12; month >= 1; month--) {
+						if (year === currentYear && month > currentMonth) {
+							continue;
+						}
+						if (year === 2023 && month < 7) {
+							break;
+						}
+						filter_time_options.push({
+							id: `${month}-${year}`,
+							label: `${month}/${year}`,
+						});
+					}
+				}
+				this.filter_time_options = filter_time_options;
+			},
+
 			calculatePercent(amount, total) {
 				return Math.floor((amount / total) * 100);
 			},
@@ -190,4 +231,9 @@
 	};
 </script>
 
-<style></style>
+<style>
+	.title {
+		font-size: 1.5rem;
+		font-weight: 500;
+	}
+</style>
