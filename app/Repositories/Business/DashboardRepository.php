@@ -26,7 +26,7 @@ class DashboardRepository extends RepositoryAbs
                     if ($this->request->filled('delivery_partner_ids'))  $query->whereIn('delivery_partner_id', $delivery_partner_ids);
                 });
                 $month_year = $this->request->month_year;
-                $query->whereHas('orders.approved', function ($query) use ($month_year) {
+                $query->whereHas('approved', function ($query) use ($month_year) {
                     // Lọc theo tháng năm (nếu có)
                     list($month, $year) = explode('-', $month_year);
                     $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
