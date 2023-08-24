@@ -97,7 +97,7 @@ class DashboardRepository extends RepositoryAbs
                     if ($this->request->filled('delivery_partner_ids')) {
                         $query->whereIn('delivery_partner_id', $delivery_partner_ids);
                     }
-                    $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
+                    $query->whereMonth('approved.sap_so_finance_approval_date', $month)->whereYear('approved.sap_so_finance_approval_date', $year);
                 });
             }
 
