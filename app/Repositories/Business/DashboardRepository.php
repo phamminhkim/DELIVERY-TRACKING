@@ -29,12 +29,14 @@ class DashboardRepository extends RepositoryAbs
                 });
             }
 
-            $this_month_query = clone $query->whereHas('approved', function ($query) use ($month, $year) {
+            $this_month_query = clone $query;
+            $this_month_query->whereHas('approved', function ($query) use ($month, $year) {
                 // Lọc theo tháng năm (nếu có)
                 $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
             });
 
-            $last_month_query = clone $query->whereHas('approved', function ($query) use ($month, $year) {
+            $last_month_query = clone $query;
+            $last_month_query->whereHas('approved', function ($query) use ($month, $year) {
                 $last_month = $month - 1;
                 if (
                     $last_month == 0
