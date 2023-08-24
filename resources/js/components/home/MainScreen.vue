@@ -21,171 +21,21 @@
 					</div>
 
 					<div class="card-body" style="display: block">
-						<!-- <div class="row">
-							<div class="col-12 col-sm-6 col-md-3">
-								<div class="info-box">
-									<span class="info-box-icon bg-info elevation-1"
-										><i class="fas fa-cog"></i
-									></span>
-									<div class="info-box-content">
-										<span class="info-box-text">CPU Traffic</span>
-										<span class="info-box-number">
-											10
-											<small>%</small>
-										</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="col-12 col-sm-6 col-md-3">
-								<div class="info-box mb-3">
-									<span class="info-box-icon bg-danger elevation-1"
-										><i class="fas fa-thumbs-up"></i
-									></span>
-									<div class="info-box-content">
-										<span class="info-box-text">Likes</span>
-										<span class="info-box-number">41,410</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="clearfix hidden-md-up"></div>
-							<div class="col-12 col-sm-6 col-md-3">
-								<div class="info-box mb-3">
-									<span class="info-box-icon bg-success elevation-1"
-										><i class="fas fa-shopping-cart"></i
-									></span>
-									<div class="info-box-content">
-										<span class="info-box-text">Sales</span>
-										<span class="info-box-number">760</span>
-									</div>
-								</div>
-							</div>
-
-							<div class="col-12 col-sm-6 col-md-3">
-								<div class="info-box mb-3">
-									<span class="info-box-icon bg-warning elevation-1"
-										><i class="fas fa-users"></i
-									></span>
-									<div class="info-box-content">
-										<span class="info-box-text">New Members</span>
-										<span class="info-box-number">2,000</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-8">
-								<p class="text-center">
-									<strong>Sales: 1 Jan, 2014 - 30 Jul, 2014</strong>
-								</p>
-								<div class="chart">
-									<div class="chartjs-size-monitor">
-										<div class="chartjs-size-monitor-expand">
-											<div class=""></div>
-										</div>
-										<div class="chartjs-size-monitor-shrink">
-											<div class=""></div>
-										</div>
-									</div>
-
-									<canvas
-										id="salesChart"
-										height="360"
-										style="height: 180px; display: block; width: 485px"
-										width="970"
-										class="chartjs-render-monitor"
-									></canvas>
-								</div>
-							</div>
-
-							<div class="col-md-4">
-								<p class="text-center">
-									<strong>Goal Completion</strong>
-								</p>
-								<div class="progress-group">
-									Số đơn trễ hạn / Số đơn đang giao
-									<span class="float-right"
-										><b>{{ dashboard_statistic.late_orders_count }}</b
-										>/{{ dashboard_statistic.delivering_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-primary"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.late_orders_count,
-												dashboard_statistic.delivering_orders_count,
-											)}%`"
-										></div>
-									</div>
-								</div>
-
-								<div class="progress-group">
-									Số đơn chưa đánh giá / Số đơn đã nhận hàng
-									<span class="float-right"
-										><b>{{ dashboard_statistic.no_reviewed_orders_count }}</b
-										>/{{ dashboard_statistic.received_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-danger"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.no_reviewed_orders_count,
-												dashboard_statistic.received_orders_count,
-											)}%`"
-										></div>
-									</div>
-								</div>
-
-								<div class="progress-group">
-									<span class="progress-text">Visit Premium Page</span>
-									<span class="float-right"><b>480</b>/800</span>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-success"
-											style="width: 60%"
-										></div>
-									</div>
-								</div>
-
-								<div class="progress-group">
-									Số đơn chưa xác nhận / Số đơn đã giao
-									<span class="float-right"
-										><b>{{ dashboard_statistic.no_confirmed_orders_count }}</b
-										>/{{ dashboard_statistic.delivered_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-warning"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.no_confirmed_orders_count,
-												dashboard_statistic.delivered_orders_count,
-											)}%`"
-										></div>
-									</div>
-								</div>
-							</div>
-						</div> -->
-
 						<div class="row">
 							<div class="col-md-8 d-flex flex-column">
 								<div
 									v-for="(criteria_statistic, index) in criteria_statistics"
 									:key="index"
+									class="info-box mb-3 bg-warning"
 								>
-									<div class="info-box">
-										<span class="info-box-icon bg-info elevation-1"
-											><i class="fas fa-cog"></i
-										></span>
-										<div class="info-box-content">
-											<span class="info-box-text">{{
-												criteria_statistic.name
-											}}</span>
-											<span class="info-box-number">
-												{{ criteria_statistic.amount }}
-												<!-- <small>%</small> -->
-											</span>
-										</div>
+									<span class="info-box-icon"><i class="fas fa-cog"></i></span>
+									<div class="info-box-content">
+										<span class="info-box-text">{{
+											criteria_statistic.name
+										}}</span>
+										<span class="info-box-number">
+											{{ criteria_statistic.amount }}
+										</span>
 									</div>
 								</div>
 							</div>
@@ -195,51 +45,49 @@
 									<strong>Goal Completion</strong>
 								</p>
 								<div class="progress-group">
-									Số đơn trễ hạn / Số đơn đang giao
+									Số đơn đúng hạn / Số đơn đang giao
 									<span class="float-right"
-										><b>{{ dashboard_statistic.late_orders_count }}</b
+										><b>{{ dashboard_statistic.ontime_orders_count }}</b
 										>/{{ dashboard_statistic.delivering_orders_count }}</span
 									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-primary"
 											:style="`width: ${calculatePercent(
-												dashboard_statistic.late_orders_count,
+												dashboard_statistic.ontime_orders_count,
 												dashboard_statistic.delivering_orders_count,
 											)}%`"
 										></div>
 									</div>
 								</div>
-
 								<div class="progress-group">
-									Số đơn chưa đánh giá / Số đơn đã nhận hàng
+									Số đơn đã xác nhận nhận hàng / Số đơn đã giao
 									<span class="float-right"
-										><b>{{ dashboard_statistic.no_reviewed_orders_count }}</b
-										>/{{ dashboard_statistic.received_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-danger"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.no_reviewed_orders_count,
-												dashboard_statistic.received_orders_count,
-											)}%`"
-										></div>
-									</div>
-								</div>
-
-								<div class="progress-group">
-									Số đơn chưa xác nhận / Số đơn đã giao
-									<span class="float-right"
-										><b>{{ dashboard_statistic.no_confirmed_orders_count }}</b
+										><b>{{ dashboard_statistic.confirmed_orders_count }}</b
 										>/{{ dashboard_statistic.delivered_orders_count }}</span
 									>
 									<div class="progress progress-sm">
 										<div
 											class="progress-bar bg-warning"
 											:style="`width: ${calculatePercent(
-												dashboard_statistic.no_confirmed_orders_count,
+												dashboard_statistic.confirmed_orders_count,
 												dashboard_statistic.delivered_orders_count,
+											)}%`"
+										></div>
+									</div>
+								</div>
+								<div class="progress-group">
+									Số đơn đã đánh giá / Số đơn đã nhận hàng
+									<span class="float-right"
+										><b>{{ dashboard_statistic.reviewed_orders_count }}</b
+										>/{{ dashboard_statistic.received_orders_count }}</span
+									>
+									<div class="progress progress-sm">
+										<div
+											class="progress-bar bg-danger"
+											:style="`width: ${calculatePercent(
+												dashboard_statistic.reviewed_orders_count,
+												dashboard_statistic.received_orders_count,
 											)}%`"
 										></div>
 									</div>

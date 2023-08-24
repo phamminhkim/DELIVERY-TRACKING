@@ -43,22 +43,27 @@ class DashboardRepository extends RepositoryAbs
                 ->whereHas('deliveries', function ($query) {
                     $query->where('estimate_delivery_date', '<', Carbon::today());
                 })->count();
+            $ontime_orders_count = $query->where('status_id', '>=', OrderStatus::Delivered)
+                ->whereHas('deliveries', function ($query) {
+                    $query->where('estimate_delivery_date', '>=', 'confirm_delivery_date');
+                })->count();
             $delivered_orders_count = $query->where('status_id', OrderStatus::Delivered)->count();
-            $no_confirmed_orders_count = $query->where('status_id', OrderStatus::Delivered)
+            $confirmed_orders_count = $query->where('status_id', OrderStatus::Delivered)
                 ->whereHas('delivery_info', function ($query) {
-                    $query->whereNull('confirm_delivery_date');
+                    $query->whereNotNull('confirm_delivery_date');
                 })->count();
             $received_orders_count = $query->where('status_id', OrderStatus::Received)->count();
-            $no_reviewed_orders_count = $query->where('status_id', OrderStatus::Received)
+            $reviewed_orders_count = $query->where('status_id', OrderStatus::Received)
                 ->whereHas('customer_reviews')->count();
 
             $data = array(
                 'delivering_orders_count' => $delivering_orders_count,
                 'late_orders_count' => $late_orders_count,
+                'ontime_orders_count' => $ontime_orders_count,
                 'delivered_orders_count' => $delivered_orders_count,
-                'no_confirmed_orders_count' => $no_confirmed_orders_count,
+                'confirmed_orders_count' => $confirmed_orders_count,
                 'received_orders_count' => $received_orders_count,
-                'no_reviewed_orders_count' => $no_reviewed_orders_count,
+                'reviewed_orders_count' => $reviewed_orders_count,
             );
             return $data;
         } catch (\Exception $exception) {
@@ -95,7 +100,7 @@ class DashboardRepository extends RepositoryAbs
                 });
             }
 
-            return $query->get();
+            return $query->orderByDesc('id')->get();
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
