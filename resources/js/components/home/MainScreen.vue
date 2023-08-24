@@ -201,7 +201,7 @@
 		},
 		async created() {
 			this.generateFilterTimeOption();
-			await this.fetchcData();
+			// await this.fetchcData();
 		},
 		methods: {
 			async fetchcData() {
