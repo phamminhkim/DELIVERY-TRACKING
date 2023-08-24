@@ -86,24 +86,22 @@ class DashboardRepository extends RepositoryAbs
                 ->join('order_customer_review_criterias', 'order_review_options.id', '=', 'order_customer_review_criterias.criteria_id')
                 ->join('order_customer_reviews', 'order_customer_reviews.id', '=', 'order_customer_review_criterias.review_id')
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
-                ->groupBy('order_review_options.id', 'order_review_options.name');
-
-            // Apply filters
+                ->join('order_deliveries', 'order_deliveries.order_id', '=', 'orders.id')
+                ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
+                ->join('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
-            if ($this->request->filled('delivery_partner_ids') || $this->request->filled('month_year')) {
-                $query->whereHas('criteria.review.order', function ($query) use ($delivery_partner_ids, $month, $year) {
-                    if ($this->request->filled('delivery_partner_ids')) {
-                        $query->whereIn('delivery_partner_id', $delivery_partner_ids);
-                    }
-                    $query->whereHas('approved', function ($query) use ($month, $year) {
-                        $query->whereMonth('approved.sap_so_finance_approval_date', $month)->whereYear('approved.sap_so_finance_approval_date', $year);
-                    });
-                });
+            if ($this->request->filled('delivery_partner_ids')) {
+                $query->whereIn('deliveries.delivery_partner_id', $delivery_partner_ids);
             }
-
-            return $query->orderByDesc('id')->get();
+            if ($this->request->filled('month_year')) {
+                $query->whereMonth('order_approveds.sap_so_finance_approval_date', $month)
+                    ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
+            }
+            $query->groupBy('order_review_options.id', 'order_review_options.name');
+            $query->orderBy('order_review_options.id', 'desc');
+            return $query->get();
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
