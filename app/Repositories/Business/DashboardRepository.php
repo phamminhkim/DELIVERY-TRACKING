@@ -24,9 +24,10 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
                     // Lọc theo danh sách đối tác giao hàng (nếu có)
                     if ($this->request->filled('delivery_partner_ids'))  $query->whereIn('delivery_partner_id', $delivery_partner_ids);
-
+                });
+                $month_year = $this->request->month_year;
+                $query->whereHas('orders.approved', function ($query) use ($month_year) {
                     // Lọc theo tháng năm (nếu có)
-                    $month_year = $this->request->month_year;
                     list($month, $year) = explode('-', $month_year);
                     $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
                 });
@@ -92,10 +93,12 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
             if ($this->request->filled('delivery_partner_ids') || $this->request->filled('month_year')) {
-                $query->whereHas('orders.deliveries', function ($query) use ($delivery_partner_ids, $month, $year) {
+                $query->whereHas('orders.deliveries', function ($query) use ($delivery_partner_ids) {
                     if ($this->request->filled('delivery_partner_ids')) {
                         $query->whereIn('delivery_partner_id', $delivery_partner_ids);
                     }
+                });
+                $query->whereHas('orders.approved', function ($query) use ($month, $year) {
                     $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
                 });
             }
