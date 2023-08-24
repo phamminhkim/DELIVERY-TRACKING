@@ -274,11 +274,11 @@
 				if (percent < 50) {
 					// Transition from red to yellow
 					red = 255;
-					green = (percent * 2 * 255) / 100;
+					green = (percent * 2 * 200) / 100;
 				} else {
 					// Transition from yellow to green
-					red = 255 - ((percent - 50) * 2 * 255) / 100;
-					green = 255;
+					red = 240 - ((percent - 50) * 2 * 255) / 100;
+					green = 200;
 				}
 
 				return `rgb(${red}, ${green}, 0)`;
