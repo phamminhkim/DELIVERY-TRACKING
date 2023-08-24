@@ -93,12 +93,10 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
             if ($this->request->filled('delivery_partner_ids') || $this->request->filled('month_year')) {
-                $query->whereHas('orders.deliveries', function ($query) use ($delivery_partner_ids) {
+                $query->whereHas('criteria.review.order', function ($query) use ($delivery_partner_ids, $month, $year) {
                     if ($this->request->filled('delivery_partner_ids')) {
                         $query->whereIn('delivery_partner_id', $delivery_partner_ids);
                     }
-                });
-                $query->whereHas('orders.approved', function ($query) use ($month, $year) {
                     $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
                 });
             }
