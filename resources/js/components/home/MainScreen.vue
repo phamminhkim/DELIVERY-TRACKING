@@ -3,7 +3,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="header d-flex">
-					<p class="title" style="flex: 6">Monthly Recap Report</p>
+					<p class="title" style="flex: 6">Thống kê</p>
 					<div style="flex: 3">
 						<treeselect
 							placeholder="Chọn đơn vị vận chuyển.."
@@ -22,134 +22,147 @@
 					</div>
 				</div>
 
-				<!-- <div class="card-body" style="display: block">
-						<div class="row">
-							<div class="col-md-8 d-flex flex-column">
-								<div
-									v-for="(criteria_statistic, index) in criteria_statistics"
-									:key="index"
-									class="info-box mb-3 bg-warning"
+				<div class="card-body" style="display: block">
+					<div class="row">
+						<div class="col-md-8 d-flex flex-column">
+							<div
+								v-for="(criteria_statistic, index) in criteria_statistics"
+								:key="index"
+								class="info-box mb-3 bg-warning"
+							>
+								<span class="info-box-icon"><i class="fas fa-cog"></i></span>
+								<div class="info-box-content">
+									<span class="info-box-text">{{ criteria_statistic.name }}</span>
+									<span class="info-box-number">
+										{{ criteria_statistic.amount }}
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-md-4">
+							<p class="text-center">
+								<strong>Thống kê giao hàng</strong>
+							</p>
+							<div class="progress-group">
+								Số đơn đúng hạn / Số đơn đang giao
+								<span class="float-right"
+									><b>{{ dashboard_statistic.ontime_orders_count }}</b
+									>/{{ dashboard_statistic.delivering_orders_count }}</span
 								>
-									<span class="info-box-icon"><i class="fas fa-cog"></i></span>
-									<div class="info-box-content">
-										<span class="info-box-text">{{
-											criteria_statistic.name
-										}}</span>
-										<span class="info-box-number">
-											{{ criteria_statistic.amount }}
-										</span>
-									</div>
-								</div>
+								<b-progress
+									:max="dashboard_statistic.delivering_orders_count"
+									show-progress
+									height="1.5rem"
+								>
+									<b-progress-bar
+										:style="`background-color: ${getProcessColor(
+											dashboard_statistic.ontime_orders_count,
+											dashboard_statistic.delivering_orders_count,
+										)}`"
+										:value="dashboard_statistic.ontime_orders_count"
+										:label="`${calculatePercent(
+											dashboard_statistic.ontime_orders_count,
+											dashboard_statistic.delivering_orders_count,
+										)}%`"
+									></b-progress-bar
+								></b-progress>
 							</div>
-
-							<div class="col-md-4">
-								<p class="text-center">
-									<strong>Thống kê giao hàng</strong>
-								</p>
-								<div class="progress-group">
-									Số đơn đúng hạn / Số đơn đang giao
-									<span class="float-right"
-										><b>{{ dashboard_statistic.ontime_orders_count }}</b
-										>/{{ dashboard_statistic.delivering_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-primary"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.ontime_orders_count,
-												dashboard_statistic.delivering_orders_count,
-											)}% ; background-color: ${getColor(
-												dashboard_statistic.ontime_orders_count,
-												dashboard_statistic.delivering_orders_count,
-											)}`"
-										></div>
-									</div>
-								</div>
-								<div class="progress-group">
-									Số đơn đã xác nhận nhận hàng / Số đơn đã giao
-									<span class="float-right"
-										><b>{{ dashboard_statistic.confirmed_orders_count }}</b
-										>/{{ dashboard_statistic.delivered_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-warning"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.confirmed_orders_count,
-												dashboard_statistic.delivered_orders_count,
-											)}% ; background-color: ${getColor(
-												dashboard_statistic.confirmed_orders_count,
-												dashboard_statistic.delivered_orders_count,
-											)}`"
-										></div>
-									</div>
-								</div>
-								<div class="progress-group">
-									Số đơn đã đánh giá / Số đơn đã nhận hàng
-									<span class="float-right"
-										><b>{{ dashboard_statistic.reviewed_orders_count }}</b
-										>/{{ dashboard_statistic.received_orders_count }}</span
-									>
-									<div class="progress progress-sm">
-										<div
-											class="progress-bar bg-danger"
-											:style="`width: ${calculatePercent(
-												dashboard_statistic.reviewed_orders_count,
-												dashboard_statistic.received_orders_count,
-											)}% ; background-color: ${getColor(
-												dashboard_statistic.reviewed_orders_count,
-												dashboard_statistic.received_orders_count,
-											)}`"
-										></div>
-									</div>
-								</div>
+							<div class="progress-group">
+								Số đơn đã xác nhận nhận hàng / Số đơn đã giao
+								<span class="float-right"
+									><b>{{ dashboard_statistic.confirmed_orders_count }}</b
+									>/{{ dashboard_statistic.delivered_orders_count }}</span
+								>
+								<b-progress
+									:max="dashboard_statistic.delivered_orders_count"
+									show-progress
+									height="1.5rem"
+								>
+									<b-progress-bar
+										:style="`background-color: ${getProcessColor(
+											dashboard_statistic.confirmed_orders_count,
+											dashboard_statistic.delivered_orders_count,
+										)}`"
+										:value="dashboard_statistic.confirmed_orders_count"
+										:label="`${calculatePercent(
+											dashboard_statistic.confirmed_orders_count,
+											dashboard_statistic.delivered_orders_count,
+										)}%`"
+									></b-progress-bar
+								></b-progress>
+							</div>
+							<div class="progress-group">
+								Số đơn đã đánh giá / Số đơn đã nhận hàng
+								<span class="float-right"
+									><b>{{ dashboard_statistic.reviewed_orders_count }}</b
+									>/{{ dashboard_statistic.received_orders_count }}</span
+								>
+								<b-progress
+									:max="dashboard_statistic.received_orders_count"
+									show-progress
+									height="1.5rem"
+								>
+									<b-progress-bar
+										:style="`background-color: ${getProcessColor(
+											dashboard_statistic.reviewed_orders_count,
+											dashboard_statistic.received_orders_count,
+										)}`"
+										:value="dashboard_statistic.reviewed_orders_count"
+										:label="`${calculatePercent(
+											dashboard_statistic.reviewed_orders_count,
+											dashboard_statistic.received_orders_count,
+										)}%`"
+									></b-progress-bar
+								></b-progress>
 							</div>
 						</div>
-					</div> -->
+					</div>
+				</div>
 
-				<!-- <div class="card-footer" style="display: block">
-						<div class="row">
-							<div class="col-sm-3 col-6">
-								<div class="description-block border-right">
-									<span class="description-percentage text-success"
-										><i class="fas fa-caret-up"></i> 17%</span
-									>
-									<h5 class="description-header">$35,210.43</h5>
-									<span class="description-text">TOTAL REVENUE</span>
-								</div>
-							</div>
-
-							<div class="col-sm-3 col-6">
-								<div class="description-block border-right">
-									<span class="description-percentage text-warning"
-										><i class="fas fa-caret-left"></i> 0%</span
-									>
-									<h5 class="description-header">$10,390.90</h5>
-									<span class="description-text">TOTAL COST</span>
-								</div>
-							</div>
-
-							<div class="col-sm-3 col-6">
-								<div class="description-block border-right">
-									<span class="description-percentage text-success"
-										><i class="fas fa-caret-up"></i> 20%</span
-									>
-									<h5 class="description-header">$24,813.53</h5>
-									<span class="description-text">TOTAL PROFIT</span>
-								</div>
-							</div>
-
-							<div class="col-sm-3 col-6">
-								<div class="description-block">
-									<span class="description-percentage text-danger"
-										><i class="fas fa-caret-down"></i> 18%</span
-									>
-									<h5 class="description-header">1200</h5>
-									<span class="description-text">GOAL COMPLETIONS</span>
-								</div>
+				<div class="card-footer" style="display: block">
+					<div class="row">
+						<div class="col-sm-3 col-6">
+							<div class="description-block border-right">
+								<span class="description-percentage text-success"
+									><i class="fas fa-caret-up"></i> 17%</span
+								>
+								<h5 class="description-header">$35,210.43</h5>
+								<span class="description-text">TOTAL REVENUE</span>
 							</div>
 						</div>
-					</div> -->
+
+						<div class="col-sm-3 col-6">
+							<div class="description-block border-right">
+								<span class="description-percentage text-warning"
+									><i class="fas fa-caret-left"></i> 0%</span
+								>
+								<h5 class="description-header">$10,390.90</h5>
+								<span class="description-text">TOTAL COST</span>
+							</div>
+						</div>
+
+						<div class="col-sm-3 col-6">
+							<div class="description-block border-right">
+								<span class="description-percentage text-success"
+									><i class="fas fa-caret-up"></i> 20%</span
+								>
+								<h5 class="description-header">$24,813.53</h5>
+								<span class="description-text">TOTAL PROFIT</span>
+							</div>
+						</div>
+
+						<div class="col-sm-3 col-6">
+							<div class="description-block">
+								<span class="description-percentage text-danger"
+									><i class="fas fa-caret-down"></i> 18%</span
+								>
+								<h5 class="description-header">1200</h5>
+								<span class="description-text">GOAL COMPLETIONS</span>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -238,8 +251,18 @@
 			},
 			getProcessColor(current_value, total_value) {
 				const percent = this.calculatePercent(current_value, total_value);
-				const red = 255 - (percent * 255) / 100;
-				const green = (percent * 255) / 100;
+				let red, green;
+
+				if (percent < 50) {
+					// Transition from red to yellow
+					red = 255;
+					green = (percent * 2 * 255) / 100;
+				} else {
+					// Transition from yellow to green
+					red = 255 - ((percent - 50) * 2 * 255) / 100;
+					green = 255;
+				}
+
 				return `rgb(${red}, ${green}, 0)`;
 			},
 		},
