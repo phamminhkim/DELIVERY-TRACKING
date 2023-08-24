@@ -199,14 +199,41 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-12 box-images">
-								<div
+							<div
+								class="col-12 box-images"
+								v-viewer="{
+									inline: false,
+									button: true,
+									navbar: true,
+									title: true,
+									toolbar: true,
+									tooltip: true,
+									movable: true,
+									zoomable: true,
+									rotatable: true,
+									scalable: true,
+									transition: true,
+									keyboard: true,
+								}"
+							>
+								<!-- <div
 									class="image-container"
 									v-for="image_url in driver_confirm_image_urls"
 									:key="image_url"
 								>
 									<expandable-image :src="`/${image_url}`" alt="" class="image" />
-								</div>
+								</div> -->
+								<img
+									v-for="image_url in driver_confirm_image_urls"
+									:key="image_url"
+									:src="`/${image_url}`"
+									class="image-container"
+									style="
+										object-fit: cover;
+										border-radius: 0.5rem;
+										overflow: hidden;
+									"
+								/>
 							</div>
 						</div>
 						<div class="row">
@@ -331,7 +358,6 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import sha256 from 'crypto-js/sha256';
-	import VueExpandableImage from 'vue-expandable-image';
 	export default {
 		components: {
 			Treeselect,
