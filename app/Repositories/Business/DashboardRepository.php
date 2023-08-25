@@ -116,9 +116,11 @@ class DashboardRepository extends RepositoryAbs
                 ->join('order_customer_review_criterias', 'order_review_options.id', '=', 'order_customer_review_criterias.criteria_id')
                 ->join('order_customer_reviews', 'order_customer_reviews.id', '=', 'order_customer_review_criterias.review_id')
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
-                ->join('order_deliveries', 'order_deliveries.order_id', '=', 'orders.id')
                 ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
-                ->join('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
+
+                ->leftJoin('order_deliveries', 'orders.id', '=', 'order_deliveries.order_id')
+                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id')
+                ;
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }

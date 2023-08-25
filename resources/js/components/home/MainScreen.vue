@@ -190,6 +190,7 @@
 													height: 125px;
 													margin-left: 20px;
 													margin-right: 20px;
+													margin-bottom: 10px;
 													border: 1px solid #e9ecef;
 												"
 											>
@@ -256,104 +257,6 @@
 						</ul>
 					</div>
 				</div>
-
-				<!-- <div class="card-body" style="display: block">
-					<div class="row">
-						<div class="col-md-8 d-flex flex-column">
-							<div
-								v-for="(criteria_statistic, index) in criteria_statistics"
-								:key="index"
-								class="info-box mb-3 bg-warning"
-							>
-								<span class="info-box-icon"><i class="fas fa-cog"></i></span>
-								<div class="info-box-content">
-									<span class="info-box-text">{{ criteria_statistic.name }}</span>
-									<span class="info-box-number">
-										{{ criteria_statistic.amount }}
-									</span>
-								</div>
-							</div>
-						</div>
-
-						<div class="col-md-4">
-							<p class="text-center">
-								<strong>Thống kê giao hàng</strong>
-							</p>
-							<div class="progress-group">
-								Số đơn đúng hạn / Số đơn đang giao
-								<span class="float-right"
-									><b>{{ dashboard_statistic.ontime_orders_count }}</b
-									>/{{ dashboard_statistic.delivering_orders_count }}</span
-								>
-								<b-progress
-									:max="dashboard_statistic.delivering_orders_count"
-									show-progress
-									height="1.5rem"
-								>
-									<b-progress-bar
-										:style="`background-color: ${getProcessColor(
-											dashboard_statistic.ontime_orders_count,
-											dashboard_statistic.delivering_orders_count,
-										)}`"
-										:value="dashboard_statistic.ontime_orders_count"
-										:label="`${calculatePercent(
-											dashboard_statistic.ontime_orders_count,
-											dashboard_statistic.delivering_orders_count,
-										)}%`"
-									></b-progress-bar
-								></b-progress>
-							</div>
-							<div class="progress-group">
-								Số đơn đã xác nhận nhận hàng / Số đơn đã giao
-								<span class="float-right"
-									><b>{{ dashboard_statistic.confirmed_orders_count }}</b
-									>/{{ dashboard_statistic.delivered_orders_count }}</span
-								>
-								<b-progress
-									:max="dashboard_statistic.delivered_orders_count"
-									show-progress
-									height="1.5rem"
-								>
-									<b-progress-bar
-										:style="`background-color: ${getProcessColor(
-											dashboard_statistic.confirmed_orders_count,
-											dashboard_statistic.delivered_orders_count,
-										)}`"
-										:value="dashboard_statistic.confirmed_orders_count"
-										:label="`${calculatePercent(
-											dashboard_statistic.confirmed_orders_count,
-											dashboard_statistic.delivered_orders_count,
-										)}%`"
-									></b-progress-bar
-								></b-progress>
-							</div>
-							<div class="progress-group">
-								Số đơn đã đánh giá / Số đơn đã nhận hàng
-								<span class="float-right"
-									><b>{{ dashboard_statistic.reviewed_orders_count }}</b
-									>/{{ dashboard_statistic.received_orders_count }}</span
-								>
-								<b-progress
-									:max="dashboard_statistic.received_orders_count"
-									show-progress
-									height="1.5rem"
-								>
-									<b-progress-bar
-										:style="`background-color: ${getProcessColor(
-											dashboard_statistic.reviewed_orders_count,
-											dashboard_statistic.received_orders_count,
-										)}`"
-										:value="dashboard_statistic.reviewed_orders_count"
-										:label="`${calculatePercent(
-											dashboard_statistic.reviewed_orders_count,
-											dashboard_statistic.received_orders_count,
-										)}%`"
-									></b-progress-bar
-								></b-progress>
-							</div>
-						</div>
-					</div>
-				</div> -->
 
 				<div class="card-footer" style="display: block">
 					<div class="row">
@@ -522,6 +425,7 @@
 			},
 			async onOpenCriteria(criteria_id) {
 				try {
+					this.order_by_criterias = [];
 					const { data } = await this.api_handler.get('api/partner/orders/minified', {
 						criteria_ids: [criteria_id],
 						month_year: this.filter_time ? this.filter_time : undefined,

@@ -133,6 +133,7 @@
 						{
 							label: 'Nhận SMS',
 							// placeholder: 'Nhập SMS',
+							required: false,
 							key: 'is_receive_sms',
 							type: 'checkbox',
 							checkbox: {
@@ -142,6 +143,8 @@
 						{
 							label: 'Trạng thái',
 							// placeholder: 'Nhập SMS',
+							required: false,
+
 							key: 'is_active',
 							type: 'checkbox',
 							checkbox: {

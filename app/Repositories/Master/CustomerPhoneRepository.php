@@ -17,7 +17,7 @@ class CustomerPhoneRepository extends RepositoryAbs
                 ->select('customer_phones.*', 'customers.name as customer_name');
             if($this->request->filled('search')){ 
                 $query = $query->search($this->request->search);
-                $query->orWhereRaw("MATCH (customers.name) AGAINST (? IN BOOLEAN MODE)", $query->fullTextWildcards($this->request->search));
+                $query->orWhereRaw("MATCH (customers.name, customers.code) AGAINST (? IN BOOLEAN MODE)", $query->fullTextWildcards($this->request->search));
             }
 
             $customer_phones = $query->get();

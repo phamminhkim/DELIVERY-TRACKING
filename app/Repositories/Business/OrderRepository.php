@@ -228,14 +228,14 @@ class OrderRepository extends RepositoryAbs
                 if($this->request->filled('month_year')){
                     $month_year = $this->request->month_year;
                     list($month, $year) = explode('-', $month_year);        
-                    $query->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id');
+                    $query->leftJoin('order_approveds', 'order_approveds.order_id', '=', 'orders.id');
                     $query->select('orders.*');
                     $query->whereMonth('order_approveds.sap_so_finance_approval_date', $month)
                     ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
                 } 
                 $query->whereHas('customer_reviews', function ($q) use ($criteria_ids) {
                     $q->whereHas('criterias', function ($q) use ($criteria_ids){
-                        $q->whereIn('order_review_options.id', $criteria_ids);
+                         $q->whereIn('order_review_options.id', $criteria_ids);
                     });
                 });
             }
@@ -243,6 +243,7 @@ class OrderRepository extends RepositoryAbs
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
+
             } else {
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
