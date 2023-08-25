@@ -139,7 +139,7 @@
 					<div class="col-md-8">
 						<div class="card">
 							<div class="card-header">
-								<h3 class="card-title">Folders</h3>
+								<h3 class="card-title">Thống kê theo tiêu chí đánh giá</h3>
 								<div class="card-tools">
 									<button
 										type="button"
@@ -172,12 +172,14 @@
 											href="#"
 											class="nav-link"
 											v-b-toggle="`collapse-${index}`"
-											><i class="fas fa-inbox"></i>
+											@click="onOpenCriteria(criteria_statistic.id)"
+										>
+											<i class="fas fa-inbox"></i>
 											{{ criteria_statistic.name }}
 											<span class="badge bg-primary float-right">{{
 												criteria_statistic.amount
-											}}</span></a
-										>
+											}}</span>
+										</a>
 										<b-collapse
 											:id="`collapse-${index}`"
 											accordion="my-accordion"
@@ -185,44 +187,23 @@
 											<div
 												style="
 													overflow-y: scroll;
-													height: 122px;
+													height: 125px;
 													margin-left: 20px;
 													margin-right: 20px;
 													border: 1px solid #e9ecef;
 												"
 											>
 												<ul class="nav nav-pills flex-column">
-													<li class="nav-item active">
+													<li
+														class="nav-item"
+														v-for="(order, index) in order_by_criterias"
+														:key="index"
+													>
 														<a href="#" class="nav-link">
-															<i class="fas fa-inbox"></i> Inbox
-															<span
-																class="badge bg-primary float-right"
-																>12</span
-															>
-														</a>
-													</li>
-													<li class="nav-item">
-														<a href="#" class="nav-link">
-															<i class="far fa-envelope"></i> Sent
-														</a>
-													</li>
-													<li class="nav-item">
-														<a href="#" class="nav-link">
-															<i class="far fa-file-alt"></i> Drafts
-														</a>
-													</li>
-													<li class="nav-item">
-														<a href="#" class="nav-link">
-															<i class="fas fa-filter"></i> Junk
-															<span
-																class="badge bg-warning float-right"
-																>65</span
-															>
-														</a>
-													</li>
-													<li class="nav-item">
-														<a href="#" class="nav-link">
-															<i class="far fa-trash-alt"></i> Trash
+															<i class="far fa-envelope"></i>
+															{{
+																`SO: ${order.sap_so_number} DO: ${order.sap_do_number}`
+															}}
 														</a>
 													</li>
 												</ul>
@@ -451,6 +432,8 @@
 
 				dashboard_statistic: {},
 				criteria_statistics: [],
+
+				order_by_criterias: [],
 			};
 		},
 		async created() {
@@ -536,6 +519,17 @@
 				}
 
 				return `rgb(${red}, ${green}, 0)`;
+			},
+			async onOpenCriteria(criteria_id) {
+				try {
+					const { data } = await this.api_handler.get('api/partner/orders/minified', {
+						criteria_ids: [criteria_id],
+						month_year: this.filter_time ? this.filter_time : undefined,
+					});
+					this.order_by_criterias = data;
+				} catch (error) {
+					console.log(error);
+				}
 			},
 		},
 		watch: {
