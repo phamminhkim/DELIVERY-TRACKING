@@ -440,8 +440,8 @@
 				const percent = this.calculatePercent(current_value, total_value);
 				let red, green;
 
-				if ($reverse) {
-					$percent = 100 - $percent;
+				if (reverse) {
+					percent = 100 - percent;
 				}
 
 				if (percent < 50) {
