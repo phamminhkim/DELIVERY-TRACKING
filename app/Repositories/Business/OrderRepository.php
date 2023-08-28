@@ -298,12 +298,20 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function getOrderById($order_id)
+    public function getOrderById($order_id, $is_expanded = false)
     {
         try {
+
             $order = Order::find($order_id);
             if ($order) {
-                $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                // $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                if($is_expanded){
+                    $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+    
+                }
+                else{
+                    $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                }
                 return $order;
             } else {
                 $this->message = 'Không tìm thấy đơn hàng có id ' . $order_id;

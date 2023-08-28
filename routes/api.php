@@ -143,6 +143,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrdersByCustomer']);
             Route::get('/{order_id}', [OrderController::class, 'getOrderById']);
+            Route::get('/{order_id}/expanded', [OrderController::class, 'getOrderExpandedById']);
             Route::post('/{order_id}/confirm', [OrderController::class, 'confirmOrder']);
             Route::post('/confirm-multiple', [OrderController::class, 'confirmMultipleOrders']);
             Route::post('/{order_id}/review', [OrderController::class, 'reviewOrder']);

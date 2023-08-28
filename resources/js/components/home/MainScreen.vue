@@ -157,17 +157,6 @@
 										:key="index"
 										class="nav-item"
 									>
-										<!-- <a
-											href="#"
-											class="nav-link"
-											:v-b-toggle="`collapse-${index}`"
-										>
-											<i class="fas fa-inbox"></i>
-											{{ criteria_statistic.name }}
-											<span class="badge bg-primary float-right">{{
-												criteria_statistic.amount
-											}}</span>
-										</a> -->
 										<a
 											href="#"
 											class="nav-link"
@@ -200,7 +189,13 @@
 														v-for="(order, index) in order_by_criterias"
 														:key="index"
 													>
-														<a href="#" class="nav-link">
+														<a
+															href="#"
+															class="nav-link"
+															@click.prevent="
+																showOrderInfoDialog(order.id)
+															"
+														>
 															<i class="far fa-envelope"></i>
 															{{
 																`SO: ${order.sap_so_number} DO: ${order.sap_do_number}`
@@ -303,15 +298,18 @@
 				</div>
 			</div>
 		</div>
+		<DialogOrderInfo :order="viewing_order" />
 	</div>
 </template>
 
 <script>
 	import Treeselect from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from './ApiHandler';
+	import DialogOrderInfo from './business/dialogs/DialogOrderInfo.vue';
 	export default {
 		components: {
 			Treeselect,
+			DialogOrderInfo,
 		},
 		data() {
 			return {
@@ -337,6 +335,8 @@
 				criteria_statistics: [],
 
 				order_by_criterias: [],
+
+				viewing_order: {},
 			};
 		},
 		async created() {
@@ -431,6 +431,17 @@
 						month_year: this.filter_time ? this.filter_time : undefined,
 					});
 					this.order_by_criterias = data;
+				} catch (error) {
+					console.log(error);
+				}
+			},
+			async showOrderInfoDialog(order_id) {
+				try {
+					const { data } = await this.api_handler.get(
+						`api/customer/orders/${order_id}/expanded`,
+					);
+					this.viewing_order = data;
+					$('#DialogOrderInfo').modal('show');
 				} catch (error) {
 					console.log(error);
 				}
