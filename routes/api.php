@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
+use App\Http\Controllers\Api\Business\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
@@ -42,6 +43,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('/dashboard', [DashboardController::class, 'getStatistic']);
+    Route::get('/dashboard/criteria', [DashboardController::class, 'getCriteriaStatistic']);
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
@@ -139,6 +143,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrdersByCustomer']);
             Route::get('/{order_id}', [OrderController::class, 'getOrderById']);
+            Route::get('/{order_id}/expanded', [OrderController::class, 'getOrderExpandedById']);
             Route::post('/{order_id}/confirm', [OrderController::class, 'confirmOrder']);
             Route::post('/confirm-multiple', [OrderController::class, 'confirmMultipleOrders']);
             Route::post('/{order_id}/review', [OrderController::class, 'reviewOrder']);

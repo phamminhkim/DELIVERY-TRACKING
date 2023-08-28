@@ -11,6 +11,8 @@ import router from "./router";
 import VueRouter from "vue-router";
 import moment from "moment";
 import drag from "v-drag"
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
 Vue.filter("formatDate", function (value) {
     if (value) {
         return moment(String(value)).format("DD/MM/YYYY");
@@ -26,6 +28,7 @@ Vue.use(ElementUI);
 Vue.use(drag, {
 
 });
+Vue.use(VueViewer)
 Vue.component(
     "example-component",
     require("./components/ExampleComponent.vue").default

@@ -223,9 +223,27 @@ class OrderRepository extends RepositoryAbs
                 });
             }
 
+            if($this->request->filled('criteria_ids')){
+                $criteria_ids = $this->request->criteria_ids;
+                if($this->request->filled('month_year')){
+                    $month_year = $this->request->month_year;
+                    list($month, $year) = explode('-', $month_year);        
+                    $query->leftJoin('order_approveds', 'order_approveds.order_id', '=', 'orders.id');
+                    $query->select('orders.*');
+                    $query->whereMonth('order_approveds.sap_so_finance_approval_date', $month)
+                    ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
+                } 
+                $query->whereHas('customer_reviews', function ($q) use ($criteria_ids) {
+                    $q->whereHas('criterias', function ($q) use ($criteria_ids){
+                         $q->whereIn('order_review_options.id', $criteria_ids);
+                    });
+                });
+            }
+
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
-                $orders = $query->select(['id', 'sap_so_number', 'sap_do_number'])->get();
+                $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
+
             } else {
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
@@ -280,12 +298,20 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function getOrderById($order_id)
+    public function getOrderById($order_id, $is_expanded = false)
     {
         try {
+
             $order = Order::find($order_id);
             if ($order) {
-                $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                // $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                if($is_expanded){
+                    $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+    
+                }
+                else{
+                    $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
+                }
                 return $order;
             } else {
                 $this->message = 'Không tìm thấy đơn hàng có id ' . $order_id;
