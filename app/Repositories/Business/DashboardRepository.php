@@ -49,8 +49,8 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereMonth('sap_so_finance_approval_date', $last_month)->whereYear('sap_so_finance_approval_date', $last_year);
             });
 
-            // $delivering_orders_count_query = clone $this_month_query;
-            // $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
+            $delivering_orders_count_query = clone $this_month_query;
+            $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
 
             $late_orders_count_query = clone $this_month_query;
             $late_orders_count = $late_orders_count_query->where('status_id', '>=', OrderStatus::Preparing)
@@ -104,7 +104,7 @@ class DashboardRepository extends RepositoryAbs
 
 
             $data = array(
-                // 'delivering_orders_count' => $delivering_orders_count,
+                'delivering_orders_count' => $delivering_orders_count,
                 'late_orders_count' => $late_orders_count,
                 'ontime_orders_count' => $ontime_orders_count,
                 'delivered_orders_count' => $delivered_orders_count,
