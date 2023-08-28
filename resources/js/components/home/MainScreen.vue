@@ -437,7 +437,7 @@
 				return Math.floor((amount / total) * 100);
 			},
 			getProcessColor(current_value, total_value, reverse = false) {
-				const percent = this.calculatePercent(current_value, total_value);
+				let percent = this.calculatePercent(current_value, total_value);
 				let red, green;
 
 				if (reverse) {
