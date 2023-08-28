@@ -41,27 +41,27 @@
 								<ul class="nav nav-pills flex-column">
 									<li class="nav-item statistic">
 										<div class="progress-group">
-											Số đơn đúng hạn / Số đơn đang giao
+											Số đơn đúng hạn / Số đơn đã giao
 											<span class="float-right"
 												><b>{{ dashboard_statistic.ontime_orders_count }}</b
 												>/{{
-													dashboard_statistic.delivering_orders_count
+													dashboard_statistic.delivered_orders_count
 												}}</span
 											>
 											<b-progress
-												:max="dashboard_statistic.delivering_orders_count"
+												:max="dashboard_statistic.delivered_orders_count"
 												show-progress
 												height="1.5rem"
 											>
 												<b-progress-bar
 													:style="`background-color: ${getProcessColor(
 														dashboard_statistic.ontime_orders_count,
-														dashboard_statistic.delivering_orders_count,
+														dashboard_statistic.delivered_orders_count,
 													)}`"
 													:value="dashboard_statistic.ontime_orders_count"
 													:label="`${calculatePercent(
 														dashboard_statistic.ontime_orders_count,
-														dashboard_statistic.delivering_orders_count,
+														dashboard_statistic.delivered_orders_count,
 													)}%`"
 												></b-progress-bar
 											></b-progress>
@@ -72,7 +72,7 @@
 											Số đơn đã xác nhận nhận hàng / Số đơn đã giao
 											<span class="float-right"
 												><b>{{
-													dashboard_statistic.confirmed_orders_count
+													dashboard_statistic.received_orders_count
 												}}</b
 												>/{{
 													dashboard_statistic.delivered_orders_count
@@ -85,14 +85,14 @@
 											>
 												<b-progress-bar
 													:style="`background-color: ${getProcessColor(
-														dashboard_statistic.confirmed_orders_count,
+														dashboard_statistic.received_orders_count,
 														dashboard_statistic.delivered_orders_count,
 													)}`"
 													:value="
-														dashboard_statistic.confirmed_orders_count
+														dashboard_statistic.received_orders_count
 													"
 													:label="`${calculatePercent(
-														dashboard_statistic.confirmed_orders_count,
+														dashboard_statistic.received_orders_count,
 														dashboard_statistic.delivered_orders_count,
 													)}%`"
 												></b-progress-bar
@@ -251,9 +251,9 @@
 							</li>
 						</ul>
 					</div>
-				</div>
+				</div> -->
 
-				<div class="card-footer" style="display: block">
+				<!-- <div class="card-footer" style="display: block">
 					<div class="row">
 						<div class="col-sm-3 col-6">
 							<div class="description-block border-right">
@@ -295,7 +295,7 @@
 							</div>
 						</div>
 					</div>
-				</div> -->
+				</div>  -->
 			</div>
 		</div>
 		<DialogOrderInfo :order="viewing_order" />

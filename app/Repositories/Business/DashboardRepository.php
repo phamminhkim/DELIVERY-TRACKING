@@ -49,35 +49,53 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereMonth('sap_so_finance_approval_date', $last_month)->whereYear('sap_so_finance_approval_date', $last_year);
             });
 
+            // $delivering_orders_count_query = clone $this_month_query;
+            // $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
 
-            $delivering_orders_count = $this_month_query->where('status_id', OrderStatus::Delivering)->count();
-            $late_orders_count = $this_month_query->where('status_id', '>=', OrderStatus::Preparing)
+            $late_orders_count_query = clone $this_month_query;
+            $late_orders_count = $late_orders_count_query->where('status_id', '>=', OrderStatus::Preparing)
                 ->where('status_id', '<', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($this_month_query) {
-                    $this_month_query->where('estimate_delivery_date', '<', Carbon::today());
+                ->whereHas('deliveries', function ($late_orders_count_query) {
+                    $late_orders_count_query->whereDate('estimate_delivery_date', '<', Carbon::today());
                 })->count();
-            $ontime_orders_count = $this_month_query->where('status_id', '>=', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($this_month_query) {
-                    $this_month_query->where('estimate_delivery_date', '>=', 'confirm_delivery_date');
-                })->count();
-            $delivered_orders_count = $this_month_query->where('status_id', OrderStatus::Delivered)->count();
-            $confirmed_orders_count = $this_month_query->where('status_id', OrderStatus::Delivered)
-                ->whereHas('delivery_info', function ($this_month_query) {
-                    $this_month_query->whereNotNull('confirm_delivery_date');
-                })->count();
-            $received_orders_count = $this_month_query->where('status_id', OrderStatus::Received)->count();
-            $reviewed_orders_count = $this_month_query->where('status_id', OrderStatus::Received)
+
+            $ontime_orders_count_query = clone $this_month_query;
+            $ontime_orders_count = $ontime_orders_count_query->where('status_id', '>=', OrderStatus::Delivered)
+                ->whereHas('deliveries', function ($ontime_orders_count_query) {
+                    $ontime_orders_count_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
+                })
+                ->count();
+
+            $delivered_orders_count_query = clone $this_month_query;
+            $delivered_orders_count = $delivered_orders_count_query
+                ->where('status_id', '>=', OrderStatus::Delivered)
+                ->count();
+
+            // $confirmed_orders_count_query = clone $this_month_query;
+            // $confirmed_orders_count = $confirmed_orders_count_query->where('status_id', OrderStatus::Delivered)
+            //     ->whereHas('delivery_info', function ($confirmed_orders_count_query) {
+            //         $confirmed_orders_count_query->whereNotNull('confirm_delivery_date');
+            //     })->count();
+
+            $received_orders_count_query = clone $this_month_query;
+            $received_orders_count = $received_orders_count_query->where('status_id', OrderStatus::Received)->count();
+
+            $reviewed_orders_count_query = clone $this_month_query;
+            $reviewed_orders_count = $reviewed_orders_count_query->where('status_id', OrderStatus::Received)
                 ->whereHas('customer_reviews')->count();
 
             // Last month's data
-            $late_orders_count_last_month = $last_month_query->where('status_id', '>=', OrderStatus::Preparing)
+            $late_orders_count_last_month_query = clone $last_month_query;
+            $late_orders_count_last_month = $late_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Preparing)
                 ->where('status_id', '<', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($last_month_query) {
-                    $last_month_query->where('estimate_delivery_date', '<', Carbon::today());
+                ->whereHas('deliveries', function ($late_orders_count_last_month_query) {
+                    $late_orders_count_last_month_query->whereDate('estimate_delivery_date', '<', Carbon::today());
                 })->count();
-            $ontime_orders_count_last_month = $last_month_query->where('status_id', '>=', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($last_month_query) {
-                    $last_month_query->where('estimate_delivery_date', '>=', 'confirm_delivery_date');
+
+            $ontime_orders_count_last_month_query = clone $last_month_query;
+            $ontime_orders_count_last_month = $ontime_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Delivered)
+                ->whereHas('deliveries', function ($ontime_orders_count_last_month_query) {
+                    $ontime_orders_count_last_month_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
                 })->count();
 
             // Calculate percentage changes
@@ -86,11 +104,11 @@ class DashboardRepository extends RepositoryAbs
 
 
             $data = array(
-                'delivering_orders_count' => $delivering_orders_count,
+                // 'delivering_orders_count' => $delivering_orders_count,
                 'late_orders_count' => $late_orders_count,
                 'ontime_orders_count' => $ontime_orders_count,
                 'delivered_orders_count' => $delivered_orders_count,
-                'confirmed_orders_count' => $confirmed_orders_count,
+                // 'confirmed_orders_count' => $confirmed_orders_count,
                 'received_orders_count' => $received_orders_count,
                 'reviewed_orders_count' => $reviewed_orders_count,
                 'late_orders_percentage_change' => $late_orders_percentage_change,
@@ -118,8 +136,7 @@ class DashboardRepository extends RepositoryAbs
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
                 ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
                 ->leftJoin('order_deliveries', 'orders.id', '=', 'order_deliveries.order_id')
-                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id')
-                ;
+                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
