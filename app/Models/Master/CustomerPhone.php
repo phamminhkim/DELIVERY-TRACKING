@@ -9,7 +9,7 @@ class CustomerPhone extends Model
 {
     use FullTextSearch;
     protected $fillable = [
-        'customer_id', 'phone_number', 'name', 'description', 'is_active'
+        'customer_id', 'phone_number', 'name', 'description', 'is_active', 'is_receive_sms'
     ];
     protected $casts = [
         'is_active' => 'boolean',

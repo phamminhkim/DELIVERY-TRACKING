@@ -153,8 +153,24 @@
 												{{ review.review_content }}
 											</div>
 										</div>
-										<div class="box-images">
-											<div
+										<div
+											class="box-images"
+											v-viewer="{
+												inline: false,
+												button: true,
+												navbar: true,
+												title: true,
+												toolbar: true,
+												tooltip: true,
+												movable: true,
+												zoomable: true,
+												rotatable: true,
+												scalable: true,
+												transition: true,
+												keyboard: true,
+											}"
+										>
+											<!-- <div
 												class="image-container"
 												v-for="image in review.images"
 												:key="image.url"
@@ -164,7 +180,18 @@
 													alt=""
 													class="image"
 												/>
-											</div>
+											</div> -->
+											<img
+												v-for="image in review.images"
+												:key="image.url"
+												:src="`/${image.url}`"
+												class="image-container"
+												style="
+													object-fit: cover;
+													border-radius: 0.5rem;
+													overflow: hidden;
+												"
+											/>
 										</div>
 									</div>
 								</div>

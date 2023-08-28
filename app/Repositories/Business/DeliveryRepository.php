@@ -251,7 +251,7 @@ class DeliveryRepository extends RepositoryAbs
         try {
             $print_config = PrintConfig::find($print_config_id);
             if (!$print_config) {
-                $this->message = 'Đơn vận chuyển không tồn tại.';
+                $this->message = 'Cấu hình không tồn tại.';
                 return false;
             }
             DB::beginTransaction();
@@ -717,10 +717,12 @@ class DeliveryRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'orders' => 'required|array',
                 'orders.*.id' => 'required|uuid|exists:orders',
+                'estimate_delivery_date' => 'required|date_format:Y-m-d',
             ], [
                 'orders.*.required' => 'Mã đơn hàng là bắt buộc.',
                 'orders.*.uuid' => 'Mã đơn hàng không đúng định dạng.',
                 'orders.*.exists' => 'Mã đơn hàng không tồn tại.',
+                'estimate_delivery_date.required' => 'Ngày dự kiến giao là bắt buộc.',
             ]);
 
             if ($validator->fails()) {
@@ -785,6 +787,8 @@ class DeliveryRepository extends RepositoryAbs
 
                     OrderDelivery::where('order_id', $order->id)->where('delivery_id', $delivery->id)->delete();
                 };
+                $delivery->estimate_delivery_date = $this->data['estimate_delivery_date'];
+                $delivery->save();
 
                 DB::commit();
 

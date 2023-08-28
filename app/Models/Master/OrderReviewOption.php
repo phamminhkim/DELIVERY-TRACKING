@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\Business\OrderCustomerReviewCriteria;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderReviewOption extends Model
@@ -10,4 +11,9 @@ class OrderReviewOption extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function criteria()
+    {
+        return $this->hasMany(OrderCustomerReviewCriteria::class, 'criteria_id', 'id');
+    }
 }
