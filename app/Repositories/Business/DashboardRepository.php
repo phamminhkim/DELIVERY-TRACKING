@@ -2,12 +2,18 @@
 
 namespace App\Repositories\Business;
 
-use App\Enums\OrderStatus;
+use App\Models\Business\Delivery;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReviewCriteria;
+use App\Models\Business\PublicHoliday;
 use App\Models\Master\OrderReviewOption;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Master\OrderStatus as ModelOrderStatus;
+use App\Enums\OrderStatus;
+
 
 class DashboardRepository extends RepositoryAbs
 {
@@ -70,12 +76,6 @@ class DashboardRepository extends RepositoryAbs
             $delivered_orders_count = $delivered_orders_count_query
                 ->where('status_id', '>=', OrderStatus::Delivered)
                 ->count();
-
-            // $confirmed_orders_count_query = clone $this_month_query;
-            // $confirmed_orders_count = $confirmed_orders_count_query->where('status_id', OrderStatus::Delivered)
-            //     ->whereHas('delivery_info', function ($confirmed_orders_count_query) {
-            //         $confirmed_orders_count_query->whereNotNull('confirm_delivery_date');
-            //     })->count();
 
             $received_orders_count_query = clone $this_month_query;
             $received_orders_count = $received_orders_count_query->where('status_id', OrderStatus::Received)->count();
@@ -151,6 +151,144 @@ class DashboardRepository extends RepositoryAbs
             $query->orderBy('order_review_options.id', 'desc');
             return $query->get();
         } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function getReportStatistic()
+    {
+        try {
+            $query = Order::query()->where('sap_do_number', '!=', null);
+            // if ($this->request->filled('month_year')) {
+            //     $month_year = $this->request->month_year;
+            //     list($month, $year) = explode('-', $month_year);
+            //     $query->whereMonth('start_delivery_date', $month)
+            //         ->whereYear('start_delivery_date', $year);
+            // }
+            if ($this->request->filled('from_date')) {
+                $from_date = $this->request->from_date;
+                $query->whereHas('deliveries', function ($query) use ($from_date) {
+                    $query->whereDate('deliveries.start_delivery_date', '>=', $from_date);
+                });
+            }
+            if ($this->request->filled('to_date')) {
+                $to_date = $this->request->to_date;
+                $query->whereHas('deliveries', function ($query) use ($to_date) {
+                    $query->whereDate('deliveries.start_delivery_date', '<=', $to_date);
+                });
+            }
+
+            if ($this->request->filled('company_codes')) {
+                $comapny_codes = $this->request->company_codes;
+                $query->whereHas('company', function ($query) use ($comapny_codes) {
+                    $query->whereIn('company_code', $comapny_codes);
+                });
+            }
+            if ($this->request->filled('customer_ids')) {
+                $customer_ids = $this->request->customer_ids;
+                $query->whereHas('customer', function ($query) use ($customer_ids) {
+                    $query->whereIn('customer_id', $customer_ids);
+                });
+            }
+            if ($this->request->filled('delivery_partner_ids')) {
+                $delivery_partner_ids = $this->request->delivery_partner_ids;
+                $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
+                    $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                });
+            }
+            $query->with(['customer', 'detail', 'deliveries']);
+            $orders = $query->get();
+            $public_holidays = PublicHoliday::all();
+            $orders->map(function ($order) use ($public_holidays) {
+                $delivery = $order->deliveries->first();
+                if (!$delivery) {
+                    $order->duration = 0;
+                    return $order;
+                }
+                $start_date = Carbon::parse($delivery->start_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                if (!$delivery->estimate_delivery_date) {
+                    $order->duration = 0;
+                    return $order;
+                }
+                $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                $duration = $estimate_date->diffInDays($start_date) + 1;
+                //loop foreach between start_date and estimate_date
+                $looped_duration = $duration;
+                for ($i = 0; $i <= $looped_duration; $i++) {
+                    $date = $start_date->copy()->addDays($i);
+                    //check if date is public holiday
+                    $is_holiday = false;
+                    foreach ($public_holidays as $public_holiday) {
+                        $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                        $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                        if ($date->between($start_holiday_date, $end_holiday_date)) {
+                            $duration--;
+                            $is_holiday = true;
+                        }
+                    }
+                    if (!$is_holiday && $date->format('l') == 'Sunday') {
+                        $duration--;
+                    }
+                }
+                $order->duration = $duration;
+                if ($delivery->complete_delivery_date) {
+                    $delivery['status'] = OrderStatus::Delivered;
+                } else if ($delivery->start_delivery_date) {
+                    $delivery['status'] = OrderStatus::Delivering;
+
+                    // Check if any order is delivered or partly delivered
+
+                } else {
+                    $delivery['status'] = OrderStatus::Preparing;
+                }
+
+                if ($delivery['status'] >= OrderStatus::Preparing && $delivery['status'] < OrderStatus::Delivered && $delivery->estimate_delivery_date) {
+                    if ($delivery->estimate_delivery_date->isToday()) {
+                        $delivery['is_near_deadline'] = true;
+                    } else if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
+                        $delivery['is_late_deadline'] = true;
+                    }
+                }
+
+                $delivery['status'] = ModelOrderStatus::find($delivery['status']);
+                return $delivery;
+            });
+
+            return $orders;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function createPublicHoliday()
+    {
+        try {
+            //validator
+            $validator = Validator::make($this->data, [
+                'name' => 'required',
+                'start_holiday_date' => 'required|date',
+                'end_holiday_date' => 'required|date|after_or_equal:start_holiday_date',
+            ], [
+                'name.required' => 'Tên ngày nghỉ không được để trống',
+                'start_holiday_date.required' => 'Ngày bắt đầu không được để trống',
+                'start_holiday_date.date' => 'Ngày bắt đầu không đúng định dạng',
+                'end_holiday_date.required' => 'Ngày kết thúc không được để trống',
+                'end_holiday_date.date' => 'Ngày kết thúc không đúng định dạng',
+                'end_holiday_date.after_or_equal' => 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors();
+                return false;
+            } else {
+
+                DB::beginTransaction();
+                $public_holiday = PublicHoliday::create($this->data);
+                DB::commit();
+                return $public_holiday;
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

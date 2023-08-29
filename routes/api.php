@@ -44,8 +44,12 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
 
-    Route::get('/dashboard', [DashboardController::class, 'getStatistic']);
-    Route::get('/dashboard/criteria', [DashboardController::class, 'getCriteriaStatistic']);
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/criteria', [DashboardController::class, 'getCriteriaStatistic']);
+        Route::get('/report', [DashboardController::class, 'getReportStatistic']);
+        Route::get('/', [DashboardController::class, 'getStatistic']);
+        Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
+    });
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);

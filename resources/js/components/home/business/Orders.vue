@@ -27,7 +27,6 @@
 								<i v-else class="fas fa-angle-down"></i>
 							</button>
 						</div>
-						<!-- <button type="button" :title="$t('form.filter')" onclick="location.reload(true)" class="btn btn-secondary  btn-xs ml-1" ><i class="fas fa-redo-alt" title="Refresh"></i></button> -->
 						<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
 							<i class="fas fa-sync-alt" title="Tải lại"></i>
 						</button>
