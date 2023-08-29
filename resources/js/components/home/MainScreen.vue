@@ -284,6 +284,16 @@
 									<div class="btn-group">
 										<button
 											type="button"
+											class="btn btn-info btn-xs mr-2"
+											@click="exportToExcel"
+										>
+											<strong
+												><i class="fas fa-file-excel mr-1" />Xuất file
+												excel</strong
+											>
+										</button>
+										<button
+											type="button"
 											class="btn btn-warning btn-xs"
 											@click="is_show_search = !is_show_search"
 											v-b-toggle.collapse-1
@@ -311,37 +321,6 @@
 							</div>
 						</div>
 						<div>
-							<!-- <div class="col-md-9">
-								<div class="form-group row">
-									<div class="btn-group">
-										<button
-											type="button"
-											class="btn btn-warning btn-xs"
-											@click="is_show_search = !is_show_search"
-											v-b-toggle.collapse-1
-										>
-											<span v-if="!is_show_search">Hiện tìm kiếm</span>
-											<span v-if="is_show_search">Ẩn tìm kiếm</span>
-										</button>
-										<button
-											type="button"
-											class="btn btn-warning btn-xs"
-											@click="is_show_search = !is_show_search"
-											v-b-toggle.collapse-1
-										>
-											<i v-if="is_show_search" class="fas fa-angle-up"></i>
-											<i v-else class="fas fa-angle-down"></i>
-										</button>
-									</div>
-									<button
-										@click="filterData()"
-										class="btn btn-secondary btn-xs ml-1"
-									>
-										<i class="fas fa-sync-alt" title="Tải lại"></i>
-									</button>
-								</div>
-							</div> -->
-
 							<b-collapse class="row" id="collapse-1">
 								<div class="col-sm-12">
 									<div class="card">
@@ -558,6 +537,7 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from './ApiHandler';
 	import DialogOrderInfo from './business/dialogs/DialogOrderInfo.vue';
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	export default {
 		components: {
 			Treeselect,
@@ -905,6 +885,78 @@
 				if (!address) return '';
 				const addr_arr = address.split(',');
 				return [addr_arr[addr_arr.length - 2], addr_arr[addr_arr.length - 1]].join(', ');
+			},
+			exportToExcel() {
+				const clone_orders = structuredClone(this.orders);
+				const data = clone_orders.map((order) => {
+					order.deliveries[0].start_delivery_date = order.deliveries[0]
+						.start_delivery_date
+						? order.deliveries[0].start_delivery_date.split(' ')[0]
+						: '';
+					let expanded_string = '';
+					if (order.deliveries[0].is_late_deadline) {
+						expanded_string += '(Trễ hạn)';
+					}
+					if (order.deliveries[0].is_near_deadline) {
+						expanded_string += '(Gần đến hạn)';
+					}
+					console.log(expanded_string);
+					order.deliveries[0].complete_delivery_date = `${
+						order.deliveries[0].complete_delivery_date
+							? order.deliveries[0].complete_delivery_date?.split(' ')[0]
+							: ''
+					} ${expanded_string}`;
+
+					order.delivery_address = this.formatAddress(order.detail?.delivery_address);
+					return order;
+				});
+
+				saveExcel({
+					data: data,
+					fileName: 'orders_reported',
+					columns: [
+						{
+							field: 'deliveries[0].start_delivery_date',
+							title: 'Ngày xuất kho',
+						},
+						{
+							field: 'sap_do_number',
+							title: 'Phiếu xuất kho',
+						},
+						{
+							field: 'customer.code',
+							title: 'Mã khách hàng',
+						},
+						{
+							field: 'customer.name',
+							title: 'Khách hàng',
+						},
+						{
+							field: 'delivery_address',
+							title: 'Nơi đến',
+						},
+						{
+							field: 'detail.total_item',
+							title: 'Số thùng',
+						},
+						{
+							field: 'detail.total_weight',
+							title: 'Trọng lượng (KG)',
+						},
+						{
+							field: 'deliveries[0].complete_delivery_date',
+							title: 'Ngày NPP nhận',
+						},
+						{
+							field: 'duration',
+							title: 'Thời gian giao hàng theo HĐ',
+						},
+						{
+							field: 'detail.note',
+							title: 'Ghi chú',
+						},
+					],
+				});
 			},
 		},
 		watch: {
