@@ -6,7 +6,7 @@
 					<p class="title" style="flex: 6">Thống kê</p>
 					<div style="flex: 3">
 						<treeselect
-							placeholder="Chọn đơn vị vận chuyển.."
+							placeholder="Tất cả đơn vị vận chuyển.."
 							v-model="filter_delivery_partner"
 							:options="filter_delivery_partner_options"
 							@select="onSelect"
@@ -14,7 +14,7 @@
 					</div>
 					<div style="flex: 1">
 						<treeselect
-							placeholder="Chọn tháng.."
+							placeholder="Chọn mốc thời gian.."
 							v-model="filter_time"
 							:options="filter_time_options"
 							@select="onSelect"
@@ -370,10 +370,9 @@
 		},
 		async created() {
 			this.generateFilterTimeOption();
-			// await this.fetchcData();
 		},
 		methods: {
-			async fetchcData() {
+			async fetchData() {
 				try {
 					const [
 						dashboard_statistic,
@@ -420,7 +419,7 @@
 						if (year === currentYear && month > currentMonth) {
 							continue;
 						}
-						if (year === 2023 && month < 7) {
+						if (year === 2023 && month < 8) {
 							break;
 						}
 						filter_time_options.push({
@@ -482,10 +481,10 @@
 		},
 		watch: {
 			filter_delivery_partner: async function (newVal, oldVal) {
-				await this.fetchcData();
+				await this.fetchData();
 			},
 			filter_time: async function (newVal, oldVal) {
-				await this.fetchcData();
+				await this.fetchData();
 			},
 		},
 	};
