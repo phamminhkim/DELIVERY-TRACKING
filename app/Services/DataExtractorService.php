@@ -7,7 +7,7 @@ use RandomState\Camelot\Camelot;
 
 class DataExtractorService implements Interfaces\DataExtractorInterface
 {
-    public function extractData($file_path, $flavor)
+    public function withCamelot($file_path, $flavor)
     {
         if ($flavor == 'stream') {
             $table = Camelot::stream($file_path)->extract();

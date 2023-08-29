@@ -46,16 +46,32 @@ class AiRepository extends RepositoryAbs
 
     private function extractData($file_path)
     {
-        $table = $this->data_extractor->extractData($file_path, 'lattice');
-        return $table;
+        $method = 'camelot'; // Có thể là camelot, googleai, ocr
+        if ($method == 'camelot') {
+            $flavor = 'stream'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            $table = $this->data_extractor->withCamelot($file_path, $flavor);
+            return $table;
+        }
+        return [];
     }
 
     private function restructureData($array)
     {
         $data = $array[0];
 
+        // Lưu regex pattern và structure tương ứng với từng trường hợp
         $pattern = '/(\d+)\s+([\p{L}\p{N}]+)\s+(\d+)\s+(\d+)\s+([\d,\.]+)\s+([\d,\.]+)\s+([\d,\.]+)\s+(.+)/u';
-        $collection = $this->data_restructure->withRegex($data, $pattern);
+        $structure = [
+            'Barcode' => 1,
+            'Unit' => 2,
+            'Number' => 3,
+            'ProductID' => 4,
+            'Quantity' => 5,
+            'UnitPrice' => 6,
+            'Amount' => 7,
+            'Description' => 8,
+        ];
+        $collection = $this->data_restructure->withRegex($data, $pattern, $structure);
         if (count($collection) > 0) {
             return $collection;
         } else {

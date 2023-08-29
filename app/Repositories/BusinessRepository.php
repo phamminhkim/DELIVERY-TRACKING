@@ -7,6 +7,7 @@ use App\Repositories\Business\ApplicationRepository;
 use App\Repositories\Business\DashboardRepository;
 use App\Repositories\Business\OrderRepository;
 use App\Repositories\Business\DeliveryRepository;
+use App\Services\DataExtractorService;
 use App\Services\DataRestructureService;
 use App\Services\LocalFileService;
 use App\Services\PdfDataExtractorService;
@@ -33,7 +34,7 @@ class BusinessRepository
     public static function aiRequest(Request $request)
     {
         $file_service = new LocalFileService();
-        $data_extractor = new PdfDataExtractorService();
+        $data_extractor = new DataExtractorService();
         $data_restructure = new DataRestructureService();
         return new AiRepository($file_service,  $data_extractor, $data_restructure, $request);
     }
