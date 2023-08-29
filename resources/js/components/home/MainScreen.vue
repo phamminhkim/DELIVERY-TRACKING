@@ -695,7 +695,7 @@
 				await Promise.all([this.fetchReportData(), this.fetchOptionsData()]);
 		},
 		methods: {
-			async fetchcData() {
+			async fetchData() {
 				try {
 					const [
 						dashboard_statistic,
@@ -788,9 +788,13 @@
 			calculatePercent(amount, total) {
 				return Math.floor((amount / total) * 100);
 			},
-			getProcessColor(current_value, total_value) {
-				const percent = this.calculatePercent(current_value, total_value);
+			getProcessColor(current_value, total_value, reverse = false) {
+				let percent = this.calculatePercent(current_value, total_value);
 				let red, green;
+
+				if (reverse) {
+					percent = 100 - percent;
+				}
 
 				if (percent < 50) {
 					// Transition from red to yellow
@@ -905,10 +909,15 @@
 		},
 		watch: {
 			filter_delivery_partner: async function (newVal, oldVal) {
-				await this.fetchcData();
+				await this.fetchData();
 			},
 			filter_time: async function (newVal, oldVal) {
-				await this.fetchcData();
+				await this.fetchData();
+			},
+		},
+		computed: {
+			rows() {
+				return this.orders.length;
 			},
 		},
 		computed: {
