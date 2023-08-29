@@ -33,8 +33,8 @@ class AiRepository extends RepositoryAbs
         try {
             $file = $this->request->file('file');
             $file_path = $this->file_service->saveTemporaryFile($file);
-            $raw_data = $this->data_extractor->extractData($file_path);
-            $data = $this->restructureData($raw_data[0]);
+            $raw_data = $this->extractData($file_path);
+            $data = $this->restructureData($raw_data);
 
             $this->file_service->deleteTemporaryFile($file_path);
             return $data;
@@ -44,8 +44,16 @@ class AiRepository extends RepositoryAbs
         }
     }
 
-    private function restructureData($data)
+    private function extractData($file_path)
     {
+        $table = $this->data_extractor->extractData($file_path, 'lattice');
+        return $table;
+    }
+
+    private function restructureData($array)
+    {
+        $data = $array[0];
+
         $pattern = '/(\d+)\s+([\p{L}\p{N}]+)\s+(\d+)\s+(\d+)\s+([\d,\.]+)\s+([\d,\.]+)\s+([\d,\.]+)\s+(.+)/u';
         $collection = $this->data_restructure->withRegex($data, $pattern);
         if (count($collection) > 0) {
