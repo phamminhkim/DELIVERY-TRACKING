@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
+use App\Http\Controllers\Api\Business\AiController;
 use App\Http\Controllers\Api\Business\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -181,6 +182,10 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [RoleController::class, 'updateExistingRole']);
             Route::delete('/{id}', [RoleController::class, 'deleteExistingRole']);
         });
+    });
+
+    Route::prefix('ai')->group(function () {
+        Route::post('/extract-order', [AiController::class, 'extractOrder']);
     });
 });
 
