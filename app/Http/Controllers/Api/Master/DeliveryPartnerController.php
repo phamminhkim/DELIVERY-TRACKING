@@ -10,7 +10,6 @@ class DeliveryPartnerController extends ResponseController
 {
     public function getAvailablePartners(Request $request)
     {
-
         $handler = MasterRepository::deliveryPartnerRequest($request);
         $partners = $handler->getAvailablePartners();
 

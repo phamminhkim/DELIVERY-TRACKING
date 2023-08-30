@@ -344,6 +344,9 @@
 							};
 						},
 					);
+					if (this.filter_delivery_partner_options.length == 1) {
+						this.filter_delivery_partner = this.filter_delivery_partner_options[0].id;
+					}
 				} catch (error) {
 					console.log(error);
 				} finally {
