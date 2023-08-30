@@ -8,7 +8,10 @@
 						placeholder="Chọn đơn vị vận chuyển.."
 						v-model="filter_delivery_partner"
 						:options="filter_delivery_partner_options"
-						:disabled="this.filter_delivery_partner_options.length == 1"
+						:disabled="
+							filter_delivery_partner_options &&
+							filter_delivery_partner_options.length == 1
+						"
 					/>
 				</div>
 				<div style="flex: 1">
