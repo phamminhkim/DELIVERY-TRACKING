@@ -318,7 +318,7 @@
 					},
 					{
 						key: 'duration',
-						label: 'Thòi gian giao hàng theo HĐ',
+						label: 'Thời gian giao hàng theo HĐ',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},

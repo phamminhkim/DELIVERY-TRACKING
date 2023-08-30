@@ -35,7 +35,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<ul class="nav nav-pills flex-column">
+							<div class="text-center text-primary my-2" v-if="is_loading">
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<ul v-else class="nav nav-pills flex-column">
 								<li class="nav-item statistic">
 									<div class="progress-group">
 										Số đơn đúng hạn / Số đơn đã giao
@@ -134,7 +138,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<ul class="nav nav-pills flex-column">
+							<div class="text-center text-primary my-2" v-if="is_loading">
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<ul v-else class="nav nav-pills flex-column">
 								<li
 									v-for="(criteria_statistic, index) in criteria_statistics"
 									:key="index"
@@ -270,11 +278,14 @@
 				order_by_criterias: [],
 
 				viewing_order: {},
+
+				is_loading: false,
 			};
 		},
 		methods: {
 			async fetchData() {
 				try {
+					this.is_loading = true;
 					const [
 						dashboard_statistic,
 						criteria_statistics,
@@ -306,6 +317,8 @@
 					);
 				} catch (error) {
 					console.log(error);
+				} finally {
+					this.is_loading = false;
 				}
 			},
 			generateFilterTimeOption() {
