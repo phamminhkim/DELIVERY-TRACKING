@@ -482,7 +482,6 @@
 					} else {
 						order.is_late_deadline = 1;
 					}
-					console.log(expanded_string);
 					order.deliveries[0].complete_delivery_date = `${
 						order.deliveries[0].complete_delivery_date
 							? order.deliveries[0].complete_delivery_date?.split(' ')[0]
