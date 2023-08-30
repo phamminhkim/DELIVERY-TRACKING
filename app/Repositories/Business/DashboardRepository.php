@@ -242,12 +242,23 @@ class DashboardRepository extends RepositoryAbs
                     $delivery['status'] = OrderStatus::Preparing;
                 }
 
-                if ($delivery['status'] >= OrderStatus::Preparing && $delivery['status'] < OrderStatus::Delivered && $delivery->estimate_delivery_date) {
-                    if ($delivery->estimate_delivery_date->isToday()) {
-                        $delivery['is_near_deadline'] = true;
-                    } else if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
-                        $delivery['is_late_deadline'] = true;
+                if ($delivery['status'] >= OrderStatus::Preparing && $delivery->estimate_delivery_date) {
+
+                    if ($delivery['status'] >= OrderStatus::Delivered) {
+                        if ($delivery->estimate_delivery_date->lt($delivery->complete_delivery_date)) {
+                            $delivery['is_late_deadline'] = false;
+                        } else {
+                            $delivery['is_late_deadline'] = true;
+                        }
+                    } else {
+                        if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
+                            $delivery['is_late_deadline'] = false;
+                        } else {
+                            $delivery['is_late_deadline'] = true;
+                        }
                     }
+                } else {
+                    $delivery['is_late_deadline'] = false;
                 }
 
                 $delivery['status'] = ModelOrderStatus::find($delivery['status']);

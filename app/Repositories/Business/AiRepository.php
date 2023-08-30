@@ -34,10 +34,11 @@ class AiRepository extends RepositoryAbs
             $file = $this->request->file('file');
             $file_path = $this->file_service->saveTemporaryFile($file);
             $raw_data = $this->extractData($file_path);
-            $data = $this->restructureData($raw_data);
+            $table_data = $this->convertToTable($raw_data);
+            $final_data = $this->restructureData($table_data);
 
             $this->file_service->deleteTemporaryFile($file_path);
-            return $data;
+            return $final_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -46,21 +47,37 @@ class AiRepository extends RepositoryAbs
 
     private function extractData($file_path)
     {
-        $method = 'camelot'; // Có thể là camelot, googleai, ocr
-        if ($method == 'camelot') {
-            $flavor = 'stream'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
-            $table = $this->data_extractor->withCamelot($file_path, $flavor);
-            return $table;
+        if ($this->request->filled('extract_method')) {
+            $method = $this->request->extract_method; // Có thể là camelot, googleai, ocr
+            if ($method == 'camelot') {
+                $flavor = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $table = $this->data_extractor->withCamelot($file_path, $flavor);
+                return $table;
+            }
+            return [];
+        } else {
+            throw new \Exception('Extract method is not specified');
         }
-        return [];
     }
 
-    private function restructureData($array)
+    private function convertToTable($array)
     {
         $data = $array[0];
 
         // Lưu regex pattern và structure tương ứng với từng trường hợp
-        $pattern = '/(\d+)\s+([\p{L}\p{N}]+)\s+(\d+)\s+(\d+)\s+([\d,\.]+)\s+([\d,\.]+)\s+([\d,\.]+)\s+(.+)/u';
+        if ($this->request->filled('regex_pattern')) {
+            $pattern = $this->request->regex_pattern;
+            $collection = $this->data_restructure->withRegex($data, $pattern);
+
+            return $collection;
+        } else {
+            $collection = $this->data_restructure->withLeagueCsv($data);
+            return $collection;
+        }
+    }
+
+    private function restructureData($array)
+    {
         $structure = [
             'Barcode' => 1,
             'Unit' => 2,
@@ -71,12 +88,14 @@ class AiRepository extends RepositoryAbs
             'Amount' => 7,
             'Description' => 8,
         ];
-        $collection = $this->data_restructure->withRegex($data, $pattern, $structure);
-        if (count($collection) > 0) {
-            return $collection;
-        } else {
-            $collection = $this->data_restructure->withLeagueCsv($data);
-            return $collection;
+        $collection = collect([]);
+        foreach ($array as $match) {
+            $output = [];
+            foreach ($structure as $key => $index) {
+                $output[$key] = $match[$index];
+            }
+            $collection->push($output);
         }
+        return $collection;
     }
 }

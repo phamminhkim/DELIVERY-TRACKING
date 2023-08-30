@@ -195,6 +195,10 @@
 						<template #cell(delivery_address)="data">
 							{{ formatAddress(data.item.detail?.delivery_address) }}
 						</template>
+						<template #cell(is_late_deadline)="data">
+							<span v-if="data.item.deliveries[0].is_late_deadline">2</span>
+							<span v-else>1</span>
+						</template>
 					</b-table>
 				</div>
 				<!-- end tạo nút -->
@@ -319,6 +323,12 @@
 					{
 						key: 'duration',
 						label: 'Thời gian giao hàng theo HĐ',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'is_late_deadline',
+						label: 'Trễ hạn (1: đúng, 2: trễ)',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -468,11 +478,10 @@
 					let expanded_string = '';
 					if (order.deliveries[0].is_late_deadline) {
 						expanded_string += '(Trễ hạn)';
+						order.is_late_deadline = 2;
+					} else {
+						order.is_late_deadline = 1;
 					}
-					if (order.deliveries[0].is_near_deadline) {
-						expanded_string += '(Gần đến hạn)';
-					}
-					console.log(expanded_string);
 					order.deliveries[0].complete_delivery_date = `${
 						order.deliveries[0].complete_delivery_date
 							? order.deliveries[0].complete_delivery_date?.split(' ')[0]
@@ -522,6 +531,10 @@
 						{
 							field: 'duration',
 							title: 'Thời gian giao hàng theo HĐ',
+						},
+						{
+							field: 'is_late_deadline',
+							title: 'Trễ hạn (1: đúng, 2: trễ)',
 						},
 						{
 							field: 'detail.note',
