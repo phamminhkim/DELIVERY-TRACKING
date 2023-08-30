@@ -27,7 +27,6 @@
 								<i v-else class="fas fa-angle-down"></i>
 							</button>
 						</div>
-						<!-- <button type="button" :title="$t('form.filter')" onclick="location.reload(true)" class="btn btn-secondary  btn-xs ml-1" ><i class="fas fa-redo-alt" title="Refresh"></i></button> -->
 						<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
 							<i class="fas fa-sync-alt" title="Tải lại"></i>
 						</button>
@@ -438,14 +437,13 @@
 		async created() {
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
-			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
+			await Promise.all([this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						// this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
