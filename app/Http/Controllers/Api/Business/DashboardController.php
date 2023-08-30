@@ -22,9 +22,34 @@ class DashboardController extends ResponseController
         }
     }
 
-    public function getCriteriaStatistic(Request $request){
+    public function getCriteriaStatistic(Request $request)
+    {
         $handler = BusinessRepository::dashboardRequest($request);
         $data = $handler->getCriteriaStatistic();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function getReportStatistic(Request $request)
+    {
+        $handler = BusinessRepository::dashboardRequest($request);
+        $data = $handler->getReportStatistic();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function createPublicHoliday(Request $request)
+    {
+        $handler = BusinessRepository::dashboardRequest($request);
+        $data = $handler->createPublicHoliday();
 
         if ($data) {
             return $this->responseSuccess($data);
