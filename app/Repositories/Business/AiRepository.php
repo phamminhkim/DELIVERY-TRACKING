@@ -62,17 +62,24 @@ class AiRepository extends RepositoryAbs
 
     private function convertToTable($array)
     {
-        $data = $array[0];
+        if ($this->request->filled('convert_method')) {
+            $method = $this->request->convert_method; // Có thể là regex, leaguecsv
+            if ($method == 'regexmatch') {
+                $pattern = $this->request->regex_pattern;
+                $collection = $this->data_restructure->withRegexMatch($array, $pattern);
 
-        // Lưu regex pattern và structure tương ứng với từng trường hợp
-        if ($this->request->filled('regex_pattern')) {
-            $pattern = $this->request->regex_pattern;
-            $collection = $this->data_restructure->withRegex($data, $pattern);
+                return $collection;
+            } elseif ($method == 'regexsplit') {
+                $pattern = $this->request->regex_pattern;
+                $collection = $this->data_restructure->withRegexSplit($array[0], $pattern);
 
-            return $collection;
+                return $collection;
+            } elseif ($method == 'leaguecsv') {
+                $collection = $this->data_restructure->withLeagueCsv($array);
+                return $collection;
+            }
         } else {
-            $collection = $this->data_restructure->withLeagueCsv($data);
-            return $collection;
+            throw new \Exception('Convert table method is not specified');
         }
     }
 
