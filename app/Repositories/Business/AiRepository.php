@@ -36,7 +36,6 @@ class AiRepository extends RepositoryAbs
             $raw_data = $this->extractData($file_path);
             $table_data = $this->convertToTable($raw_data);
             $final_data = $this->restructureData($table_data);
-
             $this->file_service->deleteTemporaryFile($file_path);
             return $final_data;
         } catch (\Throwable $exception) {
@@ -49,15 +48,14 @@ class AiRepository extends RepositoryAbs
     {
         if ($this->request->filled('extract_method')) {
             $method = $this->request->extract_method; // Có thể là camelot, googleai, ocr
+            $table = null;
             if ($method == 'camelot') {
                 $flavor = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $table = $this->data_extractor->withCamelot($file_path, $flavor);
-                return $table;
             }
-            return [];
-        } else {
-            throw new \Exception('Extract method is not specified');
+            if ($table) return $table;
         }
+        throw new \Exception('Extract method is not specified');
     }
 
     private function convertToTable($array)
