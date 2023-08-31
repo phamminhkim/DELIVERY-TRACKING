@@ -7,6 +7,7 @@ use App\Services\Interfaces\DataExtractorInterface;
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Services\Interfaces\FileServiceInterface;
 use App\Services\Interfaces\PdfExtractorInterface;
+use App\Services\Interfaces\TableConverterInterface;
 use Illuminate\Support\Facades\Storage;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
@@ -15,17 +16,20 @@ class AiRepository extends RepositoryAbs
 {
     protected $file_service;
     protected $data_extractor;
+    protected $table_converter;
     protected $data_restructure;
 
     public function __construct(
         FileServiceInterface $file_service,
         DataExtractorInterface $data_extractor,
+        TableConverterInterface $table_converter,
         DataRestructureInterface $data_restructure,
         $request
     ) {
         parent::__construct($request);
         $this->file_service = $file_service;
         $this->data_extractor = $data_extractor;
+        $this->table_converter = $table_converter;
         $this->data_restructure = $data_restructure;
     }
     public function extractOrder()
@@ -52,10 +56,13 @@ class AiRepository extends RepositoryAbs
             if ($method == 'camelot') {
                 $flavor = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $table = $this->data_extractor->withCamelot($file_path, $flavor);
+            } else {
+                throw new \Exception('Extract method is not specified');
             }
-            if ($table) return $table;
+            return $table;
+        } else {
+            throw new \Exception('Extract method is not specified');
         }
-        throw new \Exception('Extract method is not specified');
     }
 
     private function convertToTable($array)
@@ -65,39 +72,41 @@ class AiRepository extends RepositoryAbs
             $table = null;
             if ($method == 'regexmatch') {
                 $pattern = $this->request->regex_pattern;
-                $table = $this->data_restructure->withRegexMatch($array[0], $pattern);
+                $table = $this->table_converter->withRegexMatch($array[0], $pattern);
             } elseif ($method == 'regexsplit') {
                 $pattern = $this->request->regex_pattern;
-                $table = $this->data_restructure->withRegexSplit($array[0], $pattern);
+                $table = $this->table_converter->withRegexSplit($array[0], $pattern);
             } elseif ($method == 'leaguecsv') {
-                $table = $this->data_restructure->withLeagueCsv($array);
+                $table = $this->table_converter->withLeagueCsv($array);
+            } else {
+                throw new \Exception('Convert method is not specified');
             }
-            if ($table) return $table;
+            return $table;
+        } else {
+            throw new \Exception('Convert method is not specified');
         }
-        throw new \Exception('Convert table method is not specified');
     }
 
     private function restructureData($array)
     {
-        dd($array);
-        $structure = [
-            'Barcode' => 1,
-            'Unit' => 2,
-            'Number' => 3,
-            'ProductID' => 4,
-            'Quantity' => 5,
-            'UnitPrice' => 6,
-            'Amount' => 7,
-            'Description' => 8,
-        ];
-        $collection = collect([]);
-        foreach ($array as $match) {
-            $output = [];
-            foreach ($structure as $key => $index) {
-                $output[$key] = $match[$index];
+        if ($this->request->filled('restucture_method')) {
+            $method = $this->request->restucture_method;
+            $table = null;
+            if ($method == 'arraymapping') {
+                $structure = [
+                    'Barcode' => 1,
+                    'Unit' => 2,
+                    'Number' => 3,
+                    'ProductID' => 4,
+                    'Quantity' => 5,
+                    'UnitPrice' => 6,
+                    'Amount' => 7,
+                    'Description' => 8,
+                ];
+                $table = $this->data_restructure->withArrayMapping($array, $structure);
             }
-            $collection->push($output);
+            return $table;
         }
-        return $collection;
+        return $array;
     }
 }
