@@ -77,7 +77,7 @@ class AiRepository extends RepositoryAbs
                 $pattern = $this->request->regex_pattern;
                 $table = $this->table_converter->withRegexSplit($array[0], $pattern);
             } elseif ($method == 'leaguecsv') {
-                $table = $this->table_converter->withLeagueCsv($array);
+                $table = $this->table_converter->withLeagueCsv($array[0]);
             } else {
                 throw new \Exception('Convert method is not specified');
             }
@@ -90,11 +90,13 @@ class AiRepository extends RepositoryAbs
     private function restructureData($array)
     {
         if ($this->request->filled('restucture_method')) {
-            $method = $this->request->restucture_method;
+            $method = $this->request->restucture_method;;
             $table = null;
-            if ($method == 'arraymapping') {
-                $structure = $this->request->structure;
-                $table = $this->data_restructure->withArrayMapping($array, $structure);
+            $structure = json_decode($this->request->structure);
+            if ($method == 'arraymappingbyindex') {
+                $table = $this->data_restructure->withArrayMappingByIndex($array, $structure);
+            } elseif ($method == 'arraymappingbykey') {
+                $table = $this->data_restructure->withArrayMappingByKey($array, $structure);
             }
             return $table;
         }
