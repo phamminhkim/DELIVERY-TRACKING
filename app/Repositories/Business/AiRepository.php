@@ -93,16 +93,7 @@ class AiRepository extends RepositoryAbs
             $method = $this->request->restucture_method;
             $table = null;
             if ($method == 'arraymapping') {
-                $structure = [
-                    'Barcode' => 1,
-                    'Unit' => 2,
-                    'Number' => 3,
-                    'ProductID' => 4,
-                    'Quantity' => 5,
-                    'UnitPrice' => 6,
-                    'Amount' => 7,
-                    'Description' => 8,
-                ];
+                $structure = $this->request->structure;
                 $table = $this->data_restructure->withArrayMapping($array, $structure);
             }
             return $table;
