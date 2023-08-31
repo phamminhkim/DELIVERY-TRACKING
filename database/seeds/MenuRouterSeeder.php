@@ -24,11 +24,13 @@ class MenuRouterSeeder extends Seeder
                 $menu['left'] = 0;
                 $menu['right'] = 0;
                 $menu['is_active'] = true;
-                $existing_menu = MenuRouter::create($menu);
+                $clone_menu = $menu;
+                unset($clone_menu['roles']);
+                $existing_menu = MenuRouter::create($clone_menu);
             }
-
             $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
             $roles = Role::whereIn('name', $role_names)->get();
+
             $existing_menu->guard_name = 'web';
             $existing_menu->assignRole($roles);
         }
