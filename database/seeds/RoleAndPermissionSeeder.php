@@ -23,10 +23,11 @@ class RoleAndPermissionSeeder extends Seeder
             'user-driver',
             'user-customer',
             'user-sap',
+            'user-sale',
             'user-normal'
         ];
 
-         foreach ($roles as $role) {
+        foreach ($roles as $role) {
             if (!Role::where('name', $role)->exists()) {
                 Role::create(['name' => $role]);
             }
