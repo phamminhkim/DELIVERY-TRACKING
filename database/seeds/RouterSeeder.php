@@ -91,7 +91,13 @@ class RouterSeeder extends Seeder
                 'name' => 'Vai trò',
                 'path' => '/roles',
                 'component' => 'home/admin/Roles'
+            ],
+            [
+                'name' => 'Bảng đối chiếu sản phẩm',
+                'path' => '/sap-product-mappings',
+                'component' => 'home/master/SapProductMapping'
             ]
+
         ];
 
         foreach ($routes as $route) {
@@ -99,16 +105,17 @@ class RouterSeeder extends Seeder
                 Route::create($route);
             }
         }
-        
+
         $this->assignRouteIntoMenuRouter();
         RedisUtility::deleteByCategory('routes');
         $this->command->info('Routes seeded!');
     }
 
-    public function assignRouteIntoMenuRouter() {
+    public function assignRouteIntoMenuRouter()
+    {
         $menu_routers = MenuRouter::all();
         foreach ($menu_routers as $menu_router) {
-            $route = Route::where('path', '/'.$menu_router->link)->first();
+            $route = Route::where('path', '/' . $menu_router->link)->first();
             if ($route) {
                 $menu_router->route_id = $route->id;
                 $menu_router->save();
