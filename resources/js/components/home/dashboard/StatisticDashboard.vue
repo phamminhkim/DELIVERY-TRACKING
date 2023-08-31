@@ -35,7 +35,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<div class="text-center text-primary my-2" v-if="is_loading">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
 								<b-spinner class="align-middle" type="grow"></b-spinner>
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
@@ -138,7 +142,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<div class="text-center text-primary my-2" v-if="is_loading">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
 								<b-spinner class="align-middle" type="grow"></b-spinner>
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
