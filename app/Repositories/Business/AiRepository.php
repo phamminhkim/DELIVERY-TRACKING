@@ -65,7 +65,7 @@ class AiRepository extends RepositoryAbs
             $table = null;
             if ($method == 'regexmatch') {
                 $pattern = $this->request->regex_pattern;
-                $table = $this->data_restructure->withRegexMatch($array, $pattern);
+                $table = $this->data_restructure->withRegexMatch($array[0], $pattern);
             } elseif ($method == 'regexsplit') {
                 $pattern = $this->request->regex_pattern;
                 $table = $this->data_restructure->withRegexSplit($array[0], $pattern);
@@ -79,6 +79,7 @@ class AiRepository extends RepositoryAbs
 
     private function restructureData($array)
     {
+        dd($array);
         $structure = [
             'Barcode' => 1,
             'Unit' => 2,
