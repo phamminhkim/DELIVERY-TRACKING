@@ -8,6 +8,10 @@
 						placeholder="Chọn đơn vị vận chuyển.."
 						v-model="filter_delivery_partner"
 						:options="filter_delivery_partner_options"
+						:disabled="
+							filter_delivery_partner_options &&
+							filter_delivery_partner_options.length == 1
+						"
 					/>
 				</div>
 				<div style="flex: 1">
@@ -44,6 +48,35 @@
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
 							<ul v-else class="nav nav-pills flex-column">
+								<li class="nav-item statistic">
+									<div class="progress-group">
+										Số đơn trễ hạn / Số đơn đang giao
+										<span class="float-right"
+											><b>{{ dashboard_statistic.late_orders_count }}</b
+											>/{{
+												dashboard_statistic.delivering_orders_count
+											}}</span
+										>
+										<b-progress
+											:max="dashboard_statistic.delivering_orders_count"
+											show-progress
+											height="1.5rem"
+										>
+											<b-progress-bar
+												:style="`background-color: ${getProcessColor(
+													dashboard_statistic.late_orders_count,
+													dashboard_statistic.delivering_orders_count,
+													true,
+												)}`"
+												:value="dashboard_statistic.late_orders_count"
+												:label="`${calculatePercent(
+													dashboard_statistic.late_orders_count,
+													dashboard_statistic.delivering_orders_count,
+												)}%`"
+											></b-progress-bar
+										></b-progress>
+									</div>
+								</li>
 								<li class="nav-item statistic">
 									<div class="progress-group">
 										Số đơn đúng hạn / Số đơn đã giao
@@ -323,6 +356,9 @@
 							};
 						},
 					);
+					if (this.filter_delivery_partner_options.length == 1) {
+						this.filter_delivery_partner = this.filter_delivery_partner_options[0].id;
+					}
 				} catch (error) {
 					console.log(error);
 				} finally {

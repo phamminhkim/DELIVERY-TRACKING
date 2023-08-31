@@ -6,20 +6,17 @@ use League\Csv\Reader;
 
 class DataRestructureService implements Interfaces\DataRestructureInterface
 {
-    public function withRegex($raw_data, $pattern, $structure)
+    public function withRegexMatch($raw_data, $pattern)
     {
         preg_match_all($pattern, $raw_data, $matches, PREG_SET_ORDER);
 
-        $collection = collect([]);
-        foreach ($matches as $match) {
-            $output = [];
-            foreach ($structure as $key => $index) {
-                $output[$key] = $match[$index];
-            }
-            $collection->push($output);
-        }
+        return $matches;
+    }
+    public function withRegexSplit($raw_data, $pattern)
+    {
+        $matches = preg_split($pattern, $raw_data);
 
-        return $collection;
+        return $matches;
     }
     public function withLeagueCsv($raw_data)
     {
