@@ -26,7 +26,7 @@ class MenuRouterSeeder extends Seeder
                 $menu['is_active'] = true;
                 $existing_menu = MenuRouter::create($menu);
             }
-            
+
             $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
             $roles = Role::whereIn('name', $role_names)->get();
             $existing_menu->guard_name = 'web';
@@ -44,7 +44,7 @@ class MenuRouterSeeder extends Seeder
                 unset($menu['parent']);
                 $existing_menu = MenuRouter::create($menu);
             }
-        
+
             $role_names =  isset($menu['roles']) ? $menu['roles'] : [];
             if ($existing_menu->parent) {
                 $role_names = array_merge($role_names, $existing_menu->parent->roles->pluck('name')->toArray());
@@ -92,6 +92,16 @@ class MenuRouterSeeder extends Seeder
                     'admin-warehouse',
                     'admin-partner',
                     'user-sap'
+                ]
+            ],
+            [
+                'title' => "Trích xuất đơn hàng",
+                'icon' => "fas fa-brain",
+                'link' => "#",
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                    'user-sale'
                 ]
             ],
             [
@@ -244,6 +254,20 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
             ],
+            [
+                'title' => "Sản phẩm SAP",
+                'icon' => "fas fa-list",
+                'link' => "sap-products",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Bảng mapping sản phẩm",
+                'icon' => "fas fa-network-wired",
+                'link' => "sap-product-mappings",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ]
         ];
     }
 }
