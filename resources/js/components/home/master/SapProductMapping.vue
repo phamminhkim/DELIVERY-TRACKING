@@ -82,7 +82,7 @@
 						},
 					],
 				},
-				api_url: '/api/master/sap-product-mapping',
+				api_url: '/api/master/sap_product_mappings',
 			};
 		},
 	};

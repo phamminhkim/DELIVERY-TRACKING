@@ -96,6 +96,11 @@ class RouterSeeder extends Seeder
                 'name' => 'Bảng đối chiếu sản phẩm',
                 'path' => '/sap-product-mappings',
                 'component' => 'home/master/SapProductMapping'
+            ],
+            [
+                'name' => 'Sản phẩm SAP',
+                'path' => '/sap-products',
+                'component' => 'home/master/SapProducts'
             ]
 
         ];
