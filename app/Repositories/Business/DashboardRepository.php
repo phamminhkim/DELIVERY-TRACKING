@@ -68,7 +68,7 @@ class DashboardRepository extends RepositoryAbs
             $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
 
             $late_orders_count_query = clone $this_month_query;
-            $late_orders_count = $late_orders_count_query->where('status_id', '>=', OrderStatus::Preparing)
+            $late_orders_count = $late_orders_count_query->where('status_id', '=', OrderStatus::Delivering)
                 ->where('status_id', '<', OrderStatus::Delivered)
                 ->whereHas('deliveries', function ($late_orders_count_query) {
                     $late_orders_count_query->whereDate('estimate_delivery_date', '<', Carbon::today());

@@ -259,14 +259,14 @@ class MenuRouterSeeder extends Seeder
             [
                 'title' => "Sản phẩm SAP",
                 'icon' => "fas fa-list",
-                'link' => "sap-products",
+                'link' => "sap-materials",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
             [
                 'title' => "Bảng mapping SAP",
                 'icon' => "fas fa-network-wired",
-                'link' => "sap-product-mappings",
+                'link' => "sap-material-mappings",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ]

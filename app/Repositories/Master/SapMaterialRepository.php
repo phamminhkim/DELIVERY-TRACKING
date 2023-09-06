@@ -3,6 +3,7 @@
 namespace App\Repositories\Master;
 
 use App\Models\Master\SapMaterial;
+use App\Models\Master\SapUnit;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
 
@@ -61,28 +62,50 @@ class SapMaterialRepository extends RepositoryAbs
             'delete_count' => 0,
             'error_count' => 0,
         );
-        foreach ($this->data as $SapMaterial) {
-            $validator = Validator::make($SapMaterial, [
+        foreach ($this->data as $material) {
+            $validator = Validator::make($material, [
+                'company_id' => 'required|string|exists:companies,code',
                 'code' => 'required|string',
+                'name' => 'required|string',
             ], [
+                'company_id.required' => 'Yêu cầu nhập mã công ty.',
+                'company_id.string' => 'Mã công ty phải là chuỗi.',
+                'company_id.exists' => 'Mã công ty không tồn tại.',
                 'code.required' => 'Yêu cầu nhập mã material.',
+                'code.string' => 'Mã material phải là chuỗi.',
+                'name.required' => 'Yêu cầu nhập tên material.',
+                'name.string' => 'Tên material phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $exist_SapMaterial = SapMaterial::where('code', $SapMaterial['code'])->first();
-                if ($exist_SapMaterial) {
-                    $exist_SapMaterial->update([
-                        'name' => $SapMaterial['name'],
-                    ]);
-                    $result['update_count']++;
-                } else {
-                    SapMaterial::create([
-                        'code' => $SapMaterial['code'],
-                        'name' => $SapMaterial['name'],
-                    ]);
-                    $result['insert_count']++;
+                $unit = SapUnit::firstOrCreate([
+                    'code' => $material['unit_code'],
+                ]);
+
+                $exist_sap_material = SapMaterial::where('company_id', $material['company_id'])
+                    ->where('sap_code', $material['code'])
+                    ->where('unit_id', $unit->id)->first();
+
+                if ($material['status'] == "delete") {
+                    $exist_sap_material->is_deleted = true;
+                    $exist_sap_material->save();
+                } {
+                    if ($exist_sap_material) {
+                        $exist_sap_material->update([
+                            'name' => $material['name'],
+                        ]);
+                        $result['update_count']++;
+                    } else {
+                        SapMaterial::create([
+                            'company_id' => $material['company_id'],
+                            'sap_code' => $material['code'],
+                            'unit_id' => $unit->id,
+                            'name' => $material['name'],
+                        ]);
+                        $result['insert_count']++;
+                    }
                 }
             }
         }

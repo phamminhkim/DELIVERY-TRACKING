@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSapProductMappingsTable extends Migration
+class CreateSapMaterialMappingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,15 @@ class CreateSapProductMappingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('sap_product_mappings', function (Blueprint $table) {
+        Schema::create('sap_material_mappings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('customer_id');
-            $table->string('sap_code');
+            $table->string('sap_code', 40);
             $table->string('customer_code');
             $table->timestamps();
 
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->foreign('sap_code')->references('sap_code')->on('sap_products');
+            $table->foreign('sap_code')->references('sap_code')->on('sap_materials');
         });
     }
 
@@ -32,6 +32,6 @@ class CreateSapProductMappingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sap_product_mappings');
+        Schema::dropIfExists('sap_material_mappings');
     }
 }
