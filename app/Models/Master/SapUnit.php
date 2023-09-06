@@ -9,6 +9,6 @@ class SapUnit extends Model
     public $timestamps = false;
     protected $table = 'sap_units';
     protected $fillable = [
-        'name'
+        'unit_code'
     ];
 }

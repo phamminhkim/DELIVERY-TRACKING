@@ -12,45 +12,43 @@ class MasterDataController extends ResponseController
 {
     public function syncFromSAP(Request $request, $category)
     {
+        $handler = null;
         switch ($category) {
             case SapSyncCategory::Customer:
                 $handler = MasterRepository::customerRequest($request);
-                $data = $request->all();
-                $handler->updateOrInsert();
-                return $data;
+                break;
 
             case SapSyncCategory::DistributionChannel:
                 $handler = MasterRepository::distributionChannelRequest($request);
-                $data = $request->all();
-                $handler->updateOrInsert();
-                return $data;
+                break;
 
             case SapSyncCategory::Warehouse:
                 $handler = MasterRepository::warehouseRequest($request);
-                $data = $request->all();
-                $handler->updateOrInsert();
-                return $data;
+                break;
 
             case SapSyncCategory::SaleDistrict:
                 $handler = MasterRepository::saleDistrictRequest($request);
-                $data = $request->all();
-                $handler->updateOrInsert();
-                return $data;
+                break;
 
             case SapSyncCategory::SaleGroup:
                 $handler = MasterRepository::saleGroupRequest($request);
-                $data = $request->all();
-                $handler->updateOrInsert();
-                return $data;
+                break;
 
             case SapSyncCategory::SapMaterial:
                 $handler = MasterRepository::sapMaterialRequest($request);
-                $data = $request->all();
-                $return_data = $handler->updateOrInsert();
-                return $return_data;
+                break;
 
             default:
                 return $this->responseError('Invalid category', []);
+        }
+
+        if ($handler) {
+            $return_data = $handler->updateOrInsert();
+            if ($return_data) {
+                return $this->responseSuccess($return_data);
+            } else {
+                return $this->responseError($handler->getMessage(), $handler->getErrors());
+            }
         }
     }
 }
