@@ -62,24 +62,26 @@ class SapMaterialRepository extends RepositoryAbs
             'delete_count' => 0,
             'error_count' => 0,
         );
-        foreach ($this->data as $material) {
-            $validator = Validator::make($material, [
-                'company_id' => 'required|string|exists:companies,code',
-                'code' => 'required|string',
-                'name' => 'required|string',
-            ], [
-                'company_id.required' => 'Yêu cầu nhập mã công ty.',
-                'company_id.string' => 'Mã công ty phải là chuỗi.',
-                'company_id.exists' => 'Mã công ty không tồn tại.',
-                'code.required' => 'Yêu cầu nhập mã material.',
-                'code.string' => 'Mã material phải là chuỗi.',
-                'name.required' => 'Yêu cầu nhập tên material.',
-                'name.string' => 'Tên material phải là chuỗi.',
-            ]);
+        $validator = Validator::make($this->data, [
+            '*.company_id' => 'required|string|exists:companies,code',
+            '*.code' => 'required|string',
+            '*.name' => 'required|string',
+        ], [
+            '*.company_id.required' => 'Yêu cầu nhập mã công ty.',
+            '*.company_id.string' => 'Mã công ty phải là chuỗi.',
+            '*.company_id.exists' => 'Mã công ty không tồn tại.',
+            '*.code.required' => 'Yêu cầu nhập mã material.',
+            '*.code.string' => 'Mã material phải là chuỗi.',
+            '*.name.required' => 'Yêu cầu nhập tên material.',
+            '*.name.string' => 'Tên material phải là chuỗi.',
+        ]);
 
-            if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
-            } else {
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->all();
+            return false;
+        } else {
+            foreach ($this->data as $material) {
+
                 $unit = SapUnit::firstOrCreate([
                     'code' => $material['unit_code'],
                 ]);
@@ -108,6 +110,7 @@ class SapMaterialRepository extends RepositoryAbs
                     }
                 }
             }
+            return $result;
         }
     }
     public function updateExistingSapMaterial($id)
