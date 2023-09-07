@@ -39,19 +39,21 @@ class AiRepository extends RepositoryAbs
         try {
             $file = $this->request->file('file');
             $file_path = $this->file_service->saveTemporaryFile($file);
-            $pdf = new Fpdi();
-            $pageCount = $pdf->setSourceFile($file_path);
-            $size = $pdf->getTemplateSize($pdf->importPage(1));
-            $pdf->AddPage('P', [$size['width'], $size['height'] * $pageCount]);
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $tpl = $pdf->importPage($i);
-                $pdf->useTemplate($tpl, 0, $size['height'] * ($i - 1));
+
+            if ($this->request->filled('is_merge_pages') && $this->request->is_merge_pages) {
+                $pdf = new Fpdi();
+                $pageCount = $pdf->setSourceFile($file_path);
+                $size = $pdf->getTemplateSize($pdf->importPage(1));
+                $pdf->AddPage('P', [$size['width'], $size['height'] * $pageCount]);
+                for ($i = 1; $i <= $pageCount; $i++) {
+                    $tpl = $pdf->importPage($i);
+                    $pdf->useTemplate($tpl, 0, $size['height'] * ($i - 1));
+                }
+                $pdf->Output('F', $file_path);
             }
-            $pdf->Output('F', $file_path);
 
             $raw_data = $this->extractData($file_path);
             $table_data = $this->convertToTable($raw_data);
-            dd($table_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
             return $final_data;
@@ -113,8 +115,8 @@ class AiRepository extends RepositoryAbs
 
     private function restructureData($array)
     {
-        if ($this->request->filled('restucture_method')) {
-            $method = $this->request->restucture_method;;
+        if ($this->request->filled('restructure_method')) {
+            $method = $this->request->restructure_method;;
             $table = null;
             $structure = json_decode($this->request->structure);
             if ($method == 'arraymappingbyindex') {
