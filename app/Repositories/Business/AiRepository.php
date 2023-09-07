@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Business;
 
+
+use setasign\Fpdi\Fpdi;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Interfaces\DataExtractorInterface;
 use App\Services\Interfaces\DataRestructureInterface;
@@ -37,8 +39,19 @@ class AiRepository extends RepositoryAbs
         try {
             $file = $this->request->file('file');
             $file_path = $this->file_service->saveTemporaryFile($file);
+            $pdf = new Fpdi();
+            $pageCount = $pdf->setSourceFile($file_path);
+            $size = $pdf->getTemplateSize($pdf->importPage(1));
+            $pdf->AddPage('P', [$size['width'], $size['height'] * $pageCount]);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tpl = $pdf->importPage($i);
+                $pdf->useTemplate($tpl, 0, $size['height'] * ($i - 1));
+            }
+            $pdf->Output('F', $file_path);
+
             $raw_data = $this->extractData($file_path);
             $table_data = $this->convertToTable($raw_data);
+            dd($table_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
             return $final_data;
@@ -69,15 +82,26 @@ class AiRepository extends RepositoryAbs
     {
         if ($this->request->filled('convert_method')) {
             $method = $this->request->convert_method; // Có thể là regex, leaguecsv
-            $table = null;
+            $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
+            $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
+            $table = [];
             if ($method == 'regexmatch') {
                 $pattern = $this->request->regex_pattern;
-                $table = $this->table_converter->withRegexMatch($array[0], $pattern);
+                for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+                    $extracted_table = $this->table_converter->withRegexMatch($array[$i], $pattern);
+                    $table = array_merge($table, $extracted_table);
+                }
             } elseif ($method == 'regexsplit') {
                 $pattern = $this->request->regex_pattern;
-                $table = $this->table_converter->withRegexSplit($array[0], $pattern);
+                for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+                    $extracted_table = $this->table_converter->withRegexSplit($array[$i], $pattern);
+                    $table = array_merge($table, $extracted_table);
+                }
             } elseif ($method == 'leaguecsv') {
-                $table = $this->table_converter->withLeagueCsv($array[0]);
+                for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+                    $extracted_table = $this->table_converter->withLeagueCsv($array[$i]);
+                    $table = array_merge($table, $extracted_table);
+                }
             } else {
                 throw new \Exception('Convert method is not specified');
             }
