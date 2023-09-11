@@ -3,6 +3,7 @@
 namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus as EnumsOrderStatus;
+use App\Jobs\SendPreparedOrderZaloSms;
 use App\Models\Business\DeliveryTimeline;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
@@ -137,6 +138,11 @@ class OrderRepository extends RepositoryAbs
                             ],
                             $data
                         );
+                        // Check if order is approved by finance
+                        if ($order['approveds']['sap_so_finance_approval_date'] && !$created_order->approved()->exists() || $created_order->approved()->exists() && $created_order->approved->sap_so_finance_approval_date != $order['approveds']['sap_so_finance_approval_date']) {
+                            SendPreparedOrderZaloSms::dispatch($customer->id, $created_order->id);
+                        }
+
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
                         ]);
