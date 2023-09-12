@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Business\Order;
+use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Repositories\System\ZaloRepository;
 use Illuminate\Bus\Queueable;
@@ -20,7 +21,7 @@ class SendPreparedOrderZaloSms extends SendZaloSms
         $this->template_data = [
             'id' => $order_id,
             'order_code' => Order::find($order_id)->sap_so_number,
-            'customer_name' => CustomerPhone::where('customer_id', $customer_id)->first()->name,
+            'customer_name' => Customer::find($customer_id)->name,
         ];
     }
 
