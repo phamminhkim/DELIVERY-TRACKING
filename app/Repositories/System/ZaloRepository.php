@@ -15,7 +15,7 @@ use Wilkques\PKCE\Generator;
 
 class ZaloRepository extends RepositoryAbs
 {
-    private function getInstance()
+    private static function getInstance()
     {
         $config = array(
             'app_id' => config("services.zalo.client_id"),
@@ -24,7 +24,7 @@ class ZaloRepository extends RepositoryAbs
 
         return new Zalo($config);
     }
-    private function getOaAccessToken()
+    private static function getOaAccessToken()
     {
         $existing_token = ServiceToken::where('provider', 'zalo')->where('category', 'oa_access_token')->first();
         if ($existing_token) {
@@ -42,7 +42,7 @@ class ZaloRepository extends RepositoryAbs
                 $result = $response->json();
                 if (isset($result['access_token'])) {
                     $expired_at = $existing_token->expired_at->addSeconds($result['expires_in']);
-                    $this->updateOaAccessToken($result['accessToken'], $result['refreshToken'], $expired_at);
+                    ZaloRepository::updateOaAccessToken($result['accessToken'], $result['refreshToken'], $expired_at);
                     return $result['access_token'];
                 } else {
                     Log::info("Failed to request ZaloOA access token");
@@ -55,7 +55,7 @@ class ZaloRepository extends RepositoryAbs
         }
     }
 
-    private function updateOaAccessToken($access_token, $refresh_token, $expired_at)
+    private static function updateOaAccessToken($access_token, $refresh_token, $expired_at)
     {
         try {
             $existing_token = ServiceToken::where('provider', 'zalo')->where('category', 'oa_access_token')->first();
@@ -171,8 +171,19 @@ class ZaloRepository extends RepositoryAbs
         $response = $zalo->post(ZaloEndPoint::API_OA_SEND_CONSULTATION_MESSAGE_V3, $oa_access_token, $msg_text);
         return $response->getDecodedBody();
     }
-    public static function sendOaMessageTransaction($user_web_id, $message)
+    public static function sendZaloSmsWithTemplate($phone, $template_id, $template_data)
     {
-        
+        $oa_access_token = ZaloRepository::getOaAccessToken();
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'access_token' => $oa_access_token,
+        ])->post('https://business.openapi.zalo.me/message/template', [
+            'phone' => $phone,
+            'template_id' => $template_id,
+            'template_data' => $template_data,
+            'tracking_id' => 'tracking_id'
+        ]);
+
+        return $response;
     }
 }

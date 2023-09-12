@@ -15,7 +15,15 @@ class DeliveryPartnerRepository extends RepositoryAbs
     public function getAvailablePartners()
     {
         try {
-            $partners = DeliveryPartner::with(['users', 'distribution_channels'])->withCount('users')->get()->map(function ($partner) {
+            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
+                return collect([]);
+            }
+            $query = DeliveryPartner::query();
+            if ($this->current_user->hasRole('admin-partner')) {
+                $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
+                $query->whereIn('id', $partner_ids);
+            }
+            $partners = $query->with(['users', 'distribution_channels'])->withCount('users')->get()->map(function ($partner) {
                 $partner->channel_ids = $partner->distribution_channels->pluck('id')->toArray();
                 $partner->user_ids = $partner->users->pluck('user_id')->toArray();
                 return $partner;

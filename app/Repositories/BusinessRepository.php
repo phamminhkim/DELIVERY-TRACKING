@@ -11,6 +11,7 @@ use App\Services\DataExtractorService;
 use App\Services\DataRestructureService;
 use App\Services\LocalFileService;
 use App\Services\PdfDataExtractorService;
+use App\Services\TableConverterService;
 use Illuminate\Http\Request;
 
 class BusinessRepository
@@ -35,7 +36,8 @@ class BusinessRepository
     {
         $file_service = new LocalFileService();
         $data_extractor = new DataExtractorService();
+        $table_converter = new TableConverterService();
         $data_restructure = new DataRestructureService();
-        return new AiRepository($file_service,  $data_extractor, $data_restructure, $request);
+        return new AiRepository($file_service,  $data_extractor, $table_converter, $data_restructure, $request);
     }
 }

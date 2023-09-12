@@ -20,6 +20,9 @@ class DashboardRepository extends RepositoryAbs
     public function getDashboardStatistic()
     {
         try {
+            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
+                return collect([]);
+            }
             $delivery_partner_ids = $this->request->filled('delivery_partner_ids') ? $this->request->delivery_partner_ids : [];
             $month_year = $this->request->month_year;
             list($month, $year) = explode('-', $month_year);
@@ -32,6 +35,12 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
                     // Lọc theo danh sách đối tác giao hàng (nếu có)
                     if ($this->request->filled('delivery_partner_ids'))  $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                });
+            }
+            if ($this->current_user->hasRole('admin-partner')) {
+                $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
+                $query->whereHas('deliveries', function ($query) use ($partner_ids) {
+                    $query->whereIn('id', $partner_ids);
                 });
             }
 
@@ -59,7 +68,7 @@ class DashboardRepository extends RepositoryAbs
             $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
 
             $late_orders_count_query = clone $this_month_query;
-            $late_orders_count = $late_orders_count_query->where('status_id', '>=', OrderStatus::Preparing)
+            $late_orders_count = $late_orders_count_query->where('status_id', '=', OrderStatus::Delivering)
                 ->where('status_id', '<', OrderStatus::Delivered)
                 ->whereHas('deliveries', function ($late_orders_count_query) {
                     $late_orders_count_query->whereDate('estimate_delivery_date', '<', Carbon::today());

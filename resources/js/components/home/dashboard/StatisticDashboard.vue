@@ -8,6 +8,10 @@
 						placeholder="Chọn đơn vị vận chuyển.."
 						v-model="filter_delivery_partner"
 						:options="filter_delivery_partner_options"
+						:disabled="
+							filter_delivery_partner_options &&
+							filter_delivery_partner_options.length == 1
+						"
 					/>
 				</div>
 				<div style="flex: 1">
@@ -35,7 +39,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<div class="text-center text-primary my-2" v-if="is_loading">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
 								<b-spinner class="align-middle" type="grow"></b-spinner>
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
@@ -167,7 +175,11 @@
 							</div>
 						</div>
 						<div class="card-body p-0" style="display: block">
-							<div class="text-center text-primary my-2" v-if="is_loading">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
 								<b-spinner class="align-middle" type="grow"></b-spinner>
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
@@ -344,6 +356,9 @@
 							};
 						},
 					);
+					if (this.filter_delivery_partner_options.length == 1) {
+						this.filter_delivery_partner = this.filter_delivery_partner_options[0].id;
+					}
 				} catch (error) {
 					console.log(error);
 				} finally {

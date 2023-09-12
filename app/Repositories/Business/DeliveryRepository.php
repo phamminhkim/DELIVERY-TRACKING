@@ -3,6 +3,9 @@
 namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus as EnumsOrderStatus;
+use App\Jobs\SendFinishedDeliveryZaloSms;
+use App\Jobs\SendStartedDeliveryZaloSms;
+use App\Jobs\SendZaloSms;
 use App\Models\Business\Delivery;
 use App\Models\Business\DeliveryToken;
 use App\Models\Business\DeliveryTokenScan;
@@ -450,6 +453,7 @@ class DeliveryRepository extends RepositoryAbs
                         'event' => 'confirm_fully_order_delivery',
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
                     ]);
+                    SendFinishedDeliveryZaloSms::dispatch($order->customer_id, $order->id);
                 } else {
                     $order->update(['status_id' => EnumsOrderStatus::PartlyDelivered]);
                     $delivery->timelines()->create([
@@ -514,6 +518,7 @@ class DeliveryRepository extends RepositoryAbs
                         'event' => 'confirm_fully_order_delivery',
                         'description' => 'Hoàn tất giao đơn hàng ' . $order->sap_so_number . '.',
                     ]);
+                    SendFinishedDeliveryZaloSms::dispatch($order->customer_id, $order->id);
                 }
                 DB::commit();
 
@@ -672,6 +677,10 @@ class DeliveryRepository extends RepositoryAbs
 
                 $qr_code = QrCodeUtility::generateImage($generated_token->token);
                 DB::commit();
+
+                foreach ($delivery->orders as $order) {
+                    SendStartedDeliveryZaloSms::dispatch($customer->id, $order->id);
+                }
 
                 $result = array(
                     'delivery_id' => $delivery->id,

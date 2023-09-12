@@ -3,6 +3,7 @@
 namespace App\Repositories\Business;
 
 use App\Enums\OrderStatus as EnumsOrderStatus;
+use App\Jobs\SendPreparedOrderZaloSms;
 use App\Models\Business\DeliveryTimeline;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
@@ -137,6 +138,11 @@ class OrderRepository extends RepositoryAbs
                             ],
                             $data
                         );
+                        // Check if order is approved by finance
+                        if ($order['approveds']['sap_so_finance_approval_date'] && !$created_order->approved()->exists() || $created_order->approved()->exists() && $created_order->approved->sap_so_finance_approval_date != $order['approveds']['sap_so_finance_approval_date']) {
+                            SendPreparedOrderZaloSms::dispatch($customer->id, $created_order->id);
+                        }
+
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
                         ]);
@@ -223,19 +229,19 @@ class OrderRepository extends RepositoryAbs
                 });
             }
 
-            if($this->request->filled('criteria_ids')){
+            if ($this->request->filled('criteria_ids')) {
                 $criteria_ids = $this->request->criteria_ids;
-                if($this->request->filled('month_year')){
+                if ($this->request->filled('month_year')) {
                     $month_year = $this->request->month_year;
-                    list($month, $year) = explode('-', $month_year);        
+                    list($month, $year) = explode('-', $month_year);
                     $query->leftJoin('order_approveds', 'order_approveds.order_id', '=', 'orders.id');
                     $query->select('orders.*');
                     $query->whereMonth('order_approveds.sap_so_finance_approval_date', $month)
-                    ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
-                } 
+                        ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
+                }
                 $query->whereHas('customer_reviews', function ($q) use ($criteria_ids) {
-                    $q->whereHas('criterias', function ($q) use ($criteria_ids){
-                         $q->whereIn('order_review_options.id', $criteria_ids);
+                    $q->whereHas('criterias', function ($q) use ($criteria_ids) {
+                        $q->whereIn('order_review_options.id', $criteria_ids);
                     });
                 });
             }
@@ -243,7 +249,6 @@ class OrderRepository extends RepositoryAbs
             if ($is_minified) {
                 // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
-
             } else {
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
@@ -305,11 +310,9 @@ class OrderRepository extends RepositoryAbs
             $order = Order::find($order_id);
             if ($order) {
                 // $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
-                if($is_expanded){
+                if ($is_expanded) {
                     $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
-    
-                }
-                else{
+                } else {
                     $order->load(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'customer_reviews']);
                 }
                 return $order;
