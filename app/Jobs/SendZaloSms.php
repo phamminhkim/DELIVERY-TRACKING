@@ -45,7 +45,7 @@ class SendZaloSms implements ShouldQueue
             if (config('services.zalo.sms_mode') == 'development') {
                 $request['mode'] = 'development';
             }
-            $log = ZaloSmsLog::create();
+            $log = ZaloSmsLog::create($request);
             $response = ZaloRepository::sendZaloSmsWithTemplate($phone, $this->template_id, $this->template_data);
             if ($response['message'] == 'success') {
                 $log->is_success = true;
