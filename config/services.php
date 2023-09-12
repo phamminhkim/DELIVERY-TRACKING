@@ -60,6 +60,7 @@ return [
         'customer_app_id' => env('ZALO_CUSTOMER_APP_ID'),
         'customer_app_version' => env('ZALO_CUSTOMER_APP_VERSION'),
 
+        'sms_mode' => env('ZALO_SMS_MODE', 'development'), // 'production' or 'development
         'template' => [
             'prepared_order' => env('ZALO_TEMPLATE_ID_PREPARED_ORDER'),
             'started_delivery' => env('ZALO_TEMPLATE_ID_STARTED_DELIVERY'),
