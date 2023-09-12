@@ -104,6 +104,43 @@
 										/>
 									</div>
 								</div>
+
+								<div class="form-group row">
+									<label
+										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+										for=""
+										>Nhà kho</label
+									>
+									<div class="col-sm-10 mt-1 mb-1">
+										<treeselect
+											placeholder="Chọn nhà kho.."
+											:multiple="true"
+											:disable-branch-nodes="false"
+											v-model="form_filter.warehouses"
+											:options="form_filter_options.warehouses"
+											:normalizer="normalizerOption"
+										/>
+									</div>
+								</div>
+
+								<div class="form-group row">
+									<label
+										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+										for=""
+										>Kênh phân phối</label
+									>
+									<div class="col-sm-10 mt-1 mb-1">
+										<treeselect
+											placeholder="Chọn kênh phân phối.."
+											:multiple="true"
+											:disable-branch-nodes="false"
+											v-model="form_filter.distribution_channels"
+											:options="form_filter_options.distribution_channels"
+											:normalizer="normalizerOption"
+										/>
+									</div>
+								</div>
+
 								<div class="form-group row">
 									<label
 										class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
@@ -255,10 +292,14 @@
 					companies: [],
 					customers: [],
 					delivery_partner: [],
+					warehouses: [],
+					distribution_channels: [],
 				},
 				form_filter_options: {
 					companies: [],
 					delivery_partner: [],
+					warehouses: [],
+					distribution_channels: [],
 				},
 				is_show_search: false,
 				is_loading: false,
@@ -366,6 +407,8 @@
 						customer_ids: this.form_filter.customers,
 						delivery_partner_ids: this.form_filter.delivery_partner,
 						company_codes: this.form_filter.companies,
+						warehouse_ids: this.form_filter.warehouses,
+						distribution_channel_ids: this.form_filter.distribution_channels,
 					});
 					this.orders = data;
 				} catch (error) {
@@ -376,11 +419,17 @@
 			},
 			async fetchOptionsData() {
 				try {
-					const [company_options, delivery_partner_options] =
-						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/companies'),
-							new APIRequest('get', '/api/master/delivery-partners'),
-						]);
+					const [
+						company_options,
+						delivery_partner_options,
+						warehouses_options,
+						distribution_channels,
+					] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/companies'),
+						new APIRequest('get', '/api/master/delivery-partners'),
+						new APIRequest('get', '/api/master/warehouses'),
+						new APIRequest('get', '/api/master/distribution-channels'),
+					]);
 					this.form_filter_options.companies = company_options.map((company) => {
 						return {
 							id: company.code,
@@ -388,6 +437,8 @@
 						};
 					});
 					this.form_filter_options.delivery_partner = delivery_partner_options;
+					this.form_filter_options.warehouses = warehouses_options;
+					this.form_filter_options.distribution_channels = distribution_channels;
 				} catch (error) {
 					console.log(error);
 				}
@@ -419,6 +470,8 @@
 						customer_ids: this.form_filter.customers,
 						delivery_partner_ids: this.form_filter.delivery_partner,
 						company_codes: this.form_filter.companies,
+						warehouse_ids: this.form_filter.warehouses,
+						distribution_channel_ids: this.form_filter.distribution_channels,
 					});
 					this.orders = data;
 				} catch (error) {
