@@ -24,13 +24,6 @@ class SendZaloSms implements ShouldQueue
         $this->customer_id = $customer_id;
         $this->template_id = $template_id;
         $this->template_data = $template_data;
-
-        // Save log
-        $log = new \App\Models\System\ZaloSmsLog();
-        $log->customer_id = $customer_id;
-        $log->template_id = $template_id;
-        $log->template_data = json_encode($template_data);
-        $log->save();
     }
 
     /**
@@ -43,12 +36,16 @@ class SendZaloSms implements ShouldQueue
         $customer_phones = CustomerPhone::where('customer_id', $this->customer_id)->where('is_active', true)->where('is_receive_sms', true)->get();
         foreach ($customer_phones as $customer_phone) {
             $phone = $customer_phone->phone;
-            $log = ZaloSmsLog::create([
+            $request = [
                 'customer_id' => $this->customer_id,
                 'phone' => $phone,
                 'template_id' => $this->template_id,
                 'template_data' => json_encode($this->template_data),
-            ]);
+            ];
+            if (config('services.zalo.sms_mode') == 'development') {
+                $request['mode'] = 'development';
+            }
+            $log = ZaloSmsLog::create($request);
             $response = ZaloRepository::sendZaloSmsWithTemplate($phone, $this->template_id, $this->template_data);
             if ($response['message'] == 'success') {
                 $log->is_success = true;
