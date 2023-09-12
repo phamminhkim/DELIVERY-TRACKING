@@ -35,7 +35,7 @@ class SendZaloSms implements ShouldQueue
     {
         $customer_phones = CustomerPhone::where('customer_id', $this->customer_id)->where('is_active', true)->where('is_receive_sms', true)->get();
         foreach ($customer_phones as $customer_phone) {
-            $phone = $customer_phone->phone;
+            $phone = $customer_phone->phone_number;
             $request = [
                 'customer_id' => $this->customer_id,
                 'phone' => $phone,
