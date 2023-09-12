@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendZaloSms implements ShouldQueue
 {
@@ -35,7 +36,7 @@ class SendZaloSms implements ShouldQueue
     {
         $customer_phones = CustomerPhone::where('customer_id', $this->customer_id)->where('is_active', true)->where('is_receive_sms', true)->get();
         foreach ($customer_phones as $customer_phone) {
-            $phone = $customer_phone->phone;
+            $phone = $customer_phone->phone_number;
             $request = [
                 'customer_id' => $this->customer_id,
                 'phone' => $phone,
@@ -50,6 +51,8 @@ class SendZaloSms implements ShouldQueue
             if ($response['message'] == 'success') {
                 $log->is_success = true;
                 $log->save();
+            } else {
+                Log::error($response);
             }
         }
     }
