@@ -19,8 +19,8 @@ class SendPreparedOrderZaloSms extends SendZaloSms
         $this->template_id = config('services.zalo.template.prepared_order');
         $this->template_data = [
             'id' => $order_id,
-            'order_code' => Order::first($order_id)->sap_so_number,
-            'customer_name' => CustomerPhone::first($customer_id)->name,
+            'order_code' => Order::find($order_id)->sap_so_number,
+            'customer_name' => CustomerPhone::where('customer_id', $customer_id)->first()->name,
         ];
     }
 
