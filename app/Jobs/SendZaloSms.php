@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendZaloSms implements ShouldQueue
 {
@@ -50,6 +51,8 @@ class SendZaloSms implements ShouldQueue
             if ($response['message'] == 'success') {
                 $log->is_success = true;
                 $log->save();
+            } else {
+                Log::error($response);
             }
         }
     }
