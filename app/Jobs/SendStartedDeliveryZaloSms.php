@@ -22,7 +22,7 @@ class SendStartedDeliveryZaloSms extends SendZaloSms
             'id' => $order_id,
             'order_code' => Order::find($order_id)->sap_so_number,
             'customer_name' => Customer::find($customer_id)->name,
-            'transport_date' => $estimate_transport_date
+            'transport_date' => $estimate_transport_date->format('d/m/Y'),
         ];
     }
 
