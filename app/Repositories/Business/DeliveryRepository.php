@@ -679,7 +679,7 @@ class DeliveryRepository extends RepositoryAbs
                 DB::commit();
 
                 foreach ($delivery->orders as $order) {
-                    SendStartedDeliveryZaloSms::dispatch($customer->id, $order->id, $delivery->estimate_delivery_at);
+                    SendStartedDeliveryZaloSms::dispatch($customer->id, $order->id, $delivery->estimate_delivery_date);
                 }
 
                 $result = array(

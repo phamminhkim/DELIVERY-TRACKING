@@ -48,10 +48,13 @@ class SendZaloSms implements ShouldQueue
             }
             $log = ZaloSmsLog::create($request);
             $response = ZaloRepository::sendZaloSmsWithTemplate($phone, $this->template_id, $this->template_data);
-            if ($response['message'] == 'success') {
+            if ($response['message'] == 'Success') {
                 $log->is_success = true;
                 $log->save();
+                Log::info($request);
+                Log::info($response);
             } else {
+                Log::error($request);
                 Log::error($response);
             }
         }
