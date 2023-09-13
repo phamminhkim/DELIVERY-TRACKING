@@ -2,7 +2,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="header d-flex">
-				<p class="title" style="flex: 6">Thống kê</p>
+				<p class="title" style="flex: 2">Thống kê</p>
 				<div style="flex: 3">
 					<treeselect
 						placeholder="Chọn đơn vị vận chuyển.."
@@ -12,6 +12,22 @@
 							filter_delivery_partner_options &&
 							filter_delivery_partner_options.length == 1
 						"
+					/>
+				</div>
+
+				<div style="flex: 3">
+					<treeselect
+						placeholder="Chọn nhà kho.."
+						v-model="filter_warehouse"
+						:options="filter_warehouse_options"
+					/>
+				</div>
+
+				<div style="flex: 3">
+					<treeselect
+						placeholder="Chọn kênh phân phối.."
+						v-model="filter_distribution_channel"
+						:options="filter_distribution_channel_options"
 					/>
 				</div>
 				<div style="flex: 1">
@@ -299,8 +315,9 @@
 			Treeselect,
 			DialogOrderInfo,
 		},
-		created() {
+		async created() {
 			this.generateFilterTimeOption();
+			await this.fetchDataOptions();
 		},
 		data() {
 			return {
@@ -312,6 +329,12 @@
 
 				filter_delivery_partner: null,
 				filter_delivery_partner_options: [],
+
+				filter_warehouse: null,
+				filter_warehouse_options: [],
+
+				filter_distribution_channel: null,
+				filter_distribution_channel_options: [],
 
 				dashboard_statistic: {},
 				criteria_statistics: [],
@@ -327,27 +350,53 @@
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const [
-						dashboard_statistic,
-						criteria_statistics,
-						filter_delivery_partner_options,
-					] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/dashboard', {
-							delivery_partner_ids: this.filter_delivery_partner
-								? [this.filter_delivery_partner]
-								: undefined,
-							month_year: this.filter_time ? this.filter_time : undefined,
-						}),
-						new APIRequest('get', '/api/dashboard/criteria', {
-							delivery_partner_ids: this.filter_delivery_partner
-								? [this.filter_delivery_partner]
-								: undefined,
-							month_year: this.filter_time ? this.filter_time : undefined,
-						}),
-						new APIRequest('get', '/api/master/delivery-partners'),
-					]);
+					const [dashboard_statistic, criteria_statistics] =
+						await this.api_handler.handleMultipleRequest([
+							new APIRequest('get', '/api/dashboard', {
+								delivery_partner_ids: this.filter_delivery_partner
+									? [this.filter_delivery_partner]
+									: undefined,
+								warehouse_ids: this.filter_warehouse
+									? [this.filter_warehouse]
+									: undefined,
+								month_year: this.filter_time ? this.filter_time : undefined,
+								distribution_channel_ids: this.filter_distribution_channel
+									? [this.filter_distribution_channel]
+									: undefined,
+							}),
+							new APIRequest('get', '/api/dashboard/criteria', {
+								delivery_partner_ids: this.filter_delivery_partner
+									? [this.filter_delivery_partner]
+									: undefined,
+								warehouse_ids: this.filter_warehouse
+									? [this.filter_warehouse]
+									: undefined,
+								month_year: this.filter_time ? this.filter_time : undefined,
+								distribution_channel_ids: this.filter_distribution_channel
+									? [this.filter_distribution_channel]
+									: undefined,
+							}),
+						]);
 					this.dashboard_statistic = dashboard_statistic;
 					this.criteria_statistics = criteria_statistics;
+				} catch (error) {
+					console.log(error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async fetchDataOptions() {
+				try {
+					this.is_loading = true;
+					const [
+						filter_delivery_partner_options,
+						filter_warehouse_options,
+						filter_distribution_channel_options,
+					] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/delivery-partners'),
+						new APIRequest('get', '/api/master/warehouses'),
+						new APIRequest('get', '/api/master/distribution-channels'),
+					]);
 					this.filter_delivery_partner_options = filter_delivery_partner_options.map(
 						(delivery_partner) => {
 							return {
@@ -356,6 +405,19 @@
 							};
 						},
 					);
+					this.filter_warehouse_options = filter_warehouse_options.map((warehouse) => {
+						return {
+							id: warehouse.id,
+							label: warehouse.name,
+						};
+					});
+					this.filter_distribution_channel_options =
+						filter_distribution_channel_options.map((distribution_channel) => {
+							return {
+								id: distribution_channel.id,
+								label: distribution_channel.name,
+							};
+						});
 					if (this.filter_delivery_partner_options.length == 1) {
 						this.filter_delivery_partner = this.filter_delivery_partner_options[0].id;
 					}
@@ -438,6 +500,12 @@
 				await this.fetchData();
 			},
 			filter_time: async function (newVal, oldVal) {
+				await this.fetchData();
+			},
+			filter_warehouse: async function (newVal, oldVal) {
+				await this.fetchData();
+			},
+			filter_distribution_channel: async function (newVal, oldVal) {
 				await this.fetchData();
 			},
 		},

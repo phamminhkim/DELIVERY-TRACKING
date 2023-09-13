@@ -53,7 +53,14 @@ class AiRepository extends RepositoryAbs
             }
 
             $raw_data = $this->extractData($file_path);
+
+            // preg_match_all("/SKU Number[^\n]*\n(.*?Sub Total)/s", $raw_data[0], $matches, PREG_SET_ORDER);
+            // $raw_data = $matches[0];
+            // $pattern = '/^"(\d+-\d+)\s+(.*?)\s+(\d+)\s+(.*?)\s+(\w+)\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+,\d+\.\d+)"$/m';
+            // preg_match_all($pattern, $raw_data[0], $matches, PREG_SET_ORDER);
+            // dd($matches);
             $table_data = $this->convertToTable($raw_data);
+            // dd($table_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
             return $final_data;
@@ -102,7 +109,7 @@ class AiRepository extends RepositoryAbs
             } elseif ($method == 'leaguecsv') {
                 for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
                     $extracted_table = $this->table_converter->withLeagueCsv($array[$i]);
-                    $table = array_merge($table, $extracted_table);
+                    $table = array_merge($table, $extracted_table->toArray());
                 }
             } else {
                 throw new \Exception('Convert method is not specified');

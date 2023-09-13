@@ -54,7 +54,24 @@ class ZaloRepository extends RepositoryAbs
             throw new \Exception("OA access token not found");
         }
     }
-
+    private static function getJourneyToken($phone_number)
+    {
+        $access_token = ZaloRepository::getOaAccessToken();
+        $response = Http::withHeaders([
+            'access_token' => $access_token,
+        ])->post('https://business.openapi.zalo.me/journey/get-token', [
+            'phone' => $phone_number,
+            'token_type' => 'token_logistics_30',
+        ]);
+        $result = $response->json();
+        if (isset($result['token'])) {
+            return $result['token'];
+        } else {
+            Log::error("Failed to request Journey token for " . $phone_number);
+            Log::error($result);
+            throw new \Exception("Journey token for " . $phone_number . " not found");
+        }
+    }
     private static function updateOaAccessToken($access_token, $refresh_token, $expired_at)
     {
         try {
@@ -174,9 +191,11 @@ class ZaloRepository extends RepositoryAbs
     public static function sendZaloSmsWithTemplate($phone, $template_id, $template_data)
     {
         $oa_access_token = ZaloRepository::getOaAccessToken();
+        $journey_token = ZaloRepository::getJourneyToken($phone);
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'access_token' => $oa_access_token,
+            'journey_token' => $journey_token,
         ])->post('https://business.openapi.zalo.me/message/template', [
             'phone' => $phone,
             'template_id' => $template_id,

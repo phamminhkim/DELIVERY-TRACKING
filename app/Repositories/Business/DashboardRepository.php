@@ -44,6 +44,17 @@ class DashboardRepository extends RepositoryAbs
                 });
             }
 
+            if ($this->request->filled('warehouse_ids')) {
+                $query->whereIn('warehouse_id', $this->request->warehouse_ids);
+            }
+
+            if ($this->request->filled('distribution_channel_ids')) {
+                $distribution_channel_ids = $this->request->distribution_channel_ids;
+                $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+                });
+            }
+
             $this_month_query = clone $query;
             $this_month_query->whereHas('approved', function ($query) use ($month, $year) {
                 // Lọc theo tháng năm (nếu có)
@@ -145,7 +156,7 @@ class DashboardRepository extends RepositoryAbs
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
                 ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
                 ->leftJoin('order_deliveries', 'orders.id', '=', 'order_deliveries.order_id')
-                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
+                ->leftJoin('order_sales', 'order_sales.order_id', '=', 'orders.id');;
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
@@ -155,6 +166,12 @@ class DashboardRepository extends RepositoryAbs
             if ($this->request->filled('month_year')) {
                 $query->whereMonth('order_approveds.sap_so_finance_approval_date', $month)
                     ->whereYear('order_approveds.sap_so_finance_approval_date', $year);
+            }
+            if ($this->request->filled('warehouse_ids')) {
+                $query->whereIn('orders.warehouse_id', $this->request->warehouse_ids);
+            }
+            if ($this->request->filled('distribution_channel_ids')) {
+                $query->whereIn('order_sales.distribution_channel_id', $this->request->distribution_channel_ids);
             }
             $query->groupBy('order_review_options.id', 'order_review_options.name');
             $query->orderBy('order_review_options.id', 'desc');
@@ -203,6 +220,17 @@ class DashboardRepository extends RepositoryAbs
                 $delivery_partner_ids = $this->request->delivery_partner_ids;
                 $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
                     $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                });
+            }
+            if ($this->request->filled('warehouse_ids')) {
+                $warehouse_ids = $this->request->warehouse_ids;
+                $query->whereIn('warehouse_id', $warehouse_ids);
+            }
+
+            if ($this->request->filled('distribution_channel_ids')) {
+                $distribution_channel_ids = $this->request->distribution_channel_ids;
+                $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                 });
             }
             $query->with(['customer', 'detail', 'deliveries']);
