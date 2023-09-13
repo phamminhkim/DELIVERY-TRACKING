@@ -136,6 +136,15 @@
 							required: false,
 						},
 						{
+							label: 'Nhà vận chuyển ngoài',
+							required: false,
+							key: 'is_external',
+							type: 'checkbox',
+							checkbox: {
+								default_value: false,
+							},
+						},
+						{
 							label: 'Danh sách tài khoản',
 							placeholder: 'Chọn tài khoản liên quan..',
 							key: 'user_ids',

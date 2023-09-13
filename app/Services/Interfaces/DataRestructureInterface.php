@@ -4,6 +4,6 @@ namespace App\Services\Interfaces;
 
 interface DataRestructureInterface
 {
-    public function withRegex($raw_data, $pattern);
-    public function withLeagueCsv($raw_data);
+    public function withArrayMappingByIndex($array, $structure);
+    public function withArrayMappingByKey($array, $structure);
 }
