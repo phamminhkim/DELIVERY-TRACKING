@@ -67,7 +67,8 @@ class ZaloRepository extends RepositoryAbs
         if (isset($result['token'])) {
             return $result['token'];
         } else {
-            Log::info("Failed to request Journey token for " . $phone_number);
+            Log::error("Failed to request Journey token for " . $phone_number);
+            Log::error($result);
             throw new \Exception("Journey token for " . $phone_number . " not found");
         }
     }
