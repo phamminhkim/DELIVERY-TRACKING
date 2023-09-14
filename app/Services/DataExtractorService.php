@@ -10,6 +10,8 @@ class DataExtractorService implements Interfaces\DataExtractorInterface
 {
     public function withCamelot($file_path, $flavor)
     {
+        $file_path = "\"" . $file_path . "\"";
+
         $instance = new Camelot($file_path, $flavor);
         //$instance->inRegions(
         //    Areas::from($xTopLeft, $yTopLeft, $xBottomRight, $yBottomRight)
