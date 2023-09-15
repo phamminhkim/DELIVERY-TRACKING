@@ -156,7 +156,8 @@ class DashboardRepository extends RepositoryAbs
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
                 ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
                 ->leftJoin('order_deliveries', 'orders.id', '=', 'order_deliveries.order_id')
-                ->leftJoin('order_sales', 'order_sales.order_id', '=', 'orders.id');;
+                ->leftJoin('order_sales', 'order_sales.order_id', '=', 'orders.id')
+                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
