@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Business;
 
-
+use App\Models\Business\RegexPattern;
 use setasign\Fpdi\Fpdi;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Interfaces\DataExtractorInterface;
@@ -53,8 +53,9 @@ class AiRepository extends RepositoryAbs
             }
 
             $raw_data = $this->extractData($file_path);
-
+            // dd($raw_data);
             $table_data = $this->convertToTable($raw_data);
+            dd($raw_data, $table_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
             return $final_data;
@@ -104,6 +105,13 @@ class AiRepository extends RepositoryAbs
                 for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
                     $extracted_table = $this->table_converter->withLeagueCsv($array[$i]);
                     $table = array_merge($table, $extracted_table->toArray());
+                }
+            } elseif ($method == 'manual') {
+                $manual_pattern = json_decode($this->request->manual_pattern);
+
+                for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+                    $extracted_table = $this->table_converter->withManualPattern($array[$i], $manual_pattern);
+                    $table = array_merge($table, $extracted_table);
                 }
             } else {
                 throw new \Exception('Convert method is not specified');

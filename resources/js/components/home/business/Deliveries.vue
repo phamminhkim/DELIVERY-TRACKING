@@ -491,7 +491,6 @@
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						//this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -534,12 +533,6 @@
 						}),
 					]);
 					this.deliveries = deliveries;
-					// let result = await this.api_handler.get(this.api_url_deliveries, query);
-					// if (result.success) {
-					// 	this.deliveries = result.data;
-					// } else {
-					// 	this.$showMessage('error', 'Lỗi', result.message);
-					// }
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -577,6 +570,7 @@
 					this.form_filter.statuses = [];
 					this.form_filter.customers = [];
 					this.form_filter.sap_so_number = undefined;
+
 					await this.fetchData();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);

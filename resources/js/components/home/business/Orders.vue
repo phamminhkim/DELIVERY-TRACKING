@@ -6,7 +6,6 @@
 			<div class="row">
 				<div class="col-md-9">
 					<div class="form-group row">
-						<!-- <button type="button" class="btn btn-success btn-sm"><i class="fas fa-plus"></i>Tạo hợp đồng</button> -->
 						<div class="btn-group">
 							<button
 								type="button"
@@ -125,13 +124,6 @@
 									>SO</label
 								>
 								<div class="col-sm-4">
-									<!-- <treeselect
-											placeholder="All"
-											:multiple="true"
-											:disable-branch-nodes="false"
-											v-model="form_filter.sap_so_numbers"
-											:options="sap_so_number_options"
-										/> -->
 									<input
 										type="text"
 										v-model="form_filter.sap_so_number"
@@ -145,18 +137,62 @@
 									>DO</label
 								>
 								<div class="col-sm-4">
-									<!-- <treeselect
-											placeholder="All"
-											:multiple="true"
-											:disable-branch-nodes="false"
-											v-model="form_filter.sap_do_numbers"
-											:options="sap_do_number_options"
-										/> -->
 									<input
 										type="text"
 										v-model="form_filter.sap_do_number"
 										placeholder="Nhập DO.."
 										class="form-control"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Kênh</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn kênh.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.distribution_channels"
+										:options="distribution_channel_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Nhà vận chuyển</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn nhà vận chuyển.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.delivery_partners"
+										:options="delivery_partner_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Đánh giá</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn đánh giá.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.order_review_options"
+										:options="order_review_option_options"
+										:normalizer="normalizerOption"
 									/>
 								</div>
 							</div>
@@ -359,9 +395,15 @@
 					warehouses: [],
 					sap_so_number: undefined,
 					sap_do_number: undefined,
+					distribution_channels: [],
+					delivery_partners: [],
+					order_review_options: [],
 				},
 				customer_options: [],
 				warehouse_options: [],
+				distribution_channel_options: [],
+				delivery_partner_options: [],
+				order_review_option_options: [],
 
 				order_statuses: [
 					{ id: 10, label: 'Đang xử lí đơn hàng' },
@@ -483,6 +525,9 @@
 							warehouse_ids: this.form_filter.warehouses,
 							sap_so_number: this.form_filter.sap_so_number,
 							sap_do_number: this.form_filter.sap_do_number,
+							distribution_channel_ids: this.form_filter.distribution_channels,
+							delivery_partner_ids: this.form_filter.delivery_partners,
+							order_review_option_ids: this.form_filter.order_review_options,
 						}),
 					]);
 
@@ -495,10 +540,21 @@
 			},
 			async fetchFilterOptions() {
 				try {
-					const [warehouses] = await this.api_handler.handleMultipleRequest([
+					const [
+						warehouses,
+						distribution_channels,
+						delivery_partners,
+						order_review_options,
+					] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', 'api/master/warehouses/minified'),
+						new APIRequest('get', 'api/master/distribution-channels'),
+						new APIRequest('get', 'api/master/delivery-partners'),
+						new APIRequest('get', 'api/master/order-review-options'),
 					]);
 					this.warehouse_options = warehouses;
+					this.distribution_channel_options = distribution_channels;
+					this.delivery_partner_options = delivery_partners;
+					this.order_review_option_options = order_review_options;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				}
@@ -534,6 +590,9 @@
 						warehouse_ids: this.form_filter.warehouses,
 						sap_so_number: this.form_filter.sap_so_number,
 						sap_do_number: this.form_filter.sap_do_number,
+						distribution_channel_ids: this.form_filter.distribution_channels,
+						delivery_partner_ids: this.form_filter.delivery_partners,
+						order_review_option_ids: this.form_filter.order_review_options,
 					});
 					this.orders = data;
 				} catch (error) {
@@ -556,7 +615,9 @@
 					this.form_filter.warehouses = [];
 					this.form_filter.sap_so_number = undefined;
 					this.form_filter.sap_do_number = undefined;
-
+					this.form_filter.distribution_channels = [];
+					this.form_filter.delivery_partners = [];
+					this.form_filter.order_review_options = [];
 					await this.fetchData();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);

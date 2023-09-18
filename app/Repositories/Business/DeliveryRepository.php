@@ -99,8 +99,7 @@ class DeliveryRepository extends RepositoryAbs
 
                 $delivery['status'] = OrderStatus::find($delivery['status']);
             }
-            //filter status
-            // dd($deliveries);
+
             if ($this->request->filled('status_ids')) {
                 $status_ids = $this->request->status_ids;
                 $deliveries = $deliveries->filter(function ($delivery) use ($status_ids) {

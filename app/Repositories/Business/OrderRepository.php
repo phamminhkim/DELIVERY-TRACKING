@@ -218,6 +218,26 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('sap_do_number')) {
                 $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
             }
+            if ($this->request->filled('delivery_partner_ids')) {
+                $delivery_partner_ids = $this->request->delivery_partner_ids;
+                $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
+                    $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                });
+            }
+            if ($this->request->filled('distribution_channel_ids')) {
+                $distribution_channel_ids = $this->request->distribution_channel_ids;
+                $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+                });
+            }
+            if ($this->request->filled('order_review_option_ids')) {
+                $order_review_option_ids = $this->request->order_review_option_ids;
+                $query->whereHas('customer_reviews', function ($query) use ($order_review_option_ids) {
+                    $query->whereHas('criterias', function ($query) use ($order_review_option_ids) {
+                        $query->whereIn('order_review_options.id', $order_review_option_ids);
+                    });
+                });
+            }
 
             if ($this->current_user->hasRole('admin-partner')) {
                 $channel_ids = $this->current_user->delivery_partners->flatMap(function ($partner) {

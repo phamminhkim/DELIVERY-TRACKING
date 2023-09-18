@@ -186,12 +186,7 @@ class DashboardRepository extends RepositoryAbs
     {
         try {
             $query = Order::query()->where('sap_do_number', '!=', null);
-            // if ($this->request->filled('month_year')) {
-            //     $month_year = $this->request->month_year;
-            //     list($month, $year) = explode('-', $month_year);
-            //     $query->whereMonth('start_delivery_date', $month)
-            //         ->whereYear('start_delivery_date', $year);
-            // }
+
             if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
                 $query->whereHas('deliveries', function ($query) use ($from_date) {
