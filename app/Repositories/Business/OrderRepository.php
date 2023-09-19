@@ -145,6 +145,7 @@ class OrderRepository extends RepositoryAbs
 
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
+                            'sap_do_posting_date' => $order['approveds']['sap_do_posting_date'] ?? null,
                         ]);
                         $created_order->detail()->updateOrCreate(['order_id' => $created_order['id']], [
                             'delivery_address' => $order['details']['delivery_address'] ?? '',
