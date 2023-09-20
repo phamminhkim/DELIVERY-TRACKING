@@ -32,17 +32,18 @@ class ZaloRepository extends RepositoryAbs
                 return $existing_token->access_token;
             } else {
                 Log::info("ZaloOA access token has expired at "  . $existing_token->expired_at->format('Y-m-d H:i:s'));
-                $response = Http::post('https://oauth.zaloapp.com/v4/access_token', [
+                $response = Http::asForm()->withHeaders([
+                    'secret_key' => config("services.zalo.client_secret"),
+                ])->post('https://oauth.zaloapp.com/v4/oa/access_token', [
                     'app_id' => config("services.zalo.client_id"),
-                    'app_secret' => config("services.zalo.client_secret"),
-                    'code' => $existing_token->refresh_token,
+                    'refresh_token' => $existing_token->refresh_token,
                     'grant_type' => 'refresh_token'
                 ]);
 
                 $result = $response->json();
                 if (isset($result['access_token'])) {
                     $expired_at = $existing_token->expired_at->addSeconds($result['expires_in']);
-                    ZaloRepository::updateOaAccessToken($result['accessToken'], $result['refreshToken'], $expired_at);
+                    ZaloRepository::updateOaAccessToken($result['access_token'], $result['refresh_token'], $expired_at);
                     return $result['access_token'];
                 } else {
                     Log::info("Failed to request ZaloOA access token");
