@@ -1,40 +1,17 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Implementations\Converters;
 
 use App\Models\Business\RegexPattern;
+use App\Services\Interfaces\TableConverterInterface;
 use League\Csv\Reader;
 
-class TableConverterService implements Interfaces\TableConverterInterface
+class ManualConverter implements TableConverterInterface
 {
-    public function withRegexMatch($raw_data, $pattern)
+    public function convert($raw_data, $options)
     {
-        preg_match_all($pattern, $raw_data, $matches, PREG_SET_ORDER);
+        $manual_patterns = $options['manual_patterns'];
 
-        return $matches;
-    }
-    public function withRegexSplit($raw_data, $pattern)
-    {
-        $matches = preg_split($pattern, $raw_data);
-
-        return $matches;
-    }
-    public function withLeagueCsv($raw_data)
-    {
-        $csv = Reader::createFromString($raw_data);
-        $csv->setHeaderOffset(0); // Set the CSV header offset
-
-        $records = $csv->getRecords();
-
-        $collection = collect([]);
-        foreach ($records as $record) {
-            $collection->push($record);
-        }
-        return $collection;
-    }
-
-    public function withManualPattern($raw_data, $manual_patterns)
-    {
         $regex_patterns = RegexPattern::all();
         $final_pattern = "";
         foreach ($manual_patterns as $manual_pattern) {
