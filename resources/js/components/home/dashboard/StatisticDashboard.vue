@@ -190,7 +190,7 @@
 								</button>
 							</div>
 						</div>
-						<div class="card-body p-0" style="display: block">
+						<!-- <div class="card-body p-0" style="display: block">
 							<div
 								class="text-center text-primary my-2"
 								v-if="is_loading"
@@ -252,6 +252,22 @@
 									</b-collapse>
 								</li>
 							</ul>
+						</div> -->
+						<div class="card-body p-0" style="display: block">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<div v-else>
+								<BarChart
+									:labels="criteria_statistics.map((criteria) => criteria.name)"
+									:data="criteria_statistics.map((criteria) => criteria.amount)"
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -310,10 +326,12 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogOrderInfo from '../business/dialogs/DialogOrderInfo.vue';
+	import BarChart from './chart/BarChart.vue';
 	export default {
 		components: {
 			Treeselect,
 			DialogOrderInfo,
+			BarChart,
 		},
 		async created() {
 			this.generateFilterTimeOption();
