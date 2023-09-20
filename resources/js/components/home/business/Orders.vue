@@ -301,8 +301,8 @@
 						}}
 					</template>
 
-					<template #cell(status)="data">
-						<span :class="data.value.badge_class">{{ data.value.name }}</span>
+					<template #cell(status.name)="data">
+						<span :class="data.value.badge_class">{{ data.value }}</span>
 					</template>
 
 					<template #cell(sap_so_number)="data">
@@ -327,17 +327,17 @@
 					<template #cell(approved.sap_so_finance_approval_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(start_delivery_date)="data">
-						{{ data.item.delivery_info?.delivery?.start_delivery_date | formatDate }}
+					<template #cell(delivery_info.delivery.start_delivery_date)="data">
+						{{ data.value | formatDate }}
 					</template>
-					<template #cell(estimate_delivery_date)="data">
-						{{ data.item.delivery_info?.delivery?.estimate_delivery_date | formatDate }}
+					<template #cell(delivery_info.delivery.estimate_delivery_date)="data">
+						{{ data.value | formatDate }}
 					</template>
-					<template #cell(complete_delivery_date)="data">
-						{{ data.item.delivery_info?.delivery?.complete_delivery_date | formatDate }}
+					<template #cell(delivery_info.delivery.complete_delivery_date)="data">
+						{{ data.value | formatDate }}
 					</template>
-					<template #cell(confirm_delivery_date)="data">
-						{{ data.item.delivery_info?.confirm_delivery_date | formatDate }}
+					<template #cell(delivery_info.confirm_delivery_date)="data">
+						{{ data.value | formatDate }}
 					</template>
 				</b-table>
 			</div>
@@ -473,7 +473,7 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'status',
+						key: 'status.name',
 						label: 'Trạng thái',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -491,25 +491,25 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'start_delivery_date',
+						key: 'delivery_info.delivery.start_delivery_date',
 						label: 'Ngày đi giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'estimate_delivery_date',
+						key: 'delivery_info.delivery.estimate_delivery_date',
 						label: 'Ngày dự kiến giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'complete_delivery_date',
+						key: 'delivery_info.delivery.complete_delivery_date',
 						label: 'Ngày giao thực tế',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'confirm_delivery_date',
+						key: 'delivery_info.confirm_delivery_date',
 						label: 'Ngày KH xác nhận',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -745,7 +745,6 @@
 			},
 			formatDateTime(value) {
 				if (value) {
-					console.log(value);
 					return moment(String(value)).format('DD/MM/YYYY');
 				}
 			},
@@ -755,42 +754,37 @@
 				return [addr_arr[addr_arr.length - 2], addr_arr[addr_arr.length - 1]].join(', ');
 			},
 			exportToExcel() {
-				saveExcel({
-					data: this.orders,
-					fileName: 'orders_exported',
-					columns: [
-						{
-							field: 'customer.code',
-							title: 'Mã khách hàng',
-						},
-						{
-							field: 'warehouse.name',
-							title: 'Kho hàng',
-						},
-						{
-							field: 'sap_so_number',
-							title: 'SO',
-						},
-						{
-							field: 'sap_do_number',
-							title: 'DO',
-						},
-						{
-							field: 'receiver.receiver_name',
-							title: 'Bên nhận',
-						},
-						{
-							field: 'status.name',
-							title: 'Trạng thái',
-						},
-					],
+				let clone_fields = structuredClone(this.fields);
+				clone_fields.splice(0, 2);
+				let clone_orders = structuredClone(this.orders);
+				clone_orders.forEach((order) => {
+					order.sap_so_created_date = this.formatDateTime(order.sap_so_created_date);
+					order.approved.sap_so_finance_approval_date = this.formatDateTime(
+						order.approved.sap_so_finance_approval_date,
+					);
+					order.delivery_info.delivery.start_delivery_date = this.formatDateTime(
+						order.delivery_info.delivery.start_delivery_date,
+					);
+					order.delivery_info.delivery.estimate_delivery_date = this.formatDateTime(
+						order.delivery_info.delivery.estimate_delivery_date,
+					);
+					order.delivery_info.delivery.complete_delivery_date = this.formatDateTime(
+						order.delivery_info.delivery.complete_delivery_date,
+					);
+					order.delivery_info.confirm_delivery_date = this.formatDateTime(
+						order.delivery_info.confirm_delivery_date,
+					);
+
+					order.province = this.formatAddress(order.detail?.delivery_address);
 				});
-				// 'Mã KH': 'customer.code',
-				// 	'Kho hàng': 'warehouse.name',
-				// 	SO: 'sap_so_number',
-				// 	DO: 'sap_do_number',
-				// 	'Bên nhận': 'receiver.receiver_name',
-				// 	'Trạng thái': 'status.name',
+				saveExcel({
+					data: clone_orders,
+					fileName: 'orders_exported',
+					columns: clone_fields.map((field) => ({
+						field: field.key,
+						title: field.label,
+					})),
+				});
 			},
 		},
 		computed: {
