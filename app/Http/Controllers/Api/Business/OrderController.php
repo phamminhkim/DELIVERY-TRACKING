@@ -34,6 +34,17 @@ class OrderController extends ResponseController
         }
     }
 
+    public function getExpandedOrders(Request $request)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $orders = $handler->getOrders(false, true);
+
+        if ($orders) {
+            return $this->responseSuccess($orders);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function getOrdersByCustomer(Request $request)
     {
         $handler = BusinessRepository::orderRequest($request);

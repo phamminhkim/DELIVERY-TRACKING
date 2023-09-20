@@ -8,6 +8,7 @@ use App\Models\Business\DeliveryTimeline;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
 use App\Models\Business\OrderDelivery;
+use App\Models\Business\PublicHoliday;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DistributionChannel;
@@ -181,7 +182,7 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function getOrders($is_minified = false)
+    public function getOrders($is_minified = false, $is_expanded = false)
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
@@ -267,8 +268,80 @@ class OrderRepository extends RepositoryAbs
             }
 
             if ($is_minified) {
-                // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
+            } elseif ($is_expanded) {
+                $query->with(['company', 'customer', 'warehouse', 'delivery_info', 'detail', 'receiver', 'delivery_info.delivery.timelines', 'delivery_info.delivery.partner', 'approved', 'sale.distribution_channel', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $orders = $query->get();
+                $public_holidays = PublicHoliday::all();
+                $orders->map(function ($order) use ($public_holidays) {
+                    if (isset($order->delivery_info)) {
+                        $delivery = $order->delivery_info->delivery;
+                    } else {
+                        $delivery = null;
+                    }
+                    if (!$delivery) {
+                        $order->duration = 0;
+                        return $order;
+                    }
+                    $start_date = Carbon::parse($delivery->start_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                    if (!$delivery->estimate_delivery_date) {
+                        $order->duration = 0;
+                        return $order;
+                    }
+                    $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                    $duration = $estimate_date->diffInDays($start_date) + 1;
+                    //loop foreach between start_date and estimate_date
+                    $looped_duration = $duration;
+                    for ($i = 0; $i <= $looped_duration; $i++) {
+                        $date = $start_date->copy()->addDays($i);
+                        //check if date is public holiday
+                        $is_holiday = false;
+                        foreach ($public_holidays as $public_holiday) {
+                            $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                            $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                            if ($date->between($start_holiday_date, $end_holiday_date)) {
+                                $duration--;
+                                $is_holiday = true;
+                            }
+                        }
+                        if (!$is_holiday && $date->format('l') == 'Sunday') {
+                            $duration--;
+                        }
+                    }
+                    $order->duration = $duration;
+                    if ($delivery->complete_delivery_date) {
+                        $delivery['status'] = EnumsOrderStatus::Delivered;
+                    } else if ($delivery->start_delivery_date) {
+                        $delivery['status'] = EnumsOrderStatus::Delivering;
+
+                        // Check if any order is delivered or partly delivered
+
+                    } else {
+                        $delivery['status'] = EnumsOrderStatus::Preparing;
+                    }
+
+                    if ($delivery['status'] >= EnumsOrderStatus::Preparing && $delivery->estimate_delivery_date) {
+
+                        if ($delivery['status'] >= EnumsOrderStatus::Delivered) {
+                            if ($delivery->estimate_delivery_date->lt($delivery->complete_delivery_date)) {
+                                $delivery['is_late_deadline'] = false;
+                            } else {
+                                $delivery['is_late_deadline'] = true;
+                            }
+                        } else {
+                            if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
+                                $delivery['is_late_deadline'] = false;
+                            } else {
+                                $delivery['is_late_deadline'] = true;
+                            }
+                        }
+                    } else {
+                        $delivery['is_late_deadline'] = false;
+                    }
+
+                    $delivery['status'] = OrderStatus::find($delivery['status']);
+                    return $delivery;
+                });
             } else {
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])

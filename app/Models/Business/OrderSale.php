@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\DistributionChannel;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderSale extends Model
@@ -18,7 +19,7 @@ class OrderSale extends Model
 
     public function distribution_channel()
     {
-        return $this->belongsTo(DistributionChannel::class);
+        return $this->belongsTo(DistributionChannel::class, 'distribution_channel_id', 'id');
     }
 
     public function sale_district()

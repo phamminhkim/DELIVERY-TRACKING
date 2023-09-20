@@ -300,15 +300,11 @@
 							1
 						}}
 					</template>
-					<template #cell(warehouse)="data">
-						<span>{{ data.value.name }}</span>
-					</template>
+
 					<template #cell(status)="data">
 						<span :class="data.value.badge_class">{{ data.value.name }}</span>
 					</template>
-					<template #cell(receiver)="data">
-						<span>{{ data.value.receiver_name }}</span>
-					</template>
+
 					<template #cell(sap_so_number)="data">
 						<div class="margin">
 							<button
@@ -318,6 +314,30 @@
 								{{ data.value }}
 							</button>
 						</div>
+					</template>
+
+					<template #cell(province)="data"
+						>{{ formatAddress(data.item.detail?.delivery_address) }}
+					</template>
+
+					<template #cell(sap_so_created_date)="data">
+						{{ data.value | formatDate }}
+					</template>
+
+					<template #cell(approved.sap_so_finance_approval_date)="data">
+						{{ data.value | formatDate }}
+					</template>
+					<template #cell(start_delivery_date)="data">
+						{{ data.item.delivery_info?.delivery?.start_delivery_date | formatDate }}
+					</template>
+					<template #cell(estimate_delivery_date)="data">
+						{{ data.item.delivery_info?.delivery?.estimate_delivery_date | formatDate }}
+					</template>
+					<template #cell(complete_delivery_date)="data">
+						{{ data.item.delivery_info?.delivery?.complete_delivery_date | formatDate }}
+					</template>
+					<template #cell(confirm_delivery_date)="data">
+						{{ data.item.delivery_info?.confirm_delivery_date | formatDate }}
 					</template>
 				</b-table>
 			</div>
@@ -365,6 +385,7 @@
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 	import DialogOrderInfo from './dialogs/DialogOrderInfo.vue';
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
+	import moment from 'moment';
 	export default {
 		components: {
 			Treeselect,
@@ -433,18 +454,6 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'customer.code',
-						label: 'Mã KH',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'warehouse',
-						label: 'Kho hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
 						key: 'sap_so_number',
 						label: 'SO',
 						sortable: true,
@@ -456,15 +465,88 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+
 					{
-						key: 'receiver',
-						label: 'Bên nhận',
+						key: 'sale.distribution_channel.name',
+						label: 'Kênh',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'status',
 						label: 'Trạng thái',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'sap_so_created_date',
+						label: 'Ngày tạo đơn',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'approved.sap_so_finance_approval_date',
+						label: 'Ngày duyệt',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'start_delivery_date',
+						label: 'Ngày đi giao',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'estimate_delivery_date',
+						label: 'Ngày dự kiến giao',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'complete_delivery_date',
+						label: 'Ngày giao thực tế',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'confirm_delivery_date',
+						label: 'Ngày KH xác nhận',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'customer_reviews[0]?.review_content',
+						label: 'Đánh giá KH',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'province',
+						label: 'Tỉnh/Thành',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'customer.code',
+						label: 'Mã KH',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'receiver.receiver_name',
+						label: 'Khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'warehouse.name',
+						label: 'Kho hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'delivery_info.delivery.partner.name',
+						label: 'Nhà vận chuyển',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -511,7 +593,7 @@
 				try {
 					this.is_loading = true;
 					const [orders] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', this.api_url_orders, {
+						new APIRequest('get', `${this.api_url_orders}/expanded`, {
 							from_date:
 								this.form_filter.start_date.length == 0
 									? undefined
@@ -582,7 +664,7 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					const { data } = await this.api_handler.get(this.api_url_orders, {
+					const { data } = await this.api_handler.get(`${this.api_url_orders}/expanded`, {
 						from_date: this.form_filter.start_date,
 						to_date: this.form_filter.end_date,
 						status_ids: this.form_filter.statuses,
@@ -660,6 +742,17 @@
 				if (day.length < 2) day = '0' + day;
 
 				return [year, month, day].join('-');
+			},
+			formatDateTime(value) {
+				if (value) {
+					console.log(value);
+					return moment(String(value)).format('DD/MM/YYYY');
+				}
+			},
+			formatAddress(address) {
+				if (!address) return '';
+				const addr_arr = address.split(',');
+				return [addr_arr[addr_arr.length - 2], addr_arr[addr_arr.length - 1]].join(', ');
 			},
 			exportToExcel() {
 				saveExcel({
