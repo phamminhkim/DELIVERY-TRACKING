@@ -43,6 +43,168 @@
 				<div class="col-md-4">
 					<div class="card">
 						<div class="card-header">
+							<h3 class="card-title">Chứng từ</h3>
+							<div class="card-tools">
+								<button
+									type="button"
+									class="btn btn-tool"
+									data-card-widget="collapse"
+								>
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="card-body p-0" style="display: block">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<div v-else>
+								<ul class="nav nav-pills flex-column">
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO mới trong ngày
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.pending_today_orders_count
+											}}</span>
+										</div>
+									</li>
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO chưa có vận đơn
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.pending_orders_count
+											}}</span>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="card">
+						<div class="card-header">
+							<h3 class="card-title">Vận chuyển</h3>
+							<div class="card-tools">
+								<button
+									type="button"
+									class="btn btn-tool"
+									data-card-widget="collapse"
+								>
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="card-body p-0" style="display: block">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<div v-else>
+								<ul class="nav nav-pills flex-column">
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO đang soạn hàng
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.preparing_orders_count
+											}}</span>
+										</div>
+									</li>
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO đang giao
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.delivering_orders_count
+											}}</span>
+										</div>
+									</li>
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO đang giao
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.delivered_orders_count
+											}}</span>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="card">
+						<div class="card-header">
+							<h3 class="card-title">Vận chuyển</h3>
+							<div class="card-tools">
+								<button
+									type="button"
+									class="btn btn-tool"
+									data-card-widget="collapse"
+								>
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="card-body p-0" style="display: block">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<div v-else>
+								<ul class="nav nav-pills flex-column">
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO khách hàng đã đánh giá
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.reviewed_orders_count
+											}}</span>
+										</div>
+									</li>
+									<li class="nav-item">
+										<div class="nav-link">
+											<i class="fas fa-inbox"></i>
+											DO chưa đánh giá
+											<span class="badge bg-primary float-right">{{
+												dashboard_statistic.received_orders_count -
+												dashboard_statistic.reviewed_orders_count
+											}}</span>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-4">
+					<div class="card">
+						<div class="card-header">
 							<h3 class="card-title">Thống kê giao hàng</h3>
 							<div class="card-tools">
 								<button
@@ -262,7 +424,7 @@
 								<b-spinner class="align-middle" type="grow"></b-spinner>
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
-							<div v-else>
+							<div v-else style="padding: 15px">
 								<BarChart
 									:labels="criteria_statistics.map((criteria) => criteria.name)"
 									:data="criteria_statistics.map((criteria) => criteria.amount)"

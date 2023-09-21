@@ -122,6 +122,25 @@ class DashboardRepository extends RepositoryAbs
             $late_orders_percentage_change = ($late_orders_count_last_month != 0) ? (($late_orders_count - $late_orders_count_last_month) / $late_orders_count_last_month) * 100 : 0;
             $ontime_orders_percentage_change = ($ontime_orders_count_last_month != 0) ? (($ontime_orders_count - $ontime_orders_count_last_month) / $ontime_orders_count_last_month) * 100 : 0;
 
+            $pending_today_orders_query = Order::query();
+            $pending_today_orders_count = $pending_today_orders_query
+                ->where('status_id', '=', OrderStatus::Pending)
+                ->whereHas('approved', function ($query) {
+                    $query->whereDate('sap_do_posting_date', '=', Carbon::today());
+                })
+                ->count();
+
+            $pending_orders_query = clone $this_month_query;
+            $pending_orders_count = $pending_orders_query
+                ->where('status_id', '=', OrderStatus::Pending)
+                ->count();
+
+            $preparing_orders_query = clone $this_month_query;
+            $preparing_orders_count = $preparing_orders_query
+                ->where('status_id', '=', OrderStatus::Preparing)
+                ->count();
+
+
 
             $data = array(
                 'delivering_orders_count' => $delivering_orders_count,
@@ -131,8 +150,12 @@ class DashboardRepository extends RepositoryAbs
                 // 'confirmed_orders_count' => $confirmed_orders_count,
                 'received_orders_count' => $received_orders_count,
                 'reviewed_orders_count' => $reviewed_orders_count,
-                'late_orders_percentage_change' => $late_orders_percentage_change,
-                'ontime_orders_percentage_change' => $ontime_orders_percentage_change,
+                // 'late_orders_percentage_change' => $late_orders_percentage_change,
+                // 'ontime_orders_percentage_change' => $ontime_orders_percentage_change,
+                'pending_today_orders_count' => $pending_today_orders_count,
+                'pending_orders_count' => $pending_orders_count,
+                'preparing_orders_count' => $preparing_orders_count,
+
             );
             return $data;
         } catch (\Exception $exception) {
