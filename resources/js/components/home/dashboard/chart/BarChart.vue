@@ -91,6 +91,7 @@
 				chartOptions: {
 					responsive: true,
 					maintainAspectRatio: false,
+					onClick: this.handleClickEnvent,
 				},
 			};
 		},
@@ -110,6 +111,23 @@
 					code += hexArray[Math.floor(Math.random() * 16)];
 				}
 				return `#${code}`;
+			},
+			handleClickEnvent(event, item) {
+				if (item.length) {
+					const {
+						// datasetIndex,
+						index,
+					} = item[0];
+					// const { label } = this.chartData.datasets[datasetIndex];
+					// const { labels } = this.chartData;
+					// const { data } = this.chartData.datasets[datasetIndex];
+					this.$emit('on-click', {
+						// label,
+						// labels,
+						// data,
+						index,
+					});
+				}
 			},
 		},
 	};

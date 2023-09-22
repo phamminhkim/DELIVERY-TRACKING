@@ -66,22 +66,54 @@
 							</div>
 							<div v-else>
 								<ul class="nav nav-pills flex-column">
-									<li class="nav-item">
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.pending_today_orders_count !==
+											undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO mới trong ngày
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.pending_today_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-danger">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.pending_today_orders_count
+															}}
+														</h3>
+														<p>DO mới trong ngày</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-file-invoice"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
-									<li class="nav-item">
+
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.pending_orders_count !== undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO chưa có vận đơn
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.pending_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-danger">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.pending_orders_count
+															}}
+														</h3>
+														<p>DO chưa có vận đơn</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-file-alt"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
 								</ul>
@@ -116,31 +148,79 @@
 							</div>
 							<div v-else>
 								<ul class="nav nav-pills flex-column">
-									<li class="nav-item">
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.preparing_orders_count !== undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO đang soạn hàng
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.preparing_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-warning">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.preparing_orders_count
+															}}
+														</h3>
+														<p>DO đang soạn hàng</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-truck-loading"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
-									<li class="nav-item">
+
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.delivering_orders_count !==
+											undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO đang giao
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.delivering_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-info">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.delivering_orders_count
+															}}
+														</h3>
+														<p>DO đang giao</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-shipping-fast"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
-									<li class="nav-item">
+
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.delivered_orders_count !== undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO đang giao
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.delivered_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-success">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.delivered_orders_count
+															}}
+														</h3>
+														<p>DO đã giao</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-shopping-cart"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
 								</ul>
@@ -152,7 +232,7 @@
 				<div class="col-md-4">
 					<div class="card">
 						<div class="card-header">
-							<h3 class="card-title">Vận chuyển</h3>
+							<h3 class="card-title">Đánh giá khách hàng</h3>
 							<div class="card-tools">
 								<button
 									type="button"
@@ -175,23 +255,54 @@
 							</div>
 							<div v-else>
 								<ul class="nav nav-pills flex-column">
-									<li class="nav-item">
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.reviewed_orders_count !== undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO khách hàng đã đánh giá
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.reviewed_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-success">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.reviewed_orders_count
+															}}
+														</h3>
+														<p>DO khách hàng đã đánh giá</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-comments"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
-									<li class="nav-item">
+
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.received_orders_count != undefined
+										"
+									>
 										<div class="nav-link">
-											<i class="fas fa-inbox"></i>
-											DO chưa đánh giá
-											<span class="badge bg-primary float-right">{{
-												dashboard_statistic.received_orders_count -
-												dashboard_statistic.reviewed_orders_count
-											}}</span>
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-warning">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.received_orders_count -
+																dashboard_statistic.reviewed_orders_count
+															}}
+														</h3>
+														<p>DO chưa đánh giá</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-comment-slash"></i>
+													</div>
+												</div>
+											</div>
 										</div>
 									</li>
 								</ul>
@@ -352,69 +463,7 @@
 								</button>
 							</div>
 						</div>
-						<!-- <div class="card-body p-0" style="display: block">
-							<div
-								class="text-center text-primary my-2"
-								v-if="is_loading"
-								style="opacity: 0.5"
-							>
-								<b-spinner class="align-middle" type="grow"></b-spinner>
-								<strong>Đang tải dữ liệu...</strong>
-							</div>
-							<ul v-else class="nav nav-pills flex-column">
-								<li
-									v-for="(criteria_statistic, index) in criteria_statistics"
-									:key="index"
-									class="nav-item"
-								>
-									<a
-										href="#"
-										class="nav-link"
-										v-b-toggle="`collapse-${index}`"
-										@click="onOpenCriteria(criteria_statistic.id)"
-									>
-										<i class="fas fa-inbox"></i>
-										{{ criteria_statistic.name }}
-										<span class="badge bg-primary float-right">{{
-											criteria_statistic.amount
-										}}</span>
-									</a>
-									<b-collapse :id="`collapse-${index}`" accordion="my-accordion">
-										<div
-											style="
-												overflow-y: scroll;
-												height: 125px;
-												margin-left: 20px;
-												margin-right: 20px;
-												margin-bottom: 10px;
-												border: 1px solid #e9ecef;
-											"
-										>
-											<ul class="nav nav-pills flex-column">
-												<li
-													class="nav-item"
-													v-for="(order, index) in order_by_criterias"
-													:key="index"
-												>
-													<a
-														href="#"
-														class="nav-link"
-														@click.prevent="
-															showOrderInfoDialog(order.id)
-														"
-													>
-														<i class="far fa-envelope"></i>
-														{{
-															`SO: ${order.sap_so_number} DO: ${order.sap_do_number}`
-														}}
-													</a>
-												</li>
-											</ul>
-										</div>
-									</b-collapse>
-								</li>
-							</ul>
-						</div> -->
+
 						<div class="card-body p-0" style="display: block">
 							<div
 								class="text-center text-primary my-2"
@@ -428,6 +477,7 @@
 								<BarChart
 									:labels="criteria_statistics.map((criteria) => criteria.name)"
 									:data="criteria_statistics.map((criteria) => criteria.amount)"
+									@on-click="onClickBarchart"
 								/>
 							</div>
 						</div>
@@ -480,6 +530,10 @@
 				</div>  -->
 		</div>
 		<DialogOrderInfo :order="viewing_order" />
+		<DialogOrderStatisitcVue
+			:orders="order_by_criterias"
+			:viewing-statistic="viewing_statistic"
+		/>
 	</div>
 </template>
 
@@ -489,11 +543,13 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogOrderInfo from '../business/dialogs/DialogOrderInfo.vue';
 	import BarChart from './chart/BarChart.vue';
+	import DialogOrderStatisitcVue from './dialogs/DialogOrderStatisitc.vue';
 	export default {
 		components: {
 			Treeselect,
 			DialogOrderInfo,
 			BarChart,
+			DialogOrderStatisitcVue,
 		},
 		async created() {
 			this.generateFilterTimeOption();
@@ -520,6 +576,7 @@
 				criteria_statistics: [],
 
 				order_by_criterias: [],
+				viewing_statistic: '',
 
 				viewing_order: {},
 
@@ -651,18 +708,7 @@
 
 				return `rgb(${red}, ${green}, 0)`;
 			},
-			async onOpenCriteria(criteria_id) {
-				try {
-					this.order_by_criterias = [];
-					const { data } = await this.api_handler.get('api/partner/orders/minified', {
-						criteria_ids: [criteria_id],
-						month_year: this.filter_time ? this.filter_time : undefined,
-					});
-					this.order_by_criterias = data;
-				} catch (error) {
-					console.log(error);
-				}
-			},
+
 			async showOrderInfoDialog(order_id) {
 				try {
 					const { data } = await this.api_handler.get(
@@ -670,6 +716,22 @@
 					);
 					this.viewing_order = data;
 					$('#DialogOrderInfo').modal('show');
+				} catch (error) {
+					console.log(error);
+				}
+			},
+			async onClickBarchart(event) {
+				const { index } = event;
+				try {
+					this.order_by_criterias = [];
+					this.viewing_statistic = '';
+					const { data } = await this.api_handler.get('api/partner/orders/expanded', {
+						criteria_ids: [this.criteria_statistics[index].id],
+						month_year: this.filter_time ? this.filter_time : undefined,
+					});
+					this.order_by_criterias = data;
+					this.viewing_statistic = this.criteria_statistics[index].name;
+					$('#DialogOrderStatistic').modal('show');
 				} catch (error) {
 					console.log(error);
 				}
