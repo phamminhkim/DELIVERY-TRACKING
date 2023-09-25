@@ -1,5 +1,9 @@
 <template>
     <CrudPage :structure="page_structure">
+        <template #cell(is_active)="data">
+			<span class="badge bg-success" v-if="data.item.is_active == 1">Đang hoạt động</span>
+			<span class="badge bg-warning" v-if="data.item.is_active == 0">Ngưng hoạt động</span>
+		</template>
 
     </CrudPage>
 
@@ -39,11 +43,21 @@ export default {
                         sortable: true,
                         class: "text-nowrap text-center",
                     },
+                    {
+                        key: "is_active",
+                        label: "Trạng thái",
+                        sortable: true,
+                        class: "text-nowrap text-center",
+                    },
                 ],
                 table_cells: [
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
                     // {...},
                     // {...}
+                    {
+                        target_key: "is_active",
+                        type: "template", // 'text', 'bool', 'number', 'image', 'template'
+                    },
                 ],
             },
             form: {
@@ -64,6 +78,17 @@ export default {
                         type: "text", //html input type
                         required: true,
                     },
+                    {
+							label: 'Trạng thái',
+							// placeholder: 'Nhập SMS',
+							required: false,
+
+							key: 'is_active',
+							type: 'checkbox',
+							checkbox: {
+								default_value: true,
+							},
+						},
                 ],
             },
             api_url: "/api/master/distribution-channels",
