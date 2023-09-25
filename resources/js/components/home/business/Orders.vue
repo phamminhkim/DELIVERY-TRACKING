@@ -585,7 +585,7 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'preparing') {
-							this.form_filter.statuses = [20];
+							this.form_filter.statuses = [10];
 							this.fetchData();
 						}
 					}

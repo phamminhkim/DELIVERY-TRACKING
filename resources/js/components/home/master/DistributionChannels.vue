@@ -80,9 +80,7 @@ export default {
                     },
                     {
 							label: 'Trạng thái',
-							// placeholder: 'Nhập SMS',
 							required: false,
-
 							key: 'is_active',
 							type: 'checkbox',
 							checkbox: {
