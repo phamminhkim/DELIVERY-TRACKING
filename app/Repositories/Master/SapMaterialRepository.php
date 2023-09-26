@@ -6,30 +6,39 @@ use App\Models\Master\SapMaterial;
 use App\Models\Master\SapUnit;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Master\Company;
+
 
 class SapMaterialRepository extends RepositoryAbs
 {
     public function getAvailableSapMaterials()
     {
         try {
-            $SapMaterials = SapMaterial::all();
-            return $SapMaterials;
+            $sapMaterials = SapMaterial::all();
+            return $sapMaterials;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
+
     public function createNewSapMaterial()
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:sap_materials,code',
+                'company_id' => 'required|integer|exists:companies,code',
+                'sap_code' => 'required|string|unique:sap_materials,sap_code',
+                'unit_id' => 'required|string|exists:sap_units,id',
                 'name' => 'required|string',
-
             ], [
-                'code.required' => 'Yêu cầu nhập mã material.',
-                'code.string' => 'Mã material phải là chuỗi.',
-                'code.unique' => 'Mã material đã tồn tại.',
+                'company_id.required' => 'Yêu cầu nhập mã công ty.',
+                'company_id.integer' => 'Mã công ty phải là chuỗi.',
+                'company_id.exists' => 'Mã công ty không tồn tại.',
+                'sap_code.required' => 'Yêu cầu nhập mã material.',
+                'sap_code.string' => 'Mã công ty phải là chuỗi.',
+                'sap_code.unique' => 'Mã material đã tồn tại.',
+                'unit_id.string' => 'Mã unit phải là chuỗi.',
+                'unit_id.exists' => 'Mã unit không tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên material.',
                 'name.string' => 'Tên material phải là chuỗi.',
             ]);
@@ -43,28 +52,47 @@ class SapMaterialRepository extends RepositoryAbs
                     }
                 }
             } else {
-                $SapMaterial = SapMaterial::create($this->data);
+                $company = Company::where('code', $this->data['company_id'])->first();
+                if (!$company) {
+                    $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_id'];
+                    return false;
+                }
 
-                return $SapMaterial;
+                $sap_unit = SapUnit::find($this->data['unit_id']);
+                if (!$sap_unit) {
+                    $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
+                    return false;
+                }
+
+                $this->data['company_id'] = $company->code ?? null;
+                $this->data['unit_id'] = $sap_unit->id ?? null;
+
+                $sapMaterial = SapMaterial::create([
+                    'company_id' => $this->data['company_id'],
+                    'sap_code' => $this->data['sap_code'],
+                    'unit_id' => $this->data['unit_id'],
+                    'name' => $this->data['name'],
+                ]);
+
+                return $sapMaterial;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
-
     public function updateOrInsert()
     {
         $validator = Validator::make($this->data, [
-            '*.company_code' => 'required|string|exists:companies,code',
-            '*.code' => 'required|string',
+            '*.company_id' => 'required|string|exists:companies,code',
+            '*.sap_code' => 'required|string',
             '*.name' => 'required|string',
         ], [
-            '*.company_code.required' => 'Yêu cầu nhập mã công ty.',
-            '*.company_code.string' => 'Mã công ty phải là chuỗi.',
-            '*.company_code.exists' => 'Mã công ty không tồn tại.',
-            '*.code.required' => 'Yêu cầu nhập mã material.',
-            '*.code.string' => 'Mã material phải là chuỗi.',
+            '*.company_id.required' => 'Yêu cầu nhập mã công ty.',
+            '*.company_id.string' => 'Mã công ty phải là chuỗi.',
+            '*.company_id.exists' => 'Mã công ty không tồn tại.',
+            '*.sap_code.required' => 'Yêu cầu nhập mã material.',
+            '*.sap_code.string' => 'Mã material phải là chuỗi.',
             '*.name.required' => 'Yêu cầu nhập tên material.',
             '*.name.string' => 'Tên material phải là chuỗi.',
         ]);
@@ -87,8 +115,8 @@ class SapMaterialRepository extends RepositoryAbs
                         $unit = SapUnit::create(['unit_code' => $material['unit_code']]);
                     }
 
-                    $exist_sap_material = SapMaterial::where('company_id', $material['company_code'])
-                        ->where('sap_code', $material['code'])
+                    $exist_sap_material = SapMaterial::where('code', $material['company_id'])
+                        ->where('sap_code', $material['sap_code'])
                         ->where('unit_id', $unit->id)->first();
 
                     if ($material['status'] == "delete") {
@@ -102,9 +130,9 @@ class SapMaterialRepository extends RepositoryAbs
                             $result['update_count']++;
                         } else {
                             SapMaterial::create([
-                                'company_id' => $material['company_code'],
-                                'sap_code' => $material['code'],
+                                'company_id' => $material['company_id'],
                                 'unit_id' => $unit->id,
+                                'sap_code' => $material['sap_code'],
                                 'name' => $material['name'],
                             ]);
                             $result['insert_count']++;
@@ -122,13 +150,19 @@ class SapMaterialRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string',
+                'company_id' => 'required|integer|exists:companies,code',
+                'sap_code' => 'required|string:sap_materials,sap_code,',
+                'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
-
             ], [
-                'code.required' => 'Yêu cầu nhập mã material.',
-                'code.string' => 'Mã material phải là chuỗi.',
-                //'code.unique' => 'Mã kênh đã tồn tại.',
+                'company_id.required' => 'Yêu cầu nhập mã công ty.',
+                'company_id.integer' => 'Mã công ty phải là chuỗi.',
+                'company_id.exists' => 'Mã công ty không tồn tại.',
+                'sap_code.required' => 'Yêu cầu nhập mã material.',
+                'sap_code.string' => 'Mã công ty phải là chuỗi.',
+                //'sap_code.unique' => 'Mã material đã tồn tại.',
+                //'unit_id.integer' => 'Mã material phải là chuỗi.',
+                'unit_id.exists' => 'Mã unit không tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên material.',
                 'name.string' => 'Tên material phải là chuỗi.',
             ]);
@@ -142,11 +176,29 @@ class SapMaterialRepository extends RepositoryAbs
                     }
                 }
             } else {
-                $SapMaterial = SapMaterial::findOrFail($id);
-                $SapMaterial->update($this->data);
-
-                return $SapMaterial;
+            $company = Company::where('code', $this->data['company_id'])->first();
+            if (!$company) {
+                $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_id'];
+                return false;
             }
+
+            $sap_unit = SapUnit::find($this->data['unit_id']);
+            if (!$sap_unit) {
+                $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
+                return false;
+            }
+
+            $sapMaterial = SapMaterial::findOrFail($id);
+            $sapMaterial->fill([
+                'company_id' => $this->data['company_id'],
+                'sap_code' => $this->data['sap_code'],
+                'unit_id' => $this->data['unit_id'],
+                'name' => $this->data['name'],
+            ]);
+            $sapMaterial->save();
+
+            return $sapMaterial;
+        }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -155,9 +207,9 @@ class SapMaterialRepository extends RepositoryAbs
     public function deleteExistingSapMaterial($id)
     {
         try {
-            $SapMaterial = SapMaterial::findOrFail($id);
-            $SapMaterial->delete();
-            return $SapMaterial;
+            $sapMaterial = SapMaterial::findOrFail($id);
+            $sapMaterial->delete();
+            return $sapMaterial;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

@@ -16,6 +16,7 @@ use App\Repositories\Master\UserRepository;
 use App\Repositories\Master\CustomerPhoneRepository;
 use App\Repositories\Master\OrderReviewOptionRepository;
 use App\Repositories\Master\SapMaterialRepository;
+use App\Repositories\Master\SapUnitRepository;
 use Illuminate\Http\Request;
 
 class MasterRepository
@@ -53,6 +54,10 @@ class MasterRepository
     public static function sapMaterialRequest(Request $request)
     {
         return new SapMaterialRepository($request);
+    }
+    public static function sapUnitRequest(Request $request)
+    {
+        return new SapUnitRepository($request);
     }
 
     public static function deliveryPartnerRequest(Request $request)
