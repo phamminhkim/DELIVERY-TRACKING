@@ -130,6 +130,7 @@ class OrderRepository extends RepositoryAbs
                             'warehouse_id' => $warehouse->id,
                             'is_draft' => $order['is_draft'] ?? false,
                         ];
+
                         if (!Order::where('sap_so_number', $order['sap_so_number'])->exists()) {
                             $data['id'] =  Str::uuid()->toString();
                         }

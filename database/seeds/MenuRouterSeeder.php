@@ -155,7 +155,7 @@ class MenuRouterSeeder extends Seeder
                 'title' => "Chưa có vận đơn",
                 'icon' => "nav-icon",
                 'link' => "orders",
-                'query_string' => "filter=preparing",
+                'query_string' => "filter=pending",
                 'parent' => 'Quản lí đơn hàng',
             ],
             [
