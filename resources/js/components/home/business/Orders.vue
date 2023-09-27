@@ -561,7 +561,7 @@
 		async created() {
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
-			await Promise.all([this.fetchFilterOptions()]);
+			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
