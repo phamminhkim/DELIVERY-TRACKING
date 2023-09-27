@@ -584,7 +584,7 @@
 							this.form_filter.statuses = [10, 20, 30, 40, 100, 200];
 							this.fetchData();
 						}
-						if (new_query.filter == 'preparing') {
+						if (new_query.filter == 'pending') {
 							this.form_filter.statuses = [10];
 							this.fetchData();
 						}
