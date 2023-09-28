@@ -18,5 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleAndPermissionSeeder::class);
         $this->call(MenuRouterSeeder::class);
         $this->call(RouterSeeder::class);
+        $this->call(ExternalDeliveryPartnerSeeder::class);
     }
 }
