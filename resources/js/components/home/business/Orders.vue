@@ -412,8 +412,8 @@
 
 				is_show_search: false,
 				form_filter: {
-					start_date: '',
-					end_date: '',
+					start_date: this.formatDate(this.subtractDate(new Date(), 0, 1, 0)),
+					end_date: this.formatDate(new Date()),
 					statuses: [],
 					customers: [],
 					warehouses: [],
@@ -562,9 +562,10 @@
 			};
 		},
 		async created() {
-			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
-			this.form_filter.end_date = this.formatDate(new Date());
-			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
+			// this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
+			// this.form_filter.end_date = this.formatDate(new Date());
+
+			await Promise.all([this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
