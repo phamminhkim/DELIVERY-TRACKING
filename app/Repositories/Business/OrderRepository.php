@@ -215,6 +215,11 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
+            if ($this->request->filled('filter') && $this->request->filter == 'pending') {
+                $query->whereDoesntHave('delivery_info');
+            }
+
+
             if ($this->request->filled('sap_so_number')) {
                 $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
             }
