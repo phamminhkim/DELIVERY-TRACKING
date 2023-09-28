@@ -564,7 +564,7 @@
 		async created() {
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
-			await Promise.all([this.fetchFilterOptions()]);
+			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
@@ -587,7 +587,7 @@
 							this.form_filter.statuses = [10, 20, 30, 40, 100, 200];
 							this.fetchData();
 						}
-						if (new_query.filter == 'preparing') {
+						if (new_query.filter == 'pending') {
 							this.form_filter.statuses = [10];
 							this.fetchData();
 						}

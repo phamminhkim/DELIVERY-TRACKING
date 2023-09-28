@@ -10,4 +10,7 @@ abstract class SapSyncCategory
     const SaleDistrict = 4;
     const SaleGroup = 5;
     const SapMaterial = 6;
+    const SapUnit = 7;
+
+
 }
