@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MenuRouterSeeder::class);
         $this->call(RouterSeeder::class);
         $this->call(ExternalDeliveryPartnerSeeder::class);
+        $this->call(RegexPatternSeeder::class);
+        $this->call(PublicHolidaySeeder::class);
     }
 }
