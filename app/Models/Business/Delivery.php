@@ -79,4 +79,9 @@ class Delivery extends Model
     {
         return $this->hasOne(ExternalDeliveryCode::class);
     }
+
+    public function delivery_info()
+    {
+        return $this->hasMany(OrderDelivery::class, 'delivery_id', 'id');
+    }
 }

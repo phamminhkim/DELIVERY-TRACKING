@@ -50,7 +50,7 @@ class UpdateExternalDeiveries extends Command
             $query = Delivery::query();
             $query->where('complete_delivery_date', null)
                 ->whereHas('external_code')
-                ->with('external_code', 'partner',  'partner.mapping');
+                ->with('external_code', 'partner',  'partner.mapping', 'delivery_info');
 
             $deliveries = $query->get();
             $api_requests = $deliveries->map(function ($delivery) {
@@ -74,8 +74,24 @@ class UpdateExternalDeiveries extends Command
                 }
                 $api_customer_response = $api_customer_response[0];
 
-                $delivery->complete_delivery_date = Carbon::create($api_customer_response[$api_mapping->complete_delivery_date]);
+                $complete_delivery_date = Carbon::create($api_customer_response[$api_mapping->complete_delivery_date]);
+                $delivery->complete_delivery_date = $complete_delivery_date;
                 $delivery->save();
+
+                $delivery_infos = $delivery->delivery_info;
+                $delivery_infos->each(function ($delivery_info) use ($complete_delivery_date) {
+                    $delivery_info->complete_delivery_date = $complete_delivery_date;
+                    $delivery_info->confirm_delivery_date = $complete_delivery_date;
+                    $delivery_info->save();
+                });
+
+
+
+                $delivery->timelines()->create([
+                    'event' => 'complete_delivery',
+                    'description' => 'Vận đơn đã được nhà vận chuyển ngoài hoàn thành.',
+                    'timestamp' => $complete_delivery_date,
+                ]);
             }
             DB::commit();
         } catch (\Exception $e) {

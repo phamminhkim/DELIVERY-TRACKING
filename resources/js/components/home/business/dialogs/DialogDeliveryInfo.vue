@@ -322,7 +322,7 @@
 
 					<div class="modal-footer">
 						<button
-							v-if="!isOpenFromOrderDialog"
+							v-if="!isOpenFromOrderDialog && !isExternalDelivery"
 							type="button"
 							class="btn btn-info mr-auto"
 							@click="printQrCode"
@@ -497,6 +497,9 @@
 					sha256(this.order_items?.toString() + this.estimate_delivery_date).toString() !=
 					this.original_hashed
 				);
+			},
+			isExternalDelivery() {
+				return this.delivery?.partner?.is_external;
 			},
 			driver_confirm_image_urls() {
 				let image_urls = [];
