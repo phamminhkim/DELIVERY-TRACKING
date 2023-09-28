@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Business;
 
+use App\Enums\ApiRequestMethod;
 use App\Enums\OrderStatus as EnumsOrderStatus;
 use App\Jobs\SendFinishedDeliveryZaloSms;
 use App\Jobs\SendStartedDeliveryZaloSms;
@@ -16,9 +17,12 @@ use App\Models\Business\PrintConfig;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DeliveryPartner;
+use App\Models\Master\ExternalDeliveryCode;
 use App\Models\Master\Image;
 use App\Models\Master\OrderStatus;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Services\Implementations\Files\LocalFileService;
+use App\Utilities\ApiRequest;
 use App\Utilities\QrCodeUtility;
 use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +32,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\Excel\ExcelExtractor;
+use App\Utilities\ApiHandler;
+use App\Utilities\ApiUtility;
 
 class DeliveryRepository extends RepositoryAbs
 {
@@ -821,6 +828,7 @@ class DeliveryRepository extends RepositoryAbs
                 $this->message = 'Đơn vận chuyển không tồn tại.';
                 return false;
             }
+
             DB::beginTransaction();
             $delivery->tokens()->delete();
             $delivery->timelines()->delete();
@@ -833,6 +841,134 @@ class DeliveryRepository extends RepositoryAbs
             DB::commit();
 
             return true;
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function createExternalDeliveryFromExcel()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'file' => 'required|mimes:xlsx,xls',
+                'delivery_partner' => 'required|exists:delivery_partners,id',
+                'company_code' => 'required|exists:companies,code',
+            ], [
+                'file.required' => 'File là bắt buộc.',
+                'file.mimes' => 'File không đúng định dạng.',
+                'delivery_partner.required' => 'Đối tác giao hàng là bắt buộc.',
+                'delivery_partner.exists' => 'Đối tác giao hàng không tồn tại.',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $file = $this->request->file('file');
+                $excel_extractor = new ExcelExtractor();
+                $raw_table_data = $excel_extractor->extractData($file);
+                $template_structure = [
+                    "delivery_code_customer" => 0,
+                    "sap_do_number" => 1,
+                    "customer_code" => 2,
+                    "estimate_delivery_date" => 4,
+                ];
+                $table_data = $excel_extractor->structureData($raw_table_data, $template_structure, 'delivery_code_customer');
+
+                $delivery_partner = DeliveryPartner::find($this->data['delivery_partner']);
+                if (!$delivery_partner->is_external) {
+                    $this->message = 'Không phải đối tác giao hàng ngoài.';
+                    return false;
+                }
+                $api_mapping = $delivery_partner->mapping;
+                DB::beginTransaction();
+                $delivieries_result = [];
+                foreach ($table_data as $delivery_code_customer => $delivery_customer) {
+                    $sap_do_numbers = array_map(function ($item) {
+                        return $item['sap_do_number'];
+                    }, $delivery_customer);
+                    $orders = Order::whereIn('sap_do_number', $sap_do_numbers)->get();
+                    if ($orders->count() != count($delivery_customer)) {
+                        $this->message = 'Có DO không tồn tại trong file.';
+                        return false;
+                    }
+                    $customer = Customer::where('code', $delivery_customer[0]['customer_code'] ?? null)->first();
+                    if (!$customer) {
+                        $customer_not_exist = $delivery_customer[0]['customer_code'];
+                        $this->message = "Khách hàng $customer_not_exist không tồn tại.";
+                        return false;
+                    }
+                    $delivery_code = UniqueIdUtility::generateDeliveryUniqueCode($delivery_partner);
+                    $body_datas = json_decode($delivery_partner->api_body_datas, true);
+                    $body_datas = array_merge($body_datas, array($delivery_partner->api_delivery_code_field => $delivery_code_customer));
+                    [$api_customer_response] = ApiHandler::handleMultipleRequests([
+                        new ApiRequest($delivery_partner->api_url, [], $body_datas, $delivery_partner->api_method),
+                    ]);
+
+                    $api_customer_response = ApiUtility::getPropertyByPath($api_customer_response, $api_mapping->root_data_field, '.');
+                    if ($api_mapping->is_root_string) {
+                        $api_customer_response = json_decode($api_customer_response, true);
+                    }
+                    $api_customer_response = $api_customer_response[0]; //kết quả trả về thường là mảng
+                    $delivery = Delivery::create([
+                        'delivery_code' => $delivery_code,
+                        'company_code' => $this->data['company_code'],
+                        'delivery_partner_id' => $delivery_partner->id,
+                        'customer_id' => $customer->id,
+                        'start_delivery_date' => Carbon::now(),
+                        'complete_delivery_date' => null,
+                        'estimate_delivery_date' => Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($delivery_customer[0]['estimate_delivery_date'])),
+                        'address' => $customer->address,
+                        'created_by' => $this->current_user->id
+                    ]);
+                    ExternalDeliveryCode::create([
+                        'delivery_id' => $delivery->id,
+                        'external_delivery_code' => $delivery_code_customer,
+                    ]);
+
+                    foreach ($orders as $order) {
+
+                        if ($order->status_id == EnumsOrderStatus::Preparing) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được xử lí.';
+                            return false;
+                        }
+                        if ($order->status_id == EnumsOrderStatus::Delivering) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đang được giao.';
+                            return false;
+                        }
+                        if ($order->status_id == EnumsOrderStatus::Delivered) {
+                            $this->message = 'Đơn hàng ' . $order->sap_so_number . ' đã được giao.';
+                            return false;
+                        }
+
+                        $order->status_id = EnumsOrderStatus::Preparing;
+                        $order->save();
+
+                        OrderDelivery::create([
+                            'order_id' => $order->id,
+                            'delivery_id' => $delivery->id,
+                            'start_delivery_at' => Carbon::now(),
+                            'complete_delivery_at' => null,
+                            'estimate_delivery_at' => $delivery->estimate_delivery_date,
+                            'address' => $delivery->address
+                        ]);
+                    }
+                    $delivery->timelines()->create([
+                        'event' => 'create_delivery',
+                        'description' => 'Liên kết với vận đơn của nhà vận chuyển ngoài.',
+                    ]);
+
+                    foreach ($delivery->orders as $order) {
+                        SendStartedDeliveryZaloSms::dispatch($customer->id, $order->id, $delivery->estimate_delivery_date);
+                    }
+
+                    $delivieries_result[] = $delivery;
+                }
+
+
+                DB::commit();
+                return $delivieries_result;
+            }
         } catch (\Exception $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();

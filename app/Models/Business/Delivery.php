@@ -6,6 +6,7 @@ use App\Models\Master\Company;
 use App\Models\Master\Customer;
 use App\Models\Master\DeliveryPartner;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Master\ExternalDeliveryCode;
 use App\Traits\Uuids;
 
 class Delivery extends Model
@@ -53,7 +54,7 @@ class Delivery extends Model
     {
         return $this->hasOne(DeliveryPickup::class);
     }
-    public function info() 
+    public function info()
     {
         return $this->hasOne(OrderDelivery::class, 'delivery_id', 'id');
     }
@@ -72,5 +73,10 @@ class Delivery extends Model
     public function timelines()
     {
         return $this->hasMany(DeliveryTimeline::class);
+    }
+
+    public function external_code()
+    {
+        return $this->hasOne(ExternalDeliveryCode::class);
     }
 }

@@ -164,6 +164,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/print-configs/{print_config_id}', [DeliveryController::class, 'deletePrintQRConfig']);
             Route::post('/print-qrs', [DeliveryController::class, 'printDeliveriesQrCodeByIds']);
             Route::post('/{id}/print-qr', [DeliveryController::class, 'printDeliveryQrCodeById']);
+            Route::post('/excel', [DeliveryController::class, 'createExternalDeliveryFromExcel']);
             Route::post('/', [DeliveryController::class, 'createDelivery']);
             Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);

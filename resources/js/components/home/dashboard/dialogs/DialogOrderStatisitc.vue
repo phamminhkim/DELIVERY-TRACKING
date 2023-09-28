@@ -52,10 +52,7 @@
 
 								<template #cell(sap_so_number)="data">
 									<div class="margin">
-										<button
-											class="btn btn-xs mr-1 text-info"
-											@click="showInfoDialog(data.item)"
-										>
+										<button class="btn btn-xs mr-1 text-info">
 											{{ data.value }}
 										</button>
 									</div>

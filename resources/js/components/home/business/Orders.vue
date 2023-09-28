@@ -302,7 +302,7 @@
 					</template>
 
 					<template #cell(status.name)="data">
-						<span :class="data.value.badge_class">{{ data.value }}</span>
+						<span :class="data.item.status.badge_class">{{ data.value }}</span>
 					</template>
 
 					<template #cell(sap_so_number)="data">
@@ -370,7 +370,10 @@
 
 			<DialogOrderInfo :order="viewing_order" />
 			<!-- tạo form -->
-			<DialogCreateDelivery :order_ids="creating_delivery_order_ids" />
+			<DialogCreateDelivery
+				:order_ids="creating_delivery_order_ids"
+				@onDeliveryCreated="onDeliveryCreated"
+			/>
 			<!-- end tạo form -->
 		</div>
 	</div>
@@ -465,7 +468,18 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-
+					{
+						key: 'customer.code',
+						label: 'Mã KH',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'receiver.receiver_name',
+						label: 'Khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
 					{
 						key: 'sale.distribution_channel.name',
 						label: 'Kênh',
@@ -526,18 +540,7 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					{
-						key: 'customer.code',
-						label: 'Mã KH',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'receiver.receiver_name',
-						label: 'Khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
+
 					{
 						key: 'warehouse.name',
 						label: 'Kho hàng',
@@ -585,7 +588,7 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'preparing') {
-							this.form_filter.statuses = [20];
+							this.form_filter.statuses = [10];
 							this.fetchData();
 						}
 					}
@@ -789,6 +792,9 @@
 						title: field.label,
 					})),
 				});
+			},
+			async onDeliveryCreated() {
+				await this.fetchData();
 			},
 		},
 		computed: {
