@@ -219,7 +219,6 @@ class OrderRepository extends RepositoryAbs
                 $query->whereDoesntHave('delivery_info');
             }
 
-
             if ($this->request->filled('sap_so_number')) {
                 $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
             }

@@ -422,6 +422,7 @@
 					distribution_channels: [],
 					delivery_partners: [],
 					order_review_options: [],
+                    filter: [],
 				},
 				customer_options: [],
 				warehouse_options: [],
@@ -589,9 +590,9 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'pending') {
-							this.form_filter.statuses = [10];
-							this.fetchData();
-						}
+                            //this.form_filter.statuses = [10];
+                            this.fetchData(new_query);
+                        }
 					}
 				},
 			},
@@ -618,7 +619,10 @@
 							distribution_channel_ids: this.form_filter.distribution_channels,
 							delivery_partner_ids: this.form_filter.delivery_partners,
 							order_review_option_ids: this.form_filter.order_review_options,
+                            filter: query?.filter,
+
 						}),
+
 					]);
 
 					this.orders = orders;
@@ -645,6 +649,7 @@
 					this.distribution_channel_options = distribution_channels;
 					this.delivery_partner_options = delivery_partners;
 					this.order_review_option_options = order_review_options;
+
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				}
