@@ -50,7 +50,7 @@ class UpdateExternalDeiveries extends Command
             $query = Delivery::query();
             $query->where('complete_delivery_date', null)
                 ->whereHas('external_code')
-                ->with('external_code', 'partner',  'partner.mapping', 'delivery_info');
+                ->with('external_code', 'partner',  'partner.mapping', 'delivery_info', 'orders');
 
             $deliveries = $query->get();
             $api_requests = $deliveries->map(function ($delivery) {
@@ -78,11 +78,18 @@ class UpdateExternalDeiveries extends Command
                 $delivery->complete_delivery_date = $complete_delivery_date;
                 $delivery->save();
 
+
                 $delivery_infos = $delivery->delivery_info;
                 $delivery_infos->each(function ($delivery_info) use ($complete_delivery_date) {
                     $delivery_info->complete_delivery_date = $complete_delivery_date;
                     $delivery_info->confirm_delivery_date = $complete_delivery_date;
                     $delivery_info->save();
+                });
+
+                $orders = $delivery->orders;
+                $orders->each(function ($order) {
+                    $order->status_id = OrderStatus::Delivered;
+                    $order->save();
                 });
 
 
