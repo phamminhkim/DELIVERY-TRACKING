@@ -48,6 +48,7 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
 
+
             if ($this->request->filled('distribution_channel_ids')) {
                 $distribution_channel_ids = $this->request->distribution_channel_ids;
                 $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
@@ -122,18 +123,14 @@ class DashboardRepository extends RepositoryAbs
             $late_orders_percentage_change = ($late_orders_count_last_month != 0) ? (($late_orders_count - $late_orders_count_last_month) / $late_orders_count_last_month) * 100 : 0;
             $ontime_orders_percentage_change = ($ontime_orders_count_last_month != 0) ? (($ontime_orders_count - $ontime_orders_count_last_month) / $ontime_orders_count_last_month) * 100 : 0;
 
-            $pending_today_orders_query = Order::query();
-            $pending_today_orders_count = $pending_today_orders_query
-                ->where('status_id', '=', OrderStatus::Pending)
-                ->whereHas('approved', function ($query) {
-                    $query->whereDate('sap_do_posting_date', '=', Carbon::today());
-                })
-                ->count();
+            $pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
+            $pending_orders_count = $pending_orders_query->count();
 
-            $pending_orders_query = clone $this_month_query;
-            $pending_orders_count = $pending_orders_query
-                ->where('status_id', '=', OrderStatus::Pending)
-                ->count();
+            $pending_today_orders_query = clone $pending_orders_query;
+            $pending_today_orders_query->whereHas('approved', function ($query) {
+                $query->whereDate('sap_do_posting_date', '=', Carbon::today());
+            });
+            $pending_today_orders_count = $pending_today_orders_query->count();
 
             $preparing_orders_query = clone $this_month_query;
             $preparing_orders_count = $preparing_orders_query
@@ -199,7 +196,23 @@ class DashboardRepository extends RepositoryAbs
             }
             $query->groupBy('order_review_options.id', 'order_review_options.name');
             $query->orderBy('order_review_options.id', 'desc');
-            return $query->get();
+
+            $statistic = $query->get();
+            $statisticed_criterias = $statistic->pluck('id')->toArray();
+
+            $criterias = OrderReviewOption::all();
+
+            $unstatisticed_criterias = array_diff($criterias->pluck('id')->toArray(), $statisticed_criterias);
+            foreach ($unstatisticed_criterias as $criteria_id) {
+                $statistic->push([
+                    'id' => $criteria_id,
+                    'name' => $criterias->find($criteria_id)->name,
+                    'amount' => 0
+                ]);
+            }
+
+
+            return $statistic;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

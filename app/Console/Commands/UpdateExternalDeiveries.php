@@ -74,7 +74,7 @@ class UpdateExternalDeiveries extends Command
                 }
                 $api_customer_response = $api_customer_response[0];
 
-                $complete_delivery_date = Carbon::create($api_customer_response[$api_mapping->complete_delivery_date]);
+                $complete_delivery_date = isset($api_customer_response[$api_mapping->complete_delivery_date]) ? Carbon::create($api_customer_response[$api_mapping->complete_delivery_date]) : null;
                 $delivery->complete_delivery_date = $complete_delivery_date;
                 $delivery->save();
 
