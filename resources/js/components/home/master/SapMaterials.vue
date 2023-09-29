@@ -38,9 +38,37 @@
 					// fulltextsearch: true,
 				},
 				form: {
-					unique_name: 'sap-product-mapping',
+					unique_name: 'SapMaterials',
 					form_name: 'sản phẩm SAP',
 					form_fields: [
+                        {
+							label: 'Mã công ty',
+							placeholder: 'Nhập mã công ty..',
+							key: 'company_id',
+							type: 'treeselect',
+							required: true,
+							treeselect: {
+                                multiple: false,
+                                option_id_key: 'code',
+                                option_label_key: 'name',
+                                async: true,
+                                api_async_load_options: 'api/master/companies',
+                            },
+						},
+                        {
+                            label: 'Mã unit',
+                            placeholder: 'Nhập mã unit..',
+                            key: 'unit_id',
+                            type: 'treeselect',
+                            required: true,
+                            treeselect: {
+                                multiple: false,
+                                option_id_key: 'id',
+                                option_label_key: 'unit_code',
+                                async: true,
+                                api_async_load_options: 'api/master/sap-units',
+                                },
+                            },
 						{
 							label: 'Mã sản phẩm SAP',
 							placeholder: 'Nhập mã sản phẩm SAP..',
@@ -57,7 +85,7 @@
 						},
 					],
 				},
-				api_url: '/api/master/sap_products',
+				api_url: '/api/master/sap-materials',
 			};
 		},
 	};

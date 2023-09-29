@@ -241,16 +241,6 @@
 										</div>
 									</template>
 								</div>
-								<!-- <div class="d-flex justify-content-center">
-									<a
-										@click="
-											showDeliveryInfoDialog(order?.delivery_info?.delivery)
-										"
-										href="#"
-									>
-										{{ order?.delivery_info?.delivery?.delivery_code }}
-									</a>
-								</div> -->
 							</div>
 						</div>
 					</div>

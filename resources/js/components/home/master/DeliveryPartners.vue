@@ -122,6 +122,29 @@
 							required: false,
 						},
 						{
+							//api method
+							label: 'Api Method',
+							placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+							key: 'api_method',
+							type: 'text',
+						},
+
+						{
+							//api_body_datas
+							label: 'Api Body Datas',
+							placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+							key: 'api_body_datas',
+							type: 'textarea',
+						},
+
+						{
+							//api delivery code field
+							label: 'Api Delivery Code Field',
+							placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
+							key: 'api_delivery_code_field',
+							type: 'text',
+						},
+						{
 							label: 'Api Key',
 							placeholder: 'Chỉ nhập nếu có tích hợp API nhà vận chuyển',
 							key: 'api_key',
@@ -135,6 +158,7 @@
 							type: 'password',
 							required: false,
 						},
+
 						{
 							label: 'Nhà vận chuyển ngoài',
 							required: false,

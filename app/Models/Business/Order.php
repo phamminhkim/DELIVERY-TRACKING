@@ -14,7 +14,7 @@ class Order extends Model
     use Uuids;
 
     protected $fillable = [
-       'id', 'company_code', 'customer_id', 'sap_so_number', 'sap_so_created_date', 'sap_po_number', 'sap_do_number', 'status_id', 'warehouse_id', 'updated_at', 'is_draft'
+        'id', 'company_code', 'customer_id', 'sap_so_number', 'sap_so_created_date', 'sap_po_number', 'sap_do_number', 'status_id', 'warehouse_id', 'updated_at', 'is_draft'
     ];
     protected $casts = [
         'sap_so_created_date' => 'datetime',
@@ -82,12 +82,12 @@ class Order extends Model
 
     public function deliveries()
     {
-         return $this->belongsToMany(Delivery::class, 'order_deliveries');
+        return $this->belongsToMany(Delivery::class, 'order_deliveries');
     }
 
     public function delivery_info()
     {
-         return $this->hasOne(OrderDelivery::class, 'order_id', 'id');
+        return $this->hasOne(OrderDelivery::class, 'order_id', 'id');
     }
 
     public function driver_confirms()
@@ -99,7 +99,6 @@ class Order extends Model
     {
         return $this->hasMany(OrderCustomerReview::class);
     }
-
 
     public function scopeStatus($query, $status)
     {

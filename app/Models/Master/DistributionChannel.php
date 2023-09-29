@@ -9,7 +9,8 @@ class DistributionChannel extends Model
     public $timestamps = false;
     protected $fillable = [
         'code',
-        'name'
+        'name',
+        'is_active'
     ];
 
     public function delivery_partners()

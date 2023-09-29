@@ -152,6 +152,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản trị hệ thống',
             ],
             [
+                'title' => "Chưa có vận đơn",
+                'icon' => "nav-icon",
+                'link' => "orders",
+                'query_string' => "filter=pending",
+                'parent' => 'Quản lí đơn hàng',
+            ],
+            [
                 'title' => "Tất cả",
                 'icon' => "nav-icon",
                 'link' => "orders",

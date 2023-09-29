@@ -62,6 +62,7 @@ class DistributionChannelRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['is_active'] = true;
                 $distributionChannel = DistributionChannel::create($this->data);
 
                 return $distributionChannel;
@@ -97,6 +98,7 @@ class DistributionChannelRepository extends RepositoryAbs
                     ]);
                     $result['update_count']++;
                 } else {
+
                     DistributionChannel::create([
                         'code' => $distributionChannel['code'],
                         'name' => $distributionChannel['name'],

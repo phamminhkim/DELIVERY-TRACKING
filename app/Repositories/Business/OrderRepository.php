@@ -8,6 +8,7 @@ use App\Models\Business\DeliveryTimeline;
 use App\Models\Business\Order;
 use App\Models\Business\OrderCustomerReview;
 use App\Models\Business\OrderDelivery;
+use App\Models\Business\PublicHoliday;
 use App\Models\Master\Customer;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DistributionChannel;
@@ -129,6 +130,7 @@ class OrderRepository extends RepositoryAbs
                             'warehouse_id' => $warehouse->id,
                             'is_draft' => $order['is_draft'] ?? false,
                         ];
+
                         if (!Order::where('sap_so_number', $order['sap_so_number'])->exists()) {
                             $data['id'] =  Str::uuid()->toString();
                         }
@@ -139,12 +141,13 @@ class OrderRepository extends RepositoryAbs
                             $data
                         );
                         // Check if order is approved by finance
-                        if ($order['approveds']['sap_so_finance_approval_date'] && !$created_order->approved()->exists() || $created_order->approved()->exists() && $created_order->approved->sap_so_finance_approval_date != $order['approveds']['sap_so_finance_approval_date']) {
+                        if ($order['approveds']['sap_so_finance_approval_date'] && $created_order->approved  && !$created_order->approved->exists() || $created_order->approved()->exists() && $created_order->approved->sap_so_finance_approval_date != $order['approveds']['sap_so_finance_approval_date']) {
                             SendPreparedOrderZaloSms::dispatch($customer->id, $created_order->id);
                         }
 
                         $created_order->approved()->updateOrCreate(['order_id' => $created_order['id']], [
                             'sap_so_finance_approval_date' => $order['approveds']['sap_so_finance_approval_date'] ?? null,
+                            'sap_do_posting_date' => $order['approveds']['sap_do_posting_date'] ?? null,
                         ]);
                         $created_order->detail()->updateOrCreate(['order_id' => $created_order['id']], [
                             'delivery_address' => $order['details']['delivery_address'] ?? '',
@@ -181,7 +184,7 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
-    public function getOrders($is_minified = false)
+    public function getOrders($is_minified = false, $is_expanded = false)
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
@@ -212,11 +215,35 @@ class OrderRepository extends RepositoryAbs
             if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
+            if ($this->request->filled('filter') && $this->request->filter == 'pending') {
+                $query->whereDoesntHave('delivery_info');
+            }
+
             if ($this->request->filled('sap_so_number')) {
                 $query->where('sap_so_number', 'LIKE', '%' . $this->request->sap_so_number . '%');
             }
             if ($this->request->filled('sap_do_number')) {
                 $query->where('sap_do_number', 'LIKE', '%' . $this->request->sap_do_number . '%');
+            }
+            if ($this->request->filled('delivery_partner_ids')) {
+                $delivery_partner_ids = $this->request->delivery_partner_ids;
+                $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
+                    $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                });
+            }
+            if ($this->request->filled('distribution_channel_ids')) {
+                $distribution_channel_ids = $this->request->distribution_channel_ids;
+                $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+                });
+            }
+            if ($this->request->filled('order_review_option_ids')) {
+                $order_review_option_ids = $this->request->order_review_option_ids;
+                $query->whereHas('customer_reviews', function ($query) use ($order_review_option_ids) {
+                    $query->whereHas('criterias', function ($query) use ($order_review_option_ids) {
+                        $query->whereIn('order_review_options.id', $order_review_option_ids);
+                    });
+                });
             }
 
             if ($this->current_user->hasRole('admin-partner')) {
@@ -247,8 +274,80 @@ class OrderRepository extends RepositoryAbs
             }
 
             if ($is_minified) {
-                // $orders = $query->with(['customer', 'warehouse', 'status'])->get();
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
+            } elseif ($is_expanded) {
+                $query->with(['company', 'customer', 'warehouse', 'delivery_info', 'detail', 'receiver', 'delivery_info.delivery.timelines', 'delivery_info.delivery.partner', 'approved', 'sale.distribution_channel', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $orders = $query->get();
+                $public_holidays = PublicHoliday::all();
+                $orders->map(function ($order) use ($public_holidays) {
+                    if (isset($order->delivery_info)) {
+                        $delivery = $order->delivery_info->delivery;
+                    } else {
+                        $delivery = null;
+                    }
+                    if (!$delivery) {
+                        $order->duration = 0;
+                        return $order;
+                    }
+                    $start_date = Carbon::parse($delivery->start_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                    if (!$delivery->estimate_delivery_date) {
+                        $order->duration = 0;
+                        return $order;
+                    }
+                    $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                    $duration = $estimate_date->diffInDays($start_date) + 1;
+                    //loop foreach between start_date and estimate_date
+                    $looped_duration = $duration;
+                    for ($i = 0; $i <= $looped_duration; $i++) {
+                        $date = $start_date->copy()->addDays($i);
+                        //check if date is public holiday
+                        $is_holiday = false;
+                        foreach ($public_holidays as $public_holiday) {
+                            $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                            $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                            if ($date->between($start_holiday_date, $end_holiday_date)) {
+                                $duration--;
+                                $is_holiday = true;
+                            }
+                        }
+                        if (!$is_holiday && $date->format('l') == 'Sunday') {
+                            $duration--;
+                        }
+                    }
+                    $order->duration = $duration;
+                    if ($delivery->complete_delivery_date) {
+                        $delivery['status'] = EnumsOrderStatus::Delivered;
+                    } else if ($delivery->start_delivery_date) {
+                        $delivery['status'] = EnumsOrderStatus::Delivering;
+
+                        // Check if any order is delivered or partly delivered
+
+                    } else {
+                        $delivery['status'] = EnumsOrderStatus::Preparing;
+                    }
+
+                    if ($delivery['status'] >= EnumsOrderStatus::Preparing && $delivery->estimate_delivery_date) {
+
+                        if ($delivery['status'] >= EnumsOrderStatus::Delivered) {
+                            if ($delivery->estimate_delivery_date->lt($delivery->complete_delivery_date)) {
+                                $delivery['is_late_deadline'] = false;
+                            } else {
+                                $delivery['is_late_deadline'] = true;
+                            }
+                        } else {
+                            if ($delivery->estimate_delivery_date->lt(Carbon::today())) {
+                                $delivery['is_late_deadline'] = false;
+                            } else {
+                                $delivery['is_late_deadline'] = true;
+                            }
+                        }
+                    } else {
+                        $delivery['is_late_deadline'] = false;
+                    }
+
+                    $delivery['status'] = OrderStatus::find($delivery['status']);
+                    return $delivery;
+                });
             } else {
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
