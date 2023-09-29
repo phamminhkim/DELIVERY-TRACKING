@@ -12,7 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class DeliveryPartnerRepository extends RepositoryAbs
 {
-    public function getAvailablePartners()
+    public function getAvailablePartners($is_external = false)
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
@@ -22,6 +22,9 @@ class DeliveryPartnerRepository extends RepositoryAbs
             if ($this->current_user->hasRole('admin-partner')) {
                 $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
                 $query->whereIn('id', $partner_ids);
+            }
+            if ($is_external) {
+                $query->where('is_external', true);
             }
             $partners = $query->with(['users', 'distribution_channels'])->withCount('users')->get()->map(function ($partner) {
                 $partner->channel_ids = $partner->distribution_channels->pluck('id')->toArray();

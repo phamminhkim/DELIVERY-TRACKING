@@ -62,6 +62,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
         });
         Route::prefix('/delivery-partners')->group(function () {
+            Route::get('/external', [DeliveryPartnerController::class, 'getAvailableExternalPartners']);
             Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
             Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
             Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);

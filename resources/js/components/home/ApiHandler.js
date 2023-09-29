@@ -12,10 +12,22 @@ class APIRequest {
 class APIHandler {
     constructor(token) {
         this.token = token;
+        this.default_headers =
+        {
+            "Content-Type": "application/json",
+            Authorization: this.token ? `Bearer ${this.token}` : "",
+
+        };
+        this.custom_headers = {};
+
+    }
+    setHeaders(headers) {
+        this.custom_headers = headers;
+        return this;
     }
     getHeaders() {
         return {
-            "Content-Type": "application/json",
+            ...(this.custom_headers ?? this.default_headers),
             Authorization: this.token ? `Bearer ${this.token}` : "",
         };
     }
@@ -33,6 +45,9 @@ class APIHandler {
             console.error("Error fetching data from the API:", error);
             throw error;
         }
+        finally {
+            this.custom_headers = null;
+        }
     }
 
     async post(api_url, queries = {}, body = {}) {
@@ -48,6 +63,9 @@ class APIHandler {
             console.error("Error fetching data from the API:", error);
             throw error;
         }
+        finally {
+            this.custom_headers = null;
+        }
     }
 
     async put(api_url, queries = {}, body = {}) {
@@ -62,6 +80,9 @@ class APIHandler {
         } catch (error) {
             console.error("Error fetching data from the API:", error);
             throw error;
+        }
+        finally {
+            this.custom_headers = null;
         }
     }
 
@@ -79,6 +100,9 @@ class APIHandler {
             console.error("Error fetching data from the API:", error);
             throw error;
         }
+        finally {
+            this.custom_headers = null;
+        }
     }
 
     async delete(api_url, queries = {}) {
@@ -93,6 +117,9 @@ class APIHandler {
         } catch (error) {
             console.error("Error fetching data from the API:", error);
             throw error;
+        }
+        finally {
+            this.custom_headers = null;
         }
     }
 
@@ -113,7 +140,7 @@ class APIHandler {
                         return this.put(req.api_url, req.queries, req.body);
                     }
                     else if (type == 'delete') {
-                        return this.delete(eq.api_url, req.queries, req.body);
+                        return this.delete(req.api_url, req.queries, req.body);
                     }
                 })
             );
@@ -123,10 +150,18 @@ class APIHandler {
         catch (err) {
             console.log(err);
         }
+
     }
 
     createURL(api_url, queries = {}) {
         return buildURL(api_url, queries);
+    }
+    static createFormData(datas) {
+        let formData = new FormData();
+        for (let key in datas) {
+            formData.append(key, datas[key]);
+        }
+        return formData;
     }
 }
 
