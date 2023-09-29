@@ -324,19 +324,19 @@
 						{{ data.value | formatDate }}
 					</template>
 
-					<template #cell(approved.sap_so_finance_approval_date)="data">
+					<template #cell(approved?.sap_so_finance_approval_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info.delivery.start_delivery_date)="data">
+					<template #cell(delivery_info?.delivery.start_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info.delivery.estimate_delivery_date)="data">
+					<template #cell(delivery_info?.delivery.estimate_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info.delivery.complete_delivery_date)="data">
+					<template #cell(delivery_info?.delivery.complete_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info.confirm_delivery_date)="data">
+					<template #cell(delivery_info?.confirm_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
 				</b-table>
@@ -422,7 +422,7 @@
 					distribution_channels: [],
 					delivery_partners: [],
 					order_review_options: [],
-                    filter: [],
+					filter: [],
 				},
 				customer_options: [],
 				warehouse_options: [],
@@ -500,31 +500,31 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'approved.sap_so_finance_approval_date',
+						key: 'approved?.sap_so_finance_approval_date',
 						label: 'Ngày duyệt',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info.delivery.start_delivery_date',
+						key: 'delivery_info?.delivery.start_delivery_date',
 						label: 'Ngày đi giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info.delivery.estimate_delivery_date',
+						key: 'delivery_info?.delivery.estimate_delivery_date',
 						label: 'Ngày dự kiến giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info.delivery.complete_delivery_date',
+						key: 'delivery_info?.delivery.complete_delivery_date',
 						label: 'Ngày giao thực tế',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info.confirm_delivery_date',
+						key: 'delivery_info?.confirm_delivery_date',
 						label: 'Ngày KH xác nhận',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -549,7 +549,7 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info.delivery.partner.name',
+						key: 'delivery_info?.delivery.partner.name',
 						label: 'Nhà vận chuyển',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -590,9 +590,9 @@
 							this.fetchData();
 						}
 						if (new_query.filter == 'pending') {
-                            //this.form_filter.statuses = [10];
-                            this.fetchData(new_query);
-                        }
+							//this.form_filter.statuses = [10];
+							this.fetchData(new_query);
+						}
 					}
 				},
 			},
@@ -619,10 +619,8 @@
 							distribution_channel_ids: this.form_filter.distribution_channels,
 							delivery_partner_ids: this.form_filter.delivery_partners,
 							order_review_option_ids: this.form_filter.order_review_options,
-                            filter: query?.filter,
-
+							filter: query?.filter,
 						}),
-
 					]);
 
 					this.orders = orders;
@@ -649,7 +647,6 @@
 					this.distribution_channel_options = distribution_channels;
 					this.delivery_partner_options = delivery_partners;
 					this.order_review_option_options = order_review_options;
-
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				}
@@ -773,20 +770,23 @@
 				clone_orders.forEach((order) => {
 					order.sap_so_created_date = this.formatDateTime(order.sap_so_created_date);
 					order.approved.sap_so_finance_approval_date = this.formatDateTime(
-						order.approved.sap_so_finance_approval_date,
+						order.approved?.sap_so_finance_approval_date,
 					);
-					order.delivery_info.delivery.start_delivery_date = this.formatDateTime(
-						order.delivery_info.delivery.start_delivery_date,
-					);
-					order.delivery_info.delivery.estimate_delivery_date = this.formatDateTime(
-						order.delivery_info.delivery.estimate_delivery_date,
-					);
-					order.delivery_info.delivery.complete_delivery_date = this.formatDateTime(
-						order.delivery_info.delivery.complete_delivery_date,
-					);
-					order.delivery_info.confirm_delivery_date = this.formatDateTime(
-						order.delivery_info.confirm_delivery_date,
-					);
+					if (order.delivery_info) {
+						order.delivery_info.delivery.start_delivery_date = this.formatDateTime(
+							order.delivery_info?.delivery.start_delivery_date,
+						);
+
+						order.delivery_info.delivery.estimate_delivery_date = this.formatDateTime(
+							order.delivery_info?.delivery.estimate_delivery_date,
+						);
+						order.delivery_info.delivery.complete_delivery_date = this.formatDateTime(
+							order.delivery_info?.delivery.complete_delivery_date,
+						);
+						order.delivery_info.confirm_delivery_date = this.formatDateTime(
+							order.delivery_info?.confirm_delivery_date,
+						);
+					}
 
 					order.province = this.formatAddress(order.detail?.delivery_address);
 				});
@@ -794,7 +794,7 @@
 					data: clone_orders,
 					fileName: 'orders_exported',
 					columns: clone_fields.map((field) => ({
-						field: field.key,
+						field: field.key.split('?').join(''),
 						title: field.label,
 					})),
 				});
