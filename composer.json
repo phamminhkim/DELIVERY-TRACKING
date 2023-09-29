@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "2.4",
         "league/csv": "^9.8",
+        "phpoffice/phpspreadsheet": "^1.29",
         "predis/predis": "^2.2",
         "randomstate/camelot-php": "^1.0",
         "setasign/fpdf": "*",

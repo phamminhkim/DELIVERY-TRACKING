@@ -21,7 +21,7 @@ class PublicHolidaySeeder extends Seeder
             ["name" => "Ngày Quốc khánh", "start_holiday_date" => "2023-09-01", "end_holiday_date" => "2023-09-02"]
         ];
         foreach ($public_holidays as $public_holidays) {
-            if (!PublicHoliday::where('start_delivery_date', $public_holidays['start_delivery_date'])->where('end_holiday_date', $public_holidays['end_holiday_date'])->exists())
+            if (!PublicHoliday::where('start_holiday_date', $public_holidays['end_holiday_date'])->where('end_holiday_date', $public_holidays['end_holiday_date'])->exists())
                 PublicHoliday::create($public_holidays);
         }
 

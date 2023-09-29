@@ -12,7 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class DeliveryPartnerRepository extends RepositoryAbs
 {
-    public function getAvailablePartners()
+    public function getAvailablePartners($is_external = false)
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
@@ -22,6 +22,9 @@ class DeliveryPartnerRepository extends RepositoryAbs
             if ($this->current_user->hasRole('admin-partner')) {
                 $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
                 $query->whereIn('id', $partner_ids);
+            }
+            if ($is_external) {
+                $query->where('is_external', true);
             }
             $partners = $query->with(['users', 'distribution_channels'])->withCount('users')->get()->map(function ($partner) {
                 $partner->channel_ids = $partner->distribution_channels->pluck('id')->toArray();
@@ -44,6 +47,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'api_key' => 'string|nullable',
                 'api_secret' => 'string|nullable',
                 //'is_external' => 'required',
+                'api_body_datas' => 'nullable',
+                'api_delivery_code_field' => 'string|nullable',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
@@ -74,6 +79,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
                     'api_url' => $this->data['api_url'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_body_datas' => $this->data['api_body_datas'] ?? [], // Sử dụng giá trị mặc định là mảng rỗng
+                    'api_delivery_code_field' => $this->data['api_delivery_code_field'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                 ]);
                 foreach ($this->data['user_ids'] as $userId) {
                     $userMorph = new UserMorph(['user_id' => $userId]);
@@ -97,6 +104,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
                 'api_key' => 'string|nullable',
                 'api_secret' => 'string|nullable',
                 //'is_external' => 'required',
+                'api_body_datas' => 'nullable',
+                'api_delivery_code_field' => 'string|nullable',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
@@ -125,6 +134,8 @@ class DeliveryPartnerRepository extends RepositoryAbs
                     'api_url' => $this->data['api_url'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_key' => $this->data['api_key'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                     'api_secret' => $this->data['api_secret'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
+                    'api_body_datas' => $this->data['api_body_datas'] ? $this->data['api_body_datas'] : [], // Sử dụng giá trị mặc định là mảng rỗng
+                    'api_delivery_code_field' => $this->data['api_delivery_code_field'] ?? '', // Sử dụng giá trị mặc định là chuỗi rỗng
                 ]);
                 // Detach all existing relationships
                 $partner->users()->delete();

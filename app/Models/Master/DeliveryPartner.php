@@ -15,11 +15,14 @@ class DeliveryPartner extends Model
         'api_secret',
         'is_external',
         'is_active',
+        'api_body_datas',
+        'api_delivery_code_field'
     ];
 
     protected $casts = [
         'is_external' => 'boolean',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'api_body_datas' => 'object'
     ];
 
     public function distribution_channels()
@@ -27,6 +30,10 @@ class DeliveryPartner extends Model
         return $this->belongsToMany(DistributionChannel::class, 'partner_channel');
     }
 
+    public function mapping()
+    {
+        return $this->hasOne(ApiDeliveryPartnerMapping::class);
+    }
     public function users()
     {
         return $this->morphMany(UserMorph::class, 'morphable');

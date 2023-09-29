@@ -56,7 +56,8 @@ class DeliveryController extends ResponseController
         }
     }
 
-    public function getPrintConfigsOfUser(Request $request){
+    public function getPrintConfigsOfUser(Request $request)
+    {
         $handler = BusinessRepository::deliveryRequest($request);
         $response = $handler->getPrintConfigsOfUser();
 
@@ -194,6 +195,18 @@ class DeliveryController extends ResponseController
             return $this->responseOk();
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function createExternalDeliveryFromExcel(Request $request)
+    {
+        $handler = BusinessRepository::deliveryRequest($request);
+        $response = $handler->createExternalDeliveryFromExcel();
+
+        if ($response) {
+            return $this->responseSuccess($response);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 400);
         }
     }
 }

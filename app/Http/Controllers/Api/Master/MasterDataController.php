@@ -37,6 +37,9 @@ class MasterDataController extends ResponseController
             case SapSyncCategory::SapMaterial:
                 $handler = MasterRepository::sapMaterialRequest($request);
                 break;
+            case SapSyncCategory::SapUnit:
+                $handler = MasterRepository::sapUnitRequest($request);
+                break;  
 
             default:
                 return $this->responseError('Invalid category', []);

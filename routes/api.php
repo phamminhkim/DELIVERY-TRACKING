@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\Master\EmployeeController;
 use App\Http\Controllers\Api\Master\DistributionChannelController;
 use App\Http\Controllers\Api\Master\SaleDistrictController;
 use App\Http\Controllers\Api\Master\SaleGroupController;
+use App\Http\Controllers\Api\Master\SapMaterialController;
+use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
@@ -60,6 +62,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
         });
         Route::prefix('/delivery-partners')->group(function () {
+            Route::get('/external', [DeliveryPartnerController::class, 'getAvailableExternalPartners']);
             Route::get('/', [DeliveryPartnerController::class, 'getAvailablePartners']);
             Route::post('/', [DeliveryPartnerController::class, 'createNewPartner']);
             Route::put('/{id}', [DeliveryPartnerController::class, 'updateExistingPartner']);
@@ -108,6 +111,18 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [SaleGroupController::class, 'createNewSaleGroup']);
             Route::put('/{id}', [SaleGroupController::class, 'updateExistingSaleGroup']);
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
+        });
+        Route::prefix('/sap-materials')->group(function () {
+            Route::get('/', [SapMaterialController::class, 'getAvailableSapMaterials']);
+            Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
+            Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
+            Route::delete('/{id}', [SapMaterialController::class, 'deleteExistingSapMaterial']);
+        });
+        Route::prefix('/sap-units')->group(function () {
+            Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);
+            Route::post('/', [SapUnitController::class, 'createNewSapUnit']);
+            Route::put('/{id}', [SapUnitController::class, 'updateExistingSapUnit']);
+            Route::delete('/{id}', [SapUnitController::class, 'deleteExistingSapUnit']);
         });
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
@@ -164,6 +179,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/print-configs/{print_config_id}', [DeliveryController::class, 'deletePrintQRConfig']);
             Route::post('/print-qrs', [DeliveryController::class, 'printDeliveriesQrCodeByIds']);
             Route::post('/{id}/print-qr', [DeliveryController::class, 'printDeliveryQrCodeById']);
+            Route::post('/excel', [DeliveryController::class, 'createExternalDeliveryFromExcel']);
             Route::post('/', [DeliveryController::class, 'createDelivery']);
             Route::patch('/{id}', [DeliveryController::class, 'updateDelivery']);
             Route::delete('/{id}', [DeliveryController::class, 'deleteDelivery']);
@@ -172,6 +188,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrders']);
             Route::get('/minified', [OrderController::class, 'getMinifiedOrders']);
+            Route::get('/expanded', [OrderController::class, 'getExpandedOrders']);
         });
     });
 

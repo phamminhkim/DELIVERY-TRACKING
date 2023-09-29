@@ -122,6 +122,25 @@ class DashboardRepository extends RepositoryAbs
             $late_orders_percentage_change = ($late_orders_count_last_month != 0) ? (($late_orders_count - $late_orders_count_last_month) / $late_orders_count_last_month) * 100 : 0;
             $ontime_orders_percentage_change = ($ontime_orders_count_last_month != 0) ? (($ontime_orders_count - $ontime_orders_count_last_month) / $ontime_orders_count_last_month) * 100 : 0;
 
+            $pending_today_orders_query = Order::query();
+            $pending_today_orders_count = $pending_today_orders_query
+                ->where('status_id', '=', OrderStatus::Pending)
+                ->whereHas('approved', function ($query) {
+                    $query->whereDate('sap_do_posting_date', '=', Carbon::today());
+                })
+                ->count();
+
+            $pending_orders_query = clone $this_month_query;
+            $pending_orders_count = $pending_orders_query
+                ->where('status_id', '=', OrderStatus::Pending)
+                ->count();
+
+            $preparing_orders_query = clone $this_month_query;
+            $preparing_orders_count = $preparing_orders_query
+                ->where('status_id', '=', OrderStatus::Preparing)
+                ->count();
+
+
 
             $data = array(
                 'delivering_orders_count' => $delivering_orders_count,
@@ -131,8 +150,12 @@ class DashboardRepository extends RepositoryAbs
                 // 'confirmed_orders_count' => $confirmed_orders_count,
                 'received_orders_count' => $received_orders_count,
                 'reviewed_orders_count' => $reviewed_orders_count,
-                'late_orders_percentage_change' => $late_orders_percentage_change,
-                'ontime_orders_percentage_change' => $ontime_orders_percentage_change,
+                // 'late_orders_percentage_change' => $late_orders_percentage_change,
+                // 'ontime_orders_percentage_change' => $ontime_orders_percentage_change,
+                'pending_today_orders_count' => $pending_today_orders_count,
+                'pending_orders_count' => $pending_orders_count,
+                'preparing_orders_count' => $preparing_orders_count,
+
             );
             return $data;
         } catch (\Exception $exception) {
@@ -156,7 +179,8 @@ class DashboardRepository extends RepositoryAbs
                 ->join('orders', 'orders.id', '=', 'order_customer_reviews.order_id')
                 ->join('order_approveds', 'order_approveds.order_id', '=', 'orders.id')
                 ->leftJoin('order_deliveries', 'orders.id', '=', 'order_deliveries.order_id')
-                ->leftJoin('order_sales', 'order_sales.order_id', '=', 'orders.id');;
+                ->leftJoin('order_sales', 'order_sales.order_id', '=', 'orders.id')
+                ->leftJoin('deliveries', 'deliveries.id', '=', 'order_deliveries.delivery_id');
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('orders.customer_id', $customer_ids);
             }
@@ -185,12 +209,7 @@ class DashboardRepository extends RepositoryAbs
     {
         try {
             $query = Order::query()->where('sap_do_number', '!=', null);
-            // if ($this->request->filled('month_year')) {
-            //     $month_year = $this->request->month_year;
-            //     list($month, $year) = explode('-', $month_year);
-            //     $query->whereMonth('start_delivery_date', $month)
-            //         ->whereYear('start_delivery_date', $year);
-            // }
+
             if ($this->request->filled('from_date')) {
                 $from_date = $this->request->from_date;
                 $query->whereHas('deliveries', function ($query) use ($from_date) {

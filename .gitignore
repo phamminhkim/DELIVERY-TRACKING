@@ -1,12 +1,12 @@
 /node_modules
+/public/[0-9].js
+/public/*[0-9]*.js
 /public/hot
 /public/storage
 /public/images
 /public/css/app.css
 /public/js/app.js
 /public/css/app.css
-/public/[0-9]*.js
-/public/7.js
 /public/print_qr
 /public/css/app.css
 /public/mix-manifest.json

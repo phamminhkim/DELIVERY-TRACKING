@@ -20,6 +20,18 @@ class DeliveryPartnerController extends ResponseController
         }
     }
 
+    public function getAvailableExternalPartners(Request $request)
+    {
+        $handler = MasterRepository::deliveryPartnerRequest($request);
+        $partners = $handler->getAvailablePartners(true);
+
+        if ($partners) {
+            return $this->responseSuccess($partners);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     //add
     public function createNewPartner(Request $request)
     {

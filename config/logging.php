@@ -132,6 +132,11 @@ return [
             'driver' => 'stack',
             'path' => storage_path('logs/database/n+1.log'),
         ],
+
+        'call-extenal-api' => [
+            'driver' => 'stack',
+            'path' => storage_path('logs/api/call-extenal-api.log'),
+        ]
     ],
 
 ];

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Implementations\Files;
 
+use App\Services\Interfaces\FileServiceInterface;
 use Illuminate\Support\Facades\Storage;
 
-class LocalFileService implements Interfaces\FileServiceInterface
+class LocalFileService implements FileServiceInterface
 {
     public function saveTemporaryFile($file)
     {

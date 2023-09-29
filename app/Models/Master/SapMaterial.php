@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SapMaterial extends Model
 {
     protected $table = 'sap_materials';
+    public $timestamps = false;
     protected $fillable = [
         'company_id',
         'unit_id',

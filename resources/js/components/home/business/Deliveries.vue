@@ -144,7 +144,7 @@
 					<div class="form-group row">
 						<button
 							type="button"
-							class="btn btn-success btn-sm ml-1 mt-1"
+							class="btn btn-success btn-sm mt-1"
 							@click="showCreateDialog"
 						>
 							<strong>
@@ -157,6 +157,16 @@
 							@click="printDeliveryQrCode"
 						>
 							<strong> <i class="fas fa-print mr-1 text-bold" />In vận đơn</strong>
+						</button>
+
+						<button
+							type="button"
+							class="btn btn-info btn-sm ml-1 mt-1"
+							@click="showExcelDialog"
+						>
+							<strong>
+								<i class="fas fa-upload mr-1 text-bold"></i>Import Excel</strong
+							>
 						</button>
 					</div>
 					<div class="row">
@@ -315,6 +325,8 @@
 		<dialog-delivery-info :delivery_id="viewing_delivery_id" v-on:printQrCode="printQrCode" />
 
 		<dialog-create-delivery ref="dialog_create" @onDeliveryCreated="onDeliveryCreated" />
+
+		<dialog-import-excel-to-create-delivery />
 	</div>
 	<!-- end container -->
 </template>
@@ -327,6 +339,7 @@
 	import DialogCreateDelivery from './dialogs/DialogCreateDelivery.vue';
 	import APIHandler from '../ApiHandler';
 	import DialogCreatePrintQRSetting from './dialogs/DialogCreatePrintQRSetting.vue';
+	import DialogImportExcelToCreateDelivery from './dialogs/DialogImportExcelToCreateDelivery.vue';
 
 	export default {
 		components: {
@@ -334,6 +347,7 @@
 			DialogCreateDelivery,
 			DialogCreatePrintQRSetting,
 			Treeselect,
+			DialogImportExcelToCreateDelivery,
 		},
 		data() {
 			return {
@@ -491,7 +505,6 @@
 				immediate: true,
 				handler(new_query, old_query) {
 					if (new_query !== old_query && Object.keys(new_query).length > 0) {
-						//this.fetchData(new_query);
 						if (new_query.filter == 'undone') {
 							this.form_filter.statuses = [10, 20, 30, 40];
 							this.fetchData();
@@ -534,12 +547,6 @@
 						}),
 					]);
 					this.deliveries = deliveries;
-					// let result = await this.api_handler.get(this.api_url_deliveries, query);
-					// if (result.success) {
-					// 	this.deliveries = result.data;
-					// } else {
-					// 	this.$showMessage('error', 'Lỗi', result.message);
-					// }
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
@@ -577,6 +584,7 @@
 					this.form_filter.statuses = [];
 					this.form_filter.customers = [];
 					this.form_filter.sap_so_number = undefined;
+
 					await this.fetchData();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -673,6 +681,9 @@
 			showInfoDialog(delivery) {
 				this.viewing_delivery_id = delivery.id;
 				$('#DialogDeliveryInfo').modal('show');
+			},
+			showExcelDialog() {
+				$('#DialogImportExcelToCreateDelivery').modal('show');
 			},
 			subtractDate(date, sub_date = 0, sub_month = 0, sub_year = 0) {
 				date.setDate(date.getDate() - sub_date);
