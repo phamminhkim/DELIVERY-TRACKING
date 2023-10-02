@@ -163,7 +163,7 @@
 																dashboard_statistic.preparing_orders_count
 															}}
 														</h3>
-														<p>DO đang soạn hàng</p>
+														<p>DO vận chuyển nhận</p>
 													</div>
 													<div class="icon">
 														<i class="fas fa-truck-loading"></i>
@@ -305,13 +305,76 @@
 											</div>
 										</div>
 									</li>
+
+									<li
+										class="nav-item"
+										v-if="
+											dashboard_statistic.delivered_orders_count !=
+												undefined &&
+											dashboard_statistic.received_orders_count != undefined
+										"
+									>
+										<div class="nav-link">
+											<div class="col-lg-12 col-12">
+												<div class="small-box bg-danger">
+													<div class="inner">
+														<h3>
+															{{
+																dashboard_statistic.delivered_orders_count -
+																dashboard_statistic.received_orders_count
+															}}
+														</h3>
+														<p>DO chưa xác nhận</p>
+													</div>
+													<div class="icon">
+														<i class="fas fa-comment-slash"></i>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
 								</ul>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<h3 class="card-title">Thống kê theo tiêu chí đánh giá</h3>
+							<div class="card-tools">
+								<button
+									type="button"
+									class="btn btn-tool"
+									data-card-widget="collapse"
+								>
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
 
+						<div class="card-body p-0" style="display: block">
+							<div
+								class="text-center text-primary my-2"
+								v-if="is_loading"
+								style="opacity: 0.5"
+							>
+								<b-spinner class="align-middle" type="grow"></b-spinner>
+								<strong>Đang tải dữ liệu...</strong>
+							</div>
+							<div v-else style="padding: 15px">
+								<BarChart
+									:labels="criteria_statistics.map((criteria) => criteria.name)"
+									:data="criteria_statistics.map((criteria) => criteria.amount)"
+									@on-click="onClickBarchart"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div class="row">
 				<div class="col-md-4">
 					<div class="card">
@@ -445,41 +508,6 @@
 									</div>
 								</li>
 							</ul>
-						</div>
-					</div>
-				</div>
-
-				<div class="col-md-8">
-					<div class="card">
-						<div class="card-header">
-							<h3 class="card-title">Thống kê theo tiêu chí đánh giá</h3>
-							<div class="card-tools">
-								<button
-									type="button"
-									class="btn btn-tool"
-									data-card-widget="collapse"
-								>
-									<i class="fas fa-minus"></i>
-								</button>
-							</div>
-						</div>
-
-						<div class="card-body p-0" style="display: block">
-							<div
-								class="text-center text-primary my-2"
-								v-if="is_loading"
-								style="opacity: 0.5"
-							>
-								<b-spinner class="align-middle" type="grow"></b-spinner>
-								<strong>Đang tải dữ liệu...</strong>
-							</div>
-							<div v-else style="padding: 15px">
-								<BarChart
-									:labels="criteria_statistics.map((criteria) => criteria.name)"
-									:data="criteria_statistics.map((criteria) => criteria.amount)"
-									@on-click="onClickBarchart"
-								/>
-							</div>
 						</div>
 					</div>
 				</div>

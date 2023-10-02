@@ -92,6 +92,11 @@
 					responsive: true,
 					maintainAspectRatio: false,
 					onClick: this.handleClickEnvent,
+					// plugins: {
+					// 	legend: {
+					// 		position: 'bottom',
+					// 	},
+					// },
 				},
 			};
 		},
@@ -105,12 +110,14 @@
 		},
 		methods: {
 			generateRandomColor() {
-				const hexArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'];
-				let code = '';
-				for (let i = 0; i < 6; i++) {
-					code += hexArray[Math.floor(Math.random() * 16)];
+				let code = 'rgb(';
+				for (let i = 0; i < 3; i++) {
+					if (i > 0) {
+						code += ',';
+					}
+					code += Math.floor(Math.random() * 256);
 				}
-				return `#${code}`;
+				return `${code})`;
 			},
 			handleClickEnvent(event, item) {
 				if (item.length) {
@@ -130,5 +137,14 @@
 				}
 			},
 		},
+		// computed: {
+		// 	backgroundColors() {
+		// 		return this.data.map(() => {
+		// 			let color = this.generateRandomColor();
+		// 			console.log(color);
+		// 			return color;
+		// 		});
+		// 	},
+		// },
 	};
 </script>
