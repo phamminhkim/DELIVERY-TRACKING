@@ -50,6 +50,7 @@ class WarehouseRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['is_active'] = true;
                 $company = Company::where('code', $this->data['company_code'])->first();
                 if (!$company) {
                     $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
