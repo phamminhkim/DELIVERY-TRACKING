@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Repositories\Business\AiConfigRepository;
 use App\Repositories\Business\AiRepository;
 use App\Repositories\Business\ApplicationRepository;
 use App\Repositories\Business\DashboardRepository;
@@ -50,7 +51,8 @@ class BusinessRepository
                     throw new \Exception('Extract method is not specified');
             }
         } else {
-            throw new \Exception('Data extractor not found');
+            // throw new \Exception('Data extractor not found');
+            $data_extractor = new CamelotExtractorService();
         }
         if ($request->filled('convert_method')) {
             $method = $request->convert_method; // Có thể là regex, leaguecsv
@@ -71,7 +73,8 @@ class BusinessRepository
                     throw new \Exception('Convert method is not specified');
             }
         } else {
-            throw new \Exception('Convert method is not specified');
+            // throw new \Exception('Convert method is not specified');
+            $table_converter = new RegexMatchConverter();
         }
         if ($request->filled('restructure_method')) {
             $method = $request->restructure_method; // Có thể là regex, leaguecsv
@@ -86,7 +89,8 @@ class BusinessRepository
                     throw new \Exception('Restructure method is not specified');
             }
         } else {
-            throw new \Exception('Restructure method is not specified');
+            // throw new \Exception('Restructure method is not specified');
+            $data_restructure = new IndexArrayMappingRestructure();
         }
         return new AiRepository($file_service,  $data_extractor, $table_converter, $data_restructure, $request);
     }

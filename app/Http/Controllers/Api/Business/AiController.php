@@ -21,4 +21,40 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
+    public function extractDataForConfig(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->extractDataForConfig();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function convertToTableForConfig(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->convertToTableForConfig();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function restructureDataForConfig(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->restructureDataForConfig();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

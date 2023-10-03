@@ -11,6 +11,7 @@ use App\Services\Implementations\Converters\RegexMatchConverter;
 use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
 use App\Services\Interfaces\DataExtractorInterface;
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Services\Interfaces\FileServiceInterface;
@@ -76,10 +77,9 @@ class AiRepository extends RepositoryAbs
             $options['regex_pattern'] = $this->request->regex_pattern;
         } elseif ($this->table_converter instanceof LeagueCsvConverter) {
         } elseif ($this->table_converter instanceof ManualConverter) {
-            $manual_pattern = json_decode($this->request->manual_pattern);
-            $options['manual_patterns'] = $manual_pattern;
+            $manual_patterns = json_decode($this->request->manual_patterns);
+            $options['manual_patterns'] = $manual_patterns;
         }
-
         $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
         $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
         $table = [];
@@ -95,10 +95,46 @@ class AiRepository extends RepositoryAbs
         $options = array();
         if ($this->data_restructure instanceof IndexArrayMappingRestructure) {
             $options['structure'] = json_decode($this->request->structure);
-        } elseif ($this->data_restructure instanceof RegexSplitConverter) {
+        } elseif ($this->data_restructure instanceof KeyArrayMappingRestructure) {
             $options['structure'] = json_decode($this->request->structure);
         }
         $table = $this->data_restructure->restructure($array, $options);
         return $table;
+    }
+
+    public function extractDataForConfig()
+    {
+        try {
+            $file = $this->request->file('file');
+            $file_path = $this->file_service->saveTemporaryFile($file);
+            $raw_data = $this->extractData($file_path);
+            $this->file_service->deleteTemporaryFile($file_path);
+            return $raw_data;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function convertToTableForConfig()
+    {
+        try {
+            $raw_table_data = json_decode($this->data['raw_table_data']);
+            return $this->convertToTable($raw_table_data);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function restructureDataForConfig()
+    {
+        try {
+            $table_data = json_decode($this->data['table_data']);
+            return $this->restructureData($table_data);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
     }
 }
