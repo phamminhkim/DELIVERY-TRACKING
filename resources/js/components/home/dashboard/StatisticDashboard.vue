@@ -659,8 +659,8 @@
 						filter_distribution_channel_options,
 					] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/delivery-partners'),
-						new APIRequest('get', '/api/master/warehouses'),
-						new APIRequest('get', '/api/master/distribution-channels'),
+						new APIRequest('get', '/api/master/warehouses/active'),
+						new APIRequest('get', '/api/master/distribution-channels/active'),
 					]);
 					this.filter_delivery_partner_options = filter_delivery_partner_options.map(
 						(delivery_partner) => {

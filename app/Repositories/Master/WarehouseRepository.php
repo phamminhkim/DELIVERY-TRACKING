@@ -9,12 +9,15 @@ use App\Models\Master\Company;
 
 class WarehouseRepository extends RepositoryAbs
 {
-    public function getAvailableWarehouses($is_minified)
+    public function getAvailableWarehouses($is_minified, $is_active)
     {
         try {
             $query = Warehouse::query();
             if($is_minified){
                 $query->select('id', 'name');
+            }
+            if($is_active){
+                $query->where('is_active', true);
             }
             $warehouses = $query->get();
             return $warehouses;
@@ -50,6 +53,7 @@ class WarehouseRepository extends RepositoryAbs
                     }
                 }
             } else {
+                $this->data['is_active'] = true;
                 $company = Company::where('code', $this->data['company_code'])->first();
                 if (!$company) {
                     $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_code'];
