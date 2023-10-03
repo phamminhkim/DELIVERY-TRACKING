@@ -12,7 +12,19 @@ class DistributionChannelController extends ResponseController
     {
 
         $handler = MasterRepository::distributionChannelRequest($request);
-        $distributionChannels = $handler->getAvailableDistributionChannels();
+        $distributionChannels = $handler->getAvailableDistributionChannels(false);
+
+        if ($distributionChannels) {
+            return $this->responseSuccess($distributionChannels);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getAvailableDistributionChannelsActive(Request $request)
+    {
+
+        $handler = MasterRepository::distributionChannelRequest($request);
+        $distributionChannels = $handler->getAvailableDistributionChannels(true);
 
         if ($distributionChannels) {
             return $this->responseSuccess($distributionChannels);
@@ -21,7 +33,7 @@ class DistributionChannelController extends ResponseController
         }
     }
 
-    //add 
+    //add
     public function createNewDistributionChannel(Request $request)
     {
 

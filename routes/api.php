@@ -56,6 +56,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('master')->group(function () {
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
+            Route::get('/active', [WarehouseController::class, 'getAvailableWarehousesActive']);
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
             Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
             Route::put('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
@@ -95,6 +96,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [EmployeeController::class, 'deleteExistingEmployee']);
         });
         Route::prefix('/distribution-channels')->group(function () {
+            Route::get('/active', [DistributionChannelController::class, 'getAvailableDistributionChannelsActive']);
             Route::get('/', [DistributionChannelController::class, 'getAvailableDistributionChannels']);
             Route::post('/', [DistributionChannelController::class, 'createNewDistributionChannel']);
             Route::put('/{id}', [DistributionChannelController::class, 'updateExistingDistributionChannel']);

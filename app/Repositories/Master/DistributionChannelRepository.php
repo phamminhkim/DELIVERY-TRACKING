@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class DistributionChannelRepository extends RepositoryAbs
 {
-    public function getAvailableDistributionChannels()
+    public function getAvailableDistributionChannels($is_active)
     {
         try {
             $query = DistributionChannel::query();
+            if($is_active){
+                $query->where('is_active', true);
+            }
             $channels = $query->get();
             $result = array();
 
@@ -30,6 +33,7 @@ class DistributionChannelRepository extends RepositoryAbs
             else {
                 $result = $channels;
             }
+
             return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
