@@ -2,6 +2,10 @@
 
 namespace App\Repositories;
 
+
+use App\Enums\Ai\Convert\ConvertMethod;
+use App\Enums\Ai\Extract\ExtractMethod;
+use App\Enums\Ai\Restructure\RestructureMethod;
 use App\Repositories\Business\AiConfigRepository;
 use App\Repositories\Business\AiRepository;
 use App\Repositories\Business\ApplicationRepository;
@@ -44,7 +48,7 @@ class BusinessRepository
         if ($request->filled('extract_method')) {
             $method = $request->extract_method; // Có thể là regex, camelot
             switch ($method) {
-                case 'camelot':
+                case ExtractMethod::CAMELOT:
                     $data_extractor = new CamelotExtractorService();
                     break;
                 default:
@@ -57,16 +61,16 @@ class BusinessRepository
         if ($request->filled('convert_method')) {
             $method = $request->convert_method; // Có thể là regex, leaguecsv
             switch ($method) {
-                case 'regexmatch':
+                case ConvertMethod::REGEXMATCH:
                     $table_converter = new RegexMatchConverter();
                     break;
-                case 'regexsplit':
+                case ConvertMethod::REGEXSPLIT:
                     $table_converter = new RegexSplitConverter();
                     break;
-                case 'leaguecsv':
+                case ConvertMethod::LEAGUECSV:
                     $table_converter = new LeagueCsvConverter();
                     break;
-                case 'manual':
+                case ConvertMethod::MANUAL:
                     $table_converter = new ManualConverter();
                     break;
                 default:
@@ -79,10 +83,10 @@ class BusinessRepository
         if ($request->filled('restructure_method')) {
             $method = $request->restructure_method; // Có thể là regex, leaguecsv
             switch ($method) {
-                case 'arraymappingbyindex':
+                case RestructureMethod::INDEXARRAYMAPPING:
                     $data_restructure = new IndexArrayMappingRestructure();
                     break;
-                case 'arraymappingbykey':
+                case RestructureMethod::KEYARRAYMAPPING:
                     $data_restructure = new KeyArrayMappingRestructure();
                     break;
                 default:

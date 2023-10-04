@@ -109,6 +109,7 @@ class AiRepository extends RepositoryAbs
             $file_path = $this->file_service->saveTemporaryFile($file);
             $raw_data = $this->extractData($file_path);
             $this->file_service->deleteTemporaryFile($file_path);
+            // dd($raw_data);
             return $raw_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();

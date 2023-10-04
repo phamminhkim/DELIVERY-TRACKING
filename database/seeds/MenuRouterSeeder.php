@@ -280,9 +280,9 @@ class MenuRouterSeeder extends Seeder
             ],
 
             [
-                'title' => "Bảng Extract Data",
+                'title' => "Cấu hình trích xuất",
                 'icon' => "fas fa-file-pdf",
-                'link' => "ai",
+                'link' => "order-extract-configs",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ]

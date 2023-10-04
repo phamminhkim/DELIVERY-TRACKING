@@ -22,8 +22,8 @@ class Customer extends Model
     ];
 
     protected $searchable = [
-        'customers.code', 
-        'customers.name', 
+        'customers.code',
+        'customers.name',
         'customers.email',
         'customers.phone_number',
     ];
@@ -32,4 +32,8 @@ class Customer extends Model
         return $this->hasMany(CustomerPhone::class);
     }
 
+    public function group()
+    {
+        return $this->belongsTo(CustomerGroup::class, 'customer_group_pivots', 'customer_id', 'customer_group_id');
+    }
 }
