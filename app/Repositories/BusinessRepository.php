@@ -44,6 +44,7 @@ class BusinessRepository
     }
     public static function aiRequest(Request $request)
     {
+
         $file_service = new LocalFileService();
         if ($request->filled('extract_method')) {
             $method = $request->extract_method; // Có thể là regex, camelot

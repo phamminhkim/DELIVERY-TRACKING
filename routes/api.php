@@ -206,6 +206,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('ai')->group(function () {
         Route::post('/extract-order', [AiController::class, 'extractOrder']);
         Route::prefix('config')->group(function () {
+            Route::get('/customer-groups/{id}', [AiController::class, 'getExtractOrderConfigs']);
             Route::post('/extract', [AiController::class, 'extractDataForConfig']);
             Route::post('/convert', [AiController::class, 'convertToTableForConfig']);
             Route::post('/restructure', [AiController::class, 'restructureDataForConfig']);

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Business;
 
+use App\Models\Business\ExtractOrderConfig;
 use App\Models\Business\RegexPattern;
 
 use App\Repositories\Abstracts\RepositoryAbs;
@@ -109,7 +110,6 @@ class AiRepository extends RepositoryAbs
             $file_path = $this->file_service->saveTemporaryFile($file);
             $raw_data = $this->extractData($file_path);
             $this->file_service->deleteTemporaryFile($file_path);
-            // dd($raw_data);
             return $raw_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -137,5 +137,19 @@ class AiRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+
+    public function getExtractOrderConfigs($customer_groups_id)
+    {
+        $query = ExtractOrderConfig::query()
+            ->whereHas('customer_group', function ($query) use ($customer_groups_id) {
+                $query->where('id', $customer_groups_id);
+            });
+        $extract_order_config = $query->first();
+        return array(
+            "extract_data_config" => $extract_order_config->extract_data_config,
+            "convert_to_table_config" => $extract_order_config->convert_table_config,
+            "restructure_data_config" => $extract_order_config->restructure_data_config,
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\CustomerGroup;
 use Illuminate\Database\Eloquent\Model;
 
 class ExtractOrderConfig extends Model

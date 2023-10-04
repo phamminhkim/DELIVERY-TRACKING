@@ -57,4 +57,16 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
+    public function getExtractOrderConfigs(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->getExtractOrderConfigs($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }
