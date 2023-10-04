@@ -45,6 +45,11 @@ class RouterSeeder extends Seeder
                 'path' => '/orders',
                 'component' => 'home/business/Orders'
             ],
+            [
+                'name' => 'Quản lí đơn hàng',
+                'path' => '/ai',
+                'component' => 'home/business/Extracts'
+            ],
 
             // Master Data
             [
