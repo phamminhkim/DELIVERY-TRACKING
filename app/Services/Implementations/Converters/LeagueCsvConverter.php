@@ -19,6 +19,6 @@ class LeagueCsvConverter implements TableConverterInterface
         foreach ($records as $record) {
             $collection->push($record);
         }
-        return $collection;
+        return $collection->toArray();
     }
 }

@@ -65,8 +65,14 @@ class AiRepository extends RepositoryAbs
             $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
             $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
         }
-        $table = $this->data_extractor->extract($file_path, $options);
-        return $table;
+        $tables = $this->data_extractor->extract($file_path, $options);
+        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
+        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
+        $choosen_tables = [];
+        for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
+            $choosen_tables[] = $tables[$i];
+        }
+        return $choosen_tables;
     }
 
     private function convertToTable($array)
@@ -81,10 +87,9 @@ class AiRepository extends RepositoryAbs
             $manual_patterns = json_decode($this->request->manual_patterns);
             $options['manual_patterns'] = $manual_patterns;
         }
-        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
-        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
+
         $table = [];
-        for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+        for ($i = 0; $i < count($array); $i++) {
             $extracted_table = $this->table_converter->convert($array[$i], $options);
             $table = array_merge($table, $extracted_table);
         }
@@ -95,9 +100,9 @@ class AiRepository extends RepositoryAbs
     {
         $options = array();
         if ($this->data_restructure instanceof IndexArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure);
+            $options['structure'] = json_decode($this->request->structure, true);
         } elseif ($this->data_restructure instanceof KeyArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure);
+            $options['structure'] = json_decode($this->request->structure, true);
         }
         $table = $this->data_restructure->restructure($array, $options);
         return $table;
@@ -131,7 +136,7 @@ class AiRepository extends RepositoryAbs
     public function restructureDataForConfig()
     {
         try {
-            $table_data = json_decode($this->data['table_data']);
+            $table_data = json_decode($this->data['table_data'], true);
             return $this->restructureData($table_data);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -144,12 +149,10 @@ class AiRepository extends RepositoryAbs
         $query = ExtractOrderConfig::query()
             ->whereHas('customer_group', function ($query) use ($customer_groups_id) {
                 $query->where('id', $customer_groups_id);
-            });
+            })
+            ->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+
         $extract_order_config = $query->first();
-        return array(
-            "extract_data_config" => $extract_order_config->extract_data_config,
-            "convert_to_table_config" => $extract_order_config->convert_table_config,
-            "restructure_data_config" => $extract_order_config->restructure_data_config,
-        );
+        return $extract_order_config;
     }
 }

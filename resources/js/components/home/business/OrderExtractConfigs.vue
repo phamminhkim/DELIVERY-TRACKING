@@ -15,37 +15,37 @@
 		</div>
 
 		<div class="row">
-			<div
-				class="col-8 "
-			>
-            <div class="first-phase-result" style="display: flex; flex-direction: column; gap: 1rem">
-                <div
-					class="text-center text-primary my-2"
-					v-if="is_loading_first_phase"
-					style="opacity: 0.5"
-				>
-					<b-spinner class="align-middle" type="grow"></b-spinner>
-					<strong>Đang tải dữ liệu...</strong>
-				</div>
+			<div class="col-8">
 				<div
-					class="card-rate"
-					v-for="(table, index) in first_phase_result"
-					:key="index"
-					header-tag="header"
-					v-else
+					class="extract-phase-result"
+					style="display: flex; flex-direction: column; gap: 1rem"
 				>
-					<div class="time">Bảng thứ {{ index + 1 }}</div>
-					<div class="line"></div>
-					<div class="container-rate">
-						<div class="box-rate">
-							<div class="review-content">
-								{{ table }}
+					<div
+						class="text-center text-primary my-2"
+						v-if="is_loading_extract_phase"
+						style="opacity: 0.5"
+					>
+						<b-spinner class="align-middle" type="grow"></b-spinner>
+						<strong>Đang tải dữ liệu...</strong>
+					</div>
+					<div
+						class="card-rate"
+						v-for="(table, index) in extract_phase_result"
+						:key="index"
+						header-tag="header"
+						v-else
+					>
+						<div class="time">Bảng thứ {{ index + 1 }}</div>
+						<div class="line"></div>
+						<div class="container-rate">
+							<div class="box-rate">
+								<div class="review-content">
+									{{ table }}
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-            </div>
-
 			</div>
 			<div class="col-md-4">
 				<b-card>
@@ -56,8 +56,8 @@
 							:multiple="false"
 							id="method"
 							placeholder="Chọn cách thức.."
-							v-model="first_phase_form.method"
-							:options="first_phase_options.methods"
+							v-model="extract_phase_form.method"
+							:options="extract_phase_options.methods"
 							required
 						/>
 					</div>
@@ -67,15 +67,15 @@
 						<treeselect
 							id="camelotFlavor"
 							placeholder="Chọn cấu hình.."
-							v-model="first_phase_form.camelot_flavor"
-							:options="first_phase_options.camelot_flavors"
+							v-model="extract_phase_form.camelot_flavor"
+							:options="extract_phase_options.camelot_flavors"
 							required
 						/>
 					</div>
 					<div class="form-group d-flex flex-row">
 						<label>Merge Pages</label>
 						<b-form-checkbox
-							v-model="first_phase_form.is_merge_pages"
+							v-model="extract_phase_form.is_merge_pages"
 							style="margin-left: 10px"
 						/>
 					</div>
@@ -83,7 +83,7 @@
 						<label>Exclude head tables count</label>
 						<b-form-input
 							type="number"
-							v-model="first_phase_form.exclude_head_tables_count"
+							v-model="extract_phase_form.exclude_head_tables_count"
 							class="form-number-input"
 						/>
 					</div>
@@ -92,53 +92,50 @@
 						<label>Exclude tail tables count</label>
 						<b-form-input
 							type="number"
-							v-model="first_phase_form.exclude_tail_tables_count"
+							v-model="extract_phase_form.exclude_tail_tables_count"
 							class="form-number-input"
 						/>
 					</div>
 					<div class="d-flex justify-content-between">
-						<b-button variant="success">Bước tiếp theo</b-button>
-						<b-button variant="primary" @click="onClickCheckFirstPhase"
+						<b-button variant="success" @click="onClickNextPhaseInExtractPhase"
+							>Bước tiếp theo</b-button
+						>
+						<b-button variant="primary" @click="onClickCheckExtractPhase"
 							>Kiểm tra</b-button
 						>
 					</div>
 				</b-card>
 			</div>
-            <!-- Phase 2 -->
-	    </div>
-        <div class="row">
-			<div
-				class="col-8"
+			<!-- Phase 2 -->
+		</div>
 
-			>
-            <div class="convert-phase-result"	style="display: flex; flex-direction: column; gap: 1rem">
-                <div
-					class="text-center text-primary my-2"
-					v-if="is_loading_convert_phase"
-					style="opacity: 0.5"
-				>
-					<b-spinner class="align-middle" type="grow"></b-spinner>
-					<strong>Đang tải dữ liệu...</strong>
+		<div class="row">
+			<div class="col-md-8"></div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<b-form-input
+						:value="JSON.stringify(convert_phase_input)"
+						:disabled="true"
+					></b-form-input>
 				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-8">
 				<div
-					class="card-rate"
-					v-for="(table, index) in convert_phase_result"
-					:key="index"
-					header-tag="header"
-					v-else
+					class="convert-phase-result"
+					style="display: flex; flex-direction: column; gap: 1rem"
 				>
-					<div class="time">Bảng thứ {{ index + 1 }}</div>
-					<div class="line"></div>
-					<div class="container-rate">
-						<div class="box-rate">
-							<div class="review-content">
-								{{ table }}
-							</div>
-						</div>
+					<div
+						class="text-center text-primary my-2"
+						v-if="is_loading_convert_phase"
+						style="opacity: 0.5"
+					>
+						<b-spinner class="align-middle" type="grow"></b-spinner>
+						<strong>Đang tải dữ liệu...</strong>
 					</div>
+					<VueJsonEditor v-model="convert_phase_result" />
 				</div>
-            </div>
-
 			</div>
 			<div class="col-md-4">
 				<b-card>
@@ -157,27 +154,82 @@
 					<div class="form-group">
 						<label for="manualPattern">Manual Patterns</label>
 						<small class="text-danger">*</small>
-						<JsonEditorVue
-                            v-model="convert_phase_form.manual_pattern"
-                            v-bind="convert_phase_options"
-                        />
+						<VueJsonEditor v-model="convert_phase_form.manual_patterns" />
 					</div>
 					<div class="form-group">
-                        <label for="regexPattern">Regex Pattern</label>
-                        <small class="text-danger">*</small>
-                        <input
-                            id="regexPattern"
-                            type="text"
-                            v-model="convert_phase_form.regex_pattern"
-                            placeholder="Nhập mô hình.."
-                            class="form-control"
-                            required
-                        />
-                    </div>
+						<label for="regexPattern">Regex Pattern</label>
+						<input
+							id="regexPattern"
+							type="text"
+							v-model="convert_phase_form.regex_pattern"
+							placeholder="Nhập regex.."
+							class="form-control"
+						/>
+					</div>
 
 					<div class="d-flex justify-content-between">
-						<b-button variant="success">Bước tiếp theo</b-button>
+						<b-button variant="success" @click="onClickNextPhaseInConvertPhase"
+							>Bước tiếp theo</b-button
+						>
 						<b-button variant="primary" @click="onClickCheckConvertPhase"
+							>Kiểm tra</b-button
+						>
+					</div>
+				</b-card>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-8"></div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<b-form-input
+						:value="JSON.stringify(restructure_phase_input)"
+						:disabled="true"
+					></b-form-input>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-8">
+				<div
+					class="convert-phase-result"
+					style="display: flex; flex-direction: column; gap: 1rem"
+				>
+					<div
+						class="text-center text-primary my-2"
+						v-if="is_loading_restructure_phase"
+						style="opacity: 0.5"
+					>
+						<b-spinner class="align-middle" type="grow"></b-spinner>
+						<strong>Đang tải dữ liệu...</strong>
+					</div>
+					<VueJsonEditor v-model="restructure_phase_result" />
+				</div>
+			</div>
+			<div class="col-md-4">
+				<b-card>
+					<div class="form-group">
+						<label for="method">Method</label>
+						<small class="text-danger">*</small>
+						<treeselect
+							:multiple="false"
+							id="method"
+							placeholder="Chọn cách thức.."
+							v-model="restructure_phase_form.method"
+							:options="restructure_phase_options.methods"
+							required
+						/>
+					</div>
+					<div class="form-group">
+						<label for="manualPattern">Structure</label>
+						<small class="text-danger">*</small>
+						<VueJsonEditor v-model="restructure_phase_form.structure" />
+					</div>
+
+					<div class="d-flex justify-content-between">
+						<b-button variant="success">Lưu cấu hình</b-button>
+						<b-button variant="primary" @click="onClickCheckRestructurePhase"
 							>Kiểm tra</b-button
 						>
 					</div>
@@ -191,20 +243,20 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-    //import JsonEditorVue from 'json-editor-vue';
+	import VueJsonEditor from 'vue-json-editor';
 	export default {
 		components: {
 			Treeselect,
-            //JsonEditorVue
+			VueJsonEditor,
 		},
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 
 				file: null,
-                is_loading_convert_phase: false,
-				is_loading_first_phase: false,
-				first_phase_form: {
+				is_loading_convert_phase: false,
+				is_loading_extract_phase: false,
+				extract_phase_form: {
 					method: 'camelot',
 					camelot_flavor: 'lattice',
 					is_merge_pages: true,
@@ -212,40 +264,52 @@
 					exclude_tail_tables_count: 0,
 				},
 
-				first_phase_result: [],
-				first_phase_options: {
+				extract_phase_result: [],
+				extract_phase_options: {
 					methods: [{ id: 'camelot', label: 'Camelot' }],
 					camelot_flavors: [
 						{ id: 'stream', label: 'Stream' },
 						{ id: 'lattice', label: 'Lattice' },
 					],
 				},
-                convert_phase_form: {
-					method: [],
-                    manual_pattern: {},
-                    regex_pattern:undefined,
+
+				is_loading_convert_phase: false,
+				convert_phase_input: null,
+				convert_phase_form: {
+					method: 'leaguecsv',
+					manual_patterns: [],
+					regex_pattern: null,
 				},
-                convert_phase_result: [],
-                convert_phase_options: {
+				convert_phase_result: null,
+				convert_phase_options: {
 					methods: [
-                        {id: 'manual', label: 'Manual',},
-                        {id: 'leaguecsv', label: 'Leaguecsv'}
-                    ],
-                    manual_patterns: {
-                        mode: 'name',
-                        indentation: 4,
-                        data: []
-		            }
+						{ id: 'manual', label: 'Manual' },
+						{ id: 'leaguecsv', label: 'League CSV' },
+						{ id: 'regexmatch', label: 'Regex Match' },
+						{ id: 'regexsplit', label: 'Regex Split' },
+					],
 				},
 
-
+				is_loading_restructure_phase: false,
+				restructure_phase_input: null,
+				restructure_phase_form: {
+					method: 'arraymappingbyindex',
+					structure: {},
+				},
+				restructure_phase_options: {
+					methods: [
+						{ id: 'arraymappingbyindex', label: 'Array Mapping By Index' },
+						{ id: 'arraymappingbykey', label: 'Array Mapping By Key' },
+					],
+				},
+				restructure_phase_result: null,
 			};
 		},
 		methods: {
-			async onClickCheckFirstPhase() {
+			async onClickCheckExtractPhase() {
 				try {
-					if (this.is_loading_first_phase) return;
-					this.is_loading_first_phase = true;
+					if (this.is_loading_extract_phase) return;
+					this.is_loading_extract_phase = true;
 
 					const { data } = await this.api_handler
 						.setHeaders({
@@ -256,14 +320,15 @@
 							{},
 							APIHandler.createFormData({
 								file: this.file,
-								...this.first_phase_form,
+								...this.extract_phase_form,
+								extract_method: this.extract_phase_form.method,
 							}),
 						)
 						.finally(() => {
-							this.is_loading_first_phase = false;
+							this.is_loading_extract_phase = false;
 						});
 
-					this.first_phase_result = data;
+					this.extract_phase_result = data;
 
 					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
 				} catch (error) {
@@ -272,22 +337,27 @@
 				}
 			},
 
-            async onClickCheckConvertPhase() {
+			onClickNextPhaseInExtractPhase() {
+				this.convert_phase_input = this.extract_phase_result;
+			},
+
+			async onClickCheckConvertPhase() {
 				try {
 					if (this.is_loading_convert_phase) return;
 					this.is_loading_convert_phase = true;
 
 					const { data } = await this.api_handler
-						.setHeaders({
-							'Content-Type': 'multipart/form-data',
-						})
 						.post(
 							'/api/ai/config/convert',
 							{},
-							APIHandler.createFormData({
-								file: this.file,
-								...this.convert_phase_form,
-							}),
+							{
+								raw_table_data: JSON.stringify(this.convert_phase_input),
+								convert_method: this.convert_phase_form.method,
+								manual_patterns: JSON.stringify(
+									this.convert_phase_form.manual_patterns,
+								),
+								regex_pattern: this.convert_phase_form.regex_pattern,
+							},
 						)
 						.finally(() => {
 							this.is_loading_convert_phase = false;
@@ -302,7 +372,37 @@
 				}
 			},
 
+			onClickNextPhaseInConvertPhase() {
+				this.restructure_phase_input = this.convert_phase_result;
+			},
 
+			async onClickCheckRestructurePhase() {
+				try {
+					if (this.is_loading_restructure_phase) return;
+					this.is_loading_restructure_phase = true;
+
+					const { data } = await this.api_handler
+						.post(
+							'/api/ai/config/restructure',
+							{},
+							{
+								table_data: JSON.stringify(this.restructure_phase_input),
+								restructure_method: this.restructure_phase_form.method,
+								structure: JSON.stringify(this.restructure_phase_form.structure),
+							},
+						)
+						.finally(() => {
+							this.is_loading_restructure_phase = false;
+						});
+
+					this.restructure_phase_result = data;
+
+					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
+				}
+			},
 		},
 	};
 </script>
@@ -376,7 +476,7 @@
 		flex-wrap: wrap;
 		width: 100%;
 	}
-	.first-phase-result {
+	.extract-phase-result {
 		height: 80vh;
 		overflow-y: scroll;
 		padding: 0 10px 0 10px;
@@ -385,7 +485,7 @@
 		border: solid 1px #000;
 	}
 
-    .convert-phase-result {
+	.convert-phase-result {
 		height: 80vh;
 		overflow-y: scroll;
 		padding: 0 10px 0 10px;
