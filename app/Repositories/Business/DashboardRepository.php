@@ -46,9 +46,6 @@ class DashboardRepository extends RepositoryAbs
 
             if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
-                $query->whereHas('warehouse', function ($query) {
-                    $query->where('is_active', true);
-                });
             }
 
             if ($this->request->filled('distribution_channel_ids')) {
@@ -56,7 +53,6 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
                     $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                     // Thêm điều kiện lọc theo trạng thái hoạt động
-                    $query->where('is_active', true);
                 });
             }
 
