@@ -106,6 +106,7 @@ class MenuRouterSeeder extends Seeder
                     'user-sale'
                 ]
             ],
+
             [
                 'title' => "Quản lí dữ liệu",
                 'icon' => "fas fa-database",
@@ -274,6 +275,14 @@ class MenuRouterSeeder extends Seeder
                 'title' => "Bảng mapping SAP",
                 'icon' => "fas fa-network-wired",
                 'link' => "sap-material-mappings",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+
+            [
+                'title' => "Cấu hình trích xuất",
+                'icon' => "fas fa-file-pdf",
+                'link' => "order-extract-configs",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ]
