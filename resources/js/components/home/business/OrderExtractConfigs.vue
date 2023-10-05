@@ -16,10 +16,10 @@
 
 		<div class="row">
 			<div
-				class="col-8 first-phase-result"
-				style="display: flex; flex-direction: column; gap: 1rem"
+				class="col-8 "
 			>
-				<div
+            <div class="first-phase-result" style="display: flex; flex-direction: column; gap: 1rem">
+                <div
 					class="text-center text-primary my-2"
 					v-if="is_loading_first_phase"
 					style="opacity: 0.5"
@@ -44,6 +44,8 @@
 						</div>
 					</div>
 				</div>
+            </div>
+
 			</div>
 			<div class="col-md-4">
 				<b-card>
@@ -102,6 +104,85 @@
 					</div>
 				</b-card>
 			</div>
+            <!-- Phase 2 -->
+	    </div>
+        <div class="row">
+			<div
+				class="col-8"
+
+			>
+            <div class="convert-phase-result"	style="display: flex; flex-direction: column; gap: 1rem">
+                <div
+					class="text-center text-primary my-2"
+					v-if="is_loading_convert_phase"
+					style="opacity: 0.5"
+				>
+					<b-spinner class="align-middle" type="grow"></b-spinner>
+					<strong>Đang tải dữ liệu...</strong>
+				</div>
+				<div
+					class="card-rate"
+					v-for="(table, index) in convert_phase_result"
+					:key="index"
+					header-tag="header"
+					v-else
+				>
+					<div class="time">Bảng thứ {{ index + 1 }}</div>
+					<div class="line"></div>
+					<div class="container-rate">
+						<div class="box-rate">
+							<div class="review-content">
+								{{ table }}
+							</div>
+						</div>
+					</div>
+				</div>
+            </div>
+
+			</div>
+			<div class="col-md-4">
+				<b-card>
+					<div class="form-group">
+						<label for="method">Method</label>
+						<small class="text-danger">*</small>
+						<treeselect
+							:multiple="false"
+							id="method"
+							placeholder="Chọn cách thức.."
+							v-model="convert_phase_form.method"
+							:options="convert_phase_options.methods"
+							required
+						/>
+					</div>
+					<div class="form-group">
+						<label for="manualPattern">Manual Patterns</label>
+						<small class="text-danger">*</small>
+						<JsonEditorVue
+                            v-model="convert_phase_form.manual_pattern"
+                            v-bind="convert_phase_options"
+                        />
+					</div>
+					<div class="form-group">
+                        <label for="regexPattern">Regex Pattern</label>
+                        <small class="text-danger">*</small>
+                        <input
+                            id="regexPattern"
+                            type="text"
+                            v-model="convert_phase_form.regex_pattern"
+                            placeholder="Nhập mô hình.."
+                            class="form-control"
+                            required
+                        />
+                    </div>
+
+					<div class="d-flex justify-content-between">
+						<b-button variant="success">Bước tiếp theo</b-button>
+						<b-button variant="primary" @click="onClickCheckConvertPhase"
+							>Kiểm tra</b-button
+						>
+					</div>
+				</b-card>
+			</div>
 		</div>
 	</div>
 </template>
@@ -110,16 +191,18 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+    //import JsonEditorVue from 'json-editor-vue';
 	export default {
 		components: {
 			Treeselect,
+            //JsonEditorVue
 		},
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 
 				file: null,
-
+                is_loading_convert_phase: false,
 				is_loading_first_phase: false,
 				first_phase_form: {
 					method: 'camelot',
@@ -128,6 +211,7 @@
 					exclude_head_tables_count: 0,
 					exclude_tail_tables_count: 0,
 				},
+
 				first_phase_result: [],
 				first_phase_options: {
 					methods: [{ id: 'camelot', label: 'Camelot' }],
@@ -136,23 +220,25 @@
 						{ id: 'lattice', label: 'Lattice' },
 					],
 				},
+                convert_phase_form: {
+					method: [],
+                    manual_pattern: {},
+                    regex_pattern:undefined,
+				},
+                convert_phase_result: [],
+                convert_phase_options: {
+					methods: [
+                        {id: 'manual', label: 'Manual',},
+                        {id: 'leaguecsv', label: 'Leaguecsv'}
+                    ],
+                    manual_patterns: {
+                        mode: 'name',
+                        indentation: 4,
+                        data: []
+		            }
+				},
 
-				is_loading_second_phase: false,
-				second_phase_form: {
-					method: 'camelot',
-					camelot_flavor: 'lattice',
-					is_merge_pages: true,
-					exclude_head_tables_count: 0,
-					exclude_tail_tables_count: 0,
-				},
-				second_phase_result: [],
-				second_phase_options: {
-					methods: [{ id: 'camelot', label: 'Camelot' }],
-					camelot_flavors: [
-						{ id: 'stream', label: 'Stream' },
-						{ id: 'lattice', label: 'Lattice' },
-					],
-				},
+
 			};
 		},
 		methods: {
@@ -185,6 +271,38 @@
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				}
 			},
+
+            async onClickCheckConvertPhase() {
+				try {
+					if (this.is_loading_convert_phase) return;
+					this.is_loading_convert_phase = true;
+
+					const { data } = await this.api_handler
+						.setHeaders({
+							'Content-Type': 'multipart/form-data',
+						})
+						.post(
+							'/api/ai/config/convert',
+							{},
+							APIHandler.createFormData({
+								file: this.file,
+								...this.convert_phase_form,
+							}),
+						)
+						.finally(() => {
+							this.is_loading_convert_phase = false;
+						});
+
+					this.convert_phase_result = data;
+
+					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
+				}
+			},
+
+
 		},
 	};
 </script>
@@ -259,6 +377,15 @@
 		width: 100%;
 	}
 	.first-phase-result {
+		height: 80vh;
+		overflow-y: scroll;
+		padding: 0 10px 0 10px;
+		/* background-color: #fff; */
+		border-radius: 10px;
+		border: solid 1px #000;
+	}
+
+    .convert-phase-result {
 		height: 80vh;
 		overflow-y: scroll;
 		padding: 0 10px 0 10px;
