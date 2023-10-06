@@ -194,14 +194,15 @@ class AiRepository extends RepositoryAbs
                     $restructure_data_config->delete();
                 }
 
-                $this->data['extract_data_config'] = json_decode($this->data['extract_data_config'], true);
+
+                // $this->data['extract_data_config'] = json_decode($this->data['extract_data_config'], true);
                 $extract_data_config = ExtractDataConfig::create($this->data['extract_data_config']);
 
-                $this->data['convert_table_config'] = json_decode($this->data['convert_table_config'], true);
+                // $this->data['convert_table_config'] = json_decode($this->data['convert_table_config'], true);
                 $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
                 $convert_table_config = ConvertTableConfig::create($this->data['convert_table_config']);
 
-                $this->data['restructure_data_config'] = json_decode($this->data['restructure_data_config'], true);
+                // $this->data['restructure_data_config'] = json_decode($this->data['restructure_data_config'], true);
                 $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
                 $restructure_data_config = RestructureDataConfig::create($this->data['restructure_data_config']);
 
