@@ -1,7 +1,25 @@
 <template>
 	<div>
 		<div class="row">
-			<div class="col-md-8"></div>
+			<div class="col-md-8">
+				<div class="row">
+					<div class="col-md-4">
+						<treeselect
+							:multiple="false"
+							id="method"
+							placeholder="Chọn customer group.."
+							v-model="load_config_form.customer_group_id"
+							:options="customer_group_options"
+							required
+						/>
+					</div>
+					<div class="col-md-4">
+						<b-button variant="success" @click="onClickLoadConfig"
+							>Load cấu hình</b-button
+						>
+					</div>
+				</div>
+			</div>
 			<div class="col-md-4">
 				<div class="form-group">
 					<b-form-file
@@ -207,7 +225,7 @@
 					<VueJsonEditor v-model="restructure_phase_result" />
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-4 d-flex flex-column justify-content-between">
 				<b-card>
 					<div class="form-group">
 						<label for="method">Method</label>
@@ -228,10 +246,30 @@
 					</div>
 
 					<div class="d-flex justify-content-between">
-						<b-button variant="success">Lưu cấu hình</b-button>
+						<div></div>
 						<b-button variant="primary" @click="onClickCheckRestructurePhase"
 							>Kiểm tra</b-button
 						>
+					</div>
+				</b-card>
+
+				<b-card>
+					<div class="row">
+						<div class="col-md-8">
+							<treeselect
+								:multiple="false"
+								id="method"
+								placeholder="Chọn customer group.."
+								v-model="create_config_form.customer_group_id"
+								:options="customer_group_options"
+								required
+							/>
+						</div>
+						<div class="col-md-4">
+							<b-button variant="success" @click="onClickCreateConfig"
+								>Lưu cấu hình</b-button
+							>
+						</div>
 					</div>
 				</b-card>
 			</div>
@@ -303,9 +341,34 @@
 					],
 				},
 				restructure_phase_result: null,
+
+				customer_group_options: [],
+
+				create_config_form: {
+					customer_group_id: null,
+					extract_data_config: null,
+					convert_table_config: null,
+					restructure_data_config: null,
+				},
+
+				load_config_form: {
+					customer_group_id: null,
+				},
 			};
 		},
+		created() {
+			this.fetchOptionsData();
+		},
 		methods: {
+			async fetchOptionsData() {
+				const [customer_group_options] = await this.api_handler.handleMultipleRequest([
+					new APIRequest('get', '/api/master/customer-groups'),
+				]);
+				this.customer_group_options = customer_group_options.map((item) => ({
+					id: item.id,
+					label: item.name,
+				}));
+			},
 			async onClickCheckExtractPhase() {
 				try {
 					if (this.is_loading_extract_phase) return;
@@ -339,6 +402,7 @@
 
 			onClickNextPhaseInExtractPhase() {
 				this.convert_phase_input = this.extract_phase_result;
+				this.create_config_form.extract_data_config = this.extract_phase_form;
 			},
 
 			async onClickCheckConvertPhase() {
@@ -374,6 +438,7 @@
 
 			onClickNextPhaseInConvertPhase() {
 				this.restructure_phase_input = this.convert_phase_result;
+				this.create_config_form.convert_table_config = this.convert_phase_form;
 			},
 
 			async onClickCheckRestructurePhase() {
@@ -401,6 +466,71 @@
 				} catch (error) {
 					console.log(error);
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
+				}
+			},
+
+			async onClickCreateConfig() {
+				this.create_config_form.restructure_data_config = this.restructure_phase_form;
+
+				try {
+					const { data } = await this.api_handler.post(
+						'/api/ai/config',
+						{},
+						{
+							customer_group_id: this.create_config_form.customer_group_id,
+							extract_data_config: this.create_config_form.extract_data_config,
+
+							convert_table_config: this.create_config_form.convert_table_config,
+
+							restructure_data_config:
+								this.create_config_form.restructure_data_config,
+						},
+					);
+
+					this.$showMessage('success', 'Tạo cấu hình thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
+				}
+			},
+
+			async onClickLoadConfig() {
+				try {
+					this.create_config_form.customer_group_id =
+						this.load_config_form.customer_group_id;
+					const { data } = await this.api_handler.get(
+						`/api/ai/config/customer-groups/${this.load_config_form.customer_group_id}`,
+					);
+					console.log(data);
+					let extract_response = data.extract_data_config;
+					this.extract_phase_form = {
+						method: extract_response.method,
+						camelot_flavor: extract_response.camelot_flavor,
+						is_merge_pages: extract_response.is_merge_pages,
+						exclude_head_tables_count: extract_response.exclude_head_tables_count,
+						exclude_tail_tables_count: extract_response.exclude_tail_tables_count,
+					};
+
+					let convert_response = data.convert_table_config;
+					this.convert_phase_form = {
+						method: convert_response.method,
+						manual_patterns: convert_response.manual_patterns
+							? JSON.parse(convert_response.manual_patterns)
+							: null,
+						regex_pattern: convert_response.regex_pattern,
+					};
+
+					let restructure_response = data.restructure_data_config;
+					this.restructure_phase_form = {
+						method: restructure_response.method,
+						structure: restructure_response.structure
+							? JSON.parse(restructure_response.structure)
+							: null,
+					};
+					this.$showMessage('success', 'Tải cấu hình thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response?.data.message);
 				}
 			},
 		},

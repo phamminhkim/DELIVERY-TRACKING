@@ -889,7 +889,8 @@ class DeliveryRepository extends RepositoryAbs
                     }, $delivery_customer);
                     $orders = Order::whereIn('sap_do_number', $sap_do_numbers)->get();
                     if ($orders->count() != count($delivery_customer)) {
-                        $this->message = 'Có DO không tồn tại trong file.';
+                        $not_exist_do = array_diff($sap_do_numbers, $orders->pluck('sap_do_number')->toArray());
+                        $this->message = 'Có DO không tồn tại trong file. (' . implode(', ', $not_exist_do) . ')';
                         return false;
                     }
                     $customer = Customer::where('code', $delivery_customer[0]['customer_code'] ?? null)->first();
