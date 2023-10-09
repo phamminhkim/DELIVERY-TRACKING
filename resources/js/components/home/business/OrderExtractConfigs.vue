@@ -2,7 +2,7 @@
 	<div>
 		<div class="row">
 			<div class="col-md-8">
-				<div class="row">
+				<b-form class="row" @submit.prevent="onClickLoadConfig">
 					<div class="col-md-4">
 						<treeselect
 							:multiple="false"
@@ -10,15 +10,22 @@
 							placeholder="Chọn customer group.."
 							v-model="load_config_form.customer_group_id"
 							:options="customer_group_options"
+							:normalizer="normalizer"
 							required
 						/>
 					</div>
 					<div class="col-md-4">
-						<b-button variant="success" @click="onClickLoadConfig"
-							>Load cấu hình</b-button
-						>
+						<b-form-select
+							placeholder="Chọn cấu hình.."
+							v-model="load_config_form.extract_order_id"
+							:options="load_extract_order_config_options"
+							required
+						/>
 					</div>
-				</div>
+					<div class="col-md-4">
+						<b-button variant="success" type="submit">Load cấu hình</b-button>
+					</div>
+				</b-form>
 			</div>
 			<div class="col-md-4">
 				<div class="form-group">
@@ -246,7 +253,9 @@
 					</div>
 
 					<div class="d-flex justify-content-between">
-						<div></div>
+						<b-button variant="success" @click="onClickUpdateConfig"
+							>Lưu cấu hình</b-button
+						>
 						<b-button variant="primary" @click="onClickCheckRestructurePhase"
 							>Kiểm tra</b-button
 						>
@@ -254,23 +263,34 @@
 				</b-card>
 
 				<b-card>
-					<div class="row">
-						<div class="col-md-8">
-							<treeselect
-								:multiple="false"
-								id="method"
-								placeholder="Chọn customer group.."
-								v-model="create_config_form.customer_group_id"
-								:options="customer_group_options"
-								required
-							/>
+					<b-form @submit.prevent="onClickCreateConfig">
+						<div class="row">
+							<div class="col-md-8">
+								<b-form-input
+									type="text"
+									v-model="create_config_form.name"
+									placeholder="Nhập tên cấu hình.."
+									required
+								/>
+							</div>
 						</div>
-						<div class="col-md-4">
-							<b-button variant="success" @click="onClickCreateConfig"
-								>Lưu cấu hình</b-button
-							>
+						<div class="row">
+							<div class="col-md-8">
+								<treeselect
+									:multiple="false"
+									id="method2"
+									placeholder="Chọn customer group.."
+									v-model="create_config_form.customer_group_id"
+									:options="customer_group_options"
+									:normalizer="normalizer"
+									required
+								/>
+							</div>
+							<div class="col-md-4">
+								<b-button variant="primary" type="submit">Tạo cấu hình</b-button>
+							</div>
 						</div>
-					</div>
+					</b-form>
 				</b-card>
 			</div>
 		</div>
@@ -278,7 +298,7 @@
 </template>
 
 <script>
-	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import Treeselect, { ASYNC_SEARCH, LOAD_ROOT_OPTIONS } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import VueJsonEditor from 'vue-json-editor';
@@ -343,16 +363,19 @@
 				restructure_phase_result: null,
 
 				customer_group_options: [],
+				load_extract_order_config_options: null,
 
 				create_config_form: {
 					customer_group_id: null,
 					extract_data_config: null,
 					convert_table_config: null,
 					restructure_data_config: null,
+					name: null,
 				},
 
 				load_config_form: {
 					customer_group_id: null,
+					extract_order_id: null,
 				},
 			};
 		},
@@ -364,10 +387,13 @@
 				const [customer_group_options] = await this.api_handler.handleMultipleRequest([
 					new APIRequest('get', '/api/master/customer-groups'),
 				]);
-				this.customer_group_options = customer_group_options.map((item) => ({
-					id: item.id,
-					label: item.name,
-				}));
+				this.customer_group_options = customer_group_options;
+			},
+			normalizer(node) {
+				return {
+					id: node.id,
+					label: node.name,
+				};
 			},
 			async onClickCheckExtractPhase() {
 				try {
@@ -451,6 +477,7 @@
 							'/api/ai/config/restructure',
 							{},
 							{
+								name: this.create_config_form.name,
 								table_data: JSON.stringify(this.restructure_phase_input),
 								restructure_method: this.restructure_phase_form.method,
 								structure: JSON.stringify(this.restructure_phase_form.structure),
@@ -484,9 +511,16 @@
 
 							restructure_data_config:
 								this.create_config_form.restructure_data_config,
+							name: this.create_config_form.name,
 						},
 					);
-
+					this.create_config_form = {
+						customer_group_id: null,
+						extract_data_config: null,
+						convert_table_config: null,
+						restructure_data_config: null,
+						name: null,
+					};
 					this.$showMessage('success', 'Tạo cấu hình thành công');
 				} catch (error) {
 					console.log(error);
@@ -498,11 +532,11 @@
 				try {
 					this.create_config_form.customer_group_id =
 						this.load_config_form.customer_group_id;
-					const { data } = await this.api_handler.get(
-						`/api/ai/config/customer-groups/${this.load_config_form.customer_group_id}`,
-					);
-					console.log(data);
-					let extract_response = data.extract_data_config;
+					const { data } = await this.api_handler.get(`/api/ai/config/customer-groups`, {
+						customer_group_ids: [this.load_config_form.customer_group_id],
+					});
+					let extract_order_config_response = data[0];
+					let extract_response = extract_order_config_response.extract_data_config;
 					this.extract_phase_form = {
 						method: extract_response.method,
 						camelot_flavor: extract_response.camelot_flavor,
@@ -511,7 +545,7 @@
 						exclude_tail_tables_count: extract_response.exclude_tail_tables_count,
 					};
 
-					let convert_response = data.convert_table_config;
+					let convert_response = extract_order_config_response.convert_table_config;
 					this.convert_phase_form = {
 						method: convert_response.method,
 						manual_patterns: convert_response.manual_patterns
@@ -520,7 +554,8 @@
 						regex_pattern: convert_response.regex_pattern,
 					};
 
-					let restructure_response = data.restructure_data_config;
+					let restructure_response =
+						extract_order_config_response.restructure_data_config;
 					this.restructure_phase_form = {
 						method: restructure_response.method,
 						structure: restructure_response.structure
@@ -532,6 +567,58 @@
 					console.log(error);
 					this.$showMessage('error', 'Lỗi', error.response?.data.message);
 				}
+			},
+
+			async onClickUpdateConfig() {
+				try {
+					let update_config_form = {
+						customer_group_id: this.load_config_form.customer_group_id,
+						extract_data_config: this.extract_phase_form,
+						convert_table_config: this.convert_phase_form,
+						restructure_data_config: this.restructure_phase_form,
+					};
+
+					const { data } = await this.api_handler.put(
+						`/api/ai/config/${this.load_config_form.extract_order_id}`,
+						{},
+						update_config_form,
+					);
+					this.create_config_form = {
+						customer_group_id: null,
+						extract_data_config: null,
+						convert_table_config: null,
+						restructure_data_config: null,
+						name: null,
+					};
+					this.$showMessage('success', 'Cập nhật cấu hình thành công');
+				} catch (error) {
+					console.log(error);
+					this.$showMessage('error', 'Lỗi', error.response.data.message);
+				}
+			},
+		},
+
+		watch: {
+			load_customer_group_id() {
+				this.load_extract_order_config_options = [];
+				let load_extract_order_config_options = this.customer_group_options.find(
+					(customer_group) => {
+						return customer_group.id == this.load_customer_group_id;
+					},
+				)?.extract_order_configs;
+				this.load_extract_order_config_options = load_extract_order_config_options
+					? load_extract_order_config_options.map((extract_order_config) => {
+							return {
+								value: extract_order_config.id,
+								text: extract_order_config.name,
+							};
+					  })
+					: [];
+			},
+		},
+		computed: {
+			load_customer_group_id() {
+				return this.load_config_form.customer_group_id;
 			},
 		},
 	};

@@ -10,6 +10,8 @@ class CustomerGroupRepository extends RepositoryAbs
 {
     public function getAllCustomerGroups()
     {
-        return CustomerGroup::all();
+        $query = CustomerGroup::query();
+        $query->with('extract_order_configs');
+        return $query->get();
     }
 }

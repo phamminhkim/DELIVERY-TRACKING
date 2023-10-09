@@ -30,8 +30,24 @@ class ExtractOrderConfigSeeder extends Seeder
             array(
                 'name' => 'Mega',
             ),
+            array(
+                'name' => 'Lotte',
+            ),
         );
 
+        $extract_order_configs = array(
+            array(
+                'name' => 'Winmart mặc định',
+
+            ),
+            array(
+                'name' => 'Mega mặc định',
+
+            ),
+            array(
+                'name' => 'Lotte mặc định',
+            )
+        );
         $extract_data_configs = array(
             array(
                 'method' => ExtractMethod::CAMELOT,
@@ -47,6 +63,13 @@ class ExtractOrderConfigSeeder extends Seeder
                 'exclude_head_tables_count' => 0,
                 'exclude_tail_tables_count' => 0,
 
+            ),
+            array(
+                'method' => ExtractMethod::CAMELOT,
+                'camelot_flavor' => CamelotFlavor::LATTICE,
+                'is_merge_pages' => true,
+                'exclude_head_tables_count' => 1,
+                'exclude_tail_tables_count' => 0
             ),
         );
 
@@ -90,6 +113,11 @@ class ExtractOrderConfigSeeder extends Seeder
                 'manual_patterns' => null,
                 'regex_pattern' => null,
             ),
+            array(
+                'method' => ConvertMethod::LEAGUECSV,
+                'manual_patterns' => null,
+                'regex_pattern' => null,
+            ),
         );
 
         $restructure_data_configs = array(
@@ -97,13 +125,10 @@ class ExtractOrderConfigSeeder extends Seeder
                 'method' => RestructureMethod::INDEXARRAYMAPPING,
                 'structure' => json_encode(
                     [
-                        "Barcode" => 3,
-                        "Unit" => 5,
+                        "OrdUnit" => 5,
                         "ProductID" => 2,
                         "Quantity" => 4,
-                        "UnitPrice" => 6,
-                        "Amount" => 7,
-                        "Description" => 8
+                        "ProductName" => 8
                     ]
                 )
             ),
@@ -111,57 +136,73 @@ class ExtractOrderConfigSeeder extends Seeder
                 'method' => RestructureMethod::KEYARRAYMAPPING,
                 'structure' => json_encode(
                     [
-                        "Unit" => "PACK TYPE",
+                        "OrdUnit" => "PACK TYPE",
                         "ProductID" => "MM ARTICLE",
                         "Quantity" => "ORDER",
-                        "name" => "ARTICLE DESCRIPTION"
+                        "ProductName" => "ARTICLE DESCRIPTION"
+                    ]
+                )
+            ),
+            array(
+                'method' => RestructureMethod::KEYARRAYMAPPING,
+                'structure' => json_encode(
+                    [
+                        "OrdUnit" => "Ord unit",
+                        "ProductID" => "Prod cd",
+                        "Quantity" => "Ord qty",
+                        "ProductName" => "Prod nm"
                     ]
                 )
             ),
         );
 
-        foreach ($customer_groups as $index => $customer_group) {
+        foreach ($customer_groups as $index => $customer_group_data) {
             try {
                 DB::beginTransaction();
-                if (!CustomerGroup::where('name', $customer_group['name'])->exists()) {
-                    $customer_group = CustomerGroup::create($customer_group);
+                $customer_group = CustomerGroup::where('name', $customer_group_data['name'])->first();
+                if (!$customer_group) {
+                    $customer_group = CustomerGroup::create($customer_group_data);
                 } else {
-                    throw new \Exception('Customer group already exists');
+                    $old_extract_order_config = $customer_group->extract_order_configs->where('name', $extract_order_configs[$index]['name'])->first();
+                    if ($old_extract_order_config) {
+                        $old_extract_order_config->load('extract_data_config', 'convert_table_config', 'restructure_data_config');
+                        $old_extract_data_config = $old_extract_order_config->extract_data_config;
+                        $old_convert_table_config = $old_extract_order_config->convert_table_config;
+                        $old_restructure_data_config = $old_extract_order_config->restructure_data_config;
+                        $old_extract_order_config->delete();
+                        if (
+                            $old_extract_data_config
+                        ) {
+                            $old_extract_data_config->delete();
+                        }
+                        if (
+                            $old_convert_table_config
+                        ) {
+                            $old_convert_table_config->delete();
+                        }
+                        if (
+                            $old_restructure_data_config
+                        ) {
+                            $old_restructure_data_config->delete();
+                        }
+                    }
                 }
+
                 $extract_data_config = ExtractDataConfig::create($extract_data_configs[$index]);
+
                 $convert_table_config = ConvertTableConfig::create($convert_table_configs[$index]);
+
                 $restructure_data_config = RestructureDataConfig::create($restructure_data_configs[$index]);
 
                 $extract_order_config = ExtractOrderConfig::create([
+                    'name' => $extract_order_configs[$index]['name'],
                     'customer_group_id' => $customer_group->id,
                     'extract_data_config_id' => $extract_data_config->id,
                     'convert_table_config_id' => $convert_table_config->id,
                     'restructure_data_config_id' => $restructure_data_config->id,
                 ]);
 
-                $count = CustomerGroup::query()
-                    ->where('name', $customer_group->name)
-                    ->whereHas('extract_data_config', function ($query) use ($extract_data_config) {
-                        $query->where('method', $extract_data_config->method)
-                            ->where('camelot_flavor', $extract_data_config->camelot_flavor)
-                            ->where('is_merge_pages', $extract_data_config->is_merge_pages)
-                            ->where('exclude_head_tables_count', $extract_data_config->exclude_head_tables_count)
-                            ->where('exclude_tail_tables_count', $extract_data_config->exclude_tail_tables_count);
-                    })
-                    ->whereHas('convert_table_config', function ($query) use ($convert_table_config) {
-                        $query->where('method', $convert_table_config->method)
-                            ->where('manual_patterns', $convert_table_config->manual_patterns)
-                            ->where('regex_pattern', $convert_table_config->regex_pattern);
-                    })
-                    ->whereHas('restructure_data_config', function ($query) use ($restructure_data_config) {
-                        $query->where('method', $restructure_data_config->method)
-                            ->where('structure', $restructure_data_config->structure);
-                    })
-                    ->count();
 
-                if ($count > 1) {
-                    throw new \Exception('Extract order config already exists');
-                }
                 DB::commit();
             } catch (\Exception $exception) {
                 DB::rollback();
