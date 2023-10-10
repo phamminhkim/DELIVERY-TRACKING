@@ -902,15 +902,15 @@ class DeliveryRepository extends RepositoryAbs
                     $delivery_code = UniqueIdUtility::generateDeliveryUniqueCode($delivery_partner);
                     $body_datas = json_decode($delivery_partner->api_body_datas, true);
                     $body_datas = array_merge($body_datas, array($delivery_partner->api_delivery_code_field => $delivery_code_customer));
-                    [$api_customer_response] = ApiHandler::handleMultipleRequests([
-                        new ApiRequest($delivery_partner->api_url, [], $body_datas, $delivery_partner->api_method),
-                    ]);
+                    // [$api_customer_response] = ApiHandler::handleMultipleRequests([
+                    //     new ApiRequest($delivery_partner->api_url, [], $body_datas, $delivery_partner->api_method),
+                    // ]);
 
-                    $api_customer_response = ApiUtility::getPropertyByPath($api_customer_response, $api_mapping->root_data_field, '.');
-                    if ($api_mapping->is_root_string) {
-                        $api_customer_response = json_decode($api_customer_response, true);
-                    }
-                    $api_customer_response = $api_customer_response[0]; //kết quả trả về thường là mảng
+                    // $api_customer_response = ApiUtility::getPropertyByPath($api_customer_response, $api_mapping->root_data_field, '.');
+                    // if ($api_mapping->is_root_string) {
+                    //     $api_customer_response = json_decode($api_customer_response, true);
+                    // }
+                    // $api_customer_response = $api_customer_response[0]; //kết quả trả về thường là mảng
                     $delivery = Delivery::create([
                         'delivery_code' => $delivery_code,
                         'company_code' => $this->data['company_code'],
