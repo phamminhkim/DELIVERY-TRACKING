@@ -51,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/criteria', [DashboardController::class, 'getCriteriaStatistic']);
         Route::get('/report', [DashboardController::class, 'getReportStatistic']);
+        Route::get('/orders', [DashboardController::class, 'getOrdersStatistic']);
         Route::get('/', [DashboardController::class, 'getStatistic']);
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
     });
