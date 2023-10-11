@@ -22,6 +22,18 @@ class DashboardController extends ResponseController
         }
     }
 
+    public function getOrdersStatistic(Request $request)
+    {
+        $handler = BusinessRepository::dashboardRequest($request);
+        $data = $handler->getOrdersStatistic();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function getCriteriaStatistic(Request $request)
     {
         $handler = BusinessRepository::dashboardRequest($request);

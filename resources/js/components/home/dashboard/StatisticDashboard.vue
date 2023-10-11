@@ -292,8 +292,7 @@
 													<div class="inner">
 														<h3>
 															{{
-																dashboard_statistic.received_orders_count -
-																dashboard_statistic.reviewed_orders_count
+																dashboard_statistic.no_reviewed_orders_count
 															}}
 														</h3>
 														<p>DO chưa đánh giá</p>
@@ -320,8 +319,7 @@
 													<div class="inner">
 														<h3>
 															{{
-																dashboard_statistic.delivered_orders_count -
-																dashboard_statistic.received_orders_count
+																dashboard_statistic.no_received_orders_count
 															}}
 														</h3>
 														<p>DO chưa xác nhận</p>

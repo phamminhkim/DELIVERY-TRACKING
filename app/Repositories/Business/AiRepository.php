@@ -2,9 +2,12 @@
 
 namespace App\Repositories\Business;
 
+use App\Models\Business\ConvertTableConfig;
+use App\Models\Business\ExtractDataConfig;
 use App\Models\Business\ExtractOrderConfig;
 use App\Models\Business\RegexPattern;
 
+use App\Models\Business\RestructureDataConfig;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Converters\ManualConverter;
@@ -18,7 +21,9 @@ use App\Services\Interfaces\DataRestructureInterface;
 use App\Services\Interfaces\FileServiceInterface;
 use App\Services\Interfaces\PdfExtractorInterface;
 use App\Services\Interfaces\TableConverterInterface;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
 
@@ -65,8 +70,14 @@ class AiRepository extends RepositoryAbs
             $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
             $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
         }
-        $table = $this->data_extractor->extract($file_path, $options);
-        return $table;
+        $tables = $this->data_extractor->extract($file_path, $options);
+        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
+        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
+        $choosen_tables = [];
+        for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
+            $choosen_tables[] = $tables[$i];
+        }
+        return $choosen_tables;
     }
 
     private function convertToTable($array)
@@ -81,10 +92,9 @@ class AiRepository extends RepositoryAbs
             $manual_patterns = json_decode($this->request->manual_patterns);
             $options['manual_patterns'] = $manual_patterns;
         }
-        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
-        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
+
         $table = [];
-        for ($i = $exclude_head_tables_count; $i < count($array) - $exclude_tail_tables_count; $i++) {
+        for ($i = 0; $i < count($array); $i++) {
             $extracted_table = $this->table_converter->convert($array[$i], $options);
             $table = array_merge($table, $extracted_table);
         }
@@ -95,9 +105,9 @@ class AiRepository extends RepositoryAbs
     {
         $options = array();
         if ($this->data_restructure instanceof IndexArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure);
+            $options['structure'] = json_decode($this->request->structure, true);
         } elseif ($this->data_restructure instanceof KeyArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure);
+            $options['structure'] = json_decode($this->request->structure, true);
         }
         $table = $this->data_restructure->restructure($array, $options);
         return $table;
@@ -131,7 +141,7 @@ class AiRepository extends RepositoryAbs
     public function restructureDataForConfig()
     {
         try {
-            $table_data = json_decode($this->data['table_data']);
+            $table_data = json_decode($this->data['table_data'], true);
             return $this->restructureData($table_data);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -139,17 +149,116 @@ class AiRepository extends RepositoryAbs
         }
     }
 
-    public function getExtractOrderConfigs($customer_groups_id)
+
+
+    public function getExtractOrderConfigs()
     {
-        $query = ExtractOrderConfig::query()
-            ->whereHas('customer_group', function ($query) use ($customer_groups_id) {
-                $query->where('id', $customer_groups_id);
+        $query = ExtractOrderConfig::query();
+
+        if ($this->request->filled('customer_group_ids')) {
+            $customer_groups_ids = $this->request->customer_group_ids;
+            $query->whereHas('customer_group', function ($query) use ($customer_groups_ids) {
+                $query->whereIn('id', $customer_groups_ids);
             });
-        $extract_order_config = $query->first();
-        return array(
-            "extract_data_config" => $extract_order_config->extract_data_config,
-            "convert_to_table_config" => $extract_order_config->convert_table_config,
-            "restructure_data_config" => $extract_order_config->restructure_data_config,
-        );
+        }
+
+        if ($this->request->filled('extract_order_config_ids')) {
+            $extract_order_config_ids = $this->request->extract_order_config_ids;
+            $query->whereIn('id', $extract_order_config_ids);
+        }
+
+        $query->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+        $extract_order_configs = $query->get();
+        return $extract_order_configs;
+    }
+
+    public function createExtractOrderConfigs()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'required|exists:customer_groups,id',
+                'extract_data_config' => 'required',
+                'convert_table_config' => 'required',
+                'restructure_data_config' => 'required',
+                'name' => 'required|unique:extract_order_configs,name',
+            ], [
+                'customer_group_id.required' => 'Customer group là bắt buộc',
+                'customer_group_id.exists' => 'Customer group không tồn tại',
+                'extract_data_config.required' => 'Extract data config là bắt buộc',
+                'extract_data_config.json' => 'Extract data config không đúng định dạng json',
+                'convert_table_config.required' => 'Convert table config là bắt buộc',
+                'convert_table_config.json' => 'Convert table config không đúng định dạng json',
+                'restructure_data_config.required' => 'Restructure data config là bắt buộc',
+                'restructure_data_config.json' => 'Restructure data config không đúng định dạng json',
+                'name.required' => 'Tên là bắt buộc',
+                'name.unique' => 'Tên đã tồn tại',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+
+                $extract_data_config = ExtractDataConfig::create($this->data['extract_data_config']);
+
+                $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
+                $convert_table_config = ConvertTableConfig::create($this->data['convert_table_config']);
+
+                $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
+                $restructure_data_config = RestructureDataConfig::create($this->data['restructure_data_config']);
+
+                $extract_order_config = ExtractOrderConfig::create([
+                    'name' => $this->data['name'],
+                    'customer_group_id' => $this->data['customer_group_id'],
+                    'extract_data_config_id' => $extract_data_config->id,
+                    'convert_table_config_id' => $convert_table_config->id,
+                    'restructure_data_config_id' => $restructure_data_config->id,
+                ]);
+
+                DB::commit();
+                $extract_order_config->load(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+                return $extract_order_config;
+            }
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function updateExtractOrderConfig($extract_order_config_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'extract_data_config' => 'required',
+                'convert_table_config' => 'required',
+                'restructure_data_config' => 'required',
+            ], [
+                'extract_data_config.required' => 'Extract data config là bắt buộc',
+                'convert_table_config.required' => 'Convert table config là bắt buộc',
+                'restructure_data_config.required' => 'Restructure data config là bắt buộc',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($extract_order_config_id);
+                if (!$extract_order_config) {
+                    $this->message = 'Extract order config không tồn tại';
+                    return;
+                }
+                $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
+                $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
+                $extract_order_config->extract_data_config->update($this->data['extract_data_config']);
+                $extract_order_config->convert_table_config->update($this->data['convert_table_config']);
+                $extract_order_config->restructure_data_config->update($this->data['restructure_data_config']);
+
+                DB::commit();
+                return $extract_order_config;
+            }
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
     }
 }

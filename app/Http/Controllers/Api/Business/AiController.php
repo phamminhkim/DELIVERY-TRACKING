@@ -58,10 +58,34 @@ class AiController extends ResponseController
         }
     }
 
-    public function getExtractOrderConfigs(Request $request, $id)
+    public function getExtractOrderConfigs(Request $request)
     {
         $handler = BusinessRepository::aiRequest($request);
-        $data = $handler->getExtractOrderConfigs($id);
+        $data = $handler->getExtractOrderConfigs();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function createExtractOrderConfigs(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->createExtractOrderConfigs();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function updateExtractOrderConfig(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->updateExtractOrderConfig($id);
 
         if ($data) {
             return $this->responseSuccess($data);
