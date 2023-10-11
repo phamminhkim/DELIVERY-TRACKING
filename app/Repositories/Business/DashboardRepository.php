@@ -324,13 +324,13 @@ class DashboardRepository extends RepositoryAbs
                     'no_received_orders' => $no_received_orders,
                     'no_reviewed_orders' => $no_reviewed_orders,
                 );
-                $data = array_map(function ($key) use ($key_return_fields_mapping) {
-                    return $key_return_fields_mapping[$key];
-                }, $this->request->order_statistics);
+                $data = array_reduce($this->request->order_statistics, function ($carry, $key) use ($key_return_fields_mapping) {
+                    return array_merge($carry, [$key => $key_return_fields_mapping[$key]]);
+                }, []);
                 return $data;
             }
 
-            return array();
+            return [];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
