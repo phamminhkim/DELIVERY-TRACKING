@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 use App\Http\Controllers\Api\Master\OrderReviewOptionController;
@@ -50,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/criteria', [DashboardController::class, 'getCriteriaStatistic']);
         Route::get('/report', [DashboardController::class, 'getReportStatistic']);
+        Route::get('/orders', [DashboardController::class, 'getOrdersStatistic']);
         Route::get('/', [DashboardController::class, 'getStatistic']);
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
     });
@@ -143,6 +145,10 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/configs', [MenuRouterController::class, 'getConfigMenus']);
             Route::post('/save-configs', [MenuRouterController::class, 'saveConfigMenus']);
         });
+
+        Route::prefix('/customer-groups')->group(function () {
+            Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+        });
     });
 
     Route::prefix('sap')->group(function () {
@@ -206,10 +212,12 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('ai')->group(function () {
         Route::post('/extract-order', [AiController::class, 'extractOrder']);
         Route::prefix('config')->group(function () {
-            Route::get('/customer-groups/{id}', [AiController::class, 'getExtractOrderConfigs']);
+            Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
             Route::post('/extract', [AiController::class, 'extractDataForConfig']);
             Route::post('/convert', [AiController::class, 'convertToTableForConfig']);
+            Route::post('/', [AiController::class, 'createExtractOrderConfigs']);
             Route::post('/restructure', [AiController::class, 'restructureDataForConfig']);
+            Route::put('/{id}', [AiController::class, 'updateExtractOrderConfig']);
         });
     });
 });

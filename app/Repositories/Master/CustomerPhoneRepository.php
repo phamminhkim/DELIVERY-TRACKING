@@ -15,7 +15,7 @@ class CustomerPhoneRepository extends RepositoryAbs
             $query = CustomerPhone::query();
             $query->leftJoin('customers', 'customers.id', '=', 'customer_phones.customer_id')
                 ->select('customer_phones.*', 'customers.name as customer_name');
-            if($this->request->filled('search')){ 
+            if ($this->request->filled('search')) {
                 $query = $query->search($this->request->search);
                 $query->orWhereRaw("MATCH (customers.name, customers.code) AGAINST (? IN BOOLEAN MODE)", $query->fullTextWildcards($this->request->search));
             }
@@ -50,7 +50,7 @@ class CustomerPhoneRepository extends RepositoryAbs
                 // 'is_active.required' => 'Yêu cầu nhập trạng thái.',
                 'is_active.boolean' => 'Trạng thái phải là boolean.',
                 // 'is_receive_message.required' => 'Yêu cầu nhập trạng thái nhận tin nhắn.',
-                'is_receive_sms.boolean' => 'Trạng thái nhận tin nhắn phải là boolean.', 
+                'is_receive_sms.boolean' => 'Trạng thái nhận tin nhắn phải là boolean.',
             ]);
 
             if ($validator->fails()) {
@@ -73,8 +73,8 @@ class CustomerPhoneRepository extends RepositoryAbs
                     'phone_number' => $this->data['phone_number'],
                     'name' => $this->data['name'],
                     'description' => $this->data['description'],
-                    'is_active' => $this->data['is_active'],
-                    'is_receive_sms' => $this->data['is_receive_sms'],
+                    'is_active' => isset($this->data['is_active']) ? $this->data['is_active'] : true,
+                    'is_receive_sms' => isset($this->data['is_receive_message']) ? $this->data['is_receive_sms'] : false,
                 ]);
                 $customer = Customer::find($this->data['customer_id']);
                 $customer_phone['customer_name'] = $customer->name;

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Master\SapMaterial;
+use App\Repositories\Master\CustomerGroupRepository;
 use App\Repositories\Master\WarehouseRepository;
 use App\Repositories\Master\DeliveryPartnerRepository;
 use App\Repositories\Master\CompanyRepository;
@@ -79,5 +80,10 @@ class MasterRepository
     public static function orderReviewOptionRequest(Request $request)
     {
         return new OrderReviewOptionRepository($request);
+    }
+
+    public static function customerGroupRequest(Request $request)
+    {
+        return new CustomerGroupRepository($request);
     }
 }

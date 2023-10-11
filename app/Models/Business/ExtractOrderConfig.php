@@ -15,6 +15,7 @@ class ExtractOrderConfig extends Model
         'extract_data_config_id',
         'convert_table_config_id',
         'restructure_data_config_id',
+        'name'
     ];
 
     public function customer_group()

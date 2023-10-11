@@ -17,6 +17,6 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
             }
             $collection->push($output);
         }
-        return $collection;
+        return $collection->toArray();
     }
 }

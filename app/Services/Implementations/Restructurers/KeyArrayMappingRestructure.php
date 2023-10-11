@@ -8,6 +8,7 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
 {
     public function restructure($data, $options)
     {
+
         $structure = $options['structure'];
         $collection = collect([]);
         foreach ($data as $match) {
@@ -17,6 +18,6 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
             }
             $collection->push($output);
         }
-        return $collection;
+        return $collection->toArray();
     }
 }
