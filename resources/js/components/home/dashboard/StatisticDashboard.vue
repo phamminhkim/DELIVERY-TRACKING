@@ -73,7 +73,10 @@
 											undefined
 										"
 									>
-										<div class="nav-link">
+										<div
+											class="nav-link"
+											@click="onClickOrdersStatistic('pending_today_orders')"
+										>
 											<div class="col-lg-12 col-12">
 												<div class="small-box bg-danger">
 													<div class="inner">
@@ -98,7 +101,7 @@
 											dashboard_statistic.pending_orders_count !== undefined
 										"
 									>
-										<div class="nav-link">
+										<div class="nav-link" @click="">
 											<div class="col-lg-12 col-12">
 												<div class="small-box bg-danger">
 													<div class="inner">
@@ -758,6 +761,29 @@
 					});
 					this.order_by_criterias = data;
 					this.viewing_statistic = this.criteria_statistics[index].name;
+					$('#DialogOrderStatistic').modal('show');
+				} catch (error) {
+					console.log(error);
+				}
+			},
+			async onClickOrdersStatistic(statistic) {
+				try {
+					this.order_by_criterias = [];
+					this.viewing_statistic = '';
+					const { data } = await this.api_handler.get('api/dashboard/orders', {
+						month_year: this.filter_time ? this.filter_time : undefined,
+						delivery_partner_ids: this.filter_delivery_partner
+							? [this.filter_delivery_partner]
+							: undefined,
+						warehouse_ids: this.filter_warehouse ? [this.filter_warehouse] : undefined,
+						month_year: this.filter_time ? this.filter_time : undefined,
+						distribution_channel_ids: this.filter_distribution_channel
+							? [this.filter_distribution_channel]
+							: undefined,
+						order_statistics: [statistic],
+					});
+					this.order_by_criterias = data;
+					this.viewing_statistic = statistic;
 					$('#DialogOrderStatistic').modal('show');
 				} catch (error) {
 					console.log(error);
