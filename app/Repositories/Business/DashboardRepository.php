@@ -396,7 +396,7 @@ class DashboardRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getReportStatistic()
+    public function  getReportStatistic()
     {
         try {
             $query = Order::query()->where('sap_do_number', '!=', null);
@@ -445,8 +445,20 @@ class DashboardRepository extends RepositoryAbs
             }
             $query->with(['customer', 'detail', 'deliveries']);
             $orders = $query->get();
-            $public_holidays = PublicHoliday::all();
-            $orders->map(function ($order) use ($public_holidays) {
+            $public_holidays = PublicHoliday::query()->orderBy('start_holiday_date', 'asc')->get();
+            $public_holiday_tips = $public_holidays->reduce(function ($carry, $public_holiday) {
+                $carry[] = [
+                    "date" => Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh'),
+                    "is_start_date" => true
+                ];
+                $carry[] = [
+                    "date" => Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh'),
+                    "is_start_date" => false
+                ];
+                return $carry;
+            }, []);
+            $model_order_statuses = ModelOrderStatus::all();
+            $orders->each(function ($order) use ($model_order_statuses, $public_holiday_tips) {
                 $delivery = $order->deliveries->first();
                 if (!$delivery) {
                     $order->duration = 0;
@@ -458,25 +470,60 @@ class DashboardRepository extends RepositoryAbs
                     return $order;
                 }
                 $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+
+                $index_start_date = $this->indexIfInsertToDateArray($public_holiday_tips, $start_date);
+                $index_estimate_date = $this->indexIfInsertToDateArray($public_holiday_tips, $estimate_date);
                 $duration = $estimate_date->diffInDays($start_date) + 1;
-                //loop foreach between start_date and estimate_date
-                $looped_duration = $duration;
-                for ($i = 0; $i <= $looped_duration; $i++) {
-                    $date = $start_date->copy()->addDays($i);
-                    //check if date is public holiday
-                    $is_holiday = false;
-                    foreach ($public_holidays as $public_holiday) {
-                        $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
-                        $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
-                        if ($date->between($start_holiday_date, $end_holiday_date)) {
-                            $duration--;
-                            $is_holiday = true;
+                if ($index_start_date == $index_estimate_date) {
+                    $order->duration = 0;
+                } else {
+                    for ($i = $index_start_date; $i < $index_estimate_date; $i++) {
+                        if ($i == $index_start_date && !$public_holiday_tips[$i]['is_start_date']) {
+                            $duration -= $public_holiday_tips[$i]['date']->diffInDays($start_date) + 1;
+                            continue;
+                        }
+                        if ($i == $index_estimate_date - 1 && $public_holiday_tips[$i]['is_start_date']) {
+                            $duration -= $estimate_date->diffInDays($public_holiday_tips[$i]['date']) + 1;
+                            continue;
+                        }
+                        if ($public_holiday_tips[$i]['is_start_date']) {
+                            $duration -= $public_holiday_tips[$i]['date']->diffInDays($public_holiday_tips[$i + 1]['date']) + 1;
                         }
                     }
-                    if (!$is_holiday && $date->format('l') == 'Sunday') {
-                        $duration--;
-                    }
                 }
+
+                $number_of_sunday_but_no_holidays = 0;
+                while ($start_date <= $estimate_date) {
+                    if ($start_date->format('l') == 'Sunday') {
+                        $index = $this->indexIfInsertToDateArray($public_holiday_tips, $start_date) + 1;
+                        if ($index < count($public_holiday_tips) && !$public_holiday_tips[$index]['is_start_date']) {
+                            continue;
+                        }
+                        $number_of_sunday_but_no_holidays++;
+                    }
+                    $start_date->addDay(); // Move to the next day
+                }
+
+                $order->duration = $duration - $number_of_sunday_but_no_holidays;
+                // $duration = $estimate_date->diffInDays($start_date) + 1;
+                // //loop foreach between start_date and estimate_date
+                // $looped_duration = $duration;
+                // for ($i = 0; $i <= $looped_duration; $i++) {
+                //     $date = $start_date->copy()->addDays($i);
+                //     //check if date is public holiday
+                //     $is_holiday = false;
+                //     foreach ($public_holidays as $public_holiday) {
+                //         $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                //         $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
+                //         if ($date->between($start_holiday_date, $end_holiday_date)) {
+                //             $duration--;
+                //             $is_holiday = true;
+                //         }
+                //     }
+                //     if (!$is_holiday && $date->format('l') == 'Sunday') {
+                //         $duration--;
+                //     }
+                // }
                 $order->duration = $duration;
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = OrderStatus::Delivered;
@@ -508,7 +555,7 @@ class DashboardRepository extends RepositoryAbs
                     $delivery['is_late_deadline'] = false;
                 }
 
-                $delivery['status'] = ModelOrderStatus::find($delivery['status']);
+                $delivery['status'] = $model_order_statuses->find($delivery['status']);
                 return $delivery;
             });
 
@@ -517,6 +564,26 @@ class DashboardRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+
+    private function indexIfInsertToDateArray($array, $value)
+    {
+        $low = 0;
+        $high = count($array) - 1;
+
+        while ($low <= $high) {
+            $mid = $low + floor(($high - $low) / 2);
+
+            if ($array[$mid]['date']->lt($value)) {
+                $low = $mid + 1;
+            } else if ($array[$mid]['date']->gt($value)) {
+                $high = $mid - 1;
+            } else {
+                return $mid; // Element already exists in the array.
+            }
+        }
+
+        return $low; // Element should be inserted at this index.
     }
 
     public function createPublicHoliday()

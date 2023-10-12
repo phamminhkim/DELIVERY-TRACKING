@@ -276,7 +276,42 @@ class OrderRepository extends RepositoryAbs
             if ($is_minified) {
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
             } elseif ($is_expanded) {
-                $query->with(['company', 'customer', 'warehouse', 'delivery_info', 'detail', 'receiver', 'delivery_info.delivery.timelines', 'delivery_info.delivery.partner', 'approved', 'sale.distribution_channel', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $query->with([
+                    'company',
+                    'customer' => function ($query) {
+                        $query->select(['id', 'code', 'name']);
+                    },
+                    'warehouse' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'delivery_info' => function ($query) {
+                        $query->select(['id', 'order_id', 'delivery_id']);
+                    },
+                    'delivery_info.delivery' => function ($query) {
+                        $query->select(['id', 'start_delivery_date', 'complete_delivery_date', 'estimate_delivery_date', 'delivery_partner_id']);
+                    },
+                    'delivery_info.delivery.timelines',
+                    'delivery_info.delivery.partner' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'detail',
+                    'receiver' => function ($query) {
+                        $query->select(['id', 'receiver_name', 'order_id']);
+                    },
+                    'approved' => function ($query) {
+                        $query->select(['id', 'sap_so_finance_approval_date', 'sap_do_posting_date', 'order_id']);
+                    },
+                    'sale.distribution_channel' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'status',
+                    'customer_reviews' => function ($query) {
+                        $query->select(['id', 'review_content', 'user_id']);
+                    },
+                    'customer_reviews.criterias',
+                    'customer_reviews.user',
+                    'customer_reviews.images'
+                ]);
                 $orders = $query->get();
                 $public_holidays = PublicHoliday::all();
                 $orders->map(function ($order) use ($public_holidays) {

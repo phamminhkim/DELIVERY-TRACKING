@@ -101,7 +101,7 @@
 											dashboard_statistic.pending_orders_count !== undefined
 										"
 									>
-										<div class="nav-link" @click="">
+										<div class="nav-link">
 											<div class="col-lg-12 col-12">
 												<div class="small-box bg-danger">
 													<div class="inner">
