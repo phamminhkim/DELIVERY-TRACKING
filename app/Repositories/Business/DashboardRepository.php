@@ -138,7 +138,10 @@ class DashboardRepository extends RepositoryAbs
 
 
 
-            $pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
+            $pending_orders_query = Order::query()
+                ->where('status_id', '=', OrderStatus::Pending)
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year);
             if ($this->request->filled('customer_ids')) $pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
 
             if ($this->current_user->hasRole('admin-partner')) {
@@ -264,7 +267,7 @@ class DashboardRepository extends RepositoryAbs
             $received_orders = $received_orders_query->where('status_id', OrderStatus::Received)->get();
 
             $no_received_orders_query = clone $this_month_query;
-            $no_received_orders = $delivered_orders->diff($received_orders);   //$delivered_orders - $received_orders; 
+            $no_received_orders = $delivered_orders->diff($received_orders);   //$delivered_orders - $received_orders;
 
 
             $reviewed_orders_query = clone $this_month_query;
@@ -329,7 +332,6 @@ class DashboardRepository extends RepositoryAbs
                 }, []);
                 return $data;
             }
-
             return [];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
