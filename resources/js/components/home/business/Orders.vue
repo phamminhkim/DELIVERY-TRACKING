@@ -324,19 +324,19 @@
 						{{ data.value | formatDate }}
 					</template>
 
-					<template #cell(approved?.sap_so_finance_approval_date)="data">
+					<template #cell(approved.sap_so_finance_approval_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info?.delivery.start_delivery_date)="data">
+					<template #cell(delivery_info.delivery.start_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info?.delivery.estimate_delivery_date)="data">
+					<template #cell(delivery_info.delivery.estimate_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info?.delivery.complete_delivery_date)="data">
+					<template #cell(delivery_info.delivery.complete_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
-					<template #cell(delivery_info?.confirm_delivery_date)="data">
+					<template #cell(delivery_info.confirm_delivery_date)="data">
 						{{ data.value | formatDate }}
 					</template>
 				</b-table>
@@ -500,31 +500,31 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'approved?.sap_so_finance_approval_date',
+						key: 'approved.sap_so_finance_approval_date',
 						label: 'Ngày duyệt',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info?.delivery.start_delivery_date',
+						key: 'delivery_info.delivery.start_delivery_date',
 						label: 'Ngày đi giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info?.delivery.estimate_delivery_date',
+						key: 'delivery_info.delivery.estimate_delivery_date',
 						label: 'Ngày dự kiến giao',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info?.delivery.complete_delivery_date',
+						key: 'delivery_info.delivery.complete_delivery_date',
 						label: 'Ngày giao thực tế',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'delivery_info?.confirm_delivery_date',
+						key: 'delivery_info.confirm_delivery_date',
 						label: 'Ngày KH xác nhận',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -734,6 +734,7 @@
 			},
 			showInfoDialog(order) {
 				this.viewing_order = order;
+				console.log(this.viewing_order.approved?.sap_so_finance_approval_date);
 				$('#DialogOrderInfo').modal('show');
 			},
 			subtractDate(date, sub_date = 0, sub_month = 0, sub_year = 0) {
