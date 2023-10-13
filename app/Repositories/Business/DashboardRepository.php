@@ -28,11 +28,11 @@ class DashboardRepository extends RepositoryAbs
             list($month, $year) = explode('-', $month_year);
 
             $query = Order::query();
-            $pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
+            $base_pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
             // Lọc theo danh sách khách hàng (nếu có)
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('customer_id', $this->request->customer_ids);
-                $pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
+                $base_pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
             }
             // Lọc theo danh sách đối tác giao hàng (nếu có)
             if ($this->request->filled('delivery_partner_ids')) {
@@ -50,7 +50,7 @@ class DashboardRepository extends RepositoryAbs
 
             if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
-                $pending_orders_query->whereIn('warehouse_id', $this->request->warehouse_ids);
+                $base_pending_orders_query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
 
             if ($this->request->filled('distribution_channel_ids')) {
@@ -59,7 +59,7 @@ class DashboardRepository extends RepositoryAbs
                     $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                     // Thêm điều kiện lọc theo trạng thái hoạt động
                 });
-                $pending_orders_query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                $base_pending_orders_query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
                     $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                     // Thêm điều kiện lọc theo trạng thái hoạt động
                 });
@@ -121,13 +121,13 @@ class DashboardRepository extends RepositoryAbs
             $preparing_orders_query = (clone $this_month_query)
                 ->where('status_id', '=', OrderStatus::Preparing);
 
-            $clone_pending_orders_query = (clone $pending_orders_query)
+            $pending_orders_query = (clone $base_pending_orders_query)
                 ->whereHas('approved', function ($query) use ($month, $year) {
                     $query
                         ->whereMonth('sap_so_finance_approval_date', $month)
                         ->whereYear('sap_so_finance_approval_date', $year);
                 });
-            $pending_today_orders_query = (clone $pending_orders_query)
+            $pending_today_orders_query = (clone $base_pending_orders_query)
                 ->whereHas('approved', function ($query) {
                     $query->whereDate('sap_do_posting_date', '=', Carbon::today());
                 });
@@ -142,7 +142,7 @@ class DashboardRepository extends RepositoryAbs
                     'received_orders_count' => $received_orders_query->count(),
                     'reviewed_orders_count' => $reviewed_orders_query->count(),
                     'preparing_orders_count' => $preparing_orders_query->count(),
-                    'pending_orders_count' => $clone_pending_orders_query->count(),
+                    'pending_orders_count' => $pending_orders_query->count(),
                     'pending_today_orders_count' => $pending_today_orders_query->count(),
                     'no_received_orders_count' => $no_received_orders_query->count(),
                     'no_reviewed_orders_count' => $no_reviewed_orders_query->count(),
@@ -159,7 +159,7 @@ class DashboardRepository extends RepositoryAbs
                     'received_orders' => $received_orders_query,
                     'reviewed_orders' => $reviewed_orders_query,
                     'preparing_orders' => $preparing_orders_query,
-                    'pending_orders' => $clone_pending_orders_query,
+                    'pending_orders' => $pending_orders_query,
                     'pending_today_orders' => $pending_today_orders_query,
                     'no_received_orders' => $no_received_orders_query,
                     'no_reviewed_orders' => $no_reviewed_orders_query,
