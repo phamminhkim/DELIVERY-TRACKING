@@ -17,7 +17,7 @@ use App\Enums\OrderStatus;
 
 class DashboardRepository extends RepositoryAbs
 {
-    public function getDashboardStatistic()
+    public function getOrdersStatistic($is_get_dashboard = false)
     {
         try {
             if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
@@ -28,13 +28,17 @@ class DashboardRepository extends RepositoryAbs
             list($month, $year) = explode('-', $month_year);
 
             $query = Order::query();
+            $pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
             // Lọc theo danh sách khách hàng (nếu có)
-            if ($this->request->filled('customer_ids')) $query->whereIn('customer_id', $this->request->customer_ids);
+            if ($this->request->filled('customer_ids')) {
+                $query->whereIn('customer_id', $this->request->customer_ids);
+                $pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
+            }
             // Lọc theo danh sách đối tác giao hàng (nếu có)
             if ($this->request->filled('delivery_partner_ids')) {
                 $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
                     // Lọc theo danh sách đối tác giao hàng (nếu có)
-                    if ($this->request->filled('delivery_partner_ids'))  $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+                    $query->whereIn('delivery_partner_id', $delivery_partner_ids);
                 });
             }
             if ($this->current_user->hasRole('admin-partner')) {
@@ -46,11 +50,16 @@ class DashboardRepository extends RepositoryAbs
 
             if ($this->request->filled('warehouse_ids')) {
                 $query->whereIn('warehouse_id', $this->request->warehouse_ids);
+                $pending_orders_query->whereIn('warehouse_id', $this->request->warehouse_ids);
             }
 
             if ($this->request->filled('distribution_channel_ids')) {
                 $distribution_channel_ids = $this->request->distribution_channel_ids;
                 $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+                    // Thêm điều kiện lọc theo trạng thái hoạt động
+                });
+                $pending_orders_query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
                     $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                     // Thêm điều kiện lọc theo trạng thái hoạt động
                 });
@@ -76,268 +85,120 @@ class DashboardRepository extends RepositoryAbs
                 $query->whereMonth('sap_so_finance_approval_date', $last_month)->whereYear('sap_so_finance_approval_date', $last_year);
             });
 
-            $delivering_orders_count_query = clone $this_month_query;
-            $delivering_orders_count = $delivering_orders_count_query->where('status_id', '=', OrderStatus::Delivering)->count();
+            $delivering_orders_query = (clone $this_month_query)
+                ->where('status_id', '=', OrderStatus::Delivering);
 
-            $late_orders_count_query = clone $this_month_query;
-            $late_orders_count = $late_orders_count_query->where('status_id', '=', OrderStatus::Delivering)
-                ->where('status_id', '<', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($late_orders_count_query) {
-                    $late_orders_count_query->whereDate('estimate_delivery_date', '<', Carbon::today());
-                })->count();
-
-            $ontime_orders_count_query = clone $this_month_query;
-            $ontime_orders_count = $ontime_orders_count_query->where('status_id', '>=', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($ontime_orders_count_query) {
-                    $ontime_orders_count_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
-                })
-                ->count();
-
-            $delivered_orders_count_query = clone $this_month_query;
-            $delivered_orders_count = $delivered_orders_count_query
-                ->where('status_id', '>=', OrderStatus::Delivered)
-                ->count();
-
-            $received_orders_count_query = clone $this_month_query;
-            $received_orders_count = $received_orders_count_query->where('status_id', OrderStatus::Received)->count();
-
-            $no_received_orders_count_query = clone $this_month_query;
-            $no_received_orders_count = $delivered_orders_count - $received_orders_count;
-
-            $reviewed_orders_count_query = clone $this_month_query;
-            $reviewed_orders_count = $reviewed_orders_count_query->where('status_id', OrderStatus::Received)
-                ->whereHas('customer_reviews')->count();
-
-            $no_reviewed_orders_count_query = clone $this_month_query;
-            $no_reviewed_orders_count = $no_reviewed_orders_count_query->where('status_id', OrderStatus::Received)
-                ->whereDoesntHave('customer_reviews')->count();
-
-
-            // Last month's data
-            $late_orders_count_last_month_query = clone $last_month_query;
-            $late_orders_count_last_month = $late_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Preparing)
-                ->where('status_id', '<', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($late_orders_count_last_month_query) {
-                    $late_orders_count_last_month_query->whereDate('estimate_delivery_date', '<', Carbon::today());
-                })->count();
-
-            $ontime_orders_count_last_month_query = clone $last_month_query;
-            $ontime_orders_count_last_month = $ontime_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Delivered)
-                ->whereHas('deliveries', function ($ontime_orders_count_last_month_query) {
-                    $ontime_orders_count_last_month_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
-                })->count();
-
-            // Calculate percentage changes
-            $late_orders_percentage_change = ($late_orders_count_last_month != 0) ? (($late_orders_count - $late_orders_count_last_month) / $late_orders_count_last_month) * 100 : 0;
-            $ontime_orders_percentage_change = ($ontime_orders_count_last_month != 0) ? (($ontime_orders_count - $ontime_orders_count_last_month) / $ontime_orders_count_last_month) * 100 : 0;
-
-            $preparing_orders_query = clone $this_month_query;
-            $preparing_orders_count = $preparing_orders_query
-                ->where('status_id', '=', OrderStatus::Preparing)
-                ->count();
-
-
-
-            $pending_orders_query = Order::query()
-                ->where('status_id', '=', OrderStatus::Pending)
-                ->whereMonth('created_at', $month)
-                ->whereYear('created_at', $year);
-            if ($this->request->filled('customer_ids')) $pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
-
-            if ($this->current_user->hasRole('admin-partner')) {
-                $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
-                $pending_orders_query->whereHas('deliveries', function ($query) use ($partner_ids) {
-                    $query->whereIn('id', $partner_ids);
-                });
-            }
-
-            if ($this->request->filled('warehouse_ids')) {
-                $pending_orders_query->whereIn('warehouse_id', $this->request->warehouse_ids);
-            }
-
-            if ($this->request->filled('distribution_channel_ids')) {
-                $distribution_channel_ids = $this->request->distribution_channel_ids;
-                $pending_orders_query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
-                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
-                    // Thêm điều kiện lọc theo trạng thái hoạt động
-                });
-            }
-
-            $pending_orders_count = $pending_orders_query->count();
-
-            $pending_today_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
-            $pending_today_orders_query->whereHas('approved', function ($query) {
-                $query->whereDate('sap_do_posting_date', '=', Carbon::today());
-            });
-            $pending_today_orders_count = $pending_today_orders_query->count();
-
-
-            $data = array(
-                'delivering_orders_count' => $delivering_orders_count,
-                'late_orders_count' => $late_orders_count,
-                'ontime_orders_count' => $ontime_orders_count,
-                'delivered_orders_count' => $delivered_orders_count,
-                // 'confirmed_orders_count' => $confirmed_orders_count,
-                'received_orders_count' => $received_orders_count,
-                'reviewed_orders_count' => $reviewed_orders_count,
-                // 'late_orders_percentage_change' => $late_orders_percentage_change,
-                // 'ontime_orders_percentage_change' => $ontime_orders_percentage_change,
-                'pending_today_orders_count' => $pending_today_orders_count,
-                'pending_orders_count' => $pending_orders_count,
-                'preparing_orders_count' => $preparing_orders_count,
-                'no_received_orders_count' => $no_received_orders_count,
-                'no_reviewed_orders_count' => $no_reviewed_orders_count,
-
-            );
-            return $data;
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
-        }
-    }
-
-    public function getOrdersStatistic()
-    {
-        try {
-            if (!$this->current_user->hasRole(['admin-system', 'admin-warehouse', 'admin-partner'])) {
-                return collect([]);
-            }
-            $delivery_partner_ids = $this->request->filled('delivery_partner_ids') ? $this->request->delivery_partner_ids : [];
-            $month_year = $this->request->month_year;
-            list($month, $year) = explode('-', $month_year);
-
-            $query = Order::query();
-            // Lọc theo danh sách khách hàng (nếu có)
-            if ($this->request->filled('customer_ids')) $query->whereIn('customer_id', $this->request->customer_ids);
-            // Lọc theo danh sách đối tác giao hàng (nếu có)
-            if ($this->request->filled('delivery_partner_ids')) {
-                $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
-                    // Lọc theo danh sách đối tác giao hàng (nếu có)
-                    if ($this->request->filled('delivery_partner_ids'))  $query->whereIn('delivery_partner_id', $delivery_partner_ids);
-                });
-            }
-            if ($this->current_user->hasRole('admin-partner')) {
-                $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
-                $query->whereHas('deliveries', function ($query) use ($partner_ids) {
-                    $query->whereIn('id', $partner_ids);
-                });
-            }
-
-            if ($this->request->filled('warehouse_ids')) {
-                $query->whereIn('warehouse_id', $this->request->warehouse_ids);
-            }
-
-            if ($this->request->filled('distribution_channel_ids')) {
-                $distribution_channel_ids = $this->request->distribution_channel_ids;
-                $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
-                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
-                    // Thêm điều kiện lọc theo trạng thái hoạt động
-                });
-            }
-
-            $this_month_query = clone $query;
-            $this_month_query->whereHas('approved', function ($query) use ($month, $year) {
-                // Lọc theo tháng năm (nếu có)
-                $query->whereMonth('sap_so_finance_approval_date', $month)->whereYear('sap_so_finance_approval_date', $year);
-            });
-
-            $delivering_orders_query = clone $this_month_query;
-            $delivering_orders = $delivering_orders_query->where('status_id', '=', OrderStatus::Delivering)->get();
-
-            $late_orders_query = clone $this_month_query;
-            $late_orders = $late_orders_query->where('status_id', '=', OrderStatus::Delivering)
+            $late_orders_query = (clone $this_month_query)
+                ->where('status_id', '=', OrderStatus::Delivering)
                 ->where('status_id', '<', OrderStatus::Delivered)
                 ->whereHas('deliveries', function ($late_orders_query) {
                     $late_orders_query->whereDate('estimate_delivery_date', '<', Carbon::today());
-                })->get();
+                });
 
-            $ontime_orders_query = clone $this_month_query;
-            $ontime_orders = $ontime_orders_query->where('status_id', '>=', OrderStatus::Delivered)
+            $ontime_orders_query = (clone $this_month_query)
+                ->where('status_id', '>=', OrderStatus::Delivered)
                 ->whereHas('deliveries', function ($ontime_orders_query) {
                     $ontime_orders_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
-                })
-                ->get();
-
-            $delivered_orders_query = clone $this_month_query;
-            $delivered_orders = $delivered_orders_query
-                ->where('status_id', '>=', OrderStatus::Delivered)
-                ->get();
-
-            $received_orders_query = clone $this_month_query;
-            $received_orders = $received_orders_query->where('status_id', OrderStatus::Received)->get();
-
-            $no_received_orders_query = clone $this_month_query;
-            $no_received_orders = $delivered_orders->diff($received_orders);   //$delivered_orders - $received_orders;
-
-
-            $reviewed_orders_query = clone $this_month_query;
-            $reviewed_orders = $reviewed_orders_query->where('status_id', OrderStatus::Received)
-                ->whereHas('customer_reviews')->get();
-
-            $no_reviewed_orders_query = clone $this_month_query;
-            $no_reviewed_orders = $no_reviewed_orders_query->where('status_id', OrderStatus::Received)
-                ->whereDoesntHave('customer_reviews')->get();
-
-            $preparing_orders_query = clone $this_month_query;
-            $preparing_orders = $preparing_orders_query
-                ->where('status_id', '=', OrderStatus::Preparing)
-                ->get();
-
-            $pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
-            if ($this->request->filled('customer_ids')) $pending_orders_query->whereIn('customer_id', $this->request->customer_ids);
-
-            if ($this->current_user->hasRole('admin-partner')) {
-                $partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
-                $pending_orders_query->whereHas('deliveries', function ($query) use ($partner_ids) {
-                    $query->whereIn('id', $partner_ids);
                 });
-            }
 
-            if ($this->request->filled('warehouse_ids')) {
-                $pending_orders_query->whereIn('warehouse_id', $this->request->warehouse_ids);
-            }
+            $delivered_orders_query = (clone $this_month_query)
+                ->where('status_id', '>=', OrderStatus::Delivered);
 
-            if ($this->request->filled('distribution_channel_ids')) {
-                $distribution_channel_ids = $this->request->distribution_channel_ids;
-                $pending_orders_query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
-                    $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+            $received_orders_query = (clone $this_month_query)
+                ->where('status_id', OrderStatus::Received);
+
+            $no_received_orders_query = (clone $this_month_query)
+                ->where('status_id', OrderStatus::Delivered);
+
+            $reviewed_orders_query = (clone $this_month_query)
+                ->where('status_id', OrderStatus::Received)
+                ->whereHas('customer_reviews');
+
+            $no_reviewed_orders_query = (clone $this_month_query)
+                ->where('status_id', OrderStatus::Received)
+                ->whereDoesntHave('customer_reviews');
+
+            $preparing_orders_query = (clone $this_month_query)
+                ->where('status_id', '=', OrderStatus::Preparing);
+
+            $clone_pending_orders_query = (clone $pending_orders_query)
+                ->whereHas('approved', function ($query) use ($month, $year) {
+                    $query
+                        ->whereMonth('sap_so_finance_approval_date', $month)
+                        ->whereYear('sap_so_finance_approval_date', $year);
                 });
+            $pending_today_orders_query = (clone $pending_orders_query)
+                ->whereHas('approved', function ($query) {
+                    $query->whereDate('sap_do_posting_date', '=', Carbon::today());
+                });
+
+            $data = [];
+            if ($is_get_dashboard) {
+                $data = [
+                    'delivering_orders_count' => $delivering_orders_query->count(),
+                    'late_orders_count' => $late_orders_query->count(),
+                    'ontime_orders_count' => $ontime_orders_query->count(),
+                    'delivered_orders_count' => $delivered_orders_query->count(),
+                    'received_orders_count' => $received_orders_query->count(),
+                    'reviewed_orders_count' => $reviewed_orders_query->count(),
+                    'preparing_orders_count' => $preparing_orders_query->count(),
+                    'pending_orders_count' => $clone_pending_orders_query->count(),
+                    'pending_today_orders_count' => $pending_today_orders_query->count(),
+                    'no_received_orders_count' => $no_received_orders_query->count(),
+                    'no_reviewed_orders_count' => $no_reviewed_orders_query->count(),
+                ];
             }
 
-            $pending_orders = $pending_orders_query->get();
-
-            $pending_today_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
-            $pending_today_orders_query->whereHas('approved', function ($query) {
-                $query->whereDate('sap_do_posting_date', '=', Carbon::today());
-            });
-            $pending_today_orders = $pending_today_orders_query->get();
-
-
+            $order_statistics_data = [];
             if ($this->request->filled('order_statistics')) {
                 $key_return_fields_mapping = array(
-                    'delivering_orders' => $delivering_orders,
-                    'late_orders' => $late_orders,
-                    'ontime_orders' => $ontime_orders,
-                    'delivered_orders' => $delivered_orders,
-                    'received_orders' => $received_orders,
-                    'reviewed_orders' => $reviewed_orders,
-                    'preparing_orders' => $preparing_orders,
-                    'pending_orders' => $pending_orders,
-                    'pending_today_orders' => $pending_today_orders,
-                    'no_received_orders' => $no_received_orders,
-                    'no_reviewed_orders' => $no_reviewed_orders,
+                    'delivering_orders' => $delivering_orders_query,
+                    'late_orders' => $late_orders_query,
+                    'ontime_orders' => $ontime_orders_query,
+                    'delivered_orders' => $delivered_orders_query,
+                    'received_orders' => $received_orders_query,
+                    'reviewed_orders' => $reviewed_orders_query,
+                    'preparing_orders' => $preparing_orders_query,
+                    'pending_orders' => $clone_pending_orders_query,
+                    'pending_today_orders' => $pending_today_orders_query,
+                    'no_received_orders' => $no_received_orders_query,
+                    'no_reviewed_orders' => $no_reviewed_orders_query,
                 );
-                $data = array_reduce($this->request->order_statistics, function ($carry, $key) use ($key_return_fields_mapping) {
-                    return array_merge($carry, [$key => $key_return_fields_mapping[$key]]);
+                $order_statistics_data = array_reduce($this->request->order_statistics, function ($carry, $key) use ($key_return_fields_mapping) {
+                    return array_merge($carry, [$key => $key_return_fields_mapping[$key]->get()]);
                 }, []);
-                return $data;
             }
-            return [];
+            $data = array_merge($data, $order_statistics_data);
+            return $data;
+
+            // Last month's data
+            // $late_orders_count_last_month_query = clone $last_month_query;
+            // $late_orders_count_last_month = $late_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Preparing)
+            //     ->where('status_id', '<', OrderStatus::Delivered)
+            //     ->whereHas('deliveries', function ($late_orders_count_last_month_query) {
+            //         $late_orders_count_last_month_query->whereDate('estimate_delivery_date', '<', Carbon::today());
+            //     })->count();
+
+            // $ontime_orders_count_last_month_query = clone $last_month_query;
+            // $ontime_orders_count_last_month = $ontime_orders_count_last_month_query->where('status_id', '>=', OrderStatus::Delivered)
+            //     ->whereHas('deliveries', function ($ontime_orders_count_last_month_query) {
+            //         $ontime_orders_count_last_month_query->whereDate('estimate_delivery_date', '>=', 'confirm_delivery_date');
+            //     })->count();
+
+            // // Calculate percentage changes
+            // $late_orders_percentage_change = ($late_orders_count_last_month != 0) ? (($late_orders_count - $late_orders_count_last_month) / $late_orders_count_last_month) * 100 : 0;
+            // $ontime_orders_percentage_change = ($ontime_orders_count_last_month != 0) ? (($ontime_orders_count - $ontime_orders_count_last_month) / $ontime_orders_count_last_month) * 100 : 0;
+
+            // $preparing_orders_query = clone $this_month_query;
+            // $preparing_orders_count = $preparing_orders_query
+            //     ->where('status_id', '=', OrderStatus::Preparing)
+            //     ->count();
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
+
     public function getCriteriaStatistic()
     {
         try {
@@ -543,11 +404,9 @@ class DashboardRepository extends RepositoryAbs
                     }
                     $start_date->addDay(); // Move to the next day
                 }
-                // dd($start_date, $estimate_date, $duration, $number_of_sunday_but_no_holidays);
 
                 $order->duration = $duration - $number_of_sunday_but_no_holidays;
                 $cache_durations[$delivery->id] = $order->duration;
-
 
                 return $order;
             });

@@ -233,7 +233,7 @@
 							{{ formatAddress(data.item.detail?.delivery_address) }}
 						</template>
 						<template #cell(is_late_deadline)="data">
-							<span v-if="data.item.deliveries[0].is_late_deadline">2</span>
+							<span v-if="data.item.deliveries[0]?.is_late_deadline">2</span>
 							<span v-else>1</span>
 						</template>
 					</b-table>

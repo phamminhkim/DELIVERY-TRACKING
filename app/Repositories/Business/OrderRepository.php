@@ -411,7 +411,6 @@ class OrderRepository extends RepositoryAbs
                         }
                         $start_date->addDay(); // Move to the next day
                     }
-                    // dd($start_date, $estimate_date, $duration, $number_of_sunday_but_no_holidays);
 
                     $order->duration = $duration - $number_of_sunday_but_no_holidays;
                     $cache_durations[$delivery->id] = $order->duration;
