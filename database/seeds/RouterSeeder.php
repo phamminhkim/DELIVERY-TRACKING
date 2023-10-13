@@ -50,6 +50,11 @@ class RouterSeeder extends Seeder
                 'path' => '/order-extract-configs',
                 'component' => 'home/business/OrderExtractConfigs'
             ],
+            [
+                'name' => 'Upload đơn hàng',
+                'path' => '/order-uploads',
+                'component' => 'home/business/OrderUploads'
+            ],
 
             // Master Data
             [

@@ -276,45 +276,63 @@ class OrderRepository extends RepositoryAbs
             if ($is_minified) {
                 $orders = $query->select(['orders.id', 'sap_so_number', 'sap_do_number'])->get();
             } elseif ($is_expanded) {
-                $query->with(['company', 'customer', 'warehouse', 'delivery_info', 'detail', 'receiver', 'delivery_info.delivery.timelines', 'delivery_info.delivery.partner', 'approved', 'sale.distribution_channel', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                $query->with([
+                    'company',
+                    'customer' => function ($query) {
+                        $query->select(['id', 'code', 'name']);
+                    },
+                    'warehouse' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'delivery_info' => function ($query) {
+                        $query->select(['id', 'order_id', 'delivery_id']);
+                    },
+                    'delivery_info.delivery' => function ($query) {
+                        $query->select(['id', 'start_delivery_date', 'complete_delivery_date', 'estimate_delivery_date', 'delivery_partner_id']);
+                    },
+                    'delivery_info.delivery.timelines',
+                    'delivery_info.delivery.partner' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'detail',
+                    'receiver' => function ($query) {
+                        $query->select(['id', 'receiver_name', 'order_id']);
+                    },
+                    'approved' => function ($query) {
+                        $query->select(['id', 'sap_so_finance_approval_date', 'sap_do_posting_date', 'order_id']);
+                    },
+                    'sale.distribution_channel' => function ($query) {
+                        $query->select(['id', 'name']);
+                    },
+                    'status',
+                    'customer_reviews' => function ($query) {
+                        $query->select(['id', 'review_content', 'user_id']);
+                    },
+                    'customer_reviews.criterias',
+                    'customer_reviews.user',
+                    'customer_reviews.images'
+                ]);
                 $orders = $query->get();
-                $public_holidays = PublicHoliday::all();
-                $orders->map(function ($order) use ($public_holidays) {
-                    if (isset($order->delivery_info)) {
-                        $delivery = $order->delivery_info->delivery;
-                    } else {
-                        $delivery = null;
-                    }
+                $public_holidays = PublicHoliday::query()->orderBy('start_holiday_date', 'asc')->get();
+                $public_holiday_tips = $public_holidays->reduce(function ($carry, $public_holiday) {
+                    $carry[] = [
+                        "date" => Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh'),
+                        "is_start_date" => true
+                    ];
+                    $carry[] = [
+                        "date" => Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh'),
+                        "is_start_date" => false
+                    ];
+                    return $carry;
+                }, []);
+                $model_order_statuses = OrderStatus::all();
+                $cache_durations = [];
+                $orders->each(function ($order) use ($model_order_statuses, $public_holiday_tips, $cache_durations) {
+                    $delivery = $order->deliveries->first();
                     if (!$delivery) {
                         $order->duration = 0;
                         return $order;
                     }
-                    $start_date = Carbon::parse($delivery->start_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
-                    if (!$delivery->estimate_delivery_date) {
-                        $order->duration = 0;
-                        return $order;
-                    }
-                    $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
-                    $duration = $estimate_date->diffInDays($start_date) + 1;
-                    //loop foreach between start_date and estimate_date
-                    $looped_duration = $duration;
-                    for ($i = 0; $i <= $looped_duration; $i++) {
-                        $date = $start_date->copy()->addDays($i);
-                        //check if date is public holiday
-                        $is_holiday = false;
-                        foreach ($public_holidays as $public_holiday) {
-                            $start_holiday_date = Carbon::parse($public_holiday->start_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
-                            $end_holiday_date = Carbon::parse($public_holiday->end_holiday_date)->setTimezone('Asia/Ho_Chi_Minh');
-                            if ($date->between($start_holiday_date, $end_holiday_date)) {
-                                $duration--;
-                                $is_holiday = true;
-                            }
-                        }
-                        if (!$is_holiday && $date->format('l') == 'Sunday') {
-                            $duration--;
-                        }
-                    }
-                    $order->duration = $duration;
                     if ($delivery->complete_delivery_date) {
                         $delivery['status'] = EnumsOrderStatus::Delivered;
                     } else if ($delivery->start_delivery_date) {
@@ -345,8 +363,60 @@ class OrderRepository extends RepositoryAbs
                         $delivery['is_late_deadline'] = false;
                     }
 
-                    $delivery['status'] = OrderStatus::find($delivery['status']);
-                    return $delivery;
+                    $delivery['status'] = $model_order_statuses->find($delivery['status']);
+
+
+                    if (isset($cache_durations[$delivery->id])) {
+                        $order->duration = $cache_durations[$delivery->id];
+                        return $order;
+                    }
+
+                    $start_date = Carbon::parse($delivery->start_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+                    if (!$delivery->estimate_delivery_date) {
+                        $order->duration = 0;
+                        return $order;
+                    }
+                    $estimate_date = Carbon::parse($delivery->estimate_delivery_date)->setTimezone('Asia/Ho_Chi_Minh');
+
+                    $index_start_date = $this->indexIfInsertToDateArray($public_holiday_tips, $start_date);
+                    $index_estimate_date = $this->indexIfInsertToDateArray($public_holiday_tips, $estimate_date);
+                    $duration = $estimate_date->diffInDays($start_date);
+                    if ($index_start_date == $index_estimate_date) {
+                        $order->duration = 0;
+                    } else {
+                        for ($i = $index_start_date; $i < $index_estimate_date; $i++) {
+                            if ($i == $index_start_date && !$public_holiday_tips[$i]['is_start_date']) {
+                                $duration -= $public_holiday_tips[$i]['date']->diffInDays($start_date) + 1;
+                                continue;
+                            }
+                            if ($i == $index_estimate_date - 1 && $public_holiday_tips[$i]['is_start_date']) {
+                                $duration -= $estimate_date->diffInDays($public_holiday_tips[$i]['date']) + 1;
+                                continue;
+                            }
+                            if ($public_holiday_tips[$i]['is_start_date']) {
+                                $duration -= $public_holiday_tips[$i]['date']->diffInDays($public_holiday_tips[$i + 1]['date']) + 1;
+                            }
+                        }
+                    }
+
+                    $number_of_sunday_but_no_holidays = 0;
+                    while ($start_date <= $estimate_date) {
+                        if ($start_date->format('l') == 'Sunday') {
+                            $index = $this->indexIfInsertToDateArray($public_holiday_tips, $start_date);
+                            if ($index < count($public_holiday_tips) && !$public_holiday_tips[$index]['is_start_date']) {
+                                $start_date->addDay(); // Move to the next day
+                                continue;
+                            }
+                            $number_of_sunday_but_no_holidays++;
+                        }
+                        $start_date->addDay(); // Move to the next day
+                    }
+
+                    $order->duration = $duration - $number_of_sunday_but_no_holidays;
+                    $cache_durations[$delivery->id] = $order->duration;
+
+
+                    return $order;
                 });
             } else {
                 $orders = $query
@@ -360,7 +430,25 @@ class OrderRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    private function indexIfInsertToDateArray($array, $value)
+    {
+        $low = 0;
+        $high = count($array) - 1;
 
+        while ($low <= $high) {
+            $mid = $low + floor(($high - $low) / 2);
+
+            if ($array[$mid]['date']->lt($value)) {
+                $low = $mid + 1;
+            } else if ($array[$mid]['date']->gt($value)) {
+                $high = $mid - 1;
+            } else {
+                return $mid; // Element already exists in the array.
+            }
+        }
+
+        return $low; // Element should be inserted at this index.
+    }
     public function getOrdersByCustomer()
     {
         try {

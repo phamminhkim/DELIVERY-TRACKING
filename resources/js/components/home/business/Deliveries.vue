@@ -102,6 +102,24 @@
 								</div>
 							</div>
 
+                            <div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Kho hàng</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn kho hàng.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.warehouses"
+										:options="warehouse_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+
 							<div class="form-group row">
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
@@ -114,6 +132,70 @@
 										v-model="form_filter.sap_so_number"
 										placeholder="Nhập SO.."
 										class="form-control"
+									/>
+								</div>
+                                <label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+									for=""
+									>DO</label
+								>
+								<div class="col-sm-4">
+									<input
+										type="text"
+										v-model="form_filter.sap_do_number"
+										placeholder="Nhập DO.."
+										class="form-control"
+									/>
+								</div>
+							</div>
+                            <div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Kênh</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn kênh.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.distribution_channels"
+										:options="distribution_channel_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Nhà vận chuyển</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn nhà vận chuyển.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.delivery_partners"
+										:options="delivery_partner_options"
+										:normalizer="normalizerOption"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Đánh giá</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										placeholder="Chọn đánh giá.."
+										:multiple="true"
+										:disable-branch-nodes="false"
+										v-model="form_filter.order_review_options"
+										:options="order_review_option_options"
+										:normalizer="normalizerOption"
 									/>
 								</div>
 							</div>
@@ -261,6 +343,9 @@
 						<b-form-checkbox class="ml-1" :value="data.item.id" v-model="selected_ids">
 						</b-form-checkbox>
 					</template>
+                    <template #cell(province)="data"
+						>{{ formatAddress(data.item.address) }}
+					</template>
 					<template #cell(index)="data">
 						{{
 							data.index +
@@ -362,9 +447,19 @@
 					end_date: '',
 					statuses: [],
 					customers: [],
+                    warehouses: [],
 					sap_so_number: undefined,
+                    sap_do_number: undefined,
+					distribution_channels: [],
+					delivery_partners: [],
+					order_review_options: [],
+					filter: [],
 				},
 				customer_options: [],
+                warehouse_options: [],
+				distribution_channel_options: [],
+				delivery_partner_options: [],
+				order_review_option_options: [],
 
 				order_statuses: [
 					{ id: 10, label: 'Đang xử lí đơn hàng' },
@@ -431,7 +526,7 @@
 						key: 'delivery_code',
 						label: 'Mã vận đơn',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'status',
@@ -443,25 +538,31 @@
 						key: 'estimate_delivery_date',
 						label: 'Thời hạn giao hàng',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'customer.name',
 						label: 'Khách hàng',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
+					},
+                    {
+						key: 'province',
+						label: 'Tỉnh/Thành',
+						sortable: true,
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'partner.name',
 						label: 'Đơn vị vận chuyển',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'created_at',
 						label: 'Ngày tạo vận đơn',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'start_delivery_date',
@@ -479,7 +580,7 @@
 						key: 'address',
 						label: 'Địa chỉ giao hàng',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					// {
 					// 	key: 'action',
@@ -498,7 +599,7 @@
 			this.fetchPrintQRConfigOptions();
 			this.form_filter.start_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0));
 			this.form_filter.end_date = this.formatDate(new Date());
-			await Promise.all([this.fetchData()]);
+			await Promise.all([this.fetchData(), this.fetchFilterOptions()]);
 		},
 		watch: {
 			'$route.query': {
@@ -543,7 +644,12 @@
 
 							status_ids: this.form_filter.statuses,
 							customer_ids: this.form_filter.customers,
+							warehouse_ids: this.form_filter.warehouses,
 							sap_so_number: this.form_filter.sap_so_number,
+							sap_do_number: this.form_filter.sap_do_number,
+							distribution_channel_ids: this.form_filter.distribution_channels,
+							delivery_partner_ids: this.form_filter.delivery_partners,
+							order_review_option_ids: this.form_filter.order_review_options,
 						}),
 					]);
 					this.deliveries = deliveries;
@@ -551,6 +657,27 @@
 					this.$showMessage('error', 'Lỗi', error.message);
 				} finally {
 					this.is_loading = false;
+				}
+			},
+            async fetchFilterOptions() {
+				try {
+					const [
+						warehouses,
+						distribution_channels,
+						delivery_partners,
+						order_review_options,
+					] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', 'api/master/warehouses/minified'),
+						new APIRequest('get', 'api/master/distribution-channels'),
+						new APIRequest('get', 'api/master/delivery-partners'),
+						new APIRequest('get', 'api/master/order-review-options'),
+					]);
+					this.warehouse_options = warehouses;
+					this.distribution_channel_options = distribution_channels;
+					this.delivery_partner_options = delivery_partners;
+					this.order_review_option_options = order_review_options;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
 				}
 			},
 			async filterData() {
@@ -563,7 +690,12 @@
 						to_date: this.form_filter.end_date,
 						status_ids: this.form_filter.statuses,
 						customer_ids: this.form_filter.customers,
+						warehouse_ids: this.form_filter.warehouses,
 						sap_so_number: this.form_filter.sap_so_number,
+						sap_do_number: this.form_filter.sap_do_number,
+						distribution_channel_ids: this.form_filter.distribution_channels,
+						delivery_partner_ids: this.form_filter.delivery_partners,
+						order_review_option_ids: this.form_filter.order_review_options,
 					});
 					this.deliveries = data;
 				} catch (error) {
@@ -583,7 +715,12 @@
 					this.form_filter.end_date = this.formatDate(new Date());
 					this.form_filter.statuses = [];
 					this.form_filter.customers = [];
+					this.form_filter.warehouses = [];
 					this.form_filter.sap_so_number = undefined;
+					this.form_filter.sap_do_number = undefined;
+					this.form_filter.distribution_channels = [];
+					this.form_filter.delivery_partners = [];
+					this.form_filter.order_review_options = [];
 
 					await this.fetchData();
 				} catch (error) {
@@ -701,6 +838,11 @@
 				if (day.length < 2) day = '0' + day;
 
 				return [year, month, day].join('-');
+			},
+            formatAddress(address) {
+				if (!address) return '';
+				const addr_arr = address.split(',');
+				return [addr_arr[addr_arr.length - 2], addr_arr[addr_arr.length - 1]].join(', ');
 			},
 			selectAll() {
 				this.selected_ids = [];

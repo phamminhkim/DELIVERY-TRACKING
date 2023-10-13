@@ -160,10 +160,10 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản lí đơn hàng',
             ],
             [
-                'title' => "Tất cả",
+                'title' => "Đang vận chuyển",
                 'icon' => "nav-icon",
                 'link' => "orders",
-                'query_string' => "filter=all",
+                'query_string' => "filter=delivering",
                 'parent' => 'Quản lí đơn hàng',
             ],
             [
@@ -173,18 +173,19 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "filter=undone",
                 'parent' => 'Quản lí đơn hàng',
             ],
-            [
-                'title' => "Đang vận chuyển",
-                'icon' => "nav-icon",
-                'link' => "orders",
-                'query_string' => "filter=delivering",
-                'parent' => 'Quản lí đơn hàng',
-            ],
+
             [
                 'title' => "Tất cả",
                 'icon' => "nav-icon",
-                'link' => "deliveries",
+                'link' => "orders",
                 'query_string' => "filter=all",
+                'parent' => 'Quản lí đơn hàng',
+            ],
+            [
+                'title' => "Đang vận chuyển",
+                'icon' => "nav-icon",
+                'link' => "deliveries",
+                'query_string' => "filter=delivering",
                 'parent' => 'Quản lí vận đơn',
             ],
             [
@@ -194,11 +195,12 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "filter=undone",
                 'parent' => 'Quản lí vận đơn',
             ],
+
             [
-                'title' => "Đang vận chuyển",
+                'title' => "Tất cả",
                 'icon' => "nav-icon",
                 'link' => "deliveries",
-                'query_string' => "filter=delivering",
+                'query_string' => "filter=all",
                 'parent' => 'Quản lí vận đơn',
             ],
             [
@@ -285,7 +287,16 @@ class MenuRouterSeeder extends Seeder
                 'link' => "order-extract-configs",
                 'query_string' => "",
                 'parent' => 'Quản trị hệ thống',
+            ],
+
+            [
+                'title' => "Upload đơn hàng",
+                'icon' => "fas fa-upload",
+                'link' => "order-uploads",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
             ]
+
         ];
     }
 }

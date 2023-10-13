@@ -15,6 +15,8 @@ use App\Models\Business\OrderDelivery;
 use App\Models\Business\OrderDriverConfirm;
 use App\Models\Business\PrintConfig;
 use App\Models\Master\Customer;
+use App\Models\Master\Warehouse;
+use App\Models\Master\DistributionChannel;
 use App\Models\Master\CustomerPhone;
 use App\Models\Master\DeliveryPartner;
 use App\Models\Master\ExternalDeliveryCode;
@@ -76,6 +78,41 @@ class DeliveryRepository extends RepositoryAbs
                     $subQuery->where('sap_so_number', 'LIKE', '%' . $sap_so_number . '%');
                 });
             }
+            if ($this->request->filled('sap_do_number')) {
+                $sap_do_number = $this->request->sap_do_number;
+                $query->whereHas('orders', function ($subQuery) use ($sap_do_number) {
+                    $subQuery->where('sap_do_number', 'LIKE', '%' . $sap_do_number . '%');
+                });
+            }
+            if ($this->request->filled('warehouse_ids')) {
+                $warehouse_ids = $this->request->warehouse_ids;
+                $query->whereHas('orders', function ($subQuery) use ($warehouse_ids) {
+                    $subQuery->whereIn('warehouse_id', $warehouse_ids);
+                });
+            }
+            if ($this->request->filled('distribution_channel_ids')) {
+                $distribution_channel_ids = $this->request->distribution_channel_ids;
+                $query->whereHas('orders', function ($subQuery) use ($distribution_channel_ids) {
+                    $subQuery->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                        $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+                    });
+                });
+            }
+            if ($this->request->filled('order_review_option_ids')) {
+                $order_review_option_ids = $this->request->order_review_option_ids;
+                $query->whereHas('orders', function ($subQuery) use ($order_review_option_ids) {
+                    $subQuery->whereHas('customer_reviews', function ($query) use ($order_review_option_ids) {
+                        $query->whereHas('criterias', function ($query) use ($order_review_option_ids) {
+                            $query->whereIn('order_review_options.id', $order_review_option_ids);
+                        });
+                    });
+                });
+            }
+
+            if ($this->request->filled('delivery_partner_ids')) {
+                $query->whereIn('delivery_partner_id', $this->request->delivery_partner_ids);
+            }
+
             if ($this->current_user->hasRole('admin-partner')) {
                 $delivery_partner_ids = $this->current_user->delivery_partners->pluck('id')->toArray();
 
@@ -83,7 +120,8 @@ class DeliveryRepository extends RepositoryAbs
             }
 
             $deliveries = $query->with(['company', 'customer', 'partner', 'pickup', 'orders'])
-                ->orderByRaw('CASE WHEN estimate_delivery_date IS NULL THEN 1 ELSE 0 END, DATEDIFF(estimate_delivery_date, CURDATE()) ASC')->get();
+                ->orderByRaw('CASE WHEN estimate_delivery_date IS NULL THEN 1 ELSE 0 END, DATEDIFF(estimate_delivery_date, CURDATE()) ASC')
+                ->get();
             foreach ($deliveries as $delivery) {
                 if ($delivery->complete_delivery_date) {
                     $delivery['status'] = EnumsOrderStatus::Delivered;
