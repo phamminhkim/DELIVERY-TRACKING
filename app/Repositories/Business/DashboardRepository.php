@@ -65,7 +65,7 @@ class DashboardRepository extends RepositoryAbs
                 'customer_reviews.images'
             ]);
 
-            $base_pending_orders_query = Order::query()->where('status_id', '=', OrderStatus::Pending);
+            $base_pending_orders_query = (clone $query)->where('status_id', '=', OrderStatus::Pending);
             // Lọc theo danh sách khách hàng (nếu có)
             if ($this->request->filled('customer_ids')) {
                 $query->whereIn('customer_id', $this->request->customer_ids);
@@ -311,7 +311,6 @@ class DashboardRepository extends RepositoryAbs
                     $query->whereDate('deliveries.start_delivery_date', '<=', $to_date);
                 });
             }
-
             if ($this->request->filled('company_codes')) {
                 $comapny_codes = $this->request->company_codes;
                 $query->whereHas('company', function ($query) use ($comapny_codes) {

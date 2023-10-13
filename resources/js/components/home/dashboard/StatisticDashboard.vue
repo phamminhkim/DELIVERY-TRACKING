@@ -581,10 +581,7 @@
 				</div>  -->
 		</div>
 		<DialogOrderInfo :order="viewing_order" />
-		<DialogOrderStatisitcVue
-			:orders="order_by_criterias"
-			:viewingStatistic="viewing_statistic"
-		/>
+		<DialogOrderStatisitc :orders="order_by_criterias" :viewingStatistic="viewing_statistic" />
 	</div>
 </template>
 
@@ -594,13 +591,13 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogOrderInfo from '../business/dialogs/DialogOrderInfo.vue';
 	import BarChart from './chart/BarChart.vue';
-	import DialogOrderStatisitcVue from './dialogs/DialogOrderStatisitc.vue';
+	import DialogOrderStatisitc from './dialogs/DialogOrderStatisitc.vue';
 	export default {
 		components: {
 			Treeselect,
 			DialogOrderInfo,
 			BarChart,
-			DialogOrderStatisitcVue,
+			DialogOrderStatisitc,
 		},
 		async created() {
 			this.generateFilterTimeOption();
