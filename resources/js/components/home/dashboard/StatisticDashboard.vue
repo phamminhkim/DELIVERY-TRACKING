@@ -801,23 +801,19 @@
 							: undefined,
 						order_statistics: [statistic],
 					});
-					const fields = [
-						'reviewed_orders',
-						'pending_today_orders',
-						'pending_orders',
-						'preparing_orders',
-						'delivering_orders',
-						'delivered_orders',
-						'no_reviewed_orders',
-						'no_received_orders',
-					];
+					const statistic_names = {
+						reviewed_orders: 'Đã đánh giá',
+						pending_today_orders: 'DO mới trong ngày',
+						pending_orders: 'DO chưa có vận đơn',
+						preparing_orders: 'DO vận chuyển nhận',
+						delivering_orders: 'DO đang giao',
+						delivered_orders: 'DO đã giao',
+						no_reviewed_orders: 'DO chưa đánh giá',
+						no_received_orders: 'DO chưa xác nhận',
+					};
 
-					fields.forEach((field) => {
-                        if (data[field]) {
-                            this.order_by_criterias.push(...data[field]);
-                        }
-                    });
-					this.viewing_statistic = statistic;
+					this.viewing_statistic = statistic_names[statistic];
+					this.order_by_criterias = data[statistic];
 
 					$('#DialogOrderStatistic').modal('show');
 				} catch (error) {
