@@ -219,6 +219,11 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/restructure', [AiController::class, 'restructureDataForConfig']);
             Route::put('/{id}', [AiController::class, 'updateExtractOrderConfig']);
         });
+        Route::prefix('file')->group(function () {
+            Route::post('/batch', [AiController::class, 'prepareUploadFile']);
+            Route::post('/upload', [AiController::class, 'uploadFile']);
+            Route::get('/download/{id}', [AiController::class, 'downloadFile']);
+        });
     });
 });
 

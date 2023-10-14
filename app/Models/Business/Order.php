@@ -8,6 +8,7 @@ use App\Models\Master\OrderStatus;
 use App\Models\Master\Warehouse;
 use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class Order extends Model
 {
@@ -103,5 +104,43 @@ class Order extends Model
     public function scopeStatus($query, $status)
     {
         return $query->where('status_id', $status);
+    }
+
+    public function filterCustomers($query, Request $request)
+    {
+        if ($request->filled('customer_ids')) {
+            $query->whereIn('customer_id', $request->customer_ids);
+        }
+        return $query;
+    }
+
+    public function filterDeliveryPartners($query, Request $request)
+    {
+        if ($request->filled('delivery_partner_ids')) {
+            $delivery_partner_ids = $request->delivery_partner_ids ?? [];
+            $query->whereHas('deliveries', function ($query) use ($delivery_partner_ids) {
+                $query->whereIn('delivery_partner_id', $delivery_partner_ids);
+            });
+        }
+        return $query;
+    }
+
+    public function filterWarehouses($query, Request $request)
+    {
+        if ($request->filled('warehouse_ids')) {
+            $query->whereIn('warehouse_id', $request->warehouse_ids);
+        }
+        return $query;
+    }
+
+    public function filterDistributionChannels($query, Request $request)
+    {
+        if ($request->filled('distribution_channel_ids')) {
+            $distribution_channel_ids = $request->distribution_channel_ids;
+            $query->whereHas('sale', function ($query) use ($distribution_channel_ids) {
+                $query->whereIn('distribution_channel_id', $distribution_channel_ids);
+            });
+        }
+        return $query;
     }
 }

@@ -2,12 +2,16 @@
 
 namespace App\Repositories\Business;
 
+use App\Jobs\HandleUploadFile;
+use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
 use App\Models\Business\ExtractOrderConfig;
 use App\Models\Business\RegexPattern;
 
 use App\Models\Business\RestructureDataConfig;
+use App\Models\Business\UploadedFile;
+use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Converters\ManualConverter;
@@ -24,6 +28,7 @@ use App\Services\Interfaces\TableConverterInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
 
@@ -260,5 +265,77 @@ class AiRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+
+
+    public function prepareUploadFile()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'extract_order_config' => 'required|exists:extract_order_configs,id',
+            ], [
+                'extract_order_config.required' => 'Extract order config id là bắt buộc',
+                'extract_order_config.exists' => 'Extract order config id không tồn tại',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $batch = Batch::create(['extract_order_config_id' => $this->data["extract_order_config"]]);
+                DB::commit();
+                return $batch->id;
+            }
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function uploadFile()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'file' => 'required|file',
+                'batch_id' => 'required|uuid|exists:batches,id',
+            ], [
+                'file.required' => 'File là bắt buộc',
+                'file.file' => 'File không đúng định dạng',
+                'batch_id.required' => 'Batch id là bắt buộc',
+                'batch_id.uuid' => 'Batch id không đúng định dạng uuid',
+                'batch_id.exists' => 'Batch id không tồn tại',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $file = $this->request->file('file');
+                $file_path = $this->file_service->saveProtectedFile($file, $this->current_user->id, $this->data['batch_id']);
+                $uploaded_file = UploadedFile::create([
+                    'path' => $file_path,
+                    'batch_id' => $this->data['batch_id'],
+                ]);
+                $user_morph = new UserMorph(['user_id' => $this->current_user->id]);
+                $uploaded_file->users()->save($user_morph);
+                return $uploaded_file;
+            }
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function getFile($id)
+    {
+        $file = UploadedFile::query()->find($id);
+        if (!$file) {
+            $this->message = 'File không tồn tại';
+            return;
+        }
+        // dd($file->users->pluck('morphable_id')->toArray(), $this->current_user->id);
+        if (!(in_array($this->current_user->id, $file->users->pluck('user_id')->toArray()) || $this->current_user->hasRole('admin'))) {
+            $this->message = 'Bạn không có quyền truy cập file này';
+            return;
+        }
+        $file_path = $file->path;
+        return Storage::disk('protected')->download($file_path);
     }
 }

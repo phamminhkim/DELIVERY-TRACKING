@@ -93,4 +93,41 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
+
+    public function uploadFile(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->uploadFile();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function prepareUploadFile(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->prepareUploadFile();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function downloadFile(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->getFile($id);
+
+        if ($data) {
+            return $data;
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

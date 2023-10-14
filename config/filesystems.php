@@ -56,6 +56,10 @@ return [
             'prefix' => 'img-'
         ],
 
+        'protected' => [
+            'driver' => 'local',
+            'root' => storage_path('app/protected'),
+        ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

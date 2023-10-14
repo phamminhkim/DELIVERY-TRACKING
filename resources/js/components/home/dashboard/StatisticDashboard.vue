@@ -582,6 +582,7 @@
 		</div>
 		<DialogOrderInfo :order="viewing_order" />
 		<DialogOrderStatisitc :orders="order_by_criterias" :viewingStatistic="viewing_statistic" />
+		<a href="http://delivery.thienlong.com:8000/api/ai/file/download/2">test</a>
 	</div>
 </template>
 
