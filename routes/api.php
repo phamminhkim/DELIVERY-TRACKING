@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use App\Http\Controllers\Api\Business\AiController;
 use App\Http\Controllers\Api\Business\DashboardController;
+use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
@@ -121,6 +122,9 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
             Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
             Route::delete('/{id}', [SapMaterialController::class, 'deleteExistingSapMaterial']);
+        });
+        Route::prefix('/sap-material-mappings')->group(function () {
+            Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);

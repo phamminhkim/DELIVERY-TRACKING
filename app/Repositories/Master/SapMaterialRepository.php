@@ -5,6 +5,8 @@ namespace App\Repositories\Master;
 use App\Models\Master\SapMaterial;
 use App\Models\Master\SapUnit;
 use App\Repositories\Abstracts\RepositoryAbs;
+use App\Services\Excel\ExcelExtractor;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Master\Company;
 
@@ -116,8 +118,8 @@ class SapMaterialRepository extends RepositoryAbs
                         $unit = SapUnit::create(['unit_code' => $material['unit_code']]);
                     }
                     $company = Company::where('code', $material['company_code'])->first();
-                   
-                    if(!$company){
+
+                    if (!$company) {
                         $result['skip_count']++;
                         continue;
                     }
@@ -135,7 +137,7 @@ class SapMaterialRepository extends RepositoryAbs
                             ]);
                             $result['update_count']++;
                         } else {
-                           
+
                             SapMaterial::create([
                                 'company_id' => $company->code,
                                 'unit_id' => $unit->id,
@@ -183,29 +185,29 @@ class SapMaterialRepository extends RepositoryAbs
                     }
                 }
             } else {
-            $company = Company::where('code', $this->data['company_id'])->first();
-            if (!$company) {
-                $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_id'];
-                return false;
+                $company = Company::where('code', $this->data['company_id'])->first();
+                if (!$company) {
+                    $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_id'];
+                    return false;
+                }
+
+                $sap_unit = SapUnit::find($this->data['unit_id']);
+                if (!$sap_unit) {
+                    $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
+                    return false;
+                }
+
+                $sapMaterial = SapMaterial::findOrFail($id);
+                $sapMaterial->fill([
+                    'company_id' => $this->data['company_id'],
+                    'sap_code' => $this->data['sap_code'],
+                    'unit_id' => $this->data['unit_id'],
+                    'name' => $this->data['name'],
+                ]);
+                $sapMaterial->save();
+
+                return $sapMaterial;
             }
-
-            $sap_unit = SapUnit::find($this->data['unit_id']);
-            if (!$sap_unit) {
-                $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
-                return false;
-            }
-
-            $sapMaterial = SapMaterial::findOrFail($id);
-            $sapMaterial->fill([
-                'company_id' => $this->data['company_id'],
-                'sap_code' => $this->data['sap_code'],
-                'unit_id' => $this->data['unit_id'],
-                'name' => $this->data['name'],
-            ]);
-            $sapMaterial->save();
-
-            return $sapMaterial;
-        }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

@@ -61,6 +61,7 @@ class AiRepository extends RepositoryAbs
             $table_data = $this->convertToTable($raw_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
+
             return $final_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -274,9 +275,12 @@ class AiRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'extract_order_config' => 'required|exists:extract_order_configs,id',
+                'customer' => 'required|exists:customers,id',
             ], [
                 'extract_order_config.required' => 'Extract order config id là bắt buộc',
                 'extract_order_config.exists' => 'Extract order config id không tồn tại',
+                'customer.required' => 'Customer id là bắt buộc',
+                'customer.exists' => 'Customer id không tồn tại',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -296,7 +300,10 @@ class AiRepository extends RepositoryAbs
                 $convert_table_config->save();
                 $restructure_data_config->save();
                 $extract_order_config->save();
-                $batch = Batch::create(['extract_order_config_id' => $extract_order_config->id]);
+                $batch = Batch::create([
+                    'extract_order_config_id' => $extract_order_config->id,
+                    'customer_id' => $this->data['customer'],
+                ]);
 
                 $extract_order_config->fill([
                     'name' => $original_extract_order_config->name . ' - ' . $batch->id,

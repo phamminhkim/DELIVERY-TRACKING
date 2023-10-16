@@ -27,6 +27,7 @@ class AddReferenceAndIsOfficialColumnsToExtractOrderConfigsTable extends Migrati
     public function down()
     {
         Schema::table('extract_order_configs', function (Blueprint $table) {
+            $table->dropForeign(['reference_id']);
             $table->dropColumn('reference_id');
             $table->dropColumn('is_official');
         });

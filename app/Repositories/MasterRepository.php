@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Master\SapMaterial;
 use App\Repositories\Master\CustomerGroupRepository;
+use App\Repositories\Master\SapMaterialMappingRepository;
 use App\Repositories\Master\WarehouseRepository;
 use App\Repositories\Master\DeliveryPartnerRepository;
 use App\Repositories\Master\CompanyRepository;
@@ -55,6 +56,11 @@ class MasterRepository
     public static function sapMaterialRequest(Request $request)
     {
         return new SapMaterialRepository($request);
+    }
+
+    public static function sapMaterialMappingRequest(Request $request)
+    {
+        return new SapMaterialMappingRepository($request);
     }
     public static function sapUnitRequest(Request $request)
     {

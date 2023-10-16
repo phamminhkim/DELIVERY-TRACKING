@@ -9,7 +9,8 @@ class Batch extends Model
 {
     use Uuids;
     protected $fillable = [
-        'extract_order_config_id'
+        'extract_order_config_id',
+        'customer_id'
     ];
 
     public function files()
