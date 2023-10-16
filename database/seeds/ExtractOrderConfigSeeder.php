@@ -38,14 +38,20 @@ class ExtractOrderConfigSeeder extends Seeder
         $extract_order_configs = array(
             array(
                 'name' => 'Winmart mặc định',
+                'reference_id' => null,
+                'is_official' => true
 
             ),
             array(
                 'name' => 'Mega mặc định',
+                'reference_id' => null,
+                'is_official' => true
 
             ),
             array(
                 'name' => 'Lotte mặc định',
+                'reference_id' => null,
+                'is_official' => true
             )
         );
         $extract_data_configs = array(

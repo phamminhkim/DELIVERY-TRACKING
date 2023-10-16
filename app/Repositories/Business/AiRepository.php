@@ -172,7 +172,8 @@ class AiRepository extends RepositoryAbs
             $query->whereIn('id', $extract_order_config_ids);
         }
 
-        $query->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+        $query
+            ->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
         $extract_order_configs = $query->get();
         return $extract_order_configs;
     }
@@ -281,7 +282,31 @@ class AiRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 DB::beginTransaction();
-                $batch = Batch::create(['extract_order_config_id' => $this->data["extract_order_config"]]);
+                $original_extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($this->data["extract_order_config"]);
+                if (!$original_extract_order_config) {
+                    $this->message = 'Extract order config không tồn tại';
+                    return;
+                }
+                $extract_order_config = $original_extract_order_config->replicate()->fill(['name' => 'waiting_to_add']);
+
+                $extract_data_config = $original_extract_order_config->extract_data_config->replicate();
+                $convert_table_config = $original_extract_order_config->convert_table_config->replicate();
+                $restructure_data_config = $original_extract_order_config->restructure_data_config->replicate();
+                $extract_data_config->save();
+                $convert_table_config->save();
+                $restructure_data_config->save();
+                $extract_order_config->save();
+                $batch = Batch::create(['extract_order_config_id' => $extract_order_config->id]);
+
+                $extract_order_config->fill([
+                    'name' => $original_extract_order_config->name . ' - ' . $batch->id,
+                    'extract_data_config_id' => $extract_data_config->id,
+                    'convert_table_config_id' => $convert_table_config->id,
+                    'restructure_data_config_id' => $restructure_data_config->id,
+                    'reference_id' => $original_extract_order_config->id,
+                    'is_official' => false
+                ])->save();
+
                 DB::commit();
                 return $batch->id;
             }
@@ -290,6 +315,7 @@ class AiRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
     public function uploadFile()
     {
         try {
@@ -306,6 +332,7 @@ class AiRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
+                DB::beginTransaction();
                 $file = $this->request->file('file');
                 $file_path = $this->file_service->saveProtectedFile($file, $this->current_user->id, $this->data['batch_id']);
                 $uploaded_file = UploadedFile::create([
@@ -314,6 +341,7 @@ class AiRepository extends RepositoryAbs
                 ]);
                 $user_morph = new UserMorph(['user_id' => $this->current_user->id]);
                 $uploaded_file->users()->save($user_morph);
+                DB::commit();
                 return $uploaded_file;
             }
         } catch (\Throwable $exception) {
