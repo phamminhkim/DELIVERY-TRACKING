@@ -184,7 +184,7 @@
 						customer: this.load_config_form.customers.join(','),
 						extract_order_config: this.load_config_form.extract_order_config,
 						customer_group_id: this.load_config_form.customer_group_id,
-						company_code: this.load_config_form.company,
+						company: this.load_config_form.company,
 					};
 					const batch_response = await this.api_handler.post(
 						'/api/ai/file/batch',
