@@ -12,10 +12,10 @@ class SapMaterialMappingController extends ResponseController
     public function createSapMateriasMappingsFromExcel(Request $request)
     {
         $handler = MasterRepository::sapMaterialMappingRequest($request);
-        $is_success = $handler->createSapMateriasMappingsFromExcel();
+        $result = $handler->createSapMateriasMappingsFromExcel();
 
-        if ($is_success) {
-            return $this->responseOk();
+        if ($result) {
+            return $this->responseSuccess($result);
         } else {
             $message = $handler->getMessage();
             $errors = $handler->getErrors();

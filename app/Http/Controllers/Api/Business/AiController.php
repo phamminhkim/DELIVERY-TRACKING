@@ -22,6 +22,17 @@ class AiController extends ResponseController
         }
     }
 
+    public function extractOrderFromUploadedFile(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->extractOrderFromUploadedFile($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function extractDataForConfig(Request $request)
     {
         $handler = BusinessRepository::aiRequest($request);

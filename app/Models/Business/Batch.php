@@ -22,4 +22,9 @@ class Batch extends Model
     {
         return $this->belongsTo(ExtractOrderConfig::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

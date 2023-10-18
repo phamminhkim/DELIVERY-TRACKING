@@ -15,7 +15,7 @@ class CreateBatchesTable extends Migration
     {
         Schema::create('batches', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('extract_order_config_id')->refernces('id')->on('extract_order_configs');
+            $table->foreignId('extract_order_config_id')->references('id')->on('extract_order_configs');
             $table->timestamps();
         });
     }

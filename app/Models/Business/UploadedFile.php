@@ -23,4 +23,9 @@ class UploadedFile extends Model
     {
         return $this->morphMany(UserMorph::class, 'morphable');
     }
+
+    public function raw_extract_items()
+    {
+        return $this->hasMany(RawExtractItems::class);
+    }
 }

@@ -7,10 +7,13 @@ use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\RawExtractItem;
+use App\Models\Business\RawExtractItems;
 use App\Models\Business\RegexPattern;
 
 use App\Models\Business\RestructureDataConfig;
 use App\Models\Business\UploadedFile;
+use App\Models\Master\CustomerMaterial;
 use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
@@ -39,6 +42,10 @@ class AiRepository extends RepositoryAbs
     protected $table_converter;
     protected $data_restructure;
 
+    protected $data_extractor_instances;
+    protected $table_converter_instances;
+    protected $data_restructure_instances;
+
     public function __construct(
         FileServiceInterface $file_service,
         DataExtractorInterface $data_extractor,
@@ -51,6 +58,19 @@ class AiRepository extends RepositoryAbs
         $this->data_extractor = $data_extractor;
         $this->table_converter = $table_converter;
         $this->data_restructure = $data_restructure;
+        $this->data_extractor_instances = [
+            'camelot' => new CamelotExtractorService(),
+        ];
+        $this->table_converter_instances = [
+            'regexmatch' => new RegexMatchConverter(),
+            'regexsplit' => new RegexSplitConverter(),
+            'leaguecsv' => new LeagueCsvConverter(),
+            'manual' => new ManualConverter(),
+        ];
+        $this->data_restructure_instances = [
+            'arraymappingbyindex' => new IndexArrayMappingRestructure(),
+            'arraymappingbykey' => new KeyArrayMappingRestructure(),
+        ];
     }
     public function extractOrder()
     {
@@ -69,12 +89,73 @@ class AiRepository extends RepositoryAbs
         }
     }
 
-    private function extractData($file_path)
+    public function extractOrderFromUploadedFile($file_id)
+    {
+        try {
+            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group'])->find($file_id);
+            if (!$file_record) {
+                $this->message = 'File không tồn tại';
+                return;
+            }
+            $file_path = Storage::disk('protected')->path($file_record->path);
+            $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
+
+            $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
+            $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+
+            $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
+            $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
+
+            $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_data_config->method];
+            $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
+
+            $customer_group = $file_record->batch->customer->group;
+            $created_items = [];
+            $error_items = [];
+            foreach ($final_data as $item) {
+                DB::beginTransaction();
+                if (!isset($item['ProductID']) || $item['ProductID'] == '') {
+                    continue;
+                }
+                $customer_material = CustomerMaterial::query()
+                    ->where('customer_group_id', $customer_group->id)
+                    ->where('customer_sku_code', $item['ProductID'])
+                    ->where('customer_sku_name', $item['ProductName'])
+                    ->get();
+                if (!$customer_material) {
+                    $error_items[] = $item;
+                    continue;
+                }
+                $raw_ectract_item = RawExtractItem::create([
+                    'customer_material_id' => $customer_material->id,
+                    'quantity' => $item['Quantity'],
+                    'file_id' => $file_record->id,
+                ]);
+                $created_items[] = $raw_ectract_item;
+                DB::commit();
+            }
+            return array(
+                'created_items' => $created_items,
+                'error_items' => $error_items,
+            );
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    private function extractData($file_path, $extract_data_config = null)
     {
         $options = array();
         if ($this->data_extractor instanceof CamelotExtractorService) {
-            $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
-            $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            if (!$extract_data_config) {
+                $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
+                $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            } else {
+                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ?? false;
+                $options['flavor'] = $extract_data_config->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
         $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
@@ -86,17 +167,30 @@ class AiRepository extends RepositoryAbs
         return $choosen_tables;
     }
 
-    private function convertToTable($array)
+    private function convertToTable($array, $convert_table_config = null)
     {
         $options = array();
         if ($this->table_converter instanceof RegexMatchConverter) {
-            $options['regex_pattern'] = $this->request->regex_pattern;
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
         } elseif ($this->table_converter instanceof RegexSplitConverter) {
-            $options['regex_pattern'] = $this->request->regex_pattern;
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
         } elseif ($this->table_converter instanceof LeagueCsvConverter) {
         } elseif ($this->table_converter instanceof ManualConverter) {
-            $manual_patterns = json_decode($this->request->manual_patterns);
-            $options['manual_patterns'] = $manual_patterns;
+            if (!$convert_table_config) {
+                $manual_patterns = json_decode($this->request->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            } else {
+                $manual_patterns = json_decode($convert_table_config->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            }
         }
 
         $table = [];
@@ -107,13 +201,21 @@ class AiRepository extends RepositoryAbs
         return $table;
     }
 
-    private function restructureData($array)
+    private function restructureData($array, $restructure_data_config = null)
     {
         $options = array();
         if ($this->data_restructure instanceof IndexArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure, true);
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
         } elseif ($this->data_restructure instanceof KeyArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure, true);
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
         }
         $table = $this->data_restructure->restructure($array, $options);
         return $table;

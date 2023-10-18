@@ -214,7 +214,10 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('ai')->group(function () {
-        Route::post('/extract-order', [AiController::class, 'extractOrder']);
+        Route::prefix('/extract-order')->group(function () {
+            Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
+            Route::post('/', [AiController::class, 'extractOrder']);
+        });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
             Route::post('/extract', [AiController::class, 'extractDataForConfig']);
