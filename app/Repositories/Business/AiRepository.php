@@ -7,6 +7,7 @@ use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\RawExtractHeader;
 use App\Models\Business\RawExtractItem;
 use App\Models\Business\RawExtractItems;
 use App\Models\Business\RegexPattern;
@@ -112,6 +113,10 @@ class AiRepository extends RepositoryAbs
             $customer_group = $file_record->batch->customer->group;
             $created_items = [];
             $error_items = [];
+            $raw_extract_header = RawExtractHeader::create([
+                'customer_id' => $file_record->batch->customer_id,
+                'uploaded_file' => $file_record->id,
+            ]);
             foreach ($final_data as $item) {
                 DB::beginTransaction();
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
@@ -129,7 +134,7 @@ class AiRepository extends RepositoryAbs
                 $raw_ectract_item = RawExtractItem::create([
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
-                    'file_id' => $file_record->id,
+                    'raw_extract_header_id' => $raw_extract_header->id,
                 ]);
                 $created_items[] = $raw_ectract_item;
                 DB::commit();
@@ -378,14 +383,14 @@ class AiRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'extract_order_config' => 'required|exists:extract_order_configs,id',
                 'customer' => 'required|exists:customers,id',
-                'company_code' => 'required|exists:companies,code',
+                'company' => 'required|exists:companies,code',
             ], [
                 'extract_order_config.required' => 'Extract order config id là bắt buộc',
                 'extract_order_config.exists' => 'Extract order config id không tồn tại',
                 'customer.required' => 'Customer id là bắt buộc',
                 'customer.exists' => 'Customer id không tồn tại',
-                'company_code.required' => 'Company code là bắt buộc',
-                'company_code.exists' => 'Company code không tồn tại',
+                'company.required' => 'Company code là bắt buộc',
+                'company.exists' => 'Company code không tồn tại',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -408,7 +413,7 @@ class AiRepository extends RepositoryAbs
                 $batch = Batch::create([
                     'extract_order_config_id' => $extract_order_config->id,
                     'customer_id' => $this->data['customer'],
-                    'company_code' => $this->data['company_code'],
+                    'company_code' => $this->data['company'],
                 ]);
 
                 $extract_order_config->fill([
