@@ -65,14 +65,53 @@
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-md-6">
+					<div class="form-group row">
+						<div class="col-lg-4">
+							<label class="col-form-label">Công ty:</label>
+						</div>
+						<div class="col-lg-6">
+							<treeselect
+								v-model="load_config_form.company"
+								:multiple="false"
+								:options="company_options"
+								placeholder="Chọn công ty.."
+								required
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-md-6">
+					<div class="form-group row">
+						<div class="col-lg-4">
+							<label class="col-form-label">Chọn File:</label>
+						</div>
+						<div class="col-lg-6">
+							<b-form-file v-model="files" multiple />
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<div class="row">
-				<div class="col-lg-5"></div>
-				<div class="col-lg-6">
-					<b-form-file v-model="files" multiple/>
-					<button type="button" class="btn btn-primary" @click="onClickUploadFile">
-						Upload
-					</button>
+				<div class="col-lg-6"></div>
+				<div class="col-md-6">
+					<div class="form-group row">
+						<div class="col-lg-6">
+							<button
+								type="button"
+								class="btn btn-primary"
+								@click="onClickUploadFile"
+							>
+								Upload
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -92,10 +131,12 @@
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 				customer_group_options: [],
+				company_options: [],
 				load_config_form: {
 					customer_group_id: null,
 					extract_order_config: null,
 					customers: [],
+					company: null,
 				},
 				files: [],
 				selected_batch_id: null,
@@ -107,10 +148,18 @@
 		},
 		methods: {
 			async fetchOptionsData() {
-				const [customer_group_options] = await this.api_handler.handleMultipleRequest([
-					new APIRequest('get', '/api/master/customer-groups'),
-				]);
+				const [customer_group_options, companies] =
+					await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/customer-groups'),
+						new APIRequest('get', '/api/master/companies'),
+					]);
 				this.customer_group_options = customer_group_options;
+				this.company_options = companies.map((company) => {
+					return {
+						id: company.code,
+						label: `(${company.code}) ${company.name}`,
+					};
+				});
 			},
 			normalizer(node) {
 				return {
@@ -126,7 +175,6 @@
 					const options = data;
 					callback(null, options);
 				}
-
 			},
 
 			async onClickUploadFile() {
@@ -136,6 +184,7 @@
 						customer: this.load_config_form.customers.join(','),
 						extract_order_config: this.load_config_form.extract_order_config,
 						customer_group_id: this.load_config_form.customer_group_id,
+						company_code: this.load_config_form.company,
 					};
 					const batch_response = await this.api_handler.post(
 						'/api/ai/file/batch',
@@ -143,27 +192,32 @@
 					);
 					const selected_batch_id = batch_response.data;
 
-                    const promises = this.files.map(file => {
-                        console.log(file);
-                        return this.api_handler
-                            .setHeaders({
-                                'Content-Type': 'multipart/form-data'
-                            })
-                            .post('/api/ai/file/upload', {}, APIHandler.createFormData({
-                                batch_id: selected_batch_id,
-                                file: file
-                            }));
-                    });
-                    // console.log(promises);
-                    const file_responses = await Promise.all(promises);
+					const promises = this.files.map((file) => {
+						console.log(file);
+						return this.api_handler
+							.setHeaders({
+								'Content-Type': 'multipart/form-data',
+							})
+							.post(
+								'/api/ai/file/upload',
+								{},
+								APIHandler.createFormData({
+									batch_id: selected_batch_id,
+									file: file,
+								}),
+							);
+					});
+					// console.log(promises);
+					const file_responses = await Promise.all(promises);
 					// Gửi file và batch_id lên API
 
-                    console.log(file_response);
+					console.log(file_response);
 					// Xóa các giá trị và hiển thị thông báo thành công
 					this.selected_batch_id = null;
 					this.load_config_form.customer_group_id = null;
 					this.load_config_form.extract_order_config = null;
 					this.load_config_form.customers = [];
+					this.load_config_form.company = null;
 
 					this.$showMessage('success', 'Upload file thành công');
 				} catch (error) {
