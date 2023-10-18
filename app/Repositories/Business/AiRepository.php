@@ -7,6 +7,7 @@ use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\RawExtractHeader;
 use App\Models\Business\RawExtractItem;
 use App\Models\Business\RawExtractItems;
 use App\Models\Business\RegexPattern;
@@ -112,6 +113,10 @@ class AiRepository extends RepositoryAbs
             $customer_group = $file_record->batch->customer->group;
             $created_items = [];
             $error_items = [];
+            $raw_extract_header = RawExtractHeader::create([
+                'customer_id' => $file_record->batch->customer_id,
+                'uploaded_file' => $file_record->id,
+            ]);
             foreach ($final_data as $item) {
                 DB::beginTransaction();
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
@@ -129,7 +134,7 @@ class AiRepository extends RepositoryAbs
                 $raw_ectract_item = RawExtractItem::create([
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
-                    'file_id' => $file_record->id,
+                    'raw_extract_header_id' => $raw_extract_header->id,
                 ]);
                 $created_items[] = $raw_ectract_item;
                 DB::commit();
