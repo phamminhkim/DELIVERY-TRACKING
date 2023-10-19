@@ -291,8 +291,16 @@ class MenuRouterSeeder extends Seeder
 
             [
                 'title' => "Danh sách file",
-                'icon' => "fas fa-list-alt",
+                'icon' => "fas fa-pencil-square-o",
                 'link' => "order-file-uploads",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+
+            [
+                'title' => "Chỉnh sửa đơn hàng",
+                'icon' => "fas fa-wrench",
+                'link' => "order-edit-files",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
