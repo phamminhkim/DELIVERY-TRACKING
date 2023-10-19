@@ -123,6 +123,7 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 
+
 	export default {
 		components: {
 			Treeselect,
@@ -179,7 +180,6 @@
 
 			async onClickUploadFile() {
 				try {
-					// Lấy batch_id từ API
 					const batch_data = {
 						customer: this.load_config_form.customers.join(','),
 						extract_order_config: this.load_config_form.extract_order_config,
@@ -209,27 +209,29 @@
 					});
 					// console.log(promises);
 					const file_responses = await Promise.all(promises);
-					// Gửi file và batch_id lên API
-
-					console.log(file_response);
 					// Xóa các giá trị và hiển thị thông báo thành công
 					this.selected_batch_id = null;
 					this.load_config_form.customer_group_id = null;
 					this.load_config_form.extract_order_config = null;
 					this.load_config_form.customers = [];
 					this.load_config_form.company = null;
-
-					this.$showMessage('success', 'Upload file thành công');
-				} catch (error) {
-					// this.$showMessage('error', 'Lỗi', error.response.data.message);
-					this.success = false;
+                    this.files = [];
+                    toastr.success('Upload file thành công');
+                } catch (error) {
+                    toastr.error('Đã xảy ra lỗi khi upload file');
 				}
 			},
-
-			onFileChange(event) {
-				this.selectedFiles = Array.from(event.target.files);
-			},
 		},
+        showMessage(type, title, message) {
+            if (!title) {
+                title = "Information";
+            }
+            toastr.options.positionClass = "toast-bottom-right";
+            toastr.options.toastClass = this.getToastClassByType(type);
+
+            toastr[type](message, title);
+        },
+
 		formatFileSize(size) {
 			if (size === 0) return '0 Bytes';
 			const k = 1024;
