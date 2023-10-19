@@ -58,6 +58,12 @@ class RouterSeeder extends Seeder
             ],
 
             [
+                'name' => 'Chỉnh sửa đơn hàng',
+                'path' => '/order-edit-files',
+                'component' => 'home/business/OrderEditFiles'
+            ],
+
+            [
                 'name' => 'Upload đơn hàng',
                 'path' => '/order-uploads',
                 'component' => 'home/business/OrderUploads'
