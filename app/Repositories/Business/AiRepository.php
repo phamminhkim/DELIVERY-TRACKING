@@ -251,6 +251,8 @@ class AiRepository extends RepositoryAbs
                 'error_extract_items' => $error_extract_items,
                 'created_so_items' => $created_so_items,
                 'error_so_items' => $error_so_items,
+                'created_extract_items_count' => count($created_extract_items),
+                'created_so_items_count' => count($created_so_items),
             );
         } catch (\Throwable $exception) {
             DB::rollBack();

@@ -208,6 +208,7 @@ class ExtractOrderConfigSeeder extends Seeder
                     'extract_data_config_id' => $extract_data_config->id,
                     'convert_table_config_id' => $convert_table_config->id,
                     'restructure_data_config_id' => $restructure_data_config->id,
+                    'is_official' => $extract_order_configs[$index]['is_official']
                 ]);
 
 
