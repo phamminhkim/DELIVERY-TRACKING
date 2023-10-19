@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\CustomerMaterial;
 use Illuminate\Database\Eloquent\Model;
 
 class RawExtractItem extends Model
@@ -21,5 +22,15 @@ class RawExtractItem extends Model
     public function customer_material()
     {
         return $this->belongsTo(CustomerMaterial::class);
+    }
+
+    public function raw_extract_header()
+    {
+        return $this->belongsTo(RawExtractHeader::class);
+    }
+
+    public function raw_so_items()
+    {
+        return $this->hasMany(RawSoItem::class);
     }
 }

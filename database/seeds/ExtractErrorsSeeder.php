@@ -17,14 +17,27 @@ class ExtractErrorsSeeder extends Seeder
             [
                 'code' => '10',
                 'name' => 'EXTRACT_ERROR',
+                'is_has_log' => false,
             ],
             [
                 'code' => '20',
                 'name' => 'CONVERT_ERROR',
+                'is_has_log' => false,
             ],
             [
                 'code' => '30',
                 'name' => 'RESTRUCTURE_ERROR',
+                'is_has_log' => false,
+            ],
+            [
+                'code' => '40',
+                'name' => 'NOT_FOUND_CUSTOMER_MATERIAL',
+                'is_has_log' => true,
+            ],
+            [
+                'code' => '50',
+                'name' => 'NOT_FOUND_SAP_MATERIAL',
+                'is_has_log' => true,
             ],
         ];
 

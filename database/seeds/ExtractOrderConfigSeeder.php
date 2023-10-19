@@ -175,23 +175,25 @@ class ExtractOrderConfigSeeder extends Seeder
                         $old_extract_data_config = $old_extract_order_config->extract_data_config;
                         $old_convert_table_config = $old_extract_order_config->convert_table_config;
                         $old_restructure_data_config = $old_extract_order_config->restructure_data_config;
-                        $old_extract_order_config->delete();
+                        // $old_extract_order_config->delete();
                         if (
                             $old_extract_data_config
                         ) {
-                            $old_extract_data_config->delete();
+                            $old_extract_data_config->fill($extract_data_configs[$index])->save();
                         }
                         if (
                             $old_convert_table_config
                         ) {
-                            $old_convert_table_config->delete();
+                            $old_convert_table_config->fill($convert_table_configs[$index])->save();
                         }
                         if (
                             $old_restructure_data_config
                         ) {
-                            $old_restructure_data_config->delete();
+                            $old_restructure_data_config->fill($restructure_data_configs[$index])->save();
                         }
                     }
+                    $this->command->info('ExtractOrderConfigSeeder completed');
+                    return;
                 }
 
                 $extract_data_config = ExtractDataConfig::create($extract_data_configs[$index]);

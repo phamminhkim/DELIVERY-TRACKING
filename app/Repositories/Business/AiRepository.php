@@ -2,11 +2,14 @@
 
 namespace App\Repositories\Business;
 
+use App\Enums\Ai\Convert\ExtractErrors;
 use App\Jobs\HandleUploadFile;
 use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
+use App\Models\Business\ExtractError;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\FileExtractErrorLog;
 use App\Models\Business\RawExtractHeader;
 use App\Models\Business\RawExtractItem;
 use App\Models\Business\RawExtractItems;
@@ -30,11 +33,17 @@ use App\Services\Interfaces\FileServiceInterface;
 use App\Services\Interfaces\PdfExtractorInterface;
 use App\Services\Interfaces\TableConverterInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
+use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
+use App\Models\Business\FileExtractError;
+use App\Models\Business\RawSoHeader;
+use App\Models\Business\RawSoItem;
+use App\Models\Master\SapMaterial;
 
 class AiRepository extends RepositoryAbs
 {
@@ -102,31 +111,57 @@ class AiRepository extends RepositoryAbs
             $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
 
             $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
-            $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+            try {
+                $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+            } catch (\Throwable $exception) {
 
-            // try {
-            //     $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
-            // } catch (\Throwable $exception) {
-            //     $this->message = $exception->getMessage();
-            //     $this->errors = $exception->getTrace();
-            //     return;
-            // }
+                $extract_error = ExtractError::query()->where('code', ExtractErrorsEnum::EXTRACT_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $extract_error->id,
+                ]);
+                throw $exception;
+            }
 
             $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
-            $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
+            try {
+                $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
+            } catch (\Throwable $exception) {
+
+                $convert_error = ExtractError::query()->where('code', ExtractErrorsEnum::CONVERT_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $convert_error->id,
+                ]);
+                throw $exception;
+            }
+
 
             $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_data_config->method];
-            $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
+            try {
+                $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
+            } catch (\Throwable $exception) {
+
+                $restructure_error = ExtractError::query()->where('code', ExtractErrorsEnum::RESTRUCTURE_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $restructure_error->id,
+                ]);
+                throw $exception;
+            }
 
             $customer_group = $file_record->batch->customer->group;
-            $created_items = [];
-            $error_items = [];
+
+            // $created_extract_items = collect([]);
+            $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
+            $error_extract_items = [];
+            DB::beginTransaction();
             $raw_extract_header = RawExtractHeader::firstOrCreate([
                 'customer_id' => $file_record->batch->customer_id,
                 'uploaded_file_id' => $file_record->id,
+
             ]);
             foreach ($final_data as $item) {
-                DB::beginTransaction();
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
                     continue;
                 }
@@ -136,24 +171,90 @@ class AiRepository extends RepositoryAbs
                     ->where('customer_sku_name', $item['ProductName'])
                     ->first();
                 if (!$customer_material) {
-                    $error_items[] = $item;
+                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' và ProductName: ' . $item['ProductName'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
-                // dd($raw_extract_header);
-                $raw_extract_item = RawExtractItem::create([
+                $raw_extract_item = RawExtractItem::firstOrCreate([
                     'raw_extract_header_id' => $raw_extract_header->id,
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
                 ]);
-                $created_items[] = $raw_extract_item;
-                DB::commit();
+                $created_extract_items->push($raw_extract_item);
             }
+            DB::commit();
+            if (count($error_extract_items) > 0) {
+                $not_found_customer_error = ExtractError::query()->where('code', ExtractErrorsEnum::NOT_FOUND_CUSTOMER_MATERIAL)->first();
+                $error_log = json_encode($error_extract_items);
+                $file_extract_error = FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $not_found_customer_error->id,
+                ]);
+                FileExtractErrorLog::create([
+                    'file_extract_error_id' => $file_extract_error->id,
+                    'log' => $error_log,
+                ]);
+            }
+            // return array(
+            //     'created_items' => $created_items,
+            //     'error_items' => $error_items,
+            // );
+
+            $created_so_items = collect([]);
+            $error_so_items = [];
+            DB::beginTransaction();
+            $raw_so_header = RawSoHeader::firstOrCreate(
+                array_merge(
+                    $raw_extract_header->toArray(),
+                    [
+                        'raw_extract_header_id' => $raw_extract_header->id,
+                        'serial_number' => strtoupper(uniqid($file_record->batch->customer->code)),
+                    ]
+                )
+            );
+            $created_extract_items->load(['customer_material.mappings.sap_material']);
+
+            foreach ($created_extract_items as $item) {
+                $sap_material_mappings = $item->customer_material->mappings;
+                if (count($sap_material_mappings) == 0) {
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id;
+                    continue;
+                }
+                foreach ($sap_material_mappings as $mapping) {
+                    $sap_material = $mapping->sap_material;
+                    $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
+                    $raw_so_item = RawSoItem::firstOrCreate([
+                        'raw_extract_item_id' => $item->id,
+                        'raw_so_header_id' => $raw_so_header->id,
+                        'sap_material_id' => $sap_material->id,
+                        'quantity' => $quantity,
+                        'percentage' => $mapping->percentage,
+                    ]);
+                    $created_so_items->push($raw_so_item);
+                }
+            }
+            DB::commit();
+            if (count($error_so_items) > 0) {
+                $not_found_sap_error = ExtractError::query()->where('code', ExtractErrorsEnum::NOT_FOUND_SAP_MATERIAL)->first();
+                $error_log = json_encode($error_so_items);
+                $file_extract_error = FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $not_found_sap_error->id,
+                ]);
+                FileExtractErrorLog::create([
+                    'file_extract_error_id' => $file_extract_error->id,
+                    'log' => $error_log,
+                ]);
+            }
+
             return array(
-                'created_items' => $created_items,
-                'error_items' => $error_items,
+                'created_extract_items' => $created_extract_items,
+                'error_extract_items' => $error_extract_items,
+                'created_so_items' => $created_so_items,
+                'error_so_items' => $error_so_items,
             );
         } catch (\Throwable $exception) {
             DB::rollBack();
+            Log::info($exception->getMessage());
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
