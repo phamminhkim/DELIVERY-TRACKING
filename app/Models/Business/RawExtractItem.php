@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class RawExtractItem extends Model
 {
     protected $fillable = [
+        'raw_extract_header_id',
         'customer_material_id',
         'quantity',
         'file_id'

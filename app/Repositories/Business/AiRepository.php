@@ -104,6 +104,14 @@ class AiRepository extends RepositoryAbs
             $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
             $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
 
+            // try {
+            //     $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+            // } catch (\Throwable $exception) {
+            //     $this->message = $exception->getMessage();
+            //     $this->errors = $exception->getTrace();
+            //     return;
+            // }
+
             $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
             $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
 
@@ -113,9 +121,9 @@ class AiRepository extends RepositoryAbs
             $customer_group = $file_record->batch->customer->group;
             $created_items = [];
             $error_items = [];
-            $raw_extract_header = RawExtractHeader::create([
+            $raw_extract_header = RawExtractHeader::firstOrCreate([
                 'customer_id' => $file_record->batch->customer_id,
-                'uploaded_file' => $file_record->id,
+                'uploaded_file_id' => $file_record->id,
             ]);
             foreach ($final_data as $item) {
                 DB::beginTransaction();
@@ -126,17 +134,18 @@ class AiRepository extends RepositoryAbs
                     ->where('customer_group_id', $customer_group->id)
                     ->where('customer_sku_code', $item['ProductID'])
                     ->where('customer_sku_name', $item['ProductName'])
-                    ->get();
+                    ->first();
                 if (!$customer_material) {
                     $error_items[] = $item;
                     continue;
                 }
-                $raw_ectract_item = RawExtractItem::create([
+                // dd($raw_extract_header);
+                $raw_extract_item = RawExtractItem::create([
+                    'raw_extract_header_id' => $raw_extract_header->id,
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
-                    'raw_extract_header_id' => $raw_extract_header->id,
                 ]);
-                $created_items[] = $raw_ectract_item;
+                $created_items[] = $raw_extract_item;
                 DB::commit();
             }
             return array(
