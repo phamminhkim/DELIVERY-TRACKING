@@ -53,13 +53,9 @@
 						<div class="col-lg-6">
 							<treeselect
 								placeholder="Chọn khách hàng.."
-								:multiple="true"
-								:disable-branch-nodes="false"
-								v-model="load_config_form.customers"
-								:async="true"
-								:load-options="loadOptions"
-								:normalizer="normalizer"
-								searchPromptText="Nhập tên khách hàng để tìm kiếm.."
+								v-model="load_config_form.customer"
+								:options="load_customer_id_options"
+								required
 							></treeselect>
 						</div>
 					</div>
@@ -134,14 +130,15 @@
 				customer_group_options: [],
 				company_options: [],
 				load_config_form: {
+					customer: null,
 					customer_group_id: null,
 					extract_order_config: null,
-					customers: [],
 					company: null,
 				},
 				files: [],
 				selected_batch_id: null,
 				load_extract_order_config_options: null,
+                load_customer_id_options: null,
 			};
 		},
 		created() {
@@ -149,12 +146,13 @@
 		},
 		methods: {
 			async fetchOptionsData() {
-				const [customer_group_options, companies] =
+				const [customer_group_options, companies, customer_id_options] =
 					await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/customer-groups'),
 						new APIRequest('get', '/api/master/companies'),
 					]);
 				this.customer_group_options = customer_group_options;
+				this.customer_id_options = customer_id_options;
 				this.company_options = companies.map((company) => {
 					return {
 						id: company.code,
@@ -181,7 +179,7 @@
 			async onClickUploadFile() {
 				try {
 					const batch_data = {
-						customer: this.load_config_form.customers.join(','),
+						customer: this.load_config_form.customer,
 						extract_order_config: this.load_config_form.extract_order_config,
 						customer_group_id: this.load_config_form.customer_group_id,
 						company: this.load_config_form.company,
@@ -213,7 +211,7 @@
 					this.selected_batch_id = null;
 					this.load_config_form.customer_group_id = null;
 					this.load_config_form.extract_order_config = null;
-					this.load_config_form.customers = [];
+					this.load_config_form.customer = null;
 					this.load_config_form.company = null;
                     this.files = [];
                     toastr.success('Upload file thành công');
@@ -241,6 +239,22 @@
 		},
 		watch: {
 			load_customer_group_id() {
+
+                this.load_customer_id_options = [];
+                let load_customer_id_options = this.customer_group_options.find(
+					(customer_group) => {
+						return customer_group.id == this.load_customer_group_id;
+					},
+				)?.customers;
+				this.load_customer_id_options = load_customer_id_options
+					? load_customer_id_options.map((customer) => {
+							return {
+								id: customer.id,
+								label: `(${customer.code}) ${customer.name}`,
+							};
+					  })
+					: [];
+
 				this.load_extract_order_config_options = [];
 				let load_extract_order_config_options = this.customer_group_options.find(
 					(customer_group) => {
@@ -255,6 +269,8 @@
 							};
 					  })
 					: [];
+
+
 			},
 		},
 		computed: {
