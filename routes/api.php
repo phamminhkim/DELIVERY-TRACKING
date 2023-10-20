@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
+use App\Models\Business\UploadedFile;
 
 /*
 |--------------------------------------------------------------------------
@@ -227,9 +229,9 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [AiController::class, 'updateExtractOrderConfig']);
         });
         Route::prefix('file')->group(function () {
-            Route::post('/batch', [AiController::class, 'prepareUploadFile']);
-            Route::post('/upload', [AiController::class, 'uploadFile']);
-            Route::get('/download/{id}', [AiController::class, 'downloadFile']);
+            Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);
+            Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
+            Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
         });
     });
 });

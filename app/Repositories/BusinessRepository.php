@@ -12,6 +12,7 @@ use App\Repositories\Business\ApplicationRepository;
 use App\Repositories\Business\DashboardRepository;
 use App\Repositories\Business\OrderRepository;
 use App\Repositories\Business\DeliveryRepository;
+use App\Repositories\Business\UploadedFileRepository;
 use App\Services\DataRestructureService;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Converters\ManualConverter;
@@ -98,5 +99,10 @@ class BusinessRepository
             $data_restructure = new IndexArrayMappingRestructure();
         }
         return new AiRepository($file_service,  $data_extractor, $table_converter, $data_restructure, $request);
+    }
+
+    static function uploadedFileRequest(Request $request)
+    {
+        return new UploadedFileRepository($request);
     }
 }
