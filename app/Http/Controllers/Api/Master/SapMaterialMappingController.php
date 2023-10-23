@@ -27,7 +27,7 @@ class SapMaterialMappingController extends ResponseController
     {
 
         $handler = MasterRepository::sapMaterialMappingRequest($request);
-        $sapMaterialMappings = $handler->getAvailableSapMaterialMappings();
+        $sapMaterialMappings = $handler->getAvailableSapMaterialMappings($request);
 
         if ($sapMaterialMappings) {
             return $this->responseSuccess($sapMaterialMappings);

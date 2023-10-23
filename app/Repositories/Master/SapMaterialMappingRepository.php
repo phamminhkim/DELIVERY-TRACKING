@@ -121,11 +121,19 @@ class SapMaterialMappingRepository extends RepositoryAbs
     }
 
 
-    public function getAvailableSapMaterialMappings()
+    public function getAvailableSapMaterialMappings($request)
     {
         try {
-            $sapMaterialMappings = SapMaterialMapping::all();
-            return $sapMaterialMappings;
+            $result = array();
+            $query = SapMaterialMapping::query();
+            $sapMaterialMappings = $query->paginate($request->per_page, ['*'], 'page', $request->page);
+            $result['sap_material_mappings'] = $sapMaterialMappings->items();
+            $result['paginate'] = [
+                'current_page' => $sapMaterialMappings->currentPage(),
+                'last_page' => $sapMaterialMappings->lastPage(),
+                'total' => $sapMaterialMappings->total(),
+            ];
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
