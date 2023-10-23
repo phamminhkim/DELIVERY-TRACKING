@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 use App\Http\Controllers\Api\Master\OrderReviewOptionController;
+use App\Http\Controllers\Api\Master\CustomerMaterialController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -127,6 +128,8 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::prefix('/sap-material-mappings')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
+            Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
+            Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);
@@ -154,6 +157,10 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-groups')->group(function () {
             Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+        });
+
+        Route::prefix('/customer-materials')->group(function () {
+            Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
         });
     });
 

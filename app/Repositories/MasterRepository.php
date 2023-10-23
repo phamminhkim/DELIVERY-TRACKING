@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
 use App\Repositories\Master\CustomerGroupRepository;
 use App\Repositories\Master\SapMaterialMappingRepository;
@@ -19,6 +20,8 @@ use App\Repositories\Master\CustomerPhoneRepository;
 use App\Repositories\Master\OrderReviewOptionRepository;
 use App\Repositories\Master\SapMaterialRepository;
 use App\Repositories\Master\SapUnitRepository;
+use App\Repositories\Master\CustomerMaterialRepository;
+
 use Illuminate\Http\Request;
 
 class MasterRepository
@@ -61,6 +64,11 @@ class MasterRepository
     public static function sapMaterialMappingRequest(Request $request)
     {
         return new SapMaterialMappingRepository($request);
+    }
+
+    public static function customerMaterialRequest(Request $request)
+    {
+        return new CustomerMaterialRepository($request);
     }
     public static function sapUnitRequest(Request $request)
     {

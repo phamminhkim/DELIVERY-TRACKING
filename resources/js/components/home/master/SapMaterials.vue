@@ -1,5 +1,12 @@
 <template>
-	<CrudPage :structure="page_structure"> </CrudPage>
+    <div>
+        <template>
+            <div>
+                ádsdadsas
+            </div>
+        </template>
+        <CrudPage :structure="page_structure"></CrudPage>
+    </div>
 </template>
 
 <script>
@@ -21,6 +28,12 @@
 				},
 				table: {
 					table_fields: [
+                        {
+							key: 'unit_id',
+							label: 'Mã đơn vị',
+							sortable: true,
+							class: 'text-nowrap text-center',
+						},
 						{
 							key: 'sap_code',
 							label: 'Mã sản phẩm SAP',
