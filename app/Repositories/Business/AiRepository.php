@@ -152,7 +152,6 @@ class AiRepository extends RepositoryAbs
 
             $customer_group = $file_record->batch->customer->group;
 
-            // $created_extract_items = collect([]);
             $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
             $error_extract_items = [];
             DB::beginTransaction();
@@ -194,11 +193,6 @@ class AiRepository extends RepositoryAbs
                     'log' => $error_log,
                 ]);
             }
-            // return array(
-            //     'created_items' => $created_items,
-            //     'error_items' => $error_items,
-            // );
-
             $created_so_items = collect([]);
             $error_so_items = [];
             DB::beginTransaction();

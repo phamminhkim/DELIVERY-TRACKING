@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Business;
 
+use App\Jobs\ExtractFile;
 use App\Models\Business\Batch;
 use App\Models\Business\ExtractOrderConfig;
 use App\Models\Business\UploadedFile;
@@ -123,6 +124,7 @@ class UploadedFileRepository extends RepositoryAbs
                 $user_morph = new UserMorph(['user_id' => $this->current_user->id]);
                 $uploaded_file->user_morphs()->save($user_morph);
                 DB::commit();
+                ExtractFile::dispatch($uploaded_file->id);
                 return $uploaded_file;
             }
         } catch (\Throwable $exception) {
