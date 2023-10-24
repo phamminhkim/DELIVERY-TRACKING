@@ -30,6 +30,15 @@ class UploadedFileRepository extends RepositoryAbs
         $query->whereHas('user_morphs', function ($query) use ($user_id) {
             $query->where('user_id', $user_id);
         });
+
+        $query
+            ->with(['batch', 'raw_extract_header', 'raw_so_headers'])
+            ->orderBy('created_at', 'desc');
+        
+        $files = $query->get();
+
+        return $files;
+
     }
     public function prepareUploadFile()
     {

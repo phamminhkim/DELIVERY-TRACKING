@@ -30,4 +30,12 @@ class UploadedFile extends Model
     {
         return $this->hasMany(RawExtractItem::class);
     }
+
+    public function raw_extract_header(){
+        return $this->hasOne(RawExtractHeader::class);
+    }
+
+    public function raw_so_headers(){
+        return $this->hasMany(RawSoHeader::class);
+    }
 }

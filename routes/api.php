@@ -239,6 +239,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);
             Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
             Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
+            Route::get('/', [UploadedFileController::class, 'getFiles']);
         });
     });
 });

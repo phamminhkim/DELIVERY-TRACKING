@@ -9,6 +9,18 @@ use Illuminate\Http\Request;
 
 class UploadedFileController extends ResponseController
 {
+
+    public function getFiles(Request $request){
+        $handler = BusinessRepository::uploadedFileRequest($request);
+        $data = $handler->getFiles();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function uploadFile(Request $request)
     {
         $handler = BusinessRepository::uploadedFileRequest($request);
