@@ -12,6 +12,7 @@ use App\Repositories\Business\ApplicationRepository;
 use App\Repositories\Business\DashboardRepository;
 use App\Repositories\Business\OrderRepository;
 use App\Repositories\Business\DeliveryRepository;
+use App\Repositories\Business\RawSoHeaderRepository;
 use App\Repositories\Business\UploadedFileRepository;
 use App\Services\DataRestructureService;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
@@ -105,4 +106,10 @@ class BusinessRepository
     {
         return new UploadedFileRepository($request);
     }
+
+    static function rawSoHeaderRequest(Request $request)
+    {
+        return new RawSoHeaderRepository($request);
+    }
+
 }

@@ -16,8 +16,13 @@ class SapMaterialRepository extends RepositoryAbs
     public function getAvailableSapMaterials()
     {
         try {
-            $sapMaterials = SapMaterial::all();
-            return $sapMaterials;
+            $query = SapMaterial::query();
+            if($this->request->filled('search')){
+                $query->search($this->request->search);
+                $query->limit(200);   
+            }
+            $sap_materials = $query->get();
+            return $sap_materials;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

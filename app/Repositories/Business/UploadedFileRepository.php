@@ -32,6 +32,36 @@ class UploadedFileRepository extends RepositoryAbs
             $query->where('user_id', $user_id);
         });
 
+        if($this->request->filled('customer_groups')){
+            $customer_group_ids = $this->request->customer_groups;
+            $query->whereHas('batch', function($query) use ($customer_group_ids){
+                $query->whereHas('customer', function($query) use ($customer_group_ids){
+                    $query->whereHas('group', function($query) use ($customer_group_ids){
+                        $query->whereIn('id', $customer_group_ids);
+                    });
+                });
+            });
+        }
+
+        if($this->request->filled('customers')){
+            $customer_ids = $this->request->customers;
+            $query->whereHas('batch', function($query) use ($customer_ids){
+                $query->whereIn('customer_id', $customer_ids);
+            });
+        }
+
+        if($this->request->filled('from_date')){
+            $from_date = $this->request->from_date;
+            $query->whereDate('created_at', '>=', $from_date);
+        }
+
+        if($this->request->filled('to_date')){
+            $to_date = $this->request->to_date;
+            $query->whereDate('created_at', '<=', $to_date);
+        }
+
+        
+
         $query
             ->with(['batch', 'raw_extract_header', 'raw_so_headers'])
             ->orderBy('created_at', 'desc');

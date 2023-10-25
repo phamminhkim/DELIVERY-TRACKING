@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Http\Controllers\Api\Business;
+use App\Http\Controllers\BaseController\ResponseController;
+
+use App\Http\Controllers\Controller;
+use App\Repositories\BusinessRepository;
+use Illuminate\Http\Request;
+
+class RawSoController extends ResponseController
+{
+    public function getRawSoHeaders(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->getRawSoHeaders();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function createPromotiveRawSoHeader(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->createPromotiveRawSoHeader();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+}

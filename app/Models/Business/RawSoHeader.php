@@ -20,7 +20,14 @@ class RawSoHeader extends Model
         'po_note',
         'note',
         'sap_so_number',
-        'serial_number'
+        'serial_number',
+        'is_promotive'
+    ];
+
+    protected $casts = [
+        'po_date' => 'date',
+        'po_delivery_date' => 'date',
+        'is_promotive' => 'boolean',
     ];
 
     public function customer()
@@ -33,6 +40,10 @@ class RawSoHeader extends Model
         return $this->belongsTo(RawExtractHeader::class);
     }
 
+    public function raw_so_items()
+    {
+        return $this->hasMany(RawSoItem::class);
+    }
     public function file()
     {
         return $this->belongsTo(UploadedFile::class);

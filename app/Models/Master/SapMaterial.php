@@ -2,10 +2,12 @@
 
 namespace App\Models\Master;
 
+use App\Traits\FullTextSearch;
 use Illuminate\Database\Eloquent\Model;
 
 class SapMaterial extends Model
 {
+    use FullTextSearch;
     protected $table = 'sap_materials';
     public $timestamps = false;
     protected $fillable = [
@@ -17,6 +19,11 @@ class SapMaterial extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+    ];
+
+    protected $searchable = [
+        'sap_materials.sap_code',
+        'sap_materials.name',
     ];
 
     // public function company()

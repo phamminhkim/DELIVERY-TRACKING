@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
@@ -241,6 +242,11 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
             Route::get('/', [UploadedFileController::class, 'getFiles']);
         });
+    });
+
+    Route::prefix('raw-so-headers')->group(function () {
+        Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
+        Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
     });
 });
 

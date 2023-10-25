@@ -14,8 +14,12 @@ class RawSoItem extends Model
         'quantity',
         'note',
         'percentage',
+        'is_promotive',
     ];
 
+    protected $casts = [
+        'is_promotive' => 'boolean',
+    ];
     public function raw_extract_item()
     {
         return $this->belongsTo(RawExtractItem::class);
