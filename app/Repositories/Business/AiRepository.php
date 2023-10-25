@@ -44,6 +44,7 @@ use App\Models\Business\FileExtractError;
 use App\Models\Business\RawSoHeader;
 use App\Models\Business\RawSoItem;
 use App\Models\Master\SapMaterial;
+use App\Utilities\UniqueIdUtility;
 
 class AiRepository extends RepositoryAbs
 {
@@ -206,7 +207,7 @@ class AiRepository extends RepositoryAbs
                 )
             );
             if (!$raw_so_header->serial_number) {
-                $raw_so_header->serial_number = strtoupper(uniqid($file_record->batch->customer->code));
+                $raw_so_header->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
                 $raw_so_header->save();
             }
             $created_extract_items->load(['customer_material.mappings.sap_material']);
