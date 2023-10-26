@@ -13,7 +13,6 @@ class UploadedFileController extends ResponseController
     public function getFiles(Request $request){
         $handler = BusinessRepository::uploadedFileRequest($request);
         $data = $handler->getFiles();
-
         if ($data) {
             return $this->responseSuccess($data);
         } else {

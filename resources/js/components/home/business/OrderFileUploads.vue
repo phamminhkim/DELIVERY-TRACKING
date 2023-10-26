@@ -187,7 +187,7 @@
 				<!-- <div class="row"></div> -->
 			</div>
 			<div class="form-group">
-				<b-table :items="demo_items" :fields="fields" responsive hover striped :bordered="true" small head-variant="light">
+				<b-table :items="order_files" :fields="fields" responsive hover striped :bordered="true" small head-variant="light">
 					<template #cell(select)="data">
 						<div>
 							<input type="checkbox" />
@@ -205,7 +205,7 @@
 					</template>
 					<template #row-details="data">
 						<b-card>
-							<b-table :fields="child_fields" :items="data.item.child_items" responsive hover small head-variant="secondary" >
+							<b-table :fields="child_fields" :items="data.item.raw_so_headers" responsive hover small head-variant="secondary" >
 								<template #cell(action)="data">
 									<div>
 										<a class="mr-2">Chi tiết</a>
@@ -246,31 +246,31 @@ export default {
 
 				},
 				{
-					key: 'customer_code',
+					key: 'raw_extract_header.customer_id',
 					label: 'Mã khách hàng',
 					class: 'text-nowrap'
 
 				},
 				{
-					key: 'pdf_file_name',
+					key: 'batch_id',
 					label: 'Tên file PDF',
 					class: 'text-nowrap'
 
 				},
 				{
-					key: 'customer_group_name',
+					key: 'raw_extract_header.po_person',
 					label: 'Nhóm khách hàng',
 					class: 'text-nowrap'
 
 				},
 				{
-					key: 'sap_so_number',
+					key: 'raw_extract_header.po_number',
 					label: 'PO khách hàng',
 					class: 'text-nowrap'
 
 				},
 				{
-					key: 'status_name',
+					key: 'is_handled',
 					label: 'Trạng thái',
 					class: 'text-nowrap'
 
@@ -290,18 +290,18 @@ export default {
 
 				},
 				{
-					key: 'order_number',
+					key: 'po_number',
 					label: 'Số đơn hàng',
 					class: 'text-nowrap'
 				},
 				{
-					key: 'note',
+					key: 'po_note',
 					label: 'Ghi chú',
 					class: 'text-nowrap'
 
 				},
 				{
-					key: 'is_sync_sap',
+					key: 'searial_number',
 					label: 'Đồng bộ SAP',
 					class: 'text-nowrap'
 
@@ -402,12 +402,15 @@ export default {
 			},
 			customer_options: [],
 			customer_group_options: [],
-
+			order_files: [],
+			loading: false,
 			//api_url_ais: '/api/ai/',
+			api_url_order_file: '/api/ai/file',
 		};
 	},
 	created() {
 		this.fetchOptionsData();
+		this.fetchData();
 	},
 	mounted() {
 		console.log(this.$refs.myTable)
@@ -440,6 +443,22 @@ export default {
 				callback(null, options);
 			}
 		},
+		async fetchData(){
+			try {
+					//if (this.is_loading) return;
+					this.is_loading = true;
+					const [order_files] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', this.api_url_order_file, {
+						
+						}),
+					]);
+					this.order_files = order_files;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error.message);
+				} finally {
+					this.is_loading = false;
+				}
+		}
 
 	}
 }
