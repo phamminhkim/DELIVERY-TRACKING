@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PublicHolidaySeeder::class);
         $this->call(ExtractOrderConfigSeeder::class);
         $this->call(ExtractErrorsSeeder::class);
+        $this->call(FileStatusesSeeder::class);
     }
 }

@@ -63,7 +63,7 @@ class UploadedFileRepository extends RepositoryAbs
         
 
         $query
-            ->with(['batch', 'raw_extract_header', 'raw_so_headers'])
+            ->with(['batch.customer.group','raw_extract_header', 'raw_so_headers'])
             ->orderBy('created_at', 'desc');
 
         $files = $query->get();

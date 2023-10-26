@@ -2,6 +2,7 @@
 
 use App\Models\Business\PublicHoliday;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class PublicHolidaySeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class PublicHolidaySeeder extends Seeder
             ["name" => "Ngày Quốc khánh", "start_holiday_date" => "2023-09-01", "end_holiday_date" => "2023-09-02"]
         ];
         foreach ($public_holidays as $public_holidays) {
-            if (!PublicHoliday::where('start_holiday_date', $public_holidays['end_holiday_date'])->where('end_holiday_date', $public_holidays['end_holiday_date'])->exists())
+            if (!PublicHoliday::query()->whereDate('start_holiday_date', $public_holidays['start_holiday_date'])->whereDate('end_holiday_date', $public_holidays['end_holiday_date'])->exists())
                 PublicHoliday::create($public_holidays);
         }
 
