@@ -122,6 +122,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
         Route::prefix('/sap-materials')->group(function () {
+            Route::get('/minified', [SapMaterialController::class, 'getAvailableSapMaterialsMinified']);
             Route::get('/', [SapMaterialController::class, 'getAvailableSapMaterials']);
             Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
             Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
@@ -131,6 +132,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
             Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
+            Route::put('/{id}', [SapMaterialMappingController::class, 'updateExistingSapMaterialMapping']);
+            Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);
@@ -162,6 +165,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
+
         });
     });
 
