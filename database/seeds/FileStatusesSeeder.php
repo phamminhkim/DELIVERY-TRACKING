@@ -3,6 +3,7 @@
 use App\Models\Business\FileStatus;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class FileStatusesSeeder extends Seeder
 {
@@ -16,24 +17,29 @@ class FileStatusesSeeder extends Seeder
         $file_statuses = [
             [
                 'code' => "10",
-                'name' => "NEW"
+                'name' => "Mới",
+                'badge_class' => "badge badge-primary"
             ],
             [
                 'code' => "20",
-                'name' => "PROCESSING"
+                'name' => "Đang xử lý",
+                'badge_class' => "badge badge-warning"
             ],
             [
                 'code' => "30",
-                'name' => "SUCCESS"
+                'name' => "Hoàn thành",
+                'badge_class' => "badge badge-success"
             ],
             [
                 'code' => "40",
-                'name' => "ERROR"
+                'name' => "Lỗi",
+                'badge_class' => "badge badge-danger"
             ],
         ];
 
-        // FileStatus::query()->truncate();
-        
+
+        Schema::disableForeignKeyConstraints();
+        FileStatus::query()->truncate();
         foreach ($file_statuses as $file_status) {
             DB::beginTransaction();
             if (!FileStatus::where('code', $file_status['code'])->where('name', $file_status['name'])->exists()) {
@@ -41,7 +47,7 @@ class FileStatusesSeeder extends Seeder
             }
             DB::commit();
         }
-    
+        Schema::enableForeignKeyConstraints();
         $this->command->info('FileStatusesSeeder has been completed!');
     }
 }

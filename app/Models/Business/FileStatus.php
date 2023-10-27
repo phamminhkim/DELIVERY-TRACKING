@@ -10,6 +10,7 @@ class FileStatus extends Model
     protected $fillable = [
         'code',
         'name',
+        'badge_class'
     ];
 
 }

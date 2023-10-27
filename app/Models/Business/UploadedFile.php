@@ -14,6 +14,7 @@ class UploadedFile extends Model
         'path',
         'is_handled',
         'batch_id',
+        'status_id',
     ];
 
     public function batch()
@@ -37,5 +38,9 @@ class UploadedFile extends Model
 
     public function raw_so_headers(){
         return $this->hasMany(RawSoHeader::class);
+    }
+
+    public function status(){
+        return $this->belongsTo(FileStatus::class);
     }
 }

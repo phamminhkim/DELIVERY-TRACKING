@@ -40,7 +40,9 @@ use Illuminate\Support\Str;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
 use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
+use App\Enums\File\FileStatuses;
 use App\Models\Business\FileExtractError;
+use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
 use App\Models\Business\RawSoItem;
 use App\Models\Master\SapMaterial;
@@ -108,6 +110,9 @@ class AiRepository extends RepositoryAbs
                 $this->message = 'File không tồn tại';
                 return;
             }
+            $processing_status = FileStatus::query()->where('code', FileStatuses::PROCESSING)->first();
+            $file_record->status_id = $processing_status->id;
+            $file_record->save();
             $file_path = Storage::disk('protected')->path($file_record->path);
             $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
 
@@ -257,6 +262,9 @@ class AiRepository extends RepositoryAbs
                 ]);
             }
 
+            $success_status = FileStatus::query()->where('code', FileStatuses::SUCCESS)->first();
+            $file_record->status_id = $success_status->id;
+            $file_record->save();
             return array(
                 'created_extract_items' => $created_extract_items,
                 'error_extract_items' => $error_extract_items,
@@ -268,6 +276,9 @@ class AiRepository extends RepositoryAbs
         } catch (\Throwable $exception) {
             DB::rollBack();
             Log::info($exception->getMessage());
+            $error_status = FileStatus::query()->where('code', FileStatuses::ERROR)->first();
+            $file_record->status_id = $error_status->id;
+            $file_record->save();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

@@ -196,7 +196,7 @@
 							<div>
 								<b-button variant="warning"><i class="fas fa-sync-alt"></i></b-button>
 								<b-button variant="success" @click="data.toggleDetails"><i class="fas fa-info"></i></b-button>
-								<b-button variant="danger">Xóa</b-button>
+								<b-button variant="danger"><i class="fas fa-trash-alt"></i></b-button>
 							</div>
 						</template>
 						<template #row-details="data">
@@ -210,23 +210,28 @@
 									head-variant="secondary"
 								>
 									<template #cell(action)="data">
-										<div>
-											<a class="mr-2">Chi tiết</a>
-											<a>Xóa</a>
-										</div>
+										<b-button variant="danger"><i class="fas fa-trash-alt"></i></b-button>
 									</template>
 									<template #cell(created_at)="data">
 										{{ data.value | formatDateTime }}
+									</template>
+									<template #cell(serial_number)="data">
+										<a href="#"> {{ data.value }} </a>
 									</template>
 								</b-table>
 							</b-card>
 						</template>
 						<template #cell(path)="data">
-							{{ getFileName(data.value) }}
+							<a href="#"> {{ getFileName(data.value) }} </a>
 						</template>
 						<template #cell(created_at)="data">
 							{{ data.value | formatDateTime }}
 						</template>
+						<template #cell(status)="data">
+							<span :class="data.value.badge_class">{{ data.value.name}}</span>
+						</template>
+
+
 					</b-table>
 				</div>
 				<div class="row">
@@ -311,10 +316,10 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'is_handled',
+						key: 'status',
 						label: 'Trạng thái',
 						sortable: true,
-						class: 'text-nowrap',
+						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'action',
@@ -358,7 +363,7 @@
 						key: 'action',
 						label: 'Action',
 						sortable: true,
-						class: 'text-nowrap',
+						class: 'text-nowrap text-center',
 					},
 				],
 				demo_items: [

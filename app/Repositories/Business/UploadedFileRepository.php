@@ -2,9 +2,11 @@
 
 namespace App\Repositories\Business;
 
+use App\Enums\File\FileStatuses;
 use App\Jobs\ExtractFile;
 use App\Models\Business\Batch;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\FileStatus;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
@@ -59,7 +61,7 @@ class UploadedFileRepository extends RepositoryAbs
             $query->whereDate('created_at', '<=', $to_date);
         }
         $query
-            ->with(['batch.customer.group','raw_extract_header', 'raw_so_headers'])
+            ->with(['batch.customer.group', 'raw_so_headers', 'status'])
             ->orderBy('created_at', 'desc');
         $files = $query->get();
 
@@ -138,12 +140,14 @@ class UploadedFileRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
+                $new_status = FileStatus::where('code', FileStatuses::NEW)->first();
                 DB::beginTransaction();
                 $file = $this->request->file('file');
                 $file_path = $this->file_service->saveProtectedFile($file, $this->current_user->id, $this->data['batch_id']);
                 $uploaded_file = UploadedFile::create([
                     'path' => $file_path,
                     'batch_id' => $this->data['batch_id'],
+                    'status_id' => $new_status->id,
                 ]);
                 $user_morph = new UserMorph(['user_id' => $this->current_user->id]);
                 $uploaded_file->user_morphs()->save($user_morph);
