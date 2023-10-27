@@ -170,7 +170,7 @@ class UploadedFileRepository extends RepositoryAbs
             return;
         }
         // dd($file->users->pluck('morphable_id')->toArray(), $this->current_user->id);
-        if (!(in_array($this->current_user->id, $file->users->pluck('user_id')->toArray()) || $this->current_user->hasRole('admin'))) {
+        if (!(in_array($this->current_user->id, $file->user_morphs->pluck('user_id')->toArray()) || $this->current_user->hasRole('admin'))) {
             $this->message = 'Bạn không có quyền truy cập file này';
             return;
         }
