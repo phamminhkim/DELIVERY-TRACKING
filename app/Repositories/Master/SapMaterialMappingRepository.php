@@ -121,19 +121,39 @@ class SapMaterialMappingRepository extends RepositoryAbs
     }
 
 
-    public function getAvailableSapMaterialMappings($request)
+    public function getAvailableSapMaterialMappings()
     {
         try {
-            $result = array();
+            // $result = array();
+            // $query = SapMaterialMapping::query();
+            // $sapMaterialMappings = $query->paginate($request->per_page, ['*'], 'page', $request->page);
+            // $result = $sapMaterialMappings->items();
+            // $result['paginate'] = [
+            //     'current_page' => $sapMaterialMappings->currentPage(),
+            //     'last_page' => $sapMaterialMappings->lastPage(),
+            //     'total' => $sapMaterialMappings->total(),
+            // ];
+            // return $result;
             $query = SapMaterialMapping::query();
-            $sapMaterialMappings = $query->paginate($request->per_page, ['*'], 'page', $request->page);
-            $result['sap_material_mappings'] = $sapMaterialMappings->items();
-            $result['paginate'] = [
-                'current_page' => $sapMaterialMappings->currentPage(),
-                'last_page' => $sapMaterialMappings->lastPage(),
-                'total' => $sapMaterialMappings->total(),
-            ];
-            return $result;
+
+            if ($this->request->filled('search')) {
+                $query->search($this->request->search);
+                $query->limit(200);
+            }
+
+            if ($this->request->filled('customer_material_ids')) {
+                $customer_material_ids = $this->request->customer_material_ids;
+                $query->whereIn('customer_material_id', $customer_material_ids);
+            }
+
+            if ($this->request->filled('sap_material_ids')) {
+                $sap_material_ids = $this->request->sap_material_ids;
+                $query->whereIn('sap_material_id', $sap_material_ids);
+            }
+
+            $sapMaterialMappings = $query->get();
+
+            return $sapMaterialMappings;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -145,14 +165,14 @@ class SapMaterialMappingRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 // 'company_id' => 'required|integer|exists:companies,code',
-                'customer_material_id' => 'required|string|exists:customer_materials,id',
-                'sap_material_id' => 'required|string|exists:sap_materials,id',
+                'customer_material_id' => 'required|integer|exists:customer_materials,id',
+                'sap_material_id' => 'required|integer|exists:sap_materials,id',
                 'percentage' => 'required|integer',
             ], [
                 'customer_material_id.required' => 'Yêu cầu nhập mã sản phẩm khách hàng.',
-                'customer_material_id.string' => 'Mã sản phẩm khách hàng phải là chuỗi.',
+                'customer_material_id.integer' => 'Mã sản phẩm khách hàng phải là chuỗi.',
                 'customer_material_id.exists' => 'Mã sản phẩm khách hàng đã tồn tại.',
-                'sap_material_id.string' => 'Mã đối chiếu phải là chuỗi.',
+                'sap_material_id.integer' => 'Mã đối chiếu phải là chuỗi.',
                 'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
                 'percentage.required' => 'Yêu cầu nhập tỉ lệ sản phẩm.',
                 'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
@@ -184,7 +204,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $sapMaterialMapping = SapMaterialMapping::create([
                     'customer_material_id' => $this->data['customer_material_id'],
                     'sap_material_id' => $this->data['sap_material_id'],
-                    'percentage' => $this->data['name'],
+                    'percentage' => $this->data['percentage'],
                 ]);
 
                 return $sapMaterialMapping;
@@ -194,147 +214,140 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    // public function updateOrInsert()
-    // {
-    //     $validator = Validator::make($this->data, [
-    //         // '*.company_code' => 'required|string|exists:companies,code',
-    //         '*.code' => 'required|string',
-    //         '*.name' => 'required|string',
-    //     ], [
-    //         // '*.company_code.required' => 'Yêu cầu nhập mã công ty.',
-    //         // '*.company_code.string' => 'Mã công ty phải là chuỗi.',
-    //         // '*.company_code.exists' => 'Mã công ty không tồn tại.',
-    //         '*.code.required' => 'Yêu cầu nhập mã material.',
-    //         '*.code.string' => 'Mã material phải là chuỗi.',
-    //         '*.name.required' => 'Yêu cầu nhập tên material.',
-    //         '*.name.string' => 'Tên material phải là chuỗi.',
-    //     ]);
+    public function updateOrInsert()
+    {
+        $validator = Validator::make($this->data, [
+            // '*.company_code' => 'required|string|exists:companies,code',
+            '*.code' => 'required|string',
+            '*.name' => 'required|string',
+        ], [
+            // '*.company_code.required' => 'Yêu cầu nhập mã công ty.',
+            // '*.company_code.string' => 'Mã công ty phải là chuỗi.',
+            // '*.company_code.exists' => 'Mã công ty không tồn tại.',
+            '*.code.required' => 'Yêu cầu nhập mã material.',
+            '*.code.string' => 'Mã material phải là chuỗi.',
+            '*.name.required' => 'Yêu cầu nhập tên material.',
+            '*.name.string' => 'Tên material phải là chuỗi.',
+        ]);
 
-    //     if ($validator->fails()) {
-    //         $this->errors = $validator->errors()->all();
-    //         return $this->errors;
-    //     } else {
-    //         try {
-    //             $result = array(
-    //                 'insert_count' => 0,
-    //                 'update_count' => 0,
-    //                 'skip_count' => 0,
-    //                 'delete_count' => 0,
-    //                 'error_count' => 0,
-    //             );
-    //             foreach ($this->data as $material) {
-    //                 // $company_id = '';
-    //                 $unit = SapUnit::where('unit_code', $material['unit_code'])->first();
-    //                 if (!$unit) {
-    //                     $unit = SapUnit::create(['unit_code' => $material['unit_code']]);
-    //                 }
-    //                 // $company = Company::where('code', $material['company_code'])->first();
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->all();
+            return $this->errors;
+        } else {
+            try {
+                $result = array(
+                    'insert_count' => 0,
+                    'update_count' => 0,
+                    'skip_count' => 0,
+                    'delete_count' => 0,
+                    'error_count' => 0,
+                );
+                foreach ($this->data as $material) {
+                    // $company_id = '';
+                    $unit = SapUnit::where('unit_code', $material['unit_code'])->first();
+                    if (!$unit) {
+                        $unit = SapUnit::create(['unit_code' => $material['unit_code']]);
+                    }
+                    // $company = Company::where('code', $material['company_code'])->first();
 
-    //                 // if (!$company) {
-    //                 //     $result['skip_count']++;
-    //                 //     continue;
-    //                 // }
-    //                 $exist_sap_material = SapMaterial::query()
-    //                     // ->where('company_id',  $company->code)
-    //                     ->where('sap_code', $material['code'])
-    //                     ->where('unit_id', $unit->id)->first();
+                    // if (!$company) {
+                    //     $result['skip_count']++;
+                    //     continue;
+                    // }
+                    $exist_sap_material = SapMaterial::query()
+                        // ->where('company_id',  $company->code)
+                        ->where('sap_code', $material['code'])
+                        ->where('unit_id', $unit->id)->first();
 
-    //                 if ($material['status'] == "delete") {
-    //                     $exist_sap_material->is_deleted = true;
-    //                     $exist_sap_material->save();
-    //                 } {
-    //                     if ($exist_sap_material) {
-    //                         $exist_sap_material->update([
-    //                             'name' => $material['name'],
-    //                         ]);
-    //                         $result['update_count']++;
-    //                     } else {
+                    if ($material['status'] == "delete") {
+                        $exist_sap_material->is_deleted = true;
+                        $exist_sap_material->save();
+                    } {
+                        if ($exist_sap_material) {
+                            $exist_sap_material->update([
+                                'name' => $material['name'],
+                            ]);
+                            $result['update_count']++;
+                        } else {
 
-    //                         SapMaterial::create([
-    //                             // 'company_id' => $company->code,
-    //                             'unit_id' => $unit->id,
-    //                             'sap_code' => $material['code'],
-    //                             'name' => $material['name'],
-    //                         ]);
-    //                         $result['insert_count']++;
-    //                     }
-    //                 }
-    //             }
-    //             return $result;
-    //         } catch (\Exception $exception) {
-    //             $this->message = $exception->getMessage();
-    //             $this->errors = $exception->getTrace();
-    //         }
-    //     }
-    // }
-    // public function updateExistingSapMaterial($id)
-    // {
-    //     try {
-    //         $validator = Validator::make($this->data, [
-    //             // 'company_id' => 'required|integer|exists:companies,code',
-    //             'sap_code' => 'required|string:sap_materials,sap_code,',
-    //             'unit_id' => 'required|integer|exists:sap_units,id',
-    //             'name' => 'required|string',
-    //         ], [
-    //             // 'company_id.required' => 'Yêu cầu nhập mã công ty.',
-    //             // 'company_id.integer' => 'Mã công ty phải là chuỗi.',
-    //             // 'company_id.exists' => 'Mã công ty không tồn tại.',
-    //             'sap_code.required' => 'Yêu cầu nhập mã material.',
-    //             'sap_code.string' => 'Mã công ty phải là chuỗi.',
-    //             //'sap_code.unique' => 'Mã material đã tồn tại.',
-    //             //'unit_id.integer' => 'Mã material phải là chuỗi.',
-    //             'unit_id.exists' => 'Mã unit không tồn tại.',
-    //             'name.required' => 'Yêu cầu nhập tên material.',
-    //             'name.string' => 'Tên material phải là chuỗi.',
-    //         ]);
+                            SapMaterial::create([
+                                // 'company_id' => $company->code,
+                                'unit_id' => $unit->id,
+                                'sap_code' => $material['code'],
+                                'name' => $material['name'],
+                            ]);
+                            $result['insert_count']++;
+                        }
+                    }
+                }
+                return $result;
+            } catch (\Exception $exception) {
+                $this->message = $exception->getMessage();
+                $this->errors = $exception->getTrace();
+            }
+        }
+    }
+    public function updateExistingSapMaterialMapping($id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'customer_material_id' => 'integer|exists:customer_materials,id',
+                'sap_material_id' => 'integer|exists:sap_materials,id',
+                'percentage' => 'integer',
+            ], [
+                'customer_material_id.integer' => 'Mã sản phẩm khách hàng phải là chuỗi.',
+                'customer_material_id.exists' => 'Mã sản phẩm khách hàng đã tồn tại.',
+                'sap_material_id.integer' => 'Mã đối chiếu phải là chuỗi.',
+                'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
+                'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
+            ]);
 
-    //         if ($validator->fails()) {
-    //             $errors = $validator->errors();
-    //             foreach ($this->data as $SapMaterial => $validator) {
-    //                 if ($errors->has($SapMaterial)) {
-    //                     $this->errors[$SapMaterial] = $errors->first($SapMaterial);
-    //                     return false;
-    //                 }
-    //             }
-    //         } else {
-    //             // $company = Company::where('code', $this->data['company_id'])->first();
-    //             // if (!$company) {
-    //             //     $this->errors = 'Không tìm thấy công ty có mã ' . $this->data['company_id'];
-    //             //     return false;
-    //             // }
+            if ($validator->fails()) {
+                $errors = $validator->errors();
+                foreach ($this->data as $field => $value) {
+                    if ($errors->has($field)) {
+                        $this->errors[$field] = $errors->first($field);
+                        return false;
+                    }
+                }
+            } else {
+                $customer_material = CustomerMaterial::find($this->data['customer_material_id']);
+                if (!$customer_material) {
+                    $this->errors = 'Không tìm thấy mã sản phẩm khách hàng ' . $this->data['customer_material_id'];
+                    return false;
+                }
 
-    //             $sap_unit = SapUnit::find($this->data['unit_id']);
-    //             if (!$sap_unit) {
-    //                 $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
-    //                 return false;
-    //             }
+                $sap_material = SapMaterial::find($this->data['sap_material_id']);
+                if (!$sap_material) {
+                    $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $this->data['sap_material_id'];
+                    return false;
+                }
+                $this->data['sap_material_id'] = $sap_material->id ?? null;
 
-    //             $sapMaterial = SapMaterial::findOrFail($id);
-    //             $sapMaterial->fill([
-    //                 // 'company_id' => $this->data['company_id'],
-    //                 'sap_code' => $this->data['sap_code'],
-    //                 'unit_id' => $this->data['unit_id'],
-    //                 'name' => $this->data['name'],
-    //             ]);
-    //             $sapMaterial->save();
+                $sapMaterialMapping = SapMaterialMapping::findOrFail($id);
+                $sapMaterialMapping->fill([
+                    'customer_material_id' => $this->data['customer_material_id'],
+                    'sap_material_id' => $this->data['sap_material_id'],
+                    'percentage' => $this->data['percentage'],
+                ]);
+                $sapMaterialMapping->save();
 
-    //             return $sapMaterial;
-    //         }
-    //     } catch (\Exception $exception) {
-    //         $this->message = $exception->getMessage();
-    //         $this->errors = $exception->getTrace();
-    //     }
-    // }
-    // public function deleteExistingSapMaterial($id)
-    // {
-    //     try {
-    //         $sapMaterial = SapMaterial::findOrFail($id);
-    //         $sapMaterial->delete();
-    //         return $sapMaterial;
-    //     } catch (\Exception $exception) {
-    //         $this->message = $exception->getMessage();
-    //         $this->errors = $exception->getTrace();
-    //     }
-    // }
-
+                return $sapMaterialMapping;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function deleteExistingSapMaterialMapping($id)
+    {
+        try {
+            $sapMaterialMapping = SapMaterialMapping::findOrFail($id);
+            $sapMaterialMapping->delete();
+            return $sapMaterialMapping;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 }

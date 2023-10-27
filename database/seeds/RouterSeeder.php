@@ -118,12 +118,12 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Bảng đối chiếu sản phẩm',
                 'path' => '/sap-material-mappings',
-                'component' => 'home/master/SapMaterialMapping'
+                'component' => 'home/sap/SapMaterialMapping'
             ],
             [
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
-                'component' => 'home/master/SapMaterials'
+                'component' => 'home/sap/SapMaterials'
             ]
 
         ];

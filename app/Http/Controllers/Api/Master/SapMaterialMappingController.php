@@ -27,7 +27,7 @@ class SapMaterialMappingController extends ResponseController
     {
 
         $handler = MasterRepository::sapMaterialMappingRequest($request);
-        $sapMaterialMappings = $handler->getAvailableSapMaterialMappings($request);
+        $sapMaterialMappings = $handler->getAvailableSapMaterialMappings();
 
         if ($sapMaterialMappings) {
             return $this->responseSuccess($sapMaterialMappings);
@@ -49,21 +49,21 @@ class SapMaterialMappingController extends ResponseController
          }
      }
      //update
-     public function updateSapMaterialMappings(Request $request, $id)
+     public function updateExistingSapMaterialMapping(Request $request, $id)
      {
-         $handler = MasterRepository::sapMaterialRequest($request);
-         $sapMaterial = $handler->updateExistingSapMaterial($id);
+         $handler = MasterRepository::sapMaterialMappingRequest($request);
+         $sapMaterialMapping = $handler->updateExistingSapMaterialMapping($id);
 
-         if ($sapMaterial) {
-             return $this->responseSuccess($sapMaterial);
+         if ($sapMaterialMapping) {
+             return $this->responseSuccess($sapMaterialMapping);
          } else {
              return $this->responseError($handler->getMessage(), $handler->getErrors());
          }
      }
-     public function deleteExistingSapMaterial(Request $request, $id)
+     public function deleteExistingSapMaterialMapping(Request $request, $id)
      {
-         $handler = MasterRepository::sapMaterialRequest($request);
-         $is_success = $handler->deleteExistingSapMaterial($id);
+         $handler = MasterRepository::sapMaterialMappingRequest($request);
+         $is_success = $handler->deleteExistingSapMaterialMapping($id);
 
          if ($is_success) {
              return $this->responseOk();

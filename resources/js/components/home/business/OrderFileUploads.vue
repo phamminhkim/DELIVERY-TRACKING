@@ -32,7 +32,7 @@
 					</div>
 				</div> -->
 				<!-- <b-collapse class="row" id="collapse-1">
-				
+
 				</b-collapse> -->
 
 				<div class="col-sm-12">
@@ -492,8 +492,9 @@
 						new APIRequest('get', this.api_url_order_file, {}),
 					]);
 					this.order_files = order_files;
+                    toastr.success('Lấy dữ liệu thành công');
 				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error.message);
+					toastr.error('Lỗi');
 				} finally {
 					this.is_loading = false;
 				}
