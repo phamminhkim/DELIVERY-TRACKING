@@ -165,7 +165,6 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
-
         });
     });
 
@@ -229,6 +228,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('ai')->group(function () {
         Route::prefix('/extract-order')->group(function () {
+            Route::delete('/clean', [AiController::class, 'clean']);
             Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
             Route::post('/', [AiController::class, 'extractOrder']);
         });
@@ -249,6 +249,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('raw-so-headers')->group(function () {
+        Route::get('/{id}', [RawSoController::class, 'getRawSoHeaderById']);
         Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
         Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
     });

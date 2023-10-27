@@ -41,12 +41,15 @@ use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
 use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
 use App\Enums\File\FileStatuses;
+use App\Exceptions\Ai\NotFoundCustomerMaterialException;
+use App\Exceptions\Ai\NotFoundSapMaterialException;
 use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
 use App\Models\Business\RawSoItem;
 use App\Models\Master\SapMaterial;
 use App\Utilities\UniqueIdUtility;
+use Exception;
 
 class AiRepository extends RepositoryAbs
 {
@@ -108,7 +111,7 @@ class AiRepository extends RepositoryAbs
             $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group'])->find($file_id);
             if (!$file_record) {
                 $this->message = 'File không tồn tại';
-                return;
+                return false;
             }
             $processing_status = FileStatus::query()->where('code', FileStatuses::PROCESSING)->first();
             $file_record->status_id = $processing_status->id;
@@ -155,12 +158,11 @@ class AiRepository extends RepositoryAbs
                 ]);
                 throw $exception;
             }
-
+            DB::beginTransaction();
             $customer_group = $file_record->batch->customer->group;
 
             $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
             $error_extract_items = [];
-            DB::beginTransaction();
             $raw_extract_header = RawExtractHeader::firstOrCreate([
                 'customer_id' => $file_record->batch->customer_id,
                 'uploaded_file_id' => $file_record->id,
@@ -186,22 +188,12 @@ class AiRepository extends RepositoryAbs
                 ]);
                 $created_extract_items->push($raw_extract_item);
             }
-            DB::commit();
             if (count($error_extract_items) > 0) {
-                $not_found_customer_error = ExtractError::query()->where('code', ExtractErrorsEnum::NOT_FOUND_CUSTOMER_MATERIAL)->first();
                 $error_log = json_encode($error_extract_items);
-                $file_extract_error = FileExtractError::create([
-                    'uploaded_file_id' => $file_record->id,
-                    'extract_error_id' => $not_found_customer_error->id,
-                ]);
-                FileExtractErrorLog::create([
-                    'file_extract_error_id' => $file_extract_error->id,
-                    'log' => $error_log,
-                ]);
+                throw new NotFoundCustomerMaterialException($file_record->id, $error_log);
             }
             $created_so_items = collect([]);
             $error_so_items = [];
-            DB::beginTransaction();
 
             $raw_so_header = RawSoHeader::firstOrCreate(
                 array_merge(
@@ -248,23 +240,15 @@ class AiRepository extends RepositoryAbs
                     $min_quantity_so_item->quantity = $min_quantity_so_item->quantity + ($extract_item_quantity - $so_items_quantity);
                 }
             }
-            DB::commit();
             if (count($error_so_items) > 0) {
-                $not_found_sap_error = ExtractError::query()->where('code', ExtractErrorsEnum::NOT_FOUND_SAP_MATERIAL)->first();
                 $error_log = json_encode($error_so_items);
-                $file_extract_error = FileExtractError::create([
-                    'uploaded_file_id' => $file_record->id,
-                    'extract_error_id' => $not_found_sap_error->id,
-                ]);
-                FileExtractErrorLog::create([
-                    'file_extract_error_id' => $file_extract_error->id,
-                    'log' => $error_log,
-                ]);
+                throw new NotFoundSapMaterialException($file_record->id, $error_log);
             }
-
             $success_status = FileStatus::query()->where('code', FileStatuses::SUCCESS)->first();
             $file_record->status_id = $success_status->id;
             $file_record->save();
+
+            DB::commit();
             return array(
                 'created_extract_items' => $created_extract_items,
                 'error_extract_items' => $error_extract_items,
@@ -283,6 +267,7 @@ class AiRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
 
     private function extractData($file_path, $extract_data_config = null)
     {

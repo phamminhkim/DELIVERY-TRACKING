@@ -18,6 +18,10 @@ class ExtractFile implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 0;
+    public $maxExceptions = 0;
+
+
     protected $file_id;
 
     protected $ai_repostitory;

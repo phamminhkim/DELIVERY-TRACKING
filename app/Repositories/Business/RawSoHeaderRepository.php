@@ -24,6 +24,21 @@ class RawSoHeaderRepository extends RepositoryAbs
         return $raw_so_headers;
     }
 
+    public function getRawSoHeaderById($id)
+    {
+        $query = RawSoHeader::query();
+        $query->with([
+            'raw_so_items',
+            'raw_so_items.raw_extract_item.customer_material',
+            'raw_so_items.sap_material.unit',
+            'customer.group',
+
+        ]);
+
+        $raw_so_header = $query->find($id);
+        return $raw_so_header;
+    }
+
     public function createPromotiveRawSoHeader()
     {
         try {
@@ -41,7 +56,7 @@ class RawSoHeaderRepository extends RepositoryAbs
                 'items.*.sap_material.exists' => 'Sản phẩm không tồn tại',
                 'items.*.quantity.required' => 'Số lượng là bắt buộc',
                 'items.*.quantity.numeric' => 'Số lượng phải là số',
-                'items.*.quantity.min' => 'Số lượng phải lớn hơn 0',   
+                'items.*.quantity.min' => 'Số lượng phải lớn hơn 0',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -54,7 +69,7 @@ class RawSoHeaderRepository extends RepositoryAbs
                 $new_raw_so_header->save();
 
                 $items = $this->data['items'];
-                foreach($items as $item){
+                foreach ($items as $item) {
                     $raw_so_item = RawSoItem::create([
                         'raw_extract_item_id' => null,
                         'raw_so_header_id' => $new_raw_so_header->id,
@@ -76,9 +91,10 @@ class RawSoHeaderRepository extends RepositoryAbs
         }
     }
 
-    public function deleteRawSoHeader($id){
+    public function deleteRawSoHeader($id)
+    {
         $raw_so_header = RawSoHeader::query()->find($id);
-        if($raw_so_header){
+        if ($raw_so_header) {
             $raw_so_header->delete();
             RawSoItem::query()->where('raw_so_header_id', $id)->delete();
             return true;
@@ -86,33 +102,35 @@ class RawSoHeaderRepository extends RepositoryAbs
         return false;
     }
 
-    public function updateRawSoHeader($id){
+    public function updateRawSoHeader($id)
+    {
         try {
             $raw_so_header = RawSoHeader::query()->find($id);
-            if(!$raw_so_header){
+            if (!$raw_so_header) {
                 $this->errors[] = 'Raw SO Header không tồn tại';
                 return false;
             }
             $raw_so_header->update($this->data);
             return $raw_so_header;
-        }
-        catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
 
-    public function deleteRawSoItem($raw_so_item_id){
+    public function deleteRawSoItem($raw_so_item_id)
+    {
         $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
-        if($raw_so_item){
+        if ($raw_so_item) {
             $raw_so_item->delete();
             return true;
         }
         return false;
     }
 
-    public function addRawSoItemToRawSoHeader(){
+    public function addRawSoItemToRawSoHeader()
+    {
         try {
             $validator = Validator::make($this->data, [
                 'raw_so_header_id' => 'required|exists:raw_so_headers,id',
@@ -126,7 +144,7 @@ class RawSoHeaderRepository extends RepositoryAbs
                 'sap_material_id.exists' => 'Sản phẩm không tồn tại',
                 'quantity.required' => 'Số lượng là bắt buộc',
                 'quantity.numeric' => 'Số lượng phải là số',
-                'quantity.min' => 'Số lượng phải lớn hơn 0',   
+                'quantity.min' => 'Số lượng phải lớn hơn 0',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -143,15 +161,15 @@ class RawSoHeaderRepository extends RepositoryAbs
                 DB::commit();
                 return $raw_so_item;
             }
-        }
-        catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
 
-    public function updateRawSoItem($raw_so_item_id){
+    public function updateRawSoItem($raw_so_item_id)
+    {
         try {
             $validator = Validator::make($this->data, [
                 'quantity' => 'required|numeric|min:1',
@@ -165,7 +183,7 @@ class RawSoHeaderRepository extends RepositoryAbs
             } else {
                 DB::beginTransaction();
                 $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
-                if(!$raw_so_item){
+                if (!$raw_so_item) {
                     $this->errors[] = 'Raw SO Item không tồn tại';
                     return false;
                 }
@@ -173,8 +191,7 @@ class RawSoHeaderRepository extends RepositoryAbs
                 DB::commit();
                 return $raw_so_item;
             }
-        }
-        catch (\Throwable $exception) {
+        } catch (\Throwable $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

@@ -21,6 +21,18 @@ class RawSoController extends ResponseController
         }
     }
 
+    public function getRawSoHeaderById(Request $request, $id)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->getRawSoHeaderById($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function createPromotiveRawSoHeader(Request $request)
     {
         $handler = BusinessRepository::rawSoHeaderRequest($request);

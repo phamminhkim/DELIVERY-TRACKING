@@ -2,47 +2,14 @@
 	<div class="container-fluid">
 		<div class="p-3 border" style="border-radius: 10px">
 			<div>
-				<!-- <div class="row">
-					<div class="col-lg-12">
-						<div class="form-group row">
-							<div class="btn-group">
-								<button
-									type="button"
-									class="btn btn-warning btn-xs"
-									@click="is_show_search = !is_show_search"
-									v-b-toggle.collapse-1
-								>
-									<span v-if="!is_show_search">Hiện tìm kiếm</span>
-									<span v-if="is_show_search">Ẩn tìm kiếm</span>
-								</button>
-								<button
-									type="button"
-									class="btn btn-warning btn-xs"
-									@click="is_show_search = !is_show_search"
-									v-b-toggle.collapse-1
-								>
-									<i v-if="is_show_search" class="fas fa-angle-up"></i>
-									<i v-else class="fas fa-angle-down"></i>
-								</button>
-							</div>
-							<button @click="filterData()" class="btn btn-secondary btn-xs ml-1">
-								<i class="fas fa-sync-alt" title="Tải lại"></i>
-							</button>
-						</div>
-					</div>
-				</div> -->
-				<!-- <b-collapse class="row" id="collapse-1">
-
-				</b-collapse> -->
-
 				<div class="col-sm-12">
 					<div class="card">
-						<div class="card-body text-xs">
+						<div class="card-body">
 							<div class="form-group row">
 								<div class="col-md-6 row align-items-center">
 									<div class="col-md-4">
 										<div class="text-lg-right">
-											<label class="text-xs" for="">Nhóm khách hàng</label>
+											<label class="" for="">Nhóm khách hàng</label>
 										</div>
 									</div>
 									<div class="col-md-8">
@@ -84,7 +51,7 @@
 								<div class="col-md-6 row align-items-center">
 									<div class="col-md-4">
 										<div class="text-lg-right">
-											<label class="text-xs" for="">Từ ngày</label>
+											<label class="" for="">Từ ngày</label>
 										</div>
 									</div>
 									<div class="col-md-8">
@@ -98,7 +65,7 @@
 								<div class="col-md-6 row align-items-center">
 									<div class="col-md-4">
 										<div class="text-lg-right">
-											<label class="text-xs" for="">Đến ngày</label>
+											<label class="" for="">Đến ngày</label>
 										</div>
 									</div>
 									<div class="col-md-8">
@@ -114,7 +81,7 @@
 								<div class="col-md-6 row align-items-center">
 									<div class="col-md-4">
 										<div class="text-lg-right">
-											<label class="text-xs" for="">Trạng thái</label>
+											<label class="" for="">Trạng thái</label>
 										</div>
 									</div>
 									<div class="col-md-8">
@@ -128,7 +95,7 @@
 								<div class="col-md-6 row align-items-center">
 									<div class="col-md-4">
 										<div class="text-md-right">
-											<label class="text-xs" for="">PO khách hàng</label>
+											<label class="" for="">PO khách hàng</label>
 										</div>
 									</div>
 									<div class="col-md-8">
@@ -167,7 +134,7 @@
 				<!-- <div class="row"></div> -->
 			</div>
 			<div class="form-group">
-				<div >
+				<div>
 					<b-table
 						:items="order_files"
 						:fields="fields"
@@ -194,9 +161,15 @@
 						</template>
 						<template #cell(action)="data">
 							<div>
-								<b-button variant="warning"><i class="fas fa-sync-alt"></i></b-button>
-								<b-button variant="success" @click="data.toggleDetails"><i class="fas fa-info"></i></b-button>
-								<b-button variant="danger"><i class="fas fa-trash-alt"></i></b-button>
+								<b-button variant="warning"
+									><i class="fas fa-sync-alt"></i
+								></b-button>
+								<b-button variant="info" @click="data.toggleDetails"
+									><i class="fas fa-info"></i
+								></b-button>
+								<b-button variant="danger"
+									><i class="fas fa-trash-alt"></i
+								></b-button>
 							</div>
 						</template>
 						<template #row-details="data">
@@ -210,13 +183,17 @@
 									head-variant="secondary"
 								>
 									<template #cell(action)="data">
-										<b-button variant="danger"><i class="fas fa-trash-alt"></i></b-button>
+										<b-button variant="danger"
+											><i class="fas fa-trash-alt"></i
+										></b-button>
 									</template>
 									<template #cell(created_at)="data">
 										{{ data.value | formatDateTime }}
 									</template>
 									<template #cell(serial_number)="data">
-										<a href="#"> {{ data.value }} </a>
+										<a href="#" @click="showInfoDialog(data.item.id)">
+											{{ data.value }}
+										</a>
 									</template>
 								</b-table>
 							</b-card>
@@ -228,10 +205,8 @@
 							{{ data.value | formatDateTime }}
 						</template>
 						<template #cell(status)="data">
-							<span :class="data.value.badge_class">{{ data.value.name}}</span>
+							<span :class="data.value.badge_class">{{ data.value.name }}</span>
 						</template>
-
-
 					</b-table>
 				</div>
 				<div class="row">
@@ -246,7 +221,11 @@
 						>
 						</b-form-select>
 					</div>
-					<label class="col-form-label-sm col-md-1" style="text-align: left" for=""></label>
+					<label
+						class="col-form-label-sm col-md-1"
+						style="text-align: left"
+						for=""
+					></label>
 					<div class="col-md-3">
 						<b-pagination
 							v-model="pagination.current_page"
@@ -259,15 +238,17 @@
 				</div>
 			</div>
 		</div>
+		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" />
 	</div>
 </template>
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
-	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import APIHandler from '../ApiHandler';
+	import APIHandler, { APIRequest } from '../ApiHandler';
+	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
 	export default {
 		components: {
 			Treeselect,
+			DialogRawSoHeaderInfo,
 		},
 		data() {
 			return {
@@ -366,78 +347,6 @@
 						class: 'text-nowrap text-center',
 					},
 				],
-				demo_items: [
-					{
-						id: 1,
-						created_at: '2021-08-01',
-						customer_code: 'KH001',
-						pdf_file_name: 'file1.pdf',
-						customer_group_name: 'Nhóm khách hàng 1',
-						sap_so_number: 'PO001',
-						status_name: 'Đã duyệt',
-						child_items: [
-							{
-								id: 1,
-								created_at: '2021-08-01',
-								order_number: 'SO00001',
-								note: 'Ghi chú 1',
-								is_sync_sap: true,
-								sap_so_number: 'SO00001',
-							},
-							{
-								id: 2,
-								created_at: '2021-08-02',
-								order_number: 'SO00002',
-								note: 'Ghi chú 2',
-								is_sync_sap: true,
-								sap_so_number: 'SO00002',
-							},
-							{
-								id: 3,
-								created_at: '2021-08-03',
-								order_number: 'SO00003',
-								note: 'Ghi chú 3',
-								is_sync_sap: true,
-								sap_so_number: 'SO00003',
-							},
-						],
-					},
-					{
-						id: 2,
-						created_at: '2021-08-02',
-						customer_code: 'KH002',
-						pdf_file_name: 'file1.pdf',
-						customer_group_name: 'Nhóm khách hàng 2',
-						sap_so_number: 'PO002',
-						status_name: 'Đã duyệt',
-						child_items: [
-							{
-								id: 4,
-								created_at: '2021-08-01',
-								order_number: 'SO00004',
-								note: 'Ghi chú 4',
-								is_sync_sap: true,
-								sap_so_number: 'SO00004',
-							},
-							{
-								id: 5,
-								created_at: '2021-08-05',
-								order_number: 'SO00005',
-								note: 'Ghi chú 5',
-								is_sync_sap: true,
-								sap_so_number: 'SO00005',
-							},
-							{
-								id: 6,
-								created_at: '2021-08-06',
-								order_number: 'SO00006',
-								note: 'Ghi chú 6',
-								is_sync_sap: true,
-								sap_so_number: 'SO00006',
-							},
-						],
-					},
-				],
 
 				is_show_search: false,
 				form_filter: {
@@ -450,22 +359,13 @@
 				customer_options: [],
 				customer_group_options: [],
 				order_files: [],
-				loading: false,
-				//api_url_ais: '/api/ai/',
+				viewing_raw_so_header_id: null,
 				api_url_order_file: '/api/ai/file',
 			};
 		},
 		created() {
 			this.fetchOptionsData();
 			this.fetchData();
-		},
-		mounted() {
-			console.log(this.$refs.myTable);
-			this.$nextTick(() => {
-				this.$refs.myTable.rows.forEach((row) => {
-					row.toggleDetails();
-				});
-			});
 		},
 		methods: {
 			async fetchOptionsData() {
@@ -491,13 +391,12 @@
 			},
 			async fetchData() {
 				try {
-					// if (this.is_loading) return;
 					this.is_loading = true;
 					const [order_files] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', this.api_url_order_file, {}),
 					]);
 					this.order_files = order_files;
-                    toastr.success('Lấy dữ liệu thành công');
+					toastr.success('Lấy dữ liệu thành công');
 				} catch (error) {
 					toastr.error('Lỗi');
 				} finally {
@@ -508,6 +407,10 @@
 				let name = path.split('/')[1].split('_');
 				name.pop();
 				return name.join('') + '.pdf';
+			},
+			showInfoDialog(raw_so_header_id) {
+				this.viewing_raw_so_header_id = raw_so_header_id;
+				$('#DialogRawSoHeaderInfo').modal('show');
 			},
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
