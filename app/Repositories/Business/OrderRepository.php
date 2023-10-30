@@ -419,14 +419,6 @@ class OrderRepository extends RepositoryAbs
                     return $order;
                 });
             } else {
-                //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
-                if ($this->request->filled('sort_by')) {
-                    $sort_by = $this->request->sort_by;
-                    $sort_type = $this->request->sort_type ?? 'asc';
-                    $query->orderBy($sort_by, $sort_type);
-                } else {
-                    $query->orderBy('sap_so_created_date', 'asc');
-                }
 
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
@@ -488,7 +480,17 @@ class OrderRepository extends RepositoryAbs
                     $query = $query->limit($this->request->limit);
                 }
 
-                $orders = $query->orderBy('sap_so_created_date','asc')->get();
+                 //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
+                if ($this->request->filled('sort_by')) {
+                    $sort_by = $this->request->sort_by;
+                    $sort_type = $this->request->sort_type ?? 'asc';
+
+                    $query->orderBy($sort_by, $sort_type);
+                } else {
+                    $query->orderBy('sap_so_created_date', 'asc');
+                }
+                // dd($query->toSql());
+                $orders = $query->get();
                 return $orders;
             } else {
                 $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
