@@ -3,10 +3,25 @@
 namespace App\Http\Controllers\Api\Business;
 
 use App\Http\Controllers\BaseController\ResponseController;
+use App\Models\Business\Batch;
+use App\Models\Business\ConvertTableConfig;
+use App\Models\Business\ExtractDataConfig;
+use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\FileExtractError;
+use App\Models\Business\FileExtractErrorLog;
 use App\Models\Business\Order;
+use App\Models\Business\RawExtractHeader;
+use App\Models\Business\RawExtractItem;
+use App\Models\Business\RawSoHeader;
+use App\Models\Business\RawSoItem;
+use App\Models\Business\RestructureDataConfig;
+use App\Models\Business\UploadedFile;
+use App\Models\Master\CustomerGroup;
 use App\Repositories\BusinessRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Calculation\TextData\Extract;
 
 class AiController extends ResponseController
 {
@@ -22,6 +37,36 @@ class AiController extends ResponseController
         }
     }
 
+    public function extractOrderFromUploadedFile(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->extractOrderFromUploadedFile($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function clean(Request $request)
+    {
+        Schema::disableForeignKeyConstraints();
+        CustomerGroup::query()->truncate();
+        Batch::query()->truncate();
+        ExtractOrderConfig::query()->truncate();
+        ExtractDataConfig::query()->truncate();
+        ConvertTableConfig::query()->truncate();
+        RestructureDataConfig::query()->truncate();
+        FileExtractError::query()->truncate();
+        FileExtractErrorLog::query()->truncate();
+        RawExtractHeader::query()->truncate();
+        RawExtractItem::query()->truncate();
+        RawSoHeader::query()->truncate();
+        RawSoItem::query()->truncate();
+        UploadedFile::query()->truncate();
+        Schema::enableForeignKeyConstraints();
+    }
     public function extractDataForConfig(Request $request)
     {
         $handler = BusinessRepository::aiRequest($request);

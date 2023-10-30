@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use App\Http\Controllers\Api\Business\AiController;
 use App\Http\Controllers\Api\Business\DashboardController;
+use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Business\OrderController;
@@ -20,15 +21,19 @@ use App\Http\Controllers\Api\Master\SaleGroupController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
+use App\Http\Controllers\Api\Business\RawSoController;
+use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 use App\Http\Controllers\Api\Master\OrderReviewOptionController;
+use App\Http\Controllers\Api\Master\CustomerMaterialController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
+use App\Models\Business\UploadedFile;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,10 +122,18 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
         Route::prefix('/sap-materials')->group(function () {
+            Route::get('/minified', [SapMaterialController::class, 'getAvailableSapMaterialsMinified']);
             Route::get('/', [SapMaterialController::class, 'getAvailableSapMaterials']);
             Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
             Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
             Route::delete('/{id}', [SapMaterialController::class, 'deleteExistingSapMaterial']);
+        });
+        Route::prefix('/sap-material-mappings')->group(function () {
+            Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
+            Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
+            Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
+            Route::put('/{id}', [SapMaterialMappingController::class, 'updateExistingSapMaterialMapping']);
+            Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);
@@ -148,6 +161,10 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-groups')->group(function () {
             Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+        });
+
+        Route::prefix('/customer-materials')->group(function () {
+            Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
         });
     });
 
@@ -210,7 +227,11 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('ai')->group(function () {
-        Route::post('/extract-order', [AiController::class, 'extractOrder']);
+        Route::prefix('/extract-order')->group(function () {
+            Route::delete('/clean', [AiController::class, 'clean']);
+            Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
+            Route::post('/', [AiController::class, 'extractOrder']);
+        });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
             Route::post('/extract', [AiController::class, 'extractDataForConfig']);
@@ -219,6 +240,18 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/restructure', [AiController::class, 'restructureDataForConfig']);
             Route::put('/{id}', [AiController::class, 'updateExtractOrderConfig']);
         });
+        Route::prefix('file')->group(function () {
+            Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);
+            Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
+            Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
+            Route::get('/', [UploadedFileController::class, 'getFiles']);
+        });
+    });
+
+    Route::prefix('raw-so-headers')->group(function () {
+        Route::get('/{id}', [RawSoController::class, 'getRawSoHeaderById']);
+        Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
+        Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
     });
 });
 

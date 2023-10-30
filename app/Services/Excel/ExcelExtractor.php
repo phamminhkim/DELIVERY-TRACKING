@@ -29,7 +29,7 @@ class ExcelExtractor
         return $raw_table_data;
     }
 
-    public function structureData($raw_table_data, $template_structure, $main_key)
+    public function structureData($raw_table_data, $template_structure, $main_key = null)
     {
         $table_data = [];
         foreach ($raw_table_data as $row_data) {
@@ -37,17 +37,21 @@ class ExcelExtractor
             foreach ($template_structure as $key => $row_data_index) {
                 $structured_row_data[$key] = $row_data[$row_data_index];
             }
-            if (
-                !isset($table_data[$structured_row_data[$main_key]]) &&
-                $structured_row_data[$main_key] != null &&
-                strlen($structured_row_data[$main_key]) != 0
-            ) {
-                $table_data[$structured_row_data[$main_key]] = [];
+            if ($main_key) {
+                if (
+                    !isset($table_data[$structured_row_data[$main_key]]) &&
+                    $structured_row_data[$main_key] != null &&
+                    strlen($structured_row_data[$main_key]) != 0
+                ) {
+                    $table_data[$structured_row_data[$main_key]] = [];
+                }
+                if (!isset($structured_row_data[$main_key]) || $structured_row_data[$main_key] == null || strlen($structured_row_data[$main_key]) == 0) {
+                    continue;
+                }
+                $table_data[$structured_row_data[$main_key]][] = $structured_row_data;
+            } else {
+                $table_data[] = $structured_row_data;
             }
-            if (!isset($structured_row_data[$main_key]) || $structured_row_data[$main_key] == null || strlen($structured_row_data[$main_key]) == 0) {
-                continue;
-            }
-            $table_data[$structured_row_data[$main_key]][] = $structured_row_data;
         }
         return $table_data;
     }

@@ -4,7 +4,7 @@
 			<b-tab title="Thống kê" active>
 				<StatisticDashboard />
 			</b-tab>
-			<b-tab title="Báo cáo">
+			<b-tab title="Bảng kê G.N.H.H">
 				<ReportDashboard />
 			</b-tab>
 		</b-tabs>

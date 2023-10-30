@@ -38,14 +38,20 @@ class ExtractOrderConfigSeeder extends Seeder
         $extract_order_configs = array(
             array(
                 'name' => 'Winmart mặc định',
+                'reference_id' => null,
+                'is_official' => true
 
             ),
             array(
                 'name' => 'Mega mặc định',
+                'reference_id' => null,
+                'is_official' => true
 
             ),
             array(
                 'name' => 'Lotte mặc định',
+                'reference_id' => null,
+                'is_official' => true
             )
         );
         $extract_data_configs = array(
@@ -169,23 +175,25 @@ class ExtractOrderConfigSeeder extends Seeder
                         $old_extract_data_config = $old_extract_order_config->extract_data_config;
                         $old_convert_table_config = $old_extract_order_config->convert_table_config;
                         $old_restructure_data_config = $old_extract_order_config->restructure_data_config;
-                        $old_extract_order_config->delete();
+                        // $old_extract_order_config->delete();
                         if (
                             $old_extract_data_config
                         ) {
-                            $old_extract_data_config->delete();
+                            $old_extract_data_config->fill($extract_data_configs[$index])->save();
                         }
                         if (
                             $old_convert_table_config
                         ) {
-                            $old_convert_table_config->delete();
+                            $old_convert_table_config->fill($convert_table_configs[$index])->save();
                         }
                         if (
                             $old_restructure_data_config
                         ) {
-                            $old_restructure_data_config->delete();
+                            $old_restructure_data_config->fill($restructure_data_configs[$index])->save();
                         }
                     }
+                    $this->command->info('ExtractOrderConfigSeeder completed');
+                    return;
                 }
 
                 $extract_data_config = ExtractDataConfig::create($extract_data_configs[$index]);
@@ -200,6 +208,7 @@ class ExtractOrderConfigSeeder extends Seeder
                     'extract_data_config_id' => $extract_data_config->id,
                     'convert_table_config_id' => $convert_table_config->id,
                     'restructure_data_config_id' => $restructure_data_config->id,
+                    'is_official' => $extract_order_configs[$index]['is_official']
                 ]);
 
 
