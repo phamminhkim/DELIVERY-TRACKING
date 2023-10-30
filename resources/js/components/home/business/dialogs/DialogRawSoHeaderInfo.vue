@@ -177,9 +177,17 @@
 								responsive
 								striped
 								hover
+								:current-page="pagination.current_page"
+								:per-page="pagination.item_per_page"
+								:tbody-tr-class="rowClass"
+								show-empty
 							>
 								<template #cell(index)="data">
-									<span> {{ data.index + 1 }} </span>
+									{{
+										data.index +
+										(pagination.current_page - 1) * pagination.item_per_page +
+										1
+									}}
 								</template>
 								<template #cell(action)="data">
 									<b-button variant="warning">
@@ -190,6 +198,36 @@
 									</b-button>
 								</template>
 							</b-table>
+						</div>
+						<div class="row">
+							<label
+								class="col-form-label-sm col-md-2"
+								style="text-align: left"
+								for=""
+								>Số lượng mỗi trang:</label
+							>
+							<div class="col-md-2">
+								<b-form-select
+									size="sm"
+									v-model="pagination.item_per_page"
+									:options="pagination.page_options"
+								>
+								</b-form-select>
+							</div>
+							<label
+								class="col-form-label-sm col-md-1"
+								style="text-align: left"
+								for=""
+							></label>
+							<div class="col-md-3">
+								<b-pagination
+									v-model="pagination.current_page"
+									:total-rows="rows"
+									:per-page="pagination.item_per_page"
+									size="sm"
+									class="ml-1"
+								></b-pagination>
+							</div>
 						</div>
 					</div>
 				</b-overlay>
@@ -209,6 +247,13 @@
 				raw_so_header: null,
 				raw_so_items: [],
 				is_loading: false,
+
+				pagination: {
+					item_per_page: 10,
+					current_page: 1,
+					page_options: [10, 50, 100, 500, { value: this.rows, text: 'All' }],
+				},
+
 				fields: [
 					{
 						key: 'index',
@@ -271,11 +316,20 @@
 					this.is_loading = false;
 				}
 			},
+			rowClass(item, type) {
+				if (!item || type !== 'row') return;
+				if (item.status === 'awesome') return 'table-success';
+			},
 		},
 		watch: {
 			id(new_val, old_val) {
 				if (!new_val) return;
 				this.fetchData();
+			},
+		},
+		computed: {
+			rows() {
+				return this.raw_so_items.length;
 			},
 		},
 	};
