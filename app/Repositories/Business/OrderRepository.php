@@ -475,22 +475,36 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
+                //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
+                $sort_type = $this->request->sort_type ?? 'asc';
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                if ($this->request->filled('sort_by') && $this->request->filled('sort_by') != 'total_value') {
 
-                 //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
-                if ($this->request->filled('sort_by')) {
                     $sort_by = $this->request->sort_by;
-                    $sort_type = $this->request->sort_type ?? 'asc';
 
                     $query->orderBy($sort_by, $sort_type);
                 } else {
                     $query->orderBy('sap_so_created_date', 'asc');
                 }
-                // dd($query->toSql());
                 $orders = $query->get();
+                //Sort theo số tiền
+                foreach ($orders as $key => $value) {
+                    $value->load('detail');
+                }
+                // $orders->load('detail');
+                if ($this->request->filled('sort_by') && $this->request->filled('sort_by') == 'total_value') {
+                    if ($sort_type == 'asc') {
+                        $orders =  $orders->sortBy('detail.total_value' );
+                    }else {
+                        $orders =  $orders->sortByDesc('detail.total_value' );
+                    }
+
+                }
+
                 return $orders;
             } else {
                 $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
