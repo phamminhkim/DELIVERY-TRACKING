@@ -50,6 +50,19 @@ class RouterSeeder extends Seeder
                 'path' => '/order-extract-configs',
                 'component' => 'home/business/OrderExtractConfigs'
             ],
+
+            [
+                'name' => 'Danh sách file',
+                'path' => '/order-file-uploads',
+                'component' => 'home/business/OrderFileUploads'
+            ],
+
+            [
+                'name' => 'Chỉnh sửa đơn hàng',
+                'path' => '/order-edit-files',
+                'component' => 'home/business/OrderEditFiles'
+            ],
+
             [
                 'name' => 'Upload đơn hàng',
                 'path' => '/order-uploads',
@@ -105,12 +118,12 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Bảng đối chiếu sản phẩm',
                 'path' => '/sap-material-mappings',
-                'component' => 'home/master/SapMaterialMapping'
+                'component' => 'home/sap/SapMaterialMapping'
             ],
             [
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
-                'component' => 'home/master/SapMaterials'
+                'component' => 'home/sap/SapMaterials'
             ]
 
         ];

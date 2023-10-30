@@ -310,6 +310,9 @@
 				this.search_pattern = '';
 				this.rendered_items = this.items;
 			},
+            refValue(value){
+                this.rendered_items = value;
+            }
 		},
 		computed: {
 			rows() {

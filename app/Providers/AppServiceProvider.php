@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->loadMigrationsRecursive();
         $this->logDatabaseQueries();
         $this->detectLazyLoadingViolation();
-
+        $this->logDatabaseErrors();
         Validator::extend('recaptcha',  [ReCaptcha::class, 'validate']);
         // Validator::extend('recaptcha', 'App\Validators\Recaptcha@validate');
     }
@@ -90,6 +90,35 @@ class AppServiceProvider extends ServiceProvider
             } catch (\Exception $e) {
                 dd($e->getMessage());
                 //Log::channel('database')->error($e->getMessage());
+            }
+        });
+    }
+
+    private function logDatabaseErrors(){
+        DB::listen(function ($query){
+            // Log::info($query->exception);
+            try {
+                if (config('app.log_database_errors') && $query->exception){
+                    $sql = $query->sql;
+                    $bindings = $query->bindings;
+
+                    $sql = str_replace('?', '%s', $sql);
+                    $bindings = array_map(function ($value) {
+                        if ($value instanceof DateTime) {
+                            return $value->format('Y-m-d H:i:s');
+                        }
+
+                        return $value;
+                    }, $bindings);
+                    $sql = vsprintf($sql, $bindings);
+
+                    $message = sprintf('Connection: %s | Time: %s | SQL: %s | Error: %s', $query->connectionName, $query->time, $sql, $query->exception->getMessage());
+                    
+                    Log::channel('database-error')->debug($message);
+                }
+            }
+            catch (\Exception $e){
+                dd($e->getMessage());
             }
         });
     }

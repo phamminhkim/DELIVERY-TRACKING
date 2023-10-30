@@ -133,6 +133,12 @@ return [
             'path' => storage_path('logs/database/n+1.log'),
         ],
 
+        'database-error' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/database/errors.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
         'call-extenal-api' => [
             'driver' => 'stack',
             'path' => storage_path('logs/api/call-extenal-api.log'),

@@ -55,6 +55,11 @@ class User extends Authenticatable //implements MustVerifyEmail  //Tạm remove 
         return $this->morphedByMany(DeliveryPartner::class, 'morphable', 'user_morphs');
     }
 
+    public function files()
+    {
+        return $this->morphedByMany(UploadedFile::class, 'morphable', 'user_morphs');
+    }
+
     public function social_accounts()
     {
         return $this->hasMany(SocialAccount::class);

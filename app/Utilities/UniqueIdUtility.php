@@ -42,4 +42,9 @@ class UniqueIdUtility
 
         return $delivery_code;
     }
+
+    public static function generateSerialUniqueNumber($prefix)
+    {
+        return strtoupper(uniqid($prefix));
+    }
 }

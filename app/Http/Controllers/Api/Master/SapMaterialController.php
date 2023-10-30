@@ -12,7 +12,18 @@ class SapMaterialController extends ResponseController
     {
 
         $handler = MasterRepository::sapMaterialRequest($request);
-        $sapMaterials = $handler->getAvailableSapMaterials();
+        $sapMaterials = $handler->getAvailableSapMaterials(false);
+
+        if ($sapMaterials) {
+            return $this->responseSuccess($sapMaterials);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getAvailableSapMaterialsMinified(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialRequest($request);
+        $sapMaterials = $handler->getAvailableSapMaterials(true);
 
         if ($sapMaterials) {
             return $this->responseSuccess($sapMaterials);

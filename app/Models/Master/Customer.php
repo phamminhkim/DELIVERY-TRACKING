@@ -4,6 +4,7 @@ namespace App\Models\Master;
 
 use App\Traits\FullTextSearch;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Customer extends Model
 {
@@ -34,6 +35,6 @@ class Customer extends Model
 
     public function group()
     {
-        return $this->belongsTo(CustomerGroup::class, 'customer_group_pivots', 'customer_id', 'customer_group_id');
+        return $this->hasOneThrough(CustomerGroup::class, CustomerGroupPivot::class, 'customer_id', 'id', 'id', 'customer_group_id');
     }
 }

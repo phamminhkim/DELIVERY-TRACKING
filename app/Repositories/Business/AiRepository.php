@@ -2,12 +2,23 @@
 
 namespace App\Repositories\Business;
 
+use App\Enums\Ai\Convert\ExtractErrors;
+use App\Jobs\HandleUploadFile;
+use App\Models\Business\Batch;
 use App\Models\Business\ConvertTableConfig;
 use App\Models\Business\ExtractDataConfig;
+use App\Models\Business\ExtractError;
 use App\Models\Business\ExtractOrderConfig;
+use App\Models\Business\FileExtractErrorLog;
+use App\Models\Business\RawExtractHeader;
+use App\Models\Business\RawExtractItem;
+use App\Models\Business\RawExtractItems;
 use App\Models\Business\RegexPattern;
 
 use App\Models\Business\RestructureDataConfig;
+use App\Models\Business\UploadedFile;
+use App\Models\Master\CustomerMaterial;
+use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Converters\ManualConverter;
@@ -22,10 +33,23 @@ use App\Services\Interfaces\FileServiceInterface;
 use App\Services\Interfaces\PdfExtractorInterface;
 use App\Services\Interfaces\TableConverterInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use RandomState\Camelot\Camelot;
 use League\Csv\Reader;
+use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
+use App\Enums\File\FileStatuses;
+use App\Exceptions\Ai\NotFoundCustomerMaterialException;
+use App\Exceptions\Ai\NotFoundSapMaterialException;
+use App\Models\Business\FileExtractError;
+use App\Models\Business\FileStatus;
+use App\Models\Business\RawSoHeader;
+use App\Models\Business\RawSoItem;
+use App\Models\Master\SapMaterial;
+use App\Utilities\UniqueIdUtility;
+use Exception;
 
 class AiRepository extends RepositoryAbs
 {
@@ -33,6 +57,10 @@ class AiRepository extends RepositoryAbs
     protected $data_extractor;
     protected $table_converter;
     protected $data_restructure;
+
+    protected $data_extractor_instances;
+    protected $table_converter_instances;
+    protected $data_restructure_instances;
 
     public function __construct(
         FileServiceInterface $file_service,
@@ -46,6 +74,19 @@ class AiRepository extends RepositoryAbs
         $this->data_extractor = $data_extractor;
         $this->table_converter = $table_converter;
         $this->data_restructure = $data_restructure;
+        $this->data_extractor_instances = [
+            'camelot' => new CamelotExtractorService(),
+        ];
+        $this->table_converter_instances = [
+            'regexmatch' => new RegexMatchConverter(),
+            'regexsplit' => new RegexSplitConverter(),
+            'leaguecsv' => new LeagueCsvConverter(),
+            'manual' => new ManualConverter(),
+        ];
+        $this->data_restructure_instances = [
+            'arraymappingbyindex' => new IndexArrayMappingRestructure(),
+            'arraymappingbykey' => new KeyArrayMappingRestructure(),
+        ];
     }
     public function extractOrder()
     {
@@ -56,6 +97,7 @@ class AiRepository extends RepositoryAbs
             $table_data = $this->convertToTable($raw_data);
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
+
             return $final_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -63,12 +105,181 @@ class AiRepository extends RepositoryAbs
         }
     }
 
-    private function extractData($file_path)
+    public function extractOrderFromUploadedFile($file_id)
+    {
+        try {
+            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group'])->find($file_id);
+            if (!$file_record) {
+                $this->message = 'File không tồn tại';
+                return false;
+            }
+            $processing_status = FileStatus::query()->where('code', FileStatuses::PROCESSING)->first();
+            $file_record->status_id = $processing_status->id;
+            $file_record->save();
+            $file_path = Storage::disk('protected')->path($file_record->path);
+            $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
+
+            $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
+            try {
+                $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+            } catch (\Throwable $exception) {
+
+                $extract_error = ExtractError::query()->where('code', ExtractErrorsEnum::EXTRACT_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $extract_error->id,
+                ]);
+                throw $exception;
+            }
+
+            $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
+            try {
+                $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
+            } catch (\Throwable $exception) {
+
+                $convert_error = ExtractError::query()->where('code', ExtractErrorsEnum::CONVERT_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $convert_error->id,
+                ]);
+                throw $exception;
+            }
+
+
+            $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_data_config->method];
+            try {
+                $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
+            } catch (\Throwable $exception) {
+
+                $restructure_error = ExtractError::query()->where('code', ExtractErrorsEnum::RESTRUCTURE_ERROR)->first();
+                FileExtractError::create([
+                    'uploaded_file_id' => $file_record->id,
+                    'extract_error_id' => $restructure_error->id,
+                ]);
+                throw $exception;
+            }
+            DB::beginTransaction();
+            $customer_group = $file_record->batch->customer->group;
+
+            $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
+            $error_extract_items = [];
+            $raw_extract_header = RawExtractHeader::firstOrCreate([
+                'customer_id' => $file_record->batch->customer_id,
+                'uploaded_file_id' => $file_record->id,
+
+            ]);
+            foreach ($final_data as $item) {
+                if (!isset($item['ProductID']) || $item['ProductID'] == '') {
+                    continue;
+                }
+                $customer_material = CustomerMaterial::query()
+                    ->where('customer_group_id', $customer_group->id)
+                    ->where('customer_sku_code', $item['ProductID'])
+                    ->where('customer_sku_name', $item['ProductName'])
+                    ->first();
+                if (!$customer_material) {
+                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' và ProductName: ' . $item['ProductName'] . ' của customer group: ' . $customer_group->name;
+                    continue;
+                }
+                $raw_extract_item = RawExtractItem::firstOrCreate([
+                    'raw_extract_header_id' => $raw_extract_header->id,
+                    'customer_material_id' => $customer_material->id,
+                    'quantity' => $item['Quantity'],
+                ]);
+                $created_extract_items->push($raw_extract_item);
+            }
+            if (count($error_extract_items) > 0) {
+                $error_log = json_encode($error_extract_items);
+                throw new NotFoundCustomerMaterialException($file_record->id, $error_log);
+            }
+            $created_so_items = collect([]);
+            $error_so_items = [];
+
+            $raw_so_header = RawSoHeader::firstOrCreate(
+                array_merge(
+                    $raw_extract_header->toArray(),
+                    [
+                        'raw_extract_header_id' => $raw_extract_header->id,
+                    ]
+                )
+            );
+            if (!$raw_so_header->serial_number) {
+                $raw_so_header->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
+                $raw_so_header->save();
+            }
+            $created_extract_items->load(['customer_material.mappings.sap_material']);
+
+            foreach ($created_extract_items as $item) {
+                $sap_material_mappings = $item->customer_material->mappings;
+                if (count($sap_material_mappings) == 0) {
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id;
+                    continue;
+                }
+                foreach ($sap_material_mappings as $mapping) {
+                    $sap_material = $mapping->sap_material;
+                    $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
+                    $raw_so_item = RawSoItem::firstOrCreate([
+                        'raw_extract_item_id' => $item->id,
+                        'raw_so_header_id' => $raw_so_header->id,
+                        'sap_material_id' => $sap_material->id,
+                        'quantity' => $quantity,
+                        'percentage' => $mapping->percentage,
+                    ]);
+                    $created_so_items->push($raw_so_item);
+                }
+                $item->load('raw_so_items');
+                $extract_item_quantity = $item->quantity;
+                $so_items_quantity = $item->raw_so_items->sum('quantity');
+                if ($extract_item_quantity < $so_items_quantity) {
+                    $max_quantity_so_item_index = array_keys($item->raw_so_items->toArray(), max($item->raw_so_items->toArray()))[0];
+                    $max_quantity_so_item = $item->raw_so_items[$max_quantity_so_item_index];
+                    $max_quantity_so_item->quantity = $max_quantity_so_item->quantity - ($so_items_quantity - $extract_item_quantity);
+                } elseif ($extract_item_quantity > $so_items_quantity) {
+                    $min_quantity_so_item_index = array_keys($item->raw_so_items->toArray(), min($item->raw_so_items->toArray()))[0];
+                    $min_quantity_so_item = $item->raw_so_items[$min_quantity_so_item_index];
+                    $min_quantity_so_item->quantity = $min_quantity_so_item->quantity + ($extract_item_quantity - $so_items_quantity);
+                }
+            }
+            if (count($error_so_items) > 0) {
+                $error_log = json_encode($error_so_items);
+                throw new NotFoundSapMaterialException($file_record->id, $error_log);
+            }
+            $success_status = FileStatus::query()->where('code', FileStatuses::SUCCESS)->first();
+            $file_record->status_id = $success_status->id;
+            $file_record->save();
+
+            DB::commit();
+            return array(
+                'created_extract_items' => $created_extract_items,
+                'error_extract_items' => $error_extract_items,
+                'created_so_items' => $created_so_items,
+                'error_so_items' => $error_so_items,
+                'created_extract_items_count' => count($created_extract_items),
+                'created_so_items_count' => count($created_so_items),
+            );
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            Log::info($exception->getMessage());
+            $error_status = FileStatus::query()->where('code', FileStatuses::ERROR)->first();
+            $file_record->status_id = $error_status->id;
+            $file_record->save();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+
+    private function extractData($file_path, $extract_data_config = null)
     {
         $options = array();
         if ($this->data_extractor instanceof CamelotExtractorService) {
-            $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
-            $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            if (!$extract_data_config) {
+                $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
+                $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            } else {
+                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ?? false;
+                $options['flavor'] = $extract_data_config->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+            }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
         $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
@@ -80,17 +291,30 @@ class AiRepository extends RepositoryAbs
         return $choosen_tables;
     }
 
-    private function convertToTable($array)
+    private function convertToTable($array, $convert_table_config = null)
     {
         $options = array();
         if ($this->table_converter instanceof RegexMatchConverter) {
-            $options['regex_pattern'] = $this->request->regex_pattern;
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
         } elseif ($this->table_converter instanceof RegexSplitConverter) {
-            $options['regex_pattern'] = $this->request->regex_pattern;
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
         } elseif ($this->table_converter instanceof LeagueCsvConverter) {
         } elseif ($this->table_converter instanceof ManualConverter) {
-            $manual_patterns = json_decode($this->request->manual_patterns);
-            $options['manual_patterns'] = $manual_patterns;
+            if (!$convert_table_config) {
+                $manual_patterns = json_decode($this->request->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            } else {
+                $manual_patterns = json_decode($convert_table_config->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            }
         }
 
         $table = [];
@@ -101,13 +325,21 @@ class AiRepository extends RepositoryAbs
         return $table;
     }
 
-    private function restructureData($array)
+    private function restructureData($array, $restructure_data_config = null)
     {
         $options = array();
         if ($this->data_restructure instanceof IndexArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure, true);
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
         } elseif ($this->data_restructure instanceof KeyArrayMappingRestructure) {
-            $options['structure'] = json_decode($this->request->structure, true);
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
         }
         $table = $this->data_restructure->restructure($array, $options);
         return $table;
@@ -167,7 +399,8 @@ class AiRepository extends RepositoryAbs
             $query->whereIn('id', $extract_order_config_ids);
         }
 
-        $query->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+        $query
+            ->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
         $extract_order_configs = $query->get();
         return $extract_order_configs;
     }

@@ -581,10 +581,7 @@
 				</div>  -->
 		</div>
 		<DialogOrderInfo :order="viewing_order" />
-		<DialogOrderStatisitcVue
-			:orders="order_by_criterias"
-			:viewingStatistic="viewing_statistic"
-		/>
+		<DialogOrderStatisitc :orders="order_by_criterias" :viewingStatistic="viewing_statistic" />
 	</div>
 </template>
 
@@ -594,13 +591,13 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogOrderInfo from '../business/dialogs/DialogOrderInfo.vue';
 	import BarChart from './chart/BarChart.vue';
-	import DialogOrderStatisitcVue from './dialogs/DialogOrderStatisitc.vue';
+	import DialogOrderStatisitc from './dialogs/DialogOrderStatisitc.vue';
 	export default {
 		components: {
 			Treeselect,
 			DialogOrderInfo,
 			BarChart,
-			DialogOrderStatisitcVue,
+			DialogOrderStatisitc,
 		},
 		async created() {
 			this.generateFilterTimeOption();
@@ -801,23 +798,19 @@
 							: undefined,
 						order_statistics: [statistic],
 					});
-					const fields = [
-						'reviewed_orders',
-						'pending_today_orders',
-						'pending_orders',
-						'preparing_orders',
-						'delivering_orders',
-						'delivered_orders',
-						'no_reviewed_orders',
-						'no_received_orders',
-					];
+					const statistic_names = {
+						reviewed_orders: 'Đã đánh giá',
+						pending_today_orders: 'DO mới trong ngày',
+						pending_orders: 'DO chưa có vận đơn',
+						preparing_orders: 'DO vận chuyển nhận',
+						delivering_orders: 'DO đang giao',
+						delivered_orders: 'DO đã giao',
+						no_reviewed_orders: 'DO chưa đánh giá',
+						no_received_orders: 'DO chưa xác nhận',
+					};
 
-					fields.forEach((field) => {
-                        if (data[field]) {
-                            this.order_by_criterias.push(...data[field]);
-                        }
-                    });
-					this.viewing_statistic = statistic;
+					this.viewing_statistic = statistic_names[statistic];
+					this.order_by_criterias = data[statistic];
 
 					$('#DialogOrderStatistic').modal('show');
 				} catch (error) {

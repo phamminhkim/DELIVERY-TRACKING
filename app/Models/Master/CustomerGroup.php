@@ -21,23 +21,13 @@ class CustomerGroup extends Model
         return $this->belongsToMany(Customer::class, 'customer_group_pivots', 'customer_group_id', 'customer_id');
     }
 
-    // public function extract_data_config()
-    // {
-    //     return $this->hasOneThrough(ExtractDataConfig::class, ExtractOrderConfig::class, 'customer_group_id', 'id', 'id', 'extract_data_config_id');
-    // }
-
-    // public function convert_table_config()
-    // {
-    //     return $this->hasOneThrough(ConvertTableConfig::class, ExtractOrderConfig::class, 'customer_group_id', 'id', 'id', 'convert_table_config_id');
-    // }
-
-    // public function restructure_data_config()
-    // {
-    //     return $this->hasOneThrough(RestructureDataConfig::class, ExtractOrderConfig::class, 'customer_group_id', 'id', 'id', 'restructure_data_config_id');
-    // }
-
     public function extract_order_configs()
     {
         return $this->hasMany(ExtractOrderConfig::class, 'customer_group_id', 'id');
+    }
+
+    public function customer_materials()
+    {
+        return $this->hasMany(CustomerMaterial::class, 'customer_group_id', 'id');
     }
 }

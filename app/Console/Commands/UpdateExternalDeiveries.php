@@ -64,8 +64,8 @@ class UpdateExternalDeiveries extends Command
 
             $api_customer_responses = ApiHandler::handleMultipleRequests($api_requests);
 
-            DB::beginTransaction();
             foreach ($api_customer_responses as $index => $api_customer_response) {
+                DB::beginTransaction();
                 $delivery = (clone $deliveries)->slice($index, 1)->first();
                 $api_mapping = $delivery->partner->mapping;
                 $api_customer_response = ApiUtility::getPropertyByPath($api_customer_response, $api_mapping->root_data_field, '.');
@@ -100,11 +100,11 @@ class UpdateExternalDeiveries extends Command
                     'description' => 'Vận đơn đã được nhà vận chuyển ngoài hoàn thành.',
                     'timestamp' => $complete_delivery_date,
                 ]);
+                DB::commit();
             }
-            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-
+            Log::error($e->getMessage());
             $this->error($e->getMessage());
         }
     }
