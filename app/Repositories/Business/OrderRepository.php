@@ -419,6 +419,7 @@ class OrderRepository extends RepositoryAbs
                     return $order;
                 });
             } else {
+
                 $orders = $query
                     ->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'delivery_info', 'delivery_info.delivery.timelines', 'approved', 'sale', 'status', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images'])
                     ->get();
@@ -452,6 +453,7 @@ class OrderRepository extends RepositoryAbs
     public function getOrdersByCustomer()
     {
         try {
+            $params_value = ['sap_so_created_date','sap_so_number'];
             $query = Order::query();
             if ($this->request->filled('from_date')) {
                 $query->whereDate('sap_so_created_date', '>=', $this->request->from_date);
@@ -474,12 +476,21 @@ class OrderRepository extends RepositoryAbs
             if ($customer_phones) {
                 $query->whereIn('customer_id', $customer_phones);
 
-                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+
                 if ($this->request->filled('limit')) {
                     $query = $query->limit($this->request->limit);
                 }
-
+                //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
+                $sort_type = $this->request->sort_type ?? 'asc';
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                if ($this->request->filled('sort_by') && in_array($this->request->sort_by, $params_value) ) {
+                    $sort_by = $this->request->sort_by;
+                    $query->orderBy($sort_by, $sort_type);
+                } else {
+                    $query->orderBy('sap_so_created_date', 'asc');
+                }
                 $orders = $query->get();
+
                 return $orders;
             } else {
                 $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
