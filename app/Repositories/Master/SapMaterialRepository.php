@@ -36,7 +36,7 @@ class SapMaterialRepository extends RepositoryAbs
             }
             $sap_materials = $query->get();
             if ($is_searching) {
-                $sap_materials_clone = $sap_materials->clone();
+                $sap_materials_clone = clone $sap_materials;
                 $sap_materials_clone->where('code', $this->request->search);
                 if (!$sap_materials_clone->count()) {
                     $sap_materials = $sap_materials_clone;
