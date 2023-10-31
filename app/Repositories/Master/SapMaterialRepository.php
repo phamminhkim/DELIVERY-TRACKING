@@ -18,12 +18,15 @@ class SapMaterialRepository extends RepositoryAbs
         try {
             $query = SapMaterial::query();
 
-            if($this->request->filled('search')){
+            $is_searching = false;
+            if ($this->request->filled('search')) {
                 $query->search($this->request->search);
-                $query->limit(200);
+                $query->with(['unit']);
+                $query->limit(50);
+                $is_searching = true;
             }
-            if ($is_minified){
-                $query->select('id', 'name','sap_code');
+            if ($is_minified) {
+                $query->select('id', 'name', 'sap_code');
             }
             if ($this->request->filled('unit_ids')) {
                 $query->whereIn('unit_id', $this->request->unit_ids);
@@ -32,8 +35,14 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->whereIn('id', $this->request->ids);
             }
             $sap_materials = $query->get();
+            if ($is_searching) {
+                $sap_materials_clone = $sap_materials->clone();
+                $sap_materials_clone->where('code', $this->request->search);
+                if (!$sap_materials_clone->count()) {
+                    $sap_materials = $sap_materials_clone;
+                }
+            }
             return $sap_materials;
-
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

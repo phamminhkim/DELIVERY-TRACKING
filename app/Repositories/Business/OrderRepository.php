@@ -453,7 +453,7 @@ class OrderRepository extends RepositoryAbs
     public function getOrdersByCustomer()
     {
         try {
-            $params_value = ['sap_so_created_date','sap_so_number'];
+            $params_value = ['sap_so_created_date', 'sap_so_number'];
             $query = Order::query();
             if ($this->request->filled('from_date')) {
                 $query->whereDate('sap_so_created_date', '>=', $this->request->from_date);
@@ -466,6 +466,9 @@ class OrderRepository extends RepositoryAbs
                     $query->where('status_id', '<', EnumsOrderStatus::Delivered);
                 } else if ($this->request->status == 'delivering') {
                     $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
+                } else if ($this->request->status == 'done') {
+                    $query->where('status_id', '>=',  EnumsOrderStatus::Delivered);
+                } else if ($this->request->status == 'all') {
                 }
             }
             if ($this->request->filled('search')) {
@@ -483,7 +486,7 @@ class OrderRepository extends RepositoryAbs
                 //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
                 $sort_type = $this->request->sort_type ?? 'asc';
                 $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
-                if ($this->request->filled('sort_by') && in_array($this->request->sort_by, $params_value) ) {
+                if ($this->request->filled('sort_by') && in_array($this->request->sort_by, $params_value)) {
                     $sort_by = $this->request->sort_by;
                     $query->orderBy($sort_by, $sort_type);
                 } else {
