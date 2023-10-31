@@ -93,13 +93,17 @@ class RawSoHeaderRepository extends RepositoryAbs
 
     public function deleteRawSoHeader($id)
     {
-        $raw_so_header = RawSoHeader::query()->find($id);
-        if ($raw_so_header) {
-            $raw_so_header->delete();
-            RawSoItem::query()->where('raw_so_header_id', $id)->delete();
-            return true;
+        $raw_so_header = RawSoHeader::query()
+            ->with('raw_so_items', 'raw_extract_header.raw_extract_items')
+            ->find($id);
+        if (!$raw_so_header) {
+            return false;
         }
-        return false;
+        $raw_so_header->raw_extract_header->raw_extract_items()->delete();
+        $raw_so_header->raw_extract_header->delete();
+        $raw_so_header->raw_so_items()->delete();
+        $raw_so_header->delete();
+        return true;
     }
 
     public function updateRawSoHeader($id)

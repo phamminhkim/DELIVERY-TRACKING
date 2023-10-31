@@ -94,7 +94,7 @@
 									<div class="col-lg-9 p-0">
 										<input
 											class="form-control"
-											:value="raw_so_header?.customer?.address"
+											:value="raw_so_header?.po_address"
 										/>
 									</div>
 								</div>
@@ -129,7 +129,7 @@
 										<div class="col-lg-6 p-0">
 											<input
 												class="form-control"
-												:value="raw_so_header?.customer?.phone_number"
+												:value="raw_so_header?.po_phone"
 											/>
 										</div>
 									</div>
@@ -142,7 +142,7 @@
 										<div class="col-lg-6 p-0">
 											<input
 												class="form-control"
-												:value="raw_so_header?.customer?.email"
+												:value="raw_so_header?.po_email"
 											/>
 										</div>
 									</div>

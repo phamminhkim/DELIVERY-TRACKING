@@ -167,7 +167,7 @@
 								<b-button variant="info" @click="data.toggleDetails"
 									><i class="fas fa-info"></i
 								></b-button>
-								<b-button variant="danger"
+								<b-button variant="danger" @click.prevent="deleteFile(data.item.id)"
 									><i class="fas fa-trash-alt"></i
 								></b-button>
 							</div>
@@ -182,8 +182,15 @@
 									small
 									head-variant="secondary"
 								>
-									<template #cell(action)="data">
-										<b-button variant="danger"
+									<template #cell(action)="raw_so_header_data">
+										<b-button
+											variant="danger"
+											@click.prevent="
+												deleteRawSoHeader(
+													raw_so_header_data.item.id,
+													data.item,
+												)
+											"
 											><i class="fas fa-trash-alt"></i
 										></b-button>
 									</template>
@@ -415,6 +422,32 @@
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
+			},
+			async deleteFile(id) {
+				try {
+					this.is_loading = true;
+					await this.api_handler.delete(this.api_url_order_file + '/' + id);
+					this.order_files = this.order_files.filter((item) => item.id !== id);
+					toastr.success('Xóa dữ liệu thành công');
+				} catch (error) {
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async deleteRawSoHeader(id, file_item) {
+				try {
+					this.is_loading = true;
+					await this.api_handler.delete('/api/raw-so-headers/' + id);
+					file_item.raw_so_headers = file_item.raw_so_headers.filter(
+						(item) => item.id !== id,
+					);
+					toastr.success('Xóa dữ liệu thành công');
+				} catch (error) {
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
 			},
 		},
 		computed: {
