@@ -467,7 +467,7 @@ class OrderRepository extends RepositoryAbs
                 } else if ($this->request->status == 'delivering') {
                     $query->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered]);
                 } else if ($this->request->status == 'done') {
-                    $query->where('status_id', EnumsOrderStatus::Delivered);
+                    $query->where('status_id', '>=',  EnumsOrderStatus::Delivered);
                 } else if ($this->request->status == 'all') {
                 }
             }
