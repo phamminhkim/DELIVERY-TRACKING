@@ -57,6 +57,18 @@ class OrderController extends ResponseController
         }
     }
 
+    public function getOrderStatistics(Request $request)
+    {
+        $handler = BusinessRepository::orderRequest($request);
+        $orders = $handler->getOrderStatistics();
+
+        if ($orders) {
+            return $this->responseSuccess($orders);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function getOrderById(Request $request, $order_id)
     {
         $handler = BusinessRepository::orderRequest($request);
