@@ -159,7 +159,7 @@
 							class: 'text-center',
 						},
 						{
-							key: 'unit_id',
+							key: 'unit.unit_code',
 							label: 'Mã đơn vị',
 							sortable: true,
 							class: 'text-center',

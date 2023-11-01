@@ -34,6 +34,12 @@ class SapMaterialRepository extends RepositoryAbs
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
+            $query->with([
+                'unit' => function ($query){
+                    $query->select(['id','unit_code']);
+                },
+            ]);
+
             $sap_materials = $query->get();
             if ($is_searching) {
                 $sap_materials_clone = clone $sap_materials;

@@ -138,16 +138,16 @@
 				table: {
 					table_fields: [
 						{
-							key: 'customer_material_id',
+							key: 'customer_material.customer_sku_name',
 							label: 'Sản phẩm khách hàng',
 							sortable: true,
-							class: 'text-nowrap text-center',
+							class: 'text-nowrap text-left',
 						},
 						{
-							key: 'sap_material_id',
+							key: 'sap_material.name',
 							label: 'Mã đối chiếu sản phẩm',
 							sortable: true,
-							class: 'text-nowrap text-center',
+							class: 'text-nowrap text-left',
 						},
 						{
 							key: 'percentage',
@@ -164,8 +164,8 @@
 					form_name: 'bảng đối chiếu sản phẩm',
 					form_fields: [
 						{
-							label: 'Mã unit',
-							placeholder: 'Nhập mã unit..',
+							label: 'Mã sản phẩm khách hàng',
+							placeholder: 'Nhập sản phẩm khách hàng..',
 							key: 'customer_material_id',
 							type: 'treeselect',
 							required: true,
@@ -244,19 +244,6 @@
 					label: node.name,
 				};
 			},
-
-			// async loadOptions({ action, searchQuery, callback }) {
-			// 	if (action === ASYNC_SEARCH) {
-			// 		const { data } = await this.api_handler.get(
-			// 			'api/master/sap-materials/minified',
-			// 			{
-			// 				search: searchQuery,
-			// 			},
-			// 		);
-			// 		const options = data;
-			// 		callback(null, options);
-			// 	}
-			// },
 			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
