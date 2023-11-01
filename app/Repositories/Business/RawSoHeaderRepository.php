@@ -109,12 +109,14 @@ class RawSoHeaderRepository extends RepositoryAbs
     public function updateRawSoHeader($id)
     {
         try {
+
             $raw_so_header = RawSoHeader::query()->find($id);
             if (!$raw_so_header) {
                 $this->errors[] = 'Raw SO Header không tồn tại';
                 return false;
             }
             $raw_so_header->update($this->data);
+
             return $raw_so_header;
         } catch (\Throwable $exception) {
             DB::rollBack();

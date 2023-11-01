@@ -128,11 +128,6 @@ class AiRepository extends RepositoryAbs
             $raw_extract_header = RawExtractHeader::firstOrCreate([
                 'customer_id' => $file_record->batch->customer_id,
                 'uploaded_file_id' => $file_record->id,
-                'po_person' => $file_record->batch->customer->name,
-                'po_phone' => $file_record->batch->customer->phone_number,
-                'po_email' => $file_record->batch->customer->email,
-                'po_address' => $file_record->batch->customer->address,
-
             ]);
             foreach ($final_data as $item) {
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
@@ -168,6 +163,10 @@ class AiRepository extends RepositoryAbs
                     $raw_extract_header->toArray(),
                     [
                         'raw_extract_header_id' => $raw_extract_header->id,
+                        'po_person' => $file_record->batch->customer->name,
+                        'po_phone' => $file_record->batch->customer->phone_number,
+                        'po_email' => $file_record->batch->customer->email,
+                        'po_delivery_address' => $file_record->batch->customer->address,
                     ]
                 )
             );

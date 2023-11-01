@@ -94,7 +94,7 @@
 									<div class="col-lg-9 p-0">
 										<input
 											class="form-control"
-											:value="raw_so_header?.po_address"
+											:value="raw_so_header?.po_delivery_address"
 										/>
 									</div>
 								</div>
@@ -170,6 +170,25 @@
 							</button>
 							<button class="btn btn-sm btn-secondary px-4 mb-1">Đồng bộ SAP</button>
 						</div> -->
+
+						<!-- ################### -->
+						<form class="row">
+							<div class="form-group col-8">
+								<label>Thêm sản phẩm</label>
+								<div class="row mb-3">
+									<div class="col-md-8">
+										<treeselect placeholder="Chọn sản phẩm.." required />
+									</div>
+									<div class="col-md-2">
+										<input class="form-control" required type="number" />
+									</div>
+									<div class="col-md-2">
+										<button class="btn btn-primary" type="submit">Thêm</button>
+									</div>
+								</div>
+							</div>
+						</form>
+						<!-- ################# -->
 						<div class="form-group">
 							<b-table
 								:items="raw_so_items"
@@ -190,9 +209,6 @@
 									}}
 								</template>
 								<template #cell(action)="data">
-									<b-button variant="warning">
-										<i class="fas fa-wrench"></i>
-									</b-button>
 									<b-button variant="danger">
 										<i class="fas fa-trash-alt"></i>
 									</b-button>
@@ -237,7 +253,12 @@
 </template>
 <script>
 	import APIHandler, { APIRequest } from '../../ApiHandler';
+	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	export default {
+		components: {
+			Treeselect,
+		},
 		props: {
 			id: Number,
 		},
