@@ -177,4 +177,26 @@ class UploadedFileRepository extends RepositoryAbs
         $file_path = $file->path;
         return Storage::disk('protected')->download($file_path);
     }
+
+    public function deleteFile($id)
+    {
+        $file = UploadedFile::query()
+            ->with('raw_so_headers')
+            ->find($id);
+        if (!$file) {
+            $this->message = 'File không tồn tại';
+            return;
+        }
+        if (!(in_array($this->current_user->id, $file->user_morphs->pluck('user_id')->toArray()) || $this->current_user->hasRole('admin'))) {
+            $this->message = 'Bạn không có quyền truy cập file này';
+            return;
+        }
+
+        $raw_so_header_repository = new RawSoHeaderRepository($this->request);
+        foreach ($file->raw_so_headers as $raw_so_header) {
+            $raw_so_header_repository->deleteRawSoHeader($raw_so_header->id);
+        }
+        $file->delete();
+        return true;
+    }
 }

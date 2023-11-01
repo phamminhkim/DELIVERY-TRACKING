@@ -504,6 +504,57 @@ class OrderRepository extends RepositoryAbs
         }
     }
 
+    public function getOrderStatistics()
+    {
+        try {
+            $params_value = ['sap_so_created_date', 'sap_so_number'];
+            $query = Order::query();
+            if ($this->request->filled('from_date')) {
+                $query->whereDate('sap_so_created_date', '>=', $this->request->from_date);
+            }
+            if ($this->request->filled('to_date')) {
+                $query->whereDate('sap_so_created_date', '<=', $this->request->to_date);
+            }
+            if ($this->request->filled('search')) {
+                $query->where('sap_so_number', $this->request->search)->orWhere('sap_so_number', 'like', '%' . $this->request->search . '%');
+            }
+
+            $customer_phones = CustomerPhone::select('customer_id')->where('phone_number', $this->current_user->phone_number)->get()->pluck('customer_id');
+            if ($customer_phones) {
+                $query->whereIn('customer_id', $customer_phones);
+
+
+                if ($this->request->filled('limit')) {
+                    $query = $query->limit($this->request->limit);
+                }
+                //Từ app zalo sort theo côt truyền trong parameter và có truyền tăng giảm.
+                $sort_type = $this->request->sort_type ?? 'asc';
+                $query = $query->with(['company', 'customer', 'warehouse', 'detail', 'receiver', 'approved', 'sale', 'status', 'delivery_info', 'customer_reviews', 'customer_reviews.criterias', 'customer_reviews.user', 'customer_reviews.images']);
+                if ($this->request->filled('sort_by') && in_array($this->request->sort_by, $params_value)) {
+                    $sort_by = $this->request->sort_by;
+                    $query->orderBy($sort_by, $sort_type);
+                } else {
+                    $query->orderBy('sap_so_created_date', 'asc');
+                }
+                $undone_order_count = (clone $query)->where('status_id', '<', EnumsOrderStatus::Delivered)->count();
+                $delivering_order_count = (clone $query)->whereIn('status_id', [EnumsOrderStatus::Delivering, EnumsOrderStatus::PartlyDelivered])->count();
+                $done_order_count = (clone $query)->where('status_id', '>=', EnumsOrderStatus::Delivered)->count();
+                $all_order_count = (clone $query)->count();
+                return array(
+                    'undone_order_count' => $undone_order_count,
+                    'delivering_order_count' => $delivering_order_count,
+                    'done_order_count' => $done_order_count,
+                    'all_order_count' => $all_order_count,
+                );
+            } else {
+                $this->message = 'Không tìm thấy khách hàng có số điện thoại ' . $this->current_user->phone_number;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function getOrderById($order_id, $is_expanded = false)
     {
         try {

@@ -137,17 +137,30 @@
 				},
 				table: {
 					table_fields: [
-						{
-							key: 'customer_material_id',
-							label: 'Sản phẩm khách hàng',
+                        {
+							key: 'customer_material.id',
+							label: 'Mã sản phẩm khách hàng',
 							sortable: true,
 							class: 'text-nowrap text-center',
 						},
 						{
-							key: 'sap_material_id',
+							key: 'customer_material.customer_sku_name',
+							label: 'Sản phẩm khách hàng',
+							sortable: true,
+							class: 'text-nowrap text-left',
+						},
+                        {
+							key: 'sap_material.id',
 							label: 'Mã đối chiếu sản phẩm',
 							sortable: true,
 							class: 'text-nowrap text-center',
+						},
+
+						{
+							key: 'sap_material.name',
+							label: 'Tên đối chiếu sản phẩm',
+							sortable: true,
+							class: 'text-nowrap text-left',
 						},
 						{
 							key: 'percentage',
@@ -164,8 +177,8 @@
 					form_name: 'bảng đối chiếu sản phẩm',
 					form_fields: [
 						{
-							label: 'Mã unit',
-							placeholder: 'Nhập mã unit..',
+							label: 'Mã sản phẩm khách hàng',
+							placeholder: 'Nhập sản phẩm khách hàng..',
 							key: 'customer_material_id',
 							type: 'treeselect',
 							required: true,
@@ -179,19 +192,19 @@
 						},
 
 						{
-							label: 'Mã đối chiếu sản phẩm',
-							placeholder: 'Nhập mã Mã đối chiếu sản phẩm..',
-							key: 'sap_material_id',
-							type: 'treeselect',
-							required: true,
-							treeselect: {
-								multiple: false,
-								option_id_key: 'id',
-								option_label_key: 'name',
-								async: true,
-								api_async_load_options: 'api/master/sap-materials',
-							},
-						},
+                            label: 'Mã đối chiếu sản phẩm',
+                            placeholder: 'Nhập mã Mã đối chiếu sản phẩm..',
+                            key: 'sap_material_id',
+                            type: 'treeselect',
+                            required: true,
+                            treeselect: {
+                                multiple: false,
+                                option_id_key: 'id',
+                                option_label_key: option => `${option.unit_id} - ${option.sap_code} - ${option.name}`,
+                                async: true,
+                                api_async_load_options: 'api/master/sap-materials/minified',
+                            }
+                        },
 						{
 							label: 'Mã tỉ lệ sản phẩm',
 							placeholder: 'Nhập mã tỉ lệ sản phẩm..',
@@ -244,32 +257,18 @@
 					label: node.name,
 				};
 			},
-
-			// async loadOptions({ action, searchQuery, callback }) {
-			// 	if (action === ASYNC_SEARCH) {
-			// 		const { data } = await this.api_handler.get(
-			// 			'api/master/sap-materials/minified',
-			// 			{
-			// 				search: searchQuery,
-			// 			},
-			// 		);
-			// 		const options = data;
-			// 		callback(null, options);
-			// 	}
-			// },
 			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
 						// customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: [this.form_filter.sap_material],
-
 					};
 					const { data } = await this.api_handler.get(
 						'api/master/sap-materials/minified',
 						params,
 					);
-                    console.log(data);
+					console.log(data);
 					const options = data;
 					callback(null, options);
 				}

@@ -340,7 +340,43 @@ class DashboardRepository extends RepositoryAbs
                     $query->whereIn('distribution_channel_id', $distribution_channel_ids);
                 });
             }
-            $query->with(['customer', 'detail', 'deliveries']);
+            // $query->with(['customer', 'detail', 'deliveries']);
+            $query->with([
+                'company',
+                'customer' => function ($query) {
+                    $query->select(['id', 'code', 'name']);
+                },
+                'warehouse' => function ($query) {
+                    $query->select(['id','code', 'name']);
+                },
+                'delivery_info' => function ($query) {
+                    $query->select(['id', 'order_id', 'delivery_id']);
+                },
+                'delivery_info.delivery' => function ($query) {
+                    $query->select(['id', 'start_delivery_date', 'complete_delivery_date', 'estimate_delivery_date', 'delivery_partner_id']);
+                },
+                'delivery_info.delivery.timelines',
+                'delivery_info.delivery.partner' => function ($query) {
+                    $query->select(['id', 'name']);
+                },
+                'detail',
+                'receiver' => function ($query) {
+                    $query->select(['id', 'receiver_name', 'order_id']);
+                },
+                'approved' => function ($query) {
+                    $query->select(['id', 'sap_so_finance_approval_date', 'sap_do_posting_date', 'order_id']);
+                },
+                'sale.distribution_channel' => function ($query) {
+                    $query->select(['id', 'name']);
+                },
+                'status',
+                'customer_reviews' => function ($query) {
+                    $query->select(['id', 'review_content', 'user_id']);
+                },
+                'customer_reviews.criterias',
+                'customer_reviews.user',
+                'customer_reviews.images'
+            ]);
             $orders = $query->get();
             $public_holidays = PublicHoliday::query()->orderBy('start_holiday_date', 'asc')->get();
             $public_holiday_tips = $public_holidays->reduce(function ($carry, $public_holiday) {

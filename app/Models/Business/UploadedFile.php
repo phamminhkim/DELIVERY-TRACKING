@@ -14,6 +14,7 @@ class UploadedFile extends Model
         'path',
         'is_handled',
         'batch_id',
+        'reference_file_id',
         'status_id',
     ];
 
@@ -32,15 +33,23 @@ class UploadedFile extends Model
         return $this->hasMany(RawExtractItem::class);
     }
 
-    public function raw_extract_header(){
+    public function raw_extract_header()
+    {
         return $this->hasOne(RawExtractHeader::class);
     }
 
-    public function raw_so_headers(){
+    public function raw_so_headers()
+    {
         return $this->hasMany(RawSoHeader::class);
     }
 
-    public function status(){
+    public function status()
+    {
         return $this->belongsTo(FileStatus::class);
+    }
+
+    public function reference_file()
+    {
+        return $this->belongsTo(UploadedFile::class, 'reference_file_id');
     }
 }

@@ -119,54 +119,15 @@ class AiRepository extends RepositoryAbs
             $file_path = Storage::disk('protected')->path($file_record->path);
             $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
 
-            $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
-            try {
-                $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
-            } catch (\Throwable $exception) {
+            $final_data = $this->extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config);
 
-                $extract_error = ExtractError::query()->where('code', ExtractErrorsEnum::EXTRACT_ERROR)->first();
-                FileExtractError::create([
-                    'uploaded_file_id' => $file_record->id,
-                    'extract_error_id' => $extract_error->id,
-                ]);
-                throw $exception;
-            }
-
-            $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
-            try {
-                $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
-            } catch (\Throwable $exception) {
-
-                $convert_error = ExtractError::query()->where('code', ExtractErrorsEnum::CONVERT_ERROR)->first();
-                FileExtractError::create([
-                    'uploaded_file_id' => $file_record->id,
-                    'extract_error_id' => $convert_error->id,
-                ]);
-                throw $exception;
-            }
-
-
-            $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_data_config->method];
-            try {
-                $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
-            } catch (\Throwable $exception) {
-
-                $restructure_error = ExtractError::query()->where('code', ExtractErrorsEnum::RESTRUCTURE_ERROR)->first();
-                FileExtractError::create([
-                    'uploaded_file_id' => $file_record->id,
-                    'extract_error_id' => $restructure_error->id,
-                ]);
-                throw $exception;
-            }
             DB::beginTransaction();
             $customer_group = $file_record->batch->customer->group;
-
             $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
             $error_extract_items = [];
             $raw_extract_header = RawExtractHeader::firstOrCreate([
                 'customer_id' => $file_record->batch->customer_id,
                 'uploaded_file_id' => $file_record->id,
-
             ]);
             foreach ($final_data as $item) {
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
@@ -192,6 +153,8 @@ class AiRepository extends RepositoryAbs
                 $error_log = json_encode($error_extract_items);
                 throw new NotFoundCustomerMaterialException($file_record->id, $error_log);
             }
+
+
             $created_so_items = collect([]);
             $error_so_items = [];
 
@@ -200,6 +163,10 @@ class AiRepository extends RepositoryAbs
                     $raw_extract_header->toArray(),
                     [
                         'raw_extract_header_id' => $raw_extract_header->id,
+                        'po_person' => $file_record->batch->customer->name,
+                        'po_phone' => $file_record->batch->customer->phone_number,
+                        'po_email' => $file_record->batch->customer->email,
+                        'po_delivery_address' => $file_record->batch->customer->address,
                     ]
                 )
             );
@@ -266,6 +233,51 @@ class AiRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+
+    private function extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config)
+    {
+        $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_data_config->method];
+        try {
+            $raw_data = $this->extractData($file_path, $extract_order_config->extract_data_config);
+        } catch (\Throwable $exception) {
+
+            $extract_error = ExtractError::query()->where('code', ExtractErrorsEnum::EXTRACT_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $extract_error->id,
+            ]);
+            throw $exception;
+        }
+
+        $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_config->method];
+        try {
+            $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_config);
+        } catch (\Throwable $exception) {
+
+            $convert_error = ExtractError::query()->where('code', ExtractErrorsEnum::CONVERT_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $convert_error->id,
+            ]);
+            throw $exception;
+        }
+
+
+        $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_data_config->method];
+        try {
+            $final_data = $this->restructureData($table_data, $extract_order_config->restructure_data_config);
+        } catch (\Throwable $exception) {
+
+            $restructure_error = ExtractError::query()->where('code', ExtractErrorsEnum::RESTRUCTURE_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $restructure_error->id,
+            ]);
+            throw $exception;
+        }
+
+        return $final_data;
     }
 
 

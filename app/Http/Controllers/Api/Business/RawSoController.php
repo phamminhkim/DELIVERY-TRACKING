@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api\Business;
+
 use App\Http\Controllers\BaseController\ResponseController;
 
 use App\Http\Controllers\Controller;
@@ -37,6 +38,30 @@ class RawSoController extends ResponseController
     {
         $handler = BusinessRepository::rawSoHeaderRequest($request);
         $data = $handler->createPromotiveRawSoHeader();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function deleteRawSoHeader(Request $request, $id)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->deleteRawSoHeader($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function deleteRawSoItem(Request $request, $id)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->deleteRawSoItem($id);
 
         if ($data) {
             return $this->responseSuccess($data);
