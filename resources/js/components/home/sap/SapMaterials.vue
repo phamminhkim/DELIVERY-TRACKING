@@ -180,7 +180,7 @@
 							label: 'Mã sản phẩm',
 							placeholder: 'Nhập mã..',
 							key: 'sap_code',
-							type: 'number',
+							type: 'textbox',
 							required: true,
 						},
 						{
