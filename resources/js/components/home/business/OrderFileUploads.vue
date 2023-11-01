@@ -161,7 +161,7 @@
 						</template>
 						<template #cell(action)="data">
 							<div>
-								<b-button variant="warning"
+								<b-button variant="warning" @click="reconvertFile(data.item)"
 									><i class="fas fa-sync-alt"></i
 								></b-button>
 								<b-button variant="info" @click="data.toggleDetails"
@@ -193,6 +193,17 @@
 											"
 											><i class="fas fa-trash-alt"></i
 										></b-button>
+										<b-button
+											variant="primary"
+											v-if="!raw_so_header_data.item.is_promotive"
+											@click.prevent="
+												createPromoiveRawSoHeader(
+													raw_so_header_data.item.id,
+												)
+											"
+										>
+											<i class="fas fa-copy"></i>
+										</b-button>
 									</template>
 									<template #cell(created_at)="data">
 										{{ data.value | formatDateTime }}
@@ -443,6 +454,42 @@
 						(item) => item.id !== id,
 					);
 					toastr.success('Xóa dữ liệu thành công');
+				} catch (error) {
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async createPromoiveRawSoHeader(raw_so_header_id) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						'/api/raw-so-headers/promotive',
+						{},
+						{
+							raw_so_header: raw_so_header_id,
+						},
+					);
+					this.order_files
+						.find((item) => item.id === raw_so_header_id)
+						.raw_so_headers.push(data);
+					toastr.success('Tạo đơn hàng khuyến mãi thành công');
+				} catch (error) {
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+
+			async reconvertFile(file) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						'/api/ai/extract-order/reconvert/' + file.id,
+					);
+					let index = this.order_files.findIndex((item) => item.id === file.id);
+					this.order_files.splice(index, 1, data);
+					toastr.success('Đã gửi yêu cầu chuyển đổi lại file');
 				} catch (error) {
 					toastr.error('Lỗi');
 				} finally {

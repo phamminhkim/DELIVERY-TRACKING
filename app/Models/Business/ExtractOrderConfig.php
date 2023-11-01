@@ -43,4 +43,9 @@ class ExtractOrderConfig extends Model
     {
         return $this->belongsTo(RestructureDataConfig::class);
     }
+
+    public function reference_extract_order_config()
+    {
+        return $this->belongsTo(ExtractOrderConfig::class, 'reference_id');
+    }
 }

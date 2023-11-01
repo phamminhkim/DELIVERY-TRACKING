@@ -49,6 +49,18 @@ class AiController extends ResponseController
         }
     }
 
+    public function reconvertUploadedFile(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->reconvertUploadedFile($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function clean(Request $request)
     {
         Schema::disableForeignKeyConstraints();

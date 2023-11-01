@@ -11,6 +11,7 @@ class Batch extends Model
     use Uuids;
     protected $fillable = [
         'extract_order_config_id',
+        'reference_batch_id',
         'customer_id',
         'company_code'
     ];

@@ -43,6 +43,7 @@ use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
 use App\Enums\File\FileStatuses;
 use App\Exceptions\Ai\NotFoundCustomerMaterialException;
 use App\Exceptions\Ai\NotFoundSapMaterialException;
+use App\Jobs\ExtractFile;
 use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
@@ -50,6 +51,7 @@ use App\Models\Business\RawSoItem;
 use App\Models\Master\SapMaterial;
 use App\Utilities\UniqueIdUtility;
 use Exception;
+use Illuminate\Http\Request;
 
 class AiRepository extends RepositoryAbs
 {
@@ -230,6 +232,42 @@ class AiRepository extends RepositoryAbs
             $error_status = FileStatus::query()->where('code', FileStatuses::ERROR)->first();
             $file_record->status_id = $error_status->id;
             $file_record->save();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function reconvertUploadedFile($file_id)
+    {
+        try {
+            $file = UploadedFile::query()->with(['batch.extract_order_config'])->find($file_id);
+            if (!$file) {
+                $this->message = 'File không tồn tại';
+                return;
+            }
+            $this->request->merge([
+                'extract_order_config' => $file->batch->extract_order_config->reference_id,
+                'customer' => $file->batch->customer_id,
+                'company' => $file->batch->company_code,
+            ]);
+            $uploaded_file_repository = new UploadedFileRepository($this->request);
+            $batch_id = $uploaded_file_repository->prepareUploadFile();
+            $batch = Batch::query()->find($batch_id);
+            $batch->reference_batch_id = $file->batch->id;
+            $batch->save();
+
+            $replicate_file = $file->replicate();
+            $replicate_file->batch_id = $batch_id;
+            $replicate_file->reference_file_id = $file->id;
+            $replicate_file->save();
+
+            $file->delete();
+
+            ExtractFile::dispatch($replicate_file->id);
+
+            $replicate_file->load(['batch.customer.group', 'raw_so_headers', 'status']);
+            return $replicate_file;
+        } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

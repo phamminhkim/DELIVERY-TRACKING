@@ -232,6 +232,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/clean', [AiController::class, 'clean']);
             Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
             Route::post('/', [AiController::class, 'extractOrder']);
+            Route::post('/reconvert/{id}', [AiController::class, 'reconvertUploadedFile']);
         });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);

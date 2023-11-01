@@ -44,43 +44,37 @@ class RawSoHeaderRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'raw_so_header' => 'required|exists:raw_so_headers,id',
-                'items' => 'required|array',
-                'items.*.sap_material' => 'required|exists:raw_extract_items,id',
-                'items.*.quantity' => 'required|numeric|min:1',
             ], [
                 'raw_so_header.required' => 'Raw SO Header là bắt bược',
                 'raw_so_header.exists' => 'Raw SO Header không tồn tại',
-                'items.required' => 'Sản phẩm là bắt buộc',
-                'items.array' => 'Sản phẩm phải là một mảng',
-                'items.*.sap_material.required' => 'Sản phẩm là bắt buộc',
-                'items.*.sap_material.exists' => 'Sản phẩm không tồn tại',
-                'items.*.quantity.required' => 'Số lượng là bắt buộc',
-                'items.*.quantity.numeric' => 'Số lượng phải là số',
-                'items.*.quantity.min' => 'Số lượng phải lớn hơn 0',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
                 DB::beginTransaction();
                 $orginal_raw_so_header = RawSoHeader::query()->with('customer')->find($this->data['raw_so_header']);
+                if ($orginal_raw_so_header->is_promotive) {
+                    $this->errors[] = 'Đơn hàng khuyến mãi không thể tạo đơn hàng khuyến mãi';
+                    return false;
+                }
                 $new_raw_so_header = $orginal_raw_so_header->replicate();
                 $new_raw_so_header->serial_number = UniqueIdUtility::generateSerialUniqueNumber($orginal_raw_so_header->customer->code);
                 $new_raw_so_header->is_promotive = true;
                 $new_raw_so_header->save();
 
-                $items = $this->data['items'];
-                foreach ($items as $item) {
-                    $raw_so_item = RawSoItem::create([
-                        'raw_extract_item_id' => null,
-                        'raw_so_header_id' => $new_raw_so_header->id,
-                        'sap_material_id' => $item['sap_material'],
-                        'quantity' => $item['quantity'],
-                        'percentage' => 100,
-                        'is_promotive' => true,
-                    ]);
-                }
+                // $items = $this->data['items'];
+                // foreach ($items as $item) {
+                //     $raw_so_item = RawSoItem::create([
+                //         'raw_extract_item_id' => null,
+                //         'raw_so_header_id' => $new_raw_so_header->id,
+                //         'sap_material_id' => $item['sap_material'],
+                //         'quantity' => $item['quantity'],
+                //         'percentage' => 100,
+                //         'is_promotive' => true,
+                //     ]);
+                // }
 
-                $new_raw_so_header->load('raw_so_items');
+                // $new_raw_so_header->load('raw_so_items');
                 DB::commit();
                 return $new_raw_so_header;
             }
@@ -99,8 +93,10 @@ class RawSoHeaderRepository extends RepositoryAbs
         if (!$raw_so_header) {
             return false;
         }
-        $raw_so_header->raw_extract_header->raw_extract_items()->delete();
-        $raw_so_header->raw_extract_header->delete();
+        if ($raw_so_header->raw_extract_header) {
+            $raw_so_header->raw_extract_header->raw_extract_items()->delete();
+            $raw_so_header->raw_extract_header->delete();
+        }
         $raw_so_header->raw_so_items()->delete();
         $raw_so_header->delete();
         return true;
@@ -140,7 +136,7 @@ class RawSoHeaderRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'raw_so_header_id' => 'required|exists:raw_so_headers,id',
-                'sap_material_id' => 'required|exists:raw_extract_items,id',
+                'sap_material_id' => 'required|exists:sap_materials,id',
                 'quantity' => 'required|numeric|min:1',
                 'is_promotive' => 'required|boolean',
             ], [
@@ -165,6 +161,7 @@ class RawSoHeaderRepository extends RepositoryAbs
                     'is_promotive' => $this->data['is_promotive'],
                 ]);
                 DB::commit();
+                $raw_so_item->load('sap_material.unit');
                 return $raw_so_item;
             }
         } catch (\Throwable $exception) {
@@ -174,33 +171,33 @@ class RawSoHeaderRepository extends RepositoryAbs
         }
     }
 
-    public function updateRawSoItem($raw_so_item_id)
-    {
-        try {
-            $validator = Validator::make($this->data, [
-                'quantity' => 'required|numeric|min:1',
-            ], [
-                'quantity.required' => 'Số lượng là bắt buộc',
-                'quantity.numeric' => 'Số lượng phải là số',
-                'quantity.min' => 'Số lượng phải lớn hơn 0',
-            ]);
-            if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
-            } else {
-                DB::beginTransaction();
-                $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
-                if (!$raw_so_item) {
-                    $this->errors[] = 'Raw SO Item không tồn tại';
-                    return false;
-                }
-                $raw_so_item->update($this->data);
-                DB::commit();
-                return $raw_so_item;
-            }
-        } catch (\Throwable $exception) {
-            DB::rollBack();
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
-        }
-    }
+    // public function updateRawSoItem($raw_so_item_id)
+    // {
+    //     try {
+    //         $validator = Validator::make($this->data, [
+    //             'quantity' => 'required|numeric|min:1',
+    //         ], [
+    //             'quantity.required' => 'Số lượng là bắt buộc',
+    //             'quantity.numeric' => 'Số lượng phải là số',
+    //             'quantity.min' => 'Số lượng phải lớn hơn 0',
+    //         ]);
+    //         if ($validator->fails()) {
+    //             $this->errors = $validator->errors()->all();
+    //         } else {
+    //             DB::beginTransaction();
+    //             $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
+    //             if (!$raw_so_item) {
+    //                 $this->errors[] = 'Raw SO Item không tồn tại';
+    //                 return false;
+    //             }
+    //             $raw_so_item->update($this->data);
+    //             DB::commit();
+    //             return $raw_so_item;
+    //         }
+    //     } catch (\Throwable $exception) {
+    //         DB::rollBack();
+    //         $this->message = $exception->getMessage();
+    //         $this->errors = $exception->getTrace();
+    //     }
+    // }
 }
