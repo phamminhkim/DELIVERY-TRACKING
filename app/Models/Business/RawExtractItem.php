@@ -4,9 +4,11 @@ namespace App\Models\Business;
 
 use App\Models\Master\CustomerMaterial;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RawExtractItem extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'raw_extract_header_id',
         'customer_material_id',

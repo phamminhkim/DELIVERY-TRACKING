@@ -557,6 +557,10 @@
 							field: 'sap_do_number',
 							title: 'Phiếu xuất kho',
 						},
+                        {
+							field: 'sap_so_number',
+							title: 'Số SO',
+						},
 						{
 							field: 'customer.code',
 							title: 'Mã khách hàng',
@@ -564,6 +568,14 @@
 						{
 							field: 'customer.name',
 							title: 'Khách hàng',
+						},
+                        {
+							field: 'warehouse.code',
+							title: 'Kho xuất',
+						},
+                        {
+							field: 'delivery_info.delivery.partner.name',
+							title: 'Nhà vận chuyển',
 						},
 						{
 							field: 'delivery_address',
@@ -580,6 +592,22 @@
 						{
 							field: 'deliveries[0].complete_delivery_date',
 							title: 'Ngày NPP nhận',
+						},
+                        {
+							field: 'deliveries[0].complete_delivery_date',
+							title: 'Ngày thực tế khách nhận',
+						},
+                        {
+							field: 'delivery_info.delivery.estimate_delivery_date',
+							title: 'Ngày khách nhận theo thỏa thuận',
+						},
+                        {
+							field: 'approved.sap_do_posting_date',
+							title: 'Ngày post DO',
+						},
+                        {
+							field: 'approved.sap_so_finance_approval_date',
+							title: 'Ngày duyệt SO',
 						},
 						{
 							field: 'duration',

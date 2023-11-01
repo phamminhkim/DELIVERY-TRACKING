@@ -124,16 +124,6 @@ class SapMaterialMappingRepository extends RepositoryAbs
     public function getAvailableSapMaterialMappings()
     {
         try {
-            // $result = array();
-            // $query = SapMaterialMapping::query();
-            // $sapMaterialMappings = $query->paginate($request->per_page, ['*'], 'page', $request->page);
-            // $result = $sapMaterialMappings->items();
-            // $result['paginate'] = [
-            //     'current_page' => $sapMaterialMappings->currentPage(),
-            //     'last_page' => $sapMaterialMappings->lastPage(),
-            //     'total' => $sapMaterialMappings->total(),
-            // ];
-            // return $result;
             $query = SapMaterialMapping::query();
 
             if ($this->request->filled('search')) {
@@ -151,6 +141,15 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $query->whereIn('sap_material_id', $sap_material_ids);
             }
 
+            $query->with([
+                'customer_material' => function ($query){
+                    $query->select(['id','customer_sku_name']);
+                },
+                'sap_material' => function ($query){
+                    $query->select(['id','name']);
+                }
+            ]);
+
             $sapMaterialMappings = $query->get();
 
             return $sapMaterialMappings;
@@ -159,7 +158,6 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-
     public function createNewSapMaterialMappings()
     {
         try {

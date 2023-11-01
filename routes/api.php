@@ -187,6 +187,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/orders')->group(function () {
             Route::get('/', [OrderController::class, 'getOrdersByCustomer']);
+            Route::get('/statistics', [OrderController::class, 'getOrderStatistics']);
             Route::get('/{order_id}', [OrderController::class, 'getOrderById']);
             Route::get('/{order_id}/expanded', [OrderController::class, 'getOrderExpandedById']);
             Route::post('/{order_id}/confirm', [OrderController::class, 'confirmOrder']);
@@ -245,6 +246,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
             Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
             Route::get('/', [UploadedFileController::class, 'getFiles']);
+            Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);
         });
     });
 
@@ -252,6 +254,12 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/{id}', [RawSoController::class, 'getRawSoHeaderById']);
         Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
         Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
+        Route::patch('/{id}', [RawSoController::class, 'updateRawSoHeader']);
+        Route::delete('/{id}', [RawSoController::class, 'deleteRawSoHeader']);
+        Route::prefix('/raw-so-items')->group(function () {
+            Route::post('/', [RawSoController::class, 'addRawSoItemToRawSoHeader']);
+            Route::delete('/{id}', [RawSoController::class, 'deleteRawSoItem']);
+        });
     });
 });
 

@@ -25,18 +25,24 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->limit(50);
                 $is_searching = true;
             }
-            if ($is_minified) {
-                $query->select('id', 'name', 'sap_code');
-            }
             if ($this->request->filled('unit_ids')) {
                 $query->whereIn('unit_id', $this->request->unit_ids);
             }
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
+
+            if ($is_minified) {
+                $query->select('id', 'name', 'sap_code', 'unit_id');
+            }
+            $query->with([
+                'unit' => function ($query){
+                    $query->select(['id','unit_code']);
+                },
+            ]);
             $sap_materials = $query->get();
             if ($is_searching) {
-                $sap_materials_clone = $sap_materials->clone();
+                $sap_materials_clone = clone $sap_materials;
                 $sap_materials_clone->where('code', $this->request->search);
                 if (!$sap_materials_clone->count()) {
                     $sap_materials = $sap_materials_clone;
