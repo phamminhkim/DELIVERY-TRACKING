@@ -25,14 +25,14 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->limit(50);
                 $is_searching = true;
             }
-            if ($is_minified) {
-                $query->select('id', 'name', 'sap_code');
-            }
             if ($this->request->filled('unit_ids')) {
                 $query->whereIn('unit_id', $this->request->unit_ids);
             }
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
+            }
+            if ($is_minified) {
+                $query->select('id', 'name', 'sap_code', 'unit_id');
             }
             $sap_materials = $query->get();
             if ($is_searching) {
