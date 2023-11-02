@@ -141,7 +141,7 @@ class AiRepository extends RepositoryAbs
                     ->where('customer_sku_name', $item['ProductName'])
                     ->first();
                 if (!$customer_material) {
-                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' và ProductName: ' . $item['ProductName'] . ' của customer group: ' . $customer_group->name;
+                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
                 $raw_extract_item = RawExtractItem::firstOrCreate([
@@ -181,7 +181,7 @@ class AiRepository extends RepositoryAbs
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
                 if (count($sap_material_mappings) == 0) {
-                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id;
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
                 foreach ($sap_material_mappings as $mapping) {
@@ -242,6 +242,9 @@ class AiRepository extends RepositoryAbs
         try {
             DB::beginTransaction();
             $file = UploadedFile::query()->with(['batch.extract_order_config'])->find($file_id);
+            $reconvert_status = FileStatus::query()->where('code', FileStatuses::RECONVERT)->first();
+            $file->status_id = $reconvert_status->id;
+            $file->save();
             if (!$file) {
                 $this->message = 'File không tồn tại';
                 return;

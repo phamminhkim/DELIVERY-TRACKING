@@ -35,6 +35,11 @@ class FileStatusesSeeder extends Seeder
                 'name' => "Lỗi",
                 'badge_class' => "badge badge-danger"
             ],
+            [
+                'code' => "50",
+                'name' => 'Xử lý lại',
+                'badge_class' => 'badge badge-secondary'
+            ]
         ];
 
 

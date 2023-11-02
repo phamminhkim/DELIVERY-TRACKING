@@ -174,7 +174,24 @@
 						</template>
 						<template #row-details="data">
 							<b-card>
+								<div v-if="data.item.status.code == 40">
+									<b-alert variant="danger" show>
+										{{
+											data.item.file_extract_error.extract_error.name
+										}}</b-alert
+									>
+									<b-list-group style="max-height: 300px; overflow-y: scroll">
+										<b-list-group-item
+											v-for="(error, index) in JSON.parse(
+												data.item.file_extract_error.log.log,
+											)"
+											:key="index"
+											>{{ error }}</b-list-group-item
+										>
+									</b-list-group>
+								</div>
 								<b-table
+									v-else
 									:fields="child_fields"
 									:items="data.item.raw_so_headers"
 									responsive

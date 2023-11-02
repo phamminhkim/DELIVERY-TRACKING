@@ -17,8 +17,12 @@ class FileExtractError extends Model
         return $this->belongsTo(UploadedFile::class);
     }
 
-    public function error()
+    public function extract_error()
     {
         return $this->belongsTo(ExtractError::class);
+    }
+    public function log()
+    {
+        return $this->hasOne(FileExtractErrorLog::class);
     }
 }

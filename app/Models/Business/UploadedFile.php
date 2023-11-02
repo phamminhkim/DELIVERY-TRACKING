@@ -52,4 +52,9 @@ class UploadedFile extends Model
     {
         return $this->belongsTo(UploadedFile::class, 'reference_file_id');
     }
+
+    public function file_extract_error()
+    {
+        return $this->hasOne(FileExtractError::class);
+    }
 }

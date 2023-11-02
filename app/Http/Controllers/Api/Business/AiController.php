@@ -17,6 +17,7 @@ use App\Models\Business\RawSoItem;
 use App\Models\Business\RestructureDataConfig;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerGroup;
+use App\Models\Master\UserMorph;
 use App\Repositories\BusinessRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -77,6 +78,7 @@ class AiController extends ResponseController
         RawSoHeader::query()->truncate();
         RawSoItem::query()->truncate();
         UploadedFile::query()->truncate();
+        UserMorph::where('morphable_type', 'App\Models\Business\UploadedFile')->delete();
         Schema::enableForeignKeyConstraints();
     }
     public function extractDataForConfig(Request $request)
