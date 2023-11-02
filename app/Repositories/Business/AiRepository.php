@@ -240,6 +240,7 @@ class AiRepository extends RepositoryAbs
     public function reconvertUploadedFile($file_id)
     {
         try {
+            DB::beginTransaction();
             $file = UploadedFile::query()->with(['batch.extract_order_config'])->find($file_id);
             if (!$file) {
                 $this->message = 'File không tồn tại';
@@ -261,13 +262,22 @@ class AiRepository extends RepositoryAbs
             $replicate_file->reference_file_id = $file->id;
             $replicate_file->save();
 
+            $owners = $file->user_morphs->pluck('user_id')->toArray();
+            // dd($owners);
+            foreach ($owners as $user_id) {
+                // $user_morph = new UserMorph(['user_id' => $user_id]);
+                $replicate_file->user_morphs()->create(['user_id' => $user_id]);
+            }
+
             $file->delete();
 
             ExtractFile::dispatch($replicate_file->id);
 
+            DB::commit();
             $replicate_file->load(['batch.customer.group', 'raw_so_headers', 'status']);
             return $replicate_file;
         } catch (\Throwable $exception) {
+            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
