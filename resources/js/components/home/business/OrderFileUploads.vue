@@ -198,7 +198,8 @@
 											v-if="!raw_so_header_data.item.is_promotive"
 											@click.prevent="
 												createPromoiveRawSoHeader(
-													raw_so_header_data.item.id,
+													raw_so_header_data.item,
+													data.item,
 												)
 											"
 										>
@@ -460,21 +461,20 @@
 					this.is_loading = false;
 				}
 			},
-			async createPromoiveRawSoHeader(raw_so_header_id) {
+			async createPromoiveRawSoHeader(raw_so_header, file_item) {
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.post(
 						'/api/raw-so-headers/promotive',
 						{},
 						{
-							raw_so_header: raw_so_header_id,
+							raw_so_header: raw_so_header.id,
 						},
 					);
-					this.order_files
-						.find((item) => item.id === raw_so_header_id)
-						.raw_so_headers.push(data);
+					file_item.raw_so_headers.push(data);
 					toastr.success('Tạo đơn hàng khuyến mãi thành công');
 				} catch (error) {
+					console.log(error, this.order_files);
 					toastr.error('Lỗi');
 				} finally {
 					this.is_loading = false;
