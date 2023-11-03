@@ -164,7 +164,7 @@ Route::middleware('auth:api')->group(function () {
         });
 
         Route::prefix('/customer-materials')->group(function () {
-            Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
+            Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
         });
     });
 
@@ -252,9 +252,12 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('raw-so-headers')->group(function () {
+        Route::get('/push-sap', [RawSoController::class, 'getRawSoHeadersToPushSap']);
         Route::get('/{id}', [RawSoController::class, 'getRawSoHeaderById']);
         Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
         Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
+        Route::patch('/sync-sap', [RawSoController::class, 'syncRawSoHeaderFromSap']);
+        Route::patch('/waiting-sync', [RawSoController::class, 'makeRawSoHeadersWatingToSync']);
         Route::patch('/{id}', [RawSoController::class, 'updateRawSoHeader']);
         Route::delete('/{id}', [RawSoController::class, 'deleteRawSoHeader']);
         Route::prefix('/raw-so-items')->group(function () {

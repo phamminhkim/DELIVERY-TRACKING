@@ -11,4 +11,6 @@ abstract class FileStatuses extends Enum
     const SUCCESS = 30;
     const ERROR = 40;
     const RECONVERT = 50;
+    const CONVERTED = 60;
+    const WAITING_SYNC = 70;
 }

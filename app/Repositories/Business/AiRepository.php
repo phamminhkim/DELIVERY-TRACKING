@@ -213,8 +213,8 @@ class AiRepository extends RepositoryAbs
                 $error_log = json_encode($error_so_items);
                 throw new NotFoundSapMaterialException($file_record->id, $error_log);
             }
-            $success_status = FileStatus::query()->where('code', FileStatuses::SUCCESS)->first();
-            $file_record->status_id = $success_status->id;
+            $converted_status = FileStatus::query()->where('code', FileStatuses::CONVERTED)->first();
+            $file_record->status_id = $converted_status->id;
             $file_record->save();
 
             DB::commit();

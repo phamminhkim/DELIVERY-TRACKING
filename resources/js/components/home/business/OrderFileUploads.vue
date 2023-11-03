@@ -134,6 +134,14 @@
 				<!-- <div class="row"></div> -->
 			</div>
 			<div class="form-group">
+				<b-button variant="primary" @click="syncFileSap">
+					<strong>
+						<i class="fas fa-globe-asia mr-1 text-bold"></i>
+						Đồng bộ SAP
+					</strong>
+				</b-button>
+			</div>
+			<div class="form-group">
 				<div>
 					<b-table
 						:items="order_files"
@@ -154,10 +162,20 @@
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
 						</template>
-						<template #cell(select)="data">
-							<div>
-								<input type="checkbox" />
-							</div>
+						<template #head(selection)>
+							<b-form-checkbox
+								class="ml-1"
+								v-model="is_select_all"
+								@change="selectAll"
+							></b-form-checkbox>
+						</template>
+						<template v-slot:cell(selection)="data">
+							<b-form-checkbox
+								class="ml-1"
+								:value="data.item.id"
+								v-model="selected_ids"
+							>
+							</b-form-checkbox>
 						</template>
 						<template #cell(action)="data">
 							<div>
@@ -290,6 +308,10 @@
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 				is_loading: false,
+
+				is_select_all: false,
+				selected_ids: [],
+
 				pagination: {
 					item_per_page: 10,
 					current_page: 1,
@@ -297,10 +319,9 @@
 				},
 				fields: [
 					{
-						key: 'select',
-						label: '',
-						sortable: true,
-						class: 'text-nowrap',
+						key: 'selection',
+						label: 'All',
+						stickyColumn: true,
 					},
 					{
 						key: 'created_at',
@@ -509,6 +530,37 @@
 					toastr.success('Đã gửi yêu cầu chuyển đổi lại file');
 				} catch (error) {
 					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			selectAll() {
+				this.selected_ids = [];
+				if (this.is_select_all) {
+					for (let i in this.order_files) {
+						this.selected_ids.push(this.order_files[i].id);
+					}
+				}
+			},
+			async syncFileSap() {
+				try {
+					this.is_loading = true;
+					if (this.selected_ids.length == 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+					await this.api_handler.patch(
+						'/api/raw-so-headers/waiting-sync',
+						{},
+						{
+							waiting_sync_files: this.selected_ids,
+						},
+					);
+
+					await this.fetchData();
+					toastr.success('Đã gửi yêu cầu đồng bộ file');
+				} catch (error) {
+					toastr.error('Lỗi', error.response.data.message);
 				} finally {
 					this.is_loading = false;
 				}
