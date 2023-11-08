@@ -132,7 +132,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
             Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
-            Route::put('/{id}', [SapMaterialMappingController::class, 'updateExistingSapMaterialMapping']);
+            Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
             Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
         });
         Route::prefix('/sap-units')->group(function () {

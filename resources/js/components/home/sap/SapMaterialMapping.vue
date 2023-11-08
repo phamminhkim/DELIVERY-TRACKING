@@ -61,7 +61,7 @@
 									>Mã/tên đối chiếu sản phẩm</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
-									<treeselect
+									<!-- <treeselect
 										placeholder="Chọn mã/tên đối chiếu sản phẩm.."
 										:multiple="true"
 										:disable-branch-nodes="false"
@@ -70,6 +70,14 @@
 										:load-options="loadOptions"
 										:normalizer="normalizerOption"
 										searchPromptText="Nhập mã/tên đối chiếu sản phẩm để tìm kiếm.."
+									/> -->
+									<treeselect
+										placeholder="Chọn sản phẩm.."
+										:multiple="true"
+										required
+										:load-options="loadOptions"
+										:async="true"
+										v-model="form_filter.sap_material"
 									/>
 								</div>
 							</div>
@@ -98,138 +106,278 @@
 			</b-collapse>
 		</div>
 
-		<CrudPage ref="CrudPage" :structure="page_structure"> </CrudPage>
+		<div class="container-fluid">
+			<div class="content-header">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-sm-6">
+							<!-- <h5 class="m-0 text-dark">
+								<i :class="form_icon" />
+								{{ form_title }}
+							</h5> -->
+						</div>
+						<div class="col-sm-6">
+							<div class="float-sm-right">
+								<button class="btn btn-info btn-sm" @click="showCreateDialog()">
+									<i class="fa fa-plus"></i>
+									Tạo mới
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-9">
+							<div class="form-group row">
+								<button type="button" class="btn btn-warning btn-sm ml-1 mt-1">
+									<strong>
+										<i class="fas fa-check mr-1 text-bold" />Cập nhật chức
+										năng</strong
+									>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="input-group input-group-sm mt-1 mb-1">
+								<input
+									type="search"
+									class="form-control -control-navbar"
+									v-model="search_pattern"
+									:placeholder="search_placeholder"
+									aria-label="Search"
+								/>
+								<div class="input-group-append">
+									<button
+										class="btn btn-default"
+										style="background: #1b1a1a; color: white"
+									>
+										<i class="fas fa-search"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- tạo nút edit và delete -->
+					<div class="row">
+						<b-table
+							responsive
+							hover
+							striped
+							show-empty
+							:busy="is_loading"
+							:bordered="true"
+							:current-page="pagination.current_page"
+							:per-page="pagination.item_per_page"
+							:filter="search_pattern"
+							:fields="fields"
+							:items="sap_material_mappings"
+							:tbody-tr-class="rowClass"
+						>
+							<template #empty="scope">
+								<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
+							</template>
+							<template #table-busy>
+								<div class="text-center text-primary my-2">
+									<b-spinner class="align-middle" type="grow"></b-spinner>
+									<strong>Đang tải dữ liệu...</strong>
+								</div>
+							</template>
+							<template #cell(index)="data">
+								{{
+									data.index +
+									(pagination.current_page - 1) * pagination.item_per_page +
+									1
+								}}
+							</template>
+
+							<template #cell(action)="data">
+								<div class="margin">
+									<button
+										class="btn btn-xs mr-1"
+										@click="showEditDialog(data.item)"
+									>
+										<i class="fas fa-edit text-green" title="Edit"></i>
+									</button>
+
+									<button
+										class="btn btn-xs mr-1"
+										@click="deleteSapMapping(data.item.id)"
+									>
+										<i
+											class="fas fa-trash text-red bigger-120"
+											title="Delete"
+										></i>
+									</button>
+								</div>
+							</template>
+						</b-table>
+					</div>
+					<!-- end tạo nút -->
+					<!-- phân trang -->
+					<div class="row">
+						<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
+							>Số lượng mỗi trang:</label
+						>
+						<div class="col-md-2">
+							<b-form-select
+								size="sm"
+								v-model="pagination.item_per_page"
+								:options="pagination.page_options"
+							>
+							</b-form-select>
+						</div>
+						<label
+							class="col-form-label-sm col-md-1"
+							style="text-align: left"
+							for=""
+						></label>
+						<div class="col-md-3">
+							<b-pagination
+								v-model="pagination.current_page"
+								:total-rows="rows"
+								:per-page="pagination.item_per_page"
+								size="sm"
+								class="ml-1"
+							></b-pagination>
+						</div>
+					</div>
+					<!-- end phân trang -->
+
+					<!-- tạo form -->
+					<DialogAddUpdateSapMapping
+						ref="AddUpdateDialog"
+						:is_editing="is_editing"
+						:editing_item="editing_item"
+						:refetchData="fetchData"
+					></DialogAddUpdateSapMapping>
+
+					<!-- end tạo form -->
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-	import CrudPage from '../general/crudform/CrudPage.vue';
 	import Vue from 'vue';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
+	import DialogAddUpdateSapMapping from './dialogs/DialogAddUpdateSapMapping.vue';
+
 	export default {
 		components: {
 			Treeselect,
 			Vue,
-			CrudPage,
+			DialogAddUpdateSapMapping,
 		},
 		data() {
 			return {
-				page_structure: {},
-				is_loading: false,
-				is_show_search: false,
+				api_handler: new ApiHandler(window.Laravel.access_token),
+
+				form_title: window.Laravel.form_title,
+				search_placeholder: 'Tìm kiếm..',
+				search_pattern: '',
 				form_filter: {
 					customer_material: null,
-					sap_material: null,
+					sap_materials: [],
 				},
+
+				is_editing: false,
+				editing_item: {},
+				is_loading: false,
+				is_show_search: false,
+				pagination: {
+					item_per_page: 10,
+					current_page: 1,
+					page_options: [10, 50, 100, 500, { value: this.rows, text: 'All' }],
+				},
+				fields: [
+					{
+						key: 'index',
+						label: 'STT',
+						sortable: true,
+						class: 'text-nowrap',
+					},
+					{
+						key: 'customer_material.customer_group.name',
+						label: 'Nhóm khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'customer_material.customer_sku_code',
+						label: 'Mã SKU khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'customer_material.customer_sku_name',
+						label: 'Tên SKU khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'customer_material.customer_sku_unit',
+						label: 'Đơn vị SKU khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'sap_material.sap_code',
+						label: 'Mã SAP',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'sap_material.unit.unit_code',
+						label: 'Đơn vị tính SAP',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+
+					{
+						key: 'sap_material.name',
+						label: 'Tên sản phẩm SAP',
+						sortable: true,
+						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'percentage',
+						label: 'Tỉ lệ sản phẩm',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'action',
+						label: 'Action',
+						class: 'text-nowrap',
+					},
+				],
 				sap_materials: [],
 				sap_material_mappings: [],
 				customer_options: [],
+				api_url: 'api/master/sap-material-mappings',
 			};
 		},
 		created() {
-			this.api_handler = new ApiHandler(window.Laravel.access_token);
-			this.page_structure = {
-				header: {
-					title: 'Bảng đối chiếu mã sản phẩm',
-					title_icon: 'fas fa-truck',
-				},
-				table: {
-					table_fields: [
-                        {
-							key: 'customer_material.id',
-							label: 'Mã sản phẩm khách hàng',
-							sortable: true,
-							class: 'text-nowrap text-center',
-						},
-						{
-							key: 'customer_material.customer_sku_name',
-							label: 'Sản phẩm khách hàng',
-							sortable: true,
-							class: 'text-nowrap text-left',
-						},
-                        {
-							key: 'sap_material.id',
-							label: 'Mã đối chiếu sản phẩm',
-							sortable: true,
-							class: 'text-nowrap text-center',
-						},
-
-						{
-							key: 'sap_material.name',
-							label: 'Tên đối chiếu sản phẩm',
-							sortable: true,
-							class: 'text-nowrap text-left',
-						},
-						{
-							key: 'percentage',
-							label: 'Tỉ lệ sản phẩm',
-							sortable: true,
-							class: 'text-nowrap text-center',
-						},
-					],
-					table_cells: [],
-					// fulltextsearch: true,
-				},
-				form: {
-					unique_name: 'sap-material-mappings',
-					form_name: 'bảng đối chiếu sản phẩm',
-					form_fields: [
-						{
-							label: 'Mã sản phẩm khách hàng',
-							placeholder: 'Nhập sản phẩm khách hàng..',
-							key: 'customer_material_id',
-							type: 'treeselect',
-							required: true,
-							treeselect: {
-								multiple: false,
-								option_id_key: 'id',
-								option_label_key: 'customer_sku_name',
-								async: true,
-								api_async_load_options: 'api/master/customer-materials',
-							},
-						},
-
-						{
-                            label: 'Mã đối chiếu sản phẩm',
-                            placeholder: 'Nhập mã Mã đối chiếu sản phẩm..',
-                            key: 'sap_material_id',
-                            type: 'treeselect',
-                            required: true,
-                            treeselect: {
-                                multiple: false,
-                                option_id_key: 'id',
-                                option_label_key: option => `${option.unit_id} - ${option.sap_code} - ${option.name}`,
-                                async: true,
-                                api_async_load_options: 'api/master/sap-materials/minified',
-                            }
-                        },
-						{
-							label: 'Mã tỉ lệ sản phẩm',
-							placeholder: 'Nhập mã tỉ lệ sản phẩm..',
-							key: 'percentage',
-							type: 'text',
-							required: true,
-						},
-					],
-				},
-				api_url: '/api/master/sap-material-mappings',
-			};
 			this.fetchOptionsData();
 		},
 		methods: {
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const [sap_material_mappings] = await this.api_handler.get(
-						this.page_structure.api_url,
-						{
-							customer_material_ids: this.form_filter.customer_material,
-							sap_material_ids: this.form_filter.sap_material,
-						},
-					);
-					this.sap_material_mappings = sap_material_mappings;
+					const { data } = await this.api_handler.get(this.api_url, {
+						customer_material_ids: this.form_filter.customer_material,
+						sap_material_ids: this.form_filter.sap_material,
+					});
+
+					if (Array.isArray(data)) {
+						this.sap_material_mappings = data;
+					}
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -238,9 +386,13 @@
 			},
 			async fetchOptionsData() {
 				try {
-					const [customer_options] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/customer-materials'),
-					]);
+					this.is_loading = true;
+					const [customer_options, sap_material_mappings] =
+						await this.api_handler.handleMultipleRequest([
+							new APIRequest('get', '/api/master/customer-materials'),
+							new APIRequest('get', '/api/master/sap-material-mappings'),
+						]);
+					this.sap_material_mappings = sap_material_mappings;
 					this.customer_options = customer_options.map((customer_material) => {
 						return {
 							id: customer_material.id,
@@ -249,6 +401,8 @@
 					});
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
 				}
 			},
 			normalizerOption(node) {
@@ -268,8 +422,14 @@
 						'api/master/sap-materials/minified',
 						params,
 					);
-					console.log(data);
-					const options = data;
+					let options = data.map((item) => {
+						return {
+							id: item.id,
+							label: `(${item.sap_code}) (${item.unit.unit_code}) ${item.name}`,
+						};
+					});
+					// console.log(data);
+					//const options = data;
 					callback(null, options);
 				}
 			},
@@ -279,7 +439,7 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					const { data } = await this.api_handler.get(this.page_structure.api_url, {
+					const { data } = await this.api_handler.get(this.api_url, {
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
@@ -287,7 +447,7 @@
 					// console.log(data,'u');
 
 					this.sap_material_mappings = data;
-					this.$refs.CrudPage.refValue(this.sap_material_mappings);
+					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -301,14 +461,65 @@
 					this.is_loading = true;
 
 					this.form_filter.customer_material = null;
-					this.form_filter.sap_materials = []; // Ensure it is an array
+					this.form_filter.sap_material = []; // Ensure it is an array
 
-					// this.fetchData();
-					this.$refs.CrudPage.refValue(this.sap_material_mappings);
+					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
+				}
+			},
+			async deleteSapMapping(id) {
+				if (confirm('Bạn muốn xoá?')) {
+					try {
+						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						if (result.success) {
+							if (Array.isArray(result.data)) {
+								this.sap_material_mappings = result.data;
+							}
+							this.showMessage('success', 'Xóa thành công', result.message);
+							await this.fetchData(); // Load the data again after successful deletion
+						} else {
+							this.showMessage('error', 'Lỗi', result.message);
+						}
+					} catch (error) {
+						this.$showMessage('error', 'Lỗi', error);
+					}
+				}
+			},
+			showCreateDialog() {
+				this.is_editing = false;
+				this.editing_item = {};
+				$('#DialogAddUpdateSapMapping').modal('show');
+			},
+			showEditDialog(item) {
+				this.is_editing = true;
+				this.editing_item = item;
+				$('#DialogAddUpdateSapMapping').modal('show');
+			},
+			rowClass(item, type) {
+				if (!item || type !== 'row') return;
+				if (item.status === 'awesome') return 'table-success';
+			},
+			showMessage(type, title, message) {
+				if (!title) title = 'Information';
+				toastr.options = {
+					positionClass: 'toast-bottom-right',
+					toastClass: this.getToastClassByType(type),
+				};
+				toastr[type](message, title); // Uncomment this line to show the message
+			},
+			getToastClassByType(type) {
+				switch (type) {
+					case 'success':
+						return 'toastr-bg-green';
+					case 'error':
+						return 'toastr-bg-red';
+					case 'warning':
+						return 'toastr-bg-yellow';
+					default:
+						return '';
 				}
 			},
 		},
