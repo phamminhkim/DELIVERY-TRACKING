@@ -472,12 +472,11 @@
 			},
 				async downloadFile(id, fileName) {
 					try {
-						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {
-							responseType: 'blob',
-						});
-						const blob = new Blob([response.data], { type: 'application/pdf' });
 
-						const url = window.URL.createObjectURL(blob);
+						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {},'blob');
+						const blobData = new Blob([response]);
+						 
+						const url = window.URL.createObjectURL(blobData);
 						const link = document.createElement('a');
 						link.href = url;
 						link.setAttribute('download', fileName);
@@ -487,6 +486,8 @@
 
 						// Giải phóng URL đã tạo ra
 						window.URL.revokeObjectURL(url);
+
+						
 					} catch (error) {
 						// Xử lý lỗi khi không thể tải xuống file
 						console.error(error);
