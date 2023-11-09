@@ -11,9 +11,8 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
-
-
+use Monolog\Formatter\JsonFormatter;
+use Psy\Util\Json;
 
 class SapMaterialMappingRepository extends RepositoryAbs
 {
@@ -152,7 +151,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 },
             ]);
 
-            $sapMaterialMappings = $query->get();
+            $sapMaterialMappings = $query->orderBy('id','desc')->get();
 
             return $sapMaterialMappings;
         } catch (\Exception $exception) {
@@ -164,34 +163,37 @@ class SapMaterialMappingRepository extends RepositoryAbs
     public function createNewSapMaterialMappings($customerMaterialData)
 {
     try {
+        DB::beginTransaction();
         $validator = Validator::make($customerMaterialData, [
-            'customer_material_id' => 'nullable|integer|exists:customer_materials,id',
+            // 'customer_material_id' => 'nullable|integer|exists:customer_materials,id',
             'sap_material_id' => 'required|integer|exists:sap_materials,id',
             'percentage' => 'required|integer',
-            'customer_group_id' => 'nullable',
-            'customer_sku_code' => 'nullable|unique:customer_materials,customer_sku_code',
-            'customer_sku_name' => 'nullable',
-            'customer_sku_unit' => 'nullable',
+            'customer_group_id' => 'required',
+            'customer_sku_code' => 'required',//|unique:customer_materials,customer_sku_code
+            'customer_sku_name' => 'required',
+            'customer_sku_unit' => 'required',
         ], [
-            'customer_material_id.integer' => 'Mã SKU khách hàng phải là số nguyên.',
+            // 'customer_material_id.integer' => 'Mã SKU khách hàng phải là số nguyên.',
             'sap_material_id.required' => 'Yêu cầu nhập mã đối chiếu.',
             'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
             'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
             'percentage.required' => 'Yêu cầu nhập tỉ lệ sản phẩm.',
             'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
             'customer_sku_code.required' => 'Yêu cầu nhập mã SKU khách hàng.',
-            'customer_sku_code.unique' => 'Mã SKU khách hàng đã tồn tại.',
+            // 'customer_sku_code.unique' => 'Mã SKU khách hàng đã tồn tại.',
         ]);
 
         if ($validator->fails()) {
-            $errors = $validator->errors();
-            foreach ($this->data as $sap_material_mapping => $validator) {
-                if ($errors->has($sap_material_mapping)) {
-                    $this->errors[$sap_material_mapping] = $errors->first($sap_material_mapping);
-                    return false;
-                }
-            }
+
+            $this->errors = $validator->errors();
+            return false;
         }
+        // foreach ($this->data as $sap_material_mapping => $validator) {
+        //     if ($errors->has($sap_material_mapping)) {
+        //         $this->errors[$sap_material_mapping] = $errors->first($sap_material_mapping);
+        //         return false;
+        //     }
+        // }
 
         $sap_material = SapMaterial::find($customerMaterialData['sap_material_id']);
         if (!$sap_material) {
@@ -210,16 +212,22 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
         $customer_material_existed = CustomerMaterial::where('customer_group_id', $customer_group->id)
             ->where('customer_sku_code', $customer_sku_code)
+            ->where('customer_sku_unit',  $customerMaterialData['customer_sku_unit'])
             ->first();
 
-        if ($customer_material_existed && !$customerMaterialData['customer_material_id']) {
-            $customer_material = $customer_material_existed;
-            $customer_material->fill([
-                'customer_sku_code' => $customer_sku_code,
-                'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
-                'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
-            ]);
-            $customer_material->save();
+        if ($customer_material_existed) {
+            //Tạo chuỗi json lỗi
+            $error['customer_sku_code'] = array('Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name );
+            $error['customer_sku_unit'] = array('Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name );
+            $this->errors =   $error;
+            return false;
+            // $customer_material = $customer_material_existed;
+            // $customer_material->fill([
+            //     'customer_sku_code' => $customer_sku_code,
+            //     'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
+            //     'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
+            // ]);
+            // $customer_material->save();
         } elseif (!$customer_material_existed) {
             $customer_material = CustomerMaterial::create([
                 'customer_group_id' => $customer_group_id,
@@ -229,7 +237,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
             ]);
         }
 
-        $customer_material_id = $customerMaterialData['customer_material_id'] ?? null;
+        $customer_material_id = $customer_material->id;
 
         $existing_mapping = SapMaterialMapping::where('customer_material_id', $customer_material_id)
             ->where('sap_material_id', $customerMaterialData['sap_material_id'])
@@ -241,15 +249,16 @@ class SapMaterialMappingRepository extends RepositoryAbs
         }
 
         $sap_material_mapping = SapMaterialMapping::create([
-            'customer_material_id' => $customer_material_id ?? '',
+            'customer_material_id' => $customer_material_id,
             'sap_material_id' => $customerMaterialData['sap_material_id'],
             'percentage' => $customerMaterialData['percentage'],
         ]);
-
+        DB::commit();
         return $sap_material_mapping;
     } catch (\Exception $exception) {
         $this->message = $exception->getMessage();
         $this->errors = $exception->getTrace();
+        DB::rollBack();
         return false;
     }
 }

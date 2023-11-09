@@ -47,7 +47,7 @@
 								<strong>{{ getError('customer_group_id') }}</strong>
 							</span>
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label>Mã sản phẩm khách hàng</label>
 							<treeselect
                                 v-model="sap_material_mapping.customer_material_id"
@@ -67,7 +67,7 @@
 							>
 								<strong>{{ getError('customer_material_id') }}</strong>
 							</span>
-						</div>
+						</div> -->
 						<div class="form-group">
 							<label>SKU SAP</label>
 							<!-- <small class="text-danger"></small> -->
@@ -98,7 +98,7 @@
 								name="percentage"
 								placeholder="Nhập tỉ lệ sản phẩm..."
 								v-bind:class="hasError('percentage') ? 'is-invalid' : ''"
-								type="text"
+								type="number" min="1"   max="100"
 							/>
 							<span
 								v-if="hasError('percentage')"
@@ -116,7 +116,7 @@
 								id="customer_sku_code"
 								name="customer_sku_code"
 								placeholder="Yêu cầu nhập khi mã sku chưa có ..."
-								v-bind:class="hasError('Mã SKU khách hàng') ? 'is-invalid' : ''"
+								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
 
@@ -259,23 +259,28 @@
 						customer_sku_name: this.sap_material_mapping.customer_sku_name,
 						customer_sku_unit: this.sap_material_mapping.customer_sku_unit,
 					});
-
-					if (Array.isArray(data)) {
+                    if(data.success) {
+                        if (Array.isArray(data)) {
 						this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
 					}
 
-					//reset lại form
-					this.sap_material_mapping.sap_material_id = null;
-					this.sap_material_mapping.customer_material_id = null;
-					this.sap_material_mapping.percentage = null;
-					this.sap_material_mapping.customer_group_id = null;
-					this.sap_material_mapping.customer_sku_code = null;
-					this.sap_material_mapping.customer_sku_name = null;
-					this.sap_material_mapping.customer_sku_unit = null;
+                        //reset lại form
+                        this.sap_material_mapping.sap_material_id = null;
+                        this.sap_material_mapping.customer_material_id = null;
+                        this.sap_material_mapping.percentage = null;
+                        this.sap_material_mapping.customer_group_id = null;
+                        this.sap_material_mapping.customer_sku_code = null;
+                        this.sap_material_mapping.customer_sku_name = null;
+                        this.sap_material_mapping.customer_sku_unit = null;
 
-					this.showMessage('success', 'Thêm thành công');
-					this.closeDialog();
-					await this.refetchData(); // Load the data again after successful creation
+                        this.showMessage('success', 'Thêm thành công');
+                        this.closeDialog();
+                        await this.refetchData(); // Load the data again after successful creation
+                    }else{
+                        this.errors = data.errors;
+                        this.showMessage('error', 'Thêm không thành công');
+                    }
+
 				} catch (error) {
 					this.showMessage('error', 'Thêm không thành công');
 				} finally {

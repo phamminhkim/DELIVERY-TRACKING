@@ -45,7 +45,7 @@ class SapMaterialMappingController extends ResponseController
          if ($sapMaterialMapping) {
              return $this->responseSuccess($sapMaterialMapping);
          } else {
-             return $this->responseError($handler->getMessage(), $handler->getErrors());
+             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
          }
      }
      //update
