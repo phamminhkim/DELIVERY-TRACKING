@@ -134,6 +134,14 @@
 				<!-- <div class="row"></div> -->
 			</div>
 			<div class="form-group">
+				<b-button variant="primary" @click="syncFileSap">
+					<strong>
+						<i class="fas fa-globe-asia mr-1 text-bold"></i>
+						Đồng bộ SAP
+					</strong>
+				</b-button>
+			</div>
+			<div class="form-group">
 				<div>
 					<b-table
 						:items="order_files"
@@ -154,14 +162,24 @@
 								<strong>Đang tải dữ liệu...</strong>
 							</div>
 						</template>
-						<template #cell(select)="data">
-							<div>
-								<input type="checkbox" />
-							</div>
+						<template #head(selection)>
+							<b-form-checkbox
+								class="ml-1"
+								v-model="is_select_all"
+								@change="selectAll"
+							></b-form-checkbox>
+						</template>
+						<template v-slot:cell(selection)="data">
+							<b-form-checkbox
+								class="ml-1"
+								:value="data.item.id"
+								v-model="selected_ids"
+							>
+							</b-form-checkbox>
 						</template>
 						<template #cell(action)="data">
 							<div>
-								<b-button variant="warning"
+								<b-button variant="warning" @click="reconvertFile(data.item)"
 									><i class="fas fa-sync-alt"></i
 								></b-button>
 								<b-button variant="info" @click="data.toggleDetails"
@@ -174,7 +192,24 @@
 						</template>
 						<template #row-details="data">
 							<b-card>
+								<div v-if="data.item.status.code == 40">
+									<b-alert variant="danger" show>
+										{{
+											data.item.file_extract_error.extract_error.name
+										}}</b-alert
+									>
+									<b-list-group style="max-height: 300px; overflow-y: scroll">
+										<b-list-group-item
+											v-for="(error, index) in JSON.parse(
+												data.item.file_extract_error.log.log,
+											)"
+											:key="index"
+											>{{ error }}</b-list-group-item
+										>
+									</b-list-group>
+								</div>
 								<b-table
+									v-else
 									:fields="child_fields"
 									:items="data.item.raw_so_headers"
 									responsive
@@ -193,6 +228,18 @@
 											"
 											><i class="fas fa-trash-alt"></i
 										></b-button>
+										<b-button
+											variant="primary"
+											v-if="!raw_so_header_data.item.is_promotive"
+											@click.prevent="
+												createPromoiveRawSoHeader(
+													raw_so_header_data.item,
+													data.item,
+												)
+											"
+										>
+											<i class="fas fa-copy"></i>
+										</b-button>
 									</template>
 									<template #cell(created_at)="data">
 										{{ data.value | formatDateTime }}
@@ -205,8 +252,16 @@
 								</b-table>
 							</b-card>
 						</template>
-						<template #cell(path)="data">
+						<!-- <template #cell(path)="data">
 							<a href="#"> {{ getFileName(data.value) }} </a>
+						</template> -->
+						<template #cell(path)="data">
+							<a
+								href="#"
+								@click="downloadFile(data.item.id, getFileName(data.value))"
+							>
+								{{ getFileName(data.value) }}
+							</a>
 						</template>
 						<template #cell(created_at)="data">
 							{{ data.value | formatDateTime }}
@@ -248,10 +303,12 @@
 		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" />
 	</div>
 </template>
+<!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
+	// import { saveAs } from 'file-saver';
 	export default {
 		components: {
 			Treeselect,
@@ -261,6 +318,10 @@
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
 				is_loading: false,
+
+				is_select_all: false,
+				selected_ids: [],
+
 				pagination: {
 					item_per_page: 10,
 					current_page: 1,
@@ -268,10 +329,9 @@
 				},
 				fields: [
 					{
-						key: 'select',
-						label: '',
-						sortable: true,
-						class: 'text-nowrap',
+						key: 'selection',
+						label: 'All',
+						stickyColumn: true,
 					},
 					{
 						key: 'created_at',
@@ -410,11 +470,36 @@
 					this.is_loading = false;
 				}
 			},
-			getFileName(path) {
-				let name = path.split('/')[1].split('_');
-				name.pop();
-				return name.join('') + '.pdf';
-			},
+				async downloadFile(id, fileName) {
+					try {
+
+						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {},'blob');
+						const blobData = new Blob([response]);
+						 
+						const url = window.URL.createObjectURL(blobData);
+						const link = document.createElement('a');
+						link.href = url;
+						link.setAttribute('download', fileName);
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+
+						// Giải phóng URL đã tạo ra
+						window.URL.revokeObjectURL(url);
+
+						
+					} catch (error) {
+						// Xử lý lỗi khi không thể tải xuống file
+						console.error(error);
+					}
+				},
+                getFileName(path) {
+					let name = path.split('/')[1].split('_');
+					name.pop();
+					return name.join('') + '.pdf';
+				},
+
+
 			showInfoDialog(raw_so_header_id) {
 				this.viewing_raw_so_header_id = raw_so_header_id;
 				$('#DialogRawSoHeaderInfo').modal('show');
@@ -445,6 +530,72 @@
 					toastr.success('Xóa dữ liệu thành công');
 				} catch (error) {
 					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async createPromoiveRawSoHeader(raw_so_header, file_item) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						'/api/raw-so-headers/promotive',
+						{},
+						{
+							raw_so_header: raw_so_header.id,
+						},
+					);
+					file_item.raw_so_headers.push(data);
+					toastr.success('Tạo đơn hàng khuyến mãi thành công');
+				} catch (error) {
+					console.log(error, this.order_files);
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+
+			async reconvertFile(file) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						'/api/ai/extract-order/reconvert/' + file.id,
+					);
+					let index = this.order_files.findIndex((item) => item.id === file.id);
+					this.order_files.splice(index, 1, data);
+					toastr.success('Đã gửi yêu cầu chuyển đổi lại file');
+				} catch (error) {
+					toastr.error('Lỗi');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			selectAll() {
+				this.selected_ids = [];
+				if (this.is_select_all) {
+					for (let i in this.order_files) {
+						this.selected_ids.push(this.order_files[i].id);
+					}
+				}
+			},
+			async syncFileSap() {
+				try {
+					this.is_loading = true;
+					if (this.selected_ids.length == 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+					await this.api_handler.patch(
+						'/api/raw-so-headers/waiting-sync',
+						{},
+						{
+							waiting_sync_files: this.selected_ids,
+						},
+					);
+
+					await this.fetchData();
+					toastr.success('Đã gửi yêu cầu đồng bộ file');
+				} catch (error) {
+					toastr.error('Lỗi', error.response.data.message);
 				} finally {
 					this.is_loading = false;
 				}

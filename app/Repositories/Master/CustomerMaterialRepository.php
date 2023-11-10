@@ -8,15 +8,21 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerMaterialRepository extends RepositoryAbs
 {
-    public function getAllCustomerMaterials()
+    public function getCustomerMaterials()
     {
         try {
-            $customerMaterials = CustomerMaterial::all();
-            return $customerMaterials;
+            $query = CustomerMaterial::query();
+
+            if ($this->request->filled('search')) {
+                $query->search($this->request->search);
+                $query->limit(50);
+            }
+
+            $customer_materials = $query->get();
+            return $customer_materials;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
-
     }
 }

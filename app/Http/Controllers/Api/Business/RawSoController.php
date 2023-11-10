@@ -22,6 +22,18 @@ class RawSoController extends ResponseController
         }
     }
 
+    public function getRawSoHeadersToPushSap(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->getRawSoHeaders(true);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function getRawSoHeaderById(Request $request, $id)
     {
         $handler = BusinessRepository::rawSoHeaderRequest($request);
@@ -62,6 +74,54 @@ class RawSoController extends ResponseController
     {
         $handler = BusinessRepository::rawSoHeaderRequest($request);
         $data = $handler->deleteRawSoItem($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function addRawSoItemToRawSoHeader(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->addRawSoItemToRawSoHeader();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function updateRawSoHeader(Request $request, $id)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->updateRawSoHeader($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function syncRawSoHeaderFromSap(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->syncRawSoHeaderFromSap();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function makeRawSoHeadersWatingToSync(Request $request)
+    {
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->makeRawSoHeadersWatingToSync();
 
         if ($data) {
             return $this->responseSuccess($data);
