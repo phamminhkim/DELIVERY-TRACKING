@@ -556,7 +556,7 @@
 							waiting_sync_files: this.selected_ids,
 						},
 					);
-
+					this.selected_ids = [];
 					await this.fetchData();
 					toastr.success('Đã gửi yêu cầu đồng bộ file');
 				} catch (error) {
