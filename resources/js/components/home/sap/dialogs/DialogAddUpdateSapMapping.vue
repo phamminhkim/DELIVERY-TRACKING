@@ -47,32 +47,31 @@
 								<strong>{{ getError('customer_group_id') }}</strong>
 							</span>
 						</div>
-						<!-- <div class="form-group">
-							<label>Mã sản phẩm khách hàng</label>
-							<treeselect
-                                v-model="sap_material_mapping.customer_material_id"
-								placeholder="Chỉ chọn nếu đã có sản phầm khách hàng.."
-
-								id="customer_material_id"
-								name="customer_material_id"
-								:disable-branch-nodes="false"
-								:options="customer_options"
-
-							></treeselect>
-
-							<span
-								v-if="hasError('customer_material_id')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('customer_material_id') }}</strong>
-							</span>
-						</div> -->
-						<div class="form-group">
+						<div class="form-group" v-if="!editing_item || !editing_item.id">
 							<label>SKU SAP</label>
 							<!-- <small class="text-danger"></small> -->
 							<treeselect
                                 v-model="sap_material_mapping.sap_material_id"
+								placeholder="Chọn sản phẩm.."
+
+								required
+								:load-options="loadOptions"
+								:async="true"
+
+							/>
+							<span
+								v-if="hasError('sap_material_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('sap_material_id') }}</strong>
+							</span>
+						</div>
+                        <div class="form-group" v-if="editing_item && editing_item.id">
+							<label>SKU SAP</label>
+							<!-- <small class="text-danger"></small> -->
+							<treeselect
+                                v-model="sap_material_mapping.sap_material_code"
 								placeholder="Chọn sản phẩm.."
 
 								required
@@ -222,6 +221,7 @@
 					customer_sku_unit: '',
 					customer_material_id: null,
 					sap_material_id: null,
+                    sap_material_code: null,
 					percentage: '',
 				},
 				customer_group_options: [],
@@ -263,16 +263,6 @@
                         if (Array.isArray(data)) {
 						this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
 					}
-
-                        //reset lại form
-                        this.sap_material_mapping.sap_material_id = null;
-                        this.sap_material_mapping.customer_material_id = null;
-                        this.sap_material_mapping.percentage = null;
-                        this.sap_material_mapping.customer_group_id = null;
-                        this.sap_material_mapping.customer_sku_code = null;
-                        this.sap_material_mapping.customer_sku_name = null;
-                        this.sap_material_mapping.customer_sku_unit = null;
-
                         this.showMessage('success', 'Thêm thành công');
                         this.closeDialog();
                         await this.refetchData(); // Load the data again after successful creation
@@ -297,21 +287,25 @@
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					this.sap_material_mappings = data.sap_material_mappings;
+					if(data.success) {
+                        if (Array.isArray(data)) {
+						this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+					}
+                        this.showMessage('success', 'Thêm thành công');
+                        this.closeDialog();
+                        await this.refetchData(); // Load the data again after successful creation
+                    }else{
+                        this.errors = data.errors;
+                        this.showMessage('error', 'Thêm không thành công');
+                    }
 
-
-					this.showMessage('success', 'Cập nhật thành công');
-					this.closeDialog();
-					this.refetchData();
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			closeDialog() {
-				$('#DialogAddUpdateSapMapping').modal('hide');
-			},
+
 			async fetchOptionsData() {
 				const [customer_group_options, customer_options] =
 					await this.api_handler.handleMultipleRequest([
@@ -350,6 +344,24 @@
 					label: node.name,
 				};
 			},
+            closeDialog() {
+				this.clearForm();
+				this.clearErrors();
+				$('#DialogAddUpdateSapMapping').modal('hide');
+			},
+			clearForm() {
+				this.sap_material_mapping.sap_material_id = null;
+				this.sap_material_mapping.customer_material_id = null;
+				this.sap_material_mapping.percentage = null;
+				this.sap_material_mapping.customer_group_id = null;
+				this.sap_material_mapping.customer_sku_code = null;
+				this.sap_material_mapping.customer_sku_name = null;
+				this.sap_material_mapping.customer_sku_unit = null;
+				this.sap_material_mapping.sap_material_code = null;
+			},
+			clearErrors() {
+				this.errors = {};
+			},
 
 			showMessage(type, title, message) {
 				if (!title) title = 'Information';
@@ -379,22 +391,26 @@
 			},
 		},
 		watch: {
+            is_editing (){
+                if (!this.is_editing) {
+                    this.clearForm();
+                }
+            },
 			editing_item: function (item) {
                 console.log(item);
-
-				if (item) {
-					this.sap_material_mapping.customer_group_id = item.customer_group_id;
-					this.sap_material_mapping.customer_sku_code = item.customer_sku_code;
-					this.sap_material_mapping.customer_sku_name = item.customer_sku_name;
-					this.sap_material_mapping.customer_sku_unit = item.customer_sku_unit;
+					this.sap_material_mapping.customer_group_id = item.customer_material.customer_group_id;
+					this.sap_material_mapping.customer_sku_code = item.customer_material.customer_sku_code;
+					this.sap_material_mapping.customer_sku_name = item.customer_material.customer_sku_name;
+					this.sap_material_mapping.customer_sku_unit = item.customer_material.customer_sku_unit;
 					this.sap_material_mapping.customer_material_id = item.customer_material_id;
 					this.sap_material_mapping.sap_material_id = item.sap_material_id;
 					this.sap_material_mapping.percentage = item.percentage;
+                    this.sap_material_mapping.sap_material_code = item.sap_material.sap_code;
+                    this.sap_material_mapping.id = item.id;
 				}
-
-			},
 		},
 		computed: {
+
 			rows() {
 				return this.sap_material_mappings.length;
 			},
