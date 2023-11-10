@@ -138,7 +138,7 @@ class AiRepository extends RepositoryAbs
                 $customer_material = CustomerMaterial::query()
                     ->where('customer_group_id', $customer_group->id)
                     ->where('customer_sku_code', $item['ProductID'])
-                    ->where('customer_sku_name', $item['ProductName'])
+                    // ->where('customer_sku_name', $item['ProductName'])
                     ->first();
                 if (!$customer_material) {
                     $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
