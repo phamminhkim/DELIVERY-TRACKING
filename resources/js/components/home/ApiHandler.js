@@ -16,6 +16,7 @@ class APIHandler {
         {
             "Content-Type": "application/json",
             Authorization: this.token ? `Bearer ${this.token}` : "",
+           
 
         };
         this.custom_headers = {};
@@ -32,14 +33,16 @@ class APIHandler {
         };
     }
 
-    async get(api_url, queries = {}) {
+    async get(api_url, queries = {},response_type='json') {
         try {
-            const response = await axios.get(api_url, {
+            const axiosConfig = {
                 headers: this.getHeaders(),
-                params: queries,
-            });
+                params:queries,
+                responseType: response_type, // Đặt kiểu dữ liệu phản hồi là blob
+                };
+            const response = await axios.get(api_url,  axiosConfig);
             const data = response.data;
-
+             
             return data;
         } catch (error) {
             console.error("Error fetching data from the API:", error);

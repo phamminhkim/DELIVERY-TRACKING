@@ -252,8 +252,16 @@
 								</b-table>
 							</b-card>
 						</template>
-						<template #cell(path)="data">
+						<!-- <template #cell(path)="data">
 							<a href="#"> {{ getFileName(data.value) }} </a>
+						</template> -->
+						<template #cell(path)="data">
+							<a
+								href="#"
+								@click="downloadFile(data.item.id, getFileName(data.value))"
+							>
+								{{ getFileName(data.value) }}
+							</a>
 						</template>
 						<template #cell(created_at)="data">
 							{{ data.value | formatDateTime }}
@@ -295,10 +303,12 @@
 		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" />
 	</div>
 </template>
+<!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
+	// import { saveAs } from 'file-saver';
 	export default {
 		components: {
 			Treeselect,
@@ -460,11 +470,36 @@
 					this.is_loading = false;
 				}
 			},
-			getFileName(path) {
-				let name = path.split('/')[1].split('_');
-				name.pop();
-				return name.join('') + '.pdf';
-			},
+				async downloadFile(id, fileName) {
+					try {
+
+						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {},'blob');
+						const blobData = new Blob([response]);
+						 
+						const url = window.URL.createObjectURL(blobData);
+						const link = document.createElement('a');
+						link.href = url;
+						link.setAttribute('download', fileName);
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+
+						// Giải phóng URL đã tạo ra
+						window.URL.revokeObjectURL(url);
+
+						
+					} catch (error) {
+						// Xử lý lỗi khi không thể tải xuống file
+						console.error(error);
+					}
+				},
+                getFileName(path) {
+					let name = path.split('/')[1].split('_');
+					name.pop();
+					return name.join('') + '.pdf';
+				},
+
+
 			showInfoDialog(raw_so_header_id) {
 				this.viewing_raw_so_header_id = raw_so_header_id;
 				$('#DialogRawSoHeaderInfo').modal('show');
