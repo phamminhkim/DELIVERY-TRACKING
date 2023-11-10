@@ -43,6 +43,7 @@ use App\Enums\Ai\Error\ExtractErrors as ExtractErrorsEnum;
 use App\Enums\File\FileStatuses;
 use App\Exceptions\Ai\NotFoundCustomerMaterialException;
 use App\Exceptions\Ai\NotFoundSapMaterialException;
+use App\Jobs\ExtractFile;
 use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
@@ -50,6 +51,7 @@ use App\Models\Business\RawSoItem;
 use App\Models\Master\SapMaterial;
 use App\Utilities\UniqueIdUtility;
 use Exception;
+use Illuminate\Http\Request;
 
 class AiRepository extends RepositoryAbs
 {
@@ -139,7 +141,7 @@ class AiRepository extends RepositoryAbs
                     ->where('customer_sku_name', $item['ProductName'])
                     ->first();
                 if (!$customer_material) {
-                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' và ProductName: ' . $item['ProductName'] . ' của customer group: ' . $customer_group->name;
+                    $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
                 $raw_extract_item = RawExtractItem::firstOrCreate([
@@ -179,7 +181,7 @@ class AiRepository extends RepositoryAbs
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
                 if (count($sap_material_mappings) == 0) {
-                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id;
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
                 foreach ($sap_material_mappings as $mapping) {
@@ -211,8 +213,8 @@ class AiRepository extends RepositoryAbs
                 $error_log = json_encode($error_so_items);
                 throw new NotFoundSapMaterialException($file_record->id, $error_log);
             }
-            $success_status = FileStatus::query()->where('code', FileStatuses::SUCCESS)->first();
-            $file_record->status_id = $success_status->id;
+            $converted_status = FileStatus::query()->where('code', FileStatuses::CONVERTED)->first();
+            $file_record->status_id = $converted_status->id;
             $file_record->save();
 
             DB::commit();
@@ -230,6 +232,55 @@ class AiRepository extends RepositoryAbs
             $error_status = FileStatus::query()->where('code', FileStatuses::ERROR)->first();
             $file_record->status_id = $error_status->id;
             $file_record->save();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function reconvertUploadedFile($file_id)
+    {
+        try {
+            DB::beginTransaction();
+            $file = UploadedFile::query()->with(['batch.extract_order_config'])->find($file_id);
+            $reconvert_status = FileStatus::query()->where('code', FileStatuses::RECONVERT)->first();
+            $file->status_id = $reconvert_status->id;
+            $file->save();
+            if (!$file) {
+                $this->message = 'File không tồn tại';
+                return;
+            }
+            $this->request->merge([
+                'extract_order_config' => $file->batch->extract_order_config->reference_id,
+                'customer' => $file->batch->customer_id,
+                'company' => $file->batch->company_code,
+            ]);
+            $uploaded_file_repository = new UploadedFileRepository($this->request);
+            $batch_id = $uploaded_file_repository->prepareUploadFile();
+            $batch = Batch::query()->find($batch_id);
+            $batch->reference_batch_id = $file->batch->id;
+            $batch->save();
+
+            $replicate_file = $file->replicate();
+            $replicate_file->batch_id = $batch_id;
+            $replicate_file->reference_file_id = $file->id;
+            $replicate_file->save();
+
+            $owners = $file->user_morphs->pluck('user_id')->toArray();
+            // dd($owners);
+            foreach ($owners as $user_id) {
+                // $user_morph = new UserMorph(['user_id' => $user_id]);
+                $replicate_file->user_morphs()->create(['user_id' => $user_id]);
+            }
+
+            $file->delete();
+
+            ExtractFile::dispatch($replicate_file->id);
+
+            DB::commit();
+            $replicate_file->load(['batch.customer.group', 'raw_so_headers', 'status']);
+            return $replicate_file;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

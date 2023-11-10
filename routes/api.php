@@ -132,7 +132,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
             Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
-            Route::put('/{id}', [SapMaterialMappingController::class, 'updateExistingSapMaterialMapping']);
+            Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
             Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
         });
         Route::prefix('/sap-units')->group(function () {
@@ -164,7 +164,7 @@ Route::middleware('auth:api')->group(function () {
         });
 
         Route::prefix('/customer-materials')->group(function () {
-            Route::get('/', [CustomerMaterialController::class, 'getAllCustomerMaterials']);
+            Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
         });
     });
 
@@ -232,6 +232,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/clean', [AiController::class, 'clean']);
             Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
             Route::post('/', [AiController::class, 'extractOrder']);
+            Route::post('/reconvert/{id}', [AiController::class, 'reconvertUploadedFile']);
         });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
@@ -251,9 +252,12 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('raw-so-headers')->group(function () {
+        Route::get('/push-sap', [RawSoController::class, 'getRawSoHeadersToPushSap']);
         Route::get('/{id}', [RawSoController::class, 'getRawSoHeaderById']);
         Route::get('/', [RawSoController::class, 'getRawSoHeaders']);
         Route::post('/promotive', [RawSoController::class, 'createPromotiveRawSoHeader']);
+        Route::patch('/sync-sap', [RawSoController::class, 'syncRawSoHeaderFromSap']);
+        Route::patch('/waiting-sync', [RawSoController::class, 'makeRawSoHeadersWatingToSync']);
         Route::patch('/{id}', [RawSoController::class, 'updateRawSoHeader']);
         Route::delete('/{id}', [RawSoController::class, 'deleteRawSoHeader']);
         Route::prefix('/raw-so-items')->group(function () {

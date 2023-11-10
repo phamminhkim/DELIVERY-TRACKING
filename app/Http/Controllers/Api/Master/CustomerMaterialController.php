@@ -8,11 +8,11 @@ use App\Repositories\MasterRepository;
 
 class CustomerMaterialController extends ResponseController
 {
-    public function getAllCustomerMaterials(Request $request)
+    public function getCustomerMaterials(Request $request)
     {
 
         $handler = MasterRepository::customerMaterialRequest($request);
-        $customer_material = $handler->getAllCustomerMaterials();
+        $customer_material = $handler->getCustomerMaterials();
 
         if ($customer_material) {
             return $this->responseSuccess($customer_material);

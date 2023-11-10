@@ -11,9 +11,8 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
-
-
+use Monolog\Formatter\JsonFormatter;
+use Psy\Util\Json;
 
 class SapMaterialMappingRepository extends RepositoryAbs
 {
@@ -142,15 +141,17 @@ class SapMaterialMappingRepository extends RepositoryAbs
             }
 
             $query->with([
-                'customer_material' => function ($query){
-                    $query->select(['id','customer_sku_name']);
+                'customer_material' => function ($query) {
+                    $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
+                    $query->with('customer_group:id,name'); // Lấy thông tin cột "name" từ bảng "customer_group"
                 },
-                'sap_material' => function ($query){
-                    $query->select(['id','name']);
-                }
+                'sap_material' => function ($query) {
+                    $query->select(['id', 'sap_code', 'unit_id', 'name']);
+                    $query->with('unit:id,unit_code'); // Lấy thông tin cột "name" từ bảng "sap_unit"
+                },
             ]);
 
-            $sapMaterialMappings = $query->get();
+            $sapMaterialMappings = $query->orderBy('id','desc')->get();
 
             return $sapMaterialMappings;
         } catch (\Exception $exception) {
@@ -158,60 +159,109 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function createNewSapMaterialMappings()
-    {
-        try {
-            $validator = Validator::make($this->data, [
-                // 'company_id' => 'required|integer|exists:companies,code',
-                'customer_material_id' => 'required|integer|exists:customer_materials,id',
-                'sap_material_id' => 'required|integer|exists:sap_materials,id',
-                'percentage' => 'required|integer',
-            ], [
-                'customer_material_id.required' => 'Yêu cầu nhập mã sản phẩm khách hàng.',
-                'customer_material_id.integer' => 'Mã sản phẩm khách hàng phải là chuỗi.',
-                'customer_material_id.exists' => 'Mã sản phẩm khách hàng đã tồn tại.',
-                'sap_material_id.integer' => 'Mã đối chiếu phải là chuỗi.',
-                'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
-                'percentage.required' => 'Yêu cầu nhập tỉ lệ sản phẩm.',
-                'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
-            ]);
 
-            if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $sapMaterialMapping => $validator) {
-                    if ($errors->has($sapMaterialMapping)) {
-                        $this->errors[$sapMaterialMapping] = $errors->first($sapMaterialMapping);
-                        return false;
-                    }
-                }
-            } else {
+    public function createNewSapMaterialMappings($customerMaterialData)
+{
+    try {
+        DB::beginTransaction();
+        $validator = Validator::make($customerMaterialData, [
+            // 'customer_material_id' => 'nullable|integer|exists:customer_materials,id',
+            'sap_material_id' => 'required|integer|exists:sap_materials,id',
+            'percentage' => 'required|integer',
+            'customer_group_id' => 'required',
+            'customer_sku_code' => 'required',//|unique:customer_materials,customer_sku_code
+            'customer_sku_name' => 'required',
+            'customer_sku_unit' => 'required',
+        ], [
+            // 'customer_material_id.integer' => 'Mã SKU khách hàng phải là số nguyên.',
+            'sap_material_id.required' => 'Yêu cầu nhập mã đối chiếu.',
+            'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
+            'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
+            'percentage.required' => 'Yêu cầu nhập tỉ lệ sản phẩm.',
+            'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
+            'customer_sku_code.required' => 'Yêu cầu nhập mã SKU khách hàng.',
+            // 'customer_sku_code.unique' => 'Mã SKU khách hàng đã tồn tại.',
+        ]);
 
-                $customer_material = CustomerMaterial::find($this->data['customer_material_id']);
-                if (!$customer_material) {
-                    $this->errors = 'Không tìm thấy mã sản phẩm khách hàng ' . $this->data['customer_material_id'];
-                    return false;
-                }
+        if ($validator->fails()) {
 
-                $sap_material = SapMaterial::find($this->data['sap_material_id']);
-                if (!$sap_material) {
-                    $this->errors = 'Không tìm thấy mã đối chiếu sản phẩm ' . $this->data['sap_material_id'];
-                    return false;
-                }
-                $this->data['sap_material_id'] = $sap_material->id ?? null;
-
-                $sapMaterialMapping = SapMaterialMapping::create([
-                    'customer_material_id' => $this->data['customer_material_id'],
-                    'sap_material_id' => $this->data['sap_material_id'],
-                    'percentage' => $this->data['percentage'],
-                ]);
-
-                return $sapMaterialMapping;
-            }
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
+            $this->errors = $validator->errors();
+            return false;
         }
+        // foreach ($this->data as $sap_material_mapping => $validator) {
+        //     if ($errors->has($sap_material_mapping)) {
+        //         $this->errors[$sap_material_mapping] = $errors->first($sap_material_mapping);
+        //         return false;
+        //     }
+        // }
+
+        $sap_material = SapMaterial::find($customerMaterialData['sap_material_id']);
+        if (!$sap_material) {
+            $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $customerMaterialData['sap_material_id'];
+            return false;
+        }
+
+        $customer_group = CustomerGroup::find($customerMaterialData['customer_group_id']);
+        $customer_group_id = $customerMaterialData['customer_group_id'] ?? null;
+        if (!$customer_group) {
+            $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $customerMaterialData['customer_group_id'];
+            return false;
+        }
+
+        $customer_sku_code = $customerMaterialData['customer_sku_code'] ?? '';
+
+        $customer_material_existed = CustomerMaterial::where('customer_group_id', $customer_group->id)
+            ->where('customer_sku_code', $customer_sku_code)
+            ->where('customer_sku_unit',  $customerMaterialData['customer_sku_unit'])
+            ->first();
+
+        if ($customer_material_existed) {
+            //Tạo chuỗi json lỗi
+            $error['customer_sku_code'] = array('Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name );
+            $error['customer_sku_unit'] = array('Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name );
+            $this->errors =   $error;
+            return false;
+            // $customer_material = $customer_material_existed;
+            // $customer_material->fill([
+            //     'customer_sku_code' => $customer_sku_code,
+            //     'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
+            //     'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
+            // ]);
+            // $customer_material->save();
+        } elseif (!$customer_material_existed) {
+            $customer_material = CustomerMaterial::create([
+                'customer_group_id' => $customer_group_id,
+                'customer_sku_code' => $customer_sku_code,
+                'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
+                'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
+            ]);
+        }
+
+        $customer_material_id = $customer_material->id;
+
+        $existing_mapping = SapMaterialMapping::where('customer_material_id', $customer_material_id)
+            ->where('sap_material_id', $customerMaterialData['sap_material_id'])
+            ->exists();
+
+        if ($existing_mapping) {
+            $this->errors[] = 'Mapping dữ liệu đã tồn tại.';
+            return false;
+        }
+
+        $sap_material_mapping = SapMaterialMapping::create([
+            'customer_material_id' => $customer_material_id,
+            'sap_material_id' => $customerMaterialData['sap_material_id'],
+            'percentage' => $customerMaterialData['percentage'],
+        ]);
+        DB::commit();
+        return $sap_material_mapping;
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        DB::rollBack();
+        return false;
     }
+}
     public function updateOrInsert()
     {
         $validator = Validator::make($this->data, [
@@ -285,56 +335,83 @@ class SapMaterialMappingRepository extends RepositoryAbs
             }
         }
     }
-    public function updateExistingSapMaterialMapping($id)
+    public function updateSapMaterialMapping($id, $customerMaterialData)
     {
         try {
-            $validator = Validator::make($this->data, [
-                'customer_material_id' => 'integer|exists:customer_materials,id',
+            $validator = Validator::make($customerMaterialData, [
                 'sap_material_id' => 'integer|exists:sap_materials,id',
                 'percentage' => 'integer',
+                'customer_group_id' => '',
+                'customer_sku_code' => '',
+                'customer_sku_name' => '',
+                'customer_sku_unit' => '',
             ], [
-                'customer_material_id.integer' => 'Mã sản phẩm khách hàng phải là chuỗi.',
-                'customer_material_id.exists' => 'Mã sản phẩm khách hàng đã tồn tại.',
-                'sap_material_id.integer' => 'Mã đối chiếu phải là chuỗi.',
+                'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
                 'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
                 'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
+                // 'customer_sku_code.unique' => 'Mã SKU khách hàng đã tồn tại.',
             ]);
 
             if ($validator->fails()) {
                 $errors = $validator->errors();
-                foreach ($this->data as $field => $value) {
-                    if ($errors->has($field)) {
-                        $this->errors[$field] = $errors->first($field);
-                        return false;
-                    }
-                }
-            } else {
-                $customer_material = CustomerMaterial::find($this->data['customer_material_id']);
-                if (!$customer_material) {
-                    $this->errors = 'Không tìm thấy mã sản phẩm khách hàng ' . $this->data['customer_material_id'];
-                    return false;
-                }
+                $this->errors = $errors->all();
+                return false;
+            }
 
-                $sap_material = SapMaterial::find($this->data['sap_material_id']);
-                if (!$sap_material) {
-                    $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $this->data['sap_material_id'];
-                    return false;
-                }
-                $this->data['sap_material_id'] = $sap_material->id ?? null;
+            $sap_material_mapping = SapMaterialMapping::find($id);
+            if (!$sap_material_mapping) {
+                $this->errors[] = 'Không tìm thấy đối chiếu sản phẩm.';
+                return false;
+            }
 
-                $sapMaterialMapping = SapMaterialMapping::findOrFail($id);
-                $sapMaterialMapping->fill([
-                    'customer_material_id' => $this->data['customer_material_id'],
-                    'sap_material_id' => $this->data['sap_material_id'],
-                    'percentage' => $this->data['percentage'],
-                ]);
-                $sapMaterialMapping->save();
+            $sap_material = SapMaterial::find($customerMaterialData['sap_material_id']);
+            if (!$sap_material) {
+                $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $customerMaterialData['sap_material_id'];
+                return false;
+            }
 
-                return $sapMaterialMapping;
+            $customer_material = CustomerMaterial::find($sap_material_mapping->customer_material_id);
+            if (!$customer_material) {
+                $this->errors[] = 'Không tìm thấy đối chiếu khách hàng.';
+                return false;
+            }
+
+            $customer_group = CustomerGroup::find($customerMaterialData['customer_group_id']);
+            if (!$customer_group) {
+                $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $customerMaterialData['customer_group_id'];
+                return false;
+            }
+
+            // Bắt đầu giao dịch
+            DB::beginTransaction();
+
+            try {
+                $customer_material->customer_group_id = $customerMaterialData['customer_group_id'];
+                $customer_material->customer_sku_code = $customerMaterialData['customer_sku_code'];
+                $customer_material->customer_sku_name = $customerMaterialData['customer_sku_name'];
+                $customer_material->customer_sku_unit = $customerMaterialData['customer_sku_unit'];
+                $customer_material->save();
+
+                $sap_material_mapping->sap_material_id = $customerMaterialData['sap_material_id'];
+                $sap_material_mapping->percentage = $customerMaterialData['percentage'];
+                $sap_material_mapping->save();
+
+                // Hoàn thành giao dịch
+                DB::commit();
+
+                return $sap_material_mapping;
+            } catch (\Exception $exception) {
+                // Lỗi xảy ra, hủy giao dịch
+                DB::rollBack();
+
+                $this->message = $exception->getMessage();
+                $this->errors = $exception->getTrace();
+                return false;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
     public function deleteExistingSapMaterialMapping($id)

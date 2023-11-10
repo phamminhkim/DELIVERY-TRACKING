@@ -61,7 +61,7 @@ class UploadedFileRepository extends RepositoryAbs
             $query->whereDate('created_at', '<=', $to_date);
         }
         $query
-            ->with(['batch.customer.group', 'raw_so_headers', 'status'])
+            ->with(['batch.customer.group', 'raw_so_headers', 'status', 'file_extract_error.extract_error', 'file_extract_error.log'])
             ->orderBy('created_at', 'desc');
         $files = $query->get();
 

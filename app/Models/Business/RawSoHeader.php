@@ -21,15 +21,17 @@ class RawSoHeader extends Model
         'po_delivery_address',
         'po_note',
         'note',
-        'sap_so_number',
+        // 'sap_so_number',
         'serial_number',
-        'is_promotive'
+        'is_promotive',
+        'is_wating_sync',
     ];
 
     protected $casts = [
         'po_date' => 'date',
         'po_delivery_date' => 'date',
         'is_promotive' => 'boolean',
+        'is_wating_sync' => 'boolean',
     ];
 
     public function customer()

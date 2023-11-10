@@ -262,35 +262,67 @@
 					}
 				}
 			},
+			// showCreateDialog() {
+			// 	this.is_editing = false;
+			// 	this.editing_item = {};
+			//     // this.rendered_items.splice(0,0);
+			// 	$('#' + this.dialog_name).modal('show');
+			// },
+			// showEditDialog(item) {
+			// 	this.is_editing = true;
+			// 	this.editing_item = item;
+			// 	$('#' + this.dialog_name).modal('show');
+			// },
 			showCreateDialog() {
 				this.is_editing = false;
-				this.editing_item = {};
+				this.editing_item = { ...this.page_structure.table.default_item };
 				$('#' + this.dialog_name).modal('show');
 			},
+
 			showEditDialog(item) {
 				this.is_editing = true;
-				this.editing_item = item;
+				this.editing_item = { ...item };
 				$('#' + this.dialog_name).modal('show');
 			},
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
 			},
+			// itemCreated(item) {
+			// 	if (this.page_structure.table.fulltextsearch) this.items.splice(0, 0, item);
+			// 	this.rendered_items.splice(0, 0, item);
+			//     this.rendered_items.push(item);
+			// },
+
+			// itemUpdated(item) {
+			// 	if (this.page_structure.table.fulltextsearch) {
+			// 		let index = this.items.findIndex(
+			// 			(x) => x[this.primary_key] === item[this.primary_key],
+			// 		);
+			// 		this.items.splice(index, 1, item);
+			// 	}
+			// 	let index = this.rendered_items.findIndex(
+			// 		(x) => x[this.primary_key] === item[this.primary_key],
+			// 	);
+			// 	this.rendered_items.splice(index, 1, item);
+			// },
 			itemCreated(item) {
-				if (this.page_structure.table.fulltextsearch) this.items.splice(0, 0, item);
-				this.rendered_items.splice(0, 0, item);
+				if (this.page_structure.table.fulltextsearch) this.items.push(item);
+				this.rendered_items.push(item);
+				this.fetchData();
 			},
 			itemUpdated(item) {
 				if (this.page_structure.table.fulltextsearch) {
 					let index = this.items.findIndex(
 						(x) => x[this.primary_key] === item[this.primary_key],
 					);
-					this.items.splice(index, 1, item);
+					this.$set(this.items, index, item);
 				}
 				let index = this.rendered_items.findIndex(
 					(x) => x[this.primary_key] === item[this.primary_key],
 				);
-				this.rendered_items.splice(index, 1, item);
+				this.$set(this.rendered_items, index, item);
+				this.fetchData();
 			},
 			async onSearching() {
 				try {
@@ -310,9 +342,12 @@
 				this.search_pattern = '';
 				this.rendered_items = this.items;
 			},
-            refValue(value){
-                this.rendered_items = value;
-            }
+			// refValue(value){
+			//     this.rendered_items = value;
+			// }
+			refValue(value) {
+				this.rendered_items = value.map((item) => ({ ...item }));
+			},
 		},
 		computed: {
 			rows() {

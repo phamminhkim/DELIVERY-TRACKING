@@ -33,6 +33,7 @@
 													<input
 														class="form-control"
 														:value="raw_so_header?.customer?.group.name"
+														readonly
 													/>
 												</div>
 											</div>
@@ -48,6 +49,7 @@
 													<input
 														class="form-control"
 														:value="raw_so_header?.customer?.code"
+														readonly
 													/>
 												</div>
 											</div>
@@ -65,7 +67,7 @@
 													<input
 														class="form-control"
 														type="text"
-														:value="raw_so_header?.po_number"
+														v-model="raw_so_header.po_number"
 													/>
 												</div>
 											</div>
@@ -80,7 +82,7 @@
 												<div class="col-lg-6 p-0">
 													<input
 														class="form-control"
-														:value="raw_so_header?.po_delivery_date"
+														v-model="raw_so_header.po_date"
 													/>
 												</div>
 											</div>
@@ -94,7 +96,7 @@
 									<div class="col-lg-9 p-0">
 										<input
 											class="form-control"
-											:value="raw_so_header?.po_delivery_address"
+											v-model="raw_so_header.po_delivery_address"
 										/>
 									</div>
 								</div>
@@ -103,7 +105,7 @@
 										<label class="ml-lg-2 mr-lg-4">Ghi chú</label>
 									</div>
 									<div class="col-lg-9 p-0">
-										<input class="form-control" :value="raw_so_header?.note" />
+										<input class="form-control" v-model="raw_so_header.note" />
 									</div>
 								</div>
 							</div>
@@ -116,7 +118,7 @@
 										<div class="col-lg-6 p-0">
 											<input
 												class="form-control"
-												:value="raw_so_header?.po_person"
+												v-model="raw_so_header.po_person"
 											/>
 										</div>
 									</div>
@@ -129,7 +131,7 @@
 										<div class="col-lg-6 p-0">
 											<input
 												class="form-control"
-												:value="raw_so_header?.po_phone"
+												v-model="raw_so_header.po_phone"
 											/>
 										</div>
 									</div>
@@ -142,7 +144,7 @@
 										<div class="col-lg-6 p-0">
 											<input
 												class="form-control"
-												:value="raw_so_header?.po_email"
+												v-model="raw_so_header.po_email"
 											/>
 										</div>
 									</div>
@@ -153,37 +155,59 @@
 											<label class="ml-lg-2 mr-lg-4">Ngày giao</label>
 										</div>
 										<div class="col-lg-6 p-0">
-											<input class="form-control" />
+											<input
+												class="form-control"
+												v-model="raw_so_header.po_delivery_date"
+											/>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<!-- <div class="form-group">
-							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">
+						<div class="form-group d-flex">
+							<!-- <button class="btn btn-sm btn-info mr-2 px-4 mb-1">
 								Thêm dòng mới
 							</button>
 							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">Lưu</button>
-							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">Coppy</button>
-							<button class="btn btn-sm btn-secondary mr-2 px-4 mb-1">
-								Download excel
-							</button>
-							<button class="btn btn-sm btn-secondary px-4 mb-1">Đồng bộ SAP</button>
-						</div> -->
+							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">Coppy</button> -->
+							<button class="btn btn-secondary mr-2 px-4 mb-1">Download excel</button>
+							<button class="btn btn-secondary px-4 mb-1">Đồng bộ SAP</button>
 
+							<div style="flex: 1"></div>
+							<button class="btn btn-success px-4 mb-1" @click="updateRawSoHeader">
+								Lưu thông tin
+							</button>
+						</div>
 						<!-- ################### -->
 						<form class="row">
 							<div class="form-group col-8">
 								<label>Thêm sản phẩm</label>
 								<div class="row mb-3">
 									<div class="col-md-8">
-										<treeselect placeholder="Chọn sản phẩm.." required />
+										<treeselect
+											placeholder="Chọn sản phẩm.."
+											required
+											:load-options="loadOptions"
+											:async="true"
+											v-model="selected_sap_material_id"
+										/>
 									</div>
 									<div class="col-md-2">
-										<input class="form-control" required type="number" />
+										<input
+											class="form-control"
+											required
+											type="number"
+											v-model="selected_quantity"
+										/>
 									</div>
 									<div class="col-md-2">
-										<button class="btn btn-primary" type="submit">Thêm</button>
+										<button
+											class="btn btn-primary"
+											type="submit"
+											@click="addRawSoItemToRawSoHeader"
+										>
+											Thêm
+										</button>
 									</div>
 								</div>
 							</div>
@@ -209,7 +233,10 @@
 									}}
 								</template>
 								<template #cell(action)="data">
-									<b-button variant="danger">
+									<b-button
+										variant="danger"
+										@click="deleteRawSoItem(data.item.id)"
+									>
 										<i class="fas fa-trash-alt"></i>
 									</b-button>
 								</template>
@@ -255,6 +282,8 @@
 	import APIHandler, { APIRequest } from '../../ApiHandler';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+	import sha256 from 'crypto-js/sha256';
+
 	export default {
 		components: {
 			Treeselect,
@@ -265,7 +294,17 @@
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
-				raw_so_header: null,
+				raw_so_header: {
+					note: '',
+					po_date: '',
+					po_delivery_address: '',
+					po_delivery_date: '',
+					po_email: '',
+					po_note: '',
+					po_number: '',
+					po_person: '',
+					po_phone: '',
+				},
 				raw_so_items: [],
 				is_loading: false,
 
@@ -322,6 +361,9 @@
 						class: 'text-nowrap',
 					},
 				],
+
+				selected_sap_material_id: null,
+				selected_quantity: null,
 			};
 		},
 		methods: {
@@ -330,7 +372,9 @@
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
 					this.raw_so_header = data;
-					this.raw_so_items = data.raw_so_items;
+					this.raw_so_items = structuredClone(data.raw_so_items);
+					this.$delete(this.raw_so_header, 'raw_so_items');
+					// this.original_raw_so_header = structuredClone(this.raw_so_header);
 				} catch (e) {
 					console.log(e);
 				} finally {
@@ -340,6 +384,80 @@
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
+			},
+			async loadOptions({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const params = {
+						search: searchQuery,
+					};
+					const { data } = await this.api_handler.get(
+						'api/master/sap-materials/minified',
+						params,
+					);
+					let options = data.map((item) => {
+						return {
+							id: item.id,
+							label: `(${item.sap_code}) (${item.unit.unit_code}) ${item.name}`,
+						};
+					});
+					callback(null, options);
+				}
+			},
+			async addRawSoItemToRawSoHeader() {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						`/api/raw-so-headers/raw-so-items`,
+						{},
+						{
+							raw_so_header_id: this.id,
+							sap_material_id: this.selected_sap_material_id,
+							quantity: this.selected_quantity,
+							is_promotive: this.raw_so_header.is_promotive,
+						},
+					);
+					this.raw_so_items = [data, ...this.raw_so_items];
+					this.selected_sap_material_id = this.selected_quantity = null;
+
+					this.$showMessage('success', 'Thêm thành công');
+				} catch (e) {
+					console.log(e);
+					this.$showMessage('danger', 'Thêm thất bại');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async deleteRawSoItem(id) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.delete(
+						`/api/raw-so-headers/raw-so-items/${id}`,
+						{},
+					);
+					this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
+					this.$showMessage('success', 'Xóa thành công');
+				} catch (e) {
+					console.log(e);
+					this.$showMessage('danger', 'Xóa thất bại');
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			async updateRawSoHeader() {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.patch(
+						`/api/raw-so-headers/${this.id}`,
+						{},
+						this.raw_so_header,
+					);
+					this.$showMessage('success', 'Cập nhật thành công');
+				} catch (e) {
+					console.log(e);
+					this.$showMessage('danger', 'Cập nhật thất bại');
+				} finally {
+					this.is_loading = false;
+				}
 			},
 		},
 		watch: {
