@@ -368,7 +368,6 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
         if ($validator->fails()) {
             $this->errors = $validator->errors();
-
             return false;
         }
 
@@ -409,24 +408,18 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
             $hasChanges = false; // Biến kiểm tra trạng thái thay đổi
 
-            $hasChanges = false; // Biến kiểm tra trạng thái thay đổi
+            foreach ($initialValues as $field => $value) {
+                if ($customerMaterialData[$field] !== $value) {
+                    $hasChanges = true;
+                    break;
+                }
+            }
 
-foreach ($initialValues as $field => $value) {
-    if ($field === 'customer_sku_name' || $field === 'percentage') {
-        // Bỏ qua kiểm tra cho customer_sku_name và percentage
-        continue;
-    }
-
-    if ($customerMaterialData[$field] !== $value) {
-        $hasChanges = true;
-        break;
-    }
-}
-
-if ($hasChanges) {
-    $this->errors[] = 'Không được chỉnh sửa các trường ngoại trừ customer_sku_name và percentage.';
-    return false;
-}
+            if (!$hasChanges) {
+                // Không có thay đổi, bỏ qua
+                DB::commit();
+                return $sap_material_mapping;
+            }
 
             $customer_material->customer_sku_name = $customerMaterialData['customer_sku_name'];
             $customer_material->save();
