@@ -58,9 +58,9 @@ class RouterSeeder extends Seeder
             ],
 
             [
-                'name' => 'Chỉnh sửa đơn hàng',
-                'path' => '/order-edit-files',
-                'component' => 'home/business/OrderEditFiles'
+                'name' => 'Khách hàng liên kết',
+                'path' => '/customer-group-pivots',
+                'component' => 'home/master/CustomerGroupPivots'
             ],
 
             [

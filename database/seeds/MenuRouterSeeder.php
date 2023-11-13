@@ -298,9 +298,9 @@ class MenuRouterSeeder extends Seeder
             ],
 
             [
-                'title' => "Chỉnh sửa đơn hàng",
+                'title' => "Khách hàng liên kết",
                 'icon' => "fas fa-wrench",
-                'link' => "order-edit-files",
+                'link' => "customer-group-pivots",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],

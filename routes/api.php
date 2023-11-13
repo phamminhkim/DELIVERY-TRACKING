@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 use App\Http\Controllers\Api\Master\CustomerMaterialController;
+use App\Http\Controllers\Api\Master\CustomerGroupPivotController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -161,6 +162,12 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-groups')->group(function () {
             Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+        });
+        Route::prefix('/customer-group-pivots')->group(function () {
+            Route::get('/', [CustomerGroupPivotController::class, 'getAvailableCustomerGroupPivots']);
+            Route::post('/', [CustomerGroupPivotController::class, 'createNewCustomerGroupPivot']);
+            Route::put('/{id}', [CustomerGroupPivotController::class, 'updateExistingCustomerGroupPivot']);
+            Route::delete('/{id}', [CustomerGroupPivotController::class, 'deleteExistingCustomerGroupPivot']);
         });
 
         Route::prefix('/customer-materials')->group(function () {
