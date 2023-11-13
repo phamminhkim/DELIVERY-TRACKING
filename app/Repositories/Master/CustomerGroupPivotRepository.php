@@ -71,52 +71,75 @@ class CustomerGroupPivotRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-//     public function updateExistingCustomerGroupPivot()
-// {
-//     try {
-//         $validator = Validator::make($this->data, [
-//             'customer_id' => 'integer|exists:customers,code',
-//             'customer_group_id' => 'integer|exists:customer_groups,id',
-//         ], [
-//             //'customer_id.required' => 'Yêu cầu nhập mã khách hàng.',
-//             'customer_id.integer' => 'Mã khách hàng phải là số nguyên.',
-//             'customer_id.exists' => 'Không tìm thấy khách hàng có mã này.',
-//             //'customer_group_id.required' => 'Yêu cầu nhập nhóm khách hàng.',
-//             'customer_group_id.integer' => 'Nhóm khách hàng phải là số nguyên.',
-//             'customer_group_id.exists' => 'Không tìm thấy nhóm khách hàng có ID này.',
-//         ]);
+    public function updateExistingCustomerGroupPivot($id)
+{
+    try {
+        $validator = Validator::make($this->data, [
+            // 'customer_id' => 'integer|exists:customers,id',
+            'customer_group_id' => 'integer|exists:customer_groups,id',
+        ], [
+            // 'customer_id.integer' => 'Mã khách hàng phải là số nguyên.',
+            // 'customer_id.exists' => 'Không tìm thấy khách hàng có mã này.',
+            'customer_group_id.integer' => 'Nhóm khách hàng phải là số nguyên.',
+            'customer_group_id.exists' => 'Không tìm thấy nhóm khách hàng có ID này.',
+        ]);
 
-//         if ($validator->fails()) {
-//             $this->errors = $validator->errors()->toArray();
-//             return false;
-//         }
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->toArray();
+            return false;
+        }
 
-//         $customer = Customer::where('code', $this->data['customer_id'])->first();
+        $customerGroupPivot = CustomerGroupPivot::findOrFail($id);
 
-//         $customerGroup = CustomerGroup::where('id', $this->data['customer_group_id'])->first();
+        // Lưu trữ customer_id hiện tại
+        $currentCustomerId = $customerGroupPivot->customer_id;
+        $currentGroupId = $customerGroupPivot->customer_group_id;
 
-//         // Kiểm tra xem khách hàng đã tồn tại trong nhóm khách hàng hay chưa
-//         $existingPivot = CustomerGroupPivot::where('customer_id', $customer->id)
-//             ->where('customer_group_id', $customerGroup->id)
-//             ->first();
-//         if ($existingPivot) {
-//             $this->errors = ['customer_group_id' => 'Khách hàng đã tồn tại trong nhóm khách hàng này.'];
-//             return false;
-//         }
+        // Kiểm tra xem customer_id hoặc customer_group_id có tồn tại trong $this->data
+        $updatedCustomerId = isset($this->data['customer_id'])
+            ? $this->data['customer_id']
+            : $currentCustomerId;
 
-//         $customerGroupPivotData = [
-//             'customer_id' => $customer->id,
-//             'customer_group_id' => $customerGroup->id,
-//         ];
+        $updatedGroupId = isset($this->data['customer_group_id'])
+            ? $this->data['customer_group_id']
+            : $currentGroupId;
 
-//         $existingPivot->update($customerGroupPivotData);
+        // Kiểm tra xem có sự thay đổi trong customer_id hoặc customer_group_id không
+        if ($updatedCustomerId != $currentCustomerId) {
+            $this->errors = ['customer_id' => 'Không được phép sửa khách hàng.'];
+            return false;
+        }
 
-//         return $existingPivot;
-//     } catch (\Exception $exception) {
-//         $this->message = $exception->getMessage();
-//         $this->errors = $exception->getTrace();
-//     }
-// }
+        $customerGroup = CustomerGroup::find($updatedGroupId);
+
+        if (!$customerGroup) {
+            $this->errors = ['customer_group_id' => 'Không tìm thấy nhóm khách hàng có ID này.'];
+            return false;
+        }
+
+        $existingPivot = CustomerGroupPivot::where('customer_id', $updatedCustomerId)
+            ->where('customer_group_id', $updatedGroupId)
+            ->first();
+
+        if ($existingPivot) {
+            $this->errors = ['customer_group_id' => 'Khách hàng đã tồn tại trong nhóm khách hàng này.'];
+            return false;
+        }
+
+        $customerGroupPivotData = [
+            'customer_id' => $updatedCustomerId,
+            'customer_group_id' => $updatedGroupId,
+        ];
+
+        $customerGroupPivot->update($customerGroupPivotData);
+
+        return $customerGroupPivot;
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        return null;
+    }
+}
     public function deleteExistingCustomerGroupPivot($id)
     {
         try {

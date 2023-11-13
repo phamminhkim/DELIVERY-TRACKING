@@ -32,11 +32,11 @@ class CustomerGroupPivotController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-    public function updateExistingCustomerGroupPivot(Request $request)
+    public function updateExistingCustomerGroupPivot(Request $request, $id)
     {
 
         $handler = MasterRepository::customerGroupPivotRequest($request);
-        $customerGroupPivot = $handler->updateExistingCustomerGroupPivot();
+        $customerGroupPivot = $handler->updateExistingCustomerGroupPivot($id);
 
         if ($customerGroupPivot) {
             return $this->responseSuccess($customerGroupPivot);
