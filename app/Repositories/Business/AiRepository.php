@@ -180,8 +180,10 @@ class AiRepository extends RepositoryAbs
 
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
+                Log::info($item->customer_material);
                 if (count($sap_material_mappings) == 0) {
-                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id . ' (' . $item->customer_material->customer_sku_name . ')';
+                    Log::info($item);
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material code: ' . $item->customer_material->customer_sku_code . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
                 foreach ($sap_material_mappings as $mapping) {
