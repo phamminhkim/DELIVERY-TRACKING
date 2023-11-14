@@ -218,18 +218,31 @@ class SapMaterialMappingRepository extends RepositoryAbs
             ->first();
 
         if ($customer_material_existed) {
-            //Tạo chuỗi json lỗi
-            $error['customer_sku_code'] = array('Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name );
-            $error['customer_sku_unit'] = array('Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name );
-            $this->errors =   $error;
-            return false;
-            // $customer_material = $customer_material_existed;
-            // $customer_material->fill([
-            //     'customer_sku_code' => $customer_sku_code,
-            //     'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
-            //     'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
-            // ]);
-            // $customer_material->save();
+
+            
+            $mapping_list = SapMaterialMapping::where('customer_material_id',  $customer_material_existed->id)->get();
+            $total_percent = 0;
+            foreach ($mapping_list as $value) {
+                $total_percent += $value->percentage;
+            }
+            // dd($customer_material_existed);
+            if(!$mapping_list &&  $total_percent >  100){
+                 //Tạo chuỗi json lỗi
+                $error['customer_sku_code'] = array('Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name );
+                $error['customer_sku_unit'] = array('Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name );
+                $this->errors =   $error;
+                return false;
+            }
+           
+           
+            $customer_material = $customer_material_existed;
+            $customer_material->fill([
+                'customer_sku_code' => $customer_sku_code,
+                'customer_sku_name' => $customerMaterialData['customer_sku_name'] ?? '',
+                'customer_sku_unit' => $customerMaterialData['customer_sku_unit'] ?? '',
+            ]);
+            $customer_material->save();
+
         } elseif (!$customer_material_existed) {
             $customer_material = CustomerMaterial::create([
                 'customer_group_id' => $customer_group_id,
@@ -246,7 +259,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
             ->exists();
 
         if ($existing_mapping) {
-            $this->errors[] = 'Mapping dữ liệu đã tồn tại.';
+            // $this->errors[] = 'Mapping dữ liệu đã tồn tại.';
+            $error['sap_material_id'] = array('Mapping dữ liệu đã tồn tại.' );
             return false;
         }
 
