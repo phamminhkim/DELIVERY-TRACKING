@@ -116,7 +116,7 @@ class RouterSeeder extends Seeder
                 'component' => 'home/admin/Roles'
             ],
             [
-                'name' => 'Bảng đối chiếu sản phẩm',
+                'name' => 'Bảng mapping SAP',
                 'path' => '/sap-material-mappings',
                 'component' => 'home/sap/SapMaterialMapping'
             ],

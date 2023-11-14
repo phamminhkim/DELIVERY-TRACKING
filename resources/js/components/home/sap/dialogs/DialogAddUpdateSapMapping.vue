@@ -21,7 +21,13 @@
 							>
 						</h5>
 
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<button
+							type="button"
+							class="close"
+							data-dismiss="modal"
+							aria-label="Close"
+							@click="closeDialog"
+						>
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
@@ -34,7 +40,7 @@
 								v-model="sap_material_mapping.customer_group_id"
 								:multiple="false"
 								id="customer_group_id"
-								placeholder="Chỉ chọn khi chưa có sản phầm sku khách hàng.."
+								placeholder="Yêu cầu chọn nhóm khách hàng.."
 								:options="customer_group_options"
 								:normalizer="normalizerOption"
 								v-bind:class="hasError('v') ? 'is-invalid' : ''"
@@ -51,13 +57,11 @@
 							<label>SKU SAP</label>
 							<!-- <small class="text-danger"></small> -->
 							<treeselect
-                                v-model="sap_material_mapping.sap_material_id"
+								v-model="sap_material_mapping.sap_material_id"
 								placeholder="Chọn sản phẩm.."
-
 								required
 								:load-options="loadOptions"
 								:async="true"
-
 							/>
 							<span
 								v-if="hasError('sap_material_id')"
@@ -67,17 +71,15 @@
 								<strong>{{ getError('sap_material_id') }}</strong>
 							</span>
 						</div>
-                        <div class="form-group" v-if="editing_item && editing_item.id">
+						<div class="form-group" v-if="editing_item && editing_item.id">
 							<label>SKU SAP</label>
 							<!-- <small class="text-danger"></small> -->
 							<treeselect
-                                v-model="sap_material_mapping.sap_material_code"
+								v-model="sap_material_mapping.sap_material_code"
 								placeholder="Chọn sản phẩm.."
-
 								required
 								:load-options="loadOptions"
 								:async="true"
-
 							/>
 							<span
 								v-if="hasError('sap_material_id')"
@@ -97,7 +99,9 @@
 								name="percentage"
 								placeholder="Nhập tỉ lệ sản phẩm..."
 								v-bind:class="hasError('percentage') ? 'is-invalid' : ''"
-								type="number" min="1"   max="100"
+								type="number"
+								min="1"
+								max="100"
 							/>
 							<span
 								v-if="hasError('percentage')"
@@ -114,7 +118,7 @@
 								class="form-control"
 								id="customer_sku_code"
 								name="customer_sku_code"
-								placeholder="Yêu cầu nhập khi mã sku chưa có ..."
+								placeholder="Yêu cầu nhập khi mã SKU..."
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -139,7 +143,7 @@
 								class="form-control"
 								id="customer_sku_name"
 								name="customer_sku_name"
-								placeholder="Yêu cầu nhập khi tên sku chưa có..."
+								placeholder="Yêu cầu nhập khi tên SKU..."
 								v-bind:class="hasError('customer_sku_name') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -159,7 +163,7 @@
 								class="form-control"
 								id="customer_sku_unit"
 								name="customer_sku_unit"
-								placeholder="Yêu cầu nhập khi đơn vị tính SKU chưa có..."
+								placeholder="Yêu cầu nhập khi đơn vị tính SKU..."
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -177,8 +181,8 @@
 						<button type="submit" title="Submit" class="btn btn-primary">
 							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
 						</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">
-							Đóng
+						<button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
 						</button>
 					</div>
 				</form>
@@ -213,7 +217,6 @@
 				is_loading: false,
 				errors: {},
 
-
 				sap_material_mapping: {
 					customer_group_id: null,
 					customer_sku_code: '',
@@ -221,7 +224,7 @@
 					customer_sku_unit: '',
 					customer_material_id: null,
 					sap_material_id: null,
-                    sap_material_code: null,
+					sap_material_code: null,
 					percentage: '',
 				},
 				customer_group_options: [],
@@ -232,8 +235,8 @@
 			};
 		},
 		created() {
-  this.fetchOptionsData();
-},
+			this.fetchOptionsData();
+		},
 		methods: {
 			async addSapMapping() {
 				if (this.is_loading) return;
@@ -259,18 +262,17 @@
 						customer_sku_name: this.sap_material_mapping.customer_sku_name,
 						customer_sku_unit: this.sap_material_mapping.customer_sku_unit,
 					});
-                    if(data.success) {
-                        if (Array.isArray(data)) {
-						this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+					if (data.success) {
+						if (Array.isArray(data)) {
+							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+						}
+						this.showMessage('success', 'Thêm thành công');
+						this.closeDialog();
+						await this.refetchData(); // Load the data again after successful creation
+					} else {
+						this.errors = data.errors;
+						this.showMessage('error', 'Thêm không thành công');
 					}
-                        this.showMessage('success', 'Thêm thành công');
-                        this.closeDialog();
-                        await this.refetchData(); // Load the data again after successful creation
-                    }else{
-                        this.errors = data.errors;
-                        this.showMessage('error', 'Thêm không thành công');
-                    }
-
 				} catch (error) {
 					this.showMessage('error', 'Thêm không thành công');
 				} finally {
@@ -287,18 +289,17 @@
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if(data.success) {
-                        if (Array.isArray(data)) {
-						this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+					if (data.success) {
+						if (Array.isArray(data)) {
+							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+						}
+						this.showMessage('success', 'Thêm thành công');
+						this.closeDialog();
+						await this.refetchData(); // Load the data again after successful creation
+					} else {
+						this.errors = data.errors;
+						this.showMessage('error', 'Thêm không thành công');
 					}
-                        this.showMessage('success', 'Thêm thành công');
-                        this.closeDialog();
-                        await this.refetchData(); // Load the data again after successful creation
-                    }else{
-                        this.errors = data.errors;
-                        this.showMessage('error', 'Thêm không thành công');
-                    }
-
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
 				} finally {
@@ -344,11 +345,23 @@
 					label: node.name,
 				};
 			},
-            closeDialog() {
+			closeDialog() {
 				this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateSapMapping').modal('hide');
 			},
+			resetDialog() {
+				this.sap_material_mapping.sap_material_id = null;
+				this.sap_material_mapping.customer_material_id = null;
+				this.sap_material_mapping.percentage = '';
+				this.sap_material_mapping.customer_group_id = null;
+				this.sap_material_mapping.customer_sku_code = '';
+				this.sap_material_mapping.customer_sku_name = '';
+				this.sap_material_mapping.customer_sku_unit = '';
+				this.sap_material_mapping.sap_material_code = null;
+				this.clearErrors();
+			},
+
 			clearForm() {
 				this.sap_material_mapping.sap_material_id = null;
 				this.sap_material_mapping.customer_material_id = null;
@@ -391,26 +404,29 @@
 			},
 		},
 		watch: {
-            is_editing (){
-                if (!this.is_editing) {
-                    this.clearForm();
-                }
-            },
-			editing_item: function (item) {
-                console.log(item);
-					this.sap_material_mapping.customer_group_id = item.customer_material.customer_group_id;
-					this.sap_material_mapping.customer_sku_code = item.customer_material.customer_sku_code;
-					this.sap_material_mapping.customer_sku_name = item.customer_material.customer_sku_name;
-					this.sap_material_mapping.customer_sku_unit = item.customer_material.customer_sku_unit;
-					this.sap_material_mapping.customer_material_id = item.customer_material_id;
-					this.sap_material_mapping.sap_material_id = item.sap_material_id;
-					this.sap_material_mapping.percentage = item.percentage;
-                    this.sap_material_mapping.sap_material_code = item.sap_material.sap_code;
-                    this.sap_material_mapping.id = item.id;
+			is_editing() {
+				if (!this.is_editing) {
+					this.clearForm();
 				}
+			},
+			editing_item: function (item) {
+				console.log(item);
+				this.sap_material_mapping.customer_group_id =
+					item.customer_material.customer_group_id;
+				this.sap_material_mapping.customer_sku_code =
+					item.customer_material.customer_sku_code;
+				this.sap_material_mapping.customer_sku_name =
+					item.customer_material.customer_sku_name;
+				this.sap_material_mapping.customer_sku_unit =
+					item.customer_material.customer_sku_unit;
+				this.sap_material_mapping.customer_material_id = item.customer_material_id;
+				this.sap_material_mapping.sap_material_id = item.sap_material_id;
+				this.sap_material_mapping.percentage = item.percentage;
+				this.sap_material_mapping.sap_material_code = item.sap_material.sap_code;
+				this.sap_material_mapping.id = item.id;
+			},
 		},
 		computed: {
-
 			rows() {
 				return this.sap_material_mappings.length;
 			},

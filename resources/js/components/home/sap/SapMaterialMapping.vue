@@ -132,12 +132,26 @@
 					<div class="row">
 						<div class="col-md-9">
 							<div class="form-group row">
-								<button type="button" class="btn btn-warning btn-sm ml-1 mt-1">
+								<button
+									type="button"
+									class="btn btn-info btn-sm ml-1 mt-1"
+									@click="showExcelDialog"
+								>
 									<strong>
-										<i class="fas fa-check mr-1 text-bold" />Cập nhật chức
-										năng</strong
+										<i class="fas fa-upload mr-1 text-bold"></i>Import
+										Excel</strong
 									>
 								</button>
+
+                                <button
+							type="button"
+							class="btn btn-info btn-sm ml-1 mt-1"
+							@click="showExcelDialog"
+						>
+							<strong>
+								<i class="fas fa-download mr-1 text-bold"></i>Download Excel</strong
+							>
+						</button>
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -396,7 +410,7 @@
 					this.customer_options = customer_options.map((customer_material) => {
 						return {
 							id: customer_material.id,
-							label: `(${customer_material.id}) ${customer_material.customer_sku_name}`,
+							label: `(${customer_material.customer_sku_code})(${customer_material.customer_sku_unit}) ${customer_material.customer_sku_name}  `,
 						};
 					});
 				} catch (error) {
@@ -498,6 +512,9 @@
 				this.editing_item = item;
 				$('#DialogAddUpdateSapMapping').modal('show');
 			},
+            showExcelDialog(){
+
+            },
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
