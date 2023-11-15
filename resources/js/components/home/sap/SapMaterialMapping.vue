@@ -138,10 +138,10 @@
 									@click="showExcelDialog"
 								>
 									<strong>
-										<i class="fas fa-upload mr-1 text-bold"></i> Import Excel
-									</strong>
+										<i class="fas fa-upload mr-1 text-bold"></i>Import
+										Excel</strong
+									>
 								</button>
-
 
 								<button
 									type="button"
@@ -267,6 +267,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchData"
 					></DialogAddUpdateSapMapping>
+                    <dialog-import-excel-to-create-mapping />
 
 					<!-- end tạo form -->
 				</div>
@@ -281,12 +282,14 @@
 	import Vue from 'vue';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogAddUpdateSapMapping from './dialogs/DialogAddUpdateSapMapping.vue';
+	import DialogImportExcelToCreateMapping from './dialogs/DialogImportExcelToCreateMapping.vue';
 
 	export default {
 		components: {
 			Treeselect,
 			Vue,
 			DialogAddUpdateSapMapping,
+			DialogImportExcelToCreateMapping,
 		},
 		data() {
 			return {
@@ -512,7 +515,9 @@
 				this.editing_item = item;
 				$('#DialogAddUpdateSapMapping').modal('show');
 			},
-			showExcelDialog() {},
+			showExcelDialog() {
+				$('#DialogImportExcelToCreateMapping').modal('show');
+			},
 			async exportToExcel() {
 				try {
 					const response = await this.api_handler.get(
