@@ -204,7 +204,7 @@
 										<button
 											class="btn btn-primary"
 											type="submit"
-											@click="addRawSoItemToRawSoHeader"
+											@click.prevent="addRawSoItemToRawSoHeader"
 										>
 											Thêm
 										</button>
@@ -215,7 +215,7 @@
 						<!-- ################# -->
 						<div class="form-group">
 							<b-table
-								:items="raw_so_items"
+								:items="raw_so_header.raw_so_items"
 								:fields="fields"
 								responsive
 								striped
@@ -231,6 +231,39 @@
 										(pagination.current_page - 1) * pagination.item_per_page +
 										1
 									}}
+								</template>
+								<template #cell(quantity)="data">
+								  <input type="number"
+										class="form-control"
+										v-model="data.item.quantity"
+									/>
+								</template>
+                                <template #cell(raw_extract_item_customer_sku_code)="data">
+                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_code}}</span>
+
+								</template>
+                                <template #cell(raw_extract_item_quantity)="data">
+                                  <span v-if="data.item.raw_extract_item ">{{ data.item.raw_extract_item.quantity.toLocaleString(locale_format)}}</span>
+
+								</template>
+                                <template #cell(raw_extract_item_customer_sku_unit)="data">
+                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_unit}}</span>
+
+								</template>
+
+
+                                <template #cell(raw_extract_item_customer_sku_name)="data">
+                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_name}}</span>
+
+								</template>
+                                <template #cell(price)="data">
+                                  <span v-if="data.item.raw_extract_item">{{ data.item.raw_extract_item.price.toLocaleString(locale_format)}}</span>
+
+								</template>
+
+                                <template #cell(amount)="data">
+                                    <span v-if="data.item.raw_extract_item">{{ data.item.raw_extract_item.amount.toLocaleString(locale_format)}}</span>
+
 								</template>
 								<template #cell(action)="data">
 									<b-button
@@ -283,6 +316,7 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import sha256 from 'crypto-js/sha256';
+import { format } from 'path';
 
 	export default {
 		components: {
@@ -293,6 +327,7 @@
 		},
 		data() {
 			return {
+                locale_format: 'de-DE',
 				api_handler: new APIHandler(window.Laravel.access_token),
 				raw_so_header: {
 					note: '',
@@ -304,8 +339,10 @@
 					po_number: '',
 					po_person: '',
 					po_phone: '',
+                    raw_so_items: [],
+                    raw_so_items_deleted: [],
 				},
-				raw_so_items: [],
+				// raw_so_items: [],
 				is_loading: false,
 
 				pagination: {
@@ -321,23 +358,44 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'raw_extract_item.customer_material.customer_sku_name',
+						key: 'raw_extract_item_customer_sku_code',
+						label: 'Mã Skus-PO',
+						class: 'text-nowrap',
+					},
+					{
+						key: 'raw_extract_item_customer_sku_name',
 						label: 'Tên Skus-PO',
 						class: 'text-nowrap',
 					},
 					{
-						key: 'raw_extract_item.quantity',
+						key: 'raw_extract_item_quantity',
 						label: 'Số lượng PO',
 						class: 'text-nowrap',
 					},
 					{
-						key: 'raw_extract_item.customer_material.customer_sku_unit',
-						label: 'DVT - PO',
+						key: 'raw_extract_item_customer_sku_unit',
+						label: 'ĐVT - PO',
 						class: 'text-nowrap',
 					},
 					{
+						key: 'price',
+						label: 'Đơn giá PO',
+						class: 'text-nowrap',
+					},
+					{
+						key: 'amount',
+						label: 'Thành tiền PO',
+						class: 'text-nowrap',
+					},
+
+					{
 						key: 'sap_material.sap_code',
-						label: 'Skus - SAP',
+						label: 'Mã Sku SAP',
+						class: 'text-nowrap',
+					},
+                    {
+						key: 'sap_material.name',
+						label: 'Tên Sku SAP',
 						class: 'text-nowrap',
 					},
 					{
@@ -347,7 +405,7 @@
 					},
 					{
 						key: 'sap_material.unit.unit_code',
-						label: 'DVT - SAP',
+						label: 'ĐVT SAP',
 						class: 'text-nowrap',
 					},
 					{
@@ -371,9 +429,11 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
+                    console.log(data);
 					this.raw_so_header = data;
-					this.raw_so_items = structuredClone(data.raw_so_items);
-					this.$delete(this.raw_so_header, 'raw_so_items');
+                    this.raw_so_header.raw_so_items_deleted = [];
+					// this.raw_so_items = structuredClone(data.raw_so_items);
+					// this.$delete(this.raw_so_header, 'raw_so_items');
 					// this.original_raw_so_header = structuredClone(this.raw_so_header);
 				} catch (e) {
 					console.log(e);
@@ -403,46 +463,104 @@
 					callback(null, options);
 				}
 			},
-			async addRawSoItemToRawSoHeader() {
+            async addRawSoItemToRawSoHeader() {
 				try {
 					this.is_loading = true;
-					const { data } = await this.api_handler.post(
-						`/api/raw-so-headers/raw-so-items`,
-						{},
-						{
-							raw_so_header_id: this.id,
+					// const { data } = await this.api_handler.post(
+					// 	`/api/raw-so-headers/raw-so-items`,
+					// 	{},
+					// 	{
+					// 		raw_so_header_id: this.id,
+					// 		sap_material_id: this.selected_sap_material_id,
+					// 		quantity: this.selected_quantity,
+					// 		is_promotive: this.raw_so_header.is_promotive,
+					// 	},
+					// );
+                    //Lấy thông tin sản phẩm
+                    var  res  = await this.api_handler.get('api/master/sap-materials?id=' + this.selected_sap_material_id);
+
+                    var new_item =  	{
 							sap_material_id: this.selected_sap_material_id,
 							quantity: this.selected_quantity,
-							is_promotive: this.raw_so_header.is_promotive,
-						},
-					);
-					this.raw_so_items = [data, ...this.raw_so_items];
+							sap_material: {...res.data[0]},
+
+
+                            percentage : '100',
+							// is_promotive: this.raw_so_header.is_promotive,
+						};
+                    // this.raw_so_items.push(new_item);
+                    this.raw_so_header.raw_so_items.push({...new_item});
+
+					// this.raw_so_items = [data, ...this.raw_so_items];
 					this.selected_sap_material_id = this.selected_quantity = null;
 
-					this.$showMessage('success', 'Thêm thành công');
+					// this.$showMessage('success', 'Thêm thành công');
 				} catch (e) {
 					console.log(e);
-					this.$showMessage('danger', 'Thêm thất bại');
+					// this.$showMessage('danger', 'Thêm thất bại');
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			async deleteRawSoItem(id) {
+			// async addRawSoItemToRawSoHeader() {
+			// 	try {
+			// 		this.is_loading = true;
+			// 		const { data } = await this.api_handler.post(
+			// 			`/api/raw-so-headers/raw-so-items`,
+			// 			{},
+			// 			{
+			// 				raw_so_header_id: this.id,
+			// 				sap_material_id: this.selected_sap_material_id,
+			// 				quantity: this.selected_quantity,
+			// 				is_promotive: this.raw_so_header.is_promotive,
+			// 			},
+			// 		);
+			// 		this.raw_so_items = [data, ...this.raw_so_items];
+			// 		this.selected_sap_material_id = this.selected_quantity = null;
+
+			// 		this.$showMessage('success', 'Thêm thành công');
+			// 	} catch (e) {
+			// 		console.log(e);
+			// 		this.$showMessage('danger', 'Thêm thất bại');
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
+            async deleteRawSoItem(id) {
 				try {
-					this.is_loading = true;
-					const { data } = await this.api_handler.delete(
-						`/api/raw-so-headers/raw-so-items/${id}`,
-						{},
-					);
-					this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
-					this.$showMessage('success', 'Xóa thành công');
+					// this.is_loading = true;
+					// const { data } = await this.api_handler.delete(
+					// 	`/api/raw-so-headers/raw-so-items/${id}`,
+					// 	{},
+					// );
+                    this.raw_so_header.raw_so_items_deleted.push( this.raw_so_header.raw_so_items.find((item) => item.id === id));
+                    //Xóa trong mảng hiện tại
+                    this.raw_so_header.raw_so_items = this.raw_so_header.raw_so_items.filter((item) => item.id !== id);
+					//this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
+					// this.$showMessage('success', 'Xóa thành công');
 				} catch (e) {
 					console.log(e);
-					this.$showMessage('danger', 'Xóa thất bại');
+					// this.$showMessage('danger', 'Xóa thất bại');
 				} finally {
 					this.is_loading = false;
 				}
 			},
+			// async deleteRawSoItem(id) {
+			// 	try {
+			// 		this.is_loading = true;
+			// 		const { data } = await this.api_handler.delete(
+			// 			`/api/raw-so-headers/raw-so-items/${id}`,
+			// 			{},
+			// 		);
+			// 		this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
+			// 		this.$showMessage('success', 'Xóa thành công');
+			// 	} catch (e) {
+			// 		console.log(e);
+			// 		this.$showMessage('danger', 'Xóa thất bại');
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
 			async updateRawSoHeader() {
 				try {
 					this.is_loading = true;
@@ -468,7 +586,7 @@
 		},
 		computed: {
 			rows() {
-				return this.raw_so_items.length;
+				return  this.raw_so_header.raw_so_items.length;
 			},
 		},
 	};

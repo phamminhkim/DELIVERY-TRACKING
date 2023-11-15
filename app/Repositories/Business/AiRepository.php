@@ -132,6 +132,7 @@ class AiRepository extends RepositoryAbs
                 'uploaded_file_id' => $file_record->id,
             ]);
             foreach ($final_data as $item) {
+               
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
                     continue;
                 }
@@ -144,11 +145,16 @@ class AiRepository extends RepositoryAbs
                     $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
+                
                 $raw_extract_item = RawExtractItem::firstOrCreate([
                     'raw_extract_header_id' => $raw_extract_header->id,
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
+                     'price' =>  str_replace(",","", $item['ProductPrice']),
+                     'amount' => str_replace(",","",$item['ProductAmount']),
                 ]);
+                Log::info(  "Test:  ");
+                Log::info( $raw_extract_item);
                 $created_extract_items->push($raw_extract_item);
             }
             if (count($error_extract_items) > 0) {
@@ -180,20 +186,24 @@ class AiRepository extends RepositoryAbs
 
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
-                Log::info($item->customer_material);
+                // Log::info($item->customer_material);
                 if (count($sap_material_mappings) == 0) {
-                    Log::info($item);
+                    // Log::info($item);
                     $error_so_items[] = 'Không tìm thấy sap material với customer material code: ' . $item->customer_material->customer_sku_code . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
                 foreach ($sap_material_mappings as $mapping) {
                     $sap_material = $mapping->sap_material;
                     $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
+                    $price = $item->price;
+                    $amount = $quantity * $item->price;
                     $raw_so_item = RawSoItem::firstOrCreate([
                         'raw_extract_item_id' => $item->id,
                         'raw_so_header_id' => $raw_so_header->id,
                         'sap_material_id' => $sap_material->id,
                         'quantity' => $quantity,
+                        'price' => $price,
+                        'amount' => $amount,
                         'percentage' => $mapping->percentage,
                     ]);
                     $created_so_items->push($raw_so_item);

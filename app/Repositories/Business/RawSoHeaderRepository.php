@@ -224,14 +224,42 @@ class RawSoHeaderRepository extends RepositoryAbs
     public function updateRawSoHeader($id)
     {
         try {
-
+            DB::beginTransaction();
             $raw_so_header = RawSoHeader::query()->find($id);
             if (!$raw_so_header) {
                 $this->errors[] = 'Raw SO Header không tồn tại';
                 return false;
             }
+           // dd($this->data);
             $raw_so_header->update($this->data);
 
+            $raw_so_items = $this->data['raw_so_items'];
+            foreach ($raw_so_items as $raw_so_item) {
+                if (isset($raw_so_item['id']) && $raw_so_item['id'] > 0) {
+                    $item = RawSoItem::query()->find($raw_so_item['id']);
+                    $item->raw_so_header_id = $raw_so_header->id;
+                    if ($item) {
+                        $item->fill($raw_so_item);
+                        $item->id = $raw_so_item['id'];
+                        $item->save();
+                    }
+                }else{
+                    $item = new RawSoItem;
+                    $item->raw_so_header_id = $raw_so_header->id;
+                    $item->fill($raw_so_item);
+                    $item->save();
+                }
+            }
+            $raw_so_items_deleted = $this->data['raw_so_items_deleted'];
+            foreach ($raw_so_items_deleted as $raw_so_item_deleted) {
+                if (isset($raw_so_item_deleted['id']) && $raw_so_item_deleted['id'] > 0) {
+                    $item = RawSoItem::query()->find($raw_so_item_deleted['id']);
+                    if ($item) {
+                        $item->delete();
+                    }
+                }
+            }
+            DB::commit();
             return $raw_so_header;
         } catch (\Throwable $exception) {
             DB::rollBack();
