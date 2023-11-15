@@ -22,7 +22,17 @@ class SapMaterialMappingController extends ResponseController
             return $this->responseError($message, $errors);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMappings = $handler->exportToExcel();
 
+        if ($sapMaterialMappings) {
+            return $this->responseSuccess($sapMaterialMappings);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function getAvailableSapMaterialMappings(Request $request)
     {
 

@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Monolog\Formatter\JsonFormatter;
 use Psy\Util\Json;
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class SapMaterialMappingRepository extends RepositoryAbs
 {
     public function createSapMateriasMappingsFromExcel()
@@ -119,6 +120,102 @@ class SapMaterialMappingRepository extends RepositoryAbs
         }
     }
 
+    public function exportToExcel()
+{
+    try {
+        $query = SapMaterialMapping::query();
+
+        // Thêm các điều kiện tìm kiếm vào câu truy vấn
+        if (request()->filled('search')) {
+            $query->search(request()->search);
+            $query->limit(200);
+        }
+
+        if (request()->filled('customer_material_ids')) {
+            $customer_material_ids = request()->customer_material_ids;
+            $query->whereIn('customer_material_id', $customer_material_ids);
+        }
+
+        if (request()->filled('sap_material_ids')) {
+            $sap_material_ids = request()->sap_material_ids;
+            $query->whereIn('sap_material_id', $sap_material_ids);
+        }
+
+        $query->with([
+            'customer_material' => function ($query) {
+                $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
+                $query->with('customer_group:id,name');
+            },
+            'sap_material' => function ($query) {
+                $query->select(['id', 'sap_code', 'unit_id', 'name']);
+                $query->with('unit:id,unit_code');
+            },
+        ]);
+
+        $sapMaterialMappings = $query->orderBy('id', 'desc')->get();
+
+        // Tạo một đối tượng Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Đặt tiêu đề cho các cột
+        $sheet->setCellValue('A1', 'Nhóm khách hàng');
+        $sheet->setCellValue('B1', 'Mã SKU KH');
+        $sheet->setCellValue('C1', 'Tên SKU KH');
+        $sheet->setCellValue('D1', 'Đơn vị SKU KH');
+        $sheet->setCellValue('E1', 'Mã SAP');
+        $sheet->setCellValue('F1', 'Tên SAP');
+        $sheet->setCellValue('G1', 'Đơn vị tính SAP');
+        $sheet->setCellValue('H1', 'Tỉ lệ');
+
+        // Ghi dữ liệu vào file Excel
+        $row = 2;
+        foreach ($sapMaterialMappings as $mapping) {
+            $sheet->setCellValue('A' . $row, $mapping->customer_material->customer_group->name);
+            $sheet->setCellValue('B' . $row, $mapping->customer_material->customer_sku_code);
+            $sheet->setCellValue('C' . $row, $mapping->customer_material->customer_sku_name);
+            $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_sku_unit);
+            $sheet->setCellValue('E' . $row, $mapping->sap_material->sap_code);
+            $sheet->setCellValue('F' . $row, $mapping->sap_material->name);
+            $sheet->setCellValue('G' . $row, $mapping->sap_material->unit->unit_code);
+            $sheet->setCellValue('H' . $row, $mapping->percentage);
+            $row++;
+        }
+
+        // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+        $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        foreach ($columns as $column) {
+            $columnDimension = $sheet->getColumnDimension($column);
+            $columnWidth = $columnDimension->getWidth();
+            $highestRow = $sheet->getHighestRow();
+            for ($row = 1; $row <= $highestRow; $row++) {
+                $cellValue = $sheet->getCell($column . $row)->getValue();
+                $cellLength = mb_strlen($cellValue);
+                $columnWidth = max($columnWidth, $cellLength);
+            }
+            $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+        }
+
+        // Tạo đối tượng Writer để ghi file Excel
+        $writer = new Xlsx($spreadsheet);
+
+        // Đặt tên file và định dạng
+        $filename = 'sap_material_mappings.xlsx';
+
+        // Đặt header cho response
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        // Ghi file Excel vào output
+        $writer->save('php://output');
+    } catch (\Exception  $exception) {
+        // Xử lý ngoại lệ nếu có
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        return back()->withErrors(['error' => 'An error occurred while exporting to Excel']);
+    }
+}
 
     public function getAvailableSapMaterialMappings()
     {

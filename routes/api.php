@@ -131,6 +131,7 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::prefix('/sap-material-mappings')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
+            Route::get('/exportToExcel', [SapMaterialMappingController::class, 'exportToExcel']);
             Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
             Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
