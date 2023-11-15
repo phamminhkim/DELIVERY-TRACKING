@@ -255,6 +255,12 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $query->search($this->request->search);
                 $query->limit(200);
             }
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = (array) $this->request->customer_group_ids;
+                $query->whereHas('customer_material', function ($subQuery) use ($customer_group_ids) {
+                    $subQuery->whereIn('customer_group_id', $customer_group_ids);
+                });
+            }
 
             if ($this->request->filled('customer_material_ids')) {
                 $customer_material_ids = $this->request->customer_material_ids;

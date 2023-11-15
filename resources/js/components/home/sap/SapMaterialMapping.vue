@@ -41,6 +41,24 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
+									>Nhóm khách hàng</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										:multiple="false"
+										id="customer_group_id"
+										placeholder="Chọn nhóm khách hàng.."
+										v-model="form_filter.customer_group"
+										:options="customer_group_options"
+										:normalizer="normalizerOption"
+										required
+									></treeselect>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
 									>Mã/tên sản phẩm khách hàng</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
@@ -61,16 +79,7 @@
 									>Mã/tên đối chiếu sản phẩm</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
-									<!-- <treeselect
-										placeholder="Chọn mã/tên đối chiếu sản phẩm.."
-										:multiple="true"
-										:disable-branch-nodes="false"
-										v-model="form_filter.sap_material"
-										:async="true"
-										:load-options="loadOptions"
-										:normalizer="normalizerOption"
-										searchPromptText="Nhập mã/tên đối chiếu sản phẩm để tìm kiếm.."
-									/> -->
+
 									<treeselect
 										placeholder="Chọn sản phẩm.."
 										:multiple="true"
@@ -267,7 +276,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchData"
 					></DialogAddUpdateSapMapping>
-                    <dialog-import-excel-to-create-mapping />
+					<dialog-import-excel-to-create-mapping />
 
 					<!-- end tạo form -->
 				</div>
@@ -298,10 +307,13 @@
 				form_title: window.Laravel.form_title,
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
+
 				form_filter: {
+					customer_group: null,
 					customer_material: null,
 					sap_materials: [],
 				},
+				customer_group_options: [],
 
 				is_editing: false,
 				editing_item: {},
@@ -388,6 +400,7 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(this.api_url, {
+						customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
@@ -404,11 +417,13 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_options, sap_material_mappings] =
+					const [customer_group_options, customer_options, sap_material_mappings] =
 						await this.api_handler.handleMultipleRequest([
+							new APIRequest('get', '/api/master/customer-groups'),
 							new APIRequest('get', '/api/master/customer-materials'),
 							new APIRequest('get', '/api/master/sap-material-mappings'),
 						]);
+					this.customer_group_options = customer_group_options;
 					this.sap_material_mappings = sap_material_mappings;
 					this.customer_options = customer_options.map((customer_material) => {
 						return {
@@ -457,6 +472,7 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
+                        customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
@@ -477,6 +493,7 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
+					this.form_filter.customer_group = null;
 					this.form_filter.customer_material = null;
 					this.form_filter.sap_material = []; // Ensure it is an array
 
