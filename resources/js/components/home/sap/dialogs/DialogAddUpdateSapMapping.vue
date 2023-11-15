@@ -118,7 +118,7 @@
 								class="form-control"
 								id="customer_sku_code"
 								name="customer_sku_code"
-								placeholder="Yêu cầu nhập khi mã SKU..."
+								placeholder="Yêu cầu nhập mã SKU..."
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -143,7 +143,7 @@
 								class="form-control"
 								id="customer_sku_name"
 								name="customer_sku_name"
-								placeholder="Yêu cầu nhập khi tên SKU..."
+								placeholder="Yêu cầu nhập tên SKU..."
 								v-bind:class="hasError('customer_sku_name') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -163,7 +163,7 @@
 								class="form-control"
 								id="customer_sku_unit"
 								name="customer_sku_unit"
-								placeholder="Yêu cầu nhập khi đơn vị tính SKU..."
+								placeholder="Yêu cầu nhập đơn vị tính SKU..."
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
 							/>
