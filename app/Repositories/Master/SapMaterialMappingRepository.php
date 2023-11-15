@@ -15,6 +15,12 @@ use Monolog\Formatter\JsonFormatter;
 use Psy\Util\Json;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+
 class SapMaterialMappingRepository extends RepositoryAbs
 {
     public function createSapMateriasMappingsFromExcel()
@@ -121,101 +127,124 @@ class SapMaterialMappingRepository extends RepositoryAbs
     }
 
     public function exportToExcel()
-{
-    try {
-        $query = SapMaterialMapping::query();
+    {
+        try {
+            $query = SapMaterialMapping::query();
 
-        // Thêm các điều kiện tìm kiếm vào câu truy vấn
-        if (request()->filled('search')) {
-            $query->search(request()->search);
-            $query->limit(200);
-        }
-
-        if (request()->filled('customer_material_ids')) {
-            $customer_material_ids = request()->customer_material_ids;
-            $query->whereIn('customer_material_id', $customer_material_ids);
-        }
-
-        if (request()->filled('sap_material_ids')) {
-            $sap_material_ids = request()->sap_material_ids;
-            $query->whereIn('sap_material_id', $sap_material_ids);
-        }
-
-        $query->with([
-            'customer_material' => function ($query) {
-                $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
-                $query->with('customer_group:id,name');
-            },
-            'sap_material' => function ($query) {
-                $query->select(['id', 'sap_code', 'unit_id', 'name']);
-                $query->with('unit:id,unit_code');
-            },
-        ]);
-
-        $sapMaterialMappings = $query->orderBy('id', 'desc')->get();
-
-        // Tạo một đối tượng Spreadsheet
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Đặt tiêu đề cho các cột
-        $sheet->setCellValue('A1', 'Nhóm khách hàng');
-        $sheet->setCellValue('B1', 'Mã SKU KH');
-        $sheet->setCellValue('C1', 'Tên SKU KH');
-        $sheet->setCellValue('D1', 'Đơn vị SKU KH');
-        $sheet->setCellValue('E1', 'Mã SAP');
-        $sheet->setCellValue('F1', 'Tên SAP');
-        $sheet->setCellValue('G1', 'Đơn vị tính SAP');
-        $sheet->setCellValue('H1', 'Tỉ lệ');
-
-        // Ghi dữ liệu vào file Excel
-        $row = 2;
-        foreach ($sapMaterialMappings as $mapping) {
-            $sheet->setCellValue('A' . $row, $mapping->customer_material->customer_group->name);
-            $sheet->setCellValue('B' . $row, $mapping->customer_material->customer_sku_code);
-            $sheet->setCellValue('C' . $row, $mapping->customer_material->customer_sku_name);
-            $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_sku_unit);
-            $sheet->setCellValue('E' . $row, $mapping->sap_material->sap_code);
-            $sheet->setCellValue('F' . $row, $mapping->sap_material->name);
-            $sheet->setCellValue('G' . $row, $mapping->sap_material->unit->unit_code);
-            $sheet->setCellValue('H' . $row, $mapping->percentage);
-            $row++;
-        }
-
-        // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-        $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-        foreach ($columns as $column) {
-            $columnDimension = $sheet->getColumnDimension($column);
-            $columnWidth = $columnDimension->getWidth();
-            $highestRow = $sheet->getHighestRow();
-            for ($row = 1; $row <= $highestRow; $row++) {
-                $cellValue = $sheet->getCell($column . $row)->getValue();
-                $cellLength = mb_strlen($cellValue);
-                $columnWidth = max($columnWidth, $cellLength);
+            // Thêm các điều kiện tìm kiếm vào câu truy vấn
+            if (request()->filled('search')) {
+                $query->search(request()->search);
+                $query->limit(200);
             }
-            $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+
+            if (request()->filled('customer_material_ids')) {
+                $customer_material_ids = request()->customer_material_ids;
+                $query->whereIn('customer_material_id', $customer_material_ids);
+            }
+
+            if (request()->filled('sap_material_ids')) {
+                $sap_material_ids = request()->sap_material_ids;
+                $query->whereIn('sap_material_id', $sap_material_ids);
+            }
+
+            $query->with([
+                'customer_material' => function ($query) {
+                    $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
+                    $query->with('customer_group:id,name');
+                },
+                'sap_material' => function ($query) {
+                    $query->select(['id', 'sap_code', 'unit_id', 'name']);
+                    $query->with('unit:id,unit_code');
+                },
+            ]);
+
+            $sapMaterialMappings = $query->orderBy('id', 'desc')->get();
+
+            // Tạo một đối tượng Spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Đặt tiêu đề cho các cột
+            $sheet->setCellValue('A1', 'Nhóm khách hàng');
+            $sheet->setCellValue('B1', 'Mã SKU KH');
+            $sheet->setCellValue('C1', 'Tên SKU KH');
+            $sheet->setCellValue('D1', 'Đơn vị SKU KH');
+            $sheet->setCellValue('E1', 'Mã SAP');
+            $sheet->setCellValue('F1', 'Tên SAP');
+            $sheet->setCellValue('G1', 'Đơn vị tính SAP');
+            $sheet->setCellValue('H1', 'Tỉ lệ');
+
+            // Ghi dữ liệu vào file Excel
+            $row = 2;
+            foreach ($sapMaterialMappings as $mapping) {
+                $sheet->setCellValue('A' . $row, $mapping->customer_material->customer_group->name);
+                $sheet->setCellValue('B' . $row, $mapping->customer_material->customer_sku_code);
+                $sheet->setCellValue('C' . $row, $mapping->customer_material->customer_sku_name);
+                $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_sku_unit);
+                $sheet->setCellValue('E' . $row, $mapping->sap_material->sap_code);
+                $sheet->setCellValue('F' . $row, $mapping->sap_material->name);
+                $sheet->setCellValue('G' . $row, $mapping->sap_material->unit->unit_code);
+                $sheet->setCellValue('H' . $row, $mapping->percentage);
+                $row++;
+            }
+            $sheet->freezePane('A2');
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'B0C4DE'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+            // Tạo đối tượng Writer để ghi file Excel
+            $writer = new Xlsx($spreadsheet);
+
+            // Đặt tên file và định dạng
+            $filename = 'sap_material_mappings.xlsx';
+
+            // Đặt header cho response
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            // Ghi file Excel vào output
+            $writer->save('php://output');
+        } catch (\Exception  $exception) {
+            // Xử lý ngoại lệ nếu có
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return back()->withErrors(['error' => 'An error occurred while exporting to Excel']);
         }
-
-        // Tạo đối tượng Writer để ghi file Excel
-        $writer = new Xlsx($spreadsheet);
-
-        // Đặt tên file và định dạng
-        $filename = 'sap_material_mappings.xlsx';
-
-        // Đặt header cho response
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-
-        // Ghi file Excel vào output
-        $writer->save('php://output');
-    } catch (\Exception  $exception) {
-        // Xử lý ngoại lệ nếu có
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
-        return back()->withErrors(['error' => 'An error occurred while exporting to Excel']);
     }
-}
 
     public function getAvailableSapMaterialMappings()
     {
@@ -311,27 +340,27 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 ? $customer_material_existed->mappings()->sum('percentage')
                 : 0;
 
-                if ($customer_material_existed) {
-                    if ($total_existing_percent + $customerMaterialData['percentage'] > 100) {
-                        $this->errors = [
-                            'percentage' => 'Tổng tỉ lệ sản phẩm vượt quá 100.',
-                            'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
-                            'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
-                        ];
-                        return false; // Dừng việc thêm mục mới và hiển thị thông báo lỗi
-                    }
-
-                    $new_percentage = $customerMaterialData['percentage'] + $total_existing_percent;
-
-
-                    $sap_material_mapping = $customer_material_existed->mappings()->create([
-                        'sap_material_id' => $customerMaterialData['sap_material_id'],
-                        'percentage' => $customerMaterialData['percentage'],
-                    ]);
-
-                    DB::commit();
-                    return $sap_material_mapping;
+            if ($customer_material_existed) {
+                if ($total_existing_percent + $customerMaterialData['percentage'] > 100) {
+                    $this->errors = [
+                        'percentage' => 'Tổng tỉ lệ sản phẩm vượt quá 100.',
+                        'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
+                        'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
+                    ];
+                    return false; // Dừng việc thêm mục mới và hiển thị thông báo lỗi
                 }
+
+                $new_percentage = $customerMaterialData['percentage'] + $total_existing_percent;
+
+
+                $sap_material_mapping = $customer_material_existed->mappings()->create([
+                    'sap_material_id' => $customerMaterialData['sap_material_id'],
+                    'percentage' => $customerMaterialData['percentage'],
+                ]);
+
+                DB::commit();
+                return $sap_material_mapping;
+            }
 
             if ($customer_material_existed) {
                 $customer_material = $customer_material_existed;

@@ -138,20 +138,20 @@
 									@click="showExcelDialog"
 								>
 									<strong>
-										<i class="fas fa-upload mr-1 text-bold"></i>Import
-										Excel</strong
-									>
+										<i class="fas fa-upload mr-1 text-bold"></i> Import Excel
+									</strong>
 								</button>
 
-                                <button
-							type="button"
-							class="btn btn-info btn-sm ml-1 mt-1"
-							@click="showExcelDialog"
-						>
-							<strong>
-								<i class="fas fa-download mr-1 text-bold"></i>Download Excel</strong
-							>
-						</button>
+
+								<button
+									type="button"
+									class="btn btn-info btn-sm ml-1 mt-1"
+									@click="exportToExcel"
+								>
+									<strong>
+										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
+									</strong>
+								</button>
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -512,9 +512,31 @@
 				this.editing_item = item;
 				$('#DialogAddUpdateSapMapping').modal('show');
 			},
-            showExcelDialog(){
+			showExcelDialog() {},
+			async exportToExcel() {
+				try {
+					const response = await this.api_handler.get(
+						`api/master/sap-material-mappings/exportToExcel`,
+						{},
+						'blob',
+					);
+					const blobData = new Blob([response]);
 
-            },
+					const url = window.URL.createObjectURL(blobData);
+					const link = document.createElement('a');
+					link.href = url;
+					link.setAttribute('download', 'Dữ liệu Mapping SAP.xlsx');
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					// Giải phóng URL đã tạo ra
+					window.URL.revokeObjectURL(url);
+				} catch (error) {
+					// Xử lý lỗi khi không thể tải xuống file
+					console.error(error);
+				}
+			},
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
