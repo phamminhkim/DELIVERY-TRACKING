@@ -276,7 +276,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchData"
 					></DialogAddUpdateSapMapping>
-					<dialog-import-excel-to-create-mapping />
+					<DialogImportExcelToCreateMapping />
 
 					<!-- end tạo form -->
 				</div>

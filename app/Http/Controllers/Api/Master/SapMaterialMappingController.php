@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController\ResponseController;
 use App\Http\Controllers\Controller;
 use App\Repositories\MasterRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SapMaterialMappingController extends ResponseController
 {
@@ -44,6 +45,16 @@ class SapMaterialMappingController extends ResponseController
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
+    }
+    public function download($filename)
+    {
+        $filePath = 'templates/' . $filename;
+
+        if (Storage::exists($filePath)) {
+            return Storage::download($filePath);
+        }
+
+        abort(404);
     }
      //add
      public function createNewSapMaterialMappings(Request $request)

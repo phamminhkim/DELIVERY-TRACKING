@@ -19,8 +19,7 @@
 					</div>
 
 					<div class="modal-body">
-
-						<div class="form-group">
+                        <div class="form-group">
 							<label>File</label>
 							<small class="text-danger">(*)</small>
 							<b-form-file
@@ -32,6 +31,9 @@
 							<div class="mt-3">
 								Selected file: {{ form.file ? form.file.name : '' }}
 							</div>
+						</div>
+						<div class="form-group">
+							<a href="#" @click="downloadTemplate">Download template file mẫu</a>
 						</div>
 					</div>
 
@@ -87,7 +89,6 @@
 		},
 
 		methods: {
-
 			async createNewMapping() {
 				try {
 					if (this.is_loading) return;
@@ -116,6 +117,10 @@
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 					this.error_message = error.response.data.message;
 				}
+			},
+			downloadTemplate() {
+				const filename = 'mapping.xlsx';
+				window.location.href = `/templates/${filename}`;
 			},
 			resetForm() {
 				this.form = {
