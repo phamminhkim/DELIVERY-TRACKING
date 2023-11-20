@@ -170,7 +170,9 @@
 							</button>
 							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">Lưu</button>
 							<button class="btn btn-sm btn-info mr-2 px-4 mb-1">Coppy</button> -->
-							<button class="btn btn-secondary mr-2 px-4 mb-1">Download excel</button>
+							<button class="btn btn-secondary mr-2 px-4 mb-1" @click="exportToExcel">
+								Download excel
+							</button>
 							<button class="btn btn-secondary px-4 mb-1">Đồng bộ SAP</button>
 
 							<div style="flex: 1"></div>
@@ -233,37 +235,70 @@
 									}}
 								</template>
 								<template #cell(quantity)="data">
-								  <input type="number"
+									<input
+										type="number"
 										class="form-control"
 										v-model="data.item.quantity"
 									/>
 								</template>
-                                <template #cell(raw_extract_item_customer_sku_code)="data">
-                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_code}}</span>
-
+								<template #cell(raw_extract_item_customer_sku_code)="data">
+									<span
+										v-if="
+											data.item.raw_extract_item &&
+											data.item.raw_extract_item.customer_material
+										"
+										>{{
+											data.item.raw_extract_item.customer_material
+												.customer_sku_code
+										}}</span
+									>
 								</template>
-                                <template #cell(raw_extract_item_quantity)="data">
-                                  <span v-if="data.item.raw_extract_item ">{{ data.item.raw_extract_item.quantity.toLocaleString(locale_format)}}</span>
-
+								<template #cell(raw_extract_item_quantity)="data">
+									<span v-if="data.item.raw_extract_item">{{
+										data.item.raw_extract_item.quantity.toLocaleString(
+											locale_format,
+										)
+									}}</span>
 								</template>
-                                <template #cell(raw_extract_item_customer_sku_unit)="data">
-                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_unit}}</span>
-
+								<template #cell(raw_extract_item_customer_sku_unit)="data">
+									<span
+										v-if="
+											data.item.raw_extract_item &&
+											data.item.raw_extract_item.customer_material
+										"
+										>{{
+											data.item.raw_extract_item.customer_material
+												.customer_sku_unit
+										}}</span
+									>
 								</template>
 
-
-                                <template #cell(raw_extract_item_customer_sku_name)="data">
-                                  <span v-if="data.item.raw_extract_item && data.item.raw_extract_item.customer_material">{{ data.item.raw_extract_item.customer_material.customer_sku_name}}</span>
-
+								<template #cell(raw_extract_item_customer_sku_name)="data">
+									<span
+										v-if="
+											data.item.raw_extract_item &&
+											data.item.raw_extract_item.customer_material
+										"
+										>{{
+											data.item.raw_extract_item.customer_material
+												.customer_sku_name
+										}}</span
+									>
 								</template>
-                                <template #cell(price)="data">
-                                  <span v-if="data.item.raw_extract_item">{{ data.item.raw_extract_item.price.toLocaleString(locale_format)}}</span>
-
+								<template #cell(price)="data">
+									<span v-if="data.item.raw_extract_item">{{
+										data.item.raw_extract_item.price.toLocaleString(
+											locale_format,
+										)
+									}}</span>
 								</template>
 
-                                <template #cell(amount)="data">
-                                    <span v-if="data.item.raw_extract_item">{{ data.item.raw_extract_item.amount.toLocaleString(locale_format)}}</span>
-
+								<template #cell(amount)="data">
+									<span v-if="data.item.raw_extract_item">{{
+										data.item.raw_extract_item.amount.toLocaleString(
+											locale_format,
+										)
+									}}</span>
 								</template>
 								<template #cell(action)="data">
 									<b-button
@@ -316,7 +351,8 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import sha256 from 'crypto-js/sha256';
-import { format } from 'path';
+	import { format } from 'path';
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 
 	export default {
 		components: {
@@ -327,7 +363,7 @@ import { format } from 'path';
 		},
 		data() {
 			return {
-                locale_format: 'de-DE',
+				locale_format: 'de-DE',
 				api_handler: new APIHandler(window.Laravel.access_token),
 				raw_so_header: {
 					note: '',
@@ -339,8 +375,8 @@ import { format } from 'path';
 					po_number: '',
 					po_person: '',
 					po_phone: '',
-                    raw_so_items: [],
-                    raw_so_items_deleted: [],
+					raw_so_items: [],
+					raw_so_items_deleted: [],
 				},
 				// raw_so_items: [],
 				is_loading: false,
@@ -393,7 +429,7 @@ import { format } from 'path';
 						label: 'Mã Sku SAP',
 						class: 'text-nowrap',
 					},
-                    {
+					{
 						key: 'sap_material.name',
 						label: 'Tên Sku SAP',
 						class: 'text-nowrap',
@@ -429,9 +465,9 @@ import { format } from 'path';
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
-                    console.log(data);
+					console.log(data);
 					this.raw_so_header = data;
-                    this.raw_so_header.raw_so_items_deleted = [];
+					this.raw_so_header.raw_so_items_deleted = [];
 					// this.raw_so_items = structuredClone(data.raw_so_items);
 					// this.$delete(this.raw_so_header, 'raw_so_items');
 					// this.original_raw_so_header = structuredClone(this.raw_so_header);
@@ -463,7 +499,7 @@ import { format } from 'path';
 					callback(null, options);
 				}
 			},
-            async addRawSoItemToRawSoHeader() {
+			async addRawSoItemToRawSoHeader() {
 				try {
 					this.is_loading = true;
 					// const { data } = await this.api_handler.post(
@@ -476,20 +512,21 @@ import { format } from 'path';
 					// 		is_promotive: this.raw_so_header.is_promotive,
 					// 	},
 					// );
-                    //Lấy thông tin sản phẩm
-                    var  res  = await this.api_handler.get('api/master/sap-materials?id=' + this.selected_sap_material_id);
+					//Lấy thông tin sản phẩm
+					var res = await this.api_handler.get(
+						'api/master/sap-materials?id=' + this.selected_sap_material_id,
+					);
 
-                    var new_item =  	{
-							sap_material_id: this.selected_sap_material_id,
-							quantity: this.selected_quantity,
-							sap_material: {...res.data[0]},
+					var new_item = {
+						sap_material_id: this.selected_sap_material_id,
+						quantity: this.selected_quantity,
+						sap_material: { ...res.data[0] },
 
-
-                            percentage : '100',
-							// is_promotive: this.raw_so_header.is_promotive,
-						};
-                    // this.raw_so_items.push(new_item);
-                    this.raw_so_header.raw_so_items.push({...new_item});
+						percentage: '100',
+						// is_promotive: this.raw_so_header.is_promotive,
+					};
+					// this.raw_so_items.push(new_item);
+					this.raw_so_header.raw_so_items.push({ ...new_item });
 
 					// this.raw_so_items = [data, ...this.raw_so_items];
 					this.selected_sap_material_id = this.selected_quantity = null;
@@ -526,16 +563,20 @@ import { format } from 'path';
 			// 		this.is_loading = false;
 			// 	}
 			// },
-            async deleteRawSoItem(id) {
+			async deleteRawSoItem(id) {
 				try {
 					// this.is_loading = true;
 					// const { data } = await this.api_handler.delete(
 					// 	`/api/raw-so-headers/raw-so-items/${id}`,
 					// 	{},
 					// );
-                    this.raw_so_header.raw_so_items_deleted.push( this.raw_so_header.raw_so_items.find((item) => item.id === id));
-                    //Xóa trong mảng hiện tại
-                    this.raw_so_header.raw_so_items = this.raw_so_header.raw_so_items.filter((item) => item.id !== id);
+					this.raw_so_header.raw_so_items_deleted.push(
+						this.raw_so_header.raw_so_items.find((item) => item.id === id),
+					);
+					//Xóa trong mảng hiện tại
+					this.raw_so_header.raw_so_items = this.raw_so_header.raw_so_items.filter(
+						(item) => item.id !== id,
+					);
 					//this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
 					// this.$showMessage('success', 'Xóa thành công');
 				} catch (e) {
@@ -577,7 +618,55 @@ import { format } from 'path';
 					this.is_loading = false;
 				}
 			},
+			async exportToExcel() {
+				try {
+					let clone_fields = structuredClone(this.fields);
+					clone_fields.splice(0, 2);
+					this.is_loading = true;
+
+					const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
+
+					saveExcel({
+						data: data.raw_so_items.map((item) => ({
+							'Số SO': data.customer.name,
+							'Mã Khách hàng': data.customer.code,
+							'Mã sản phẩm': item.sap_material.sap_code,
+							'Số lượng': item.quantity,
+							'Đơn vị tính': item.sap_material.unit.unit_code,
+						})),
+						fileName: 'Dữ liệu Đơn hàng',
+						columns: [
+							{
+								field: 'Số SO',
+								title: 'Số SO',
+							},
+							{
+								field: 'Mã Khách hàng',
+								title: 'Mã Khách hàng',
+							},
+							{
+								field: 'Mã sản phẩm',
+								title: 'Mã sản phẩm',
+							},
+							{
+								field: 'Số lượng',
+								title: 'Số lượng',
+							},
+							{
+								field: 'Đơn vị tính',
+								title: 'Đơn vị tính',
+							},
+							// Add additional columns if needed
+						],
+					});
+				} catch (error) {
+					toastr.error('Lỗi', error.response.data.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
 		},
+
 		watch: {
 			id(new_val, old_val) {
 				if (!new_val) return;
@@ -586,7 +675,7 @@ import { format } from 'path';
 		},
 		computed: {
 			rows() {
-				return  this.raw_so_header.raw_so_items.length;
+				return this.raw_so_header.raw_so_items.length;
 			},
 		},
 	};
