@@ -314,6 +314,7 @@
 <!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
@@ -469,7 +470,18 @@
 				try {
 					this.is_loading = true;
 					const [order_files] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', this.api_url_order_file, {}),
+						new APIRequest('get', this.api_url_order_file, {
+							from_date:
+								this.form_filter.start_date.length == 0
+									? undefined
+									: this.form_filter.start_date,
+							to_date:
+								this.form_filter.end_date.length == 0
+									? undefined
+									: this.form_filter.end_date,
+							customer_group_ids: this.form_filter.customer_group_id,
+							customer_ids: this.form_filter.customers,
+						}),
 					]);
 					this.order_files = order_files;
 					toastr.success('Lấy dữ liệu thành công');
@@ -586,6 +598,59 @@
 					}
 				}
 			},
+			async filterData() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					const { data } = await this.api_handler.get(this.api_url_order_file, {
+						from_date: this.form_filter.start_date,
+						to_date: this.form_filter.end_date,
+						customer_group_ids: this.form_filter.customer_group_id,
+						customer_ids: this.form_filter.customers,
+					});
+
+					this.order_files = data;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+
+			// async clearFilter() {
+			// 	try {
+			// 		if (this.is_loading) return;
+			// 		this.is_loading = true;
+
+			// 		this.form_filter.start_date = null;
+			// 		this.form_filter.end_date = null;
+			// 		this.form_filter.customer_group_id = null;
+			// 		this.form_filter.customers = [];
+
+			// 		await this.fetchData();
+			// 	} catch (error) {
+			// 		this.$showMessage('error', 'Lỗi', error);
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
+            async clearFilter() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					this.form_filter.start_date = null;
+					this.form_filter.end_date = null;
+					this.form_filter.customer_group_id = null;
+					this.form_filter.customers = [];
+
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
 			async syncFileSap() {
 				try {
 					this.is_loading = true;
@@ -658,7 +723,6 @@
 					data: data,
 					columns: columns,
 					options: excelOptions,
-
 				});
 			},
 		},

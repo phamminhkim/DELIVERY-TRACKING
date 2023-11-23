@@ -33,21 +33,21 @@ class UploadedFileRepository extends RepositoryAbs
         $query->whereHas('user_morphs', function ($query) use ($user_id) {
             $query->where('user_id', $user_id);
         });
-        if ($this->request->filled('customer_groups')) {
-            $customer_group_ids = $this->request->customer_groups;
+        if ($this->request->filled('customer_group_ids')) {
+            $customer_group_ids = explode(',', $this->request->customer_group_ids);
             $query->whereHas('batch', function ($query) use ($customer_group_ids) {
                 $query->whereHas('customer', function ($query) use ($customer_group_ids) {
                     $query->whereHas('group', function ($query) use ($customer_group_ids) {
-                        $query->whereIn('id', $customer_group_ids);
+                        $query->whereIn('customer_groups.id', $customer_group_ids);
                     });
                 });
             });
         }
 
-        if ($this->request->filled('customers')) {
-            $customer_ids = $this->request->customers;
+        if ($this->request->filled('customer_ids')) {
+            $customer_ids = $this->request->customer_ids;
             $query->whereHas('batch', function ($query) use ($customer_ids) {
-                $query->whereIn('customer_id', $customer_ids);
+                $query->whereIn('batches.customer_id', $customer_ids);
             });
         }
 
