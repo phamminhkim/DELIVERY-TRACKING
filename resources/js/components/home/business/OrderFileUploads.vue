@@ -617,24 +617,6 @@
 					this.is_loading = false;
 				}
 			},
-
-			// async clearFilter() {
-			// 	try {
-			// 		if (this.is_loading) return;
-			// 		this.is_loading = true;
-
-			// 		this.form_filter.start_date = null;
-			// 		this.form_filter.end_date = null;
-			// 		this.form_filter.customer_group_id = null;
-			// 		this.form_filter.customers = [];
-
-			// 		await this.fetchData();
-			// 	} catch (error) {
-			// 		this.$showMessage('error', 'Lỗi', error);
-			// 	} finally {
-			// 		this.is_loading = false;
-			// 	}
-			// },
             async clearFilter() {
 				try {
 					if (this.is_loading) return;
