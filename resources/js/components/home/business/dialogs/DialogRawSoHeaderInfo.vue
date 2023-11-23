@@ -618,52 +618,145 @@
 					this.is_loading = false;
 				}
 			},
-			async exportToExcel() {
-				try {
-					let clone_fields = structuredClone(this.fields);
-					clone_fields.splice(0, 2);
-					this.is_loading = true;
+			// async exportToExcel() {
+			// 	try {
+			// 		let clone_fields = structuredClone(this.fields);
+			// 		clone_fields.splice(0, 2);
+			// 		this.is_loading = true;
 
-					const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
+			// 		const { data } = await this.api_handler.get(`/api/raw-so-headers/${this.id}`);
 
-					saveExcel({
-						data: data.raw_so_items.map((item) => ({
-							'Số SO': data.customer.name,
-							'Mã Khách hàng': data.customer.code,
-							'Mã sản phẩm': item.sap_material.sap_code,
-							'Số lượng': item.quantity,
-							'Đơn vị tính': item.sap_material.unit.unit_code,
-						})),
-						fileName: 'Dữ liệu Đơn hàng',
-						columns: [
-							{
-								field: 'Số SO',
-								title: 'Số SO',
-							},
-							{
-								field: 'Mã Khách hàng',
-								title: 'Mã Khách hàng',
-							},
-							{
-								field: 'Mã sản phẩm',
-								title: 'Mã sản phẩm',
-							},
-							{
-								field: 'Số lượng',
-								title: 'Số lượng',
-							},
-							{
-								field: 'Đơn vị tính',
-								title: 'Đơn vị tính',
-							},
-							// Add additional columns if needed
-						],
+			// 		saveExcel({
+			// 			data: data.raw_so_items.map((item) => ({
+			// 				'Số SO': data.customer.name,
+			// 				'Mã Khách hàng': data.customer.code,
+			// 				'Mã sản phẩm': item.sap_material.sap_code,
+			// 				'Số lượng': item.quantity,
+			// 				'Đơn vị tính': item.sap_material.unit.unit_code,
+			// 			})),
+			// 			fileName: 'Dữ liệu Đơn hàng',
+			// 			columns: [
+			// 				{
+			// 					field: 'Số SO',
+			// 					title: 'Số SO',
+			// 				},
+			// 				{
+			// 					field: 'Mã Khách hàng',
+			// 					title: 'Mã Khách hàng',
+			// 				},
+			// 				{
+			// 					field: 'Mã sản phẩm',
+			// 					title: 'Mã sản phẩm',
+			// 				},
+			// 				{
+			// 					field: 'Số lượng',
+			// 					title: 'Số lượng',
+			// 				},
+			// 				{
+			// 					field: 'Đơn vị tính',
+			// 					title: 'Đơn vị tính',
+			// 				},
+			// 				// Add additional columns if needed
+			// 			],
+			// 		});
+			// 	} catch (error) {
+			// 		toastr.error('Lỗi', error.response.data.message);
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
+
+			exportToExcel() {
+				let clone_fields = structuredClone(this.fields);
+				clone_fields.splice(0, 2);
+				this.is_loading = true;
+
+				this.api_handler
+					.get(`/api/raw-so-headers/${this.id}`)
+					.then((response) => {
+						const { data } = response;
+                        console.log(data.po_person);
+
+						const excelData = data.raw_so_items.map((item) => ({
+                            po_person: data.po_person,
+							raw_extract_item_customer_sku_code:
+								item.raw_extract_item.customer_material.customer_sku_code,
+							raw_extract_item_customer_sku_name:
+								item.raw_extract_item.customer_material.customer_sku_name,
+							raw_extract_item_quantity: item.raw_extract_item.quantity,
+							raw_extract_item_customer_sku_unit:
+								item.raw_extract_item.customer_material.customer_sku_unit,
+							price: item.price,
+							amount: item.amount,
+							'sap_material.unit.unit_code': item.sap_material.unit.unit_code,
+							'sap_material.name': item.sap_material.name,
+							quantity: item.quantity,
+							'sap_material.unit.unit_code': item.sap_material.unit.unit_code,
+							percentage: item.percentage,
+						}));
+
+						saveExcel({
+							data: excelData,
+							fileName: 'order_data',
+							columns: [
+                            {
+									field: 'po_person',
+									title: 'Mã khách hàng',
+								},
+								{
+									field: 'raw_extract_item_customer_sku_code',
+									title: 'Mã Skus-PO',
+								},
+								{
+									field: 'raw_extract_item_customer_sku_name',
+									title: 'Tên Skus-PO',
+								},
+								{
+									field: 'raw_extract_item_quantity',
+									title: 'Số lượng PO',
+								},
+								{
+									field: 'raw_extract_item_customer_sku_unit',
+									title: 'ĐVT - PO',
+								},
+								{
+									field: 'price',
+									title: 'Đơn giá PO',
+								},
+								{
+									field: 'amount',
+									title: 'Thành tiền PO',
+								},
+								{
+									field: 'sap_material.unit.unit_code',
+									title: 'Mã Sku SAP',
+								},
+								{
+									field: 'sap_material.name',
+									title: 'Tên Sku SAP',
+								},
+								{
+									field: 'quantity',
+									title: 'Số lượng SAP',
+								},
+								{
+									field: 'sap_material.unit.unit_code',
+									title: 'ĐVT SAP',
+								},
+								{
+									field: 'percentage',
+									title: 'Tỷ lệ',
+								},
+							],
+						});
+					})
+					.catch((error) => {
+						console.error('Lỗi', error);
+						toastr.error('Đã xảy ra lỗi khi xuất Excel');
+					})
+					.finally(() => {
+						this.is_loading = false;
 					});
-				} catch (error) {
-					toastr.error('Lỗi', error.response.data.message);
-				} finally {
-					this.is_loading = false;
-				}
 			},
 		},
 
