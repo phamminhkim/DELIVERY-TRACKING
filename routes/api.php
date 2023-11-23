@@ -253,6 +253,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('file')->group(function () {
             Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);
             Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
+            Route::get('/{id}', [UploadedFileController::class, 'getFilesById']);
             Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);

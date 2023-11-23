@@ -67,6 +67,40 @@ class UploadedFileRepository extends RepositoryAbs
 
         return $files;
     }
+    public function getFilesById($id)
+    {
+        $user_id = $this->current_user->id;
+        $query = UploadedFile::query();
+
+        $query->whereHas('user_morphs', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        });
+
+        $query
+            ->with(['batch.customer.group', 'raw_so_headers.raw_so_items', 'raw_so_headers.raw_so_items.sap_material', 'raw_so_headers.raw_so_items.raw_extract_item.customer_material', 'status', 'file_extract_error.extract_error', 'file_extract_error.log'])
+            ->orderBy('created_at', 'desc');
+
+        $file = $query->find($id);
+
+        if (!$file) {
+            return response()->json(['message' => 'File not found'], 404);
+        }
+
+        $excelData = $file->raw_so_headers->flatMap(function ($rawSoHeader) {
+            return $rawSoHeader->raw_so_items->map(function ($item) use ($rawSoHeader) {
+                return [
+                    'Số SO' => $rawSoHeader->customer->name,
+                    'Mã Khách hàng' => $rawSoHeader->customer->code,
+                    'Mã sản phẩm' => $item->sap_material->sap_code,
+                    'Số lượng' => $item->quantity,
+                    'Đơn vị tính' => $item->sap_material->unit->unit_code,
+                ];
+            });
+        });
+
+
+        return $excelData;
+    }
     public function prepareUploadFile()
     {
         try {

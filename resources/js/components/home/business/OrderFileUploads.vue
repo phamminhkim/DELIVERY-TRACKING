@@ -140,6 +140,14 @@
 						Đồng bộ SAP
 					</strong>
 				</b-button>
+				<b-button
+					variant="primary"
+					@click="exportToExcel"
+					class="btn-sm ml-1"
+					style="height: 38px"
+				>
+					<strong> <i class="fas fa-download mr-1 text-bold"></i>Download Excel </strong>
+				</b-button>
 			</div>
 			<div class="form-group">
 				<div>
@@ -308,6 +316,7 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	// import { saveAs } from 'file-saver';
 	export default {
 		components: {
@@ -470,35 +479,35 @@
 					this.is_loading = false;
 				}
 			},
-				async downloadFile(id, fileName) {
-					try {
+			async downloadFile(id, fileName) {
+				try {
+					const response = await this.api_handler.get(
+						`api/ai/file/download/${id}`,
+						{},
+						'blob',
+					);
+					const blobData = new Blob([response]);
 
-						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {},'blob');
-						const blobData = new Blob([response]);
-						 
-						const url = window.URL.createObjectURL(blobData);
-						const link = document.createElement('a');
-						link.href = url;
-						link.setAttribute('download', fileName);
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
+					const url = window.URL.createObjectURL(blobData);
+					const link = document.createElement('a');
+					link.href = url;
+					link.setAttribute('download', fileName);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
 
-						// Giải phóng URL đã tạo ra
-						window.URL.revokeObjectURL(url);
-
-						
-					} catch (error) {
-						// Xử lý lỗi khi không thể tải xuống file
-						console.error(error);
-					}
-				},
-                getFileName(path) {
-					let name = path.split('/')[1].split('_');
-					name.pop();
-					return name.join('') + '.pdf';
-				},
-
+					// Giải phóng URL đã tạo ra
+					window.URL.revokeObjectURL(url);
+				} catch (error) {
+					// Xử lý lỗi khi không thể tải xuống file
+					console.error(error);
+				}
+			},
+			getFileName(path) {
+				let name = path.split('/')[1].split('_');
+				name.pop();
+				return name.join('') + '.pdf';
+			},
 
 			showInfoDialog(raw_so_header_id) {
 				this.viewing_raw_so_header_id = raw_so_header_id;
@@ -599,6 +608,58 @@
 				} finally {
 					this.is_loading = false;
 				}
+			},
+			async exportToExcel() {
+				try {
+					this.is_loading = true;
+
+					if (this.selected_ids.length === 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+
+					const filePromises = this.selected_ids.map((fileId) =>
+						this.api_handler.get(`/api/ai/file/${fileId}`),
+					);
+
+					const responses = await Promise.all(filePromises);
+					const excelData = [];
+
+					for (const response of responses) {
+						if (response && response.data) {
+							const data = response.data;
+							excelData.push(...data);
+						}
+					}
+
+					// Export to Excel
+					this.exportExcel(excelData, 'Dữ liệu Đơn hàng');
+				} catch (error) {
+					toastr.error('Lỗi', error.response.data.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			exportExcel(data, fileName) {
+				const columns = [
+					{ field: 'Số SO', title: 'Số SO' },
+					{ field: 'Mã Khách hàng', title: 'Mã Khách hàng' },
+					{ field: 'Mã sản phẩm', title: 'Mã sản phẩm' },
+					{ field: 'Số lượng', title: 'Số lượng', format: '#,##0' }, // Number format
+					{ field: 'Đơn vị tính', title: 'Đơn vị tính' },
+				];
+
+				const excelOptions = {
+					fileName: `${fileName}.xlsx`,
+					allPages: true,
+				};
+
+				saveExcel({
+					data: data,
+					columns: columns,
+					options: excelOptions,
+
+				});
 			},
 		},
 		computed: {
