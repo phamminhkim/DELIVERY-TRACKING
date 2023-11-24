@@ -680,14 +680,14 @@
 					}
 
 					// Export to Excel
-					this.exportExcel(excelData, 'Dữ liệu Đơn hàng');
+					this.exportExcel(excelData);
 				} catch (error) {
 					toastr.error('Lỗi', error.response.data.message);
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			exportExcel(data, fileName) {
+			exportExcel(data) {
 				const columns = [
 					{ field: 'Số SO', title: 'Số SO' },
 					{ field: 'Mã Khách hàng', title: 'Mã Khách hàng' },
@@ -696,15 +696,12 @@
 					{ field: 'Đơn vị tính', title: 'Đơn vị tính' },
 				];
 
-				const excelOptions = {
-					fileName: `${fileName}.xlsx`,
-					allPages: true,
-				};
+
 
 				saveExcel({
 					data: data,
+                    fileName: 'SAP_SO',
 					columns: columns,
-					options: excelOptions,
 				});
 			},
 		},
