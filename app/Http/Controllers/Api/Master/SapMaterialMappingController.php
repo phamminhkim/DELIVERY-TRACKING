@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\MasterRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class SapMaterialMappingController extends ResponseController
 {
@@ -48,50 +49,48 @@ class SapMaterialMappingController extends ResponseController
     }
     public function download($filename)
     {
-        $filePath = 'templates/' . $filename;
+        $filePath = public_path('excel/' . $filename);
 
-        if (Storage::exists($filePath)) {
-            return Storage::download($filePath);
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
         }
-
-        abort(404);
     }
-     //add
-     public function createNewSapMaterialMappings(Request $request)
-     {
+    //add
+    public function createNewSapMaterialMappings(Request $request)
+    {
 
-         $handler = MasterRepository::sapMaterialMappingRequest($request);
-         $sapMaterialMapping = $handler->createNewSapMaterialMappings($request->all());
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMapping = $handler->createNewSapMaterialMappings($request->all());
 
-         if ($sapMaterialMapping) {
-             return $this->responseSuccess($sapMaterialMapping);
-         } else {
-             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
-         }
-     }
-     //update
-     public function updateSapMaterialMapping(Request $request, $id)
-{
-    $handler = MasterRepository::sapMaterialMappingRequest($request);
-    $sapMaterialMapping = $handler->updateSapMaterialMapping($id, $request->all());
-
-    if ($sapMaterialMapping) {
-        return $this->responseSuccess($sapMaterialMapping);
-    } else {
-        return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+        if ($sapMaterialMapping) {
+            return $this->responseSuccess($sapMaterialMapping);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
     }
-}
-     public function deleteExistingSapMaterialMapping(Request $request, $id)
-     {
-         $handler = MasterRepository::sapMaterialMappingRequest($request);
-         $is_success = $handler->deleteExistingSapMaterialMapping($id);
+    //update
+    public function updateSapMaterialMapping(Request $request, $id)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMapping = $handler->updateSapMaterialMapping($id, $request->all());
 
-         if ($is_success) {
-             return $this->responseOk();
-         } else {
-             $message = $handler->getMessage();
-             $errors = $handler->getErrors();
-             return $this->responseError($message, $errors);
-         }
-     }
+        if ($sapMaterialMapping) {
+            return $this->responseSuccess($sapMaterialMapping);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
+    public function deleteExistingSapMaterialMapping(Request $request, $id)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $is_success = $handler->deleteExistingSapMaterialMapping($id);
+
+        if ($is_success) {
+            return $this->responseOk();
+        } else {
+            $message = $handler->getMessage();
+            $errors = $handler->getErrors();
+            return $this->responseError($message, $errors);
+        }
+    }
 }

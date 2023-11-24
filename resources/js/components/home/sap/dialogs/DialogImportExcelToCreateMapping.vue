@@ -119,8 +119,8 @@
 				}
 			},
 			downloadTemplate() {
-				const filename = 'mapping.xlsx';
-				window.location.href = `/templates/${filename}`;
+				const filename = 'Mapping.xlsx';
+				window.location.href = `/excel/${filename}`;
 			},
 			resetForm() {
 				this.form = {

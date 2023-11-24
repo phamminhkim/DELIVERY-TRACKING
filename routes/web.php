@@ -78,7 +78,7 @@ Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallbac
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
-Route::get('/templates/{filename}', [SapMaterialMappingController::class,'download']);
+Route::get('/excel/{filename}', [SapMaterialMappingController::class,'download']);
 
 Route::get('access-token', function () {
     $auth_user = Auth()->user();
