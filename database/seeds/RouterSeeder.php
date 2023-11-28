@@ -60,7 +60,7 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Khách hàng liên kết',
                 'path' => '/customer-group-pivots',
-                'component' => 'home/master/CustomerGroupPivots'
+                'component' => 'home/sap/CustomerGroupPivots'
             ],
 
             [
