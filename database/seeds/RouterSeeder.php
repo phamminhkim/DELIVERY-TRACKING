@@ -124,6 +124,11 @@ class RouterSeeder extends Seeder
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
                 'component' => 'home/sap/SapMaterials'
+            ],
+            [
+                'name' => 'Nhóm khách hàng',
+                'path' => '/customer-groups',
+                'component' => 'home/master/CustomerGroup'
             ]
 
         ];

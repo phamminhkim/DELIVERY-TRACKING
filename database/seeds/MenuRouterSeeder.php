@@ -311,7 +311,15 @@ class MenuRouterSeeder extends Seeder
                 'link' => "order-uploads",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Nhóm khách hàng",
+                'icon' => "fas fa-id-card-alt",
+                'link' => "customer-groups",
+                'query_string' => "",
+                'parent' => 'Quản lí dữ liệu',
             ]
+
 
         ];
     }

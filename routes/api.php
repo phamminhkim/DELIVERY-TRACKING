@@ -163,6 +163,9 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-groups')->group(function () {
             Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+            Route::post('/', [CustomerGroupController::class, 'createNewGroup']);
+            Route::put('/{id}', [CustomerGroupController::class, 'updateExistingGroup']);
+            Route::delete('/{id}', [CustomerGroupController::class, 'deleteExistingGroup']);
         });
         Route::prefix('/customer-group-pivots')->group(function () {
             Route::get('/', [CustomerGroupPivotController::class, 'getAvailableCustomerGroupPivots']);
