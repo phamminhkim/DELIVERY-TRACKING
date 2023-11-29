@@ -62,6 +62,11 @@ class RouterSeeder extends Seeder
                 'path' => '/customer-group-pivots',
                 'component' => 'home/sap/CustomerGroupPivots'
             ],
+            [
+                'name' => 'Khách hàng khuyến mãi',
+                'path' => '/customer-promotions',
+                'component' => 'home/sap/CustomerPromotion'
+            ],
 
             [
                 'name' => 'Upload đơn hàng',

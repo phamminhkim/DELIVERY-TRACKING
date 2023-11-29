@@ -304,6 +304,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
+            [
+                'title' => "Khách hàng khuyến mãi",
+                'icon' => "fas fa-project-diagram	",
+                'link' => "customer-promotions",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
 
             [
                 'title' => "Upload đơn hàng",

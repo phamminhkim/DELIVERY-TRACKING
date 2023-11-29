@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerPromotion extends Model
 {
+
     protected $table = 'customer_promotions';
+    public $timestamps = false;
 
     // Các trường (columns) trong bảng
     protected $fillable = [
