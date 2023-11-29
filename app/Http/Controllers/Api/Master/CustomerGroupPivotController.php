@@ -29,7 +29,7 @@ class CustomerGroupPivotController extends ResponseController
         if ($customerGroupPivot) {
             return $this->responseSuccess($customerGroupPivot);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
     public function updateExistingCustomerGroupPivot(Request $request, $id)
@@ -41,7 +41,7 @@ class CustomerGroupPivotController extends ResponseController
         if ($customerGroupPivot) {
             return $this->responseSuccess($customerGroupPivot);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 

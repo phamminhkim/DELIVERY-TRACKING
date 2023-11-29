@@ -35,12 +35,13 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
-							<!-- <small class="text-danger">(*)</small> -->
+							<small class="text-danger">(*)</small>
 							<treeselect
 								v-model="customer_group_pivot.customer_group_id"
 								:multiple="false"
 								id="customer_group_id"
-								placeholder="Yêu cầu chọn nhóm khách hàng.."
+								placeholder="Chọn nhóm khách hàng.."
+                                required
 								:options="customer_group_options"
 								:normalizer="normalizerOption"
 								v-bind:class="hasError('v') ? 'is-invalid' : ''"
@@ -58,9 +59,10 @@
 							<small class="text-danger">*</small>
 							<treeselect
 								v-model="customer_group_pivot.customer_id"
-								placeholder="Chọn sản phẩm.."
+								placeholder="Nhập khách hàng.."
 								required
 								:load-options="loadOptions"
+                                v-bind:class="hasError('customer_id') ? 'is-invalid' : ''"
 								:async="true"
 							/>
 							<span
@@ -187,12 +189,14 @@
 						this.customer_group_pivot,
 					);
 
-					// Handle the returned data (if needed)
+					// Xử lý dữ liệu trả về (nếu cần)
 					if (data.success) {
-						this.customer_group_pivots.push(data); // Add the new mapping to the list
+						if (Array.isArray(data)) {
+							this.customer_group_pivots.push(...data); // Add the new mappings to the end of the list
+						}
 						this.showMessage('success', 'Cập nhật thành công');
 						this.closeDialog();
-						await this.refetchData(); // Load the data again after successful update
+						await this.refetchData(); // Load the data again after successful creation
 					} else {
 						this.errors = data.errors;
 						this.showMessage('error', 'Cập nhật không thành công');
