@@ -19,9 +19,7 @@ class SapMaterialMappingController extends ResponseController
         if ($result) {
             return $this->responseSuccess($result);
         } else {
-            $message = $handler->getMessage();
-            $errors = $handler->getErrors();
-            return $this->responseError($message, $errors);
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
     public function exportToExcel(Request $request)
