@@ -76,7 +76,7 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên đối chiếu sản phẩm</label
+									>Mã/tên SAP</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 
