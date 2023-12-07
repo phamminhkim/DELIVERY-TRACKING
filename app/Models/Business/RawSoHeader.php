@@ -20,6 +20,7 @@ class RawSoHeader extends Model
         'po_delivery_date',
         'po_delivery_address',
         'po_note',
+        'po_email',
         'note',
         // 'sap_so_number',
         'serial_number',

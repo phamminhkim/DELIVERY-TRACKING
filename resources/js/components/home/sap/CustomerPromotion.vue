@@ -41,24 +41,6 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Nhóm khách hàng</label
-								>
-								<div class="col-sm-10 mt-1 mb-1">
-									<treeselect
-										:multiple="false"
-										id="customer_group_id"
-										placeholder="Chọn nhóm khách hàng.."
-										v-model="form_filter.customer_group"
-										:options="customer_group_options"
-										:normalizer="normalizerOption"
-										required
-									></treeselect>
-								</div>
-							</div>
-							<div class="form-group row">
-								<label
-									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-									for=""
 									>Mã/tên sản phẩm khách hàng</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
@@ -76,10 +58,9 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên SAP</label
+									>Mã/tên đối chiếu sản phẩm</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
-
 									<treeselect
 										placeholder="Chọn sản phẩm.."
 										:multiple="true"
@@ -140,7 +121,7 @@
 				<div class="card-body">
 					<div class="row">
 						<div class="col-md-9">
-							<div class="form-group row">
+							<!-- <div class="form-group row">
 								<button
 									type="button"
 									class="btn btn-info btn-sm ml-1 mt-1"
@@ -161,7 +142,7 @@
 										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
 									</strong>
 								</button>
-							</div>
+							</div> -->
 						</div>
 						<div class="col-md-3">
 							<div class="input-group input-group-sm mt-1 mb-1">
@@ -196,11 +177,13 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="sap_material_mappings"
+							:items="customer_promotions"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
-								<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
+								<h6 class="text-center">
+									Không có khách hàng khuyến mãi nào để hiển thị
+								</h6>
 							</template>
 							<template #table-busy>
 								<div class="text-center text-primary my-2">
@@ -227,7 +210,7 @@
 
 									<button
 										class="btn btn-xs mr-1"
-										@click="deleteSapMapping(data.item.id)"
+										@click="deleteCustomerPromotion(data.item.id)"
 									>
 										<i
 											class="fas fa-trash text-red bigger-120"
@@ -235,6 +218,14 @@
 										></i>
 									</button>
 								</div>
+							</template>
+							<template #cell(is_active)="data">
+								<span class="badge bg-success" v-if="data.item.is_active == 1"
+									>Đang khuyến mãi</span
+								>
+								<span class="badge bg-warning" v-else-if="data.item.is_active == 0"
+									>Chưa khuyến mãi</span
+								>
 							</template>
 						</b-table>
 					</div>
@@ -270,13 +261,13 @@
 					<!-- end phân trang -->
 
 					<!-- tạo form -->
-					<DialogAddUpdateSapMapping
+					<DialogAddUpdateCustomerPromotion
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
 						:refetchData="fetchData"
-					></DialogAddUpdateSapMapping>
-					<DialogImportExcelToCreateMapping />
+					></DialogAddUpdateCustomerPromotion>
+					<!-- <DialogImportExcelToCreateMapping /> -->
 
 					<!-- end tạo form -->
 				</div>
@@ -290,15 +281,15 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import Vue from 'vue';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import DialogAddUpdateSapMapping from './dialogs/DialogAddUpdateSapMapping.vue';
-	import DialogImportExcelToCreateMapping from './dialogs/DialogImportExcelToCreateMapping.vue';
+	import DialogAddUpdateCustomerPromotion from './dialogs/DialogAddUpdateCustomerPromotion.vue';
+	// import DialogImportExcelToCreateMapping from './dialogs/DialogImportExcelToCreateMapping.vue';
 
 	export default {
 		components: {
 			Treeselect,
 			Vue,
-			DialogAddUpdateSapMapping,
-			DialogImportExcelToCreateMapping,
+			DialogAddUpdateCustomerPromotion,
+			// DialogImportExcelToCreateMapping,
 		},
 		data() {
 			return {
@@ -309,7 +300,6 @@
 				search_pattern: '',
 
 				form_filter: {
-					customer_group: null,
 					customer_material: null,
 					sap_materials: [],
 				},
@@ -332,38 +322,20 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'customer_material.customer_group.name',
-						label: 'Nhóm khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
 						key: 'customer_material.customer_sku_code',
-						label: 'Mã SKU khách hàng',
+						label: 'Mã khách hàng SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'customer_material.customer_sku_name',
-						label: 'Tên SKU khách hàng',
+						label: 'Tên khách hàng SAP',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
 					{
-						key: 'customer_material.customer_sku_unit',
-						label: 'Đơn vị SKU khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
 						key: 'sap_material.sap_code',
 						label: 'Mã SAP',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'sap_material.unit.unit_code',
-						label: 'Đơn vị tính SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -375,10 +347,10 @@
 						class: 'text-nowrap text-left',
 					},
 					{
-						key: 'percentage',
-						label: 'Tỉ lệ sản phẩm',
+						key: 'is_active',
+						label: 'Khuyến mãi',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'action',
@@ -387,9 +359,9 @@
 					},
 				],
 				sap_materials: [],
-				sap_material_mappings: [],
+				customer_promotions: [],
 				customer_options: [],
-				api_url: 'api/master/sap-material-mappings',
+				api_url: 'api/master/customer-promotions',
 			};
 		},
 		created() {
@@ -400,13 +372,12 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
 
 					if (Array.isArray(data)) {
-						this.sap_material_mappings = data;
+						this.customer_promotions = data;
 					}
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -417,18 +388,16 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_group_options, customer_options, sap_material_mappings] =
+					const [customer_options, customer_promotions] =
 						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/customer-groups'),
 							new APIRequest('get', '/api/master/customer-materials'),
-							new APIRequest('get', '/api/master/sap-material-mappings'),
+							new APIRequest('get', '/api/master/customer-promotions'),
 						]);
-					this.customer_group_options = customer_group_options;
-					this.sap_material_mappings = sap_material_mappings;
+					this.customer_promotions = customer_promotions;
 					this.customer_options = customer_options.map((customer_material) => {
 						return {
 							id: customer_material.id,
-							label: `(${customer_material.customer_sku_code})(${customer_material.customer_sku_unit}) ${customer_material.customer_sku_name}  `,
+							label: `(${customer_material.customer_sku_code}) ${customer_material.customer_sku_name}  `,
 						};
 					});
 				} catch (error) {
@@ -457,7 +426,7 @@
 					let options = data.map((item) => {
 						return {
 							id: item.id,
-							label: `(${item.sap_code}) (${item.unit.unit_code}) ${item.name}`,
+							label: `(${item.sap_code}) ${item.name}`,
 						};
 					});
 					// console.log(data);
@@ -472,14 +441,13 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-                        customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');
 
-					this.sap_material_mappings = data;
+					this.customer_promotions = data;
 					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -493,24 +461,21 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					this.form_filter.customer_group = null;
 					this.form_filter.customer_material = null;
 					this.form_filter.sap_material = []; // Ensure it is an array
-
-					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			async deleteSapMapping(id) {
+			async deleteCustomerPromotion(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
 						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.sap_material_mappings = result.data;
+								this.customer_promotions = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
 							await this.fetchData(); // Load the data again after successful deletion
@@ -525,40 +490,40 @@
 			showCreateDialog() {
 				this.is_editing = false;
 				this.editing_item = {};
-				$('#DialogAddUpdateSapMapping').modal('show');
+				$('#DialogAddUpdateCustomerPromotion').modal('show');
 			},
 			showEditDialog(item) {
 				this.is_editing = true;
 				this.editing_item = item;
-				$('#DialogAddUpdateSapMapping').modal('show');
+				$('#DialogAddUpdateCustomerPromotion').modal('show');
 			},
 			showExcelDialog() {
-				$('#DialogImportExcelToCreateMapping').modal('show');
+				$('#DialogAddUpdateCustomerPromotion').modal('show');
 			},
-			async exportToExcel() {
-				try {
-					const response = await this.api_handler.get(
-						`api/master/sap-material-mappings/exportToExcel`,
-						{},
-						'blob',
-					);
-					const blobData = new Blob([response]);
+			// async exportToExcel() {
+			// 	try {
+			// 		const response = await this.api_handler.get(
+			// 			`api/master/sap-material-mappings/exportToExcel`,
+			// 			{},
+			// 			'blob',
+			// 		);
+			// 		const blobData = new Blob([response]);
 
-					const url = window.URL.createObjectURL(blobData);
-					const link = document.createElement('a');
-					link.href = url;
-					link.setAttribute('download', 'Dữ liệu Mapping SAP.xlsx');
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
+			// 		const url = window.URL.createObjectURL(blobData);
+			// 		const link = document.createElement('a');
+			// 		link.href = url;
+			// 		link.setAttribute('download', 'Dữ liệu Mapping SAP.xlsx');
+			// 		document.body.appendChild(link);
+			// 		link.click();
+			// 		document.body.removeChild(link);
 
-					// Giải phóng URL đã tạo ra
-					window.URL.revokeObjectURL(url);
-				} catch (error) {
-					// Xử lý lỗi khi không thể tải xuống file
-					console.error(error);
-				}
-			},
+			// 		// Giải phóng URL đã tạo ra
+			// 		window.URL.revokeObjectURL(url);
+			// 	} catch (error) {
+			// 		// Xử lý lỗi khi không thể tải xuống file
+			// 		console.error(error);
+			// 	}
+			// },
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
@@ -586,7 +551,7 @@
 		},
 		computed: {
 			rows() {
-				return this.sap_material_mappings.length;
+				return this.customer_promotions.length;
 			},
 		},
 	};

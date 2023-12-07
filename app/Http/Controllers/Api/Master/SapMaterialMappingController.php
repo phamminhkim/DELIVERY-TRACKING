@@ -6,6 +6,8 @@ use App\Http\Controllers\BaseController\ResponseController;
 use App\Http\Controllers\Controller;
 use App\Repositories\MasterRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class SapMaterialMappingController extends ResponseController
 {
@@ -22,7 +24,17 @@ class SapMaterialMappingController extends ResponseController
             return $this->responseError($message, $errors);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMappings = $handler->exportToExcel();
 
+        if ($sapMaterialMappings) {
+            return $this->responseSuccess($sapMaterialMappings);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function getAvailableSapMaterialMappings(Request $request)
     {
 
@@ -35,42 +47,50 @@ class SapMaterialMappingController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-     //add
-     public function createNewSapMaterialMappings(Request $request)
-     {
+    public function download($filename)
+    {
+        $filePath = public_path('excel/' . $filename);
 
-         $handler = MasterRepository::sapMaterialMappingRequest($request);
-         $sapMaterialMapping = $handler->createNewSapMaterialMappings($request->all());
-
-         if ($sapMaterialMapping) {
-             return $this->responseSuccess($sapMaterialMapping);
-         } else {
-             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
-         }
-     }
-     //update
-     public function updateSapMaterialMapping(Request $request, $id)
-{
-    $handler = MasterRepository::sapMaterialMappingRequest($request);
-    $sapMaterialMapping = $handler->updateSapMaterialMapping($id, $request->all());
-
-    if ($sapMaterialMapping) {
-        return $this->responseSuccess($sapMaterialMapping);
-    } else {
-        return $this->responseError($handler->getMessage(), $handler->getErrors());
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        }
     }
-}
-     public function deleteExistingSapMaterialMapping(Request $request, $id)
-     {
-         $handler = MasterRepository::sapMaterialMappingRequest($request);
-         $is_success = $handler->deleteExistingSapMaterialMapping($id);
+    //add
+    public function createNewSapMaterialMappings(Request $request)
+    {
 
-         if ($is_success) {
-             return $this->responseOk();
-         } else {
-             $message = $handler->getMessage();
-             $errors = $handler->getErrors();
-             return $this->responseError($message, $errors);
-         }
-     }
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMapping = $handler->createNewSapMaterialMappings($request->all());
+
+        if ($sapMaterialMapping) {
+            return $this->responseSuccess($sapMaterialMapping);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
+    //update
+    public function updateSapMaterialMapping(Request $request, $id)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $sapMaterialMapping = $handler->updateSapMaterialMapping($id, $request->all());
+
+        if ($sapMaterialMapping) {
+            return $this->responseSuccess($sapMaterialMapping);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
+    public function deleteExistingSapMaterialMapping(Request $request, $id)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $is_success = $handler->deleteExistingSapMaterialMapping($id);
+
+        if ($is_success) {
+            return $this->responseOk();
+        } else {
+            $message = $handler->getMessage();
+            $errors = $handler->getErrors();
+            return $this->responseError($message, $errors);
+        }
+    }
 }

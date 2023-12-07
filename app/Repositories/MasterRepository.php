@@ -21,6 +21,8 @@ use App\Repositories\Master\OrderReviewOptionRepository;
 use App\Repositories\Master\SapMaterialRepository;
 use App\Repositories\Master\SapUnitRepository;
 use App\Repositories\Master\CustomerMaterialRepository;
+use App\Repositories\Master\CustomerGroupPivotRepository;
+use App\Repositories\Master\CustomerPromotionRepository;
 
 use Illuminate\Http\Request;
 
@@ -99,5 +101,13 @@ class MasterRepository
     public static function customerGroupRequest(Request $request)
     {
         return new CustomerGroupRepository($request);
+    }
+    public static function customerGroupPivotRequest(Request $request)
+    {
+        return new CustomerGroupPivotRepository($request);
+    }
+    public static function customerPromotionRequest(Request $request)
+    {
+        return new CustomerPromotionRepository($request);
     }
 }

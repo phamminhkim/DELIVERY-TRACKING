@@ -13,6 +13,8 @@ class RawExtractItem extends Model
         'raw_extract_header_id',
         'customer_material_id',
         'quantity',
+        'price',
+        'amount',
         'file_id'
     ];
 

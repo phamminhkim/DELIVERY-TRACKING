@@ -31,6 +31,10 @@ class SapMaterialRepository extends RepositoryAbs
             if ($this->request->filled('ids')) {
                 $query->whereIn('id', $this->request->ids);
             }
+            if ($this->request->filled('id')) {
+                $query->where('id', $this->request->id);
+            }
+
 
             if ($is_minified) {
                 $query->select('id', 'name', 'sap_code', 'unit_id');
