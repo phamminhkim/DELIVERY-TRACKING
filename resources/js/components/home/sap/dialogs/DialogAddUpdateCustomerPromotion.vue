@@ -33,7 +33,6 @@
 					</div>
 
 					<div class="modal-body">
-
 						<div class="form-group" v-if="!editing_item || !editing_item.id">
 							<label>SKU SAP</label>
 							<!-- <small class="text-danger"></small> -->
@@ -44,6 +43,7 @@
 								:load-options="loadOptions"
 								:async="true"
 							/>
+
 							<span
 								v-if="hasError('sap_material_id')"
 								class="invalid-feedback"
@@ -60,8 +60,15 @@
 								placeholder="Chọn sản phẩm.."
 								required
 								:load-options="loadOptions"
+								:disabled="is_editing"
 								:async="true"
 							/>
+							<span
+								v-if="is_editing"
+								class="readonly-text"
+								style="color: red; font-style: italic"
+								>Không được phép chỉnh sửa</span
+							>
 							<span
 								v-if="hasError('sap_material_id')"
 								class="invalid-feedback"
@@ -70,33 +77,59 @@
 								<strong>{{ getError('sap_material_id') }}</strong>
 							</span>
 						</div>
-
 						<div class="form-group">
-							<label>Mã khách hàng SAP</label>
-
-                            <treeselect
-										placeholder="Mã/tên sản phẩm khách hàng.."
-										:multiple="true"
-										id="customer_material_id"
-										:disable-branch-nodes="false"
-										v-model="customer_promotion.customer_material_id"
-										:options="customer_options"
-                                        v-bind:class="hasError('customer_material_id') ? 'is-invalid' : ''"
-									></treeselect>
-
+							<label>Nhóm khách hàng</label>
+							<small class="text-danger">(*)</small>
+							<treeselect
+								v-model="customer_promotion.customer_group_id"
+								:multiple="false"
+								id="customer_group_id"
+								placeholder="Chọn nhóm khách hàng.."
+								required
+								:options="customer_group_options"
+								:normalizer="normalizer"
+								v-bind:class="hasError('customer_group_id') ? 'is-invalid' : ''"
+							></treeselect>
 							<span
-								v-if="hasError('customer_material_id')"
+								v-if="hasError('customer_group_id')"
 								class="invalid-feedback"
 								role="alert"
 							>
-								<strong>{{ getError('customer_material_id') }}</strong>
-								<!-- <div v-for="(error, index) in getError('customer_sku_code')" :key="index">
-                                    <strong>{{ error }}</strong>
-                                    <br />
-                                </div> -->
+								<strong>{{ getError('customer_group_id') }}</strong>
 							</span>
 						</div>
 
+						<div class="form-group">
+							<label>Khách hàng</label>
+							<small class="text-danger">(*)</small>
+							<treeselect
+								placeholder="Chọn khách hàng.."
+								v-model="customer_promotion.customer_id"
+								:options="load_customer_id_options"
+								v-bind:class="hasError('customer_id') ? 'is-invalid' : ''"
+								required
+							></treeselect>
+
+							<span
+								v-if="hasError('customer_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('customer_id') }}</strong>
+							</span>
+						</div>
+						<div class="form-group">
+							<label>Trạng thái</label>
+							<input
+								class="form-check-input"
+								type="checkbox"
+								id="is_active"
+								v-model="is_active"
+								:value="true"
+								:false-value="false"
+								@change="$emit('update:is_active', is_active)"
+							/>
+						</div>
 					</div>
 
 					<div class="modal-footer justify-content-between">
@@ -138,16 +171,19 @@
 
 				is_loading: false,
 				errors: {},
+				is_active: true,
 
 				customer_promotion: {
-					// customer_sku_code: '',
-					// customer_sku_name: '',
-					customer_material_id: null,
+					customer_id: null,
+					customer_group_id: null,
 					sap_material_id: null,
 					sap_material_code: null,
+					id: '',
 				},
-				customer_options: [],
+				customer_group_options: [],
 				customer_promotions: [],
+
+				load_customer_id_options: null,
 
 				api_url: '/api/master/customer-promotions',
 			};
@@ -168,11 +204,11 @@
 			},
 			async createCustomerPromotion() {
 				try {
+					console.log('createCustomerPromotion');
 					this.is_loading = true;
 					const data = await this.api_handler.post('/api/master/customer-promotions', {
-						customer_material_id: parseInt(
-							this.customer_promotion.customer_material_id,
-						),
+						customer_group_id: this.customer_promotion.customer_group_id,
+						customer_id: this.customer_promotion.customer_id,
 						sap_material_id: parseInt(this.customer_promotion.sap_material_id),
 					});
 					if (data.success) {
@@ -221,16 +257,12 @@
 			},
 
 			async fetchOptionsData() {
-				const [ customer_options] =
+				const [customer_group_options, companies, customer_id_options] =
 					await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/customer-materials'),
+						new APIRequest('get', '/api/master/customer-groups'),
 					]);
-				this.customer_options = customer_options.map((customer_material) => {
-					return {
-						id: customer_material.id,
-						label: `(${customer_material.customer_sku_code}) ${customer_material.customer_sku_name}`,
-					};
-				});
+				this.customer_group_options = customer_group_options;
+				this.customer_id_options = customer_id_options;
 			},
 			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
@@ -250,7 +282,17 @@
 					callback(null, options);
 				}
 			},
-			normalizerOption(node) {
+			async loadOptionsCustomer({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const { data } = await this.api_handler.get('api/master/customers/minified', {
+						search: searchQuery,
+					});
+					const options = data;
+					callback(null, options);
+				}
+			},
+
+			normalizer(node) {
 				return {
 					id: node.id,
 					label: node.name,
@@ -263,19 +305,15 @@
 			},
 			resetDialog() {
 				this.customer_promotion.sap_material_id = null;
-				this.customer_promotion.customer_material_id = null;
-				// this.customer_promotion.customer_sku_code = '';
-				// this.customer_promotion.customer_sku_name = '';
-				// this.customer_promotion.sap_material_code = null;
+				this.customer_promotion.customer_group_id = null;
+				this.customer_promotion.customer_id = null;
 				this.clearErrors();
 			},
 
 			clearForm() {
 				this.customer_promotion.sap_material_id = null;
-				this.customer_promotion.customer_material_id = null;
-				// this.customer_promotion.customer_sku_code = null;
-				// this.customer_promotion.customer_sku_name = null;
-				// this.customer_promotion.sap_material_code = null;
+				this.customer_promotion.customer_group_id = null;
+				this.customer_promotion.customer_id = null;
 			},
 			clearErrors() {
 				this.errors = {};
@@ -316,19 +354,35 @@
 			},
 			editing_item: function (item) {
 				console.log(item);
-				// this.customer_promotion.customer_sku_code =
-				// 	item.customer_material.customer_sku_code;
-				// this.customer_promotion.customer_sku_name =
-				// 	item.customer_material.customer_sku_name;
-				// this.customer_promotion.customer_sku_unit =
-				// 	item.customer_material.customer_sku_unit;
-				this.customer_promotion.customer_material_id = item.customer_material_id;
+				this.customer_promotion.customer_group_id = item.customer_group_id;
+				this.customer_promotion.customer_id = item.customer_id;
 				this.customer_promotion.sap_material_id = item.sap_material_id;
-				// this.customer_promotion.sap_material_code = item.sap_material.sap_code;
+				this.customer_promotion.sap_material_code = item.sap_material.sap_code;
 				this.customer_promotion.id = item.id;
+			},
+			load_customer_group_id() {
+				this.load_customer_id_options = [];
+				let load_customer_id_options = this.customer_group_options.find(
+					(customer_group) => {
+						return customer_group.id == this.load_customer_group_id;
+					},
+				)?.customers;
+				this.load_customer_id_options = load_customer_id_options
+					? load_customer_id_options.map((customer) => {
+							return {
+								id: customer.id,
+								label: `(${customer.code}) ${customer.name}`,
+							};
+					  })
+					: [];
+
+				// this.load_extract_order_config_options = [];
 			},
 		},
 		computed: {
+			load_customer_group_id() {
+				return this.customer_promotion.customer_group_id;
+			},
 			rows() {
 				return this.customer_promotions.length;
 			},

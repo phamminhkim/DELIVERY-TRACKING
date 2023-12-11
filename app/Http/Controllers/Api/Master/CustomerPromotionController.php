@@ -35,10 +35,10 @@ class CustomerPromotionController extends ResponseController
     {
 
         $handler = MasterRepository::customerPromotionRequest($request);
-        $customerPromotions = $handler->updateExistingCustomerPromotion($id);
+        $customerPromotion = $handler->updateExistingCustomerPromotion($id);
 
-        if ($customerPromotions) {
-            return $this->responseSuccess($customerPromotions);
+        if ($customerPromotion) {
+            return $this->responseSuccess($customerPromotion);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
