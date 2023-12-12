@@ -23,9 +23,11 @@ class CustomerPromotionRepository extends RepositoryAbs
                 $query->search($this->request->search);
                 $query->limit(200);
             }
-
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
+                if (!is_array($customer_group_ids)) {
+                    $customer_group_ids = explode(',', $customer_group_ids);
+                }
                 $query->whereIn('customer_group_id', $customer_group_ids);
             }
             if ($this->request->filled('customer_ids')) {
