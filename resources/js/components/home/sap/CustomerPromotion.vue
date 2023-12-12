@@ -76,7 +76,7 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên đối chiếu sản phẩm</label
+									>Mã/tên sản phẩm SAP</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
@@ -372,9 +372,9 @@
 					},
 					{
 						key: 'sap_material.unit.unit_code',
-						label: 'Tên sản phẩm SAP',
+						label: 'Đơn vị tính SAP',
 						sortable: true,
-						class: 'text-nowrap text-left',
+						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'is_active',

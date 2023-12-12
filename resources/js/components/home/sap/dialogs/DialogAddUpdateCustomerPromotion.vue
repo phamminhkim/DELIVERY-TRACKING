@@ -125,7 +125,7 @@
 								type="checkbox"
 								id="is_active"
 								v-model="is_active"
-								:value="true"
+								:true-value="true"
 								:false-value="false"
 								@change="$emit('update:is_active', is_active)"
 							/>
