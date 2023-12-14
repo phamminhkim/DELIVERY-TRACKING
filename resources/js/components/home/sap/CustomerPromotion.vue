@@ -45,7 +45,7 @@
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
-										placeholder="Chọn sản phẩm.."
+										placeholder="Nhập khách hàng.."
 										:multiple="true"
 										required
 										:load-options="loadOptionsCustomer"
@@ -453,7 +453,7 @@
 					let options = data.map((item) => {
 						return {
 							id: item.id,
-							label: `(${item.sap_code}) ${item.name}`,
+							label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
 						};
 					});
 					// console.log(data);
