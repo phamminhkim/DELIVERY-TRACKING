@@ -50,6 +50,12 @@ class UploadedFileRepository extends RepositoryAbs
                 $query->whereIn('batches.customer_id', $customer_ids);
             });
         }
+        if ($this->request->filled('status_ids')) {
+            $statusIds = $this->request->status_ids;
+            $query->whereHas('status', function ($query) use ($statusIds) {
+                $query->whereIn('status_id', $statusIds);
+            });
+        }
 
         if ($this->request->filled('from_date')) {
             $from_date = $this->request->from_date;

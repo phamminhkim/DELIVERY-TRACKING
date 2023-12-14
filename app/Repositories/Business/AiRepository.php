@@ -18,6 +18,7 @@ use App\Models\Business\RegexPattern;
 use App\Models\Business\RestructureDataConfig;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
+use App\Models\Master\CustomerPromotion;
 use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
@@ -132,7 +133,7 @@ class AiRepository extends RepositoryAbs
                 'uploaded_file_id' => $file_record->id,
             ]);
             foreach ($final_data as $item) {
-               
+
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
                     continue;
                 }
@@ -145,16 +146,16 @@ class AiRepository extends RepositoryAbs
                     $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
-                
+
                 $raw_extract_item = RawExtractItem::firstOrCreate([
                     'raw_extract_header_id' => $raw_extract_header->id,
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
-                     'price' =>  str_replace(",","", $item['ProductPrice']),
-                     'amount' => str_replace(",","",$item['ProductAmount']),
+                    'price' =>  str_replace(",", "", $item['ProductPrice']),
+                    'amount' => str_replace(",", "", $item['ProductAmount']),
                 ]);
-                Log::info(  "Test:  ");
-                Log::info( $raw_extract_item);
+                Log::info("Test:  ");
+                Log::info($raw_extract_item);
                 $created_extract_items->push($raw_extract_item);
             }
             if (count($error_extract_items) > 0) {
@@ -182,16 +183,20 @@ class AiRepository extends RepositoryAbs
                 $raw_so_header->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
                 $raw_so_header->save();
             }
+
+            $created_so_items = collect();
+            $created_promotion_items = collect();
+
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
-                // Log::info($item->customer_material);
+
                 if (count($sap_material_mappings) == 0) {
-                    // Log::info($item);
                     $error_so_items[] = 'Không tìm thấy sap material với customer material code: ' . $item->customer_material->customer_sku_code . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
+
                 foreach ($sap_material_mappings as $mapping) {
                     $sap_material = $mapping->sap_material;
                     $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
@@ -206,9 +211,62 @@ class AiRepository extends RepositoryAbs
                         'amount' => $amount,
                         'percentage' => $mapping->percentage,
                     ]);
-                    $created_so_items->push($raw_so_item);
+
+                    if ($mapping->is_promotion) {
+                        $created_promotion_items->push($raw_so_item);
+                    } else {
+                        $created_so_items->push($raw_so_item);
+                    }
                 }
+            }
+
+            // Tạo đơn hàng khuyến mãi
+            $item->load('raw_so_items');
+
+            $customer_material = $item->customer_material;
+
+            if ($customer_material) {
+                $customer_promotions = CustomerPromotion::query()
+                    ->where('customer_id', $file_record->batch->customer_id)
+                    ->get();
+
+                foreach ($customer_promotions as $customer_promotion) {
+                    $sap_material = $customer_promotion->sap_material;
+                    $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
+                    $price = $item->price;
+                    $amount = $quantity * $item->price;
+                    $note = 'Khuyến mãi';
+                    $raw_so_item_promotion = RawSoItem::firstOrCreate([
+                        'raw_extract_item_id' => $item->id,
+                        'raw_so_header_id' => $raw_so_header->id,
+                        'sap_material_id' => $sap_material->id,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                        'amount' => $amount,
+                        'percentage' => $mapping->percentage,
+                        'is_promotive' => true,
+                        'note' => $note,
+                    ]);
+
+                    $created_promotion_items->push($raw_so_item_promotion);
+                }
+
+
                 $item->load('raw_so_items');
+
+                // Bản sao của $created_so_items chứa các mục không phải khuyến mãi (đơn hàng thông thường)
+                $normal_so_items = $created_so_items->map(function ($item) {
+                    return $item->replicate();
+                });
+
+                $item->raw_so_items()->saveMany($normal_so_items);
+
+                // Bản sao của $created_promotion_items chứa các mục khuyến mãi
+                $promotion_so_items = $created_promotion_items->map(function ($item) {
+                    return $item->replicate();
+                });
+
+                $item->raw_so_items()->saveMany($promotion_so_items);
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
                 if ($extract_item_quantity < $so_items_quantity) {
