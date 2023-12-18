@@ -154,7 +154,6 @@ class AiRepository extends RepositoryAbs
                     'price' =>  str_replace(",", "", $item['ProductPrice']),
                     'amount' => str_replace(",", "", $item['ProductAmount']),
                 ]);
-             ;
                 $created_extract_items->push($raw_extract_item);
             }
             if (count($error_extract_items) > 0) {
@@ -185,7 +184,7 @@ class AiRepository extends RepositoryAbs
 
             $created_so_items = collect();
             $created_promotion_items = [];
-           
+
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
@@ -216,7 +215,7 @@ class AiRepository extends RepositoryAbs
                     if($customer_promotion){
                         $created_promotion_items[] = clone $raw_so_item;
                     }
-                   
+
                 }
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
@@ -391,14 +390,16 @@ class AiRepository extends RepositoryAbs
             if (!$extract_data_config) {
                 $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
                 $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $this->request->exclude_head_tables_count ? $this->request->exclude_head_tables_count : 0;
+                $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ? $this->request->exclude_tail_tables_count : 0;
             } else {
                 $options['is_merge_pages'] = $extract_data_config->is_merge_pages ?? false;
                 $options['flavor'] = $extract_data_config->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count: 0;
+                $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count: 0;
             }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
-        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
-        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
         $choosen_tables = [];
         for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
             $choosen_tables[] = $tables[$i];
