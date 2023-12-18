@@ -154,8 +154,7 @@ class AiRepository extends RepositoryAbs
                     'price' =>  str_replace(",", "", $item['ProductPrice']),
                     'amount' => str_replace(",", "", $item['ProductAmount']),
                 ]);
-                Log::info("Test:  ");
-                Log::info($raw_extract_item);
+             ;
                 $created_extract_items->push($raw_extract_item);
             }
             if (count($error_extract_items) > 0) {
@@ -185,13 +184,14 @@ class AiRepository extends RepositoryAbs
             }
 
             $created_so_items = collect();
-            $created_promotion_items = collect();
-
+            $created_promotion_items = [];
+           
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
-
+                Log::info("sap_material_mappings");
+                Log::info($sap_material_mappings);
                 if (count($sap_material_mappings) == 0) {
                     $error_so_items[] = 'Không tìm thấy sap material với customer material code: ' . $item->customer_material->customer_sku_code . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
@@ -211,62 +211,13 @@ class AiRepository extends RepositoryAbs
                         'amount' => $amount,
                         'percentage' => $mapping->percentage,
                     ]);
-
-                    if ($mapping->is_promotion) {
-                        $created_promotion_items->push($raw_so_item);
-                    } else {
-                        $created_so_items->push($raw_so_item);
+                    $created_so_items->push($raw_so_item);
+                    $customer_promotion = CustomerPromotion::where('sap_material_id',$sap_material->id)->first();
+                    if($customer_promotion){
+                        $created_promotion_items[] = clone $raw_so_item;
                     }
+                   
                 }
-            }
-
-            // Tạo đơn hàng khuyến mãi
-            $item->load('raw_so_items');
-
-            $customer_material = $item->customer_material;
-
-            if ($customer_material) {
-                $customer_promotions = CustomerPromotion::query()
-                    ->where('customer_id', $file_record->batch->customer_id)
-                    ->get();
-
-                foreach ($customer_promotions as $customer_promotion) {
-                    $sap_material = $customer_promotion->sap_material;
-                    $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
-                    $price = $item->price;
-                    $amount = $quantity * $item->price;
-                    $note = 'Khuyến mãi';
-                    $raw_so_item_promotion = RawSoItem::firstOrCreate([
-                        'raw_extract_item_id' => $item->id,
-                        'raw_so_header_id' => $raw_so_header->id,
-                        'sap_material_id' => $sap_material->id,
-                        'quantity' => $quantity,
-                        'price' => $price,
-                        'amount' => $amount,
-                        'percentage' => $mapping->percentage,
-                        'is_promotive' => true,
-                        'note' => $note,
-                    ]);
-
-                    $created_promotion_items->push($raw_so_item_promotion);
-                }
-
-
-                $item->load('raw_so_items');
-
-                // Bản sao của $created_so_items chứa các mục không phải khuyến mãi (đơn hàng thông thường)
-                $normal_so_items = $created_so_items->map(function ($item) {
-                    return $item->replicate();
-                });
-
-                $item->raw_so_items()->saveMany($normal_so_items);
-
-                // Bản sao của $created_promotion_items chứa các mục khuyến mãi
-                $promotion_so_items = $created_promotion_items->map(function ($item) {
-                    return $item->replicate();
-                });
-
-                $item->raw_so_items()->saveMany($promotion_so_items);
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
                 if ($extract_item_quantity < $so_items_quantity) {
@@ -286,7 +237,38 @@ class AiRepository extends RepositoryAbs
             $converted_status = FileStatus::query()->where('code', FileStatuses::CONVERTED)->first();
             $file_record->status_id = $converted_status->id;
             $file_record->save();
-
+            //Tao đơn hàng KM
+            if($created_promotion_items && count($created_promotion_items) >0);
+            {
+                $raw_so_header_promotion = RawSoHeader::firstOrCreate(
+                    array_merge(
+                        $raw_extract_header->toArray(),
+                        [
+                            'raw_extract_header_id' => $raw_so_header->raw_extract_header_id,
+                            'po_person' => $file_record->batch->customer->name,
+                            'po_phone' => $file_record->batch->customer->phone_number,
+                            'po_email' => $file_record->batch->customer->email,
+                            'po_delivery_address' => $file_record->batch->customer->address,
+                            'note' => 'Đơn hàng khuyến mãi'
+                        ]
+                    )
+                );
+                if (!$raw_so_header_promotion->serial_number) {
+                    $raw_so_header_promotion->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
+                    $raw_so_header_promotion->save();
+                }
+                foreach($created_promotion_items as $promotion_itm){
+                    $raw_so_item = RawSoItem::firstOrCreate([
+                        'raw_extract_item_id' => $promotion_itm->raw_extract_item_id,
+                        'raw_so_header_id' => $raw_so_header_promotion->id,
+                        'sap_material_id' => $promotion_itm->sap_material_id,
+                        'quantity' =>  $promotion_itm->quantity,
+                        'price' => $promotion_itm->price,
+                        'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
+                        'percentage' => '100',
+                    ]);
+                }
+            }
             DB::commit();
             return array(
                 'created_extract_items' => $created_extract_items,
