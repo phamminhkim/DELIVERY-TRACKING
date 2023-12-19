@@ -14,7 +14,10 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
             $output = [];
             foreach ($structure as $key => $value_item) {
                 if ($value_item['value']) {
-                    $output[$key] = $match[$value_item['value']];
+                    $output[$key] = $match[$value_item['value']] ?
+                    $match[$value_item['value']] :
+                    (isset($value_item['default']) ? $value_item['default'] :
+                    $match[$value_item['value']]);
                 } else {
                     $output[$key] = $value_item['default'];
                 }
