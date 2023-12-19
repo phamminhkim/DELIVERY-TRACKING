@@ -13,7 +13,11 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
         foreach ($data as $match) {
             $output = [];
             foreach ($structure as $key => $value_item) {
-                $output[$key] = $match[$value_item['value']];
+                if ($value_item['value']) {
+                    $output[$key] = $match[$value_item['value']];
+                } else {
+                    $output[$key] = $value_item['default'];
+                }
             }
             // Check trường bắt buộc mà không có giá trị thì skip row
             if ($this->isValidArrayValue($output, $structure)) {
