@@ -1,56 +1,74 @@
 <template>
-    <div class="modal fade" id="DialogImportExcelToCreateMapping" tabindex="-1" role="dialog" data-backdrop="static">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <form @submit.prevent="createNewMapping">
-            <div class="modal-header">
-              <h4 class="modal-title">
-                <span>Tạo dữ liệu mới từ excel</span>
-              </h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+	<div
+		class="modal fade"
+		id="DialogImportExcelToCreateMapping"
+		tabindex="-1"
+		role="dialog"
+		data-backdrop="static"
+	>
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<form @submit.prevent="createNewMapping">
+					<div class="modal-header">
+						<h4 class="modal-title">
+							<span>Tạo dữ liệu mới từ excel</span>
+						</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
 
-            <div class="modal-body">
-              <div class="form-group">
-                <label>File</label>
-                <small class="text-danger">(*)</small>
-                <b-form-file
-                  v-model="form.file"
-                  :state="Boolean(form.file)"
-                  placeholder="Choose a file or drop it here..."
-                  drop-placeholder="Drop file here..."
-                  v-bind:class="hasError('file') ? 'is-invalid' : ''"
-                ></b-form-file>
-                <span v-if="hasError('file')" class="text-danger">{{ getError('file') }}</span>
-                <div class="mt-3">
-                  Selected file: {{ form.file ? form.file.name : '' }}
-                </div>
-              </div>
-              <div class="form-group">
-                <a href="#" @click="downloadTemplate">Download template file mẫu</a>
-              </div>
-            </div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label>File</label>
+							<small class="text-danger">(*)</small>
+							<b-form-file
+								v-model="form.file"
+								:state="Boolean(form.file)"
+								placeholder="Choose a file or drop it here..."
+								drop-placeholder="Drop file here..."
+								v-bind:class="hasError('file') ? 'is-invalid' : ''"
+							></b-form-file>
+							<span v-if="hasError('file')" class="text-danger">{{
+								getError('file')
+							}}</span>
+							<div class="mt-3">
+								Selected file: {{ form.file ? form.file.name : '' }}
+							</div>
+						</div>
+						<div class="form-group">
+							<a href="#" @click="downloadTemplate">Download template file mẫu</a>
+						</div>
+					</div>
+					<!-- Hiển thị thông báo lỗi -->
+					<div class="modal-body">
+						<div v-if="errors.length > 0" >
+							<div class="alert alert-danger">
+								<ul>
+									<li v-for="error in errors" :key="error">{{ error }}</li>
+								</ul>
+							</div>
+						</div>
+					</div>
 
-            <div class="modal-footer justify-content-between">
-              <button type="submit" title="Submit" class="btn btn-primary" id="submit-btn">Tạo mới</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-            </div>
-          </form>
-
-          <!-- Hiển thị thông báo lỗi -->
-          <div v-if="errors.length > 0" class="modal-footer">
-            <div class="alert alert-danger">
-              <ul>
-                <li v-for="error in errors" :key="error">{{ error }}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
+					<div class="modal-footer justify-content-between">
+						<button
+							type="submit"
+							title="Submit"
+							class="btn btn-primary"
+							id="submit-btn"
+						>
+							Tạo mới
+						</button>
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</template>
 
 <script>
 	import Vue, { reactive } from 'vue';
@@ -105,18 +123,22 @@
 						);
 
 					if (data.success) {
+						if (Array.isArray(data)) {
+							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
-						await this.refetchData(); // Load the data again after successful creation
+						this.resetForm();
 					} else {
-						this.errors = data.errors; // Gán giá trị lỗi từ API vào biến errors
-						this.showMessage('error', 'Thêm không thành công', this.errors);
+						this.errors = data.errors;
+						this.showMessage('error', 'Thêm không thành công');
+						this.resetForm();
 					}
 				} catch (error) {
 					this.showMessage('error', 'Thêm không thành công');
+					this.resetForm();
 				} finally {
 					this.is_loading = false;
-					this.resetForm();
 				}
 			},
 
@@ -138,12 +160,17 @@
 			getError(fieldName) {
 				return this.errors[fieldName];
 			},
+			clearErrors() {
+				this.errors.splice(0, this.errors.length);
+			},
+            resetDialog() {
+				this.clearErrors();
+			},
+
 			resetForm() {
 				this.form = {
 					file: null,
 				};
-
-				this.error_message = '';
 			},
 			getToastClassByType(type) {
 				switch (type) {
@@ -158,6 +185,8 @@
 				}
 			},
 			closeDialog() {
+				this.resetForm();
+				this.clearErrors();
 				$('#DialogImportExcelToCreateMapping').modal('hide');
 			},
 			addPropertyToObject(obj, key, value) {

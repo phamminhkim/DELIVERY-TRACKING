@@ -114,21 +114,15 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     $result->push($sap_material_mapping);
                 }
                 DB::commit();
-                // return array(
-                //     "created_list" => $result,
-                //     "errors" => $this->errors
-                // );
-                $response['created_list'] = $result;
+                return array(
+                    "created_list" => $result,
+                    "errors" => $this->errors
+                );
             }
         } catch (\Exception $exception) {
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-
-            return array(
-                "created_list" => [],
-                "errors" => $this->errors
-            );
         }
     }
 
