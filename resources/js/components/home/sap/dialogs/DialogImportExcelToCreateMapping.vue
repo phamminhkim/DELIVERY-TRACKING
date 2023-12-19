@@ -186,7 +186,7 @@
 			},
 			closeDialog() {
 				this.resetForm();
-				this.clearErrors();
+				this.resetDialog();
 				$('#DialogImportExcelToCreateMapping').modal('hide');
 			},
 			addPropertyToObject(obj, key, value) {
