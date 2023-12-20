@@ -388,13 +388,13 @@ class AiRepository extends RepositoryAbs
         $options = array();
         if ($this->data_extractor instanceof CamelotExtractorService) {
             if (!$extract_data_config) {
-                $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
-                $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $options['is_merge_pages'] = $this->request->is_merge_pages == 'true' ? true : false;
+                $options['flavor'] = $this->request->camelot_flavor ? $this->request->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $exclude_head_tables_count = $this->request->exclude_head_tables_count ? $this->request->exclude_head_tables_count : 0;
                 $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ? $this->request->exclude_tail_tables_count : 0;
             } else {
-                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ?? false;
-                $options['flavor'] = $extract_data_config->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ? $extract_data_config->is_merge_pages : false;
+                $options['flavor'] = $extract_data_config->camelot_flavor ? $extract_data_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count: 0;
                 $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count: 0;
             }
