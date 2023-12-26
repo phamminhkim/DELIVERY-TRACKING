@@ -12,13 +12,18 @@ class CustomerPromotion extends Model
 
     // Các trường (columns) trong bảng
     protected $fillable = [
-        'customer_material_id',
+        'customer_group_id',
+        'customer_id',
         'sap_material_id',
         'is_active',
     ];
-    public function customer_material()
+    public function customer_group()
     {
-        return $this->belongsTo(CustomerMaterial::class);
+        return $this->belongsTo(CustomerGroup::class);
+    }
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function sap_material()

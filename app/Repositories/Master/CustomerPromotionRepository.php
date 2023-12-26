@@ -3,17 +3,17 @@
 namespace App\Repositories\Master;
 
 use App\Models\Master\CustomerPromotion;
-use App\Models\Master\CustomerMaterial;
+use App\Models\Master\CustomerGroup;
+use App\Models\Master\Customer;
 use App\Models\Master\SapMaterial;
-use App\Models\Master\SapMaterialMapping;
-use App\Models\Master\SapUnit;
 use App\Repositories\Abstracts\RepositoryAbs;
-use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CustomerPromotionRepository extends RepositoryAbs
 {
+
     public function getAvailableCustomerPromotions()
     {
         try {
@@ -23,10 +23,16 @@ class CustomerPromotionRepository extends RepositoryAbs
                 $query->search($this->request->search);
                 $query->limit(200);
             }
-
-            if ($this->request->filled('customer_material_ids')) {
-                $customer_material_ids = $this->request->customer_material_ids;
-                $query->whereIn('customer_material_id', $customer_material_ids);
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                if (!is_array($customer_group_ids)) {
+                    $customer_group_ids = explode(',', $customer_group_ids);
+                }
+                $query->whereIn('customer_group_id', $customer_group_ids);
+            }
+            if ($this->request->filled('customer_ids')) {
+                $customer_ids = $this->request->customer_ids;
+                $query->whereIn('customer_id', $customer_ids);
             }
 
             if ($this->request->filled('sap_material_ids')) {
@@ -35,11 +41,15 @@ class CustomerPromotionRepository extends RepositoryAbs
             }
 
             $query->with([
-                'customer_material' => function ($query) {
-                    $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
+                'customer' => function ($query) {
+                    $query->select(['id', 'code', 'name']);
+                },
+                'customer_group' => function ($query) {
+                    $query->select(['id', 'name']);
                 },
                 'sap_material' => function ($query) {
                     $query->select(['id', 'sap_code', 'unit_id', 'name']);
+                    $query->with('unit:id,unit_code');
                 },
             ]);
 
@@ -56,12 +66,16 @@ class CustomerPromotionRepository extends RepositoryAbs
     {
         try {
             DB::beginTransaction();
+
             $validator = Validator::make($this->data, [
-                'customer_material_id' => 'required|integer|exists:customer_materials,id',
+                'customer_group_id' => 'required|integer|exists:customer_groups,id',
+                'customer_id' => 'required|integer|exists:customers,id',
                 'sap_material_id' => 'required|integer|exists:sap_materials,id',
             ], [
-                'customer_material_id.required' => 'Yêu cầu nhập mã khách hàng SAP.',
-                'customer_material_id.integer' => 'Mã khách hàng SAP phải là số nguyên.',
+                'customer_group_id.required' => 'Yêu cầu nhập nhóm khách hàng.',
+                'customer_group_id.integer' => 'Nhóm khách hàng phải là số nguyên.',
+                'customer_id.required' => 'Yêu cầu nhập mã khách hàng.',
+                'customer_id.integer' => 'Mã khách hàng phải là số nguyên.',
                 'sap_material_id.required' => 'Yêu cầu nhập mã đối chiếu.',
                 'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
                 'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
@@ -72,25 +86,54 @@ class CustomerPromotionRepository extends RepositoryAbs
                 return false;
             }
 
-            $sap_material = SapMaterial::find($this->data['sap_material_id']);
+            $customer_group_id = $this->data['customer_group_id'];
+            $customer_id = $this->data['customer_id'];
+            $sap_material_id = $this->data['sap_material_id'];
+
+            // Check if the customer in the given customer group already has a sap_material_id
+            $existingPromotion = CustomerPromotion::where('customer_group_id', $customer_group_id)
+                ->where('customer_id', $customer_id)
+                ->where('sap_material_id', $sap_material_id)
+                ->first();
+
+            if ($existingPromotion) {
+                // if ($existingPromotion->customer_group_id == $customer_group_id) {
+                //     $this->errors['customer_group_id'] = 'Khách hàng trong nhóm khách hàng đã có mã sản phẩm SAP này.';
+                // }
+
+                if ($existingPromotion->customer_id == $customer_id) {
+                    $this->errors['customer_id'] = 'Khách hàng trong nhóm khách hàng đã có mã sản phẩm SAP này.';
+                }
+
+                return false;
+            }
+
+            $sap_material = SapMaterial::find($sap_material_id);
             if (!$sap_material) {
-                $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $this->data['sap_material_id'];
+                $this->errors[] = 'Không tìm thấy mã đối chiếu sản phẩm ' . $sap_material_id;
                 return false;
             }
 
-            $customer_material = CustomerMaterial::find($this->data['customer_material_id']);
-            if (!$customer_material && $this->data['customer_material_id']) {
-                $this->errors[] = 'Không tìm thấy mã SKU khách hàng ' . $this->data['customer_material_id'];
+            $customer_group = CustomerGroup::find($customer_group_id);
+            if (!$customer_group) {
+                $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $customer_group_id;
                 return false;
             }
 
-            $customerPromotions = CustomerPromotion::create([
-                'customer_material_id' => $this->data['customer_material_id'],
-                'sap_material_id' => $this->data['sap_material_id'],
+            $customer = Customer::find($customer_id);
+            if (!$customer) {
+                $this->errors[] = 'Không tìm thấy mã khách hàng ' . $customer_id;
+                return false;
+            }
+
+            $customerPromotion = CustomerPromotion::create([
+                'customer_group_id' => $customer_group_id,
+                'customer_id' => $customer_id,
+                'sap_material_id' => $sap_material_id,
             ]);
 
             DB::commit();
-            return $customerPromotions;
+            return $customerPromotion;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -101,52 +144,59 @@ class CustomerPromotionRepository extends RepositoryAbs
 
 
     public function updateExistingCustomerPromotion($id)
-{
-    try {
-        $validator = Validator::make($this->data, [
-            'customer_material_id' => 'integer|exists:customer_materials,id',
-            'sap_material_id' => 'integer|exists:sap_materials,id',
-        ], [
-            'customer_material_id.integer' => 'Mã SKU khách hàng phải là số nguyên.',
-            'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
-            'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
-        ]);
+    {
+        try {
+            DB::beginTransaction();
 
-        if ($validator->fails()) {
-            $this->errors = $validator->errors()->toArray();
+            $customerPromotion = CustomerPromotion::find($id);
+            if (!$customerPromotion) {
+                $this->errors[] = 'Không tìm thấy khuyến mãi khách hàng có ID ' . $id;
+                return false;
+            }
+
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'integer',
+                'customer_id' => 'integer',
+            ], [
+                'customer_group_id.integer' => 'Nhóm khách hàng phải là số nguyên.',
+                'customer_id.integer' => 'Mã khách hàng phải là số nguyên.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors();
+                return false;
+            }
+
+            // if (!isset($this->data['sap_material_id'])) {
+            //     $this->errors[] = 'Mã đối chiếu sản phẩm không được truyền.';
+            //     return false;
+            // }
+
+            $customer_group = CustomerGroup::find($this->data['customer_group_id']);
+            if (!$customer_group && $this->data['customer_group_id']) {
+                $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $this->data['customer_group_id'];
+                return false;
+            }
+
+            $customer = Customer::find($this->data['customer_id']);
+            if (!$customer && $this->data['customer_id']) {
+                $this->errors[] = 'Không tìm thấy mã khách hàng ' . $this->data['customer_id'];
+                return false;
+            }
+
+            // Remove sap_material_id from the update data
+            // unset($this->data['sap_material_id']);
+            $customerPromotion->update($this->data);
+
+            DB::commit();
+            return $customerPromotion;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            DB::rollBack();
             return false;
         }
-
-        $customerPromotion = CustomerPromotion::findOrFail($id);
-
-        // Lấy giá trị mới từ $this->data
-        $updated_sap_material_id = $this->data['sap_material_id'];
-        $updated_customer_material_id = $this->data['customer_material_id'];
-
-        $customerMaterial = CustomerMaterial::find($updated_customer_material_id);
-        $sapMaterial = SapMaterial::find($updated_sap_material_id);
-
-        if (!$customerMaterial) {
-            $this->errors = ['customer_material_id' => 'Không tìm thấy mã khách hàng SAP có ID này.'];
-            return false;
-        }
-
-        if (!$sapMaterial) {
-            $this->errors = ['sap_material_id' => 'Không tìm thấy mã đối chiếu sản phẩm này.'];
-            return false;
-        }
-
-        $customerPromotion->sap_material_id = $updated_sap_material_id;
-        $customerPromotion->customer_material_id = $updated_customer_material_id;
-        $customerPromotion->save();
-
-        return $customerPromotion;
-    } catch (\Exception $exception) {
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
-        return null;
     }
-}
     public function deleteExistingCustomerPromotion($id)
     {
         try {

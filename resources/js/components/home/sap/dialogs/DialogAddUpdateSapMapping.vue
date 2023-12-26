@@ -35,16 +35,24 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
-							<!-- <small class="text-danger">(*)</small> -->
-							<treeselect
-								v-model="sap_material_mapping.customer_group_id"
-								:multiple="false"
-								id="customer_group_id"
-								placeholder="Yêu cầu chọn nhóm khách hàng.."
-								:options="customer_group_options"
-								:normalizer="normalizerOption"
-								v-bind:class="hasError('v') ? 'is-invalid' : ''"
-							></treeselect>
+							<div class="readonly-field">
+								<treeselect
+									v-model="sap_material_mapping.customer_group_id"
+									:multiple="false"
+									id="customer_group_id"
+									placeholder="Yêu cầu chọn nhóm khách hàng.."
+									:options="customer_group_options"
+									:normalizer="normalizerOption"
+									:disabled="is_editing"
+									v-bind:class="hasError('v') ? 'is-invalid' : ''"
+								></treeselect>
+								<span
+									v-if="is_editing"
+									class="readonly-text"
+									style="color: red; font-style: italic"
+									>Không được phép chỉnh sửa</span
+								>
+							</div>
 							<span
 								v-if="hasError('customer_group_id')"
 								class="invalid-feedback"
@@ -79,8 +87,15 @@
 								placeholder="Chọn sản phẩm.."
 								required
 								:load-options="loadOptions"
+								:disabled="is_editing"
 								:async="true"
 							/>
+                            <span
+									v-if="is_editing"
+									class="readonly-text"
+									style="color: red; font-style: italic"
+									>Không được phép chỉnh sửa</span
+								>
 							<span
 								v-if="hasError('sap_material_id')"
 								class="invalid-feedback"
@@ -119,9 +134,16 @@
 								id="customer_sku_code"
 								name="customer_sku_code"
 								placeholder="Yêu cầu nhập mã SKU..."
+								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
+                            <span
+									v-if="is_editing"
+									class="readonly-text"
+									style="color: red; font-style: italic"
+									>Không được phép chỉnh sửa</span
+								>
 
 							<span
 								v-if="hasError('customer_sku_code')"
@@ -164,9 +186,16 @@
 								id="customer_sku_unit"
 								name="customer_sku_unit"
 								placeholder="Yêu cầu nhập đơn vị tính SKU..."
+								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
 							/>
+                            <span
+									v-if="is_editing"
+									class="readonly-text"
+									style="color: red; font-style: italic"
+									>Không được phép chỉnh sửa</span
+								>
 							<span
 								v-if="hasError('customer_sku_unit')"
 								class="invalid-feedback"

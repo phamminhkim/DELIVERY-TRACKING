@@ -41,16 +41,34 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên sản phẩm khách hàng</label
+									>Khách hàng</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
-										placeholder="Mã/tên sản phẩm khách hàng.."
+										placeholder="Nhập khách hàng.."
 										:multiple="true"
-										id="customer_material_id"
-										:disable-branch-nodes="false"
-										v-model="form_filter.customer_material"
-										:options="customer_options"
+										required
+										:load-options="loadOptionsCustomer"
+										:async="true"
+										v-model="form_filter.customer"
+									/>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label
+									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
+									for=""
+									>Nhóm khách hàng</label
+								>
+								<div class="col-sm-10 mt-1 mb-1">
+									<treeselect
+										:multiple="false"
+										id="customer_group_id"
+										placeholder="Chọn nhóm khách hàng.."
+										v-model="form_filter.customer_group"
+										:options="customer_group_options"
+										:normalizer="normalizerOption"
+										required
 									></treeselect>
 								</div>
 							</div>
@@ -58,7 +76,7 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên đối chiếu sản phẩm</label
+									>Mã/tên sản phẩm SAP</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
@@ -71,6 +89,7 @@
 									/>
 								</div>
 							</div>
+
 
 							<div class="col-md-12" style="text-align: center">
 								<button
@@ -220,10 +239,10 @@
 								</div>
 							</template>
 							<template #cell(is_active)="data">
-								<span class="badge bg-success" v-if="data.item.is_active == 1"
+								<span v-if="data.item.is_active == 1" class="badge bg-success"
 									>Đang khuyến mãi</span
 								>
-								<span class="badge bg-warning" v-else-if="data.item.is_active == 0"
+								<span v-else-if="data.item.is_active == 0" class="badge bg-warning"
 									>Chưa khuyến mãi</span
 								>
 							</template>
@@ -289,7 +308,6 @@
 			Treeselect,
 			Vue,
 			DialogAddUpdateCustomerPromotion,
-			// DialogImportExcelToCreateMapping,
 		},
 		data() {
 			return {
@@ -300,10 +318,11 @@
 				search_pattern: '',
 
 				form_filter: {
-					customer_material: null,
+					customer: null,
+					customer_group: null,
 					sap_materials: [],
 				},
-				customer_group_options: [],
+                customer_group_options: [],
 
 				is_editing: false,
 				editing_item: {},
@@ -322,14 +341,20 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'customer_material.customer_sku_code',
-						label: 'Mã khách hàng SAP',
+						key: 'customer.code',
+						label: 'Mã khách hàng',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'customer_material.customer_sku_name',
-						label: 'Tên khách hàng SAP',
+						key: 'customer.name',
+						label: 'Tên khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'customer_group.name',
+						label: 'Nhóm khách hàng',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
@@ -339,12 +364,17 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-
 					{
 						key: 'sap_material.name',
 						label: 'Tên sản phẩm SAP',
 						sortable: true,
 						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'sap_material.unit.unit_code',
+						label: 'Đơn vị tính SAP',
+						sortable: true,
+						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'is_active',
@@ -361,6 +391,7 @@
 				sap_materials: [],
 				customer_promotions: [],
 				customer_options: [],
+
 				api_url: 'api/master/customer-promotions',
 			};
 		},
@@ -372,7 +403,8 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_material_ids: this.form_filter.customer_material,
+						customer_ids: this.form_filter.customer,
+						customer_group_ids: this.form_filter.customer_group,
 						sap_material_ids: this.form_filter.sap_material,
 					});
 
@@ -388,18 +420,13 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_options, customer_promotions] =
+					const [customer_group_options,customer_promotions] =
 						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/customer-materials'),
-							new APIRequest('get', '/api/master/customer-promotions'),
+							new APIRequest('get', '/api/master/customer-groups'),
+                            new APIRequest('get', '/api/master/customer-promotions'),
 						]);
+					this.customer_group_options = customer_group_options;
 					this.customer_promotions = customer_promotions;
-					this.customer_options = customer_options.map((customer_material) => {
-						return {
-							id: customer_material.id,
-							label: `(${customer_material.customer_sku_code}) ${customer_material.customer_sku_name}  `,
-						};
-					});
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -417,7 +444,7 @@
 					const params = {
 						search: searchQuery,
 						// customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: [this.form_filter.sap_material],
+						sap_material_ids: this.form_filter.sap_material,
 					};
 					const { data } = await this.api_handler.get(
 						'api/master/sap-materials/minified',
@@ -426,7 +453,30 @@
 					let options = data.map((item) => {
 						return {
 							id: item.id,
-							label: `(${item.sap_code}) ${item.name}`,
+							label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
+						};
+					});
+					// console.log(data);
+					//const options = data;
+					callback(null, options);
+				}
+			},
+
+            async loadOptionsCustomer({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const params = {
+						search: searchQuery,
+						// customer_material_ids: this.form_filter.customer_material,
+						customer_ids: [this.form_filter.customer],
+					};
+					const { data } = await this.api_handler.get(
+						'api/master/customers/minified',
+						params,
+					);
+					let options = data.map((item) => {
+						return {
+							id: item.id,
+							label: `(${item.code}) ${item.name}`,
 						};
 					});
 					// console.log(data);
@@ -441,7 +491,8 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_material_ids: this.form_filter.customer_material,
+						customer_group_ids: this.form_filter.customer_group,
+						customer_ids: this.form_filter.customer,
 						sap_material_ids: this.form_filter.sap_material,
 					});
 					// console.log(this.page_structure.api_url);
@@ -461,7 +512,8 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					this.form_filter.customer_material = null;
+					this.form_filter.customer_group = null;
+					this.form_filter.customer = [];
 					this.form_filter.sap_material = []; // Ensure it is an array
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);

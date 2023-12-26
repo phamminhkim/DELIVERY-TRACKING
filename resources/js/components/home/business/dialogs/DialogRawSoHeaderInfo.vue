@@ -449,6 +449,11 @@
 						label: 'Tỷ lệ',
 						class: 'text-nowrap',
 					},
+                    {
+						key: 'note',
+						label: 'Ghi chú',
+						class: 'text-nowrap',
+					},
 					{
 						key: 'action',
 						label: 'Action',

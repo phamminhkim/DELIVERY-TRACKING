@@ -96,21 +96,39 @@ class SapMaterialMappingRepository extends RepositoryAbs
                         $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code;
                         continue;
                     }
-                    if (
-                        SapMaterialMapping::query()
+                    if (SapMaterialMapping::query()
                         ->where('customer_material_id', $customer_material->id)
                         ->where('sap_material_id', $sap_material->id)
-                        ->where('percentage', $material['percentage'])
-                        ->first()
+                        ->exists()
                     ) {
-                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $sap_material->sap_code . ' với tỉ lệ ' . $material['percentage'];
-                        continue;
+                        $totalPercentage = SapMaterialMapping::query()
+                            ->where('customer_material_id', $customer_material->id)
+                            ->sum('percentage');
+
+                        $newTotalPercentage = $totalPercentage + $material['percentage'];
+
+                        if ($newTotalPercentage > 100) {
+                            $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP ' . $sap_material->sap_code . ' với tổng tỷ lệ đã đủ 100%';
+                            break; // Dừng vòng lặp
+                        }
+
+                        // $sap_material_mapping = SapMaterialMapping::create([
+                        //     'customer_material_id' => $customer_material->id,
+                        //     'sap_material_id' => $sap_material->id,
+                        //     'percentage' => $material['percentage']
+                        // ]);
+
+                        // $result->push($sap_material_mapping);
                     }
+
+
+
                     $sap_material_mapping = SapMaterialMapping::create([
                         'customer_material_id' => $customer_material->id,
                         'sap_material_id' => $sap_material->id,
                         'percentage' => $material['percentage']
                     ]);
+
                     $result->push($sap_material_mapping);
                 }
                 DB::commit();
