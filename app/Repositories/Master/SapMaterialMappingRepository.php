@@ -361,12 +361,14 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 ->first();
 
 
-            $total_existing_percent = $customer_material_existed
+                $total_existing_percent = $customer_material_existed
                 ? $customer_material_existed->mappings()->sum('percentage')
                 : 0;
 
             if ($customer_material_existed) {
-                if ($total_existing_percent + $customerMaterialData['percentage'] > 100) {
+                $new_total_percent = $total_existing_percent + $customerMaterialData['percentage'];
+
+                if ($new_total_percent > 100) {
                     $this->errors = [
                         'percentage' => 'Tổng tỉ lệ sản phẩm vượt quá 100.',
                         'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
@@ -375,13 +377,11 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     return false; // Dừng việc thêm mục mới và hiển thị thông báo lỗi
                 }
 
-                $new_percentage = $customerMaterialData['percentage'] + $total_existing_percent;
-
-
                 $sap_material_mapping = $customer_material_existed->mappings()->create([
                     'sap_material_id' => $customerMaterialData['sap_material_id'],
                     'percentage' => $customerMaterialData['percentage'],
                 ]);
+
 
                 DB::commit();
                 return $sap_material_mapping;
