@@ -29,10 +29,19 @@ class UploadedFileRepository extends RepositoryAbs
     {
         $user_id = $this->current_user->id;
         $query = UploadedFile::query();
+        if ($this->current_user->hasRole('admin-system')) {
+            // Không cần lọc theo user_id cho admin-system, hiển thị tất cả các tệp
+        } else {
+            // Lọc các tệp theo user_id của người dùng hiện tại
+            $query->whereHas('user_morphs', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);
+            });
+        }
 
-        $query->whereHas('user_morphs', function ($query) use ($user_id) {
-            $query->where('user_id', $user_id);
-        });
+
+        // $query->whereHas('user_morphs', function ($query) use ($user_id) {
+        //     $query->where('user_id', $user_id);
+        // });
         if ($this->request->filled('customer_group_ids')) {
             $customer_group_ids = explode(',', $this->request->customer_group_ids);
             $query->whereHas('batch', function ($query) use ($customer_group_ids) {
@@ -50,11 +59,15 @@ class UploadedFileRepository extends RepositoryAbs
                 $query->whereIn('batches.customer_id', $customer_ids);
             });
         }
+        // if ($this->request->filled('status_ids')) {
+        //     $statusIds = $this->request->status_ids;
+        //     $query->whereHas('status', function ($query) use ($statusIds) {
+        //         $query->whereIn('status_id', $statusIds);
+        //     });
+        // }
         if ($this->request->filled('status_ids')) {
             $statusIds = $this->request->status_ids;
-            $query->whereHas('status', function ($query) use ($statusIds) {
-                $query->whereIn('status_id', $statusIds);
-            });
+            $query->whereIn('status_id', $statusIds);
         }
 
         if ($this->request->filled('from_date')) {
@@ -75,6 +88,7 @@ class UploadedFileRepository extends RepositoryAbs
     }
     public function getFilesById($id)
     {
+
         $user_id = $this->current_user->id;
         $query = UploadedFile::query();
 

@@ -141,6 +141,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
             DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
 
