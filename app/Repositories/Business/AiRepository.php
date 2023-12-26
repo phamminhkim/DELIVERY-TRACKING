@@ -261,7 +261,7 @@ class AiRepository extends RepositoryAbs
                         'raw_extract_item_id' => $promotion_itm->raw_extract_item_id,
                         'raw_so_header_id' => $raw_so_header_promotion->id,
                         'sap_material_id' => $promotion_itm->sap_material_id,
-                        'quantity' =>  $promotion_itm->quantity,
+                        'quantity' =>  '1',
                         'price' => $promotion_itm->price,
                         'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
                         'percentage' => '100',
