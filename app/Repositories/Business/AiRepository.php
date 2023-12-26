@@ -18,6 +18,7 @@ use App\Models\Business\RegexPattern;
 use App\Models\Business\RestructureDataConfig;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
+use App\Models\Master\CustomerPromotion;
 use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
@@ -132,22 +133,26 @@ class AiRepository extends RepositoryAbs
                 'uploaded_file_id' => $file_record->id,
             ]);
             foreach ($final_data as $item) {
+
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
                     continue;
                 }
                 $customer_material = CustomerMaterial::query()
                     ->where('customer_group_id', $customer_group->id)
                     ->where('customer_sku_code', $item['ProductID'])
-                    ->where('customer_sku_name', $item['ProductName'])
+                    // ->where('customer_sku_name', $item['ProductName'])
                     ->first();
                 if (!$customer_material) {
                     $error_extract_items[] = 'Không tìm thấy customer material với ProductID: ' . $item['ProductID'] . ' của customer group: ' . $customer_group->name;
                     continue;
                 }
+
                 $raw_extract_item = RawExtractItem::firstOrCreate([
                     'raw_extract_header_id' => $raw_extract_header->id,
                     'customer_material_id' => $customer_material->id,
                     'quantity' => $item['Quantity'],
+                    'price' =>  str_replace(",", "", $item['ProductPrice']),
+                    'amount' => str_replace(",", "", $item['ProductAmount']),
                 ]);
                 $created_extract_items->push($raw_extract_item);
             }
@@ -176,27 +181,42 @@ class AiRepository extends RepositoryAbs
                 $raw_so_header->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
                 $raw_so_header->save();
             }
+
+            $created_so_items = collect();
+            $created_promotion_items = [];
+
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
                 $sap_material_mappings = $item->customer_material->mappings;
+                Log::info("sap_material_mappings");
+                Log::info($sap_material_mappings);
                 if (count($sap_material_mappings) == 0) {
-                    $error_so_items[] = 'Không tìm thấy sap material với customer material id: ' . $item->customer_material->id . ' (' . $item->customer_material->customer_sku_name . ')';
+                    $error_so_items[] = 'Không tìm thấy sap material với customer material code: ' . $item->customer_material->customer_sku_code . ' (' . $item->customer_material->customer_sku_name . ')';
                     continue;
                 }
+
                 foreach ($sap_material_mappings as $mapping) {
                     $sap_material = $mapping->sap_material;
                     $quantity = round(($item->quantity) * ($mapping->percentage / 100), 0);
+                    $price = $item->price;
+                    $amount = $quantity * $item->price;
                     $raw_so_item = RawSoItem::firstOrCreate([
                         'raw_extract_item_id' => $item->id,
                         'raw_so_header_id' => $raw_so_header->id,
                         'sap_material_id' => $sap_material->id,
                         'quantity' => $quantity,
+                        'price' => $price,
+                        'amount' => $amount,
                         'percentage' => $mapping->percentage,
                     ]);
                     $created_so_items->push($raw_so_item);
+                    $customer_promotion = CustomerPromotion::where('sap_material_id',$sap_material->id)->first();
+                    if($customer_promotion){
+                        $created_promotion_items[] = clone $raw_so_item;
+                    }
+
                 }
-                $item->load('raw_so_items');
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
                 if ($extract_item_quantity < $so_items_quantity) {
@@ -216,7 +236,38 @@ class AiRepository extends RepositoryAbs
             $converted_status = FileStatus::query()->where('code', FileStatuses::CONVERTED)->first();
             $file_record->status_id = $converted_status->id;
             $file_record->save();
-
+            //Tao đơn hàng KM
+            if($created_promotion_items && count($created_promotion_items) >0);
+            {
+                $raw_so_header_promotion = RawSoHeader::firstOrCreate(
+                    array_merge(
+                        $raw_extract_header->toArray(),
+                        [
+                            'raw_extract_header_id' => $raw_so_header->raw_extract_header_id,
+                            'po_person' => $file_record->batch->customer->name,
+                            'po_phone' => $file_record->batch->customer->phone_number,
+                            'po_email' => $file_record->batch->customer->email,
+                            'po_delivery_address' => $file_record->batch->customer->address,
+                            'note' => 'Đơn hàng khuyến mãi'
+                        ]
+                    )
+                );
+                if (!$raw_so_header_promotion->serial_number) {
+                    $raw_so_header_promotion->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
+                    $raw_so_header_promotion->save();
+                }
+                foreach($created_promotion_items as $promotion_itm){
+                    $raw_so_item = RawSoItem::firstOrCreate([
+                        'raw_extract_item_id' => $promotion_itm->raw_extract_item_id,
+                        'raw_so_header_id' => $raw_so_header_promotion->id,
+                        'sap_material_id' => $promotion_itm->sap_material_id,
+                        'quantity' =>  $promotion_itm->quantity,
+                        'price' => $promotion_itm->price,
+                        'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
+                        'percentage' => '100',
+                    ]);
+                }
+            }
             DB::commit();
             return array(
                 'created_extract_items' => $created_extract_items,
@@ -337,16 +388,18 @@ class AiRepository extends RepositoryAbs
         $options = array();
         if ($this->data_extractor instanceof CamelotExtractorService) {
             if (!$extract_data_config) {
-                $options['is_merge_pages'] = $this->request->is_merge_pages ?? false;
-                $options['flavor'] = $this->request->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $options['is_merge_pages'] = $this->request->is_merge_pages == 'true' ? true : false;
+                $options['flavor'] = $this->request->camelot_flavor ? $this->request->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $this->request->exclude_head_tables_count ? $this->request->exclude_head_tables_count : 0;
+                $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ? $this->request->exclude_tail_tables_count : 0;
             } else {
-                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ?? false;
-                $options['flavor'] = $extract_data_config->camelot_flavor ?? 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $options['is_merge_pages'] = $extract_data_config->is_merge_pages ? $extract_data_config->is_merge_pages : false;
+                $options['flavor'] = $extract_data_config->camelot_flavor ? $extract_data_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count: 0;
+                $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count: 0;
             }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
-        $exclude_head_tables_count = $this->request->exclude_head_tables_count ?? 0;
-        $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ?? 0;
         $choosen_tables = [];
         for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
             $choosen_tables[] = $tables[$i];

@@ -58,9 +58,14 @@ class RouterSeeder extends Seeder
             ],
 
             [
-                'name' => 'Chỉnh sửa đơn hàng',
-                'path' => '/order-edit-files',
-                'component' => 'home/business/OrderEditFiles'
+                'name' => 'Khách hàng liên kết',
+                'path' => '/customer-group-pivots',
+                'component' => 'home/sap/CustomerGroupPivots'
+            ],
+            [
+                'name' => 'Khách hàng khuyến mãi',
+                'path' => '/customer-promotions',
+                'component' => 'home/sap/CustomerPromotion'
             ],
 
             [
@@ -116,7 +121,7 @@ class RouterSeeder extends Seeder
                 'component' => 'home/admin/Roles'
             ],
             [
-                'name' => 'Bảng đối chiếu sản phẩm',
+                'name' => 'Bảng mapping SAP',
                 'path' => '/sap-material-mappings',
                 'component' => 'home/sap/SapMaterialMapping'
             ],
@@ -124,6 +129,11 @@ class RouterSeeder extends Seeder
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
                 'component' => 'home/sap/SapMaterials'
+            ],
+            [
+                'name' => 'Nhóm khách hàng',
+                'path' => '/customer-groups',
+                'component' => 'home/master/CustomerGroup'
             ]
 
         ];

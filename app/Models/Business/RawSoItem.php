@@ -14,6 +14,8 @@ class RawSoItem extends Model
         'raw_so_header_id',
         'sap_material_id',
         'quantity',
+        'price',
+        'amount',
         'note',
         'percentage',
         'is_promotive',

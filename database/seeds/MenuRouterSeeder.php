@@ -298,9 +298,16 @@ class MenuRouterSeeder extends Seeder
             ],
 
             [
-                'title' => "Chỉnh sửa đơn hàng",
+                'title' => "Khách hàng liên kết",
                 'icon' => "fas fa-wrench",
-                'link' => "order-edit-files",
+                'link' => "customer-group-pivots",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Khách hàng khuyến mãi",
+                'icon' => "fas fa-project-diagram	",
+                'link' => "customer-promotions",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
@@ -311,7 +318,15 @@ class MenuRouterSeeder extends Seeder
                 'link' => "order-uploads",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Nhóm khách hàng",
+                'icon' => "fas fa-id-card-alt",
+                'link' => "customer-groups",
+                'query_string' => "",
+                'parent' => 'Quản lí dữ liệu',
             ]
+
 
         ];
     }

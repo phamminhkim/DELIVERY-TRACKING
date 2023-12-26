@@ -140,6 +140,14 @@
 						Đồng bộ SAP
 					</strong>
 				</b-button>
+				<b-button
+					variant="primary"
+					@click="exportToExcel"
+					class="btn-sm ml-1"
+					style="height: 38px"
+				>
+					<strong> <i class="fas fa-download mr-1 text-bold"></i>Download Excel </strong>
+				</b-button>
 			</div>
 			<div class="form-group">
 				<div>
@@ -306,8 +314,10 @@
 <!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	// import { saveAs } from 'file-saver';
 	export default {
 		components: {
@@ -460,7 +470,18 @@
 				try {
 					this.is_loading = true;
 					const [order_files] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', this.api_url_order_file, {}),
+						new APIRequest('get', this.api_url_order_file, {
+							from_date:
+								this.form_filter.start_date.length == 0
+									? undefined
+									: this.form_filter.start_date,
+							to_date:
+								this.form_filter.end_date.length == 0
+									? undefined
+									: this.form_filter.end_date,
+							customer_group_ids: this.form_filter.customer_group_id,
+							customer_ids: this.form_filter.customers,
+						}),
 					]);
 					this.order_files = order_files;
 					toastr.success('Lấy dữ liệu thành công');
@@ -470,35 +491,35 @@
 					this.is_loading = false;
 				}
 			},
-				async downloadFile(id, fileName) {
-					try {
+			async downloadFile(id, fileName) {
+				try {
+					const response = await this.api_handler.get(
+						`api/ai/file/download/${id}`,
+						{},
+						'blob',
+					);
+					const blobData = new Blob([response]);
 
-						const response = await this.api_handler.get(`api/ai/file/download/${id}`, {},'blob');
-						const blobData = new Blob([response]);
-						 
-						const url = window.URL.createObjectURL(blobData);
-						const link = document.createElement('a');
-						link.href = url;
-						link.setAttribute('download', fileName);
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
+					const url = window.URL.createObjectURL(blobData);
+					const link = document.createElement('a');
+					link.href = url;
+					link.setAttribute('download', fileName);
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
 
-						// Giải phóng URL đã tạo ra
-						window.URL.revokeObjectURL(url);
-
-						
-					} catch (error) {
-						// Xử lý lỗi khi không thể tải xuống file
-						console.error(error);
-					}
-				},
-                getFileName(path) {
-					let name = path.split('/')[1].split('_');
-					name.pop();
-					return name.join('') + '.pdf';
-				},
-
+					// Giải phóng URL đã tạo ra
+					window.URL.revokeObjectURL(url);
+				} catch (error) {
+					// Xử lý lỗi khi không thể tải xuống file
+					console.error(error);
+				}
+			},
+			getFileName(path) {
+				let name = path.split('/')[1].split('_');
+				name.pop();
+				return name.join('') + '.pdf';
+			},
 
 			showInfoDialog(raw_so_header_id) {
 				this.viewing_raw_so_header_id = raw_so_header_id;
@@ -577,6 +598,41 @@
 					}
 				}
 			},
+			async filterData() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					const { data } = await this.api_handler.get(this.api_url_order_file, {
+						from_date: this.form_filter.start_date,
+						to_date: this.form_filter.end_date,
+						customer_group_ids: this.form_filter.customer_group_id,
+						customer_ids: this.form_filter.customers,
+					});
+
+					this.order_files = data;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+            async clearFilter() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+
+					this.form_filter.start_date = null;
+					this.form_filter.end_date = null;
+					this.form_filter.customer_group_id = null;
+					this.form_filter.customers = [];
+
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
 			async syncFileSap() {
 				try {
 					this.is_loading = true;
@@ -591,7 +647,7 @@
 							waiting_sync_files: this.selected_ids,
 						},
 					);
-
+					this.selected_ids = [];
 					await this.fetchData();
 					toastr.success('Đã gửi yêu cầu đồng bộ file');
 				} catch (error) {
@@ -599,6 +655,54 @@
 				} finally {
 					this.is_loading = false;
 				}
+			},
+			async exportToExcel() {
+				try {
+					this.is_loading = true;
+
+					if (this.selected_ids.length === 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+
+					const filePromises = this.selected_ids.map((fileId) =>
+						this.api_handler.get(`/api/ai/file/${fileId}`),
+					);
+
+					const responses = await Promise.all(filePromises);
+					const excelData = [];
+
+					for (const response of responses) {
+						if (response && response.data) {
+							const data = response.data;
+							excelData.push(...data);
+						}
+					}
+
+					// Export to Excel
+					this.exportExcel(excelData);
+				} catch (error) {
+					toastr.error('Lỗi', error.response.data.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			exportExcel(data) {
+				const columns = [
+					{ field: 'Số SO', title: 'Số SO' },
+					{ field: 'Mã Khách hàng', title: 'Mã Khách hàng' },
+					{ field: 'Mã sản phẩm', title: 'Mã sản phẩm' },
+					{ field: 'Số lượng', title: 'Số lượng', format: '#,##0' }, // Number format
+					{ field: 'Đơn vị tính', title: 'Đơn vị tính' },
+				];
+
+
+
+				saveExcel({
+					data: data,
+                    fileName: 'SAP_SO',
+					columns: columns,
+				});
 			},
 		},
 		computed: {

@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Api\Business\ApplicationController;
+use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
@@ -77,6 +78,7 @@ Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallbac
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
+Route::get('/excel/{filename}', [SapMaterialMappingController::class,'download']);
 
 Route::get('access-token', function () {
     $auth_user = Auth()->user();

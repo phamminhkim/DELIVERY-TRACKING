@@ -20,6 +20,17 @@ class UploadedFileController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function getFilesById(Request $request, $id)
+    {
+        $handler = BusinessRepository::uploadedFileRequest($request);
+        $data = $handler->getFilesById($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
     public function uploadFile(Request $request)
     {

@@ -103,8 +103,10 @@
 								type="button"
 								class="btn btn-primary"
 								@click="onClickUploadFile"
+								:disabled="loading"
 							>
-								Upload
+								<span v-if="loading">Đang xử lý...</span>
+								<span v-else>Upload</span>
 							</button>
 						</div>
 					</div>
@@ -119,7 +121,6 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 
-
 	export default {
 		components: {
 			Treeselect,
@@ -127,6 +128,7 @@
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
+				loading: false,
 				customer_group_options: [],
 				company_options: [],
 				load_config_form: {
@@ -138,7 +140,7 @@
 				files: [],
 				selected_batch_id: null,
 				load_extract_order_config_options: null,
-                load_customer_id_options: null,
+				load_customer_id_options: null,
 			};
 		},
 		created() {
@@ -178,6 +180,7 @@
 
 			async onClickUploadFile() {
 				try {
+					this.loading = true;
 					const batch_data = {
 						customer: this.load_config_form.customer,
 						extract_order_config: this.load_config_form.extract_order_config,
@@ -213,22 +216,24 @@
 					this.load_config_form.extract_order_config = null;
 					this.load_config_form.customer = null;
 					this.load_config_form.company = null;
-                    this.files = [];
-                    toastr.success('Upload file thành công');
-                } catch (error) {
-                    toastr.error('Đã xảy ra lỗi khi upload file');
+					this.files = [];
+					toastr.success('Upload file thành công');
+				} catch (error) {
+					toastr.error('Đã xảy ra lỗi khi upload file');
+				} finally {
+					this.loading = false; // Ẩn thông báo "Đang xử lý..."
 				}
 			},
 		},
-        showMessage(type, title, message) {
-            if (!title) {
-                title = "Information";
-            }
-            toastr.options.positionClass = "toast-bottom-right";
-            toastr.options.toastClass = this.getToastClassByType(type);
+		showMessage(type, title, message) {
+			if (!title) {
+				title = 'Information';
+			}
+			toastr.options.positionClass = 'toast-bottom-right';
+			toastr.options.toastClass = this.getToastClassByType(type);
 
-            toastr[type](message, title);
-        },
+			toastr[type](message, title);
+		},
 
 		formatFileSize(size) {
 			if (size === 0) return '0 Bytes';
@@ -239,9 +244,8 @@
 		},
 		watch: {
 			load_customer_group_id() {
-
-                this.load_customer_id_options = [];
-                let load_customer_id_options = this.customer_group_options.find(
+				this.load_customer_id_options = [];
+				let load_customer_id_options = this.customer_group_options.find(
 					(customer_group) => {
 						return customer_group.id == this.load_customer_group_id;
 					},
@@ -269,8 +273,6 @@
 							};
 					  })
 					: [];
-
-
 			},
 		},
 		computed: {

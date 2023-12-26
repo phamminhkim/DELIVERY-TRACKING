@@ -28,6 +28,8 @@ use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
 use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 use App\Http\Controllers\Api\Master\CustomerMaterialController;
+use App\Http\Controllers\Api\Master\CustomerGroupPivotController;
+use App\Http\Controllers\Api\Master\CustomerPromotionController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -130,6 +132,7 @@ Route::middleware('auth:api')->group(function () {
         });
         Route::prefix('/sap-material-mappings')->group(function () {
             Route::post('/excel', [SapMaterialMappingController::class, 'createSapMateriasMappingsFromExcel']);
+            Route::get('/exportToExcel', [SapMaterialMappingController::class, 'exportToExcel']);
             Route::get('/', [SapMaterialMappingController::class, 'getAvailableSapMaterialMappings']);
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
             Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
@@ -161,10 +164,26 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-groups')->group(function () {
             Route::get('/', [CustomerGroupController::class, 'getAllCustomerGroups']);
+            Route::post('/', [CustomerGroupController::class, 'createNewGroup']);
+            Route::put('/{id}', [CustomerGroupController::class, 'updateExistingGroup']);
+            Route::delete('/{id}', [CustomerGroupController::class, 'deleteExistingGroup']);
+        });
+        Route::prefix('/customer-group-pivots')->group(function () {
+            Route::get('/', [CustomerGroupPivotController::class, 'getAvailableCustomerGroupPivots']);
+            Route::post('/', [CustomerGroupPivotController::class, 'createNewCustomerGroupPivot']);
+            Route::put('/{id}', [CustomerGroupPivotController::class, 'updateExistingCustomerGroupPivot']);
+            Route::delete('/{id}', [CustomerGroupPivotController::class, 'deleteExistingCustomerGroupPivot']);
         });
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
+        });
+
+        Route::prefix('/customer-promotions')->group(function () {
+            Route::get('/', [CustomerPromotionController::class, 'getAvailableCustomerPromotions']);
+            Route::post('/', [CustomerPromotionController::class, 'createNewCustomerPromotion']);
+            Route::put('/{id}', [CustomerPromotionController::class, 'updateExistingCustomerPromotion']);
+            Route::delete('/{id}', [CustomerPromotionController::class, 'deleteExistingCustomerPromotion']);
         });
     });
 
@@ -245,6 +264,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('file')->group(function () {
             Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);
             Route::post('/upload', [UploadedFileController::class, 'uploadFile']);
+            Route::get('/{id}', [UploadedFileController::class, 'getFilesById']);
             Route::get('/download/{id}', [UploadedFileController::class, 'downloadFile']);
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);

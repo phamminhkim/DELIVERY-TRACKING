@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\CustomerMaterial;
+use App\Models\Master\CustomerPromotion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,6 +14,8 @@ class RawExtractItem extends Model
         'raw_extract_header_id',
         'customer_material_id',
         'quantity',
+        'price',
+        'amount',
         'file_id'
     ];
 
@@ -24,6 +27,10 @@ class RawExtractItem extends Model
     public function customer_material()
     {
         return $this->belongsTo(CustomerMaterial::class);
+    }
+    public function customer_promotion()
+    {
+        return $this->belongsTo(CustomerPromotion::class);
     }
 
     public function raw_extract_header()
