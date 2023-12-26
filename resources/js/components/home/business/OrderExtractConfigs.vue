@@ -121,6 +121,29 @@
 							class="form-number-input"
 						/>
 					</div>
+
+                    <div class="form-group">
+						<label>Specify only 1 table</label>
+						<b-form-input
+							type="number"
+							v-model="extract_phase_form.specify_table_number"
+							class="form-number-input"
+						/>
+					</div>
+
+                    <div class="form-group d-flex flex-row">
+						<label>Specify table areas</label>
+						<b-form-checkbox
+							v-model="extract_phase_form.is_specify_table_area"
+							style="margin-left: 10px"
+						/>
+					</div>
+                    <div v-if="extract_phase_form.is_specify_table_area" class="form-group">
+						<label for="manualPattern">Table area information</label>
+						<small class="text-danger">*</small>
+						<VueJsonEditor v-model="extract_phase_form.table_area_info" />
+					</div>
+
 					<div class="d-flex justify-content-between">
 						<b-button variant="success" @click="onClickNextPhaseInExtractPhase"
 							>Bước tiếp theo</b-button
@@ -174,6 +197,13 @@
 							v-model="convert_phase_form.method"
 							:options="convert_phase_options.methods"
 							required
+						/>
+					</div>
+                    <div v-if="convert_phase_form.method =='leaguecsv'" class="form-group d-flex flex-row">
+						<label>Without Header</label>
+						<b-form-checkbox
+							v-model="convert_phase_form.is_without_header"
+							style="margin-left: 10px"
 						/>
 					</div>
 					<div class="form-group">
@@ -320,6 +350,9 @@
 					is_merge_pages: true,
 					exclude_head_tables_count: 0,
 					exclude_tail_tables_count: 0,
+                    specify_table_number: 0,
+                    is_specify_table_area: false,
+                    table_area_info: [],
 				},
 
 				extract_phase_result: [],
@@ -337,6 +370,7 @@
 					method: 'leaguecsv',
 					manual_patterns: [],
 					regex_pattern: null,
+                    is_without_header: false,
 				},
 				convert_phase_result: null,
 				convert_phase_options: {
@@ -358,6 +392,8 @@
 					methods: [
 						{ id: 'arraymappingbyindex', label: 'Array Mapping By Index' },
 						{ id: 'arraymappingbykey', label: 'Array Mapping By Key' },
+                        { id: 'arraymappingbymergeindex', label: 'Array Mapping By Merge Index' },
+                        { id: 'arraymappingbysearchtext', label: 'Array Mapping By Search Text' },
 					],
 				},
 				restructure_phase_result: null,
@@ -411,6 +447,9 @@
 								file: this.file,
 								...this.extract_phase_form,
 								extract_method: this.extract_phase_form.method,
+                                table_area_info: JSON.stringify(
+									this.extract_phase_form.table_area_info,
+								),
 							}),
 						)
 						.finally(() => {
@@ -447,6 +486,7 @@
 									this.convert_phase_form.manual_patterns,
 								),
 								regex_pattern: this.convert_phase_form.regex_pattern,
+                                is_without_header: this.convert_phase_form.is_without_header,
 							},
 						)
 						.finally(() => {
@@ -543,6 +583,11 @@
 						is_merge_pages: extract_response.is_merge_pages,
 						exclude_head_tables_count: extract_response.exclude_head_tables_count,
 						exclude_tail_tables_count: extract_response.exclude_tail_tables_count,
+                        specify_table_number: extract_response.specify_table_number,
+                        is_specify_table_area: extract_response.is_specify_table_area,
+                        table_area_info: extract_response.table_area_info
+                            ? JSON.parse(extract_response.table_area_info)
+                            : null,
 					};
 
 					let convert_response = extract_order_config_response.convert_table_config;
@@ -552,6 +597,7 @@
 							? JSON.parse(convert_response.manual_patterns)
 							: null,
 						regex_pattern: convert_response.regex_pattern,
+                        is_without_header: convert_response.is_without_header,
 					};
 
 					let restructure_response =

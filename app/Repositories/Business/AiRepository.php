@@ -28,6 +28,8 @@ use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure;
 use App\Services\Interfaces\DataExtractorInterface;
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Services\Interfaces\FileServiceInterface;
@@ -89,6 +91,8 @@ class AiRepository extends RepositoryAbs
         $this->data_restructure_instances = [
             'arraymappingbyindex' => new IndexArrayMappingRestructure(),
             'arraymappingbykey' => new KeyArrayMappingRestructure(),
+            'arraymappingbymergeindex' => new MergeIndexArrayMappingRestructure(),
+            'arraymappingbysearchtext' => new SearchTextArrayMappingRestructure(),
         ];
     }
     public function extractOrder()
@@ -392,17 +396,29 @@ class AiRepository extends RepositoryAbs
                 $options['flavor'] = $this->request->camelot_flavor ? $this->request->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $exclude_head_tables_count = $this->request->exclude_head_tables_count ? $this->request->exclude_head_tables_count : 0;
                 $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ? $this->request->exclude_tail_tables_count : 0;
+                $specify_table_number = $this->request->specify_table_number ? $this->request->specify_table_number : 0;
+                $options['is_specify_table_area'] = $this->request->is_specify_table_area == 'true' ? true : false;
+                $table_area_info = json_decode($this->request->table_area_info);
+                $options['table_area_info'] = $table_area_info;
             } else {
                 $options['is_merge_pages'] = $extract_data_config->is_merge_pages ? $extract_data_config->is_merge_pages : false;
                 $options['flavor'] = $extract_data_config->camelot_flavor ? $extract_data_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
                 $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count: 0;
                 $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count: 0;
+                $specify_table_number = $extract_data_config->specify_table_number ? $extract_data_config->specify_table_number: 0;
+                $options['is_specify_table_area'] = $extract_data_config->is_specify_table_area ? $extract_data_config->is_specify_table_area : false;
+                $table_area_info = json_decode($extract_data_config->table_area_info);
+                $options['table_area_info'] = $table_area_info;
             }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
         $choosen_tables = [];
-        for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
-            $choosen_tables[] = $tables[$i];
+        if ($specify_table_number > 0) {
+            $choosen_tables[] = $tables[$specify_table_number - 1];
+        } else {
+            for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
+                $choosen_tables[] = $tables[$i];
+            }
         }
         return $choosen_tables;
     }
@@ -423,6 +439,11 @@ class AiRepository extends RepositoryAbs
                 $options['regex_pattern'] = $convert_table_config->regex_pattern;
             }
         } elseif ($this->table_converter instanceof LeagueCsvConverter) {
+            if (!$convert_table_config) {
+                $options['is_without_header'] = $this->request->is_without_header == 'true' ? true : false;
+            } else {
+                $options['is_without_header'] = $convert_table_config->is_without_header ? $convert_table_config->is_without_header : false;
+            }
         } elseif ($this->table_converter instanceof ManualConverter) {
             if (!$convert_table_config) {
                 $manual_patterns = json_decode($this->request->manual_patterns);
@@ -456,8 +477,21 @@ class AiRepository extends RepositoryAbs
             } else {
                 $options['structure'] = json_decode($restructure_data_config->structure, true);
             }
+        } elseif ($this->data_restructure instanceof MergeIndexArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
+        } elseif ($this->data_restructure instanceof SearchTextArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
         }
         $table = $this->data_restructure->restructure($array, $options);
+
         return $table;
     }
 
@@ -547,6 +581,7 @@ class AiRepository extends RepositoryAbs
             } else {
                 DB::beginTransaction();
 
+                $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
                 $extract_data_config = ExtractDataConfig::create($this->data['extract_data_config']);
 
                 $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
@@ -595,6 +630,7 @@ class AiRepository extends RepositoryAbs
                     $this->message = 'Extract order config không tồn tại';
                     return;
                 }
+                $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
                 $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
                 $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
                 $extract_order_config->extract_data_config->update($this->data['extract_data_config']);
