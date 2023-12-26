@@ -42,7 +42,7 @@
 					</div>
 					<!-- Hiển thị thông báo lỗi -->
 					<div class="modal-body">
-						<div v-if="errors.length > 0" >
+						<div v-if="errors.length > 0">
 							<div class="alert alert-danger">
 								<ul>
 									<li v-for="error in errors" :key="error">{{ error }}</li>
@@ -60,7 +60,7 @@
 						>
 							Tạo mới
 						</button>
-                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+						<button type="button" class="btn btn-secondary" @click="resetDialog">
 							Reset
 						</button>
 					</div>
@@ -74,7 +74,8 @@
 	import Vue, { reactive } from 'vue';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-	import APIHandler, { APIRequest } from '../../ApiHandler';
+	import APIHandler from '../../ApiHandler';
+	import { APIRequest } from '../../ApiHandler';
 	import TextInputSearch from '../../general/controls/TextInputSearch.vue';
 	import axios from 'axios';
 
@@ -85,7 +86,9 @@
 			Treeselect,
 			TextInputSearch,
 		},
-
+        props: {
+            refetchData: Function,
+        },
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
@@ -97,6 +100,7 @@
 				errors: [],
 
 				error_message: '',
+				api_url: '/api/master/sap-material-mappings',
 			};
 		},
 		created() {
@@ -104,10 +108,10 @@
 		},
 
 		methods: {
+
 			async createNewMapping() {
 				try {
 					this.errors = [];
-					if (this.is_loading) return;
 					this.is_loading = true;
 
 					const { data } = await this.api_handler
@@ -122,13 +126,14 @@
 							}),
 						);
 
-					if (data.success) {
+					if (!data.errors) {
 						if (Array.isArray(data)) {
-							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+							this.sap_material_mappings.push(...data);
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
 						this.resetForm();
+						await this.refetchData(); // Refetch the data
 					} else {
 						this.errors = data.errors;
 						this.showMessage('error', 'Thêm không thành công');
@@ -141,7 +146,6 @@
 					this.is_loading = false;
 				}
 			},
-
 			downloadTemplate() {
 				const filename = 'Mapping.xlsx';
 				window.location.href = `/excel/${filename}`;
@@ -163,7 +167,7 @@
 			clearErrors() {
 				this.errors.splice(0, this.errors.length);
 			},
-            resetDialog() {
+			resetDialog() {
 				this.clearErrors();
 			},
 

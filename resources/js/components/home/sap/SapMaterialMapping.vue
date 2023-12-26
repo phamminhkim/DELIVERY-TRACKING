@@ -79,7 +79,6 @@
 									>Mã/tên SAP</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
-
 									<treeselect
 										placeholder="Chọn sản phẩm.."
 										:multiple="true"
@@ -276,7 +275,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchData"
 					></DialogAddUpdateSapMapping>
-					<DialogImportExcelToCreateMapping />
+					<DialogImportExcelToCreateMapping :refetchData="fetchData" />
 
 					<!-- end tạo form -->
 				</div>
@@ -472,7 +471,7 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-                        customer_group_ids: this.form_filter.customer_group,
+						customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
 					});
