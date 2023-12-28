@@ -80,10 +80,13 @@
 													>
 												</div>
 												<div class="col-lg-6 p-0">
-													<input
-														class="form-control"
-														v-model="raw_so_header.po_date"
-													/>
+                                                    <input
+                                                        class="form-control form-control-sm"
+                                                        type="date"
+                                                        data-date=""
+                                                        data-date-format="DD/MM/YYYY"
+                                                        v-model="po_date"
+                                                    />
 												</div>
 											</div>
 										</div>
@@ -155,10 +158,13 @@
 											<label class="ml-lg-2 mr-lg-4">Ngày giao</label>
 										</div>
 										<div class="col-lg-6 p-0">
-											<input
-												class="form-control"
-												v-model="raw_so_header.po_delivery_date"
-											/>
+                                            <input
+                                                class="form-control form-control-sm"
+                                                type="date"
+                                                data-date=""
+                                                data-date-format="DD/MM/YYYY"
+                                                v-model="po_delivery_date"
+                                            />
 										</div>
 									</div>
 								</div>
@@ -763,6 +769,14 @@
 						this.is_loading = false;
 					});
 			},
+            formatDateYMD(datetime) {
+                if (!datetime) return '';
+                const date = new Date(datetime);
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
 		},
 
 		watch: {
@@ -775,6 +789,22 @@
 			rows() {
 				return this.raw_so_header.raw_so_items.length;
 			},
+            po_date: {
+                get() {
+                    return this.formatDateYMD(this.raw_so_header.po_date);
+                },
+                set(value) {
+                    this.raw_so_header.po_date = value;
+                }
+            },
+            po_delivery_date: {
+                get() {
+                    return this.formatDateYMD(this.raw_so_header.po_delivery_date);
+                },
+                set(value) {
+                    this.raw_so_header.po_delivery_date = value;
+                }
+            }
 		},
 	};
 </script>

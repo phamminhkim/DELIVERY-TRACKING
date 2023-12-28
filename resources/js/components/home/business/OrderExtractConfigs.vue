@@ -14,7 +14,7 @@
 							required
 						/>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-5">
 						<b-form-select
 							placeholder="Chọn cấu hình.."
 							v-model="load_config_form.extract_order_id"
@@ -22,7 +22,7 @@
 							required
 						/>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<b-button variant="success" type="submit">Load cấu hình</b-button>
 					</div>
 				</b-form>
@@ -38,292 +38,567 @@
 				</div>
 			</div>
 		</div>
+        <div class="row">
+            <b-card no-body>
+                <b-tabs card align="right"
+                    active-nav-item-class="font-weight-bold text-primary">
+                    <!-- CẤU HÌNH DATA -->
+                    <b-tab title="Cấu hình data">
+                    <b-card-text>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="extract-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_extract_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <div
+                                        class="card-rate"
+                                        v-for="(table, index) in extract_phase_result"
+                                        :key="index"
+                                        header-tag="header"
+                                        v-else
+                                    >
+                                        <div class="time">Bảng thứ {{ index + 1 }}</div>
+                                        <div class="line"></div>
+                                        <div class="container-rate">
+                                            <div class="box-rate">
+                                                <div class="review-content">
+                                                    {{ table }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="extract_phase_form.method"
+                                            :options="extract_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="camelotFlavor">Camelot Flavor</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            id="camelotFlavor"
+                                            placeholder="Chọn cấu hình.."
+                                            v-model="extract_phase_form.camelot_flavor"
+                                            :options="extract_phase_options.camelot_flavors"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Merge Pages</label>
+                                        <b-form-checkbox
+                                            v-model="extract_phase_form.is_merge_pages"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Exclude head tables count</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_phase_form.exclude_head_tables_count"
+                                            class="form-number-input"
+                                        />
+                                    </div>
 
-		<div class="row">
-			<div class="col-8">
-				<div
-					class="extract-phase-result"
-					style="display: flex; flex-direction: column; gap: 1rem"
-				>
-					<div
-						class="text-center text-primary my-2"
-						v-if="is_loading_extract_phase"
-						style="opacity: 0.5"
-					>
-						<b-spinner class="align-middle" type="grow"></b-spinner>
-						<strong>Đang tải dữ liệu...</strong>
-					</div>
-					<div
-						class="card-rate"
-						v-for="(table, index) in extract_phase_result"
-						:key="index"
-						header-tag="header"
-						v-else
-					>
-						<div class="time">Bảng thứ {{ index + 1 }}</div>
-						<div class="line"></div>
-						<div class="container-rate">
-							<div class="box-rate">
-								<div class="review-content">
-									{{ table }}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<b-card>
-					<div class="form-group">
-						<label for="method">Method</label>
-						<small class="text-danger">*</small>
-						<treeselect
-							:multiple="false"
-							id="method"
-							placeholder="Chọn cách thức.."
-							v-model="extract_phase_form.method"
-							:options="extract_phase_options.methods"
-							required
-						/>
-					</div>
-					<div class="form-group">
-						<label for="camelotFlavor">Camelot Flavor</label>
-						<small class="text-danger">*</small>
-						<treeselect
-							id="camelotFlavor"
-							placeholder="Chọn cấu hình.."
-							v-model="extract_phase_form.camelot_flavor"
-							:options="extract_phase_options.camelot_flavors"
-							required
-						/>
-					</div>
-					<div class="form-group d-flex flex-row">
-						<label>Merge Pages</label>
-						<b-form-checkbox
-							v-model="extract_phase_form.is_merge_pages"
-							style="margin-left: 10px"
-						/>
-					</div>
-					<div class="form-group">
-						<label>Exclude head tables count</label>
-						<b-form-input
-							type="number"
-							v-model="extract_phase_form.exclude_head_tables_count"
-							class="form-number-input"
-						/>
-					</div>
+                                    <div class="form-group">
+                                        <label>Exclude tail tables count</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_phase_form.exclude_tail_tables_count"
+                                            class="form-number-input"
+                                        />
+                                    </div>
 
-					<div class="form-group">
-						<label>Exclude tail tables count</label>
-						<b-form-input
-							type="number"
-							v-model="extract_phase_form.exclude_tail_tables_count"
-							class="form-number-input"
-						/>
-					</div>
+                                    <div class="form-group">
+                                        <label>Specify only 1 table</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_phase_form.specify_table_number"
+                                            class="form-number-input"
+                                        />
+                                    </div>
 
-                    <div class="form-group">
-						<label>Specify only 1 table</label>
-						<b-form-input
-							type="number"
-							v-model="extract_phase_form.specify_table_number"
-							class="form-number-input"
-						/>
-					</div>
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Specify table areas</label>
+                                        <b-form-checkbox
+                                            v-model="extract_phase_form.is_specify_table_area"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div v-if="extract_phase_form.is_specify_table_area" class="form-group">
+                                        <label for="manualPattern">Table area information</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="extract_phase_form.table_area_info" />
+                                    </div>
 
-                    <div class="form-group d-flex flex-row">
-						<label>Specify table areas</label>
-						<b-form-checkbox
-							v-model="extract_phase_form.is_specify_table_area"
-							style="margin-left: 10px"
-						/>
-					</div>
-                    <div v-if="extract_phase_form.is_specify_table_area" class="form-group">
-						<label for="manualPattern">Table area information</label>
-						<small class="text-danger">*</small>
-						<VueJsonEditor v-model="extract_phase_form.table_area_info" />
-					</div>
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickNextPhaseInExtractPhase(data_config_type.DATA)"
+                                            >Bước tiếp theo</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckExtractPhase(data_config_type.DATA)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                            <!-- Phase 2 -->
+                        </div>
 
-					<div class="d-flex justify-content-between">
-						<b-button variant="success" @click="onClickNextPhaseInExtractPhase"
-							>Bước tiếp theo</b-button
-						>
-						<b-button variant="primary" @click="onClickCheckExtractPhase"
-							>Kiểm tra</b-button
-						>
-					</div>
-				</b-card>
-			</div>
-			<!-- Phase 2 -->
-		</div>
+                        <div class="row">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <b-form-input
+                                        :value="JSON.stringify(convert_phase_input)"
+                                        :disabled="true"
+                                    ></b-form-input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="convert-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_convert_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <VueJsonEditor v-model="convert_phase_result" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="convert_phase_form.method"
+                                            :options="convert_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div v-if="convert_phase_form.method =='leaguecsv'" class="form-group d-flex flex-row">
+                                        <label>Without Header</label>
+                                        <b-form-checkbox
+                                            v-model="convert_phase_form.is_without_header"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualPattern">Manual Patterns</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="convert_phase_form.manual_patterns" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="regexPattern">Regex Pattern</label>
+                                        <input
+                                            id="regexPattern"
+                                            type="text"
+                                            v-model="convert_phase_form.regex_pattern"
+                                            placeholder="Nhập regex.."
+                                            class="form-control"
+                                        />
+                                    </div>
 
-		<div class="row">
-			<div class="col-md-8"></div>
-			<div class="col-md-4">
-				<div class="form-group">
-					<b-form-input
-						:value="JSON.stringify(convert_phase_input)"
-						:disabled="true"
-					></b-form-input>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-8">
-				<div
-					class="convert-phase-result"
-					style="display: flex; flex-direction: column; gap: 1rem"
-				>
-					<div
-						class="text-center text-primary my-2"
-						v-if="is_loading_convert_phase"
-						style="opacity: 0.5"
-					>
-						<b-spinner class="align-middle" type="grow"></b-spinner>
-						<strong>Đang tải dữ liệu...</strong>
-					</div>
-					<VueJsonEditor v-model="convert_phase_result" />
-				</div>
-			</div>
-			<div class="col-md-4">
-				<b-card>
-					<div class="form-group">
-						<label for="method">Method</label>
-						<small class="text-danger">*</small>
-						<treeselect
-							:multiple="false"
-							id="method"
-							placeholder="Chọn cách thức.."
-							v-model="convert_phase_form.method"
-							:options="convert_phase_options.methods"
-							required
-						/>
-					</div>
-                    <div v-if="convert_phase_form.method =='leaguecsv'" class="form-group d-flex flex-row">
-						<label>Without Header</label>
-						<b-form-checkbox
-							v-model="convert_phase_form.is_without_header"
-							style="margin-left: 10px"
-						/>
-					</div>
-					<div class="form-group">
-						<label for="manualPattern">Manual Patterns</label>
-						<small class="text-danger">*</small>
-						<VueJsonEditor v-model="convert_phase_form.manual_patterns" />
-					</div>
-					<div class="form-group">
-						<label for="regexPattern">Regex Pattern</label>
-						<input
-							id="regexPattern"
-							type="text"
-							v-model="convert_phase_form.regex_pattern"
-							placeholder="Nhập regex.."
-							class="form-control"
-						/>
-					</div>
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickNextPhaseInConvertPhase(data_config_type.DATA)"
+                                            >Bước tiếp theo</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckConvertPhase(data_config_type.DATA)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                        </div>
 
-					<div class="d-flex justify-content-between">
-						<b-button variant="success" @click="onClickNextPhaseInConvertPhase"
-							>Bước tiếp theo</b-button
-						>
-						<b-button variant="primary" @click="onClickCheckConvertPhase"
-							>Kiểm tra</b-button
-						>
-					</div>
-				</b-card>
-			</div>
-		</div>
+                        <div class="row">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <b-form-input
+                                        :value="JSON.stringify(restructure_phase_input)"
+                                        :disabled="true"
+                                    ></b-form-input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="convert-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_restructure_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <VueJsonEditor v-model="restructure_phase_result" />
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex flex-column justify-content-between">
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="restructure_phase_form.method"
+                                            :options="restructure_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualPattern">Structure</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="restructure_phase_form.structure" />
+                                    </div>
 
-		<div class="row">
-			<div class="col-md-8"></div>
-			<div class="col-md-4">
-				<div class="form-group">
-					<b-form-input
-						:value="JSON.stringify(restructure_phase_input)"
-						:disabled="true"
-					></b-form-input>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-8">
-				<div
-					class="convert-phase-result"
-					style="display: flex; flex-direction: column; gap: 1rem"
-				>
-					<div
-						class="text-center text-primary my-2"
-						v-if="is_loading_restructure_phase"
-						style="opacity: 0.5"
-					>
-						<b-spinner class="align-middle" type="grow"></b-spinner>
-						<strong>Đang tải dữ liệu...</strong>
-					</div>
-					<VueJsonEditor v-model="restructure_phase_result" />
-				</div>
-			</div>
-			<div class="col-md-4 d-flex flex-column justify-content-between">
-				<b-card>
-					<div class="form-group">
-						<label for="method">Method</label>
-						<small class="text-danger">*</small>
-						<treeselect
-							:multiple="false"
-							id="method"
-							placeholder="Chọn cách thức.."
-							v-model="restructure_phase_form.method"
-							:options="restructure_phase_options.methods"
-							required
-						/>
-					</div>
-					<div class="form-group">
-						<label for="manualPattern">Structure</label>
-						<small class="text-danger">*</small>
-						<VueJsonEditor v-model="restructure_phase_form.structure" />
-					</div>
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickUpdateConfig(data_config_type.DATA)"
+                                            >Lưu cấu hình</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckRestructurePhase(data_config_type.DATA)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                        </div>
+                    </b-card-text>
+                    </b-tab>
+                    <!-- CẤU HÌNH HEADER -->
+                    <b-tab title="Cấu hình header">
+                    <b-card-text>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="extract-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_extract_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <div
+                                        class="card-rate"
+                                        v-for="(table, index) in extract_header_phase_result"
+                                        :key="index"
+                                        header-tag="header"
+                                        v-else
+                                    >
+                                        <div class="time">Bảng thứ {{ index + 1 }}</div>
+                                        <div class="line"></div>
+                                        <div class="container-rate">
+                                            <div class="box-rate">
+                                                <div class="review-content">
+                                                    {{ table }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group d-flex flex-row">
+                                    <label>Enable convert header</label>
+                                    <b-form-checkbox
+                                        v-model="is_convert_header"
+                                        style="margin-left: 10px"
+                                    />
+                                </div>
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="extract_header_phase_form.method"
+                                            :options="extract_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="camelotFlavor">Camelot Flavor</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            id="camelotFlavor"
+                                            placeholder="Chọn cấu hình.."
+                                            v-model="extract_header_phase_form.camelot_flavor"
+                                            :options="extract_phase_options.camelot_flavors"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Merge Pages</label>
+                                        <b-form-checkbox
+                                            v-model="extract_header_phase_form.is_merge_pages"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Exclude head tables count</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_header_phase_form.exclude_head_tables_count"
+                                            class="form-number-input"
+                                        />
+                                    </div>
 
-					<div class="d-flex justify-content-between">
-						<b-button variant="success" @click="onClickUpdateConfig"
-							>Lưu cấu hình</b-button
-						>
-						<b-button variant="primary" @click="onClickCheckRestructurePhase"
-							>Kiểm tra</b-button
-						>
-					</div>
-				</b-card>
+                                    <div class="form-group">
+                                        <label>Exclude tail tables count</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_header_phase_form.exclude_tail_tables_count"
+                                            class="form-number-input"
+                                        />
+                                    </div>
 
-				<b-card>
-					<b-form @submit.prevent="onClickCreateConfig">
-						<div class="row">
-							<div class="col-md-8">
-								<b-form-input
-									type="text"
-									v-model="create_config_form.name"
-									placeholder="Nhập tên cấu hình.."
-									required
-								/>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-8">
-								<treeselect
-									:multiple="false"
-									id="method2"
-									placeholder="Chọn customer group.."
-									v-model="create_config_form.customer_group_id"
-									:options="customer_group_options"
-									:normalizer="normalizer"
-									required
-								/>
-							</div>
-							<div class="col-md-4">
-								<b-button variant="primary" type="submit">Tạo cấu hình</b-button>
-							</div>
-						</div>
-					</b-form>
-				</b-card>
-			</div>
-		</div>
+                                    <div class="form-group">
+                                        <label>Specify only 1 table</label>
+                                        <b-form-input
+                                            type="number"
+                                            v-model="extract_header_phase_form.specify_table_number"
+                                            class="form-number-input"
+                                        />
+                                    </div>
+
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Specify table areas</label>
+                                        <b-form-checkbox
+                                            v-model="extract_header_phase_form.is_specify_table_area"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div v-if="extract_header_phase_form.is_specify_table_area" class="form-group">
+                                        <label for="manualPattern">Table area information</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="extract_header_phase_form.table_area_info" />
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickNextPhaseInExtractPhase(data_config_type.HEADER)"
+                                            >Bước tiếp theo</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckExtractPhase(data_config_type.HEADER)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                            <!-- Phase 2 -->
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <b-form-input
+                                        :value="JSON.stringify(convert_header_phase_input)"
+                                        :disabled="true"
+                                    ></b-form-input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="convert-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_convert_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <VueJsonEditor v-model="convert_header_phase_result" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="convert_header_phase_form.method"
+                                            :options="convert_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div v-if="convert_header_phase_form.method =='leaguecsv'" class="form-group d-flex flex-row">
+                                        <label>Without Header</label>
+                                        <b-form-checkbox
+                                            v-model="convert_header_phase_form.is_without_header"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualPattern">Manual Patterns</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="convert_header_phase_form.manual_patterns" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="regexPattern">Regex Pattern</label>
+                                        <input
+                                            id="regexPattern"
+                                            type="text"
+                                            v-model="convert_header_phase_form.regex_pattern"
+                                            placeholder="Nhập regex.."
+                                            class="form-control"
+                                        />
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickNextPhaseInConvertPhase(data_config_type.HEADER)"
+                                            >Bước tiếp theo</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckConvertPhase(data_config_type.HEADER)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <b-form-input
+                                        :value="JSON.stringify(restructure_header_phase_input)"
+                                        :disabled="true"
+                                    ></b-form-input>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <div
+                                    class="convert-phase-result"
+                                    style="display: flex; flex-direction: column; gap: 1rem"
+                                >
+                                    <div
+                                        class="text-center text-primary my-2"
+                                        v-if="is_loading_restructure_phase"
+                                        style="opacity: 0.5"
+                                    >
+                                        <b-spinner class="align-middle" type="grow"></b-spinner>
+                                        <strong>Đang tải dữ liệu...</strong>
+                                    </div>
+                                    <VueJsonEditor v-model="restructure_header_phase_result" />
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex flex-column justify-content-between">
+                                <b-card>
+                                    <div class="form-group">
+                                        <label for="method">Method</label>
+                                        <small class="text-danger">*</small>
+                                        <treeselect
+                                            :multiple="false"
+                                            id="method"
+                                            placeholder="Chọn cách thức.."
+                                            v-model="restructure_header_phase_form.method"
+                                            :options="restructure_header_phase_options.methods"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualPattern">Structure</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="restructure_header_phase_form.structure" />
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+                                        <b-button variant="success" @click="onClickUpdateConfig(data_config_type.HEADER)"
+                                            >Lưu cấu hình</b-button
+                                        >
+                                        <b-button variant="primary" @click="onClickCheckRestructurePhase(data_config_type.HEADER)"
+                                            >Kiểm tra</b-button
+                                        >
+                                    </div>
+                                </b-card>
+                            </div>
+                        </div>
+                    </b-card-text>
+                    </b-tab>
+                </b-tabs>
+            </b-card>
+            <b-card>
+                <b-form @submit.prevent="onClickCreateConfig">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <b-form-input
+                                type="text"
+                                v-model="create_config_form.name"
+                                placeholder="Nhập tên cấu hình.."
+                                required
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <treeselect
+                                :multiple="false"
+                                id="method2"
+                                placeholder="Chọn customer group.."
+                                v-model="create_config_form.customer_group_id"
+                                :options="customer_group_options"
+                                :normalizer="normalizer"
+                                required
+                            />
+                        </div>
+                        <div class="col-md-2">
+                            <b-button variant="primary" type="submit">Tạo cấu hình</b-button>
+                        </div>
+                    </div>
+                </b-form>
+            </b-card>
+        </div>
+
 	</div>
 </template>
 
@@ -354,8 +629,19 @@
                     is_specify_table_area: false,
                     table_area_info: [],
 				},
+                extract_header_phase_form: {
+					method: 'camelot',
+					camelot_flavor: 'lattice',
+					is_merge_pages: true,
+					exclude_head_tables_count: 0,
+					exclude_tail_tables_count: 0,
+                    specify_table_number: 0,
+                    is_specify_table_area: false,
+                    table_area_info: [],
+				},
 
 				extract_phase_result: [],
+                extract_header_phase_result: [],
 				extract_phase_options: {
 					methods: [{ id: 'camelot', label: 'Camelot' }],
 					camelot_flavors: [
@@ -366,13 +652,21 @@
 
 				is_loading_convert_phase: false,
 				convert_phase_input: null,
+                convert_header_phase_input: null,
 				convert_phase_form: {
 					method: 'leaguecsv',
 					manual_patterns: [],
 					regex_pattern: null,
                     is_without_header: false,
 				},
+                convert_header_phase_form: {
+					method: 'leaguecsv',
+					manual_patterns: [],
+					regex_pattern: null,
+                    is_without_header: false,
+				},
 				convert_phase_result: null,
+                convert_header_phase_result: null,
 				convert_phase_options: {
 					methods: [
 						{ id: 'manual', label: 'Manual' },
@@ -384,19 +678,29 @@
 
 				is_loading_restructure_phase: false,
 				restructure_phase_input: null,
+                restructure_header_phase_input: null,
 				restructure_phase_form: {
 					method: 'arraymappingbyindex',
+					structure: {},
+				},
+                restructure_header_phase_form: {
+					method: 'arraymappingbymergeindex',
 					structure: {},
 				},
 				restructure_phase_options: {
 					methods: [
 						{ id: 'arraymappingbyindex', label: 'Array Mapping By Index' },
 						{ id: 'arraymappingbykey', label: 'Array Mapping By Key' },
-                        { id: 'arraymappingbymergeindex', label: 'Array Mapping By Merge Index' },
-                        { id: 'arraymappingbysearchtext', label: 'Array Mapping By Search Text' },
 					],
 				},
+                restructure_header_phase_options: {
+                    methods: [
+                        { id: 'arraymappingbymergeindex', label: 'Array Mapping By Merge Index' },
+                        { id: 'arraymappingbysearchtext', label: 'Array Mapping By Search Text' },
+                    ],
+                },
 				restructure_phase_result: null,
+                restructure_header_phase_result: null,
 
 				customer_group_options: [],
 				load_extract_order_config_options: null,
@@ -406,13 +710,22 @@
 					extract_data_config: null,
 					convert_table_config: null,
 					restructure_data_config: null,
+                    extract_header_config: null,
+                    convert_table_header_config: null,
+                    restructure_header_config: null,
 					name: null,
+                    is_convert_header: false,
 				},
 
 				load_config_form: {
 					customer_group_id: null,
 					extract_order_id: null,
 				},
+                data_config_type: Object.freeze({
+                    DATA: 'data',
+                    HEADER: 'header'
+                }),
+                is_convert_header: false,
 			};
 		},
 		created() {
@@ -431,32 +744,56 @@
 					label: node.name,
 				};
 			},
-			async onClickCheckExtractPhase() {
+			async onClickCheckExtractPhase(data_config_type) {
 				try {
 					if (this.is_loading_extract_phase) return;
 					this.is_loading_extract_phase = true;
 
-					const { data } = await this.api_handler
-						.setHeaders({
-							'Content-Type': 'multipart/form-data',
-						})
-						.post(
-							'/api/ai/config/extract',
-							{},
-							APIHandler.createFormData({
-								file: this.file,
-								...this.extract_phase_form,
-								extract_method: this.extract_phase_form.method,
-                                table_area_info: JSON.stringify(
-									this.extract_phase_form.table_area_info,
-								),
-							}),
-						)
-						.finally(() => {
-							this.is_loading_extract_phase = false;
-						});
+                    if (data_config_type === this.data_config_type.DATA) {
+                        const { data } = await this.api_handler
+                            .setHeaders({
+                                'Content-Type': 'multipart/form-data',
+                            })
+                            .post(
+                                '/api/ai/config/extract',
+                                {},
+                                APIHandler.createFormData({
+                                    file: this.file,
+                                    ...this.extract_phase_form,
+                                    extract_method: this.extract_phase_form.method,
+                                    table_area_info: JSON.stringify(
+                                        this.extract_phase_form.table_area_info,
+                                    ),
+                                }),
+                            )
+                            .finally(() => {
+                                this.is_loading_extract_phase = false;
+                            });
 
-					this.extract_phase_result = data;
+                        this.extract_phase_result = data;
+                    } else {
+                        const { data } = await this.api_handler
+                            .setHeaders({
+                                'Content-Type': 'multipart/form-data',
+                            })
+                            .post(
+                                '/api/ai/config/extract',
+                                {},
+                                APIHandler.createFormData({
+                                    file: this.file,
+                                    ...this.extract_header_phase_form,
+                                    extract_method: this.extract_header_phase_form.method,
+                                    table_area_info: JSON.stringify(
+                                        this.extract_header_phase_form.table_area_info,
+                                    ),
+                                }),
+                            )
+                            .finally(() => {
+                                this.is_loading_extract_phase = false;
+                            });
+
+                        this.extract_header_phase_result = data;
+                    }
 
 					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
 				} catch (error) {
@@ -465,35 +802,61 @@
 				}
 			},
 
-			onClickNextPhaseInExtractPhase() {
-				this.convert_phase_input = this.extract_phase_result;
-				this.create_config_form.extract_data_config = this.extract_phase_form;
+			onClickNextPhaseInExtractPhase(data_config_type) {
+                if (data_config_type === this.data_config_type.DATA) {
+                    this.convert_phase_input = this.extract_phase_result;
+                    this.create_config_form.extract_data_config = this.extract_phase_form;
+                } else {
+                    this.convert_header_phase_input = this.extract_header_phase_result;
+                    this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                }
 			},
 
-			async onClickCheckConvertPhase() {
+			async onClickCheckConvertPhase(data_config_type) {
 				try {
 					if (this.is_loading_convert_phase) return;
 					this.is_loading_convert_phase = true;
+                    if (data_config_type === this.data_config_type.DATA) {
+                        const { data } = await this.api_handler
+                            .post(
+                                '/api/ai/config/convert',
+                                {},
+                                {
+                                    raw_table_data: JSON.stringify(this.convert_phase_input),
+                                    convert_method: this.convert_phase_form.method,
+                                    manual_patterns: JSON.stringify(
+                                        this.convert_phase_form.manual_patterns,
+                                    ),
+                                    regex_pattern: this.convert_phase_form.regex_pattern,
+                                    is_without_header: this.convert_phase_form.is_without_header,
+                                },
+                            )
+                            .finally(() => {
+                                this.is_loading_convert_phase = false;
+                            });
 
-					const { data } = await this.api_handler
-						.post(
-							'/api/ai/config/convert',
-							{},
-							{
-								raw_table_data: JSON.stringify(this.convert_phase_input),
-								convert_method: this.convert_phase_form.method,
-								manual_patterns: JSON.stringify(
-									this.convert_phase_form.manual_patterns,
-								),
-								regex_pattern: this.convert_phase_form.regex_pattern,
-                                is_without_header: this.convert_phase_form.is_without_header,
-							},
-						)
-						.finally(() => {
-							this.is_loading_convert_phase = false;
-						});
+                        this.convert_phase_result = data;
+                    } else {
+                        const { data } = await this.api_handler
+                            .post(
+                                '/api/ai/config/convert',
+                                {},
+                                {
+                                    raw_table_data: JSON.stringify(this.convert_header_phase_input),
+                                    convert_method: this.convert_header_phase_form.method,
+                                    manual_patterns: JSON.stringify(
+                                        this.convert_header_phase_form.manual_patterns,
+                                    ),
+                                    regex_pattern: this.convert_header_phase_form.regex_pattern,
+                                    is_without_header: this.convert_header_phase_form.is_without_header,
+                                },
+                            )
+                            .finally(() => {
+                                this.is_loading_convert_phase = false;
+                            });
 
-					this.convert_phase_result = data;
+                        this.convert_header_phase_result = data;
+                    }
 
 					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
 				} catch (error) {
@@ -502,32 +865,56 @@
 				}
 			},
 
-			onClickNextPhaseInConvertPhase() {
-				this.restructure_phase_input = this.convert_phase_result;
-				this.create_config_form.convert_table_config = this.convert_phase_form;
+			onClickNextPhaseInConvertPhase(data_config_type) {
+                if (data_config_type === this.data_config_type.DATA) {
+                    this.restructure_phase_input = this.convert_phase_result;
+                    this.create_config_form.convert_table_config = this.convert_phase_form;
+                } else {
+                    this.restructure_header_phase_input = this.convert_header_phase_result;
+                    this.create_config_form.convert_table_header_config = this.convert_header_phase_form;
+                }
 			},
 
-			async onClickCheckRestructurePhase() {
+			async onClickCheckRestructurePhase(data_config_type) {
 				try {
 					if (this.is_loading_restructure_phase) return;
 					this.is_loading_restructure_phase = true;
 
-					const { data } = await this.api_handler
-						.post(
-							'/api/ai/config/restructure',
-							{},
-							{
-								name: this.create_config_form.name,
-								table_data: JSON.stringify(this.restructure_phase_input),
-								restructure_method: this.restructure_phase_form.method,
-								structure: JSON.stringify(this.restructure_phase_form.structure),
-							},
-						)
-						.finally(() => {
-							this.is_loading_restructure_phase = false;
-						});
+                    if (data_config_type === this.data_config_type.DATA) {
+                        const { data } = await this.api_handler
+                            .post(
+                                '/api/ai/config/restructure',
+                                {},
+                                {
+                                    name: this.create_config_form.name,
+                                    table_data: JSON.stringify(this.restructure_phase_input),
+                                    restructure_method: this.restructure_phase_form.method,
+                                    structure: JSON.stringify(this.restructure_phase_form.structure),
+                                },
+                            )
+                            .finally(() => {
+                                this.is_loading_restructure_phase = false;
+                            });
 
-					this.restructure_phase_result = data;
+                        this.restructure_phase_result = data;
+                    } else {
+                        const { data } = await this.api_handler
+                            .post(
+                                '/api/ai/config/restructure',
+                                {},
+                                {
+                                    name: this.create_config_form.name,
+                                    table_data: JSON.stringify(this.restructure_header_phase_input),
+                                    restructure_method: this.restructure_header_phase_form.method,
+                                    structure: JSON.stringify(this.restructure_header_phase_form.structure),
+                                },
+                            )
+                            .finally(() => {
+                                this.is_loading_restructure_phase = false;
+                            });
+
+                        this.restructure_header_phase_result = data;
+                    }
 
 					this.$showMessage('success', 'Gửi yêu cầu xử lý file thành công');
 				} catch (error) {
@@ -537,9 +924,15 @@
 			},
 
 			async onClickCreateConfig() {
-				this.create_config_form.restructure_data_config = this.restructure_phase_form;
+                this.create_config_form.restructure_data_config = this.restructure_phase_form;
+                this.create_config_form.extract_data_config = this.extract_phase_form;
+                this.create_config_form.convert_table_config = this.convert_phase_form;
+                this.create_config_form.restructure_header_config = this.restructure_header_phase_form;
+                this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                this.create_config_form.convert_table_header_config = this.convert_header_phase_form;
+                this.create_config_form.is_convert_header = this.is_convert_header;
 
-				try {
+                try {
 					const { data } = await this.api_handler.post(
 						'/api/ai/config',
 						{},
@@ -551,7 +944,11 @@
 
 							restructure_data_config:
 								this.create_config_form.restructure_data_config,
+                            extract_header_config: this.create_config_form.extract_header_config,
+                            convert_table_header_config: this.create_config_form.convert_table_header_config,
+                            restructure_header_config: this.create_config_form.restructure_header_config,
 							name: this.create_config_form.name,
+                            is_convert_header: this.is_convert_header,
 						},
 					);
 					this.create_config_form = {
@@ -559,7 +956,11 @@
 						extract_data_config: null,
 						convert_table_config: null,
 						restructure_data_config: null,
+                        extract_header_config: null,
+                        convert_table_header_config: null,
+                        restructure_header_config: null,
 						name: null,
+                        is_convert_header: false,
 					};
 					this.$showMessage('success', 'Tạo cấu hình thành công');
 				} catch (error) {
@@ -570,44 +971,81 @@
 
 			async onClickLoadConfig() {
 				try {
-					this.create_config_form.customer_group_id =
-						this.load_config_form.customer_group_id;
-					const { data } = await this.api_handler.get(`/api/ai/config/customer-groups`, {
-						customer_group_ids: [this.load_config_form.customer_group_id],
-					});
-					let extract_order_config_response = data[0];
-					let extract_response = extract_order_config_response.extract_data_config;
-					this.extract_phase_form = {
-						method: extract_response.method,
-						camelot_flavor: extract_response.camelot_flavor,
-						is_merge_pages: extract_response.is_merge_pages,
-						exclude_head_tables_count: extract_response.exclude_head_tables_count,
-						exclude_tail_tables_count: extract_response.exclude_tail_tables_count,
-                        specify_table_number: extract_response.specify_table_number,
-                        is_specify_table_area: extract_response.is_specify_table_area,
-                        table_area_info: extract_response.table_area_info
-                            ? JSON.parse(extract_response.table_area_info)
-                            : null,
-					};
+                    this.resetDataForm();
+                    this.create_config_form.customer_group_id =
+                        this.load_config_form.customer_group_id;
+                    const { data } = await this.api_handler.get(`/api/ai/config/customer-groups`, {
+                        customer_group_ids: [this.load_config_form.customer_group_id],
+                        extract_order_config_ids: [this.load_config_form.extract_order_id],
+                    });
+                    let extract_order_config_response = data[0];
+                    let extract_response = extract_order_config_response.extract_data_config;
+                    this.extract_phase_form = extract_response ? {
+                            method: extract_response.method,
+                            camelot_flavor: extract_response.camelot_flavor,
+                            is_merge_pages: extract_response.is_merge_pages,
+                            exclude_head_tables_count: extract_response.exclude_head_tables_count,
+                            exclude_tail_tables_count: extract_response.exclude_tail_tables_count,
+                            specify_table_number: extract_response.specify_table_number,
+                            is_specify_table_area: extract_response.is_specify_table_area,
+                            table_area_info: extract_response.table_area_info
+                                ? JSON.parse(extract_response.table_area_info)
+                                : null,
+                        } : this.extract_phase_form;
 
-					let convert_response = extract_order_config_response.convert_table_config;
-					this.convert_phase_form = {
-						method: convert_response.method,
-						manual_patterns: convert_response.manual_patterns
-							? JSON.parse(convert_response.manual_patterns)
-							: null,
-						regex_pattern: convert_response.regex_pattern,
-                        is_without_header: convert_response.is_without_header,
-					};
+                    let extract_header_response = extract_order_config_response.extract_header_config;
+                    this.extract_header_phase_form = extract_header_response ? {
+                            method: extract_header_response.method,
+                            camelot_flavor: extract_header_response.camelot_flavor,
+                            is_merge_pages: extract_header_response.is_merge_pages,
+                            exclude_head_tables_count: extract_header_response.exclude_head_tables_count,
+                            exclude_tail_tables_count: extract_header_response.exclude_tail_tables_count,
+                            specify_table_number: extract_header_response.specify_table_number,
+                            is_specify_table_area: extract_header_response.is_specify_table_area,
+                            table_area_info: extract_header_response.table_area_info
+                                ? JSON.parse(extract_header_response.table_area_info)
+                                : null,
+                        } : this.extract_header_phase_form;
 
-					let restructure_response =
-						extract_order_config_response.restructure_data_config;
-					this.restructure_phase_form = {
-						method: restructure_response.method,
-						structure: restructure_response.structure
-							? JSON.parse(restructure_response.structure)
-							: null,
-					};
+                    let convert_response = extract_order_config_response.convert_table_config;
+                    this.convert_phase_form = convert_response ? {
+                            method: convert_response.method,
+                            manual_patterns: convert_response.manual_patterns
+                                ? JSON.parse(convert_response.manual_patterns)
+                                : null,
+                            regex_pattern: convert_response.regex_pattern,
+                            is_without_header: convert_response.is_without_header,
+                        } : this.convert_phase_form;
+
+                    let convert_header_response = extract_order_config_response.convert_table_header_config;
+                    this.convert_header_phase_form = convert_header_response ? {
+                            method: convert_header_response.method,
+                            manual_patterns: convert_header_response.manual_patterns
+                                ? JSON.parse(convert_header_response.manual_patterns)
+                                : null,
+                            regex_pattern: convert_header_response.regex_pattern,
+                            is_without_header: convert_header_response.is_without_header,
+                        } : this.convert_header_phase_form;
+
+                    let restructure_response =
+                        extract_order_config_response.restructure_data_config;
+                    this.restructure_phase_form = restructure_response ? {
+                            method: restructure_response.method,
+                            structure: restructure_response.structure
+                                ? JSON.parse(restructure_response.structure)
+                                : null,
+                        } : this.restructure_phase_form;
+
+                    let restructure_header_response =
+                        extract_order_config_response.restructure_header_config;
+                    this.restructure_header_phase_form = restructure_header_response ? {
+                            method: restructure_header_response.method,
+                            structure: restructure_header_response.structure
+                                ? JSON.parse(restructure_header_response.structure)
+                                : null,
+                        } : this.restructure_header_phase_form;
+                    this.is_convert_header = extract_order_config_response.is_convert_header;
+
 					this.$showMessage('success', 'Tải cấu hình thành công');
 				} catch (error) {
 					console.log(error);
@@ -615,14 +1053,24 @@
 				}
 			},
 
-			async onClickUpdateConfig() {
+			async onClickUpdateConfig(data_config_type) {
 				try {
-					let update_config_form = {
-						customer_group_id: this.load_config_form.customer_group_id,
-						extract_data_config: this.extract_phase_form,
-						convert_table_config: this.convert_phase_form,
-						restructure_data_config: this.restructure_phase_form,
-					};
+                    let update_config_form = (data_config_type == this.data_config_type.DATA) ?
+                    {
+                        customer_group_id: this.load_config_form.customer_group_id,
+                        extract_data_config: this.extract_phase_form,
+                        convert_table_config: this.convert_phase_form,
+                        restructure_data_config: this.restructure_phase_form,
+                        data_config_type: data_config_type,
+                    } :
+                    {
+                        customer_group_id: this.load_config_form.customer_group_id,
+                        extract_header_config: this.extract_header_phase_form,
+                        convert_table_header_config: this.convert_header_phase_form,
+                        restructure_header_config: this.restructure_header_phase_form,
+                        data_config_type: data_config_type,
+                        is_convert_header: this.is_convert_header,
+                    };
 
 					const { data } = await this.api_handler.put(
 						`/api/ai/config/${this.load_config_form.extract_order_id}`,
@@ -634,14 +1082,96 @@
 						extract_data_config: null,
 						convert_table_config: null,
 						restructure_data_config: null,
+                        extract_header_config: null,
+                        convert_table_header_config: null,
+                        restructure_header_config: null,
 						name: null,
+                        is_convert_header: false,
 					};
-					this.$showMessage('success', 'Cập nhật cấu hình thành công');
+                    let msg = (data_config_type == this.data_config_type.DATA) ?
+                        'Cập nhật cấu hình data thành công' : 'Cập nhật cấu hình header thành công';
+					this.$showMessage('success', msg);
 				} catch (error) {
 					console.log(error);
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				}
 			},
+            resetDataForm() {
+                this.file =  null;
+                this.extract_phase_form = {
+                    method: 'camelot',
+                    camelot_flavor: 'lattice',
+                    is_merge_pages: true,
+                    exclude_head_tables_count: 0,
+                    exclude_tail_tables_count: 0,
+                    specify_table_number: 0,
+                    is_specify_table_area: false,
+                    table_area_info: []
+                };
+                this.extract_header_phase_form = {
+                    method: 'camelot',
+                    camelot_flavor: 'lattice',
+                    is_merge_pages: true,
+                    exclude_head_tables_count: 0,
+                    exclude_tail_tables_count: 0,
+                    specify_table_number: 0,
+                    is_specify_table_area: false,
+                    table_area_info: []
+                };
+
+                this.extract_phase_result = [];
+                this.extract_header_phase_result = [];
+                this.extract_phase_options = {
+                    methods: [{ id: 'camelot', label: 'Camelot' }],
+                    camelot_flavors: [
+                        { id: 'stream', label: 'Stream' },
+                        { id: 'lattice', label: 'Lattice' },
+                    ]
+                };
+
+                this.convert_phase_input = null;
+                this.convert_header_phase_input = null;
+                this.convert_phase_form = {
+                    method: 'leaguecsv',
+                    manual_patterns: [],
+                    regex_pattern: null,
+                    is_without_header: false
+                };
+                this.convert_header_phase_form = {
+                    method: 'leaguecsv',
+                    manual_patterns: [],
+                    regex_pattern: null,
+                    is_without_header: false
+                };
+                this.convert_phase_result = null;
+                this.convert_header_phase_result = null;
+
+                this.restructure_phase_input = null;
+                this.restructure_header_phase_input = null;
+                this.restructure_phase_form = {
+                    method: 'arraymappingbyindex',
+                    structure: {}
+                };
+                this.restructure_header_phase_form = {
+                    method: 'arraymappingbymergeindex',
+                    structure: {}
+                };
+
+                this.restructure_phase_result = null;
+                this.restructure_header_phase_result = null;
+
+                this.create_config_form = {
+                    customer_group_id: null,
+                    extract_data_config: null,
+                    convert_table_config: null,
+                    restructure_data_config: null,
+                    extract_header_config: null,
+                    convert_table_header_config: null,
+                    restructure_header_config: null,
+                    name: null
+                };
+                this.is_convert_header = false;
+            },
 		},
 
 		watch: {
@@ -742,19 +1272,19 @@
 	.extract-phase-result {
 		height: 80vh;
 		overflow-y: scroll;
-		padding: 0 10px 0 10px;
+		padding: 5px 10px 5px 10px;
 		/* background-color: #fff; */
-		border-radius: 10px;
-		border: solid 1px #000;
+		/* border-radius: 10px; */
+		border: solid 1px #999;
 	}
 
 	.convert-phase-result {
 		height: 80vh;
 		overflow-y: scroll;
-		padding: 0 10px 0 10px;
+		padding: 5px 10px 5px 10px;
 		/* background-color: #fff; */
-		border-radius: 10px;
-		border: solid 1px #000;
+		/* border-radius: 10px; */
+		border: solid 1px #999;
 	}
 
 	.form-check-input {

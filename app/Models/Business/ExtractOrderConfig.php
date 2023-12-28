@@ -15,13 +15,18 @@ class ExtractOrderConfig extends Model
         'extract_data_config_id',
         'convert_table_config_id',
         'restructure_data_config_id',
+        'extract_header_config_id',
+        'convert_table_header_config_id',
+        'restructure_header_config_id',
         'name',
         'reference_id',
-        'is_official'
+        'is_official',
+        'is_convert_header',
     ];
 
     protected $casts = [
-        'is_official' => 'boolean'
+        'is_official' => 'boolean',
+        'is_convert_header' => 'boolean'
     ];
 
     public function customer_group()
@@ -40,6 +45,21 @@ class ExtractOrderConfig extends Model
     }
 
     public function restructure_data_config()
+    {
+        return $this->belongsTo(RestructureDataConfig::class);
+    }
+
+    public function extract_header_config()
+    {
+        return $this->belongsTo(ExtractDataConfig::class);
+    }
+
+    public function convert_table_header_config()
+    {
+        return $this->belongsTo(ConvertTableConfig::class);
+    }
+
+    public function restructure_header_config()
     {
         return $this->belongsTo(RestructureDataConfig::class);
     }

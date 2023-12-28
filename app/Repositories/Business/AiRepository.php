@@ -124,18 +124,54 @@ class AiRepository extends RepositoryAbs
             $file_record->status_id = $processing_status->id;
             $file_record->save();
             $file_path = Storage::disk('protected')->path($file_record->path);
-            $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($file_record->batch->extract_order_config_id);
+            $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config',
+                'extract_header_config', 'convert_table_header_config', 'restructure_header_config'])
+                ->find($file_record->batch->extract_order_config_id);
 
             $final_data = $this->extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config);
+            $final_header = $extract_order_config ?
+                $this->extractHeaderFromUploadedFile($file_record, $file_path, $extract_order_config) :
+                [];
 
             DB::beginTransaction();
             $customer_group = $file_record->batch->customer->group;
             $created_extract_items = new  \Illuminate\Database\Eloquent\Collection([]);
             $error_extract_items = [];
-            $raw_extract_header = RawExtractHeader::firstOrCreate([
-                'customer_id' => $file_record->batch->customer_id,
-                'uploaded_file_id' => $file_record->id,
-            ]);
+
+            $po_number = isset($final_header['PoNumber']) ? $final_header['PoNumber'] : '';
+            $po_person = isset($final_header['PoPerson']) ? $final_header['PoPerson'] : '';
+            $po_phone = isset($final_header['PoPhone']) ? $final_header['PoPhone'] : '';
+            $po_delivery_address = isset($final_header['PoDeliveryAddress']) ? $final_header['PoDeliveryAddress'] : '';
+            $po_note = isset($final_header['PoNote']) ? $final_header['PoNote'] : '';
+            $po_email = isset($final_header['PoEmail']) ? $final_header['PoEmail'] : '';
+            // $po_delivery_date = isset($final_header['PoDeliveryDate']) ? $final_header['PoDeliveryDate'] : null;
+            // $po_date = isset($final_header['PoDate']) ? $final_header['PoDate'] : null;
+            $po_delivery_date = null;
+            $po_date = null;
+            // if ($po_date) {
+            //     $originalDate = $po_date ? $po_date : null;
+            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
+            //     $po_date = $converted_date->format('Y-m-d');
+            // }
+            // if ($po_delivery_date) {
+            //     $originalDate = $po_delivery_date ? $po_delivery_date : null;
+            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
+            //     $po_delivery_date = $converted_date->format('Y-m-d');
+            // }
+
+            $raw_extract_header = RawExtractHeader::firstOrCreate(
+                [
+                    'customer_id' => $file_record->batch->customer_id,
+                    'uploaded_file_id' => $file_record->id,
+                    'po_number' => $po_number,
+                    'po_date' => $po_date,
+                    'po_person' => $po_person,
+                    'po_phone' => $po_phone,
+                    'po_delivery_address' => $po_delivery_address,
+                    'po_delivery_date' => $po_delivery_date,
+                    'po_note' => $po_note,
+                ]
+            );
             foreach ($final_data as $item) {
 
                 if (!isset($item['ProductID']) || $item['ProductID'] == '') {
@@ -174,10 +210,10 @@ class AiRepository extends RepositoryAbs
                     $raw_extract_header->toArray(),
                     [
                         'raw_extract_header_id' => $raw_extract_header->id,
-                        'po_person' => $file_record->batch->customer->name,
-                        'po_phone' => $file_record->batch->customer->phone_number,
-                        'po_email' => $file_record->batch->customer->email,
-                        'po_delivery_address' => $file_record->batch->customer->address,
+                        // 'po_person' => $file_record->batch->customer->name,
+                        // 'po_phone' => $file_record->batch->customer->phone_number,
+                        'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                        // 'po_delivery_address' => $file_record->batch->customer->address,
                     ]
                 )
             );
@@ -248,10 +284,10 @@ class AiRepository extends RepositoryAbs
                         $raw_extract_header->toArray(),
                         [
                             'raw_extract_header_id' => $raw_so_header->raw_extract_header_id,
-                            'po_person' => $file_record->batch->customer->name,
-                            'po_phone' => $file_record->batch->customer->phone_number,
-                            'po_email' => $file_record->batch->customer->email,
-                            'po_delivery_address' => $file_record->batch->customer->address,
+                            // 'po_person' => $file_record->batch->customer->name,
+                            // 'po_phone' => $file_record->batch->customer->phone_number,
+                            'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                            // 'po_delivery_address' => $file_record->batch->customer->address,
                             'note' => 'Đơn hàng khuyến mãi'
                         ]
                     )
@@ -386,7 +422,46 @@ class AiRepository extends RepositoryAbs
         return $final_data;
     }
 
+    private function extractHeaderFromUploadedFile($file_record, $file_path, $extract_order_config)
+    {
+        try {
+            $this->data_extractor = $this->data_extractor_instances[$extract_order_config->extract_header_config->method];
+            $raw_data = $this->extractData($file_path, $extract_order_config->extract_header_config);
+        } catch (\Throwable $exception) {
+            $extract_error = ExtractError::query()->where('code', ExtractErrorsEnum::EXTRACT_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $extract_error->id,
+            ]);
+            throw $exception;
+        }
 
+        try {
+            $this->table_converter = $this->table_converter_instances[$extract_order_config->convert_table_header_config->method];
+            $table_data = $this->convertToTable($raw_data, $extract_order_config->convert_table_header_config);
+        } catch (\Throwable $exception) {
+            $convert_error = ExtractError::query()->where('code', ExtractErrorsEnum::CONVERT_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $convert_error->id,
+            ]);
+            throw $exception;
+        }
+
+        try {
+            $this->data_restructure = $this->data_restructure_instances[$extract_order_config->restructure_header_config->method];
+            $final_data = $this->restructureData($table_data, $extract_order_config->restructure_header_config);
+        } catch (\Throwable $exception) {
+            $restructure_error = ExtractError::query()->where('code', ExtractErrorsEnum::RESTRUCTURE_ERROR)->first();
+            FileExtractError::create([
+                'uploaded_file_id' => $file_record->id,
+                'extract_error_id' => $restructure_error->id,
+            ]);
+            throw $exception;
+        }
+
+        return $final_data;
+    }
     private function extractData($file_path, $extract_data_config = null)
     {
         $options = array();
@@ -549,8 +624,8 @@ class AiRepository extends RepositoryAbs
             $query->whereIn('id', $extract_order_config_ids);
         }
 
-        $query
-            ->with(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+        $query->with(['extract_data_config', 'convert_table_config', 'restructure_data_config',
+            'extract_header_config', 'convert_table_header_config', 'restructure_header_config']);
         $extract_order_configs = $query->get();
         return $extract_order_configs;
     }
@@ -563,6 +638,9 @@ class AiRepository extends RepositoryAbs
                 'extract_data_config' => 'required',
                 'convert_table_config' => 'required',
                 'restructure_data_config' => 'required',
+                'extract_header_config' => 'required',
+                'convert_table_header_config' => 'required',
+                'restructure_header_config' => 'required',
                 'name' => 'required|unique:extract_order_configs,name',
             ], [
                 'customer_group_id.required' => 'Customer group là bắt buộc',
@@ -573,6 +651,12 @@ class AiRepository extends RepositoryAbs
                 'convert_table_config.json' => 'Convert table config không đúng định dạng json',
                 'restructure_data_config.required' => 'Restructure data config là bắt buộc',
                 'restructure_data_config.json' => 'Restructure data config không đúng định dạng json',
+                'extract_header_config.required' => 'Extract header config là bắt buộc',
+                'extract_header_config.json' => 'Extract header config không đúng định dạng json',
+                'convert_table_header_config.required' => 'Convert table header config là bắt buộc',
+                'convert_table_header_config.json' => 'Convert table header config không đúng định dạng json',
+                'restructure_header_config.required' => 'Restructure header config là bắt buộc',
+                'restructure_header_config.json' => 'Restructure header config không đúng định dạng json',
                 'name.required' => 'Tên là bắt buộc',
                 'name.unique' => 'Tên đã tồn tại',
             ]);
@@ -590,16 +674,32 @@ class AiRepository extends RepositoryAbs
                 $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
                 $restructure_data_config = RestructureDataConfig::create($this->data['restructure_data_config']);
 
+                $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
+                $extract_header_config = ExtractDataConfig::create($this->data['extract_header_config']);
+
+                $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
+                $convert_table_header_config = ConvertTableConfig::create($this->data['convert_table_header_config']);
+
+                $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
+                $restructure_header_config = RestructureDataConfig::create($this->data['restructure_header_config']);
+
+                $is_convert_header = $this->data['is_convert_header'] == 'true' ? true : false;
+
                 $extract_order_config = ExtractOrderConfig::create([
                     'name' => $this->data['name'],
                     'customer_group_id' => $this->data['customer_group_id'],
                     'extract_data_config_id' => $extract_data_config->id,
                     'convert_table_config_id' => $convert_table_config->id,
                     'restructure_data_config_id' => $restructure_data_config->id,
+                    'extract_header_config_id' => $extract_header_config->id,
+                    'convert_table_header_config_id' => $convert_table_header_config->id,
+                    'restructure_header_config_id' => $restructure_header_config->id,
+                    'is_convert_header' => $is_convert_header,
                 ]);
 
                 DB::commit();
-                $extract_order_config->load(['extract_data_config', 'convert_table_config', 'restructure_data_config']);
+                $extract_order_config->load(['extract_data_config', 'convert_table_config', 'restructure_data_config',
+                    'extract_header_config', 'convert_table_header_config', 'restructure_header_config']);
                 return $extract_order_config;
             }
         } catch (\Throwable $exception) {
@@ -612,30 +712,97 @@ class AiRepository extends RepositoryAbs
     public function updateExtractOrderConfig($extract_order_config_id)
     {
         try {
-            $validator = Validator::make($this->data, [
-                'extract_data_config' => 'required',
-                'convert_table_config' => 'required',
-                'restructure_data_config' => 'required',
-            ], [
-                'extract_data_config.required' => 'Extract data config là bắt buộc',
-                'convert_table_config.required' => 'Convert table config là bắt buộc',
-                'restructure_data_config.required' => 'Restructure data config là bắt buộc',
-            ]);
+            $data_config_type = $this->data['data_config_type'];
+            if ($data_config_type == 'data') {
+                $validator = Validator::make($this->data, [
+                    'extract_data_config' => 'required',
+                    'convert_table_config' => 'required',
+                    'restructure_data_config' => 'required',
+                ], [
+                    'extract_data_config.required' => 'Extract data config là bắt buộc',
+                    'convert_table_config.required' => 'Convert table config là bắt buộc',
+                    'restructure_data_config.required' => 'Restructure data config là bắt buộc',
+                ]);
+            } elseif ($data_config_type == 'header') {
+                $validator = Validator::make($this->data, [
+                    'extract_header_config' => 'required',
+                    'convert_table_header_config' => 'required',
+                    'restructure_header_config' => 'required',
+                ], [
+                    'extract_header_config.required' => 'Extract header config là bắt buộc',
+                    'convert_table_header_config.required' => 'Convert table header config là bắt buộc',
+                    'restructure_header_config.required' => 'Restructure header config là bắt buộc',
+                ]);
+            }
+
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
                 DB::beginTransaction();
-                $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($extract_order_config_id);
-                if (!$extract_order_config) {
-                    $this->message = 'Extract order config không tồn tại';
-                    return;
+                if ($data_config_type == 'data') {
+                    $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
+                    $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
+                    $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
+
+                    $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($extract_order_config_id);
+                    if (!$extract_order_config) {
+                        $this->message = 'Extract order config không tồn tại';
+                        return;
+                    }
+
+                    if ($extract_order_config->extract_data_config) {
+                        $extract_order_config->extract_data_config->update($this->data['extract_data_config']);
+                    } else {
+                        $extract_data_config = ExtractDataConfig::create($this->data['extract_data_config']);
+                        $extract_order_config->extract_data_config_id = $extract_data_config->id;
+                    }
+                    if ($extract_order_config->convert_table_config) {
+                        $extract_order_config->convert_table_config->update($this->data['convert_table_config']);
+                    } else {
+                        $convert_table_config = ConvertTableConfig::create($this->data['convert_table_config']);
+                        $extract_order_config->convert_table_config_id = $convert_table_config->id;
+                    }
+                    if ($extract_order_config->restructure_data_config) {
+                        $extract_order_config->restructure_data_config->update($this->data['restructure_data_config']);
+                    } else {
+                        $restructure_data_config = RestructureDataConfig::create($this->data['restructure_data_config']);
+                        $extract_order_config->restructure_data_config_id = $restructure_data_config->id;
+                    }
+                    $extract_order_config->save();
+
+                } elseif ($data_config_type == 'header') {
+                    $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
+                    $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
+                    $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
+                    $this->data['is_convert_header'] = $this->data['is_convert_header'] == 'true' ? true : false;
+
+                    $extract_order_config = ExtractOrderConfig::query()->with(['extract_header_config', 'convert_table_header_config', 'restructure_header_config'])->find($extract_order_config_id);
+                    if (!$extract_order_config) {
+                        $this->message = 'Extract order config không tồn tại';
+                        return;
+                    }
+                    $extract_order_config->is_convert_header = $this->data['is_convert_header'];
+
+                    if ($extract_order_config->extract_header_config) {
+                        $extract_order_config->extract_header_config->update($this->data['extract_header_config']);
+                    } else {
+                        $extract_header_config = ExtractDataConfig::create($this->data['extract_header_config']);
+                        $extract_order_config->extract_header_config_id = $extract_header_config->id;
+                    }
+                    if ($extract_order_config->convert_table_header_config) {
+                        $extract_order_config->convert_table_header_config->update($this->data['convert_table_header_config']);
+                    } else {
+                        $convert_table_header_config = ConvertTableConfig::create($this->data['convert_table_header_config']);
+                        $extract_order_config->convert_table_header_config_id = $convert_table_header_config->id;
+                    }
+                    if ($extract_order_config->restructure_header_config) {
+                        $extract_order_config->restructure_header_config->update($this->data['restructure_header_config']);
+                    } else {
+                        $restructure_header_config = RestructureDataConfig::create($this->data['restructure_header_config']);
+                        $extract_order_config->restructure_header_config_id = $restructure_header_config->id;
+                    }
+                    $extract_order_config->save();
                 }
-                $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
-                $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
-                $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
-                $extract_order_config->extract_data_config->update($this->data['extract_data_config']);
-                $extract_order_config->convert_table_config->update($this->data['convert_table_config']);
-                $extract_order_config->restructure_data_config->update($this->data['restructure_data_config']);
 
                 DB::commit();
                 return $extract_order_config;
