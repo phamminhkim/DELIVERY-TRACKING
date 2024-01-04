@@ -129,7 +129,7 @@ class AiRepository extends RepositoryAbs
                 ->find($file_record->batch->extract_order_config_id);
 
             $final_data = $this->extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config);
-            $final_header = $extract_order_config ?
+            $final_header = $extract_order_config->is_convert_header ?
                 $this->extractHeaderFromUploadedFile($file_record, $file_path, $extract_order_config) :
                 [];
 
@@ -144,20 +144,10 @@ class AiRepository extends RepositoryAbs
             $po_delivery_address = isset($final_header['PoDeliveryAddress']) ? $final_header['PoDeliveryAddress'] : '';
             $po_note = isset($final_header['PoNote']) ? $final_header['PoNote'] : '';
             $po_email = isset($final_header['PoEmail']) ? $final_header['PoEmail'] : '';
-            // $po_delivery_date = isset($final_header['PoDeliveryDate']) ? $final_header['PoDeliveryDate'] : null;
-            // $po_date = isset($final_header['PoDate']) ? $final_header['PoDate'] : null;
-            $po_delivery_date = null;
-            $po_date = null;
-            // if ($po_date) {
-            //     $originalDate = $po_date ? $po_date : null;
-            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
-            //     $po_date = $converted_date->format('Y-m-d');
-            // }
-            // if ($po_delivery_date) {
-            //     $originalDate = $po_delivery_date ? $po_delivery_date : null;
-            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
-            //     $po_delivery_date = $converted_date->format('Y-m-d');
-            // }
+            $po_delivery_date = isset($final_header['PoDeliveryDate']) ? $final_header['PoDeliveryDate'] : null;
+            $po_delivery_date = $po_delivery_date ? $po_delivery_date : null;
+            $po_date = isset($final_header['PoDate']) ? $final_header['PoDate'] : null;
+            $po_date = $po_date ? $po_date : null;
 
             $raw_extract_header = RawExtractHeader::firstOrCreate(
                 [
