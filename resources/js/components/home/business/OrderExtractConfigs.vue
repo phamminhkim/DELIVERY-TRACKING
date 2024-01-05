@@ -160,6 +160,8 @@
                                         <b-button variant="success" @click="onClickNextPhaseInExtractPhase(data_config_type.DATA)"
                                             >Bước tiếp theo</b-button
                                         >
+                                        <b-button variant="primary" @click="onClickQuicklyCheckExtractOrder(data_config_type.DATA)"
+                                            >Kiểm tra nhanh</b-button>
                                         <b-button variant="primary" @click="onClickCheckExtractPhase(data_config_type.DATA)"
                                             >Kiểm tra</b-button
                                         >
@@ -426,6 +428,8 @@
                                         <b-button variant="success" @click="onClickNextPhaseInExtractPhase(data_config_type.HEADER)"
                                             >Bước tiếp theo</b-button
                                         >
+                                        <b-button variant="primary" @click="onClickQuicklyCheckExtractOrder(data_config_type.HEADER)"
+                                            >Kiểm tra nhanh</b-button>
                                         <b-button variant="primary" @click="onClickCheckExtractPhase(data_config_type.HEADER)"
                                             >Kiểm tra</b-button
                                         >
@@ -842,7 +846,7 @@
 				}
 			},
 
-			onClickNextPhaseInExtractPhase(data_config_type) {
+			async onClickNextPhaseInExtractPhase(data_config_type) {
                 if (data_config_type === this.data_config_type.DATA) {
                     this.convert_phase_input = this.extract_phase_result;
                     this.create_config_form.extract_data_config = this.extract_phase_form;
@@ -905,7 +909,7 @@
 				}
 			},
 
-			onClickNextPhaseInConvertPhase(data_config_type) {
+			async onClickNextPhaseInConvertPhase(data_config_type) {
                 if (data_config_type === this.data_config_type.DATA) {
                     this.restructure_phase_input = this.convert_phase_result;
                     this.create_config_form.convert_table_config = this.convert_phase_form;
@@ -1275,6 +1279,21 @@
 
                 } catch (error) {
                     this.$showMessage('error', 'Lỗi', error);
+                }
+            },
+            async onClickQuicklyCheckExtractOrder(data_config_type) {
+                if (data_config_type === this.data_config_type.DATA) {
+                    await this.onClickCheckExtractPhase(this.data_config_type.DATA);
+                    await this.onClickNextPhaseInExtractPhase(this.data_config_type.DATA);
+                    await this.onClickCheckConvertPhase(this.data_config_type.DATA);
+                    await this.onClickNextPhaseInConvertPhase(this.data_config_type.DATA);
+                    await this.onClickCheckRestructurePhase(this.data_config_type.DATA);
+                } else {
+                    await this.onClickCheckExtractPhase(this.data_config_type.HEADER);
+                    await this.onClickNextPhaseInExtractPhase(this.data_config_type.HEADER);
+                    await this.onClickCheckConvertPhase(this.data_config_type.HEADER);
+                    await this.onClickNextPhaseInConvertPhase(this.data_config_type.HEADER);
+                    await this.onClickCheckRestructurePhase(this.data_config_type.HEADER);
                 }
             },
 		},
