@@ -39,6 +39,12 @@
 			</div>
 		</div>
         <div class="row">
+            <div class="col" style="text-align: right;">
+                <b-button class="btn btn-info ml-1 mt-1" id="importConfig" @click="showImportOrderConfig"><i class="fas fa-upload mr-1"></i>Import cấu hình</b-button>
+                <b-button class="btn btn-info ml-1 mt-1" id="exportConfig" @click="exportOrderConfig"><i class="fas fa-download mr-1"></i>Export cấu hình</b-button>
+            </div>
+        </div>
+        <div class="row">
             <b-card no-body>
                 <b-tabs card align="right"
                     active-nav-item-class="font-weight-bold text-primary">
@@ -599,6 +605,40 @@
             </b-card>
         </div>
 
+        <div class="modal fade" id="importConfigDialog" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <form
+                    @submit.prevent="importOrderConfig"
+                >
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import cấu hình từ file</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <b-form-file
+                                ref="jsonFile"
+                                placeholder="Chọn file json để import..."
+                                drop-placeholder="Drop file here..."
+                            ></b-form-file>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary mr-auto" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="btn btn-primary">
+                            OK
+                        </button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
 	</div>
 </template>
 
@@ -1171,6 +1211,71 @@
                     name: null
                 };
                 this.is_convert_header = false;
+            },
+            exportOrderConfig() {
+                try {
+                    let config = {
+                        extract_data_config: this.extract_phase_form,
+                        convert_table_config: this.convert_phase_form,
+                        restructure_data_config: this.restructure_phase_form,
+                        extract_header_config: this.extract_header_phase_form,
+                        convert_table_header_config: this.convert_header_phase_form,
+                        restructure_header_config: this.restructure_header_phase_form,
+                        is_convert_header: this.is_convert_header,
+                    };
+                    let data_str = JSON.stringify(config);
+                    let blob = new Blob([data_str], {type: 'application/json'});
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+
+                    let selecting_config_name = this.load_config_form.extract_order_id ? this.load_extract_order_config_options.find(
+                        (extract_order_config) => {
+                            return extract_order_config.value == this.load_config_form.extract_order_id;
+                        },
+                    )?.text : null;
+                    let export_file_name = selecting_config_name ? selecting_config_name : 'order-config'
+                        + '.json';
+
+                    link.setAttribute('download', export_file_name);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    this.$showMessage('success', 'Export cấu hình thành công');
+                } catch (error) {
+                    this.$showMessage('error', 'Lỗi', error);
+                }
+
+            },
+            showImportOrderConfig() {
+                $('#importConfigDialog').modal('show');
+            },
+            importOrderConfig() {
+                try {
+                    let file = this.$refs.jsonFile.files[0];
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = () => {
+                        try {
+                            let data = JSON.parse(reader.result);
+                            this.extract_phase_form = data.extract_data_config;
+                            this.convert_phase_form = data.convert_table_config;
+                            this.restructure_phase_form = data.restructure_data_config;
+                            this.extract_header_phase_form = data.extract_header_config;
+                            this.convert_header_phase_form = data.convert_table_header_config;
+                            this.restructure_header_phase_form = data.restructure_header_config;
+                            this.is_convert_header = data.is_convert_header;
+                            $('#importConfigDialog').modal('hide');
+                            this.$showMessage('success', 'Import cấu hình thành công');
+                        } catch (error) {
+                            this.$showMessage('error', 'Lỗi', error);
+                        }
+
+                    };
+
+                } catch (error) {
+                    this.$showMessage('error', 'Lỗi', error);
+                }
             },
 		},
 
