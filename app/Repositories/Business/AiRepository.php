@@ -202,7 +202,7 @@ class AiRepository extends RepositoryAbs
                         'raw_extract_header_id' => $raw_extract_header->id,
                         // 'po_person' => $file_record->batch->customer->name,
                         // 'po_phone' => $file_record->batch->customer->phone_number,
-                        'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                        // 'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
                         // 'po_delivery_address' => $file_record->batch->customer->address,
                     ]
                 )
@@ -276,7 +276,7 @@ class AiRepository extends RepositoryAbs
                             'raw_extract_header_id' => $raw_so_header->raw_extract_header_id,
                             // 'po_person' => $file_record->batch->customer->name,
                             // 'po_phone' => $file_record->batch->customer->phone_number,
-                            'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                            // 'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
                             // 'po_delivery_address' => $file_record->batch->customer->address,
                             'note' => 'Đơn hàng khuyến mãi'
                         ]
