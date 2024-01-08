@@ -70,12 +70,32 @@
 						</div>
 						<div class="col-lg-6">
 							<treeselect
-								v-model="load_config_form.company"
 								:multiple="false"
+								id="company"
+								v-model="load_config_form.company"
 								:options="company_options"
 								placeholder="Chọn công ty.."
+								:normalizer="normalizer"
 								required
-							/>
+							></treeselect>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-md-6">
+					<div class="form-group row">
+						<div class="col-lg-4">
+							<label class="col-form-label">Kho hàng:</label>
+						</div>
+						<div class="col-lg-6">
+							<treeselect
+								placeholder="Chọn kho hàng.."
+								v-model="load_config_form.warehouse"
+								:options="load_warehouse_id_options"
+								required
+							></treeselect>
 						</div>
 					</div>
 				</div>
@@ -136,11 +156,13 @@
 					customer_group_id: null,
 					extract_order_config: null,
 					company: null,
+					warehouse: null,
 				},
 				files: [],
 				selected_batch_id: null,
 				load_extract_order_config_options: null,
 				load_customer_id_options: null,
+				load_warehouse_id_options: null,
 			};
 		},
 		created() {
@@ -148,33 +170,26 @@
 		},
 		methods: {
 			async fetchOptionsData() {
-				const [customer_group_options, companies, customer_id_options] =
+				const [customer_group_options, companies] =
 					await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/customer-groups'),
 						new APIRequest('get', '/api/master/companies'),
 					]);
+
 				this.customer_group_options = customer_group_options;
-				this.customer_id_options = customer_id_options;
-				this.company_options = companies.map((company) => {
-					return {
-						id: company.code,
-						label: `(${company.code}) ${company.name}`,
-					};
-				});
+				this.company_options = companies;
 			},
 			normalizer(node) {
-				return {
-					id: node.id,
-					label: node.name,
-				};
-			},
-			async loadOptions({ action, searchQuery, callback }) {
-				if (action === ASYNC_SEARCH) {
-					const { data } = await this.api_handler.get('api/master/customers/minified', {
-						search: searchQuery,
-					});
-					const options = data;
-					callback(null, options);
+				if (node.id !== null && node.id !== undefined) {
+					return {
+						id: node.id,
+						label: node.name,
+					};
+				} else if (node.code !== null && node.code !== undefined) {
+					return {
+						id: node.code,
+						label: `(${node.code}) ${node.name}`,
+					};
 				}
 			},
 
@@ -186,6 +201,7 @@
 						extract_order_config: this.load_config_form.extract_order_config,
 						customer_group_id: this.load_config_form.customer_group_id,
 						company: this.load_config_form.company,
+						warehouse: this.load_config_form.warehouse,
 					};
 					const batch_response = await this.api_handler.post(
 						'/api/ai/file/batch',
@@ -216,6 +232,7 @@
 					this.load_config_form.extract_order_config = null;
 					this.load_config_form.customer = null;
 					this.load_config_form.company = null;
+					this.load_config_form.warehouse = null;
 					this.files = [];
 					toastr.success('Upload file thành công');
 				} catch (error) {
@@ -274,10 +291,28 @@
 					  })
 					: [];
 			},
+			load_company_code() {
+				this.load_warehouse_id_options = [];
+				const selectedCompany = this.company_options.find((company) => {
+					return company.code === this.load_config_form.company;
+				});
+
+				if (selectedCompany && selectedCompany.warehouse) {
+					this.load_warehouse_id_options = selectedCompany.warehouse.map((warehouse) => {
+						return {
+							id: warehouse.id,
+							label: `(${warehouse.code}) ${warehouse.name}`,
+						};
+					});
+				}
+			},
 		},
 		computed: {
 			load_customer_group_id() {
 				return this.load_config_form.customer_group_id;
+			},
+			load_company_code() {
+				return this.load_config_form.company;
 			},
 		},
 	};
