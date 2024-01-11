@@ -132,6 +132,7 @@
 					</div>
 				</div>
 			</div>
+
 		</div>
 	</div>
 </template>
@@ -293,12 +294,12 @@
 			},
 			load_company_code() {
 				this.load_warehouse_id_options = [];
-				const selectedCompany = this.company_options.find((company) => {
+				const load_compnay_options = this.company_options.find((company) => {
 					return company.code === this.load_config_form.company;
 				});
 
-				if (selectedCompany && selectedCompany.warehouse) {
-					this.load_warehouse_id_options = selectedCompany.warehouse.map((warehouse) => {
+				if (load_compnay_options && load_compnay_options.warehouse) {
+					this.load_warehouse_id_options = load_compnay_options.warehouse.map((warehouse) => {
 						return {
 							id: warehouse.id,
 							label: `(${warehouse.code}) ${warehouse.name}`,

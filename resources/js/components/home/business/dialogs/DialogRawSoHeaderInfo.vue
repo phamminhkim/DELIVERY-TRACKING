@@ -80,13 +80,13 @@
 													>
 												</div>
 												<div class="col-lg-6 p-0">
-                                                    <input
-                                                        class="form-control form-control-sm"
-                                                        type="date"
-                                                        data-date=""
-                                                        data-date-format="DD/MM/YYYY"
-                                                        v-model="po_date"
-                                                    />
+													<input
+														class="form-control form-control-sm"
+														type="date"
+														data-date=""
+														data-date-format="DD/MM/YYYY"
+														v-model="po_date"
+													/>
 												</div>
 											</div>
 										</div>
@@ -158,13 +158,13 @@
 											<label class="ml-lg-2 mr-lg-4">Ngày giao</label>
 										</div>
 										<div class="col-lg-6 p-0">
-                                            <input
-                                                class="form-control form-control-sm"
-                                                type="date"
-                                                data-date=""
-                                                data-date-format="DD/MM/YYYY"
-                                                v-model="po_delivery_date"
-                                            />
+											<input
+												class="form-control form-control-sm"
+												type="date"
+												data-date=""
+												data-date-format="DD/MM/YYYY"
+												v-model="po_delivery_date"
+											/>
 										</div>
 									</div>
 								</div>
@@ -247,6 +247,16 @@
 										v-model="data.item.quantity"
 									/>
 								</template>
+								<template #cell(warehouse.name)="data">
+									<div class="expanded-cell">
+										<treeselect
+                                        v-model="data.item.warehouse_id"
+											:options="warehouse_options"
+											:normalizer="normalizerOption"
+										></treeselect>
+									</div>
+								</template>
+
 								<template #cell(raw_extract_item_customer_sku_code)="data">
 									<span
 										v-if="
@@ -361,12 +371,15 @@
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
 
 	export default {
+        name: 'DialogRawSoHeaderInfo',
 		components: {
 			Treeselect,
 		},
 		props: {
 			id: Number,
+            refetchData: Function,
 		},
+
 		data() {
 			return {
 				locale_format: 'de-DE',
@@ -455,7 +468,12 @@
 						label: 'Tỷ lệ',
 						class: 'text-nowrap',
 					},
-                    {
+					{
+						key: 'warehouse.name',
+						label: 'Kho hàng',
+						class: 'text-nowrap',
+					},
+					{
 						key: 'note',
 						label: 'Ghi chú',
 						class: 'text-nowrap',
@@ -469,7 +487,11 @@
 
 				selected_sap_material_id: null,
 				selected_quantity: null,
+				warehouse_options: [],
 			};
+		},
+		created() {
+			this.fetchOptionsData();
 		},
 		methods: {
 			async fetchData() {
@@ -509,6 +531,28 @@
 					});
 					callback(null, options);
 				}
+			},
+			async fetchOptionsData() {
+				try {
+					this.is_loading = true;
+					const [warehouse_options] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/warehouses'),
+					]);
+					this.warehouse_options = warehouse_options;
+				} catch (error) {
+					this.$showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
+				}
+			},
+			normalizerOption(node) {
+				return {
+					id: node.id,
+					label: `(${node.code}) ${node.name}`,
+				};
+			},
+            closeDialog() {
+				$('#DialogRawSoHeaderInfo').modal('hide');
 			},
 			async addRawSoItemToRawSoHeader() {
 				try {
@@ -619,9 +663,12 @@
 					const { data } = await this.api_handler.patch(
 						`/api/raw-so-headers/${this.id}`,
 						{},
+
 						this.raw_so_header,
 					);
 					this.$showMessage('success', 'Cập nhật thành công');
+                    this.closeDialog();
+						await this.refetchData();
 				} catch (e) {
 					console.log(e);
 					this.$showMessage('danger', 'Cập nhật thất bại');
@@ -686,10 +733,10 @@
 					.get(`/api/raw-so-headers/${this.id}`)
 					.then((response) => {
 						const { data } = response;
-                        console.log(data.po_person);
+						console.log(data.po_person);
 
 						const excelData = data.raw_so_items.map((item) => ({
-                            po_person: data.po_person,
+							po_person: data.po_person,
 							raw_extract_item_customer_sku_code:
 								item.raw_extract_item.customer_material.customer_sku_code,
 							raw_extract_item_customer_sku_name:
@@ -710,7 +757,7 @@
 							data: excelData,
 							fileName: 'order_data',
 							columns: [
-                            {
+								{
 									field: 'po_person',
 									title: 'Mã khách hàng',
 								},
@@ -769,14 +816,14 @@
 						this.is_loading = false;
 					});
 			},
-            formatDateYMD(datetime) {
-                if (!datetime) return '';
-                const date = new Date(datetime);
-                const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            },
+			formatDateYMD(datetime) {
+				if (!datetime) return '';
+				const date = new Date(datetime);
+				const year = date.getFullYear();
+				const month = (date.getMonth() + 1).toString().padStart(2, '0');
+				const day = date.getDate().toString().padStart(2, '0');
+				return `${year}-${month}-${day}`;
+			},
 		},
 
 		watch: {
@@ -789,23 +836,27 @@
 			rows() {
 				return this.raw_so_header.raw_so_items.length;
 			},
-            po_date: {
-                get() {
-                    return this.formatDateYMD(this.raw_so_header.po_date);
-                },
-                set(value) {
-                    this.raw_so_header.po_date = value;
-                }
-            },
-            po_delivery_date: {
-                get() {
-                    return this.formatDateYMD(this.raw_so_header.po_delivery_date);
-                },
-                set(value) {
-                    this.raw_so_header.po_delivery_date = value;
-                }
-            }
+			po_date: {
+				get() {
+					return this.formatDateYMD(this.raw_so_header.po_date);
+				},
+				set(value) {
+					this.raw_so_header.po_date = value;
+				},
+			},
+			po_delivery_date: {
+				get() {
+					return this.formatDateYMD(this.raw_so_header.po_delivery_date);
+				},
+				set(value) {
+					this.raw_so_header.po_delivery_date = value;
+				},
+			},
 		},
 	};
 </script>
-<style lang=""></style>
+<style lang="css">
+.expanded-cell {
+  width: 200px; /* Đặt độ rộng tùy chỉnh cho ô "Kho hàng" */
+}
+</style>

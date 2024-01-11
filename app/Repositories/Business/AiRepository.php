@@ -51,7 +51,7 @@ use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
 use App\Models\Business\RawSoItem;
-use App\Models\Master\SapMaterial;
+use App\Models\Master\Warehouse;
 use App\Utilities\UniqueIdUtility;
 use Exception;
 use Illuminate\Http\Request;
@@ -115,7 +115,7 @@ class AiRepository extends RepositoryAbs
     public function extractOrderFromUploadedFile($file_id)
     {
         try {
-            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group'])->find($file_id);
+            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group','batch.warehouse'])->find($file_id);
             if (!$file_record) {
                 $this->message = 'File không tồn tại';
                 return false;
@@ -191,7 +191,7 @@ class AiRepository extends RepositoryAbs
                 throw new NotFoundCustomerMaterialException($file_record->id, $error_log);
             }
 
-
+            $created_so_items_by_warehouse = collect();
             $created_so_items = collect([]);
             $error_so_items = [];
 
@@ -218,6 +218,7 @@ class AiRepository extends RepositoryAbs
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
+
                 $sap_material_mappings = $item->customer_material->mappings;
                 Log::info("sap_material_mappings");
                 Log::info($sap_material_mappings);
@@ -239,6 +240,7 @@ class AiRepository extends RepositoryAbs
                         'price' => $price,
                         'amount' => $amount,
                         'percentage' => $mapping->percentage,
+                        'warehouse_id' => $file_record->batch->warehouse->id,
                     ]);
                     $created_so_items->push($raw_so_item);
                     $customer_promotion = CustomerPromotion::where('sap_material_id',$sap_material->id)->first();
@@ -246,6 +248,10 @@ class AiRepository extends RepositoryAbs
                         $created_promotion_items[] = clone $raw_so_item;
                     }
 
+
+                }
+                if ($created_so_items->isNotEmpty()) {
+                    $created_so_items_by_warehouse = $created_so_items->groupBy('warehouse_id');
                 }
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
@@ -258,6 +264,7 @@ class AiRepository extends RepositoryAbs
                     $min_quantity_so_item = $item->raw_so_items[$min_quantity_so_item_index];
                     $min_quantity_so_item->quantity = $min_quantity_so_item->quantity + ($extract_item_quantity - $so_items_quantity);
                 }
+
             }
             if (count($error_so_items) > 0) {
                 $error_log = json_encode($error_so_items);
@@ -295,6 +302,8 @@ class AiRepository extends RepositoryAbs
                         'price' => $promotion_itm->price,
                         'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
                         'percentage' => '100',
+                        'warehouse_id' => $file_record->batch->warehouse->id,
+
                     ]);
                 }
             }
@@ -306,6 +315,7 @@ class AiRepository extends RepositoryAbs
                 'error_so_items' => $error_so_items,
                 'created_extract_items_count' => count($created_extract_items),
                 'created_so_items_count' => count($created_so_items),
+                'created_so_items_by_warehouse' => $created_so_items_by_warehouse,
             );
         } catch (\Throwable $exception) {
             DB::rollBack();
@@ -334,6 +344,7 @@ class AiRepository extends RepositoryAbs
                 'extract_order_config' => $file->batch->extract_order_config->reference_id,
                 'customer' => $file->batch->customer_id,
                 'company' => $file->batch->company_code,
+                'warehouse' => $file->batch->warehouse_id,
             ]);
             $uploaded_file_repository = new UploadedFileRepository($this->request);
             $batch_id = $uploaded_file_repository->prepareUploadFile();
