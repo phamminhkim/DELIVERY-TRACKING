@@ -274,7 +274,7 @@ class AiRepository extends RepositoryAbs
             $file_record->status_id = $converted_status->id;
             $file_record->save();
             //Tao đơn hàng KM
-            if($created_promotion_items && count($created_promotion_items) >0);
+            if (!empty($created_promotion_items))
             {
                 $raw_so_header_promotion = RawSoHeader::firstOrCreate(
                     array_merge(
