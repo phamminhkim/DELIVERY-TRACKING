@@ -66,8 +66,8 @@ class UploadedFileRepository extends RepositoryAbs
         //     });
         // }
         if ($this->request->filled('status_ids')) {
-            $statusIds = $this->request->status_ids;
-            $query->whereIn('status_id', $statusIds);
+            $status_ids = $this->request->status_ids;
+            $query->whereIn('status_id', $status_ids);
         }
 
         if ($this->request->filled('from_date')) {

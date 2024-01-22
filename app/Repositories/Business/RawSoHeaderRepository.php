@@ -44,11 +44,10 @@ class RawSoHeaderRepository extends RepositoryAbs
             'raw_so_items',
             'raw_so_items.raw_extract_item.customer_material',
             'raw_so_items.sap_material.unit',
+            'raw_so_items.sap_material',
             'raw_so_items.warehouse',
             'customer.group',
-
         ]);
-
         $raw_so_header = $query->find($id);
         return $raw_so_header;
     }

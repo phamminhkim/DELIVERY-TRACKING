@@ -250,7 +250,7 @@
 								<template #cell(warehouse.name)="data">
 									<div class="expanded-cell">
 										<treeselect
-                                        v-model="data.item.warehouse_id"
+											v-model="data.item.warehouse_id"
 											:options="warehouse_options"
 											:normalizer="normalizerOption"
 										></treeselect>
@@ -371,13 +371,13 @@
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
 
 	export default {
-        name: 'DialogRawSoHeaderInfo',
+		name: 'DialogRawSoHeaderInfo',
 		components: {
 			Treeselect,
 		},
 		props: {
 			id: Number,
-            refetchData: Function,
+			refetchData: Function,
 		},
 
 		data() {
@@ -551,7 +551,7 @@
 					label: `(${node.code}) ${node.name}`,
 				};
 			},
-            closeDialog() {
+			closeDialog() {
 				$('#DialogRawSoHeaderInfo').modal('hide');
 			},
 			async addRawSoItemToRawSoHeader() {
@@ -667,8 +667,8 @@
 						this.raw_so_header,
 					);
 					this.$showMessage('success', 'Cập nhật thành công');
-                    this.closeDialog();
-						await this.refetchData();
+					this.closeDialog();
+					await this.refetchData();
 				} catch (e) {
 					console.log(e);
 					this.$showMessage('danger', 'Cập nhật thất bại');
@@ -746,13 +746,13 @@
 								item.raw_extract_item.customer_material.customer_sku_unit,
 							price: item.price,
 							amount: item.amount,
-							'sap_material.unit.unit_code': item.sap_material.unit.unit_code,
-							'sap_material.name': item.sap_material.name,
+							sap_material_sap_code: item.sap_material.sap_code, // Thêm thông tin sap_code
+							sap_material_name: item.sap_material.name, // Thêm thông tin name
+							sap_material_unit_unit_code: item.sap_material.unit.unit_code, // Thêm thông tin unit_code
 							quantity: item.quantity,
-							'sap_material.unit.unit_code': item.sap_material.unit.unit_code,
 							percentage: item.percentage,
+							warehouse_name: item.warehouse.name, // Thêm thông tin warehouse name
 						}));
-
 						saveExcel({
 							data: excelData,
 							fileName: 'order_data',
@@ -786,11 +786,11 @@
 									title: 'Thành tiền PO',
 								},
 								{
-									field: 'sap_material.unit.unit_code',
+									field: 'sap_material_sap_code',
 									title: 'Mã Sku SAP',
 								},
 								{
-									field: 'sap_material.name',
+									field: 'sap_material_name',
 									title: 'Tên Sku SAP',
 								},
 								{
@@ -798,18 +798,22 @@
 									title: 'Số lượng SAP',
 								},
 								{
-									field: 'sap_material.unit.unit_code',
+									field: 'sap_material_unit_unit_code',
 									title: 'ĐVT SAP',
 								},
 								{
 									field: 'percentage',
 									title: 'Tỷ lệ',
 								},
+								{
+									field: 'warehouse_name', // Thêm cột warehouse name
+									title: 'Tên Kho',
+								},
 							],
 						});
 					})
 					.catch((error) => {
-						console.error('Lỗi', error);
+						// console.error('Lỗi', error);
 						toastr.error('Đã xảy ra lỗi khi xuất Excel');
 					})
 					.finally(() => {
@@ -856,7 +860,7 @@
 	};
 </script>
 <style lang="css">
-.expanded-cell {
-  width: 200px; /* Đặt độ rộng tùy chỉnh cho ô "Kho hàng" */
-}
+	.expanded-cell {
+		width: 200px; /* Đặt độ rộng tùy chỉnh cho ô "Kho hàng" */
+	}
 </style>
