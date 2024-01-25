@@ -12,7 +12,11 @@ class CompanyRepository extends RepositoryAbs
     public function getAvailableCompanies()
     {
         try {
-            $companies = DB::table('companies')->get();
+            $companies = Company::query()
+            ->with('warehouse')
+            ->get();
+
+
             return $companies;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();

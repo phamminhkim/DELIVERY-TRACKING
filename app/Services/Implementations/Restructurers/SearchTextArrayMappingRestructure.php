@@ -3,6 +3,7 @@
 namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
+use App\Utilities\FormatDateUtility;
 
 class SearchTextArrayMappingRestructure implements DataRestructureInterface
 {
@@ -29,6 +30,10 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
                 $output[$structure_key] = $this->getFromBeginToStr($data_str, $end_str, $end_offset);
             } else {
                 $output[$structure_key] = "";
+            }
+
+            if ($output[$structure_key] && isset($array['date_format'])) {
+                $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
             }
 
         }

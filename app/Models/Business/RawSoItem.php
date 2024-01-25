@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\SapMaterial;
+use App\Models\Master\Warehouse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,6 +19,7 @@ class RawSoItem extends Model
         'amount',
         'note',
         'percentage',
+        'warehouse_id',
         'is_promotive',
     ];
 
@@ -36,5 +38,9 @@ class RawSoItem extends Model
     public function sap_material()
     {
         return $this->belongsTo(SapMaterial::class);
+    }
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }

@@ -51,7 +51,7 @@ use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
 use App\Models\Business\RawSoItem;
-use App\Models\Master\SapMaterial;
+use App\Models\Master\Warehouse;
 use App\Utilities\UniqueIdUtility;
 use Exception;
 use Illuminate\Http\Request;
@@ -115,7 +115,7 @@ class AiRepository extends RepositoryAbs
     public function extractOrderFromUploadedFile($file_id)
     {
         try {
-            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group'])->find($file_id);
+            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group','batch.warehouse'])->find($file_id);
             if (!$file_record) {
                 $this->message = 'File không tồn tại';
                 return false;
@@ -129,7 +129,7 @@ class AiRepository extends RepositoryAbs
                 ->find($file_record->batch->extract_order_config_id);
 
             $final_data = $this->extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config);
-            $final_header = $extract_order_config ?
+            $final_header = $extract_order_config->is_convert_header ?
                 $this->extractHeaderFromUploadedFile($file_record, $file_path, $extract_order_config) :
                 [];
 
@@ -144,20 +144,10 @@ class AiRepository extends RepositoryAbs
             $po_delivery_address = isset($final_header['PoDeliveryAddress']) ? $final_header['PoDeliveryAddress'] : '';
             $po_note = isset($final_header['PoNote']) ? $final_header['PoNote'] : '';
             $po_email = isset($final_header['PoEmail']) ? $final_header['PoEmail'] : '';
-            // $po_delivery_date = isset($final_header['PoDeliveryDate']) ? $final_header['PoDeliveryDate'] : null;
-            // $po_date = isset($final_header['PoDate']) ? $final_header['PoDate'] : null;
-            $po_delivery_date = null;
-            $po_date = null;
-            // if ($po_date) {
-            //     $originalDate = $po_date ? $po_date : null;
-            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
-            //     $po_date = $converted_date->format('Y-m-d');
-            // }
-            // if ($po_delivery_date) {
-            //     $originalDate = $po_delivery_date ? $po_delivery_date : null;
-            //     $converted_date = \DateTime::createFromFormat('d.m.Y', $originalDate);
-            //     $po_delivery_date = $converted_date->format('Y-m-d');
-            // }
+            $po_delivery_date = isset($final_header['PoDeliveryDate']) ? $final_header['PoDeliveryDate'] : null;
+            $po_delivery_date = $po_delivery_date ? $po_delivery_date : null;
+            $po_date = isset($final_header['PoDate']) ? $final_header['PoDate'] : null;
+            $po_date = $po_date ? $po_date : null;
 
             $raw_extract_header = RawExtractHeader::firstOrCreate(
                 [
@@ -201,7 +191,7 @@ class AiRepository extends RepositoryAbs
                 throw new NotFoundCustomerMaterialException($file_record->id, $error_log);
             }
 
-
+            $created_so_items_by_warehouse = collect();
             $created_so_items = collect([]);
             $error_so_items = [];
 
@@ -212,7 +202,7 @@ class AiRepository extends RepositoryAbs
                         'raw_extract_header_id' => $raw_extract_header->id,
                         // 'po_person' => $file_record->batch->customer->name,
                         // 'po_phone' => $file_record->batch->customer->phone_number,
-                        'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                        // 'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
                         // 'po_delivery_address' => $file_record->batch->customer->address,
                     ]
                 )
@@ -228,6 +218,7 @@ class AiRepository extends RepositoryAbs
             $created_extract_items->load(['customer_material.mappings.sap_material']);
 
             foreach ($created_extract_items as $item) {
+
                 $sap_material_mappings = $item->customer_material->mappings;
                 Log::info("sap_material_mappings");
                 Log::info($sap_material_mappings);
@@ -249,6 +240,7 @@ class AiRepository extends RepositoryAbs
                         'price' => $price,
                         'amount' => $amount,
                         'percentage' => $mapping->percentage,
+                        'warehouse_id' => $file_record->batch->warehouse->id,
                     ]);
                     $created_so_items->push($raw_so_item);
                     $customer_promotion = CustomerPromotion::where('sap_material_id',$sap_material->id)->first();
@@ -256,6 +248,10 @@ class AiRepository extends RepositoryAbs
                         $created_promotion_items[] = clone $raw_so_item;
                     }
 
+
+                }
+                if ($created_so_items->isNotEmpty()) {
+                    $created_so_items_by_warehouse = $created_so_items->groupBy('warehouse_id');
                 }
                 $extract_item_quantity = $item->quantity;
                 $so_items_quantity = $item->raw_so_items->sum('quantity');
@@ -268,6 +264,7 @@ class AiRepository extends RepositoryAbs
                     $min_quantity_so_item = $item->raw_so_items[$min_quantity_so_item_index];
                     $min_quantity_so_item->quantity = $min_quantity_so_item->quantity + ($extract_item_quantity - $so_items_quantity);
                 }
+
             }
             if (count($error_so_items) > 0) {
                 $error_log = json_encode($error_so_items);
@@ -277,7 +274,7 @@ class AiRepository extends RepositoryAbs
             $file_record->status_id = $converted_status->id;
             $file_record->save();
             //Tao đơn hàng KM
-            if($created_promotion_items && count($created_promotion_items) >0);
+            if (!empty($created_promotion_items))
             {
                 $raw_so_header_promotion = RawSoHeader::firstOrCreate(
                     array_merge(
@@ -286,7 +283,7 @@ class AiRepository extends RepositoryAbs
                             'raw_extract_header_id' => $raw_so_header->raw_extract_header_id,
                             // 'po_person' => $file_record->batch->customer->name,
                             // 'po_phone' => $file_record->batch->customer->phone_number,
-                            'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
+                            // 'po_email' => $po_email ? $po_email : $file_record->batch->customer->email,
                             // 'po_delivery_address' => $file_record->batch->customer->address,
                             'note' => 'Đơn hàng khuyến mãi'
                         ]
@@ -305,6 +302,8 @@ class AiRepository extends RepositoryAbs
                         'price' => $promotion_itm->price,
                         'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
                         'percentage' => '100',
+                        'warehouse_id' => $file_record->batch->warehouse->id,
+
                     ]);
                 }
             }
@@ -316,6 +315,7 @@ class AiRepository extends RepositoryAbs
                 'error_so_items' => $error_so_items,
                 'created_extract_items_count' => count($created_extract_items),
                 'created_so_items_count' => count($created_so_items),
+                'created_so_items_by_warehouse' => $created_so_items_by_warehouse,
             );
         } catch (\Throwable $exception) {
             DB::rollBack();
@@ -344,6 +344,7 @@ class AiRepository extends RepositoryAbs
                 'extract_order_config' => $file->batch->extract_order_config->reference_id,
                 'customer' => $file->batch->customer_id,
                 'company' => $file->batch->company_code,
+                'warehouse' => $file->batch->warehouse_id,
             ]);
             $uploaded_file_repository = new UploadedFileRepository($this->request);
             $batch_id = $uploaded_file_repository->prepareUploadFile();

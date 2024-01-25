@@ -96,32 +96,16 @@ class SapMaterialMappingRepository extends RepositoryAbs
                         $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code;
                         continue;
                     }
-                    if (SapMaterialMapping::query()
+                    $totalPercentage = SapMaterialMapping::query()
                         ->where('customer_material_id', $customer_material->id)
-                        ->where('sap_material_id', $sap_material->id)
-                        ->exists()
-                    ) {
-                        $totalPercentage = SapMaterialMapping::query()
-                            ->where('customer_material_id', $customer_material->id)
-                            ->sum('percentage');
+                        ->sum('percentage');
 
-                        $newTotalPercentage = $totalPercentage + $material['percentage'];
+                    $newTotalPercentage = $totalPercentage + $material['percentage'];
 
-                        if ($newTotalPercentage > 100) {
-                            $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP ' . $sap_material->sap_code . ' với tổng tỷ lệ đã đủ 100%';
-                            break; // Dừng vòng lặp
-                        }
-
-                        // $sap_material_mapping = SapMaterialMapping::create([
-                        //     'customer_material_id' => $customer_material->id,
-                        //     'sap_material_id' => $sap_material->id,
-                        //     'percentage' => $material['percentage']
-                        // ]);
-
-                        // $result->push($sap_material_mapping);
+                    if ($newTotalPercentage > 100) {
+                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%';
+                        break;
                     }
-
-
 
                     $sap_material_mapping = SapMaterialMapping::create([
                         'customer_material_id' => $customer_material->id,
@@ -361,7 +345,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 ->first();
 
 
-                $total_existing_percent = $customer_material_existed
+            $total_existing_percent = $customer_material_existed
                 ? $customer_material_existed->mappings()->sum('percentage')
                 : 0;
 

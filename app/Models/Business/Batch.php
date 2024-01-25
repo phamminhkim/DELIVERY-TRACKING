@@ -3,6 +3,7 @@
 namespace App\Models\Business;
 
 use App\Models\Master\Customer;
+use App\Models\Master\Warehouse;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuids;
 
@@ -13,7 +14,8 @@ class Batch extends Model
         'extract_order_config_id',
         'reference_batch_id',
         'customer_id',
-        'company_code'
+        'company_code',
+        'warehouse_id'
     ];
 
     public function files()
@@ -30,4 +32,9 @@ class Batch extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
 }

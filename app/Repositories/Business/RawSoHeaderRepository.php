@@ -44,10 +44,10 @@ class RawSoHeaderRepository extends RepositoryAbs
             'raw_so_items',
             'raw_so_items.raw_extract_item.customer_material',
             'raw_so_items.sap_material.unit',
+            'raw_so_items.sap_material',
+            'raw_so_items.warehouse',
             'customer.group',
-
         ]);
-
         $raw_so_header = $query->find($id);
         return $raw_so_header;
     }
@@ -225,29 +225,37 @@ class RawSoHeaderRepository extends RepositoryAbs
     {
         try {
             DB::beginTransaction();
-            $raw_so_header = RawSoHeader::query()->find($id);
+            $raw_so_header = RawSoHeader::query()->findOrFail($id);
             if (!$raw_so_header) {
                 $this->errors[] = 'Raw SO Header không tồn tại';
                 return false;
             }
-           // dd($this->data);
             $raw_so_header->update($this->data);
-
             $raw_so_items = $this->data['raw_so_items'];
+            $updated_warehouse_items = []; // Mảng để lưu trữ các mục hàng của kho đã được cập nhật
+            $warehouses = []; // Mảng để lưu trữ warehouse_ids đã được xử lý
             foreach ($raw_so_items as $raw_so_item) {
                 if (isset($raw_so_item['id']) && $raw_so_item['id'] > 0) {
                     $item = RawSoItem::query()->find($raw_so_item['id']);
-                    $item->raw_so_header_id = $raw_so_header->id;
                     if ($item) {
                         $item->fill($raw_so_item);
-                        $item->id = $raw_so_item['id'];
+                        // Kiểm tra xem có sự thay đổi trong warehouse_id không
+                        if ($item->warehouse_id != $raw_so_item['warehouse_id']) {
+                            $updated_warehouse_items[] = $item; // Lưu trữ các mục hàng của kho đã được cập nhật
+                        }
+
                         $item->save();
                     }
-                }else{
+                } else {
                     $item = new RawSoItem;
                     $item->raw_so_header_id = $raw_so_header->id;
                     $item->fill($raw_so_item);
                     $item->save();
+                }
+
+                // Tách đơn nếu warehouse_id chưa được xử lý
+                if (!in_array($raw_so_item['warehouse_id'], $warehouses)) {
+                    $warehouses[] = $raw_so_item['warehouse_id'];
                 }
             }
             $raw_so_items_deleted = $this->data['raw_so_items_deleted'];
@@ -259,6 +267,17 @@ class RawSoHeaderRepository extends RepositoryAbs
                     }
                 }
             }
+            // Tách đơn cho các mục hàng của kho đã được cập nhật
+            foreach ($updated_warehouse_items as $item) {
+                $this->createSeparateOrder($raw_so_header, $item->warehouse_id, $item);
+            }
+
+            // Tách đơn cho các mục hàng của kho mới
+            foreach ($warehouses as $warehouse_id) {
+                $this->createSeparateOrder($raw_so_header, $warehouse_id);
+            }
+            $raw_so_header->delete();
+
             DB::commit();
             return $raw_so_header;
         } catch (\Throwable $exception) {
@@ -268,6 +287,25 @@ class RawSoHeaderRepository extends RepositoryAbs
         }
     }
 
+    private function createSeparateOrder($raw_so_header, $warehouse_id, $item = null)
+    {
+        $separate_order = new RawSoHeader;
+        $separate_order->fill($raw_so_header->toArray());
+
+        // Tạo một số serial_number duy nhất
+        $new_serial_number = uniqid(); // Sử dụng hàm uniqid() để tạo một giá trị ngẫu nhiên duy nhất
+
+        $separate_order->serial_number = $new_serial_number;
+        $separate_order->save();
+
+        $items = $raw_so_header->raw_so_items()->where('warehouse_id', $warehouse_id)->get();
+        foreach ($items as $item) {
+            $newItem = new RawSoItem;
+            $newItem->fill($item->toArray());
+            $newItem->raw_so_header_id = $separate_order->id;
+            $newItem->save();
+        }
+    }
     public function deleteRawSoItem($raw_so_item_id)
     {
         $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
