@@ -24,6 +24,8 @@ use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Files\LocalFileService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure;
 use Illuminate\Http\Request;
 
 class BusinessRepository
@@ -91,6 +93,12 @@ class BusinessRepository
                     break;
                 case RestructureMethod::KEYARRAYMAPPING:
                     $data_restructure = new KeyArrayMappingRestructure();
+                    break;
+                case RestructureMethod::MERGEINDEXARRAYMAPPING:
+                    $data_restructure = new MergeIndexArrayMappingRestructure();
+                    break;
+                case RestructureMethod::SEARCHTEXTARRAYMAPPING:
+                    $data_restructure = new SearchTextArrayMappingRestructure();
                     break;
                 default:
                     throw new \Exception('Restructure method is not specified');

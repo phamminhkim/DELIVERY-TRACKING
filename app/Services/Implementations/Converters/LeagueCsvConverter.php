@@ -11,7 +11,9 @@ class LeagueCsvConverter implements TableConverterInterface
     public function convert($raw_data, $options)
     {
         $csv = Reader::createFromString($raw_data);
-        $csv->setHeaderOffset(0); // Set the CSV header offset
+        if (!$options['is_without_header']) {
+            $csv->setHeaderOffset(0); // Set the CSV header offset
+        }
 
         $records = $csv->getRecords();
 

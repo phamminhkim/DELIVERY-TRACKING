@@ -66,8 +66,8 @@ class UploadedFileRepository extends RepositoryAbs
         //     });
         // }
         if ($this->request->filled('status_ids')) {
-            $statusIds = $this->request->status_ids;
-            $query->whereIn('status_id', $statusIds);
+            $status_ids = $this->request->status_ids;
+            $query->whereIn('status_id', $status_ids);
         }
 
         if ($this->request->filled('from_date')) {
@@ -128,6 +128,7 @@ class UploadedFileRepository extends RepositoryAbs
                 'extract_order_config' => 'required|exists:extract_order_configs,id',
                 'customer' => 'required|exists:customers,id',
                 'company' => 'required|exists:companies,code',
+                'warehouse' => 'required|exists:warehouses,id',
             ], [
                 'extract_order_config.required' => 'Extract order config id là bắt buộc',
                 'extract_order_config.exists' => 'Extract order config id không tồn tại',
@@ -135,6 +136,8 @@ class UploadedFileRepository extends RepositoryAbs
                 'customer.exists' => 'Customer id không tồn tại',
                 'company.required' => 'Company code là bắt buộc',
                 'company.exists' => 'Company code không tồn tại',
+                'warehouse.required' => 'Warehouse là bắt buộc',
+                'warehouse.exists' => 'Warehouse không tồn tại',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -158,6 +161,7 @@ class UploadedFileRepository extends RepositoryAbs
                     'extract_order_config_id' => $extract_order_config->id,
                     'customer_id' => $this->data['customer'],
                     'company_code' => $this->data['company'],
+                    'warehouse_id' => $this->data['warehouse'],
                 ]);
 
                 $extract_order_config->fill([

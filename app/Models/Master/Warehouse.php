@@ -16,4 +16,8 @@ class Warehouse extends Model
     protected $casts = [
         "is_active" => "boolean"
     ];
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_code');
+    }
 }

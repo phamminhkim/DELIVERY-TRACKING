@@ -17,4 +17,8 @@ class Company extends Model
     protected $casts = [
         'is_active' => 'boolean'
     ];
+    public function warehouse()
+    {
+        return $this->hasMany(Warehouse::class, 'company_code', 'code');
+    }
 }
