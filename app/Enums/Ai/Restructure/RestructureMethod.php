@@ -8,4 +8,6 @@ abstract class RestructureMethod extends Enum
 {
     const INDEXARRAYMAPPING = 'arraymappingbyindex';
     const KEYARRAYMAPPING = 'arraymappingbykey';
+    const MERGEINDEXARRAYMAPPING = 'arraymappingbymergeindex';
+    const SEARCHTEXTARRAYMAPPING = 'arraymappingbysearchtext';
 }

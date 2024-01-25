@@ -14,11 +14,13 @@ class ConvertTableConfig extends Model
         'method',
         'manual_patterns',
         'regex_pattern',
+        'is_without_header',
     ];
 
     //casts
     protected $casts = [
         'manual_patterns' => 'array',
+        'is_without_header' => 'boolean',
     ];
 
     public function customer_group()

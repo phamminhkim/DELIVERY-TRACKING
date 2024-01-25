@@ -86,9 +86,11 @@
 									</div>
 									<div class="col-md-8">
 										<treeselect
-											placeholder="Chọn trạng thái .."
+											placeholder="Chọn trạng thái đơn hàng.."
 											:multiple="true"
 											:disable-branch-nodes="false"
+											v-model="form_filter.statuses"
+											:options="file_statuses"
 										/>
 									</div>
 								</div>
@@ -187,9 +189,33 @@
 						</template>
 						<template #cell(action)="data">
 							<div>
-								<b-button variant="warning" @click="reconvertFile(data.item)"
-									><i class="fas fa-sync-alt"></i
-								></b-button>
+								<b-button
+									variant="warning"
+									@click="
+										showAlert = true;
+										selectedItem = data.item;
+									"
+								>
+									<i class="fas fa-sync-alt"></i>
+								</b-button>
+
+								<b-modal
+									v-model="showAlert"
+									title="Thông báo"
+									@ok="executeReconvert"
+									@cancel="cancelReconvert"
+								>
+									<template v-slot:modal-title>
+										<b-icon
+											icon="exclamation-triangle-fill"
+											variant="warning"
+											class="blink-animation"
+										></b-icon>
+										Thông báo
+									</template>
+									<p>Bạn có chắc chắn muốn chuyển đổi lại tệp này?</p>
+									<p>Mọi thay đổi sẽ bị mất và trở về dữ liệu gốc ban đầu.</p>
+								</b-modal>
 								<b-button variant="info" @click="data.toggleDetails"
 									><i class="fas fa-info"></i
 								></b-button>
@@ -308,7 +334,7 @@
 				</div>
 			</div>
 		</div>
-		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" />
+		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" :refetchData="fetchData" />
 	</div>
 </template>
 <!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
@@ -331,6 +357,8 @@
 
 				is_select_all: false,
 				selected_ids: [],
+				showAlert: false,
+				selectedItem: null,
 
 				pagination: {
 					item_per_page: 10,
@@ -429,10 +457,19 @@
 				form_filter: {
 					start_date: '',
 					end_date: '',
-					// statuses: [],
+					statuses: [],
 					customers: [],
 					customer_group_id: null,
 				},
+				file_statuses: [
+					{ id: 10, label: 'Mới' },
+					{ id: 20, label: 'Đang xử lý' },
+					{ id: 30, label: 'Hoàn thành' },
+					{ id: 40, label: 'Lỗi' },
+					{ id: 50, label: 'Xử lý lại' },
+					{ id: 60, label: 'Đã chuyển đổi' },
+					{ id: 70, label: 'Đang đồng bộ' },
+				],
 				customer_options: [],
 				customer_group_options: [],
 				order_files: [],
@@ -479,6 +516,7 @@
 								this.form_filter.end_date.length == 0
 									? undefined
 									: this.form_filter.end_date,
+							status_ids: this.form_filter.statuses,
 							customer_group_ids: this.form_filter.customer_group_id,
 							customer_ids: this.form_filter.customers,
 						}),
@@ -575,6 +613,19 @@
 				}
 			},
 
+			executeReconvert() {
+				// Thực hiện chuyển đổi lại tệp
+				// Gọi hàm reconvertFile(this.selectedItem) ở đây
+				this.reconvertFile(this.selectedItem);
+
+				// Đóng modal
+				this.showAlert = false;
+			},
+			cancelReconvert() {
+				// Hủy chuyển đổi lại tệp
+				this.showAlert = false;
+			},
+
 			async reconvertFile(file) {
 				try {
 					this.is_loading = true;
@@ -606,6 +657,7 @@
 					const { data } = await this.api_handler.get(this.api_url_order_file, {
 						from_date: this.form_filter.start_date,
 						to_date: this.form_filter.end_date,
+						status_ids: this.form_filter.statuses,
 						customer_group_ids: this.form_filter.customer_group_id,
 						customer_ids: this.form_filter.customers,
 					});
@@ -617,16 +669,16 @@
 					this.is_loading = false;
 				}
 			},
-            async clearFilter() {
+			async clearFilter() {
 				try {
 					if (this.is_loading) return;
 					this.is_loading = true;
 
 					this.form_filter.start_date = null;
 					this.form_filter.end_date = null;
+					this.form_filter.statuses = null;
 					this.form_filter.customer_group_id = null;
 					this.form_filter.customers = [];
-
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -696,11 +748,9 @@
 					{ field: 'Đơn vị tính', title: 'Đơn vị tính' },
 				];
 
-
-
 				saveExcel({
 					data: data,
-                    fileName: 'SAP_SO',
+					fileName: 'SAP_SO',
 					columns: columns,
 				});
 			},
@@ -712,4 +762,21 @@
 		},
 	};
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+.blink-animation {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+</style>
