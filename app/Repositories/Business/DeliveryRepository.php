@@ -643,7 +643,7 @@ class DeliveryRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'company_code' => 'required|string|exists:companies,code',
+                'company_code' => 'required|exists:companies,code',
                 'delivery_partner_code' => 'required|string|exists:delivery_partners,code',
                 'customer_id' => 'required|exists:customers,id',
                 'orders' => 'required|array',
