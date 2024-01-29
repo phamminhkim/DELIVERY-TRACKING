@@ -219,9 +219,24 @@
 								<b-button variant="info" @click="data.toggleDetails"
 									><i class="fas fa-info"></i
 								></b-button>
-								<b-button variant="danger" @click.prevent="deleteFile(data.item.id)"
-									><i class="fas fa-trash-alt"></i
-								></b-button>
+								<b-button
+									variant="danger"
+									@click.prevent="
+										showDeleteConfirmation = true;
+										deleteItemId = data.item.id;
+									"
+								>
+									<i class="fas fa-trash-alt"></i>
+								</b-button>
+
+								<b-modal
+									v-model="showDeleteConfirmation"
+									title="Xác nhận xóa"
+									@ok="deleteFile(deleteItemId)"
+									@cancel="showDeleteConfirmation = false"
+								>
+									<p>Bạn có chắc chắn muốn xóa dữ liệu này?</p>
+								</b-modal>
 							</div>
 						</template>
 						<template #row-details="data">
@@ -254,14 +269,24 @@
 									<template #cell(action)="raw_so_header_data">
 										<b-button
 											variant="danger"
-											@click.prevent="
+											@click.prevent="showDeleteConfirmation = true"
+										>
+											<i class="fas fa-trash-alt"></i>
+										</b-button>
+
+										<b-modal
+											v-model="showDeleteConfirmation"
+											title="Xác nhận xóa"
+											@ok="
 												deleteRawSoHeader(
 													raw_so_header_data.item.id,
 													data.item,
 												)
 											"
-											><i class="fas fa-trash-alt"></i
-										></b-button>
+											@cancel="showDeleteConfirmation = false"
+										>
+											<p>Bạn có chắc chắn muốn xóa dữ liệu này?</p>
+										</b-modal>
 										<b-button
 											variant="primary"
 											v-if="!raw_so_header_data.item.is_promotive"
@@ -359,6 +384,8 @@
 				selected_ids: [],
 				showAlert: false,
 				selectedItem: null,
+				showDeleteConfirmation: false,
+                deleteItemId: null,
 
 				pagination: {
 					item_per_page: 10,
@@ -577,6 +604,7 @@
 					toastr.error('Lỗi');
 				} finally {
 					this.is_loading = false;
+					this.showDeleteConfirmation = false; // Đóng hộp thoại sau khi xác nhận
 				}
 			},
 			async deleteRawSoHeader(id, file_item) {
@@ -591,6 +619,7 @@
 					toastr.error('Lỗi');
 				} finally {
 					this.is_loading = false;
+					this.showDeleteConfirmation = false; // Đóng hộp thoại sau khi xác nhận
 				}
 			},
 			async createPromoiveRawSoHeader(raw_so_header, file_item) {
@@ -763,20 +792,19 @@
 	};
 </script>
 <style lang="scss">
-.blink-animation {
-  animation: blink 1s infinite;
-}
+	.blink-animation {
+		animation: blink 1s infinite;
+	}
 
-@keyframes blink {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
+	@keyframes blink {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
 </style>
