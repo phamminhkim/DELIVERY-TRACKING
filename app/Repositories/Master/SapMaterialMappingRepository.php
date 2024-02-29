@@ -45,8 +45,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     'customer_material_unit' => 4,
                     'sap_material_code' => 5,
                     'sap_material_unit' => 8,
-                    // 'customer_number' => 3,
-                    // 'conversion_rate_sap' => 7,
+                    'customer_number' => 3,
+                    'conversion_rate_sap' => 7,
                     'percentage' => 9
                 ];
                 $mapping_table = $excel_extractor->structureData($raw_table_data, $template_structure);
@@ -112,8 +112,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     $sap_material_mapping = SapMaterialMapping::create([
                         'customer_material_id' => $customer_material->id,
                         'sap_material_id' => $sap_material->id,
-                        // 'conversion_rate_sap' => $material['percentage'],
-                        // 'customer_number' => $material['percentage'],
+                        'conversion_rate_sap' => $material['conversion_rate_sap'],
+                        'customer_number' => $material['customer_number'],
                         'percentage' => $material['percentage']
                     ]);
 
