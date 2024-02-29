@@ -45,6 +45,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     'customer_material_unit' => 4,
                     'sap_material_code' => 5,
                     'sap_material_unit' => 8,
+                    // 'customer_number' => 3,
+                    // 'conversion_rate_sap' => 7,
                     'percentage' => 9
                 ];
                 $mapping_table = $excel_extractor->structureData($raw_table_data, $template_structure);
@@ -110,6 +112,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     $sap_material_mapping = SapMaterialMapping::create([
                         'customer_material_id' => $customer_material->id,
                         'sap_material_id' => $sap_material->id,
+                        // 'conversion_rate_sap' => $material['percentage'],
+                        // 'customer_number' => $material['percentage'],
                         'percentage' => $material['percentage']
                     ]);
 
@@ -303,6 +307,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 // 'customer_material_id' => 'nullable|integer|exists:customer_materials,id',
                 'sap_material_id' => 'required|integer|exists:sap_materials,id',
                 'percentage' => 'required|integer',
+                'customer_number' => 'required|integer',
+                'conversion_rate_sap' => 'required|integer',
                 'customer_group_id' => 'required',
                 'customer_sku_code' => 'required', //|unique:customer_materials,customer_sku_code
                 'customer_sku_name' => 'required',
@@ -312,8 +318,12 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 'sap_material_id.required' => 'Yêu cầu nhập mã đối chiếu.',
                 'sap_material_id.integer' => 'Mã đối chiếu phải là số nguyên.',
                 'sap_material_id.exists' => 'Mã đối chiếu không tồn tại.',
-                'percentage.required' => 'Yêu cầu nhập tỉ lệ sản phẩm.',
-                'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
+                'percentage.required' => 'Yêu cầu nhập tỷ lệ sản phẩm.',
+                'percentage.integer' => 'Tỷ lệ sản phẩm phải là số nguyên.',
+                'customer_number.required' => 'Yêu cầu nhập số lượng khách hàng.',
+                'customer_number.integer' => 'Số lượng khách hàng phải là số nguyên.',
+                'conversion_rate_sap.required' => 'Yêu cầu nhập tỷ lệ chuyển đổi SAP.',
+                'conversion_rate_sap.integer' => 'Tỷ lệ chuyển đổi SAP phải là số nguyên.',
                 'customer_sku_code.required' => 'Yêu cầu nhập mã SKU khách hàng.',
                 'customer_sku_name.required' => 'Yêu cầu nhập tên SKU khách hàng.',
                 'customer_sku_unit.required' => 'Yêu cầu nhập mã unit khách hàng.',
@@ -344,7 +354,6 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 ->where('customer_sku_unit', $customerMaterialData['customer_sku_unit'])
                 ->first();
 
-
             $total_existing_percent = $customer_material_existed
                 ? $customer_material_existed->mappings()->sum('percentage')
                 : 0;
@@ -354,18 +363,29 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
                 if ($new_total_percent > 100) {
                     $this->errors = [
-                        'percentage' => 'Tổng tỉ lệ sản phẩm vượt quá 100.',
+                        'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
                         'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
                         'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
                     ];
                     return false; // Dừng việc thêm mục mới và hiển thị thông báo lỗi
                 }
+                // // Tính giá trị conversion_rate_sap dựa trên tỷ lệ percentage nhập vào
+                // $conversion_rate_sap = $customerMaterialData['conversion_rate_sap'] * $customerMaterialData['percentage'] / 100;
+
+                // // Kiểm tra nếu conversion_rate_sap bằng 0 hoặc là số thập phân lẻ
+                // if ($conversion_rate_sap == 0 || fmod($conversion_rate_sap, 1) != 0) {
+                //     $this->errors = [
+                //         'conversion_rate_sap' => 'Giá trị conversion_rate_sap không hợp lệ.',
+                //     ];
+                //     return false; // Dừng việc thêm mục mới và hiển thị thông báo lỗi
+                // }
 
                 $sap_material_mapping = $customer_material_existed->mappings()->create([
                     'sap_material_id' => $customerMaterialData['sap_material_id'],
                     'percentage' => $customerMaterialData['percentage'],
+                    'customer_number' => $customerMaterialData['customer_number'],
+                    'conversion_rate_sap' => $customerMaterialData['conversion_rate_sap'],
                 ]);
-
 
                 DB::commit();
                 return $sap_material_mapping;
@@ -406,7 +426,10 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 'customer_material_id' => $customer_material_id,
                 'sap_material_id' => $customerMaterialData['sap_material_id'],
                 'percentage' => $customerMaterialData['percentage'],
+                'customer_number' => $customerMaterialData['customer_number'],
+                'conversion_rate_sap' => $customerMaterialData['conversion_rate_sap'],
             ]);
+
             DB::commit();
             return $sap_material_mapping;
         } catch (\Exception $exception) {
@@ -495,6 +518,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $editableFields = [
                 'customer_sku_name',
                 'percentage',
+                'customer_number',
+                'conversion_rate_sap',
                 'sap_material_id',
                 'customer_group_id',
                 'customer_sku_code',
@@ -504,14 +529,20 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $validator = Validator::make($editableData, [
                 'customer_sku_name' => 'required',
                 'percentage' => 'required|integer',
+                'customer_number' => 'required|integer',
+                'conversion_rate_sap' => 'required|integer',
                 'sap_material_id' => 'not_in:0',
                 'customer_group_id' => 'not_in:0',
                 'customer_sku_code' => 'not_in:0',
                 'customer_sku_unit' => 'not_in:0',
             ], [
                 'customer_sku_name.required' => 'Tên SKU khách hàng là bắt buộc.',
-                'percentage.required' => 'Tỉ lệ sản phẩm là bắt buộc.',
-                'percentage.integer' => 'Tỉ lệ sản phẩm phải là số nguyên.',
+                'percentage.required' => 'Tỷ lệ sản phẩm là bắt buộc.',
+                'percentage.integer' => 'Tỷ lệ sản phẩm phải là số nguyên.',
+                'customer_number.required' => 'Số lượng khách hàng sản phẩm là bắt buộc.',
+                'customer_number.integer' => 'Số lượng khách hàng phải là số nguyên.',
+                'conversion_rate_sap.required' => 'Tỷ lệ chuyển đổi là bắt buộc.',
+                'conversion_rate_sap.integer' => 'Tỷ lệ chuyển đổi là số nguyên.',
                 'sap_material_id.not_in' => 'Không được chỉnh sửa trường sap_material_id.',
                 'customer_group_id.not_in' => 'Không được chỉnh sửa trường customer_group_id.',
                 'customer_sku_code.not_in' => 'Không được chỉnh sửa trường customer_sku_code.',
@@ -546,7 +577,26 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $customerMaterialData['customer_group_id'];
                 return false;
             }
+            // tính tỷ lệ màu
+            $customer_material_existed = CustomerMaterial::where('customer_group_id', $customer_material->customer_group_id)
+                ->where('customer_sku_code', $customer_material->customer_sku_code)
+                ->where('customer_sku_unit', $customer_material->customer_sku_unit)
+                ->first();
 
+            $total_existing_percent = $customer_material_existed
+                ? $customer_material_existed->mappings()->sum('percentage')
+                : 0;
+
+            $new_total_percent = $total_existing_percent - $sap_material_mapping->percentage + $customerMaterialData['percentage'];
+
+            if ($new_total_percent > 100) {
+                $this->errors = [
+                    'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
+                    'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
+                    'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
+                ];
+                return false; // Stop updating the item and display the error message
+            }
             // Bắt đầu giao dịch
             DB::beginTransaction();
 
@@ -577,6 +627,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $customer_material->save();
 
                 $sap_material_mapping->percentage = $customerMaterialData['percentage'];
+                $sap_material_mapping->customer_number = $customerMaterialData['customer_number'];
+                $sap_material_mapping->conversion_rate_sap = $customerMaterialData['conversion_rate_sap'];
                 $sap_material_mapping->save();
 
                 // Hoàn thành giao dịch
