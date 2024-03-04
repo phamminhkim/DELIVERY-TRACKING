@@ -3,6 +3,7 @@
 namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
+use App\Utilities\OperatorUtility;
 
 class KeyArrayMappingRestructure implements DataRestructureInterface
 {
@@ -13,13 +14,29 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
         foreach ($data as $match) {
             $output = [];
             foreach ($structure as $key => $value_item) {
-                if ($value_item['value']) {
+                if (isset($value_item['value'])) {
                     $output[$key] = $match[$value_item['value']] ?
                     $match[$value_item['value']] :
                     (isset($value_item['default']) ? $value_item['default'] :
                     $match[$value_item['value']]);
+                } else if (isset($value_item['value_1'])
+                    && isset($value_item['value_2'])
+                    && isset($value_item['operator'])) {
+                    // Lấy giá trị 1 và giá trị 2, thực hiện phép toán
+                    $value_1 = $match[$value_item['value_1']] ?
+                    $match[$value_item['value_1']] :
+                    (isset($value_item['default']) ? $value_item['default'] :
+                    $match[$value_item['value_1']]);
+
+                    $value_2 = $match[$value_item['value_2']] ?
+                    $match[$value_item['value_2']] :
+                    (isset($value_item['default']) ? $value_item['default'] :
+                    $match[$value_item['value_2']]);
+
+                    $operator = OperatorUtility::getOperator($value_item['operator']);
+                    $output[$key] = OperatorUtility::$operator($value_1, $value_2);
                 } else {
-                $output[$key] = $value_item['default'];
+                    $output[$key] = $value_item['default'];
                 }
             }
             // Check trường bắt buộc mà không có giá trị thì skip row
