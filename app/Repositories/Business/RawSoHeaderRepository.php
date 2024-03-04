@@ -306,6 +306,33 @@ class RawSoHeaderRepository extends RepositoryAbs
             $newItem->save();
         }
     }
+
+    public function copyRawSoItem($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $raw_so_item = RawSoItem::query()->findOrFail($id);
+
+            if (!$raw_so_item) {
+                $this->errors[] = 'Raw SO Item không tồn tại';
+                return false;
+            }
+
+            $cloned_raw_so_item = $raw_so_item->replicate();
+            $cloned_raw_so_item->save();
+
+            DB::commit();
+
+            return $cloned_raw_so_item;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+
     public function deleteRawSoItem($raw_so_item_id)
     {
         $raw_so_item = RawSoItem::query()->find($raw_so_item_id);
