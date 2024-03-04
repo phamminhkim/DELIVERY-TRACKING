@@ -61,71 +61,6 @@
 								<strong>{{ getError('customer_group_id') }}</strong>
 							</span>
 						</div>
-						<div class="form-group" v-if="!editing_item || !editing_item.id">
-							<label>SKU SAP</label>
-							<!-- <small class="text-danger"></small> -->
-							<treeselect
-								v-model="sap_material_mapping.sap_material_id"
-								placeholder="Chọn sản phẩm.."
-								required
-								:load-options="loadOptions"
-								:async="true"
-							/>
-							<span
-								v-if="hasError('sap_material_id')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('sap_material_id') }}</strong>
-							</span>
-						</div>
-						<div class="form-group" v-if="editing_item && editing_item.id">
-							<label>SKU SAP</label>
-							<!-- <small class="text-danger"></small> -->
-							<treeselect
-								v-model="sap_material_mapping.sap_material_code"
-								placeholder="Chọn sản phẩm.."
-								required
-								:load-options="loadOptions"
-								:disabled="is_editing"
-								:async="true"
-							/>
-                            <span
-									v-if="is_editing"
-									class="readonly-text"
-									style="color: red; font-style: italic"
-									>Không được phép chỉnh sửa</span
-								>
-							<span
-								v-if="hasError('sap_material_id')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('sap_material_id') }}</strong>
-							</span>
-						</div>
-						<div class="form-group">
-							<label>Tỉ lệ </label>
-							<!-- <small class="text-danger"></small> -->
-							<input
-								v-model="sap_material_mapping.percentage"
-								class="form-control"
-								id="percentage"
-								name="percentage"
-								placeholder="Nhập tỉ lệ sản phẩm..."
-								v-bind:class="hasError('percentage') ? 'is-invalid' : ''"
-								type="number"
-								min="1"
-								max="100"
-							/>
-							<span
-								v-if="hasError('percentage')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('percentage') }}</strong>
-							</span>
-						</div>
 						<div class="form-group">
 							<label>Mã SKU khách hàng</label>
 							<input
@@ -138,12 +73,12 @@
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
-                            <span
-									v-if="is_editing"
-									class="readonly-text"
-									style="color: red; font-style: italic"
-									>Không được phép chỉnh sửa</span
-								>
+							<span
+								v-if="is_editing"
+								class="readonly-text"
+								style="color: red; font-style: italic"
+								>Không được phép chỉnh sửa</span
+							>
 
 							<span
 								v-if="hasError('customer_sku_code')"
@@ -190,18 +125,126 @@
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
 							/>
-                            <span
-									v-if="is_editing"
-									class="readonly-text"
-									style="color: red; font-style: italic"
-									>Không được phép chỉnh sửa</span
-								>
+							<span
+								v-if="is_editing"
+								class="readonly-text"
+								style="color: red; font-style: italic"
+								>Không được phép chỉnh sửa</span
+							>
 							<span
 								v-if="hasError('customer_sku_unit')"
 								class="invalid-feedback"
 								role="alert"
 							>
 								<strong>{{ getError('customer_sku_unit') }}</strong>
+							</span>
+						</div>
+						<div class="form-group">
+							<label for="customer_number">Số lượng - KH</label>
+							<!-- <small class="text-danger"></small> -->
+							<input
+								value="1"
+								class="form-control"
+                                v-model="sap_material_mapping.customer_number"
+								id="customer_number"
+								name="customer_number"
+								placeholder="Nhập số lượng khách hàng..."
+								v-bind:class="hasError('customer_number') ? 'is-invalid' : ''"
+								type="number"
+								min="1"
+							/>
+							<span
+								v-if="hasError('customer_number')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('customer_number') }}</strong>
+							</span>
+						</div>
+						<div class="form-group" v-if="!editing_item || !editing_item.id">
+							<label>SKU SAP</label>
+							<!-- <small class="text-danger"></small> -->
+							<treeselect
+								v-model="sap_material_mapping.sap_material_id"
+								placeholder="Chọn sản phẩm.."
+								required
+								:load-options="loadOptions"
+								:async="true"
+							/>
+							<span
+								v-if="hasError('sap_material_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('sap_material_id') }}</strong>
+							</span>
+						</div>
+						<div class="form-group" v-if="editing_item && editing_item.id">
+							<label>SKU SAP</label>
+							<!-- <small class="text-danger"></small> -->
+							<treeselect
+								v-model="sap_material_mapping.sap_material_code"
+								placeholder="Chọn sản phẩm.."
+								required
+								:load-options="loadOptions"
+								:disabled="is_editing"
+								:async="true"
+							/>
+							<span
+								v-if="is_editing"
+								class="readonly-text"
+								style="color: red; font-style: italic"
+								>Không được phép chỉnh sửa</span
+							>
+							<span
+								v-if="hasError('sap_material_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('sap_material_id') }}</strong>
+							</span>
+						</div>
+                        <div class="form-group">
+							<label for="conversion_rate_sap">Số lượng - SAP</label>
+							<!-- <small class="text-danger"></small> -->
+							<input
+								class="form-control"
+                                v-model="sap_material_mapping.conversion_rate_sap"
+								id="conversion_rate_sap"
+								name="conversion_rate_sap"
+								placeholder="Nhập số lượng SAP..."
+								v-bind:class="hasError('conversion_rate_sap') ? 'is-invalid' : ''"
+								type="number"
+								min="1"
+							/>
+							<span
+								v-if="hasError('conversion_rate_sap')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('conversion_rate_sap') }}</strong>
+							</span>
+						</div>
+						<div class="form-group">
+							<label>Tỷ lệ màu(%)</label>
+							<!-- <small class="text-danger"></small> -->
+							<input
+								v-model="sap_material_mapping.percentage"
+								class="form-control"
+								id="percentage"
+								name="percentage"
+								placeholder="Nhập tỉ lệ màu sản phẩm..."
+								v-bind:class="hasError('percentage') ? 'is-invalid' : ''"
+								type="number"
+								min="1"
+								max="100"
+							/>
+							<span
+								v-if="hasError('percentage')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('percentage') }}</strong>
 							</span>
 						</div>
 					</div>
@@ -255,6 +298,8 @@
 					sap_material_id: null,
 					sap_material_code: null,
 					percentage: '',
+					customer_number: '',
+					conversion_rate_sap: '',
 				},
 				customer_group_options: [],
 				customer_options: [],
@@ -286,6 +331,8 @@
 						),
 						sap_material_id: parseInt(this.sap_material_mapping.sap_material_id),
 						percentage: this.sap_material_mapping.percentage,
+						customer_number: this.sap_material_mapping.customer_number,
+						conversion_rate_sap: this.sap_material_mapping.conversion_rate_sap,
 						customer_group_id: this.sap_material_mapping.customer_group_id,
 						customer_sku_code: this.sap_material_mapping.customer_sku_code,
 						customer_sku_name: this.sap_material_mapping.customer_sku_name,
@@ -383,6 +430,8 @@
 				this.sap_material_mapping.sap_material_id = null;
 				this.sap_material_mapping.customer_material_id = null;
 				this.sap_material_mapping.percentage = '';
+				this.sap_material_mapping.customer_number = '';
+				this.sap_material_mapping.conversion_rate_sap = '';
 				this.sap_material_mapping.customer_group_id = null;
 				this.sap_material_mapping.customer_sku_code = '';
 				this.sap_material_mapping.customer_sku_name = '';
@@ -395,6 +444,8 @@
 				this.sap_material_mapping.sap_material_id = null;
 				this.sap_material_mapping.customer_material_id = null;
 				this.sap_material_mapping.percentage = null;
+                this.sap_material_mapping.customer_number = '';
+				this.sap_material_mapping.conversion_rate_sap = '';
 				this.sap_material_mapping.customer_group_id = null;
 				this.sap_material_mapping.customer_sku_code = null;
 				this.sap_material_mapping.customer_sku_name = null;
@@ -451,6 +502,8 @@
 				this.sap_material_mapping.customer_material_id = item.customer_material_id;
 				this.sap_material_mapping.sap_material_id = item.sap_material_id;
 				this.sap_material_mapping.percentage = item.percentage;
+				this.sap_material_mapping.customer_number = item.customer_number;
+				this.sap_material_mapping.conversion_rate_sap = item.conversion_rate_sap;
 				this.sap_material_mapping.sap_material_code = item.sap_material.sap_code;
 				this.sap_material_mapping.id = item.id;
 			},

@@ -69,6 +69,19 @@ class RawSoController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function copyRawSoItem(Request $request)
+    {
+        $id = $request->input('raw_so_item_id'); // Lấy giá trị raw_so_item_id từ request
+
+        $handler = BusinessRepository::rawSoHeaderRequest($request);
+        $data = $handler->copyRawSoItem($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
     public function deleteRawSoItem(Request $request, $id)
     {

@@ -323,6 +323,12 @@
 									>
 										<i class="fas fa-trash-alt"></i>
 									</b-button>
+									<b-button
+										variant="primary"
+										@click.prevent="copyRawSoItem(data.item.id)"
+									>
+										<i class="fas fa-copy"></i>
+									</b-button>
 								</template>
 							</b-table>
 						</div>
@@ -620,11 +626,11 @@
 			// },
 			async deleteRawSoItem(id) {
 				try {
-					// this.is_loading = true;
-					// const { data } = await this.api_handler.delete(
-					// 	`/api/raw-so-headers/raw-so-items/${id}`,
-					// 	{},
-					// );
+					this.is_loading = true;
+					const { data } = await this.api_handler.delete(
+						`/api/raw-so-headers/raw-so-items/${id}`,
+						{},
+					);
 					this.raw_so_header.raw_so_items_deleted.push(
 						this.raw_so_header.raw_so_items.find((item) => item.id === id),
 					);
@@ -633,30 +639,46 @@
 						(item) => item.id !== id,
 					);
 					//this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
-					// this.$showMessage('success', 'Xóa thành công');
+					this.$showMessage('success', 'Xóa thành công');
 				} catch (e) {
 					console.log(e);
-					// this.$showMessage('danger', 'Xóa thất bại');
+					this.$showMessage('danger', 'Xóa thất bại');
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			// async deleteRawSoItem(id) {
-			// 	try {
-			// 		this.is_loading = true;
-			// 		const { data } = await this.api_handler.delete(
-			// 			`/api/raw-so-headers/raw-so-items/${id}`,
-			// 			{},
-			// 		);
-			// 		this.raw_so_items = this.raw_so_items.filter((item) => item.id !== id);
-			// 		this.$showMessage('success', 'Xóa thành công');
-			// 	} catch (e) {
-			// 		console.log(e);
-			// 		this.$showMessage('danger', 'Xóa thất bại');
-			// 	} finally {
-			// 		this.is_loading = false;
-			// 	}
-			// },
+			// coppyRawSoItem(){},
+			async copyRawSoItem(rawSoItemId) {
+				try {
+					this.is_loading = true;
+					const { data } = await this.api_handler.post(
+						'/api/raw-so-headers/raw-so-items/copy',
+						{
+							raw_so_item_id: rawSoItemId,
+						},
+					);
+
+					if (data && data.new_item) {
+						const selectedIndex = this.raw_so_items.findIndex(
+							(item) => item.id === rawSoItemId,
+						);
+
+						// Sao chép dòng đã chọn
+						const new_item = { ...data.new_item };
+						this.raw_so_header.raw_so_items.push({ ...new_item });
+
+						// Chèn dòng đã sao chép ngay bên dưới dòng đã chọn
+						this.raw_so_items.splice(selectedIndex + 1, 0, new_item);
+					}
+
+					this.$showMessage('success', 'Sao chép thành công');
+				} catch (error) {
+					console.error(error);
+					this.$showMessage('danger', 'Sao chép thất bại');
+				} finally {
+					this.is_loading = false;
+				}
+			},
 			async updateRawSoHeader() {
 				try {
 					this.is_loading = true;
