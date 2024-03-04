@@ -118,7 +118,7 @@
 								<strong>{{ getError('customer_id') }}</strong>
 							</span>
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label>Trạng thái</label>
 							<input
 								class="form-check-input"
@@ -129,7 +129,7 @@
 								:false-value="false"
 								@change="$emit('update:is_active', is_active)"
 							/>
-						</div>
+						</div> -->
 					</div>
 
 					<div class="modal-footer justify-content-between">

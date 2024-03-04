@@ -64,7 +64,7 @@ class SapMaterialRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
 
-                'sap_code' => 'required|string|unique:sap_materials,sap_code',
+                'sap_code' => 'required|string',
                 'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
             ], [

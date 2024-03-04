@@ -282,6 +282,7 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/{id}', [RawSoController::class, 'deleteRawSoHeader']);
         Route::prefix('/raw-so-items')->group(function () {
             Route::post('/', [RawSoController::class, 'addRawSoItemToRawSoHeader']);
+            Route::post('/copy', [RawSoController::class, 'copyRawSoItem']);
             Route::delete('/{id}', [RawSoController::class, 'deleteRawSoItem']);
         });
     });
