@@ -369,12 +369,12 @@
 						if (Array.isArray(data)) {
 							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Cập nhật thành công');
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
 						this.errors = data.errors;
-						this.showMessage('error', 'Thêm không thành công');
+						this.showMessage('error', 'Cập nhật không thành công');
 					}
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
