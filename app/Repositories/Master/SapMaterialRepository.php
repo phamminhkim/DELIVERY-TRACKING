@@ -69,55 +69,50 @@ class SapMaterialRepository extends RepositoryAbs
     }
 
     public function createNewSapMaterial()
-    {
-        try {
-            $validator = Validator::make($this->data, [
-
-                'sap_code' => 'required|string',
-                'unit_id' => 'required|integer|exists:sap_units,id',
-                'name' => 'required|string',
-            ], [
-                'sap_code.required' => 'Yêu cầu nhập mã material.',
-                'sap_code.string' => 'Mã công ty phải là chuỗi.',
-                'sap_code.unique' => 'Mã material đã tồn tại.',
-                'unit_id.integer' => 'Mã unit phải là chuỗi.',
-                'unit_id.exists' => 'Mã unit không tồn tại.',
-                'name.required' => 'Yêu cầu nhập tên material.',
-                'name.string' => 'Tên material phải là chuỗi.',
-            ]);
-
-            if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $sapMaterial => $validator) {
-                    if ($errors->has($sapMaterial)) {
-                        $this->errors[$sapMaterial] = $errors->first($sapMaterial);
-                        return false;
+{
+    try {
+        $validator = Validator::make($this->data, [
+            'sap_code' => 'required|string',
+            'unit_id' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    $existingMaterial = SapMaterial::where('sap_code', $this->data['sap_code'])
+                        ->where('unit_id', $value)
+                        ->first();
+                    if ($existingMaterial) {
+                        $fail('Mã unit đã tồn tại cho mã sap_code này.');
                     }
                 }
-            } else {
+            ],
+            'name' => 'required|string',
+        ], [
+            'sap_code.required' => 'Yêu cầu nhập mã SAP.',
+            'sap_code.string' => 'Mã công ty phải là chuỗi.',
+            'unit_id.required' => 'Yêu cầu nhập mã unit.',
+            'unit_id.integer' => 'Mã unit phải là số nguyên.',
+            'name.required' => 'Yêu cầu nhập tên SAP.',
+            'name.string' => 'Tên SAP phải là chuỗi.',
+        ]);
 
-                $sap_unit = SapUnit::find($this->data['unit_id']);
-                if (!$sap_unit) {
-                    $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
-                    return false;
-                }
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->toArray();
+            return false;
+        } else {
+            $sapMaterial = SapMaterial::create([
+                'sap_code' => $this->data['sap_code'],
+                'unit_id' => $this->data['unit_id'],
+                'name' => $this->data['name'],
+            ]);
 
-                $this->data['unit_id'] = $sap_unit->id ?? null;
-
-                $sapMaterial = SapMaterial::create([
-                    'sap_code' => $this->data['sap_code'],
-                    'unit_id' => $this->data['unit_id'],
-                    'name' => $this->data['name'],
-                ]);
-
-
-                return $sapMaterial;
-            }
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
+            return $sapMaterial;
         }
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        return false;
     }
+}
     public function updateOrInsert()
     {
         $validator = Validator::make($this->data, [
@@ -192,13 +187,13 @@ class SapMaterialRepository extends RepositoryAbs
                 'unit_id' => 'integer|exists:sap_units,id',
                 'name' => 'required|string',
             ], [
-                'sap_code.required' => 'Yêu cầu nhập mã material.',
+                'sap_code.required' => 'Yêu cầu nhập mã SAP.',
                 'sap_code.string' => 'Mã công ty phải là chuỗi.',
                 //'sap_code.unique' => 'Mã material đã tồn tại.',
                 'unit_id.integer' => 'Mã unit phải là chuỗi.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
-                'name.required' => 'Yêu cầu nhập tên material.',
-                'name.string' => 'Tên material phải là chuỗi.',
+                'name.required' => 'Yêu cầu nhập tên SAP.',
+                'name.string' => 'Tên SAP phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
