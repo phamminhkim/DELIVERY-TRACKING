@@ -13,41 +13,50 @@ use App\Models\Master\Company;
 
 class SapMaterialRepository extends RepositoryAbs
 {
-    public function getAvailableSapMaterials($is_minified)
+    public function getAvailableSapMaterials($is_minified, $request)
     {
         try {
             $query = SapMaterial::query();
 
+            // Tối ưu hóa dữ liệu theo dạng phân trang
+        $result = array();
+        $sapMaterials = $query->paginate(200, ['*'], 'page', $request->page);
+        $result['sap_material_mappings'] = $sapMaterials->items();
+        $result['paginate'] = [
+            'current_page' => $sapMaterials->currentPage(),
+            'last_page' => $sapMaterials->lastPage(),
+            'total' => $sapMaterials->total(),
+        ];
+
             $is_searching = false;
-            if ($this->request->filled('search')) {
-                $query->search($this->request->search);
+            if ($request->filled('search')) {
+                $query->search($request->search);
                 $query->with(['unit']);
                 $query->limit(50);
                 $is_searching = true;
             }
-            if ($this->request->filled('unit_ids')) {
-                $query->whereIn('unit_id', $this->request->unit_ids);
+            if ($request->filled('unit_ids')) {
+                $query->whereIn('unit_id', $request->unit_ids);
             }
-            if ($this->request->filled('ids')) {
-                $query->whereIn('id', $this->request->ids);
+            if ($request->filled('ids')) {
+                $query->whereIn('id', $request->ids);
             }
-            if ($this->request->filled('id')) {
-                $query->where('id', $this->request->id);
+            if ($request->filled('id')) {
+                $query->where('id', $request->id);
             }
-
 
             if ($is_minified) {
                 $query->select('id', 'name', 'sap_code', 'unit_id');
             }
             $query->with([
-                'unit' => function ($query){
-                    $query->select(['id','unit_code']);
+                'unit' => function ($query) {
+                    $query->select(['id', 'unit_code']);
                 },
             ]);
             $sap_materials = $query->get();
             if ($is_searching) {
                 $sap_materials_clone = clone $sap_materials;
-                $sap_materials_clone->where('code', $this->request->search);
+                $sap_materials_clone->where('code', $request->search);
                 if (!$sap_materials_clone->count()) {
                     $sap_materials = $sap_materials_clone;
                 }
