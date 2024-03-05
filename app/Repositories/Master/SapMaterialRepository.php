@@ -19,14 +19,14 @@ class SapMaterialRepository extends RepositoryAbs
             $query = SapMaterial::query();
 
             // Tối ưu hóa dữ liệu theo dạng phân trang
-        $result = array();
-        $sapMaterials = $query->paginate(200, ['*'], 'page', $request->page);
-        $result['sap_material_mappings'] = $sapMaterials->items();
-        $result['paginate'] = [
-            'current_page' => $sapMaterials->currentPage(),
-            'last_page' => $sapMaterials->lastPage(),
-            'total' => $sapMaterials->total(),
-        ];
+            $result = array();
+            $sapMaterials = $query->paginate(200, ['*'], 'page', $request->page);
+            $result['sap_material_mappings'] = $sapMaterials->items();
+            $result['paginate'] = [
+                'current_page' => $sapMaterials->currentPage(),
+                'last_page' => $sapMaterials->lastPage(),
+                'total' => $sapMaterials->total(),
+            ];
 
             $is_searching = false;
             if ($request->filled('search')) {
@@ -69,50 +69,40 @@ class SapMaterialRepository extends RepositoryAbs
     }
 
     public function createNewSapMaterial()
-{
-    try {
-        $validator = Validator::make($this->data, [
-            'sap_code' => 'required|string',
-            'unit_id' => [
-                'required',
-                'integer',
-                function ($attribute, $value, $fail) {
-                    $existingMaterial = SapMaterial::where('sap_code', $this->data['sap_code'])
-                        ->where('unit_id', $value)
-                        ->first();
-                    if ($existingMaterial) {
-                        $fail('Mã unit đã tồn tại cho mã sap_code này.');
-                    }
-                }
-            ],
-            'name' => 'required|string',
-        ], [
-            'sap_code.required' => 'Yêu cầu nhập mã SAP.',
-            'sap_code.string' => 'Mã công ty phải là chuỗi.',
-            'unit_id.required' => 'Yêu cầu nhập mã unit.',
-            'unit_id.integer' => 'Mã unit phải là số nguyên.',
-            'name.required' => 'Yêu cầu nhập tên SAP.',
-            'name.string' => 'Tên SAP phải là chuỗi.',
-        ]);
-
-        if ($validator->fails()) {
-            $this->errors = $validator->errors()->toArray();
-            return false;
-        } else {
-            $sapMaterial = SapMaterial::create([
-                'sap_code' => $this->data['sap_code'],
-                'unit_id' => $this->data['unit_id'],
-                'name' => $this->data['name'],
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'sap_code' => 'required|string',
+                'unit_id' => 'required|integer|unique:sap_materials,unit_id',
+                'name' => 'required|string',
+            ], [
+                'sap_code.required' => 'Yêu cầu nhập mã material.',
+                'sap_code.string' => 'Mã công ty phải là chuỗi.',
+                'unit_id.required' => 'Yêu cầu nhập mã unit.',
+                'unit_id.integer' => 'Mã unit phải là số nguyên.',
+                'unit_id.unique' => 'Mã unit đã tồn tại cho mã sap_code này.',
+                'name.required' => 'Yêu cầu nhập tên material.',
+                'name.string' => 'Tên material phải là chuỗi.',
             ]);
 
-            return $sapMaterial;
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->toArray();
+                return false;
+            } else {
+                $sapMaterial = SapMaterial::create([
+                    'sap_code' => $this->data['sap_code'],
+                    'unit_id' => $this->data['unit_id'],
+                    'name' => $this->data['name'],
+                ]);
+
+                return $sapMaterial;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
         }
-    } catch (\Exception $exception) {
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
-        return false;
     }
-}
     public function updateOrInsert()
     {
         $validator = Validator::make($this->data, [
