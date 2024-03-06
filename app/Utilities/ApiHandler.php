@@ -44,10 +44,28 @@ class ApiHandler
             $client = new \GuzzleHttp\Client();
             $promises = [];
             foreach ($requests as $request) {
-                $promises[] = $client->requestAsync($request->method, $request->url, [
-                    'query' => $request->queries,
-                    'json' => $request->body
-                ]);
+                $body = $request->body;
+                if (isset($body['bearer_token'])) {
+                    $token_info = $body['bearer_token'];
+                    $login_response = $client->request($token_info['token_method'], $token_info['token_url'], [
+                        'form_params' => $token_info['token_body'],
+                        'headers' => $token_info['token_header'],
+                    ]);
+                    $login_data = json_decode($login_response->getBody());
+                    $token = 'Bearer ' . $login_data->access_token;
+                    $promises[] = $client->requestAsync($request->method, $request->url, [
+                        'query' => $request->queries,
+                        'json' => $request->body,
+                        'headers' => [
+                            'Authorization' => $token
+                        ]
+                    ]);
+                } else {
+                    $promises[] = $client->requestAsync($request->method, $request->url, [
+                        'query' => $request->queries,
+                        'json' => $request->body
+                    ]);
+                }
             }
             $results = Utils::all($promises)->wait();
             $responses = [];
