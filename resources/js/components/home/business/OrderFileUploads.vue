@@ -136,19 +136,31 @@
 				<!-- <div class="row"></div> -->
 			</div>
 			<div class="form-group">
-				<b-button variant="primary" @click="syncFileSap">
+				<b-button variant="secondary" @click="syncFileSap">
 					<strong>
 						<i class="fas fa-globe-asia mr-1 text-bold"></i>
 						Đồng bộ SAP
 					</strong>
 				</b-button>
 				<b-button
-					variant="primary"
+					variant="secondary"
 					@click="exportToExcel"
 					class="btn-sm ml-1"
 					style="height: 38px"
 				>
 					<strong> <i class="fas fa-download mr-1 text-bold"></i>Download Excel </strong>
+				</b-button>
+                <b-button variant="secondary" @click="mappingDataSap">
+					<strong>
+						<i class="fas fa-compass mr-1 text-bold"></i>
+						Mapping dữ liệu
+					</strong>
+				</b-button>
+                <b-button variant="secondary" @click="checkInventory">
+					<strong>
+						<i class="fas fa-check-square mr-1 text-bold"></i>
+						Check tồn kho
+					</strong>
 				</b-button>
 			</div>
 			<div class="form-group">
@@ -196,7 +208,7 @@
 										selectedItem = data.item;
 									"
 								>
-									<i class="fas fa-sync-alt"></i>
+									<i class="fas fa-play"></i>
 								</b-button>
 
 								<b-modal
@@ -326,7 +338,12 @@
 							{{ data.value | formatDateTime }}
 						</template>
 						<template #cell(status)="data">
-							<span :class="data.value.badge_class">{{ data.value.name }}</span>
+							<div class="container">
+								<span :class="data.value.badge_class">{{ data.value.name }}</span>
+								<button @click="reloadStatus(data.item.id)">
+									<i class="fas fa-sync-alt"></i>
+								</button>
+							</div>
 						</template>
 					</b-table>
 				</div>
@@ -385,7 +402,7 @@
 				showAlert: false,
 				selectedItem: null,
 				showDeleteConfirmation: false,
-                deleteItemId: null,
+				deleteItemId: null,
 
 				pagination: {
 					item_per_page: 10,
@@ -646,13 +663,15 @@
 				// Thực hiện chuyển đổi lại tệp
 				// Gọi hàm reconvertFile(this.selectedItem) ở đây
 				this.reconvertFile(this.selectedItem);
-
 				// Đóng modal
 				this.showAlert = false;
 			},
 			cancelReconvert() {
 				// Hủy chuyển đổi lại tệp
 				this.showAlert = false;
+			},
+			async reloadStatus() {
+				this.fetchData();
 			},
 
 			async reconvertFile(file) {
@@ -737,6 +756,7 @@
 					this.is_loading = false;
 				}
 			},
+
 			async exportToExcel() {
 				try {
 					this.is_loading = true;
@@ -768,6 +788,10 @@
 					this.is_loading = false;
 				}
 			},
+            ////
+            mappingDataSap(){},
+            checkInventory(){},
+            ////
 			exportExcel(data) {
 				const columns = [
 					{ field: 'Số SO', title: 'Số SO' },
@@ -806,5 +830,19 @@
 		100% {
 			opacity: 1;
 		}
+	}
+	.container {
+		position: relative;
+		border: none;
+		right: 20px;
+	}
+
+	.container i.fas.fa-sync-alt {
+		position: absolute;
+		top: 25px;
+		right: 0;
+		transform: translate(50%, -50%);
+		border: 1px solid black;
+		padding: 5px;
 	}
 </style>
