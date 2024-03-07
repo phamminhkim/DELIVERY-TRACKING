@@ -42,7 +42,7 @@ class SapMaterialController extends ResponseController
         if ($sapMaterial) {
             return $this->responseSuccess($sapMaterial);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
     //update
@@ -54,7 +54,7 @@ class SapMaterialController extends ResponseController
         if ($sapMaterial) {
             return $this->responseSuccess($sapMaterial);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
     public function deleteExistingSapMaterial(Request $request, $id)

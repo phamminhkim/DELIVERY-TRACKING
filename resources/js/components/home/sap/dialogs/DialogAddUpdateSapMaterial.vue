@@ -41,7 +41,8 @@
 								class="form-control"
 								id="sap_code"
 								name="sap_code"
-								placeholder="Yêu cầu nhập mã SKU..."
+                                required
+								placeholder="Yêu cầu nhập mã SAP..."
 								v-bind:class="hasError('sap_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
@@ -78,7 +79,7 @@
 						</div>
 						<div class="form-group">
 							<label>Tên sản phẩm SAP</label>
-							<small class="text-danger"></small>
+							<small class="text-danger">*</small>
 							<input
 								v-model="sap_material.name"
 								class="form-control"
