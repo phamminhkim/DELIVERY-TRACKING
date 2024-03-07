@@ -150,10 +150,18 @@ class SapMaterialRepository extends RepositoryAbs
                         $exist_sap_material->save();
                     } {
                         if ($exist_sap_material) {
-                            $exist_sap_material->update([
-                                'name' => $material['name'],
-                                'bar_code' => $material['bar_code'],
-                            ]);
+                            if ($exist_sap_material->bar_code == "" ){
+                                $exist_sap_material->update([
+                                    'name' => $material['name'],
+                                    'bar_code' => $material['bar_code'],
+                                ]);
+                            }else{
+                                $exist_sap_material->update([
+                                    'name' => $material['name'],
+                                    //  'bar_code' => $material['bar_code'],
+                                ]);
+                            }
+
                             $result['update_count']++;
                         } else {
                             SapMaterial::create([
