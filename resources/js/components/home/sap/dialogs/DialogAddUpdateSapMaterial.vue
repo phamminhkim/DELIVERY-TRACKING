@@ -77,6 +77,26 @@
 								<strong>{{ getError('unit_id') }}</strong>
 							</span>
 						</div>
+                        <div class="form-group">
+							<label>Mã Barcode</label>
+							<small class="text-danger">*</small>
+							<input
+								v-model="sap_material.bar_code"
+								class="form-control"
+								id="bar_code"
+								name="bar_code"
+								placeholder="Nhập mã Barcode(nếu có)..."
+								v-bind:class="hasError('bar_code') ? 'is-invalid' : ''"
+								type="text"
+							/>
+							<span
+								v-if="hasError('bar_code')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('bar_code') }}</strong>
+							</span>
+						</div>
 						<div class="form-group">
 							<label>Tên sản phẩm SAP</label>
 							<small class="text-danger">*</small>
@@ -145,6 +165,7 @@
 				sap_material: {
 					sap_code: '',
                     unit_id: null,
+                    bar_code: '',
                     name: '',
 				},
 				unit_options:[],
@@ -174,6 +195,7 @@
 					const data = await this.api_handler.post('/api/master/sap-materials', {
 						sap_code: this.sap_material.sap_code,
                         unit_id: this.sap_material.unit_id,
+                        bar_code: this.sap_material.bar_code,
                         name: this.sap_material.name,
 
 					});
@@ -274,6 +296,7 @@
 			resetDialog() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
+				this.sap_material.bar_code = '';
 				this.sap_material.name = '';
 				this.clearErrors();
 			},
@@ -281,6 +304,7 @@
 			clearForm() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
+				this.sap_material.bar_code = null;
 				this.sap_material.name = null;
 			},
 			clearErrors() {
@@ -324,6 +348,7 @@
 				console.log(item);
                 this.sap_material.sap_code = item.sap_code;
                 this.sap_material.unit_id = item.unit_id;
+                this.sap_material.bar_code = item.bar_code;
 				this.sap_material.name = item.name;
 				this.sap_material.id = item.id;
 			},

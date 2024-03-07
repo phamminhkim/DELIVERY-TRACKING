@@ -13,8 +13,10 @@ class SapMaterial extends Model
     protected $fillable = [
         // 'company_id',
         'unit_id',
+        'bar_code',
         'sap_code',
         'name'
+
     ];
     protected $casts = [
         'created_at' => 'datetime',
