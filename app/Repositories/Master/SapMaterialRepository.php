@@ -46,7 +46,7 @@ class SapMaterialRepository extends RepositoryAbs
             }
 
             if ($is_minified) {
-                $query->select('id', 'name', 'sap_code', 'unit_id');
+                $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
             }
             $query->with([
                 'unit' => function ($query) {
@@ -72,17 +72,20 @@ class SapMaterialRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
+
                 'sap_code' => 'required|string',
-                'unit_id' => 'required|integer|unique:sap_materials,unit_id',
+                'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
+                'bar_code' => 'string',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã material.',
                 'sap_code.string' => 'Mã công ty phải là chuỗi.',
-                'unit_id.required' => 'Yêu cầu nhập mã unit.',
-                'unit_id.integer' => 'Mã unit phải là số nguyên.',
-                'unit_id.unique' => 'Mã unit đã tồn tại cho mã sap_code này.',
+                'sap_code.unique' => 'Mã material đã tồn tại.',
+                'unit_id.integer' => 'Mã unit phải là chuỗi.',
+                'unit_id.exists' => 'Mã unit không tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên material.',
                 'name.string' => 'Tên material phải là chuỗi.',
+                'bar_code.string' => 'Mã Barcode phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
@@ -92,6 +95,7 @@ class SapMaterialRepository extends RepositoryAbs
                 $sapMaterial = SapMaterial::create([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
+                    'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
                 ]);
 
@@ -148,14 +152,15 @@ class SapMaterialRepository extends RepositoryAbs
                         if ($exist_sap_material) {
                             $exist_sap_material->update([
                                 'name' => $material['name'],
+                                'bar_code' => $material['bar_code'],
                             ]);
                             $result['update_count']++;
                         } else {
-
                             SapMaterial::create([
                                 'unit_id' => $unit->id,
                                 'sap_code' => $material['code'],
                                 'name' => $material['name'],
+                                'bar_code' => $material['bar_code'], // Thêm trường mới
                             ]);
                             $result['insert_count']++;
                         }
@@ -175,6 +180,7 @@ class SapMaterialRepository extends RepositoryAbs
 
                 'sap_code' => 'string:sap_materials,sap_code',
                 'unit_id' => 'integer|exists:sap_units,id',
+                'bar_code' => 'string',
                 'name' => 'required|string',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã SAP.',
@@ -182,6 +188,7 @@ class SapMaterialRepository extends RepositoryAbs
                 //'sap_code.unique' => 'Mã material đã tồn tại.',
                 'unit_id.integer' => 'Mã unit phải là chuỗi.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
+                'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên SAP.',
                 'name.string' => 'Tên SAP phải là chuỗi.',
             ]);
@@ -206,6 +213,7 @@ class SapMaterialRepository extends RepositoryAbs
                 $sapMaterial->fill([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
+                    'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
                 ]);
                 $sapMaterial->save();

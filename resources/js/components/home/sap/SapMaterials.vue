@@ -305,6 +305,12 @@
 							sortable: true,
 							class: 'text-center',
 						},
+                        {
+							key: 'bar_code',
+							label: 'Mã Barcode',
+							sortable: true,
+							class: 'text-center',
+						},
 						{
 							key: 'name',
 							label: 'Tên sản phẩm',
