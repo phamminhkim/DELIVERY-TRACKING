@@ -68,6 +68,63 @@ class SapMaterialRepository extends RepositoryAbs
         }
     }
 
+
+    public function createSapMaterialFormExcel()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'file' => 'required|mimes:xlsx,xls',
+            ], [
+                'file.required' => 'File là bắt buộc.',
+                'file.mimes' => 'File không đúng định dạng.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+                return false;
+            } else {
+                $file = $this->request->file('file');
+                $excel_extractor = new ExcelExtractor();
+                $data = $excel_extractor->extractData($file);
+                $template_structure = [
+                    'sap_code' => 0,
+                    'unit_code' => 1, // Thay đổi cột 'unit_id' thành 'unit_code'
+                    'bar_code' => 2,
+                    'name' => 3,
+                ];
+                $result = collect([]);
+
+                foreach ($data as $row) {
+                    $unit = SapUnit::where('unit_code', $row[$template_structure['unit_code']])->first();
+
+                    if ($unit) {
+                        $sapMaterial = SapMaterial::updateOrCreate(
+                            [
+                                'sap_code' => $row[$template_structure['sap_code']],
+                                'unit_id' => $unit->id, // Sử dụng 'id' của bảng 'unit'
+                            ],
+                            [
+                                'bar_code' => $row[$template_structure['bar_code']],
+                                // Thêm các trường dữ liệu khác tương ứng
+                            ]
+                        );
+
+                        $result->push($sapMaterial);
+                    }
+                }
+
+                return array(
+                    "created_list" => $result,
+                    "errors" => $this->errors
+                );
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
     public function createNewSapMaterial()
     {
         try {
@@ -107,6 +164,7 @@ class SapMaterialRepository extends RepositoryAbs
             return false;
         }
     }
+
     public function updateOrInsert()
     {
         $validator = Validator::make($this->data, [
@@ -150,10 +208,18 @@ class SapMaterialRepository extends RepositoryAbs
                         $exist_sap_material->save();
                     } {
                         if ($exist_sap_material) {
-                            $exist_sap_material->update([
-                                'name' => $material['name'],
-                                'bar_code' => $material['bar_code'],
-                            ]);
+                            if ($exist_sap_material->bar_code == "") {
+                                $exist_sap_material->update([
+                                    'name' => $material['name'],
+                                    'bar_code' => $material['bar_code'],
+                                ]);
+                            } else {
+                                $exist_sap_material->update([
+                                    'name' => $material['name'],
+                                    //  'bar_code' => $material['bar_code'],
+                                ]);
+                            }
+
                             $result['update_count']++;
                         } else {
                             SapMaterial::create([
