@@ -126,6 +126,7 @@ Route::middleware('auth:api')->group(function () {
         Route::prefix('/sap-materials')->group(function () {
             Route::get('/minified', [SapMaterialController::class, 'getAvailableSapMaterialsMinified']);
             Route::get('/', [SapMaterialController::class, 'getAvailableSapMaterials']);
+            Route::post('/excel', [SapMaterialController::class, 'createSapMaterialFormExcel']);
             Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
             Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
             Route::delete('/{id}', [SapMaterialController::class, 'deleteExistingSapMaterial']);
