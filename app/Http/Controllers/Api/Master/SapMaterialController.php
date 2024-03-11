@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Master;
 use App\Http\Controllers\BaseController\ResponseController;
 use Illuminate\Http\Request;
 use App\Repositories\MasterRepository;
+use Illuminate\Support\Facades\Response;
 
 class SapMaterialController extends ResponseController
 {
@@ -31,7 +32,25 @@ class SapMaterialController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function createSapMaterialFormExcel(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialRequest($request);
+        $result = $handler->createSapMaterialFormExcel();
 
+        if ($result) {
+            return $this->responseSuccess($result);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
+    public function download($filename)
+    {
+        $filePath = public_path('excel/' . $filename);
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        }
+    }
     //add
     public function createNewSapMaterial(Request $request)
     {

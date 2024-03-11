@@ -29,7 +29,6 @@
 						</button>
 					</div>
 				</div>
-
 			</div>
 
 			<b-collapse class="row" id="collapse-1">
@@ -93,168 +92,167 @@
 					</div>
 				</div>
 			</b-collapse>
-            <div class="container-fluid">
-			<div class="content-header">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-sm-6">
-							<!-- <h5 class="m-0 text-dark">
+			<div class="container-fluid">
+				<div class="content-header">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-sm-6">
+								<!-- <h5 class="m-0 text-dark">
 								<i :class="form_icon" />
 								{{ form_title }}
 							</h5> -->
-						</div>
-						<div class="col-sm-6">
-							<div class="float-sm-right">
-								<button class="btn btn-info btn-sm" @click="showCreateDialog()">
-									<i class="fa fa-plus"></i>
-									Tạo mới
-								</button>
+							</div>
+							<div class="col-sm-6">
+								<div class="float-sm-right">
+									<button class="btn btn-info btn-sm" @click="showCreateDialog()">
+										<i class="fa fa-plus"></i>
+										Tạo mới
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="card">
-				<div class="card-body">
-					<div class="row">
-						<div class="col-md-9">
-							<div class="form-group row">
-								<button
-									type="button"
-									class="btn btn-info btn-sm ml-1 mt-1"
-									@click="showExcelDialog"
-								>
-									<strong>
-										<i class="fas fa-upload mr-1 text-bold"></i>Import
-										Excel</strong
-									>
-								</button>
-
-
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="input-group input-group-sm mt-1 mb-1">
-								<input
-									type="search"
-									class="form-control -control-navbar"
-									v-model="search_pattern"
-									:placeholder="search_placeholder"
-									aria-label="Search"
-								/>
-								<div class="input-group-append">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-md-9">
+								<div class="form-group row">
 									<button
-										class="btn btn-default"
-										style="background: #1b1a1a; color: white"
+										type="button"
+										class="btn btn-info btn-sm ml-1 mt-1"
+										@click="showExcelDialog"
 									>
-										<i class="fas fa-search"></i>
+										<strong>
+											<i class="fas fa-upload mr-1 text-bold"></i>Import
+											Excel</strong
+										>
 									</button>
 								</div>
 							</div>
-						</div>
-					</div>
-					<!-- tạo nút edit và delete -->
-					<div class="row">
-						<b-table
-							responsive
-							hover
-							striped
-							show-empty
-							:busy="is_loading"
-							:bordered="true"
-							:current-page="pagination.current_page"
-							:per-page="pagination.item_per_page"
-							:filter="search_pattern"
-							:fields="fields"
-							:items="sap_materials"
-							:tbody-tr-class="rowClass"
-						>
-							<template #empty="scope">
-								<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
-							</template>
-							<template #table-busy>
-								<div class="text-center text-primary my-2">
-									<b-spinner class="align-middle" type="grow"></b-spinner>
-									<strong>Đang tải dữ liệu...</strong>
+							<div class="col-md-3">
+								<div class="input-group input-group-sm mt-1 mb-1">
+									<input
+										type="search"
+										class="form-control -control-navbar"
+										v-model="search_pattern"
+										:placeholder="search_placeholder"
+										aria-label="Search"
+									/>
+									<div class="input-group-append">
+										<button
+											class="btn btn-default"
+											style="background: #1b1a1a; color: white"
+										>
+											<i class="fas fa-search"></i>
+										</button>
+									</div>
 								</div>
-							</template>
-							<template #cell(index)="data">
-								{{
-									data.index +
-									(pagination.current_page - 1) * pagination.item_per_page +
-									1
-								}}
-							</template>
-
-							<template #cell(action)="data">
-								<div class="margin">
-									<button
-										class="btn btn-xs mr-1"
-										@click="showEditDialog(data.item)"
-									>
-										<i class="fas fa-edit text-green" title="Edit"></i>
-									</button>
-
-									<button
-										class="btn btn-xs mr-1"
-										@click="deleteSapMaterial(data.item.id)"
-									>
-										<i
-											class="fas fa-trash text-red bigger-120"
-											title="Delete"
-										></i>
-									</button>
-								</div>
-							</template>
-						</b-table>
-					</div>
-					<!-- end tạo nút -->
-					<!-- phân trang -->
-					<div class="row">
-						<label class="col-form-label-sm col-md-2" style="text-align: left" for=""
-							>Số lượng mỗi trang:</label
-						>
-						<div class="col-md-2">
-							<b-form-select
-								size="sm"
-								v-model="pagination.item_per_page"
-								:options="pagination.page_options"
-							>
-							</b-form-select>
+							</div>
 						</div>
-						<label
-							class="col-form-label-sm col-md-1"
-							style="text-align: left"
-							for=""
-						></label>
-						<div class="col-md-3">
-							<b-pagination
-								v-model="pagination.current_page"
-								:total-rows="rows"
+						<!-- tạo nút edit và delete -->
+						<div class="row">
+							<b-table
+								responsive
+								hover
+								striped
+								show-empty
+								:busy="is_loading"
+								:bordered="true"
+								:current-page="pagination.current_page"
 								:per-page="pagination.item_per_page"
-								size="sm"
-								class="ml-1"
-							></b-pagination>
+								:filter="search_pattern"
+								:fields="fields"
+								:items="sap_materials"
+								:tbody-tr-class="rowClass"
+							>
+								<template #empty="scope">
+									<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
+								</template>
+								<template #table-busy>
+									<div class="text-center text-primary my-2">
+										<b-spinner class="align-middle" type="grow"></b-spinner>
+										<strong>Đang tải dữ liệu...</strong>
+									</div>
+								</template>
+								<template #cell(index)="data">
+									{{
+										data.index +
+										(pagination.current_page - 1) * pagination.item_per_page +
+										1
+									}}
+								</template>
+
+								<template #cell(action)="data">
+									<div class="margin">
+										<button
+											class="btn btn-xs mr-1"
+											@click="showEditDialog(data.item)"
+										>
+											<i class="fas fa-edit text-green" title="Edit"></i>
+										</button>
+
+										<button
+											class="btn btn-xs mr-1"
+											@click="deleteSapMaterial(data.item.id)"
+										>
+											<i
+												class="fas fa-trash text-red bigger-120"
+												title="Delete"
+											></i>
+										</button>
+									</div>
+								</template>
+							</b-table>
 						</div>
+						<!-- end tạo nút -->
+						<!-- phân trang -->
+						<div class="row">
+							<label
+								class="col-form-label-sm col-md-2"
+								style="text-align: left"
+								for=""
+								>Số lượng mỗi trang:</label
+							>
+							<div class="col-md-2">
+								<b-form-select
+									size="sm"
+									v-model="pagination.item_per_page"
+									:options="pagination.page_options"
+								>
+								</b-form-select>
+							</div>
+							<label
+								class="col-form-label-sm col-md-1"
+								style="text-align: left"
+								for=""
+							></label>
+							<div class="col-md-3">
+								<b-pagination
+									v-model="pagination.current_page"
+									:total-rows="rows"
+									:per-page="pagination.item_per_page"
+									size="sm"
+									class="ml-1"
+								></b-pagination>
+							</div>
+						</div>
+						<!-- end phân trang -->
+
+						<!-- tạo form -->
+						<DialogAddUpdateSapMaterial
+							ref="AddUpdateDialog"
+							:is_editing="is_editing"
+							:editing_item="editing_item"
+							:refetchData="fetchData"
+						></DialogAddUpdateSapMaterial>
+						<DialogImportExcelToCreateSapMaterial :refetchData="fetchData" />
+
+						<!-- end tạo form -->
 					</div>
-					<!-- end phân trang -->
-
-					<!-- tạo form -->
-					<DialogAddUpdateSapMaterial
-						ref="AddUpdateDialog"
-						:is_editing="is_editing"
-						:editing_item="editing_item"
-						:refetchData="fetchData"
-					></DialogAddUpdateSapMaterial>
-					<!-- <DialogImportExcelToCreateMapping :refetchData="fetchData" /> -->
-
-					<!-- end tạo form -->
 				</div>
 			</div>
 		</div>
-
-		</div>
-
 	</div>
 </template>
 
@@ -265,6 +263,7 @@
 	import Vue from 'vue';
 	import ApiHandler, { APIRequest } from '../ApiHandler';
 	import DialogAddUpdateSapMaterial from './dialogs/DialogAddUpdateSapMaterial.vue';
+	import DialogImportExcelToCreateSapMaterial from './dialogs/DialogImportExcelToCreateSapMaterial.vue';
 
 	export default {
 		name: 'SapMaterials',
@@ -272,14 +271,15 @@
 			Treeselect,
 			Vue,
 			DialogAddUpdateSapMaterial,
+			DialogImportExcelToCreateSapMaterial,
 		},
 		data() {
 			return {
 				api_handler: new ApiHandler(window.Laravel.access_token),
-                form_title: window.Laravel.form_title,
+				form_title: window.Laravel.form_title,
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
-                is_editing: false,
+				is_editing: false,
 				editing_item: {},
 				is_loading: false,
 				is_show_search: false,
@@ -292,32 +292,32 @@
 					unit: null,
 					sap_material: [],
 				},
-                fields: [
-                {
-							key: 'sap_code',
-							label: 'Mã SAP',
-							sortable: true,
-							class: 'text-center',
-						},
-						{
-							key: 'unit.unit_code',
-							label: 'Mã đơn vị',
-							sortable: true,
-							class: 'text-center',
-						},
-                        {
-							key: 'bar_code',
-							label: 'Mã Barcode',
-							sortable: true,
-							class: 'text-center',
-						},
-						{
-							key: 'name',
-							label: 'Tên sản phẩm',
-							sortable: true,
-							class: 'text-nowrap text-center',
-						},
-                        {
+				fields: [
+					{
+						key: 'sap_code',
+						label: 'Mã SAP',
+						sortable: true,
+						class: 'text-center',
+					},
+					{
+						key: 'unit.unit_code',
+						label: 'Mã đơn vị',
+						sortable: true,
+						class: 'text-center',
+					},
+					{
+						key: 'bar_code',
+						label: 'Mã Barcode',
+						sortable: true,
+						class: 'text-center',
+					},
+					{
+						key: 'name',
+						label: 'Tên sản phẩm',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
 						key: 'action',
 						label: 'Action',
 						class: 'text-nowrap',
@@ -325,19 +325,18 @@
 				],
 				sap_materials: [],
 				unit_options: [],
-                api_url: 'api/master/sap-materials',
+				api_url: 'api/master/sap-materials',
 			};
 		},
 		created() {
 			this.fetchOptionsData();
-
 		},
 
 		methods: {
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const {data} = await this.api_handler.get(this.api_url, {
+					const { data } = await this.api_handler.get(this.api_url, {
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
 					});
@@ -352,12 +351,13 @@
 			},
 			async fetchOptionsData() {
 				try {
-                    this.is_loading = true;
-					const [unit_options, sap_materials] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/sap-units'),
-						new APIRequest('get', '/api/master/sap-materials'),
-					]);
-                    this.sap_materials = sap_materials;
+					this.is_loading = true;
+					const [unit_options, sap_materials] =
+						await this.api_handler.handleMultipleRequest([
+							new APIRequest('get', '/api/master/sap-units'),
+							new APIRequest('get', '/api/master/sap-materials'),
+						]);
+					this.sap_materials = sap_materials;
 					this.unit_options = unit_options.map((unit) => {
 						return {
 							id: unit.id,
@@ -398,7 +398,6 @@
 				}
 			},
 
-
 			async filterData() {
 				try {
 					if (this.is_loading) return;
@@ -408,11 +407,11 @@
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
 					});
-                    // console.log(this.page_structure.api_url);
-                    // console.log(data,'u');
+					// console.log(this.page_structure.api_url);
+					// console.log(data,'u');
 
 					this.sap_materials = data;
-                    // this.$refs.CrudPage.refValue(this.sap_materials)
+					// this.$refs.CrudPage.refValue(this.sap_materials)
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -429,16 +428,16 @@
 					this.form_filter.sap_material = [];
 
 					await this.fetchData();
-                    //this.$refs.CrudPage.refValue(this.sap_materials)
+					//this.$refs.CrudPage.refValue(this.sap_materials)
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
 			},
-            showExcelDialog() {
+			showExcelDialog() {
+				$('#DialogImportExcelToCreateSapMaterial').modal('show');
 			},
-
 
 			async deleteSapMaterial(id) {
 				if (confirm('Bạn muốn xoá?')) {
@@ -459,7 +458,7 @@
 				}
 			},
 			showCreateDialog() {
-                console.log("object");
+				console.log('object');
 				this.is_editing = false;
 				this.editing_item = {};
 				$('#DialogAddUpdateSapMaterial').modal('show');
@@ -470,7 +469,7 @@
 				$('#DialogAddUpdateSapMaterial').modal('show');
 			},
 
-            rowClass(item, type) {
+			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
 			},
@@ -500,6 +499,5 @@
 				return this.sap_materials.length;
 			},
 		},
-
 	};
 </script>
