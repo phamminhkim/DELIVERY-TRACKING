@@ -115,7 +115,7 @@ class AiRepository extends RepositoryAbs
     public function extractOrderFromUploadedFile($file_id)
     {
         try {
-            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group','batch.warehouse'])->find($file_id);
+            $file_record = UploadedFile::query()->with(['batch', 'batch.customer.group', 'batch.warehouse'])->find($file_id);
             if (!$file_record) {
                 $this->message = 'File không tồn tại';
                 return false;
@@ -124,8 +124,10 @@ class AiRepository extends RepositoryAbs
             $file_record->status_id = $processing_status->id;
             $file_record->save();
             $file_path = Storage::disk('protected')->path($file_record->path);
-            $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config',
-                'extract_header_config', 'convert_table_header_config', 'restructure_header_config'])
+            $extract_order_config = ExtractOrderConfig::query()->with([
+                'extract_data_config', 'convert_table_config', 'restructure_data_config',
+                'extract_header_config', 'convert_table_header_config', 'restructure_header_config'
+            ])
                 ->find($file_record->batch->extract_order_config_id);
 
             $final_data = $this->extractRawDataFromUploadedFile($file_record, $file_path, $extract_order_config);
@@ -243,12 +245,10 @@ class AiRepository extends RepositoryAbs
                         'warehouse_id' => $file_record->batch->warehouse->id,
                     ]);
                     $created_so_items->push($raw_so_item);
-                    $customer_promotion = CustomerPromotion::where('sap_material_id',$sap_material->id)->first();
-                    if($customer_promotion){
+                    $customer_promotion = CustomerPromotion::where('sap_material_id', $sap_material->id)->first();
+                    if ($customer_promotion) {
                         $created_promotion_items[] = clone $raw_so_item;
                     }
-
-
                 }
                 if ($created_so_items->isNotEmpty()) {
                     $created_so_items_by_warehouse = $created_so_items->groupBy('warehouse_id');
@@ -264,7 +264,6 @@ class AiRepository extends RepositoryAbs
                     $min_quantity_so_item = $item->raw_so_items[$min_quantity_so_item_index];
                     $min_quantity_so_item->quantity = $min_quantity_so_item->quantity + ($extract_item_quantity - $so_items_quantity);
                 }
-
             }
             if (count($error_so_items) > 0) {
                 $error_log = json_encode($error_so_items);
@@ -274,8 +273,7 @@ class AiRepository extends RepositoryAbs
             $file_record->status_id = $converted_status->id;
             $file_record->save();
             //Tao đơn hàng KM
-            if (!empty($created_promotion_items))
-            {
+            if (!empty($created_promotion_items)) {
                 $raw_so_header_promotion = RawSoHeader::firstOrCreate(
                     array_merge(
                         $raw_extract_header->toArray(),
@@ -293,14 +291,14 @@ class AiRepository extends RepositoryAbs
                     $raw_so_header_promotion->serial_number = UniqueIdUtility::generateSerialUniqueNumber($file_record->batch->customer->code);
                     $raw_so_header_promotion->save();
                 }
-                foreach($created_promotion_items as $promotion_itm){
+                foreach ($created_promotion_items as $promotion_itm) {
                     $raw_so_item = RawSoItem::firstOrCreate([
                         'raw_extract_item_id' => $promotion_itm->raw_extract_item_id,
                         'raw_so_header_id' => $raw_so_header_promotion->id,
                         'sap_material_id' => $promotion_itm->sap_material_id,
                         'quantity' =>  '1',
                         'price' => $promotion_itm->price,
-                        'amount' => ($promotion_itm->quantity * $promotion_itm->quantity ),
+                        'amount' => ($promotion_itm->quantity * $promotion_itm->quantity),
                         'percentage' => '100',
                         'warehouse_id' => $file_record->batch->warehouse->id,
 
@@ -479,9 +477,9 @@ class AiRepository extends RepositoryAbs
             } else {
                 $options['is_merge_pages'] = $extract_data_config->is_merge_pages ? $extract_data_config->is_merge_pages : false;
                 $options['flavor'] = $extract_data_config->camelot_flavor ? $extract_data_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
-                $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count: 0;
-                $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count: 0;
-                $specify_table_number = $extract_data_config->specify_table_number ? $extract_data_config->specify_table_number: 0;
+                $exclude_head_tables_count = $extract_data_config->exclude_head_tables_count ? $extract_data_config->exclude_head_tables_count : 0;
+                $exclude_tail_tables_count = $extract_data_config->exclude_tail_tables_count ? $extract_data_config->exclude_tail_tables_count : 0;
+                $specify_table_number = $extract_data_config->specify_table_number ? $extract_data_config->specify_table_number : 0;
                 $options['is_specify_table_area'] = $extract_data_config->is_specify_table_area ? $extract_data_config->is_specify_table_area : false;
                 $table_area_info = json_decode($extract_data_config->table_area_info);
                 $options['table_area_info'] = $table_area_info;
@@ -625,8 +623,10 @@ class AiRepository extends RepositoryAbs
             $query->whereIn('id', $extract_order_config_ids);
         }
 
-        $query->with(['extract_data_config', 'convert_table_config', 'restructure_data_config',
-            'extract_header_config', 'convert_table_header_config', 'restructure_header_config']);
+        $query->with([
+            'extract_data_config', 'convert_table_config', 'restructure_data_config',
+            'extract_header_config', 'convert_table_header_config', 'restructure_header_config'
+        ]);
         $extract_order_configs = $query->get();
         return $extract_order_configs;
     }
@@ -699,8 +699,10 @@ class AiRepository extends RepositoryAbs
                 ]);
 
                 DB::commit();
-                $extract_order_config->load(['extract_data_config', 'convert_table_config', 'restructure_data_config',
-                    'extract_header_config', 'convert_table_header_config', 'restructure_header_config']);
+                $extract_order_config->load([
+                    'extract_data_config', 'convert_table_config', 'restructure_data_config',
+                    'extract_header_config', 'convert_table_header_config', 'restructure_header_config'
+                ]);
                 return $extract_order_config;
             }
         } catch (\Throwable $exception) {
@@ -770,7 +772,6 @@ class AiRepository extends RepositoryAbs
                         $extract_order_config->restructure_data_config_id = $restructure_data_config->id;
                     }
                     $extract_order_config->save();
-
                 } elseif ($data_config_type == 'header') {
                     $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
                     $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);

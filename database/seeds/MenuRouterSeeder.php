@@ -312,13 +312,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Trích xuất đơn hàng',
             ],
 
-            [
-                'title' => "Upload đơn hàng",
-                'icon' => "fas fa-upload",
-                'link' => "order-uploads",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Upload đơn hàng",
+            //     'icon' => "fas fa-upload",
+            //     'link' => "order-uploads",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
             [
                 'title' => "Nhóm khách hàng",
                 'icon' => "fas fa-id-card-alt",

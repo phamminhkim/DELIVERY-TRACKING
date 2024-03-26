@@ -156,10 +156,17 @@
 						Mapping dữ liệu
 					</strong>
 				</b-button>
+
                 <b-button variant="secondary" @click="checkInventory">
 					<strong>
 						<i class="fas fa-check-square mr-1 text-bold"></i>
 						Check tồn kho
+					</strong>
+				</b-button>
+                <b-button variant="secondary" @click="orderUpload">
+					<strong>
+						<i class="fas fa-upload mr-1 text-bold"></i>
+						Upload đơn hàng
 					</strong>
 				</b-button>
 			</div>
@@ -377,6 +384,8 @@
 			</div>
 		</div>
 		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" :refetchData="fetchData" />
+		<DialogToSAPOrderMapping :refetchData="fetchData" />
+		<DialogOrderUpload :refetchData="fetchData" />
 	</div>
 </template>
 <!-- <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script> -->
@@ -385,12 +394,17 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
+	import DialogOrderUpload from './dialogs/DialogOrderUpload.vue';
+	import DialogToSAPOrderMapping from './dialogs/DialogToSAPOrderMapping.vue';
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	// import { saveAs } from 'file-saver';
 	export default {
+
 		components: {
 			Treeselect,
 			DialogRawSoHeaderInfo,
+            DialogToSAPOrderMapping,
+            DialogOrderUpload,
 		},
 		data() {
 			return {
@@ -789,9 +803,21 @@
 				}
 			},
             ////
-            mappingDataSap(){},
+            mappingDataSap(){
+                // this.is_loading = true;
+					if (this.selected_ids.length == 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+                $('#DialogToSAPOrderMapping').modal('show');
+            },
             checkInventory(){},
             ////
+
+            orderUpload(){
+
+                $('#DialogOrderUpload').modal('show');
+            },
 			exportExcel(data) {
 				const columns = [
 					{ field: 'Số SO', title: 'Số SO' },

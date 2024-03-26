@@ -68,11 +68,11 @@ class RouterSeeder extends Seeder
                 'component' => 'home/sap/CustomerPromotion'
             ],
 
-            [
-                'name' => 'Upload đơn hàng',
-                'path' => '/order-uploads',
-                'component' => 'home/business/OrderUploads'
-            ],
+            // [
+            //     'name' => 'Upload đơn hàng',
+            //     'path' => '/order-uploads',
+            //     'component' => 'home/business/OrderUploads'
+            // ],
 
             // Master Data
             [
