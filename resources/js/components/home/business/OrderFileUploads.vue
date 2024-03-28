@@ -150,20 +150,20 @@
 				>
 					<strong> <i class="fas fa-download mr-1 text-bold"></i>Download Excel </strong>
 				</b-button>
-                <b-button variant="secondary" @click="mappingDataSap">
+				<!-- <b-button variant="secondary" @click="mappingDataSap">
 					<strong>
 						<i class="fas fa-compass mr-1 text-bold"></i>
 						Mapping dữ liệu
 					</strong>
 				</b-button>
 
-                <b-button variant="secondary" @click="checkInventory">
+				<b-button variant="secondary" @click="checkInventory">
 					<strong>
 						<i class="fas fa-check-square mr-1 text-bold"></i>
 						Check tồn kho
 					</strong>
-				</b-button>
-                <b-button variant="secondary" @click="orderUpload">
+				</b-button> -->
+				<b-button variant="secondary" @click="orderUpload">
 					<strong>
 						<i class="fas fa-upload mr-1 text-bold"></i>
 						Upload đơn hàng
@@ -384,7 +384,7 @@
 			</div>
 		</div>
 		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" :refetchData="fetchData" />
-		<DialogToSAPOrderMapping :refetchData="fetchData" />
+		<!-- <DialogToSAPOrderMapping :refetchData="fetchData" /> -->
 		<DialogOrderUpload :refetchData="fetchData" />
 	</div>
 </template>
@@ -399,12 +399,11 @@
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	// import { saveAs } from 'file-saver';
 	export default {
-
 		components: {
 			Treeselect,
 			DialogRawSoHeaderInfo,
-            DialogToSAPOrderMapping,
-            DialogOrderUpload,
+			// DialogToSAPOrderMapping,
+			DialogOrderUpload,
 		},
 		data() {
 			return {
@@ -802,22 +801,43 @@
 					this.is_loading = false;
 				}
 			},
-            ////
-            mappingDataSap(){
-                // this.is_loading = true;
-					if (this.selected_ids.length == 0) {
-						toastr.error('Vui lòng chọn ít nhất 1 file');
-						return;
-					}
-                $('#DialogToSAPOrderMapping').modal('show');
-            },
-            checkInventory(){},
-            ////
+			////
+			// mappingDataSap() {
+			// 	try {
+			// 		this.is_loading = true;
 
-            orderUpload(){
+			// 		if (this.selected_ids.length === 0) {
+			// 			toastr.error('Vui lòng chọn ít nhất 1 file');
+			// 			return;
+			// 		}
 
-                $('#DialogOrderUpload').modal('show');
-            },
+			// 		// Perform mapping for each selected file
+			// 		this.selected_ids.forEach(async (fileId) => {
+			// 			try {
+			// 				const response = await this.api_handler.get(
+			// 					'api/ai/file/mapping/' + fileId,
+			// 				);
+			// 				// Process the response data as needed
+			// 				console.log(response);
+			// 			} catch (error) {
+			// 				console.log(error);
+			// 			}
+			// 		});
+
+			// 		// Show the mapping dialog
+			// 		$('#DialogToSAPOrderMapping').modal('show');
+			// 	} catch (error) {
+			// 		console.log(error);
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
+			// checkInventory() {},
+			// ////
+
+			orderUpload() {
+				$('#DialogOrderUpload').modal('show');
+			},
 			exportExcel(data) {
 				const columns = [
 					{ field: 'Số SO', title: 'Số SO' },
