@@ -11,23 +11,37 @@ use App\Repositories\Abstracts\RepositoryAbs;
 class CustomerGroupPivotRepository extends RepositoryAbs
 {
     public function getAvailableCustomerGroupPivots()
-    {
-        try {
-            $customerGroupPivots = CustomerGroupPivot::join('customers', 'customer_group_pivots.customer_id', '=', 'customers.id')
-                ->join('customer_groups', 'customer_group_pivots.customer_group_id', '=', 'customer_groups.id')
-                ->select('customer_group_pivots.*', 'customers.name as customer_name', 'customers.code', 'customer_groups.name as group_name')
-                ->get();
-                if ($this->request->filled('search')) {
-                    $customerGroupPivots->search($this->request->search);
-                    $customerGroupPivots->limit(200);
-                }
+{
+    try {
+        $customerGroupPivots = CustomerGroupPivot::join('customers', 'customer_group_pivots.customer_id', '=', 'customers.id')
+            ->join('customer_groups', 'customer_group_pivots.customer_group_id', '=', 'customer_groups.id')
+            ->select('customer_group_pivots.*', 'customers.name as customer_name', 'customers.code', 'customer_groups.name as group_name');
 
-            return $customerGroupPivots;
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
-        }
+            if ($this->request->filled('search')) {
+                $searchTerm = $this->request->search;
+                $customerGroupPivots->where(function ($query) use ($searchTerm) {
+                    $query->where('customer_group_pivots.id', $searchTerm)
+                        ->orWhereIn('customer_group_pivots.customer_id', function ($subquery) use ($searchTerm) {
+                            $subquery->select('id')
+                                ->from('customers')
+                                ->where('name', 'like', '%' . $searchTerm . '%');
+                        })
+                        ->orWhereIn('customer_group_pivots.customer_group_id', function ($subquery) use ($searchTerm) {
+                            $subquery->select('id')
+                                ->from('customer_groups')
+                                ->where('name', 'like', '%' . $searchTerm . '%');
+                        });
+                });
+
+                $customerGroupPivots->limit(200);
+            }
+
+        return $customerGroupPivots->get();
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
     }
+}
 
     public function createNewCustomerGroupPivot()
     {
