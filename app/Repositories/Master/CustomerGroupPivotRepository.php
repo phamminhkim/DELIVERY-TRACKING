@@ -17,6 +17,10 @@ class CustomerGroupPivotRepository extends RepositoryAbs
                 ->join('customer_groups', 'customer_group_pivots.customer_group_id', '=', 'customer_groups.id')
                 ->select('customer_group_pivots.*', 'customers.name as customer_name', 'customers.code', 'customer_groups.name as group_name')
                 ->get();
+                if ($this->request->filled('search')) {
+                    $customerGroupPivots->search($this->request->search);
+                    $customerGroupPivots->limit(200);
+                }
 
             return $customerGroupPivots;
         } catch (\Exception $exception) {
