@@ -384,7 +384,7 @@
 			</div>
 		</div>
 		<DialogRawSoHeaderInfo :id="viewing_raw_so_header_id" :refetchData="fetchData" />
-		<!-- <DialogToSAPOrderMapping :refetchData="fetchData" /> -->
+
 		<DialogOrderUpload :refetchData="fetchData" />
 	</div>
 </template>
@@ -395,14 +395,13 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import DialogRawSoHeaderInfo from './dialogs/DialogRawSoHeaderInfo.vue';
 	import DialogOrderUpload from './dialogs/DialogOrderUpload.vue';
-	import DialogToSAPOrderMapping from './dialogs/DialogToSAPOrderMapping.vue';
+
 	import { saveExcel } from '@progress/kendo-vue-excel-export';
 	// import { saveAs } from 'file-saver';
 	export default {
 		components: {
 			Treeselect,
 			DialogRawSoHeaderInfo,
-			// DialogToSAPOrderMapping,
 			DialogOrderUpload,
 		},
 		data() {
@@ -801,39 +800,7 @@
 					this.is_loading = false;
 				}
 			},
-			////
-			// mappingDataSap() {
-			// 	try {
-			// 		this.is_loading = true;
 
-			// 		if (this.selected_ids.length === 0) {
-			// 			toastr.error('Vui lòng chọn ít nhất 1 file');
-			// 			return;
-			// 		}
-
-			// 		// Perform mapping for each selected file
-			// 		this.selected_ids.forEach(async (fileId) => {
-			// 			try {
-			// 				const response = await this.api_handler.get(
-			// 					'api/ai/file/mapping/' + fileId,
-			// 				);
-			// 				// Process the response data as needed
-			// 				console.log(response);
-			// 			} catch (error) {
-			// 				console.log(error);
-			// 			}
-			// 		});
-
-			// 		// Show the mapping dialog
-			// 		$('#DialogToSAPOrderMapping').modal('show');
-			// 	} catch (error) {
-			// 		console.log(error);
-			// 	} finally {
-			// 		this.is_loading = false;
-			// 	}
-			// },
-			// checkInventory() {},
-			// ////
 
 			orderUpload() {
 				$('#DialogOrderUpload').modal('show');
