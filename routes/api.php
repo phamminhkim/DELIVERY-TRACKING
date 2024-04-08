@@ -288,7 +288,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('sales-order')->group(function () {
-        Route::post('upload-pdf', [AiController::class, 'extractOrderDirect']);
+        Route::post('convert-pdf', [AiController::class, 'extractOrderDirect']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {
