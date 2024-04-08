@@ -63,22 +63,39 @@ class AiRepository extends RepositoryAbs
     protected $table_converter;
     protected $data_restructure;
 
+    protected $header_extractor;
+    protected $header_table_converter;
+    protected $header_restructure;
+
     protected $data_extractor_instances;
     protected $table_converter_instances;
     protected $data_restructure_instances;
+
+    protected $header_extractor_instances;
+    protected $header_table_converter_instances;
+    protected $header_restructure_instances;
 
     public function __construct(
         FileServiceInterface $file_service,
         DataExtractorInterface $data_extractor,
         TableConverterInterface $table_converter,
         DataRestructureInterface $data_restructure,
+        DataExtractorInterface $header_extractor,
+        TableConverterInterface $header_table_converter,
+        DataRestructureInterface $header_restructure,
         $request
     ) {
         parent::__construct($request);
         $this->file_service = $file_service;
+        // Data
         $this->data_extractor = $data_extractor;
         $this->table_converter = $table_converter;
         $this->data_restructure = $data_restructure;
+        // Header
+        $this->header_extractor = $header_extractor;
+        $this->header_table_converter = $header_table_converter;
+        $this->header_restructure = $header_restructure;
+
         $this->data_extractor_instances = [
             'camelot' => new CamelotExtractorService(),
         ];
@@ -89,6 +106,22 @@ class AiRepository extends RepositoryAbs
             'manual' => new ManualConverter(),
         ];
         $this->data_restructure_instances = [
+            'arraymappingbyindex' => new IndexArrayMappingRestructure(),
+            'arraymappingbykey' => new KeyArrayMappingRestructure(),
+            'arraymappingbymergeindex' => new MergeIndexArrayMappingRestructure(),
+            'arraymappingbysearchtext' => new SearchTextArrayMappingRestructure(),
+        ];
+        // Header
+        $this->header_extractor_instances = [
+            'camelot' => new CamelotExtractorService(),
+        ];
+        $this->header_table_converter_instances = [
+            'regexmatch' => new RegexMatchConverter(),
+            'regexsplit' => new RegexSplitConverter(),
+            'leaguecsv' => new LeagueCsvConverter(),
+            'manual' => new ManualConverter(),
+        ];
+        $this->header_restructure_instances = [
             'arraymappingbyindex' => new IndexArrayMappingRestructure(),
             'arraymappingbykey' => new KeyArrayMappingRestructure(),
             'arraymappingbymergeindex' => new MergeIndexArrayMappingRestructure(),
@@ -105,6 +138,51 @@ class AiRepository extends RepositoryAbs
             $final_data = $this->restructureData($table_data);
             $this->file_service->deleteTemporaryFile($file_path);
 
+            return $final_data;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function extractOrderDirect()
+    {
+        try {
+            $files = $this->request->file('file');
+            $final_data = array();
+            foreach ($files as $file) {
+                $array_data = array();
+                $extract_data_config = null;
+                $convert_table_config = null;
+                $restructure_data_config = null;
+                $config_id = $this->request->config_id;
+                $extract_config = ExtractOrderConfig::find(intval($config_id));
+                if ($extract_config) {
+                    $extract_data_config = $extract_config->extract_data_config;
+                    $convert_table_config =  $extract_config->convert_table_config;
+                    $restructure_data_config = $extract_config->restructure_data_config;
+                    $header_extractor_config = $extract_config->extract_header_config;
+                    $header_convert_table_config =  $extract_config->convert_table_header_config;
+                    $header_restructure_config = $extract_config->restructure_header_config;
+                } else {
+                    return null;
+                }
+                // Data
+                $raw_data = $this->extractDataForDirect($file, $extract_data_config);
+                $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
+                $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
+                // Header
+                $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
+                $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
+                $order_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                $array_data = [
+                    // 'file_name' => '',
+                    'headers' => $order_header,
+                    'items' => $order_data,
+                ];
+
+                array_push($final_data, $array_data);
+            }
             return $final_data;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -496,6 +574,41 @@ class AiRepository extends RepositoryAbs
         }
         return $choosen_tables;
     }
+    private function extractHeader($file_path, $extract_header_config = null)
+    {
+        $options = array();
+        if ($this->header_extractor instanceof CamelotExtractorService) {
+            if (!$extract_header_config) {
+                $options['is_merge_pages'] = $this->request->is_merge_pages == 'true' ? true : false;
+                $options['flavor'] = $this->request->camelot_flavor ? $this->request->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $this->request->exclude_head_tables_count ? $this->request->exclude_head_tables_count : 0;
+                $exclude_tail_tables_count = $this->request->exclude_tail_tables_count ? $this->request->exclude_tail_tables_count : 0;
+                $specify_table_number = $this->request->specify_table_number ? $this->request->specify_table_number : 0;
+                $options['is_specify_table_area'] = $this->request->is_specify_table_area == 'true' ? true : false;
+                $table_area_info = json_decode($this->request->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+            } else {
+                $options['is_merge_pages'] = $extract_header_config->is_merge_pages ? $extract_header_config->is_merge_pages : false;
+                $options['flavor'] = $extract_header_config->camelot_flavor ? $extract_header_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
+                $exclude_head_tables_count = $extract_header_config->exclude_head_tables_count ? $extract_header_config->exclude_head_tables_count : 0;
+                $exclude_tail_tables_count = $extract_header_config->exclude_tail_tables_count ? $extract_header_config->exclude_tail_tables_count : 0;
+                $specify_table_number = $extract_header_config->specify_table_number ? $extract_header_config->specify_table_number : 0;
+                $options['is_specify_table_area'] = $extract_header_config->is_specify_table_area ? $extract_header_config->is_specify_table_area : false;
+                $table_area_info = json_decode($extract_header_config->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+            }
+        }
+        $tables = $this->header_extractor->extract($file_path, $options);
+        $choosen_tables = [];
+        if ($specify_table_number > 0) {
+            $choosen_tables[] = $tables[$specify_table_number - 1];
+        } else {
+            for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
+                $choosen_tables[] = $tables[$i];
+            }
+        }
+        return $choosen_tables;
+    }
 
     private function convertToTable($array, $convert_table_config = null)
     {
@@ -528,9 +641,50 @@ class AiRepository extends RepositoryAbs
             }
         }
 
+
         $table = [];
         for ($i = 0; $i < count($array); $i++) {
             $extracted_table = $this->table_converter->convert($array[$i], $options);
+            $table = array_merge($table, $extracted_table);
+        }
+        return $table;
+    }
+
+    private function convertHeaderToTable($array, $convert_table_config = null)
+    {
+        $options = array();
+        if ($this->header_table_converter instanceof RegexMatchConverter) {
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
+        } elseif ($this->header_table_converter instanceof RegexSplitConverter) {
+            if (!$convert_table_config) {
+                $options['regex_pattern'] = $this->request->regex_pattern;
+            } else {
+                $options['regex_pattern'] = $convert_table_config->regex_pattern;
+            }
+        } elseif ($this->header_table_converter instanceof LeagueCsvConverter) {
+            if (!$convert_table_config) {
+                $options['is_without_header'] = $this->request->is_without_header == 'true' ? true : false;
+            } else {
+                $options['is_without_header'] = $convert_table_config->is_without_header ? $convert_table_config->is_without_header : false;
+            }
+        } elseif ($this->header_table_converter instanceof ManualConverter) {
+            if (!$convert_table_config) {
+                $manual_patterns = json_decode($this->request->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            } else {
+                $manual_patterns = json_decode($convert_table_config->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
+            }
+        }
+
+
+        $table = [];
+        for ($i = 0; $i < count($array); $i++) {
+            $extracted_table = $this->header_table_converter->convert($array[$i], $options);
             $table = array_merge($table, $extracted_table);
         }
         return $table;
@@ -569,12 +723,72 @@ class AiRepository extends RepositoryAbs
         return $table;
     }
 
+    private function restructureHeader($array, $restructure_data_config = null)
+    {
+        $options = array();
+        if ($this->header_restructure instanceof IndexArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
+        } elseif ($this->header_restructure instanceof KeyArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
+        } elseif ($this->header_restructure instanceof MergeIndexArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
+        } elseif ($this->header_restructure instanceof SearchTextArrayMappingRestructure) {
+            if (!$restructure_data_config) {
+                $options['structure'] = json_decode($this->request->structure, true);
+            } else {
+                $options['structure'] = json_decode($restructure_data_config->structure, true);
+            }
+        }
+        $table = $this->header_restructure->restructure($array, $options);
+
+        return $table;
+    }
+
     public function extractDataForConfig()
     {
         try {
             $file = $this->request->file('file');
             $file_path = $this->file_service->saveTemporaryFile($file);
             $raw_data = $this->extractData($file_path);
+            $this->file_service->deleteTemporaryFile($file_path);
+            return $raw_data;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function extractDataForDirect($file, $extract_data_config)
+    {
+        try {
+            // $file = $this->request->file('file');
+            $file_path = $this->file_service->saveTemporaryFile($file);
+            $raw_data = $this->extractData($file_path, $extract_data_config);
+            $this->file_service->deleteTemporaryFile($file_path);
+            return $raw_data;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function extractHeaderForDirect($file, $extract_header_config)
+    {
+        try {
+            $file_path = $this->file_service->saveTemporaryFile($file);
+            $raw_data = $this->extractHeader($file_path, $extract_header_config);
             $this->file_service->deleteTemporaryFile($file_path);
             return $raw_data;
         } catch (\Throwable $exception) {
@@ -594,6 +808,28 @@ class AiRepository extends RepositoryAbs
         }
     }
 
+    public function convertToTableDirect($raw_table_data, $convert_table_config)
+    {
+        try {
+            // $raw_table_data = json_decode($raw_table_data, true);
+
+            return $this->convertToTable($raw_table_data, $convert_table_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function convertHeaderToTableDirect($raw_table_data, $convert_table_config)
+    {
+        try {
+            return $this->convertHeaderToTable($raw_table_data, $convert_table_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function restructureDataForConfig()
     {
         try {
@@ -605,7 +841,26 @@ class AiRepository extends RepositoryAbs
         }
     }
 
+    public function restructureDataDirect($table_data, $restructure_data_config)
+    {
+        try {
+            // $table_data = json_decode($table_data, true);
+            return $this->restructureData($table_data, $restructure_data_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 
+    public function restructureHeaderDirect($table_data, $restructure_data_config)
+    {
+        try {
+            return $this->restructureHeader($table_data, $restructure_data_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 
     public function getExtractOrderConfigs()
     {

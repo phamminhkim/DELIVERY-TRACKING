@@ -12,6 +12,7 @@ use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Files\LocalFileService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
+use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
 use Illuminate\Http\Request;
 
 class ExtractFile implements ShouldQueue
@@ -33,7 +34,10 @@ class ExtractFile implements ShouldQueue
     public function __construct($file_id)
     {
         $this->file_id = $file_id;
-        $this->ai_repostitory = new AiRepository(new LocalFileService(), new CamelotExtractorService(), new LeagueCsvConverter(), new IndexArrayMappingRestructure(), new Request());
+        $this->ai_repostitory = new AiRepository(new LocalFileService(),
+            new CamelotExtractorService(), new LeagueCsvConverter(), new IndexArrayMappingRestructure(),
+            new CamelotExtractorService(), new LeagueCsvConverter(), new MergeIndexArrayMappingRestructure(),
+            new Request());
     }
 
     /**
