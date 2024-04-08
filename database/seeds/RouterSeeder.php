@@ -134,7 +134,12 @@ class RouterSeeder extends Seeder
                 'name' => 'Nhóm khách hàng',
                 'path' => '/customer-groups',
                 'component' => 'home/master/CustomerGroup'
-            ]
+            ],
+            [
+                'name' => 'Xử lý đơn hàng',
+                'path' => '/order-processes',
+                'component' => 'home/business/OrderProcesses'
+            ],
 
         ];
 

@@ -33,6 +33,8 @@ use App\Http\Controllers\Api\Master\CustomerPromotionController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
+use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
+use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
 use App\Models\Business\UploadedFile;
@@ -63,6 +65,18 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
     });
     Route::prefix('master')->group(function () {
+        Route::prefix('/materials')->group(function () {
+            Route::get('/get-all', [MaterialCategoryTypeController::class, 'getAll']);
+            Route::post('/store', [MaterialCategoryTypeController::class, 'store']);
+            Route::put('/update/{id}', [MaterialCategoryTypeController::class, 'update']);
+            Route::delete('/delete/{id}', [MaterialCategoryTypeController::class, 'delete']);
+        });
+        Route::prefix('/material-donateds')->group(function () {
+            Route::get('/get-all', [MaterialDonatedController::class, 'getAll']);
+            Route::post('/store', [MaterialDonatedController::class, 'store']);
+            Route::put('/update/{id}', [MaterialDonatedController::class, 'update']);
+            Route::delete('/delete/{id}', [MaterialDonatedController::class, 'destroy']);
+        });
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
             Route::get('/active', [WarehouseController::class, 'getAvailableWarehousesActive']);

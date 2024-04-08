@@ -2,8 +2,7 @@
 	<div>
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label for="customer_group_id" class="col-form-label"
@@ -26,8 +25,7 @@
 			</div>
 
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label class="col-form-label">Chọn cấu hình:</label>
@@ -44,8 +42,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label for="customer_id" class="col-form-label">Khách hàng:</label>
@@ -62,8 +59,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label class="col-form-label">Công ty:</label>
@@ -83,8 +79,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label class="col-form-label">Kho hàng:</label>
@@ -101,8 +96,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-md-6">
+				<div class="col-lg-6 mx-auto">
 					<div class="form-group row">
 						<div class="col-lg-4">
 							<label class="col-form-label">Chọn File:</label>

@@ -37,6 +37,7 @@ class MenuRouterSeeder extends Seeder
 
         foreach ($this->getMenuLevel2() as $menu) {
             $existing_menu = MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->first();
+
             if (!$existing_menu) {
                 $menu['order'] = $order++;
                 $menu['parent_id'] = MenuRouter::where('title', $menu['parent'])->first()->id;
@@ -55,7 +56,6 @@ class MenuRouterSeeder extends Seeder
             $existing_menu->guard_name = 'web';
             $existing_menu->assignRole($roles);
         }
-
         $transformer = new NestedSetSync();
         $transformer->traverseUpdate();
         RedisUtility::deleteByCategory('menu-tree');
@@ -325,6 +325,13 @@ class MenuRouterSeeder extends Seeder
                 'link' => "customer-groups",
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
+            ],
+            [
+                'title' => "Xử lý đơn hàng",
+                'icon' => "fas fa-tasks",
+                'link' => "order-processes",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
             ]
 
 

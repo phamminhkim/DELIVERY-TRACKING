@@ -35,6 +35,9 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->limit(50);
                 $is_searching = true;
             }
+            if ($request->filled('bar_codes')) {
+                $query->whereIn('bar_code', $request->bar_codes);
+            }
             if ($request->filled('unit_ids')) {
                 $query->whereIn('unit_id', $request->unit_ids);
             }

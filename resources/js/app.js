@@ -64,6 +64,10 @@ Vue.component(
     require("./components/home/business/Orders.vue").default
 );
 Vue.component(
+    "order-processes",
+    require("./components/home/business/OrderProcesses.vue").default
+);
+Vue.component(
     "admin-container",
     require("./components/AdminContainer.vue").default
 );

@@ -226,7 +226,9 @@ class UploadedFileRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
+
                 $new_status = FileStatus::where('code', FileStatuses::NEW)->first();
+
                 DB::beginTransaction();
                 $file = $this->request->file('file');
                 $file_path = $this->file_service->saveProtectedFile($file, $this->current_user->id, $this->data['batch_id']);
