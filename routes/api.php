@@ -253,7 +253,6 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
             Route::post('/', [AiController::class, 'extractOrder']);
             Route::post('/reconvert/{id}', [AiController::class, 'reconvertUploadedFile']);
-            Route::post('test', [AiController::class, 'extractOrderDirect']);
         });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
@@ -271,10 +270,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);
         });
-    });
-
-    Route::prefix('sales-order')->group(function () {
-        Route::post('upload-pdf', [AiController::class, 'extractOrderDirect']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {

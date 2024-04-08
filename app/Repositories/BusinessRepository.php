@@ -26,8 +26,6 @@ use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure;
-use App\Models\Business\ExtractOrderConfig;
-
 use Illuminate\Http\Request;
 
 class BusinessRepository
@@ -109,115 +107,7 @@ class BusinessRepository
             // throw new \Exception('Restructure method is not specified');
             $data_restructure = new IndexArrayMappingRestructure();
         }
-        $header_extractor = new CamelotExtractorService();
-        $header_table_converter = new LeagueCsvConverter();
-        $header_restructure = new MergeIndexArrayMappingRestructure();
-        return new AiRepository($file_service,
-            $data_extractor, $table_converter, $data_restructure,
-            $header_extractor, $header_table_converter, $header_restructure,
-            $request);
-    }
-
-    public static function aiRequestDirect(Request $request)
-    {
-        $config_id = $request->config_id;
-        $extract_config = ExtractOrderConfig::find(intval($config_id));
-        if ($extract_config) {
-            // Data
-            $table_convert_config =  $extract_config->convert_table_config;
-            $data_restruct_config = $extract_config->restructure_data_config;
-            // Header
-            $extract_header_config = $extract_config->extract_header_config;
-            $table_convert_header_config =  $extract_config->convert_table_header_config;
-            $restruct_header_config = $extract_config->restructure_header_config;
-        }
-        $file_service = new LocalFileService();
-        // Data
-        $data_extractor = new CamelotExtractorService();
-        $table_converter = new RegexMatchConverter();
-        $data_restructure = new IndexArrayMappingRestructure();
-        // Header
-        $header_extractor = new CamelotExtractorService();
-        $header_table_converter = new LeagueCsvConverter();
-        $header_restructure = new MergeIndexArrayMappingRestructure();
-
-        // Data config
-        $method = $table_convert_config->method; // Có thể là regex, leaguecsv
-        switch ($method) {
-            case ConvertMethod::REGEXMATCH:
-                $table_converter = new RegexMatchConverter();
-                break;
-            case ConvertMethod::REGEXSPLIT:
-                $table_converter = new RegexSplitConverter();
-                break;
-            case ConvertMethod::LEAGUECSV:
-                $table_converter = new LeagueCsvConverter();
-                break;
-            case ConvertMethod::MANUAL:
-                $table_converter = new ManualConverter();
-                break;
-            default:
-                $table_converter = new RegexMatchConverter();
-        }
-
-        $method = $data_restruct_config->restructure_method; // Có thể là regex, leaguecsv
-        switch ($method) {
-            case RestructureMethod::INDEXARRAYMAPPING:
-                $data_restructure = new IndexArrayMappingRestructure();
-                break;
-            case RestructureMethod::KEYARRAYMAPPING:
-                $data_restructure = new KeyArrayMappingRestructure();
-                break;
-            case RestructureMethod::MERGEINDEXARRAYMAPPING:
-                $data_restructure = new MergeIndexArrayMappingRestructure();
-                break;
-            case RestructureMethod::SEARCHTEXTARRAYMAPPING:
-                $data_restructure = new SearchTextArrayMappingRestructure();
-                break;
-            default:
-                $data_restructure = new IndexArrayMappingRestructure();
-        }
-
-        // Header config
-        $method = $table_convert_header_config->method;
-        switch ($method) {
-            case ConvertMethod::REGEXMATCH:
-                $header_table_converter = new RegexMatchConverter();
-                break;
-            case ConvertMethod::REGEXSPLIT:
-                $header_table_converter = new RegexSplitConverter();
-                break;
-            case ConvertMethod::LEAGUECSV:
-                $header_table_converter = new LeagueCsvConverter();
-                break;
-            case ConvertMethod::MANUAL:
-                $header_table_converter = new ManualConverter();
-                break;
-            default:
-                $header_table_converter = new RegexMatchConverter();
-        }
-        $method = $restruct_header_config->restructure_method;
-        switch ($method) {
-            case RestructureMethod::INDEXARRAYMAPPING:
-                $header_restructure = new IndexArrayMappingRestructure();
-                break;
-            case RestructureMethod::KEYARRAYMAPPING:
-                $header_restructure = new KeyArrayMappingRestructure();
-                break;
-            case RestructureMethod::MERGEINDEXARRAYMAPPING:
-                $header_restructure = new MergeIndexArrayMappingRestructure();
-                break;
-            case RestructureMethod::SEARCHTEXTARRAYMAPPING:
-                $header_restructure = new SearchTextArrayMappingRestructure();
-                break;
-            default:
-                $header_restructure = new MergeIndexArrayMappingRestructure();
-        }
-
-        return new AiRepository($file_service,
-            $data_extractor, $table_converter, $data_restructure,
-            $header_extractor, $header_table_converter, $header_restructure,
-            $request);
+        return new AiRepository($file_service,  $data_extractor, $table_converter, $data_restructure, $request);
     }
 
     static function uploadedFileRequest(Request $request)
