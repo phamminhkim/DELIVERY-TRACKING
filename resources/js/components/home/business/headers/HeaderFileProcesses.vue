@@ -2,7 +2,7 @@
     <div>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
-                <span class="input-group-text border-0 font-weight-bold">Xử lý loại đơn hàng</span>
+                <span class="input-group-text border-0 font-weight-bold">Xử lý File</span>
             </div>
             <select class="form-control" v-model="change_file.type" @change="onChangeFile()">
                 <option v-for="(type_file, index) in type_files" :key="index" :value="type_file.name"> {{ type_file.name

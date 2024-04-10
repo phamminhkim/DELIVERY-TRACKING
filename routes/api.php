@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\Master\CustomerPromotionController;
 
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
+use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
@@ -76,6 +77,12 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/store', [MaterialDonatedController::class, 'store']);
             Route::put('/update/{id}', [MaterialDonatedController::class, 'update']);
             Route::delete('/delete/{id}', [MaterialDonatedController::class, 'destroy']);
+        });
+        Route::prefix('/material-combos')->group(function () {
+            Route::get('/get-all', [MaterialComboController::class, 'getAll']);
+            Route::post('/store', [MaterialComboController::class, 'store']);
+            Route::put('/update/{id}', [MaterialComboController::class, 'update']);
+            Route::delete('/delete/{id}', [MaterialComboController::class, 'destroy']);
         });
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);

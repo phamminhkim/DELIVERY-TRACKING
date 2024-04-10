@@ -69,18 +69,6 @@ export default {
             this.material_donateds.splice(index, 1);
         },
        
-        demo() {
-            // Usage
-            let data = [
-                { product_id: '1', name: 'Product 1' },
-                { product_id: '2', name: 'Product 2' },
-            ];
-
-            // let keyedData = keyBy(data, item => item.product_id.toUpperCase());
-
-            // console.log(keyedData);
-        }
-
     }
 }
 </script>

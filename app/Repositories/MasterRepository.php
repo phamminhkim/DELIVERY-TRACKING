@@ -24,6 +24,7 @@ use App\Repositories\Master\CustomerMaterialRepository;
 use App\Repositories\Master\CustomerGroupPivotRepository;
 use App\Repositories\Master\CustomerPromotionRepository;
 use App\Repositories\Master\MaterialCategoryTypeRepository;
+use App\Repositories\Master\MaterialComboRepository;
 use App\Repositories\Master\MaterialDonatedRepository;
 use Illuminate\Http\Request;
 
@@ -118,5 +119,9 @@ class MasterRepository
     public static function materialDonatedRequest(Request $request)
     {
         return new MaterialDonatedRepository($request);
+    }
+    public static function materialComboRequest(Request $request)
+    {
+        return new MaterialComboRepository($request);
     }
 }

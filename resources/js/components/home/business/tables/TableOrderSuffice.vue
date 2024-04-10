@@ -1,24 +1,45 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
-            <b-table small responsive hover :items="orders" :fields="field_order_suffices"
+            <b-table small responsive hover  :items="orders" :fields="field_order_suffices"
                 table-class="table-order-suffices">
-                <template #cell(selected)="data">
-                    <b-form-checkbox v-model="selected" :value="data.item"></b-form-checkbox>
+                <template #cell(row_custom)="data">
+                    <b-dropdown size="sm" id="dropdown-offset" offset="25" text=""
+                    variant="link" toggle-class="text-decoration-none" no-caret
+                        class="">
+                        <template #button-content>
+                            <button class="btn btn-xs btn-light dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-expanded="false"><i class="fas fa-th-list"></i></button>
+                        </template>
+                        <b-dropdown-item @click="deleteRow(data.index)" class="text-danger" href="#">Xóa dòng</b-dropdown-item>
+                    </b-dropdown>
                 </template>
-                <template #cell(barcode_company)="data">
+                <template #cell(index)="data">
+                    {{ data.index + 1 }}
+                </template>
+                <template #cell(selected)="data">
+                    <b-form-checkbox v-model="selected" :value="data.item" ></b-form-checkbox>
+                </template>
+                <template #cell(barcode)="data">
                     <div class="">
-                        {{ data.item.barcode_company }}
+                        {{ data.item.barcode }}
+                    </div>
+                </template>
+                <template #cell(sku_sap_code)="data">
+                    <div :class="{
+            'is-donated': isMaterialDonated(data.item.sku_sap_code),
+            'is-combo': isMaterialCombo(data.item.sku_sap_code)
+        }">
+                        {{ data.item.sku_sap_code }}
                     </div>
                 </template>
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index)" class="text-center">
                         <div class="d-flex align-items-baseline justify-content-around">
                             <p class="font-weight-bold mr-2">{{ data.item.promotive }}</p>
-                            <button class="btn btn-xs btn-light p-1 px-2 rounded-circle"><i
+                            <button class="btn btn-sm btn-light p-1 px-2 "><i
                                     class="far fa-caret-square-down"></i></button>
                         </div>
-
                     </div>
                 </template>
             </b-table>
@@ -44,6 +65,14 @@ export default {
         orders: {
             type: Array,
             default: []
+        },
+        material_donateds: {
+            type: Array,
+            default: []
+        },
+        material_combos: {
+            type: Array,
+            default: []
         }
     },
     components: {
@@ -54,21 +83,29 @@ export default {
             is_modal_material_category_type: false,
             field_order_suffices: [
                 {
+                    key: 'row_custom',
+                    label: '',
+                    class: 'text-nowrap',
+                },
+                {
                     key: 'selected',
                     label: '',
                     class: 'text-nowrap',
                     thClass: 'bg-secondary',
-
-
                 },
                 {
-                    key: 'book_store',
+                    key: 'index',
+                    label: 'STT',
+                    class: 'text-nowrap text-center',
+                },
+                {
+                    key: 'so_num',
                     label: 'TENNS',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
                 },
                 {
-                    key: 'barcode_company',
+                    key: 'barcode',
                     label: 'BARCODE_CTY',
                     class: 'text-nowrap',
                     thClass: 'bg-success',
@@ -76,15 +113,15 @@ export default {
 
                 },
                 {
-                    key: 'sap_code',
+                    key: 'sku_sap_code',
                     label: 'MaSAP',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap text-center',
                     thClass: 'bg-success',
 
 
                 },
                 {
-                    key: 'sap_material_name',
+                    key: 'sku_sap_name',
                     label: 'TenSP',
                     class: 'text-nowrap',
                     thClass: 'bg-success',
@@ -92,7 +129,7 @@ export default {
 
                 },
                 {
-                    key: 'unit_code',
+                    key: 'sku_sap_unit',
                     label: 'DVT',
                     class: 'text-nowrap',
                     thClass: 'bg-success',
@@ -124,21 +161,21 @@ export default {
 
                 },
                 {
-                    key: 'unit_barcode',
+                    key: 'customer_sku_code',
                     label: 'UNIT_BARCODE',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
 
                 },
                 {
-                    key: 'unit_barcode_description',
+                    key: 'customer_sku_name',
                     label: 'UNIT_BARCODE_DESCRIPTION',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
 
                 },
                 {
-                    key: 'unit',
+                    key: 'customer_sku_unit',
                     label: 'DVT_po',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
@@ -152,7 +189,7 @@ export default {
 
                 },
                 {
-                    key: 'qty',
+                    key: 'quantity_po',
                     label: 'QTY',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
@@ -183,7 +220,7 @@ export default {
 
                 },
                 {
-                    key: 'pur_price',
+                    key: 'price_po',
                     label: 'PUR_PRICE',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
@@ -191,7 +228,7 @@ export default {
 
                 },
                 {
-                    key: 'amount',
+                    key: 'amount_po',
                     label: 'AMOUNT',
                     class: 'text-nowrap',
                     thClass: 'bg-warning',
@@ -268,10 +305,10 @@ export default {
                 this.is_loading = false;
             }
         },
-        isBarcodeCompanyOrther(sap_material_name, unit_barcode_description) {
-            sap_material_name = sap_material_name.toLowerCase()
-            unit_barcode_description = unit_barcode_description.toLowerCase()
-            if (sap_material_name != unit_barcode_description) {
+        isBarcodeCompanyOrther(sku_sap_name, customer_sku_name) {
+            sku_sap_name = sku_sap_name.toLowerCase()
+            customer_sku_name = customer_sku_name.toLowerCase()
+            if (sku_sap_name != customer_sku_name) {
                 return true
             }
         },
@@ -289,6 +326,25 @@ export default {
         },
         getDeleteMaterialCategoryType(index) {
             this.material_category_types.splice(index, 1)
+        },
+        isMaterialDonated(sku_sap_code) {
+            for (let index = 0; index < this.material_donateds.length; index++) {
+                if (sku_sap_code == this.material_donateds[index].sap_code) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        isMaterialCombo(sku_sap_code) {
+            for (let index = 0; index < this.material_combos.length; index++) {
+                if (sku_sap_code == this.material_combos[index].sap_code) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        deleteRow(index) {
+           this.$emit('deleteRow', index)
         }
 
     }
@@ -305,7 +361,7 @@ export default {
 }
 
 ::v-deep .voucher-custom {
-    border: 2px solid lightgray !important;
+    // border: 2px solid lightgray !important;
     cursor: pointer !important;
 
     &:hover {
@@ -313,5 +369,16 @@ export default {
         transition: 0.1s all !important;
 
     }
+}
+
+.is-donated {
+    background: yellow;
+    padding: 3px;
+}
+
+.is-combo {
+    background: #FF0000;
+    color: white;
+    padding: 3px;
 }
 </style>

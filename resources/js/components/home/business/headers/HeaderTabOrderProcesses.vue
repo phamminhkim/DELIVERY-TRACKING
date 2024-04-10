@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-tabs card>
+        <b-tabs small>
             <b-tab v-for="(tab, index) in tabs" :key="index" :title="tab.name" @click="onChangeTab(tab)" :active="tab_value == tab.value" >
               <template #title>
                 {{ tab.name }}
@@ -27,6 +27,7 @@ export default {
             tabs: [
                 { name: 'Xử lý đơn hàng', value: 'order' },
                 { name: 'Hàng tặng hàng', value: 'order_donated' },
+                { name: 'Hàng combo', value: 'order_combo' },
                 { name: 'Đơn hàng thiếu', value: 'order_lack' },
 
             ],

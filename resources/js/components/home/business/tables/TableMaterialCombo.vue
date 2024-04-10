@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-table small responsive hover :items="material_donateds" :fields="fields">
+        <b-table small responsive hover :items="material_combos" :fields="fields">
             <template #cell(index)="data">
                 <div>
                     <label>{{ data.index + 1 }}</label>
@@ -8,7 +8,7 @@
             </template>
             <template #cell(sap_code)="data">
                 <div v-if="index_edit == data.index">
-                    <input type="text" class="form-control form-control-edit" v-model="edit_material_donated.sap_code"
+                    <input type="text" class="form-control form-control-edit" v-model="edit_material_combo.sap_code"
                         :placeholder="data.item.sap_code" v-bind:class="hasError('sap_code') ? 'is-invalid' : ''" />
                     <span v-if="hasError('sap_code')" class="invalid-feedback" role="alert">
                         <strong>{{ getError('sap_code') }}</strong>
@@ -20,7 +20,7 @@
             </template>
             <template #cell(name)="data">
                 <div v-if="index_edit == data.index">
-                    <input type="text" class="form-control form-control-edit" v-model="edit_material_donated.name"
+                    <input type="text" class="form-control form-control-edit" v-model="edit_material_combo.name"
                         :placeholder="data.item.name" v-bind:class="hasError('name') ? 'is-invalid' : ''" />
                     <span v-if="hasError('name')" class="invalid-feedback" role="alert">
                         <strong>{{ getError('name') }}</strong>
@@ -28,6 +28,15 @@
                 </div>
                 <div v-else>
                     <label>{{ data.item.name }}</label>
+                </div>
+            </template>
+            <template #cell(bar_code)="data">
+                <div v-if="index_edit == data.index">
+                    <input type="text" class="form-control form-control-edit" v-model="edit_material_combo.bar_code"
+                        :placeholder="data.item.bar_code" />
+                </div>
+                <div v-else>
+                    <label>{{ data.item.bar_code }}</label>
                 </div>
             </template>
             <template #cell(action)="data">
@@ -66,13 +75,13 @@ export default {
     props: {
         tab_value: {
             type: String,
-            default: 'order_donated'
+            default: 'order_combo'
         },
         count_order_lack: {
             type: Number,
             default: 0
         },
-        material_donateds: {
+        material_combos: {
             type: Array,
             default: []
         }
@@ -102,6 +111,11 @@ export default {
                     sortable: true,
                 },
                 {
+                    key: 'bar_code',
+                    label: 'Barcode',
+                    sortable: true,
+                },
+                {
                     key: 'action',
                     label: 'Action',
                     class: 'text-center',
@@ -111,13 +125,14 @@ export default {
             pageOptions: [10, 20, 50, 100],
             current_page: 1,
             index_edit: -1,
-            edit_material_donated: {
+            edit_material_combo: {
                 id: '',
                 sap_code: '',
                 name: '',
+                bar_code: '',
             },
-            api_material_donated_update: '/api/master/material-donateds/update',
-            api_material_donated_delete: '/api/master/material-donateds/delete',
+            api_material_combo_update: '/api/master/material-combos/update',
+            api_material_combo_delete: '/api/master/material-combos/delete',
 
 
         }
@@ -129,14 +144,14 @@ export default {
         async btnUpdate(index, id, item) {
             try {
                 let data = await this.api_handler
-                    .put(this.api_material_donated_update + '/' + id, this.edit_material_donated)
+                    .put(this.api_material_combo_update + '/' + id, this.edit_material_combo)
                     .finally(() => {
                         this.is_loading = false;
                     });
                 this.$showMessage('success', 'Cập nhật thành công');
                 this.is_edit = false;
                 this.index_edit = -1;
-                this.$emit('updateMaterialDonated', { index, data });
+                this.$emit('updateMaterialCombo', { index, data });
             } catch (error) {
                 this.errors = error.response.data.errors;
                 this.$showMessage('error', 'Cập nhật không thành công', data.message);
@@ -145,12 +160,12 @@ export default {
         async btnDelete(index, id) {
             try {
                 let data = await this.api_handler
-                    .delete(this.api_material_donated_delete + '/' + id)
+                    .delete(this.api_material_combo_delete + '/' + id)
                     .finally(() => {
                         this.is_loading = false;
                     });
                 this.$showMessage('success', 'Xóa thành công');
-                this.$emit('deleteMaterialDonated', index);
+                this.$emit('deleteMaterialCombo', index);
             } catch (error) {
                 this.$showMessage('error', 'Xóa không thành công', data.message);
             }
@@ -172,7 +187,7 @@ export default {
     },
     computed: {
         rows() {
-            return this.material_donateds.length;
+            return this.material_combos.length;
         }
     }
 }
