@@ -339,7 +339,7 @@ export default {
             return caculator;
         },
         replaceString(string) {
-            return string.toString.replace(/,/g, '');
+            return string.toString().replace(/,/g, '');
         },
         replaceCalculatorAmount(string) {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
