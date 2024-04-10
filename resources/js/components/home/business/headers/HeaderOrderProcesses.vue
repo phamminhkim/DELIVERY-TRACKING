@@ -333,13 +333,13 @@ export default {
             this.$emit('listOrders', this.orders);
         },
         calculatorAmount(price_po, number = 10) {
-            price_po = this.replateString(price_po);
+            price_po = this.replaceString(price_po);
             let caculator = price_po * number;
             caculator = this.replaceCalculatorAmount(caculator);
             return caculator;
         },
-        replateString(string) {
-            return string.replace(/,/g, '');
+        replaceString(string) {
+            return string.toString.replace(/,/g, '');
         },
         replaceCalculatorAmount(string) {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
