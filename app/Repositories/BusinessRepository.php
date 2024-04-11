@@ -27,6 +27,7 @@ use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure;
 use App\Models\Business\ExtractOrderConfig;
+use App\Repositories\Business\CheckDataRepository;
 
 use Illuminate\Http\Request;
 
@@ -228,6 +229,10 @@ class BusinessRepository
     static function rawSoHeaderRequest(Request $request)
     {
         return new RawSoHeaderRepository($request);
+    }
+    public static function checkDataRequest(Request $request)
+    {
+        return new CheckDataRepository($request);
     }
 
 }
