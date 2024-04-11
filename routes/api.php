@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
 use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
+use App\Http\Controllers\Api\Business\CheckDataController;
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
 use App\Models\Business\UploadedFile;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -292,10 +294,15 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);
         });
+
     });
 
     Route::prefix('sales-order')->group(function () {
         Route::post('convert-pdf', [AiController::class, 'extractOrderDirect']);
+    });
+    Route::prefix('check-data')->group(function () {
+        Route::post('check-material-sap/{id}', [CheckDataController::class, 'checkMaterialSAP']);
+        Route::post('check-inventory/{id}', [CheckDataController::class, 'checkInventory']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {
