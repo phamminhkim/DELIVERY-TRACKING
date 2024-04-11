@@ -84,7 +84,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                         })
                         ->first();
                     if (!$sap_material) {
-                        $this->errors[] = 'Không tìm thấy mã hàng sap (' . $material['sap_material_code'] . ') với đơn vị tính (' . $material['sap_material_unit'] . ')';
+                        $this->errors[] = 'Không tìm thấy mã hàng sap (' . $material['sap_material_code'] . ') với đơn vị tính (' . $material['sap_material_unit'] .  ')';
                         // $exist_sap_material = SapMaterial::query()
                         //     ->where('sap_code', $material['sap_material_code'])
                         //     ->first();
@@ -95,7 +95,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     }
 
                     if ($customer_material->sap_material_id) {
-                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code;
+                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code ;
                         continue;
                     }
                     $totalPercentage = SapMaterialMapping::query()
@@ -105,8 +105,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     $newTotalPercentage = $totalPercentage + $material['percentage'];
 
                     if ($newTotalPercentage > 100) {
-                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%';
-                        break;
+                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%' ;
+                        continue;
                     }
 
                     $sap_material_mapping = SapMaterialMapping::create([
