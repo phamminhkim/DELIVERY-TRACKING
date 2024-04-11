@@ -1,5 +1,5 @@
 <template>
-    <div class="container-header bg-white p-3 shadow-sm rounded">
+    <div class="container-header bg-white p-3 shadow-sm rounded css-font-size">
         <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="count_order_lack"></HeaderTabOrderProcesses>
         <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo" @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" :tab_value="tab_value"  @openModalSearchOrderProcesses="openModalSearchOrderProcesses"></HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes" @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses"></DialogSearchOrderProcesses>
@@ -76,5 +76,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
+.input-group-text {
+    font-size: smaller !important;
+}
 </style>

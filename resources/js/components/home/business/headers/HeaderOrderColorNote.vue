@@ -1,7 +1,7 @@
 <template>
     <div>
-        <label class="font-weight-bold">Ghi chú: </label>
-        <div class="row mb-1" v-for="(note, index) in list_notes" :key="index">
+        <label class="font-weight-bold font-smaller">Ghi chú: </label>
+        <div class="row mb-1 font-smaller" v-for="(note, index) in list_notes" :key="index">
             <div class="col-lg-12">
                 <div class="row align-items-center">
                     <div class="col-lg-3" >
@@ -9,7 +9,7 @@
                         </div>
                     </div>
                     <div class="col-lg-9">
-                        <div class="text-secondaru">{{ note.name }}</div>
+                        <div class="text-secondary font-smaller">{{ note.name }}</div>
                     </div>
                 </div>
             </div>
@@ -41,4 +41,8 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.font-smaller {
+    font-size: smaller !important;
+}
+</style>

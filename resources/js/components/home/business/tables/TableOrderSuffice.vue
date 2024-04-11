@@ -381,4 +381,7 @@ export default {
     color: white;
     padding: 3px;
 }
+::v-deep .table-order-suffices{
+    font-size: 0.7rem !important;
+}
 </style>

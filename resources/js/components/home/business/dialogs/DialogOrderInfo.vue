@@ -373,7 +373,7 @@
 	};
 </script>
 
-<style>
+<style lang="scss" scoped>
 	.container-rate {
 		width: 100%;
 		padding: 1.5rem;

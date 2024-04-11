@@ -27,7 +27,7 @@
 	};
 </script>
 
-<style>
+<style lang="scss" scoped>
 	.title {
 		font-size: 1.5rem;
 		font-weight: 500;

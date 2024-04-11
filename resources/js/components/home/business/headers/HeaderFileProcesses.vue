@@ -2,9 +2,9 @@
     <div>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
-                <span class="input-group-text border-0 font-weight-bold">Xử lý File</span>
+                <span class="input-group-text border-0 font-weight-bold font-smaller">Xử lý File</span>
             </div>
-            <select class="form-control" v-model="change_file.type" @change="onChangeFile()">
+            <select class="form-control font-smaller" v-model="change_file.type" @change="onChangeFile()">
                 <option v-for="(type_file, index) in type_files" :key="index" :value="type_file.name"> {{ type_file.name
                     }}</option>
             </select>
@@ -36,4 +36,8 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.font-smaller {
+    font-size: smaller !important;
+}
+</style>
