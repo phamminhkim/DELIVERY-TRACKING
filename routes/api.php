@@ -301,8 +301,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('convert-pdf', [AiController::class, 'extractOrderDirect']);
     });
     Route::prefix('check-data')->group(function () {
-        Route::post('check-material-sap/{id}', [CheckDataController::class, 'checkMaterialSAP']);
-        Route::post('check-inventory/{id}', [CheckDataController::class, 'checkInventory']);
+        Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);
+        Route::post('check-inventory', [CheckDataController::class, 'checkInventory']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {
