@@ -29,10 +29,13 @@ class CheckDataRepository extends RepositoryAbs
         $this->file_service = new LocalFileService();
     }
     public function checkMaterialSAP()
-    {
+    { 
         try {
             $validator = Validator::make($this->data, [
-                'customer_group_id' => 'required|exists:customer_groups,id',
+                'customer_group_id' => 'required',
+                'items' => 'required|array',
+                'items.*.customer_sku_code' => 'required',
+                'items.*.customer_sku_unit' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -41,22 +44,22 @@ class CheckDataRepository extends RepositoryAbs
             }
 
             $customer_group_id = $this->data['customer_group_id'];
+            $items = $this->data['items'];
 
-            // Lấy thông tin nhóm khách hàng từ bảng customer_groups
-            $customerGroup = CustomerGroup::find($customer_group_id);
+            // Lấy thông tin nhóm khách hàng từ bảng customer_materials
+            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
 
-            if (!$customerGroup) {
+            if (!$customerMaterials) {
                 $this->message = 'Không tìm thấy nhóm khách hàng';
                 return false;
             }
 
-            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
-
             $mappingData = [];
 
-            foreach ($customerMaterials as $customerMaterial) {
-                $customer_sku_code = $customerMaterial->customer_sku_code;
-                $customer_sku_unit = $customerMaterial->customer_sku_unit;
+            // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
+            foreach ($items as $item) {
+                $customer_sku_code = $item['customer_sku_code'];
+                $customer_sku_unit = $item['customer_sku_unit'];
 
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
@@ -87,7 +90,10 @@ class CheckDataRepository extends RepositoryAbs
                     ];
                 } else {
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
-                    $sapMaterialMappings = SapMaterialMapping::where('customer_material_id', $customerMaterial->id)->get();
+                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                        $query->where('customer_group_id', $customer_group_id)
+                            ->where('customer_sku_code', $customer_sku_code);
+                    })->get();
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
