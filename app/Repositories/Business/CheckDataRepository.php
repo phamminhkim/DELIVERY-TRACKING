@@ -33,8 +33,6 @@ class CheckDataRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'customer_group_id' => 'required|exists:customer_groups,id',
-                'customer_sku_code' => 'required',
-                'customer_sku_unit' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -43,10 +41,8 @@ class CheckDataRepository extends RepositoryAbs
             }
 
             $customer_group_id = $this->data['customer_group_id'];
-            $customer_sku_code = $this->data['customer_sku_code'];
-            $customer_sku_unit = $this->data['customer_sku_unit'];
 
-            // Get customer group information from the customer_groups table
+            // Lấy thông tin nhóm khách hàng từ bảng customer_groups
             $customerGroup = CustomerGroup::find($customer_group_id);
 
             if (!$customerGroup) {
@@ -54,23 +50,19 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
-            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)
-                ->where('customer_sku_code', $customer_sku_code)
-                ->where('customer_sku_unit', $customer_sku_unit)
-                ->get();
+            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
 
             $mappingData = [];
 
             foreach ($customerMaterials as $customerMaterial) {
-                $customer_group_id = $customerMaterial->customer_group_id;
                 $customer_sku_code = $customerMaterial->customer_sku_code;
                 $customer_sku_unit = $customerMaterial->customer_sku_unit;
 
-                // Find the code in the SapMaterial table
+                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
                 if ($sapMaterial) {
-                    // Add information to mappingData
+                    // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
                     $unit_code = $sapMaterial->unit_code;
@@ -81,10 +73,10 @@ class CheckDataRepository extends RepositoryAbs
                     if ($sapUnit) {
                         $unit_code = $sapUnit->unit_code;
                     } else {
-                        $unit_code = null; // Handle the case where the unit does not exist
+                        $unit_code = null; // Xử lý khi đơn vị không tồn tại
                     }
 
-                    $mappingData['customer_group_id'][$customer_group_id]['items'][] = [
+                    $mappingData[] = [
                         'customer_sku_code' => $customer_sku_code,
                         'customer_sku_unit' => $customer_sku_unit,
                         'bar_code' => $bar_code,
@@ -94,24 +86,16 @@ class CheckDataRepository extends RepositoryAbs
                         'unit_code' => $unit_code,
                     ];
                 } else {
-                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                        $query->where('customer_group_id', $customer_group_id)
-                            ->where('customer_sku_code', $customer_sku_code);
-                    })->get();
+                    // Kiểm tra ánh xạ trong bảng SapMaterialMapping
+                    $sapMaterialMappings = SapMaterialMapping::where('customer_material_id', $customerMaterial->id)->get();
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                        // Get information from the CustomerMaterial table
-                        $customer_sku_code = $sapMaterialMapping->customer_material->customer_sku_code;
-                        $customer_sku_unit = $sapMaterialMapping->customer_material->customer_sku_unit;
-
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
-                        $customer_material_id = $sapMaterialMapping->customer_material_id;
 
                         $sapMaterial = SapMaterial::find($sap_material_id);
-                        $customerMaterial = CustomerMaterial::find($customer_material_id);
 
                         if ($sapMaterial) {
-                            // Add information to mappingData
+                            // Thêm thông tin vào mappingData
                             $sap_code = $sapMaterial->sap_code;
                             $bar_code = $sapMaterial->bar_code;
                             $unit_code = $sapMaterial->unit_code;
@@ -122,10 +106,10 @@ class CheckDataRepository extends RepositoryAbs
                             if ($sapUnit) {
                                 $unit_code = $sapUnit->unit_code;
                             } else {
-                                $unit_code = null; // Handle the case where the unit does not exist
+                                $unit_code = null; // Xử lý khi đơn vị không tồn tại
                             }
 
-                            $mappingData[$customer_group_id]['items'][] = [
+                            $mappingData[] = [
                                 'customer_sku_code' => $customer_sku_code,
                                 'customer_sku_unit' => $customer_sku_unit,
                                 'bar_code' => $bar_code,
@@ -141,8 +125,8 @@ class CheckDataRepository extends RepositoryAbs
 
             return [
                 'success' => true,
-                'customer_group_id' => $mappingData
-            ] ?? [];
+                'items' => $mappingData
+            ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -220,7 +204,83 @@ class CheckDataRepository extends RepositoryAbs
                 'success' => true,
                 'inventory' => $inventory_data,
             ];
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
+    public function checkPrice()
+    {
+        try {
+            $validator = Validator::make(request()->all(), [
+                'bar_code' => 'required|exists:sap_materials,bar_code',
+                'file' => 'required|file|mimes:xlsx,xls',
+            ]);
 
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+
+            $bar_code = request()->input('bar_code');
+            // Trích xuất dữ liệu từ tệp tin Excel
+            $file = $this->request->file('file');
+            // Lưu file vào thư mục tạm
+            $filePath = $file->store('temp');
+            $fullPath = storage_path('app/' . $filePath);
+            // Đọc file Excel
+            $spreadsheet = IOFactory::load($fullPath);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $column_titles = ['Ma SP', 'Barcode (Mã BH)', 'Tên Sản Phẩm', 'ĐVT', 'Đơn giá']; // Các tiêu đề cột cần tìm
+            $column_indexes = [];
+            foreach ($worksheet->getRowIterator() as $row) {
+                $row_index = $row->getRowIndex();
+                // Lặp qua các ô trong hàng đầu tiên
+                foreach ($row->getCellIterator() as $cell) {
+                    $column_index = Coordinate::columnIndexFromString($cell->getColumn());
+                    $column_title = $cell->getValue();
+
+                    // Kiểm tra xem tiêu đề của cột có trong mảng $column_titles không
+                    if (in_array($column_title, $column_titles)) {
+                        $column_indexes[$column_title] = $column_index;
+                    }
+                }
+                // Dừng sau khi tìm thấy tiêu đề của tất cả các cột cần tìm
+                if (count($column_indexes) === count($column_titles)) {
+                    break;
+                }
+            }
+            $check_price = [];
+            // Lặp qua từng dòng trong tệp tin Excel
+            foreach ($worksheet->getRowIterator() as $row) {
+                $row_data = [];
+
+                // Lặp qua các ô trong hàng hiện tại
+                foreach ($row->getCellIterator() as $cell) {
+                    $column_index = Coordinate::columnIndexFromString($cell->getColumn());
+
+                    // Kiểm tra xem chỉ mục cột có trong mảng $column_indexes không
+                    if (in_array($column_index, $column_indexes)) {
+                        $column_title = array_search($column_index, $column_indexes);
+                        $column_value = $cell->getValue();
+                        // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
+                        $row_data[$column_title] = $column_value;
+                    }
+                }
+                // Kiểm tra xem dữ liệu liên quan đến kho có tồn tại trong hàng hiện tại không
+                if (isset($row_data['Barcode (Mã BH)']) && $row_data['Barcode (Mã BH)'] === $bar_code) {
+                    // Thêm dữ liệu vào mảng $inventoryData
+                    $check_price[] = $row_data;
+                }
+            }
+            // Xóa file tạm sau khi hoàn thành
+            unlink($fullPath);
+
+            return [
+                'success' => true,
+                'price' => $check_price,
+            ];
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
