@@ -181,27 +181,35 @@ class CheckDataRepository extends RepositoryAbs
                 }
             }
             $inventory_data = [];
+
             // Lặp qua từng dòng trong tệp tin Excel
             foreach ($worksheet->getRowIterator() as $row) {
                 $row_data = [];
-
+            
                 // Lặp qua các ô trong hàng hiện tại
                 foreach ($row->getCellIterator() as $cell) {
                     $column_index = Coordinate::columnIndexFromString($cell->getColumn());
-
+            
                     // Kiểm tra xem chỉ mục cột có trong mảng $column_indexes không
                     if (in_array($column_index, $column_indexes)) {
                         $column_title = array_search($column_index, $column_indexes);
                         $column_value = $cell->getValue();
+            
+                        // Đặt tên biến mới cho "ATP Quantity"
+                        if ($column_title === 'ATP Quantity') {
+                            $column_title = 'ATP_Quantity';
+                        }
+            
                         // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
                         $row_data[$column_title] = $column_value;
                     }
                 }
                 // Kiểm tra xem dữ liệu liên quan đến kho có tồn tại trong hàng hiện tại không
                 if (isset($row_data['Storage']) && $row_data['Storage'] === $warehouse_code) {
-                    // Thêm dữ liệu vào mảng $inventoryData
+                    // Thêm dữ liệu vào mảng $inventory_data
                     $inventory_data[] = $row_data;
                 }
+            
             }
             // Xóa file tạm sau khi hoàn thành
             unlink($fullPath);
