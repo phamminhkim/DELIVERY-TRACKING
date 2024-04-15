@@ -73,7 +73,8 @@ export default {
         material_combos: {
             type: Array,
             default: []
-        }
+        },
+        
     },
     components: {
         DialogMaterialCategoryTypes

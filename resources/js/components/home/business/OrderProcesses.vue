@@ -1,7 +1,7 @@
 <template>
     <div class="container-header bg-white p-3 shadow-sm rounded css-font-size">
         <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="count_order_lack"></HeaderTabOrderProcesses>
-        <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo" @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" :tab_value="tab_value"  @openModalSearchOrderProcesses="openModalSearchOrderProcesses"></HeaderOrderProcesses>
+        <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo" @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" @getInventory="getInventory" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"  @openModalSearchOrderProcesses="openModalSearchOrderProcesses"></HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes" @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses"></DialogSearchOrderProcesses>
         <TableOrderLack :tab_value="tab_value" @countOrderLack="getCountOrderLack"></TableOrderLack>
         <TableOrderSuffice @deleteRow="getDeleteRow" :orders="orders"  :material_donateds="material_donateds" :material_combos="material_combos" :tab_value="tab_value" @onChangeCategoryType="getOnChangeCategoryType"></TableOrderSuffice>
@@ -41,6 +41,8 @@ export default {
             orders: [],
             material_donateds: [],
             material_combos: [],
+            material_saps: [],
+            material_inventories: [],
         }
     },
     methods: {
@@ -70,7 +72,37 @@ export default {
         },
         getDeleteRow(index) {
             this.orders.splice(index, 1);
-        }
+        },
+        getListMaterialDetect(data) {
+           
+            
+            this.material_saps =[...data] ;
+          
+            this.material_saps.forEach(tmp => {
+                console.log(tmp.customer_sku_code);
+                for (var i = 0; i < this.orders.length; i++) {
+                    if (tmp.customer_sku_code === this.orders[i].customer_sku_code && tmp.customer_sku_unit === this.orders[i].customer_sku_unit) {
+                        this.orders[i]['sku_sap_code'] = tmp.sap_code;
+                        this.orders[i]['sku_sap_name'] = tmp.name;
+                        this.orders[i]['sku_sap_unit'] = tmp.unit_code;
+                        this.orders[i]['barcode'] = tmp.bar_code;
+                    }
+                }
+               
+            });
+        },
+        getInventory(data){
+            this.material_inventories = [...data];
+            var orders = [...this.orders];
+            this.material_inventories.forEach(tmp => {
+                for (var i = 0; i < this.orders.length; i++) {
+                    if (tmp['Material'] == this.orders[i]['sku_sap_code']) {
+                        orders[i]['check_ton'] = tmp['ATP_Quantity'];
+                    }
+                }
+            });
+            this.orders = [...orders];
+        },
 
     }
 }

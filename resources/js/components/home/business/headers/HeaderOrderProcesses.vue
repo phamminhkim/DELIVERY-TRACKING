@@ -33,11 +33,13 @@
                     <div class="form-group" v-if="case_data_temporary.type_file == 'Excel'">
                         <input @change="handleFileUpload" type="file" class="custom-file-inputs w-100 shadow-sm mb-2"
                             :disabled="isDisabledFile()">
+                      
                     </div>
                     <div v-else class="form-group">
                         <b-form-file @change="extractFilePDF" @reset="demoClick()" v-model="form_filter.pdf_files" ref="file-input"
                             plain multiple browse-text="Chọn file" />
                     </div>
+                  
                 </div>
                 <div class="col-lg-8">
                     <!-- <div class="form-group">
@@ -56,8 +58,12 @@
                         <button @click="detectSapCode()" type="button"
                             class="shadow btn-sm btn-light  text-orange btn-group__border">Dò mã
                             SAP</button>
-                        <button type="button" class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                        <button type="button" v-on:click="handleCheckInventory"  class="shadow btn-sm btn-light  text-orange btn-group__border">Check
                             tồn</button>
+                            <input type="file" ref="file_check_ton"  style="display: none" accept=".xls,.xlsx"
+                             
+                             @change="eventChooseFile($event)"
+                            class="shadow btn-sm btn-light text">
                         <button type="button" class="shadow btn-sm btn-light  text-orange btn-group__border">Check
                             giá</button>
                         <button type="button"
@@ -179,6 +185,8 @@ export default {
             api_warehouses: 'api/master/warehouses',
             api_material_donateds: '/api/master/material-donateds/get-all',
             api_material_combos: '/api/master/material-combos/get-all',
+            api_detect_sap_code: '/api/check-data/check-material-sap',
+            api_check_inventory: '/api/check-data/check-inventory',
 
 
         }
@@ -189,6 +197,21 @@ export default {
 
     },
     methods: {
+        async fetchSapMaterial() {
+            try {
+                this.is_loading = true;
+                const { data } = await this.api_handler.get(this.api_sap_materials, {
+                    bar_codes: this.bar_codes,
+                });
+                if (Array.isArray(data)) {
+                    this.sap_materials = data;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         async fetchSapMaterial() {
             try {
                 this.is_loading = true;
@@ -230,6 +253,60 @@ export default {
                 this.is_loading = false;
             }
         },
+        async fetchSapCodeFromSkuCustomer(){
+          
+            try {
+                this.is_loading = true;
+                const { data } = await this.api_handler.post(this.api_detect_sap_code, { },
+                    {
+                        customer_group_id:this.form_filter.customer_group,
+                        items:this.case_data_temporary.sap_codes,
+                    }
+                );
+                //this.sap_codes =  data.original.mappingData;
+                 console.log(data);
+                 if(data.success == true) {
+                    this.$emit('getListMaterialDetect', data.items);
+                 }else{
+                    this.$showMessage('error', 'Lỗi');
+                 }
+               
+              
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            }finally {
+                this.is_loading = false;
+            }
+        },
+        async fetchCheckInventory(file){
+          
+          try {
+              this.is_loading = true;
+              var form_data = new FormData();
+                form_data.append('file',file);
+                form_data.append('warehouse_code', '3101');
+              
+              const { data } = await this.api_handler.post(this.api_check_inventory, { },form_data );
+              //this.sap_codes =  data.original.mappingData;
+               console.log(data);
+               if(data.success == true) {
+                  this.$emit('getInventory', data.inventory);
+               }else{
+                  this.$showMessage('error', 'Lỗi');
+               }
+             
+            
+          } catch (error) {
+              this.$showMessage('error', 'Lỗi', error);
+          }finally {
+              this.is_loading = false;
+          }
+      },
+      eventChooseFile(event) {
+
+             this.fetchCheckInventory(event.target.files[0]);
+
+        } ,
         async fetchMaterialDonated() {
             try {
                 this.is_loading = true;
@@ -280,6 +357,14 @@ export default {
                 this.fetchSapMaterial();
             };
             reader.readAsArrayBuffer(file);
+        },
+       
+        handleCheckInventory(){
+            this.$refs.file_check_ton.click();
+        },
+        mappingCheckInventory(data){
+            var list = [...data];
+
         },
         browserExcelHeader(data_firsts) {
             for (let index = 0; index < data_firsts.length; index++) {
@@ -350,19 +435,17 @@ export default {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
         detectSapCode() {
-            for (let index = 0; index < this.orders.length; index++) {
-                for (let index_sap_material = 0; index_sap_material < this.sap_materials.length; index_sap_material++) {
-                    if (this.orders[index].customer_sku_code == this.sap_materials[index_sap_material].bar_code) {
-                        this.orders[index].barcode = this.sap_materials[index_sap_material].bar_code;
-                        this.orders[index].sku_sap_code = this.sap_materials[index_sap_material].sap_code;
-                        this.orders[index].sku_sap_name = this.sap_materials[index_sap_material].name;
-                        this.orders[index].sku_sap_unit = this.sap_materials[index_sap_material].unit_code;
-                        this.case_data_temporary.sap_codes.push(this.sap_materials[index_sap_material].sap_code);
-                    }
-                }
-            }
-            this.fetchMaterialDonated();
-            this.fetchMaterialCombo();
+            
+            this.orders.forEach(element => {
+                this.case_data_temporary.sap_codes.push({
+                    customer_sku_code: element.customer_sku_code,
+                    customer_sku_unit: element.customer_sku_unit
+                });
+            });
+           
+            this.fetchSapCodeFromSkuCustomer();
+            //  this.fetchMaterialDonated();
+            // this.fetchMaterialCombo();
         },
         isDisabledFile() {
             if (this.form_filter.customer_group == null) {
