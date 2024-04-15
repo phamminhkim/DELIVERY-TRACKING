@@ -25,6 +25,17 @@ class ResponseController extends Controller
 
         return response()->json($response, $code);
     }
+    public function response($result, $message = '', $code = 200)
+    {
+        $response = [
+            'data'    => $result,
+        ];
+        if ($message != '') {
+            $response['message'] = $message;
+        }
+
+        return response()->json($response, $code);
+    }
     public function responseError($error_message, $error_array = [], $code = 400)
     {
         $response = [

@@ -14,7 +14,7 @@ class CheckDataController extends ResponseController
         $handler = BusinessRepository::checkDataRequest($request);
         $data = $handler->checkMaterialSAP($request);
         if ($data) {
-            return $this->responseSuccess($data);
+            return $this->response($data);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
@@ -25,7 +25,7 @@ class CheckDataController extends ResponseController
         $handler = BusinessRepository::checkDataRequest($request);
         $data = $handler->checkInventory();
         if ($data) {
-            return $this->responseSuccess($data);
+            return $this->response($data);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }

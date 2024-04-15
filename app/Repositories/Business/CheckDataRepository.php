@@ -46,11 +46,11 @@ class CheckDataRepository extends RepositoryAbs
             $customer_sku_code = $this->data['customer_sku_code'];
             $customer_sku_unit = $this->data['customer_sku_unit'];
 
-            // Lấy thông tin nhóm khách hàng từ bảng customer_groups
+            // Get customer group information from the customer_groups table
             $customerGroup = CustomerGroup::find($customer_group_id);
 
             if (!$customerGroup) {
-                $this->message = 'Invalid customer group';
+                $this->message = 'Không tìm thấy nhóm khách hàng';
                 return false;
             }
 
@@ -60,17 +60,17 @@ class CheckDataRepository extends RepositoryAbs
                 ->get();
 
             $mappingData = [];
-            $unmappedData = [];
 
             foreach ($customerMaterials as $customerMaterial) {
+                $customer_group_id = $customerMaterial->customer_group_id;
                 $customer_sku_code = $customerMaterial->customer_sku_code;
                 $customer_sku_unit = $customerMaterial->customer_sku_unit;
 
-                // Tìm mã trong bảng SapMaterial
+                // Find the code in the SapMaterial table
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
                 if ($sapMaterial) {
-                    // Thêm thông tin vào mappingData
+                    // Add information to mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
                     $unit_code = $sapMaterial->unit_code;
@@ -81,15 +81,15 @@ class CheckDataRepository extends RepositoryAbs
                     if ($sapUnit) {
                         $unit_code = $sapUnit->unit_code;
                     } else {
-                        $unit_code = null; // Xử lý trường hợp unit không tồn tại
+                        $unit_code = null; // Handle the case where the unit does not exist
                     }
 
-                    $mappingData[] = [
+                    $mappingData['customer_group_id'][$customer_group_id]['items'][] = [
                         'customer_sku_code' => $customer_sku_code,
                         'customer_sku_unit' => $customer_sku_unit,
                         'bar_code' => $bar_code,
                         'sap_code' => $sap_code,
-                        'unit_id'  => $unit_id,
+                        'unit_id' => $unit_id,
                         'name' => $name,
                         'unit_code' => $unit_code,
                     ];
@@ -100,7 +100,7 @@ class CheckDataRepository extends RepositoryAbs
                     })->get();
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                        // Lấy thông tin từ bảng CustomerMaterial
+                        // Get information from the CustomerMaterial table
                         $customer_sku_code = $sapMaterialMapping->customer_material->customer_sku_code;
                         $customer_sku_unit = $sapMaterialMapping->customer_material->customer_sku_unit;
 
@@ -111,7 +111,7 @@ class CheckDataRepository extends RepositoryAbs
                         $customerMaterial = CustomerMaterial::find($customer_material_id);
 
                         if ($sapMaterial) {
-                            // Thêm thông tin vào mappingData
+                            // Add information to mappingData
                             $sap_code = $sapMaterial->sap_code;
                             $bar_code = $sapMaterial->bar_code;
                             $unit_code = $sapMaterial->unit_code;
@@ -122,15 +122,15 @@ class CheckDataRepository extends RepositoryAbs
                             if ($sapUnit) {
                                 $unit_code = $sapUnit->unit_code;
                             } else {
-                                $unit_code = null; // Xử lý trường hợp unit không tồn tại
+                                $unit_code = null; // Handle the case where the unit does not exist
                             }
 
-                            $mappingData[] = [
+                            $mappingData[$customer_group_id]['items'][] = [
                                 'customer_sku_code' => $customer_sku_code,
                                 'customer_sku_unit' => $customer_sku_unit,
                                 'bar_code' => $bar_code,
                                 'sap_code' => $sap_code,
-                                'unit_id'  => $unit_id,
+                                'unit_id' => $unit_id,
                                 'name' => $name,
                                 'unit_code' => $unit_code,
                             ];
@@ -138,19 +138,15 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
             }
-            // Thêm vào unmappedData
-            $unmappedData[] = [
-                'customer_sku_code' => $customer_sku_code,
-                'customer_sku_unit' => $customer_sku_unit,
-            ];
 
-            return response()->json([
-                'mappingData' => $mappingData ?? [],
-                'unmappedData' => $unmappedData ?? [],
-            ]);
+            return [
+                'success' => true,
+                'customer_group_id' => $mappingData
+            ] ?? [];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return ['success' => false, 'message' => $this->message, 'errors' => $this->errors];
         }
     }
     public function checkInventory()
@@ -166,80 +162,65 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
-            $warehouseId = request()->input('warehouse_code');
+            $warehouse_code = request()->input('warehouse_code');
             // Trích xuất dữ liệu từ tệp tin Excel
             $file = $this->request->file('file');
-            $excel_extractor = new ExcelExtractor();
-            $raw_table_data = $excel_extractor->extractData($file);
-
             // Lưu file vào thư mục tạm
             $filePath = $file->store('temp');
-
-            // Đường dẫn đầy đủ tới file tạm
             $fullPath = storage_path('app/' . $filePath);
-
             // Đọc file Excel
             $spreadsheet = IOFactory::load($fullPath);
             $worksheet = $spreadsheet->getActiveSheet();
-
-            $columnTitles = ['Material', 'Storage', 'ATP Quantity', 'Description']; // Các tiêu đề cột cần tìm
-            $columnIndexes = [];
-
+            $column_titles = ['Plant', 'Material', 'Storage', 'ATP Quantity', 'Description']; // Các tiêu đề cột cần tìm
+            $column_indexes = [];
             foreach ($worksheet->getRowIterator() as $row) {
-                $rowIndex = $row->getRowIndex();
-
+                $row_index = $row->getRowIndex();
                 // Lặp qua các ô trong hàng đầu tiên
                 foreach ($row->getCellIterator() as $cell) {
-                    $columnIndex = Coordinate::columnIndexFromString($cell->getColumn());
-                    $columnTitle = $cell->getValue();
+                    $column_index = Coordinate::columnIndexFromString($cell->getColumn());
+                    $column_title = $cell->getValue();
 
-                    // Kiểm tra xem tiêu đề của cột có trong mảng $columnTitles không
-                    if (in_array($columnTitle, $columnTitles)) {
-                        $columnIndexes[$columnTitle] = $columnIndex;
+                    // Kiểm tra xem tiêu đề của cột có trong mảng $column_titles không
+                    if (in_array($column_title, $column_titles)) {
+                        $column_indexes[$column_title] = $column_index;
                     }
                 }
-
                 // Dừng sau khi tìm thấy tiêu đề của tất cả các cột cần tìm
-                if (count($columnIndexes) === count($columnTitles)) {
+                if (count($column_indexes) === count($column_titles)) {
                     break;
                 }
             }
-            $inventoryData = [];
-
+            $inventory_data = [];
             // Lặp qua từng dòng trong tệp tin Excel
             foreach ($worksheet->getRowIterator() as $row) {
-                $rowData = [];
+                $row_data = [];
 
                 // Lặp qua các ô trong hàng hiện tại
                 foreach ($row->getCellIterator() as $cell) {
-                    $columnIndex = Coordinate::columnIndexFromString($cell->getColumn());
+                    $column_index = Coordinate::columnIndexFromString($cell->getColumn());
 
-                    // Kiểm tra xem chỉ mục cột có trong mảng $columnIndexes không
-                    if (in_array($columnIndex, $columnIndexes)) {
-                        $columnTitle = array_search($columnIndex, $columnIndexes);
-                        $columnValue = $cell->getValue();
-
-                        // Lưu trữ dữ liệu tìm thấy trong mảng $rowData
-                        $rowData[$columnTitle] = $columnValue;
+                    // Kiểm tra xem chỉ mục cột có trong mảng $column_indexes không
+                    if (in_array($column_index, $column_indexes)) {
+                        $column_title = array_search($column_index, $column_indexes);
+                        $column_value = $cell->getValue();
+                        // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
+                        $row_data[$column_title] = $column_value;
                     }
                 }
-
                 // Kiểm tra xem dữ liệu liên quan đến kho có tồn tại trong hàng hiện tại không
-                if (isset($rowData['Storage']) && $rowData['Storage'] === $warehouseId) {
-                    // Hiển thị dữ liệu
-                    var_dump($rowData);
+                if (isset($row_data['Storage']) && $row_data['Storage'] === $warehouse_code) {
+                    // Thêm dữ liệu vào mảng $inventoryData
+                    $inventory_data[] = $row_data;
                 }
             }
-
             // Xóa file tạm sau khi hoàn thành
             unlink($fullPath);
 
-            return response()->json([
-                'inventoryData' => $inventoryData,
-            ]);
-        } catch (\Exception $exception) {
+            return $inventory_data;
+        } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
 }
