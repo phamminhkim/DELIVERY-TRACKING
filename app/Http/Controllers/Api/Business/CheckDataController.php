@@ -9,10 +9,10 @@ use Illuminate\Http\Request;
 
 class CheckDataController extends ResponseController
 {
-    public function checkMaterialSAP(Request $request, $id)
+    public function checkMaterialSAP(Request $request)
     {
         $handler = BusinessRepository::checkDataRequest($request);
-        $data = $handler->checkMaterialSAP($id);
+        $data = $handler->checkMaterialSAP($request);
         if ($data) {
             return $this->responseSuccess($data);
         } else {
@@ -20,14 +20,14 @@ class CheckDataController extends ResponseController
         }
     }
 
-    // public function checkInventory(Request $request,$id)
-    // {
-    //     $handler = BusinessRepository::checkDataRequest($request);
-    //     $data = $handler->checkInventory($id);
-    //     if ($data) {
-    //         return $this->responseSuccess($data);
-    //     } else {
-    //         return $this->responseError($handler->getMessage(), $handler->getErrors());
-    //     }
-    // }
+    public function checkInventory(Request $request)
+    {
+        $handler = BusinessRepository::checkDataRequest($request);
+        $data = $handler->checkInventory();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

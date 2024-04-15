@@ -5,7 +5,9 @@ namespace App\Repositories\Business;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
+use App\Models\Master\CustomerGroup;
 use App\Models\Master\SapMaterialMapping;
+use App\Models\Master\SapUnit;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,29 +19,35 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class CheckDataRepository extends RepositoryAbs
 {
-    protected $file_service;
-
-    public function __construct($request)
-    {
-        parent::__construct($request);
-        $this->file_service = new LocalFileService();
-    }
-    public function checkMaterialSAP($file_id)
+    public function checkMaterialSAP()
     {
         try {
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'required|exists:customer_groups,id',
+                'customer_sku_code' => 'required',
+                'customer_sku_unit' => 'required'
+            ]);
 
-            $file_record = UploadedFile::find($file_id);
-
-            if (!$file_record) {
-                $this->message = 'File không tồn tại';
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
                 return false;
             }
 
-            // Lấy thông tin file
-            $file_path = $file_record->file_path;
+            $customer_group_id = $this->data['customer_group_id'];
+            $customer_sku_code = $this->data['customer_sku_code'];
+            $customer_sku_unit = $this->data['customer_sku_unit'];
 
-            // Tìm dữ liệu liên quan dựa trên ID của file
-            $customerMaterials = CustomerMaterial::select('customer_sku_code', 'customer_sku_unit')
+            // Lấy thông tin nhóm khách hàng từ bảng customer_groups
+            $customerGroup = CustomerGroup::find($customer_group_id);
+
+            if (!$customerGroup) {
+                $this->message = 'Invalid customer group';
+                return false;
+            }
+
+            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)
+                ->where('customer_sku_code', $customer_sku_code)
+                ->where('customer_sku_unit', $customer_sku_unit)
                 ->get();
 
             $mappingData = [];
@@ -49,69 +57,91 @@ class CheckDataRepository extends RepositoryAbs
                 $customer_sku_code = $customerMaterial->customer_sku_code;
                 $customer_sku_unit = $customerMaterial->customer_sku_unit;
 
-                // Tìm bản ghi tương ứng trong bảng sap_material dựa trên mã barcode
+                // Tìm mã trong bảng SapMaterial
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
                 if ($sapMaterial) {
+                    // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
+                    $unit_code = $sapMaterial->unit_code;
                     $name = $sapMaterial->name;
+                    $unit_id = $sapMaterial->unit_id;
 
-                    // Lưu thông tin ánh xạ vào mảng
+                    $sapUnit = SapUnit::find($unit_id);
+                    if ($sapUnit) {
+                        $unit_code = $sapUnit->unit_code;
+                    } else {
+                        $unit_code = null; // Xử lý trường hợp unit không tồn tại
+                    }
+
                     $mappingData[] = [
                         'customer_sku_code' => $customer_sku_code,
                         'customer_sku_unit' => $customer_sku_unit,
                         'bar_code' => $bar_code,
                         'sap_code' => $sap_code,
+                        'unit_id'  => $unit_id,
                         'name' => $name,
+                        'unit_code' => $unit_code,
                     ];
                 } else {
-                    // Tìm bản ghi tương ứng trong bảng sap_material_mapping dựa trên customer_sku_code
-                    $sapMaterialMapping = SapMaterialMapping::where('customer_material_id', $customer_sku_code)->first();
+                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                        $query->where('customer_group_id', $customer_group_id)
+                            ->where('customer_sku_code', $customer_sku_code);
+                    })->get();
 
-                    if ($sapMaterialMapping) {
+                    foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                        // Lấy thông tin từ bảng CustomerMaterial
+                        $customer_sku_code = $sapMaterialMapping->customer_material->customer_sku_code;
+                        $customer_sku_unit = $sapMaterialMapping->customer_material->customer_sku_unit;
+
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
+                        $customer_material_id = $sapMaterialMapping->customer_material_id;
 
-                        // Tìm thông tin từ bảng sap_material dựa trên sap_material_id
                         $sapMaterial = SapMaterial::find($sap_material_id);
+                        $customerMaterial = CustomerMaterial::find($customer_material_id);
 
                         if ($sapMaterial) {
+                            // Thêm thông tin vào mappingData
                             $sap_code = $sapMaterial->sap_code;
+                            $bar_code = $sapMaterial->bar_code;
+                            $unit_code = $sapMaterial->unit_code;
                             $name = $sapMaterial->name;
+                            $unit_id = $sapMaterial->unit_id;
 
-                            // Lưu thông tin ánh xạ vào mảng
+                            $sapUnit = SapUnit::find($unit_id);
+                            if ($sapUnit) {
+                                $unit_code = $sapUnit->unit_code;
+                            } else {
+                                $unit_code = null; // Xử lý trường hợp unit không tồn tại
+                            }
+
                             $mappingData[] = [
                                 'customer_sku_code' => $customer_sku_code,
                                 'customer_sku_unit' => $customer_sku_unit,
-                                'bar_code' => null,
-                                'sap_material_id' => $sap_material_id,
+                                'bar_code' => $bar_code,
                                 'sap_code' => $sap_code,
+                                'unit_id'  => $unit_id,
                                 'name' => $name,
+                                'unit_code' => $unit_code,
                             ];
-                        } else {
-                            // Xử lý trường hợp sap_material không tồn tại
                         }
-                    } else {
-                        // Lưu thông tin bản ghi chưa được ánh xạ vào mảng
-                        $unmappedData[] = [
-                            'customer_sku_code' => $customer_sku_code,
-                            'customer_sku_unit' => $customer_sku_unit,
-                        ];
                     }
                 }
             }
+            // Thêm vào unmappedData
+            $unmappedData[] = [
+                'customer_sku_code' => $customer_sku_code,
+                'customer_sku_unit' => $customer_sku_unit,
+            ];
 
-            // Trả về thông tin của file và kết quả dò dữ liệu
             return response()->json([
-                'file_id' => $file_record,
-                'filePath' => $file_path,
-                'mappingData' => $mappingData,
-                'unmappedData' => $unmappedData,
+                'mappingData' => $mappingData ?? [],
+                'unmappedData' => $unmappedData ?? [],
             ]);
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
-
 }
