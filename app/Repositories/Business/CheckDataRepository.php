@@ -216,7 +216,11 @@ class CheckDataRepository extends RepositoryAbs
             // Xóa file tạm sau khi hoàn thành
             unlink($fullPath);
 
-            return $inventory_data;
+            return [
+                'success' => true,
+                'inventory' => $inventory_data,
+            ];
+
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
