@@ -8,6 +8,7 @@ use App\Models\Master\SapMaterial;
 use App\Models\Master\CustomerGroup;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
+use App\Services\Excel\ExcelExtractor;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -16,9 +17,17 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Services\Implementations\Files\LocalFileService;
 use Throwable;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class CheckDataRepository extends RepositoryAbs
 {
+    protected $file_service;
+
+    public function __construct($request)
+    {
+        parent::__construct($request);
+        $this->file_service = new LocalFileService();
+    }
     public function checkMaterialSAP()
     {
         try {
@@ -138,6 +147,95 @@ class CheckDataRepository extends RepositoryAbs
             return response()->json([
                 'mappingData' => $mappingData ?? [],
                 'unmappedData' => $unmappedData ?? [],
+            ]);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function checkInventory()
+    {
+        try {
+            $validator = Validator::make(request()->all(), [
+                'warehouse_code' => 'required|exists:warehouses,code',
+                'file' => 'required|file|mimes:xlsx,xls',
+            ]);
+
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+
+            $warehouseId = request()->input('warehouse_code');
+            // Trích xuất dữ liệu từ tệp tin Excel
+            $file = $this->request->file('file');
+            $excel_extractor = new ExcelExtractor();
+            $raw_table_data = $excel_extractor->extractData($file);
+
+            // Lưu file vào thư mục tạm
+            $filePath = $file->store('temp');
+
+            // Đường dẫn đầy đủ tới file tạm
+            $fullPath = storage_path('app/' . $filePath);
+
+            // Đọc file Excel
+            $spreadsheet = IOFactory::load($fullPath);
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $columnTitles = ['Material', 'Storage', 'ATP Quantity', 'Description']; // Các tiêu đề cột cần tìm
+            $columnIndexes = [];
+
+            foreach ($worksheet->getRowIterator() as $row) {
+                $rowIndex = $row->getRowIndex();
+
+                // Lặp qua các ô trong hàng đầu tiên
+                foreach ($row->getCellIterator() as $cell) {
+                    $columnIndex = Coordinate::columnIndexFromString($cell->getColumn());
+                    $columnTitle = $cell->getValue();
+
+                    // Kiểm tra xem tiêu đề của cột có trong mảng $columnTitles không
+                    if (in_array($columnTitle, $columnTitles)) {
+                        $columnIndexes[$columnTitle] = $columnIndex;
+                    }
+                }
+
+                // Dừng sau khi tìm thấy tiêu đề của tất cả các cột cần tìm
+                if (count($columnIndexes) === count($columnTitles)) {
+                    break;
+                }
+            }
+            $inventoryData = [];
+
+            // Lặp qua từng dòng trong tệp tin Excel
+            foreach ($worksheet->getRowIterator() as $row) {
+                $rowData = [];
+
+                // Lặp qua các ô trong hàng hiện tại
+                foreach ($row->getCellIterator() as $cell) {
+                    $columnIndex = Coordinate::columnIndexFromString($cell->getColumn());
+
+                    // Kiểm tra xem chỉ mục cột có trong mảng $columnIndexes không
+                    if (in_array($columnIndex, $columnIndexes)) {
+                        $columnTitle = array_search($columnIndex, $columnIndexes);
+                        $columnValue = $cell->getValue();
+
+                        // Lưu trữ dữ liệu tìm thấy trong mảng $rowData
+                        $rowData[$columnTitle] = $columnValue;
+                    }
+                }
+
+                // Kiểm tra xem dữ liệu liên quan đến kho có tồn tại trong hàng hiện tại không
+                if (isset($rowData['Storage']) && $rowData['Storage'] === $warehouseId) {
+                    // Hiển thị dữ liệu
+                    var_dump($rowData);
+                }
+            }
+
+            // Xóa file tạm sau khi hoàn thành
+            unlink($fullPath);
+
+            return response()->json([
+                'inventoryData' => $inventoryData,
             ]);
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
