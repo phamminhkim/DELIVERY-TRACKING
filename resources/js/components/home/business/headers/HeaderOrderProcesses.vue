@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group p-1 mb-0" style="background: rgb(0 0 0 / 2%);">
-            <b-button v-b-toggle.collapse-1  class="btn btn-sm btn-warning px-3 mt-1 mb-2">Xử lý đơn hàng</b-button>
+            <b-button v-b-toggle.collapse-1 class="btn btn-sm btn-warning px-3 mt-1 mb-2">Xử lý đơn hàng</b-button>
             <b-collapse id="collapse-1" class="mt-2">
                 <b-card class="border-0 shadow-sm">
                     <div class="row">
@@ -93,7 +93,10 @@
                     tồn</button>
                 <input type="file" ref="file_check_ton" style="display: none" accept=".xls,.xlsx"
                     @change="eventChooseFile($event)" class="shadow btn-sm btn-light text">
-                <button type="button" class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                <input type="file" ref="file_check_price" style="display: none" accept=".xls,.xlsx"
+                    @change="chooseFileEventCheckPrice($event)" class="shadow btn-sm btn-light text">
+                <button @click="handleCheckPrice()" type="button"
+                    class="shadow btn-sm btn-light  text-orange btn-group__border">Check
                     giá</button>
                 <button type="button"
                     class="btn-sm font-smaller btn font-weight-bold text-success btn-light  text-center btn-group__border shadow-btn">Lưu
@@ -112,7 +115,8 @@
                     Event</button>
                 <button class="btn-sm  font-smaller btn-success  text-center btn-group__border shadow-btn">Mở
                     Event</button>
-                <button type="button" class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
+                <button type="button"
+                    class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
 
             </div>
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
@@ -213,6 +217,7 @@ export default {
             api_material_combos: '/api/master/material-combos/get-all',
             api_detect_sap_code: '/api/check-data/check-material-sap',
             api_check_inventory: '/api/check-data/check-inventory',
+            api_check_price: '/api/check-data/check-price',
 
 
         }
@@ -328,10 +333,33 @@ export default {
                 this.is_loading = false;
             }
         },
+        async fetchCheckPrice(file) {
+
+            try {
+                this.is_loading = true;
+                var form_data = new FormData();
+                form_data.append('file', file);
+                const { data } = await this.api_handler.post(this.api_check_price, {}, form_data);
+                if (data.success == true) {
+                    this.$emit('checkPrice', data.price);
+                } else {
+                    this.$showMessage('error', 'Lỗi');
+                }
+
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        handleCheckPrice() {
+            this.$refs.file_check_price.click();
+        },
+        chooseFileEventCheckPrice(event) {
+            this.fetchCheckPrice(event.target.files[0]);
+        },
         eventChooseFile(event) {
-
             this.fetchCheckInventory(event.target.files[0]);
-
         },
         async fetchMaterialDonated() {
             try {

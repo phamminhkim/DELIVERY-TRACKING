@@ -3,14 +3,14 @@
         <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="count_order_lack"></HeaderTabOrderProcesses>
         <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo"
             @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" @getInventory="getInventory"
-            @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
+            @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"></HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses"></DialogSearchOrderProcesses>
         <TableOrderLack :tab_value="tab_value" @countOrderLack="getCountOrderLack"></TableOrderLack>
         <!-- Parent -->
-        <ParentOrderSuffice v-show="tab_value == 'order'" :row_orders="row_orders" :orders="orders" :getDeleteRow="getDeleteRow"
-            :material_donateds="material_donateds" :material_combos="material_combos"
+        <ParentOrderSuffice v-show="tab_value == 'order'" :row_orders="row_orders" :orders="orders"
+            :getDeleteRow="getDeleteRow" :material_donateds="material_donateds" :material_combos="material_combos"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"></ParentOrderSuffice>
         <ParentMaterialDonated v-show="tab_value == 'order_donated'" :tab_value="tab_value"
             :count_order_lack="count_order_lack"></ParentMaterialDonated>
@@ -48,6 +48,7 @@ export default {
             material_combos: [],
             material_saps: [],
             material_inventories: [],
+            material_prices: [],
         }
     },
     methods: {
@@ -104,6 +105,18 @@ export default {
             });
             this.orders = [...orders];
         },
+        getCheckPrice(data) {
+            this.material_prices = [...data];
+            var orders = [...this.orders];
+            this.material_prices.forEach(tmp => {
+                for (var i = 0; i < this.orders.length; i++) {
+                    if (tmp['bar_code'] !== "" && tmp['bar_code'] == this.orders[i]['barcode']) {
+                        orders[i]['price_company'] = tmp['price'];
+                    }
+                }
+            });
+            this.orders = [...orders];
+        }
 
     },
     computed: {
