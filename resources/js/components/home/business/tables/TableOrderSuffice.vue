@@ -1,8 +1,8 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
-            <b-table small responsive hover  :items="orders" :fields="field_order_suffices"
-                table-class="table-order-suffices">
+            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices" sticky-header="500px"
+                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(row_custom)="data">
                     <b-dropdown size="sm" id="dropdown-offset" offset="25" text=""
                     variant="link" toggle-class="text-decoration-none" no-caret
@@ -15,7 +15,9 @@
                     </b-dropdown>
                 </template>
                 <template #cell(index)="data">
-                    {{ data.index + 1 }}
+                    <div class="font-weight-bold">
+                        {{ (data.index + 1)  + (current_page * per_page) - per_page }}
+                    </div>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="selected" :value="data.item" ></b-form-checkbox>
@@ -74,6 +76,14 @@ export default {
             type: Array,
             default: []
         },
+        current_page: {
+            type: Number,
+            default: 1
+        },
+        per_page: {
+            type: Number,
+            default: 10
+        },
         
     },
     components: {
@@ -92,188 +102,184 @@ export default {
                     key: 'selected',
                     label: '',
                     class: 'text-nowrap',
-                    thClass: 'bg-secondary',
                 },
                 {
                     key: 'index',
-                    label: 'STT',
+                    label: 'Stt',
                     class: 'text-nowrap text-center',
+                    sortable: true,
                 },
                 {
                     key: 'so_num',
-                    label: 'TENNS',
+                    label: 'Tenns',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
+
                 },
                 {
                     key: 'barcode',
-                    label: 'BARCODE_CTY',
+                    label: 'Barcode_cty',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'sku_sap_code',
-                    label: 'MaSAP',
+                    label: 'Masap',
                     class: 'text-nowrap text-center',
-                    thClass: 'bg-success',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'sku_sap_name',
-                    label: 'TenSP',
+                    label: 'Tensp',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
-
+                    sortable: true,
 
                 },
                 {
                     key: 'sku_sap_unit',
-                    label: 'DVT',
+                    label: 'Dvt',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
+                    sortable: true,
 
                 },
 
                 {
                     key: 'promotive',
-                    label: 'KM',
+                    label: 'Km',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
                     tdClass: 'voucher-custom border',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'description',
-                    label: 'GHI_CHU',
+                    label: 'Ghi_chu',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'code_customer',
-                    label: 'MAKH',
+                    label: 'Makh',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'customer_sku_code',
-                    label: 'UNIT_BARCODE',
+                    label: 'Unit_barcode',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'customer_sku_name',
-                    label: 'UNIT_BARCODE_DESCRIPTION',
+                    label: 'Unit_barcode_description',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'customer_sku_unit',
-                    label: 'DVT_po',
+                    label: 'Dvt_po',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'po',
-                    label: 'PO',
+                    label: 'Po',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'quantity_po',
-                    label: 'QTY',
+                    label: 'Qty',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
                 },
                 {
                     key: 'combo',
-                    label: 'combo',
+                    label: 'Combo',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'check_ton',
-                    label: 'check tồn',
+                    label: 'Check tồn',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'po_qty',
-                    label: 'PO_QTY',
+                    label: 'Po_qty',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'price_po',
-                    label: 'PUR_PRICE',
+                    label: 'Pur_price',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'amount_po',
-                    label: 'AMOUNT',
+                    label: 'Amount',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'description_2',
-                    label: 'GHI_CHU_1',
+                    label: 'Ghi chú 1',
                     class: 'text-nowrap',
-                    thClass: 'bg-warning',
+                    sortable: true,
 
 
                 },
                 {
                     key: 'price_company',
-                    label: 'GIA_CTY',
+                    label: 'Gia_cty',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
-
+                    sortable: true,
 
                 },
                 {
                     key: 'level_two',
-                    label: 'LEVEL_2',
+                    label: 'Level_2',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
-
+                    sortable: true,
 
                 },
                 {
                     key: 'level_three',
-                    label: 'LEVEL_3',
+                    label: 'Level_3',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
-
+                    sortable: true,
 
                 },
                 {
                     key: 'level_four',
-                    label: 'LEVEL_4',
+                    label: 'Level_4',
                     class: 'text-nowrap',
-                    thClass: 'bg-success',
-
+                    sortable: true,
 
                 },
             ],
@@ -382,7 +388,5 @@ export default {
     color: white;
     padding: 3px;
 }
-::v-deep .table-order-suffices{
-    font-size: 0.7rem !important;
-}
+
 </style>

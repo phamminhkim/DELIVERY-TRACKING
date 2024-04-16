@@ -289,7 +289,6 @@
 					const selected_batch_id = batch_response.data;
 
 					const promises = this.files.map((file) => {
-						console.log(file);
 						return this.api_handler
 							.setHeaders({
 								'Content-Type': 'multipart/form-data',

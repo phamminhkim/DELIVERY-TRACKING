@@ -1,103 +1,126 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group p-1 mb-0" style="background: rgb(0 0 0 / 2%);">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="form-group">
-                        <HeaderFileProcesses @changeFile="getChangeFile"></HeaderFileProcesses>
-                        <div v-if="case_data_temporary.type_file == 'PDF'">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text border-0 font-weight-bold font-smaller"
-                                        id="basic-addon1">Nhóm
-                                        khách hàng</span>
-                                </div>
-                                <select v-model="form_filter.customer_group" @change="browserCustomerGroup()"
-                                    class="form-control font-smaller">
-                                    <option v-for="(customer_group, index) in customer_groups" :key="index"
-                                        :value="customer_group.id">{{ customer_group.name }}</option>
-                                </select>
+            <b-button v-b-toggle.collapse-1  class="btn btn-sm btn-warning px-3 mt-1 mb-2">Xử lý đơn hàng</b-button>
+            <b-collapse id="collapse-1" class="mt-2">
+                <b-card class="border-0 shadow-sm">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <HeaderFileProcesses @changeFile="getChangeFile"></HeaderFileProcesses>
+
                             </div>
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text border-0 font-weight-bold font-smaller"
-                                        id="basic-addon1">Cấu hình</span>
+
+
+
+                        </div>
+                        <div class="col-lg-8">
+                            <div v-if="case_data_temporary.type_file == 'PDF'" class="row">
+                                <div class="col-lg-6">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text border-0 font-weight-bold font-smaller"
+                                                id="basic-addon1">Nhóm
+                                                khách hàng</span>
+                                        </div>
+                                        <select v-model="form_filter.customer_group" @change="browserCustomerGroup()"
+                                            class="form-control font-smaller">
+                                            <option v-for="(customer_group, index) in customer_groups" :key="index"
+                                                :value="customer_group.id">{{ customer_group.name
+                                                }}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <select v-model="form_filter.config_id" class="form-control font-smaller" :disabled="form_filter.customer_group == null" >
-                                    <option v-for="(extract_order, index) in extract_order_configs" :key="index"
-                                        :value="extract_order.id">{{ extract_order.name }}</option>
-                                </select>
+                                <div class="col-lg-6">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text border-0 font-weight-bold font-smaller"
+                                                id="basic-addon1">Cấu hình</span>
+                                        </div>
+                                        <select v-model="form_filter.config_id" class="form-control font-smaller"
+                                            :disabled="form_filter.customer_group == null">
+                                            <option v-for="(extract_order, index) in extract_order_configs" :key="index"
+                                                :value="extract_order.id">{{ extract_order.name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="col-lg-8">
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text font-smaller border-0 font-weight-bold"
+                                            id="basic-addon1">Kho
+                                            hàng</span>
+                                    </div>
+                                    <select v-model="form_filter.warehouse" class="font-smaller form-control">
+                                        <option v-for="(warehouse, index) in warehouses" :key="index"
+                                            :value="warehouse.code">{{
+            warehouse.name }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group" v-if="case_data_temporary.type_file == 'Excel'">
+                                <input @change="handleFileUpload" type="file"
+                                    class="custom-file-inputs w-100 shadow-sm mb-2" :disabled="isDisabledFile()">
+                            </div>
+                            <div v-else class="form-group">
+                                <b-form-file @change="extractFilePDF" @reset="demoClick()"
+                                    v-model="form_filter.pdf_files" ref="file-input" plain multiple
+                                    browse-text="Chọn file" />
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" v-if="case_data_temporary.type_file == 'Excel'">
-                        <input @change="handleFileUpload" type="file" class="custom-file-inputs w-100 shadow-sm mb-2"
-                            :disabled="isDisabledFile()">
-                      
-                    </div>
-                    <div v-else class="form-group">
-                        <b-form-file @change="extractFilePDF" @reset="demoClick()" v-model="form_filter.pdf_files" ref="file-input"
-                            plain multiple browse-text="Chọn file" />
-                    </div>
-                  
-                </div>
-                <div class="col-lg-8">
-                    <!-- <div class="form-group">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text font-smaller border-0 font-weight-bold" id="basic-addon1">Kho
-                                    hàng</span>
-                            </div>
-                            <select v-model="form_filter.warehouse" class="font-smaller form-control">
-                                <option v-for="(warehouse, index) in warehouses" :key="index" :value="warehouse.code">{{
-            warehouse.name }}</option>
-                            </select>
+                    <!-- <div>
+                        <div class="form-group form-note p-3">
+                            <HeaderOrderColorNote></HeaderOrderColorNote>
                         </div>
                     </div> -->
-                    <div class="form-group btn-group btn-group-custom" role="group">
-                        <button @click="detectSapCode()" type="button"
-                            class="shadow btn-sm btn-light  text-orange btn-group__border">Dò mã
-                            SAP</button>
-                        <button type="button" v-on:click="handleCheckInventory"  class="shadow btn-sm btn-light  text-orange btn-group__border">Check
-                            tồn</button>
-                            <input type="file" ref="file_check_ton"  style="display: none" accept=".xls,.xlsx"
-                             
-                             @change="eventChooseFile($event)"
-                            class="shadow btn-sm btn-light text">
-                        <button type="button" class="shadow btn-sm btn-light  text-orange btn-group__border">Check
-                            giá</button>
-                        <button type="button"
-                            class="btn-sm font-smaller btn font-weight-bold text-success btn-light  text-center btn-group__border shadow-btn">Lưu
-                            hàng thiếu</button>
-                        <button
-                            class="btn-sm font-smaller btn font-weight-bold btn-light  text-danger  btn-group__border shadow-btn">Xóa
-                            dữ liệu</button>
-                        <button @click="openModalSearchOrderProcesses()" type="button"
-                            class="btn-sm font-smaller btn font-weight-bold btn-light  text-center btn-group__border shadow-btn"><i
-                                class="fas fa-search mr-2"></i>Tìm
-                            mã...</button>
-                        <button class="btn-sm font-smaller btn btn-light text-success  btn-group__border shadow-btn"><i
-                                class="fas fa-file-upload mr-2"></i>Tạo
-                            upload</button>
-                        <button class="btn-sm font-smaller btn-warning  btn-group__border shadow-btn">Khóa
-                            Event</button>
-                        <button class="btn-sm  font-smaller btn-success  text-center btn-group__border shadow-btn">Mở
-                            Event</button>
-                        <button type="button" class="btn-sm btn btn-secondary  btn-group__border">Refesh</button>
+                </b-card>
+            </b-collapse>
+            <div class="form-group btn-group btn-group-custom" role="group">
+                <button @click="detectSapCode()" type="button"
+                    class="shadow btn-sm btn-light  text-orange btn-group__border">Dò mã
+                    SAP</button>
+                <button type="button" v-on:click="handleCheckInventory"
+                    class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                    tồn</button>
+                <input type="file" ref="file_check_ton" style="display: none" accept=".xls,.xlsx"
+                    @change="eventChooseFile($event)" class="shadow btn-sm btn-light text">
+                <button type="button" class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                    giá</button>
+                <button type="button"
+                    class="btn-sm font-smaller btn font-weight-bold text-success btn-light  text-center btn-group__border shadow-btn">Lưu
+                    hàng thiếu</button>
+                <button
+                    class="btn-sm font-smaller btn font-weight-bold btn-light  text-danger  btn-group__border shadow-btn">Xóa
+                    dữ liệu</button>
+                <button @click="openModalSearchOrderProcesses()" type="button"
+                    class="btn-sm font-smaller btn font-weight-bold btn-light  text-center btn-group__border shadow-btn"><i
+                        class="fas fa-search mr-2"></i>Tìm
+                    mã...</button>
+                <button class="btn-sm font-smaller btn btn-light text-success  btn-group__border shadow-btn"><i
+                        class="fas fa-file-upload mr-2"></i>Tạo
+                    upload</button>
+                <button class="btn-sm font-smaller btn-warning  btn-group__border shadow-btn">Khóa
+                    Event</button>
+                <button class="btn-sm  font-smaller btn-success  text-center btn-group__border shadow-btn">Mở
+                    Event</button>
+                <button type="button" class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
 
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div class="form-group form-note p-3">
-                    <HeaderOrderColorNote></HeaderOrderColorNote>
-                </div>
             </div>
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-0 notification-header">
-                            <h5 class="modal-title font-weight-bold" id="staticBackdropLabel">Thông báo</h5>
+                            <h5 class="modal-title font-weight-bold" id="staticBackdropLabel">Thông báo
+                            </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -105,12 +128,15 @@
                         <div class="modal-body">
                             <div v-show="case_error.extract_pdf == ''" class="form-group text-center">
                                 <p>
-                                    <i class="fas fa-spinner fa-spin fa-xs"></i> Đang giải nén tập tin...
+                                    <i class="fas fa-spinner fa-spin fa-xs"></i> Đang giải nén tập
+                                    tin...
                                 </p>
                             </div>
                             <div v-show="case_error.extract_pdf !== ''" class="form-group text-center">
-                                <label for="" class="text-danger">{{ case_error.extract_pdf }}</label><br>
-                                <small class="text-warning">Không thể giải nén File PDF, vui lòng thử lại sau...</small>
+                                <label for="" class="text-danger">{{ case_error.extract_pdf
+                                    }}</label><br>
+                                <small class="text-warning">Không thể giải nén File PDF, vui lòng thử
+                                    lại sau...</small>
                             </div>
                         </div>
 
@@ -253,60 +279,60 @@ export default {
                 this.is_loading = false;
             }
         },
-        async fetchSapCodeFromSkuCustomer(){
-          
+        async fetchSapCodeFromSkuCustomer() {
+
             try {
                 this.is_loading = true;
-                const { data } = await this.api_handler.post(this.api_detect_sap_code, { },
+                const { data } = await this.api_handler.post(this.api_detect_sap_code, {},
                     {
-                        customer_group_id:this.form_filter.customer_group,
-                        items:this.case_data_temporary.sap_codes,
+                        customer_group_id: this.form_filter.customer_group,
+                        items: this.case_data_temporary.sap_codes,
                     }
                 );
                 //this.sap_codes =  data.original.mappingData;
-                 console.log(data);
-                 if(data.success == true) {
+                console.log(data);
+                if (data.success == true) {
                     this.$emit('getListMaterialDetect', data.items);
-                 }else{
+                } else {
                     this.$showMessage('error', 'Lỗi');
-                 }
-               
-              
+                }
+
+
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
-            }finally {
+            } finally {
                 this.is_loading = false;
             }
         },
-        async fetchCheckInventory(file){
-          
-          try {
-              this.is_loading = true;
-              var form_data = new FormData();
-                form_data.append('file',file);
+        async fetchCheckInventory(file) {
+
+            try {
+                this.is_loading = true;
+                var form_data = new FormData();
+                form_data.append('file', file);
                 form_data.append('warehouse_code', '3101');
-              
-              const { data } = await this.api_handler.post(this.api_check_inventory, { },form_data );
-              //this.sap_codes =  data.original.mappingData;
-               console.log(data);
-               if(data.success == true) {
-                  this.$emit('getInventory', data.inventory);
-               }else{
-                  this.$showMessage('error', 'Lỗi');
-               }
-             
-            
-          } catch (error) {
-              this.$showMessage('error', 'Lỗi', error);
-          }finally {
-              this.is_loading = false;
-          }
-      },
-      eventChooseFile(event) {
 
-             this.fetchCheckInventory(event.target.files[0]);
+                const { data } = await this.api_handler.post(this.api_check_inventory, {}, form_data);
+                //this.sap_codes =  data.original.mappingData;
+                console.log(data);
+                if (data.success == true) {
+                    this.$emit('getInventory', data.inventory);
+                } else {
+                    this.$showMessage('error', 'Lỗi');
+                }
 
-        } ,
+
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        eventChooseFile(event) {
+
+            this.fetchCheckInventory(event.target.files[0]);
+
+        },
         async fetchMaterialDonated() {
             try {
                 this.is_loading = true;
@@ -358,11 +384,11 @@ export default {
             };
             reader.readAsArrayBuffer(file);
         },
-       
-        handleCheckInventory(){
+
+        handleCheckInventory() {
             this.$refs.file_check_ton.click();
         },
-        mappingCheckInventory(data){
+        mappingCheckInventory(data) {
             var list = [...data];
 
         },
@@ -435,14 +461,14 @@ export default {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
         detectSapCode() {
-            
+
             this.orders.forEach(element => {
                 this.case_data_temporary.sap_codes.push({
                     customer_sku_code: element.customer_sku_code,
                     customer_sku_unit: element.customer_sku_unit
                 });
             });
-           
+
             this.fetchSapCodeFromSkuCustomer();
             //  this.fetchMaterialDonated();
             // this.fetchMaterialCombo();
@@ -559,7 +585,7 @@ export default {
                 let file_response = await this.apiConvertPDF(formData);
                 await this.getConvertFilePDF(file_response);
                 this.$showMessage('success', 'Thành công', 'Giải nén file PDF thành công');
-                
+
             } catch (error) {
                 this.hideModalExtractPDF();
                 this.case_error.extract_pdf = error;

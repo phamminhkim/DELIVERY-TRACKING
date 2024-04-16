@@ -25,7 +25,7 @@ export default {
     data() {
         return {
             tabs: [
-                { name: 'Xử lý đơn hàng', value: 'order' },
+                { name: 'Đơn hàng', value: 'order' },
                 { name: 'Hàng tặng hàng', value: 'order_donated' },
                 { name: 'Hàng combo', value: 'order_combo' },
                 { name: 'Đơn hàng thiếu', value: 'order_lack' },
