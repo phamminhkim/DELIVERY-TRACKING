@@ -29,7 +29,7 @@ class CheckDataRepository extends RepositoryAbs
         $this->file_service = new LocalFileService();
     }
     public function checkMaterialSAP()
-    { 
+    {
         try {
             $validator = Validator::make($this->data, [
                 'customer_group_id' => 'required',
@@ -185,21 +185,21 @@ class CheckDataRepository extends RepositoryAbs
             // Lặp qua từng dòng trong tệp tin Excel
             foreach ($worksheet->getRowIterator() as $row) {
                 $row_data = [];
-            
+
                 // Lặp qua các ô trong hàng hiện tại
                 foreach ($row->getCellIterator() as $cell) {
                     $column_index = Coordinate::columnIndexFromString($cell->getColumn());
-            
+
                     // Kiểm tra xem chỉ mục cột có trong mảng $column_indexes không
                     if (in_array($column_index, $column_indexes)) {
                         $column_title = array_search($column_index, $column_indexes);
                         $column_value = $cell->getValue();
-            
+
                         // Đặt tên biến mới cho "ATP Quantity"
                         if ($column_title === 'ATP Quantity') {
                             $column_title = 'ATP_Quantity';
                         }
-            
+
                         // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
                         $row_data[$column_title] = $column_value;
                     }
@@ -209,7 +209,6 @@ class CheckDataRepository extends RepositoryAbs
                     // Thêm dữ liệu vào mảng $inventory_data
                     $inventory_data[] = $row_data;
                 }
-            
             }
             // Xóa file tạm sau khi hoàn thành
             unlink($fullPath);
@@ -278,13 +277,31 @@ class CheckDataRepository extends RepositoryAbs
                     if (in_array($column_index, $column_indexes)) {
                         $column_title = array_search($column_index, $column_indexes);
                         $column_value = $cell->getValue();
+
+                        // Đặt tên biến mới cho các trường dữ liệu
+                        $new_column_title = '';
+                        if ($column_title === 'Ma SP') {
+                            $new_column_title = 'sap_code';
+                        } elseif ($column_title === 'Barcode (Mã BH)') {
+                            $new_column_title = 'barcode';
+                        } elseif ($column_title === 'Tên Sản Phẩm') {
+                            $new_column_title = 'sap_name';
+                        } elseif ($column_title === 'ĐVT') {
+                            $new_column_title = 'unit';
+                        } elseif ($column_title === 'Đơn giá') {
+                            $new_column_title = 'price';
+                        } else {
+                            // Không thực hiện thay đổi tên biến cho các trường khác
+                            $new_column_title = $column_title;
+                        }
+
                         // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
-                        $row_data[$column_title] = $column_value;
+                        $row_data[$new_column_title] = $column_value;
                     }
                 }
-                // Kiểm tra xem dữ liệu liên quan đến kho có tồn tại trong hàng hiện tại không
-                if (isset($row_data['Barcode (Mã BH)']) && $row_data['Barcode (Mã BH)'] === $bar_code) {
-                    // Thêm dữ liệu vào mảng $inventoryData
+                // Kiểm tra xem dữ liệu liên quan đến mã vạch có tồn tại trong hàng hiện tại không
+                if (isset($row_data['barcode']) && $row_data['barcode'] === $bar_code) {
+                    // Thêm dữ liệu vào mảng $check_price
                     $check_price[] = $row_data;
                 }
             }
