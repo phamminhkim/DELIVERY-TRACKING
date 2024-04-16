@@ -227,7 +227,6 @@ class CheckDataRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make(request()->all(), [
-                'bar_code' => 'required|exists:sap_materials,bar_code',
                 'file' => 'required|file|mimes:xlsx,xls',
             ]);
 
@@ -236,7 +235,6 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
-            $bar_code = request()->input('bar_code');
             // Trích xuất dữ liệu từ tệp tin Excel
             $file = $this->request->file('file');
             // Lưu file vào thư mục tạm
@@ -283,7 +281,7 @@ class CheckDataRepository extends RepositoryAbs
                         if ($column_title === 'Ma SP') {
                             $new_column_title = 'sap_code';
                         } elseif ($column_title === 'Barcode (Mã BH)') {
-                            $new_column_title = 'barcode';
+                            $new_column_title = 'bar_code';
                         } elseif ($column_title === 'Tên Sản Phẩm') {
                             $new_column_title = 'sap_name';
                         } elseif ($column_title === 'ĐVT') {
@@ -300,7 +298,10 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
                 // Kiểm tra xem dữ liệu liên quan đến mã vạch có tồn tại trong hàng hiện tại không
-                if (isset($row_data['barcode']) && $row_data['barcode'] === $bar_code) {
+                if (isset($row_data['bar_code']) && $row_data['bar_code'] !== '') {
+                    // Thêm dữ liệu vào mảng $check_price
+                    $check_price[] = $row_data;
+                } elseif (isset($row_data['sap_code']) && $row_data['sap_code'] !== '') {
                     // Thêm dữ liệu vào mảng $check_price
                     $check_price[] = $row_data;
                 }
