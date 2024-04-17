@@ -8,11 +8,7 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <HeaderFileProcesses @changeFile="getChangeFile"></HeaderFileProcesses>
-
                             </div>
-
-
-
                         </div>
                         <div class="col-lg-8">
                             <div v-if="case_data_temporary.type_file == 'PDF'" class="row">
@@ -108,13 +104,14 @@
                     class="btn-sm font-smaller btn font-weight-bold btn-light  text-center btn-group__border shadow-btn"><i
                         class="fas fa-search mr-2"></i>Tìm
                     mã...</button>
-                <button class="btn-sm font-smaller btn btn-light text-success  btn-group__border shadow-btn"><i
+                <button @click="downloadExcel()"
+                    class="btn-sm font-smaller btn btn-light text-success  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Tạo
                     upload</button>
-                <button class="btn-sm font-smaller btn-warning  btn-group__border shadow-btn">Khóa
+                <!-- <button class="btn-sm font-smaller btn-warning  btn-group__border shadow-btn">Khóa
                     Event</button>
                 <button class="btn-sm  font-smaller btn-success  text-center btn-group__border shadow-btn">Mở
-                    Event</button>
+                    Event</button> -->
                 <button type="button"
                     class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
 
@@ -319,7 +316,7 @@ export default {
 
                 const { data } = await this.api_handler.post(this.api_check_inventory, {}, form_data);
                 //this.sap_codes =  data.original.mappingData;
-                console.log(data);
+                console.log(data, 'check inventory');
                 if (data.success == true) {
                     this.$emit('getInventory', data.inventory);
                 } else {
@@ -544,6 +541,7 @@ export default {
         },
         updateMaterialCategoryTypeInOrder(index, item) {
             if (this.orders[index].promotive != item.code) {
+                this.orders[index].so_num = this.orders[index].so_num + item.name;
                 this.orders[index].promotive = item.code;
                 this.orders[index].sku_sap_name = this.orders[index].sku_sap_name + item.name;
                 this.orders[index].description = this.orders[index].description + item.name;
@@ -608,10 +606,12 @@ export default {
             try {
                 this.is_case_loading.extract_pdf = true;
                 this.resetFile();
+                this.resetError();
                 this.showModalExtractPDF();
                 let formData = this.appendFormData(event.target.files, this.form_filter.config_id);
                 let file_response = await this.apiConvertPDF(formData);
                 await this.getConvertFilePDF(file_response);
+                this.resetEventTargetFile(event);
                 this.$showMessage('success', 'Thành công', 'Giải nén file PDF thành công');
 
             } catch (error) {
@@ -622,6 +622,9 @@ export default {
                 this.hideModalExtractPDF();
                 this.is_case_loading.extract_pdf = false;
             }
+        },
+        resetEventTargetFile(event) {
+            event.target.value = '';
         },
         showModalExtractPDF() {
             $('#modalNotificationExtractPDF').modal('show');
@@ -634,11 +637,50 @@ export default {
         },
         demoClick() {
             console.log('chạy demo');
+        },
+        downloadExcel() {
+            const group_by_so_num = Object.groupBy(this.orders, ({ so_num }) => so_num);
+            const convert_array = Object.values(Object.keys(group_by_so_num));   
+            var data_header = [
+                ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
+                ...convert_array.map(item => [item])
+            ];
+            const data_news = this.orders.map((item) => {
+                return {
+                    'Số SO': item.so_num,
+                    'Mã khách hàng': item.code_customer,
+                    'Mã sản phẩm': item.customer_sku_code,
+                    'Số lượng': (item.po_qty * item.quantity_po),
+                    'Đơn vị tính': item.sku_sap_unit,
+                    'Combo': item.combo,
+                    'Phiên bản BOM Sale': '',
+                    'level2': '',
+                    'level3': '',
+                    'level4': '',
+                    'Ghi_chú': item.description,
+                    'Barcode': item.barcode,
+                };
+            });
+            var ws = XLSX.utils.json_to_sheet(data_news);
+            XLSX.utils.sheet_add_aoa(ws, data_header, { origin: 'N1' });
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            const blob = new Blob([this.s2ab(wbout)], { type: 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'xử_lý_đơn_hàng.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
         }
-
-
-
-
     }
 }
 

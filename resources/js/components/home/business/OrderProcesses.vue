@@ -84,7 +84,7 @@ export default {
             this.material_saps.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp.customer_sku_code === this.orders[i].customer_sku_code && tmp.customer_sku_unit === this.orders[i].customer_sku_unit) {
-                        this.orders[i]['sku_sap_code'] = tmp.sap_code;
+                        this.orders[i]['sku_sap_code'] = tmp.sap_code;  
                         this.orders[i]['sku_sap_name'] = tmp.name;
                         this.orders[i]['sku_sap_unit'] = tmp.unit_code;
                         this.orders[i]['barcode'] = tmp.bar_code;
@@ -95,6 +95,7 @@ export default {
         },
         getInventory(data) {
             this.material_inventories = [...data];
+            console.log(this.material_inventories);
             var orders = [...this.orders];
             this.material_inventories.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {

@@ -1,7 +1,8 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
-            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices" sticky-header="500px"
+            <!-- sticky-header="500px" -->
+            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices" 
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(row_custom)="data">
                     <b-dropdown size="sm" id="dropdown-offset" offset="25" text=""
