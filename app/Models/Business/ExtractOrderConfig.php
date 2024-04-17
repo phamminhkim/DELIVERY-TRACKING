@@ -22,6 +22,7 @@ class ExtractOrderConfig extends Model
         'reference_id',
         'is_official',
         'is_convert_header',
+        'convert_file_type'
     ];
 
     protected $casts = [

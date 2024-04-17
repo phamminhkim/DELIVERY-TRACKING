@@ -14,7 +14,17 @@
 							required
 						/>
 					</div>
-					<div class="col-md-5">
+                    <div class="col-md-2">
+						<treeselect
+							:multiple="false"
+							id="convert_file_type"
+							placeholder="Chọn loại file.."
+							v-model="load_config_form.convert_file_type_id"
+							:options="convert_file_type_options"
+							required
+						/>
+					</div>
+					<div class="col-md-3">
 						<b-form-select
 							placeholder="Chọn cấu hình.."
 							v-model="load_config_form.extract_order_id"
@@ -582,7 +592,7 @@
             <b-card>
                 <b-form @submit.prevent="onClickCreateConfig">
                     <div class="row">
-                        <div class="col-md-7">
+                        <div class="col-md-4">
                             <b-form-input
                                 type="text"
                                 v-model="create_config_form.name"
@@ -590,7 +600,7 @@
                                 required
                             />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <treeselect
                                 :multiple="false"
                                 id="method2"
@@ -598,6 +608,26 @@
                                 v-model="create_config_form.customer_group_id"
                                 :options="customer_group_options"
                                 :normalizer="normalizer"
+                                required
+                            />
+                        </div>
+                        <div class="col-md-2">
+                            <treeselect
+                                :multiple="false"
+                                id="convert_file_type2"
+                                placeholder="Chọn loại file.."
+                                v-model="create_config_form.convert_file_type_id"
+                                :options="convert_file_type_options"
+                                required
+                            />
+                        </div>
+                        <div class="col-md-2">
+                            <treeselect
+                                :multiple="false"
+                                id="is_official"
+                                placeholder="Hoạt động"
+                                v-model="create_config_form.is_official"
+                                :options="is_official_options"
                                 required
                             />
                         </div>
@@ -759,17 +789,25 @@
                     restructure_header_config: null,
 					name: null,
                     is_convert_header: false,
+                    convert_file_type_id: null,
+                    is_official: false,
 				},
 
 				load_config_form: {
 					customer_group_id: null,
 					extract_order_id: null,
+                    convert_file_type_id: null,
 				},
                 data_config_type: Object.freeze({
                     DATA: 'data',
                     HEADER: 'header'
                 }),
                 is_convert_header: false,
+                convert_file_type_options: null,
+                is_official_options: [
+                    { id: true, label: 'Hoạt động' },
+                    { id: false, label: 'Không hoạt động' },
+                ],
 			};
 		},
 		created() {
@@ -808,6 +846,7 @@
                                     table_area_info: JSON.stringify(
                                         this.extract_phase_form.table_area_info,
                                     ),
+                                    convert_file_type: this.load_convert_file_type_id,
                                 }),
                             )
                             .finally(() => {
@@ -830,6 +869,7 @@
                                     table_area_info: JSON.stringify(
                                         this.extract_header_phase_form.table_area_info,
                                     ),
+                                    convert_file_type: this.load_convert_file_type_id,
                                 }),
                             )
                             .finally(() => {
@@ -847,12 +887,29 @@
 			},
 
 			async onClickNextPhaseInExtractPhase(data_config_type) {
-                if (data_config_type === this.data_config_type.DATA) {
-                    this.convert_phase_input = this.extract_phase_result;
-                    this.create_config_form.extract_data_config = this.extract_phase_form;
-                } else {
-                    this.convert_header_phase_input = this.extract_header_phase_result;
-                    this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                switch (this.load_convert_file_type_id) {
+                    case 'pdf':
+                        if (data_config_type === this.data_config_type.DATA) {
+                            this.convert_phase_input = this.extract_phase_result;
+                            this.create_config_form.extract_data_config = this.extract_phase_form;
+                        } else {
+                            this.convert_header_phase_input = this.extract_header_phase_result;
+                            this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                        }
+                        break;
+                    case 'excel':
+                        if (data_config_type === this.data_config_type.DATA) {
+                            this.restructure_phase_input = this.extract_phase_result;
+                            this.create_config_form.extract_data_config = this.extract_phase_form;
+                        } else {
+                            this.restructure_header_phase_input = this.extract_header_phase_result;
+                            this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                        }
+                        break;
+
+                    default:
+                        this.$showMessage('error', 'Lỗi', 'Không tìm thấy loại file');
+                        break;
                 }
 			},
 
@@ -993,6 +1050,8 @@
                             restructure_header_config: this.create_config_form.restructure_header_config,
 							name: this.create_config_form.name,
                             is_convert_header: this.is_convert_header,
+                            convert_file_type: this.create_config_form.convert_file_type_id,
+                            is_official: this.create_config_form.is_official,
 						},
 					);
 					this.create_config_form = {
@@ -1005,6 +1064,8 @@
                         restructure_header_config: null,
 						name: null,
                         is_convert_header: false,
+                        convert_file_type_id: null,
+                        is_official: false,
 					};
 					this.$showMessage('success', 'Tạo cấu hình thành công');
 				} catch (error) {
@@ -1131,6 +1192,7 @@
                         restructure_header_config: null,
 						name: null,
                         is_convert_header: false,
+                        convert_file_type_id: null,
 					};
                     let msg = (data_config_type == this.data_config_type.DATA) ?
                         'Cập nhật cấu hình data thành công' : 'Cập nhật cấu hình header thành công';
@@ -1212,9 +1274,14 @@
                     extract_header_config: null,
                     convert_table_header_config: null,
                     restructure_header_config: null,
-                    name: null
+                    name: null,
+                    convert_file_type_id: null
                 };
                 this.is_convert_header = false;
+                this.convert_file_type_options = [
+                    { id: 'pdf', label: 'PDF' },
+                    { id: 'excel', label: 'EXCEL' },
+                ];
             },
             exportOrderConfig() {
                 try {
@@ -1282,46 +1349,81 @@
                 }
             },
             async onClickQuicklyCheckExtractOrder(data_config_type) {
-                if (data_config_type === this.data_config_type.DATA) {
-                    await this.onClickCheckExtractPhase(this.data_config_type.DATA);
-                    await this.onClickNextPhaseInExtractPhase(this.data_config_type.DATA);
-                    await this.onClickCheckConvertPhase(this.data_config_type.DATA);
-                    await this.onClickNextPhaseInConvertPhase(this.data_config_type.DATA);
-                    await this.onClickCheckRestructurePhase(this.data_config_type.DATA);
-                } else {
-                    await this.onClickCheckExtractPhase(this.data_config_type.HEADER);
-                    await this.onClickNextPhaseInExtractPhase(this.data_config_type.HEADER);
-                    await this.onClickCheckConvertPhase(this.data_config_type.HEADER);
-                    await this.onClickNextPhaseInConvertPhase(this.data_config_type.HEADER);
-                    await this.onClickCheckRestructurePhase(this.data_config_type.HEADER);
+                switch (this.load_convert_file_type_id) {
+                    case 'pdf':
+                        if (data_config_type === this.data_config_type.DATA) {
+                            await this.onClickCheckExtractPhase(this.data_config_type.DATA);
+                            await this.onClickNextPhaseInExtractPhase(this.data_config_type.DATA);
+                            await this.onClickCheckConvertPhase(this.data_config_type.DATA);
+                            await this.onClickNextPhaseInConvertPhase(this.data_config_type.DATA);
+                            await this.onClickCheckRestructurePhase(this.data_config_type.DATA);
+                        } else {
+                            await this.onClickCheckExtractPhase(this.data_config_type.HEADER);
+                            await this.onClickNextPhaseInExtractPhase(this.data_config_type.HEADER);
+                            await this.onClickCheckConvertPhase(this.data_config_type.HEADER);
+                            await this.onClickNextPhaseInConvertPhase(this.data_config_type.HEADER);
+                            await this.onClickCheckRestructurePhase(this.data_config_type.HEADER);
+                        }
+                        break;
+                    case 'excel':
+                        if (data_config_type === this.data_config_type.DATA) {
+                            await this.onClickCheckExtractPhase(this.data_config_type.DATA);
+                            await this.onClickNextPhaseInExtractPhase(this.data_config_type.DATA);
+                            await this.onClickCheckRestructurePhase(this.data_config_type.DATA);
+                        } else {
+                            await this.onClickCheckExtractPhase(this.data_config_type.HEADER);
+                            await this.onClickNextPhaseInExtractPhase(this.data_config_type.HEADER);
+                            await this.onClickCheckRestructurePhase(this.data_config_type.HEADER);
+                        }
+                        break;
+
+                    default:
+                        this.$showMessage('error', 'Lỗi', 'Chưa chọn loại file');
+                        break;
                 }
             },
 		},
 
 		watch: {
 			load_customer_group_id() {
-				this.load_extract_order_config_options = [];
-				let load_extract_order_config_options = this.customer_group_options.find(
-					(customer_group) => {
-						return customer_group.id == this.load_customer_group_id;
-					},
-				)?.extract_order_configs;
-				this.load_extract_order_config_options = load_extract_order_config_options
-					? load_extract_order_config_options.map((extract_order_config) => {
-							return {
-								value: extract_order_config.id,
-								text: extract_order_config.name,
-							};
-					  })
-					: [];
+                this.convert_file_type_options = [
+                    { id: 'pdf', label: 'PDF' },
+                    { id: 'excel', label: 'EXCEL' },
+                ];
+                this.load_config_form.convert_file_type_id = null;
 			},
-		},
-		computed: {
-			load_customer_group_id() {
-				return this.load_config_form.customer_group_id;
-			},
-		},
-	};
+            load_convert_file_type_id() {
+                this.load_extract_order_config_options = [];
+                let extract_order_configs = this.customer_group_options.find(
+                    (customer_group) => {
+                        return customer_group.id == this.load_customer_group_id;
+                    },
+                )?.extract_order_configs;
+
+                let load_extract_order_config_options = extract_order_configs.filter(
+                    (extract_order_config) => {
+                        return extract_order_config.convert_file_type == this.load_convert_file_type_id;
+                    },
+                );
+                this.load_extract_order_config_options = load_extract_order_config_options
+                    ? load_extract_order_config_options.map((extract_order_config) => {
+                            return {
+                                value: extract_order_config.id,
+                                text: extract_order_config.name,
+                            };
+                        })
+                    : [];
+            },
+        },
+        computed: {
+            load_customer_group_id() {
+                return this.load_config_form.customer_group_id;
+            },
+            load_convert_file_type_id() {
+                return this.load_config_form.convert_file_type_id;
+            },
+        },
+    };
 </script>
 
 <style lang="scss" scoped>

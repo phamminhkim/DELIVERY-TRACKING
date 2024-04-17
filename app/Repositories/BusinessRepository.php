@@ -21,6 +21,7 @@ use App\Services\Implementations\Converters\RegexMatchConverter;
 use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Converters\TableConverterService;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
+use App\Services\Implementations\Extractors\ExcelExtractorService;
 use App\Services\Implementations\Files\LocalFileService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
@@ -53,19 +54,35 @@ class BusinessRepository
     {
 
         $file_service = new LocalFileService();
-        if ($request->filled('extract_method')) {
-            $method = $request->extract_method; // Có thể là regex, camelot
-            switch ($method) {
-                case ExtractMethod::CAMELOT:
+        if ($request->filled('convert_file_type')) {
+            $convert_file_type = $request->convert_file_type;
+            switch ($convert_file_type) {
+                case 'pdf':
                     $data_extractor = new CamelotExtractorService();
+                    if ($request->filled('extract_method')) {
+                        $method = $request->extract_method; // Có thể là regex, camelot
+                        switch ($method) {
+                            case ExtractMethod::CAMELOT:
+                                $data_extractor = new CamelotExtractorService();
+                                break;
+                            default:
+                                throw new \Exception('Extract method is not specified');
+                        }
+                    } else {
+                        // throw new \Exception('Data extractor not found');
+                        $data_extractor = new CamelotExtractorService();
+                    }
+                    break;
+                case 'excel':
+                    $data_extractor = new ExcelExtractorService();
                     break;
                 default:
-                    throw new \Exception('Extract method is not specified');
+                    $data_extractor = new CamelotExtractorService();
             }
         } else {
-            // throw new \Exception('Data extractor not found');
             $data_extractor = new CamelotExtractorService();
         }
+
         if ($request->filled('convert_method')) {
             $method = $request->convert_method; // Có thể là regex, leaguecsv
             switch ($method) {
@@ -124,6 +141,7 @@ class BusinessRepository
         $config_id = $request->config_id;
         $extract_config = ExtractOrderConfig::find(intval($config_id));
         if ($extract_config) {
+            $convert_file_type = $extract_config->convert_file_type;
             // Data
             $table_convert_config =  $extract_config->convert_table_config;
             $data_restruct_config = $extract_config->restructure_data_config;
@@ -134,11 +152,25 @@ class BusinessRepository
         }
         $file_service = new LocalFileService();
         // Data
-        $data_extractor = new CamelotExtractorService();
+        $data_extractor = null;
+        $header_extractor = null;
+        switch ($convert_file_type) {
+            case 'pdf':
+                $data_extractor = new CamelotExtractorService();
+                $header_extractor = new CamelotExtractorService();
+                break;
+            case 'excel':
+                $data_extractor = new ExcelExtractorService();
+                $header_extractor = new ExcelExtractorService();
+                break;
+            default:
+                $data_extractor = new CamelotExtractorService();
+                $header_extractor = new CamelotExtractorService();
+                break;
+        }
         $table_converter = new RegexMatchConverter();
         $data_restructure = new IndexArrayMappingRestructure();
         // Header
-        $header_extractor = new CamelotExtractorService();
         $header_table_converter = new LeagueCsvConverter();
         $header_restructure = new MergeIndexArrayMappingRestructure();
 

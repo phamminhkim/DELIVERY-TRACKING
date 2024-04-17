@@ -26,6 +26,7 @@ use App\Services\Implementations\Converters\ManualConverter;
 use App\Services\Implementations\Converters\RegexMatchConverter;
 use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
+use App\Services\Implementations\Extractors\ExcelExtractorService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
@@ -152,12 +153,14 @@ class AiRepository extends RepositoryAbs
             $final_data = array();
             foreach ($files as $file) {
                 $array_data = array();
+                $convert_file_type = null;
                 $extract_data_config = null;
                 $convert_table_config = null;
                 $restructure_data_config = null;
                 $config_id = $this->request->config_id;
                 $extract_config = ExtractOrderConfig::find(intval($config_id));
                 if ($extract_config) {
+                    $convert_file_type = $extract_config->convert_file_type;
                     $extract_data_config = $extract_config->extract_data_config;
                     $convert_table_config =  $extract_config->convert_table_config;
                     $restructure_data_config = $extract_config->restructure_data_config;
@@ -167,14 +170,26 @@ class AiRepository extends RepositoryAbs
                 } else {
                     return null;
                 }
-                // Data
+                // Raw data
                 $raw_data = $this->extractDataForDirect($file, $extract_data_config);
-                $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
-                $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
-                // Header
                 $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
-                $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
-                $order_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+
+                $order_data = null;
+                $order_header = null;
+                // Table data & order data
+                if ($convert_file_type == 'pdf') {
+                    // Data
+                    $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
+                    $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
+                    // Header
+                    $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
+                    $order_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                } else if ($convert_file_type == 'excel') {
+                    // Data
+                    $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+                    // Header
+                    $order_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
+                }
                 $array_data = [
                     // 'file_name' => '',
                     'headers' => $order_header,
@@ -562,9 +577,24 @@ class AiRepository extends RepositoryAbs
                 $table_area_info = json_decode($extract_data_config->table_area_info);
                 $options['table_area_info'] = $table_area_info;
             }
+        } else if ($this->data_extractor instanceof ExcelExtractorService) {
+            if (!$extract_data_config) {
+                $table_area_info = json_decode($this->request->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
+            } else {
+                $table_area_info = json_decode($extract_data_config->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
+            }
         }
         $tables = $this->data_extractor->extract($file_path, $options);
         $choosen_tables = [];
+
         if ($specify_table_number > 0) {
             $choosen_tables[] = $tables[$specify_table_number - 1];
         } else {
@@ -596,6 +626,20 @@ class AiRepository extends RepositoryAbs
                 $options['is_specify_table_area'] = $extract_header_config->is_specify_table_area ? $extract_header_config->is_specify_table_area : false;
                 $table_area_info = json_decode($extract_header_config->table_area_info);
                 $options['table_area_info'] = $table_area_info;
+            }
+        } else if ($this->data_extractor instanceof ExcelExtractorService) {
+            if (!$extract_header_config) {
+                $table_area_info = json_decode($this->request->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
+            } else {
+                $table_area_info = json_decode($extract_header_config->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
             }
         }
         $tables = $this->header_extractor->extract($file_path, $options);
@@ -719,7 +763,6 @@ class AiRepository extends RepositoryAbs
             }
         }
         $table = $this->data_restructure->restructure($array, $options);
-
         return $table;
     }
 
@@ -890,6 +933,7 @@ class AiRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
+                'convert_file_type' => 'required',
                 'customer_group_id' => 'required|exists:customer_groups,id',
                 'extract_data_config' => 'required',
                 'convert_table_config' => 'required',
@@ -899,6 +943,7 @@ class AiRepository extends RepositoryAbs
                 'restructure_header_config' => 'required',
                 'name' => 'required|unique:extract_order_configs,name',
             ], [
+                'convert_file_type.required' => 'Convert file type là bắt buộc',
                 'customer_group_id.required' => 'Customer group là bắt buộc',
                 'customer_group_id.exists' => 'Customer group không tồn tại',
                 'extract_data_config.required' => 'Extract data config là bắt buộc',
@@ -940,6 +985,9 @@ class AiRepository extends RepositoryAbs
                 $restructure_header_config = RestructureDataConfig::create($this->data['restructure_header_config']);
 
                 $is_convert_header = $this->data['is_convert_header'] == 'true' ? true : false;
+                $convert_file_type = $this->data['convert_file_type'];
+                $is_official = $this->data['is_official'] == 'true' ? true : false;
+
 
                 $extract_order_config = ExtractOrderConfig::create([
                     'name' => $this->data['name'],
@@ -951,6 +999,8 @@ class AiRepository extends RepositoryAbs
                     'convert_table_header_config_id' => $convert_table_header_config->id,
                     'restructure_header_config_id' => $restructure_header_config->id,
                     'is_convert_header' => $is_convert_header,
+                    'convert_file_type' => $convert_file_type,
+                    'is_official' => $is_official,
                 ]);
 
                 DB::commit();
