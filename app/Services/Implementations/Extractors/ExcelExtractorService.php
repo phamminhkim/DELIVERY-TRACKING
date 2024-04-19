@@ -26,7 +26,7 @@ class ExcelExtractorService implements DataExtractorInterface
             $cellIterator->setIterateOnlyExistingCells(FALSE);
             $data = [];
             foreach ($cellIterator as $cell) {
-                $data[] = $cell->getValue();
+                $data[] = $cell->getCalculatedValue();
             }
             $raw_table_data[] = $data;
         }
