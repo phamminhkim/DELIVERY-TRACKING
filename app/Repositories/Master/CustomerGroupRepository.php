@@ -11,10 +11,10 @@ class CustomerGroupRepository extends RepositoryAbs
     public function getAllCustomerGroups()
     {
         $query = CustomerGroup::query();
-        
+
         $query
             ->with(['extract_order_configs' => function ($query) {
-                $query->where('is_official', true);
+                $query->where('is_official', true)->where('active', true);
             }])
             ->with(['customers' => function ($query) {
                 $query->pluck('customer_id');

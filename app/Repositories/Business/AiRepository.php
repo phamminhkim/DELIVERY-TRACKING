@@ -986,8 +986,8 @@ class AiRepository extends RepositoryAbs
 
                 $is_convert_header = $this->data['is_convert_header'] == 'true' ? true : false;
                 $convert_file_type = $this->data['convert_file_type'];
-                $is_official = $this->data['is_official'] == 'true' ? true : false;
-
+                $is_official = true;
+                $active = $this->data['active'] == 'true' ? true : false;
 
                 $extract_order_config = ExtractOrderConfig::create([
                     'name' => $this->data['name'],
@@ -1001,6 +1001,7 @@ class AiRepository extends RepositoryAbs
                     'is_convert_header' => $is_convert_header,
                     'convert_file_type' => $convert_file_type,
                     'is_official' => $is_official,
+                    'active' => $active,
                 ]);
 
                 DB::commit();

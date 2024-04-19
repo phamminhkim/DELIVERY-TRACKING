@@ -624,10 +624,10 @@
                         <div class="col-md-2">
                             <treeselect
                                 :multiple="false"
-                                id="is_official"
+                                id="active"
                                 placeholder="Hoạt động"
-                                v-model="create_config_form.is_official"
-                                :options="is_official_options"
+                                v-model="create_config_form.active"
+                                :options="active_options"
                                 required
                             />
                         </div>
@@ -790,7 +790,7 @@
 					name: null,
                     is_convert_header: false,
                     convert_file_type_id: null,
-                    is_official: false,
+                    active: false,
 				},
 
 				load_config_form: {
@@ -804,7 +804,7 @@
                 }),
                 is_convert_header: false,
                 convert_file_type_options: null,
-                is_official_options: [
+                active_options: [
                     { id: true, label: 'Hoạt động' },
                     { id: false, label: 'Không hoạt động' },
                 ],
@@ -1051,7 +1051,7 @@
 							name: this.create_config_form.name,
                             is_convert_header: this.is_convert_header,
                             convert_file_type: this.create_config_form.convert_file_type_id,
-                            is_official: this.create_config_form.is_official,
+                            active: this.create_config_form.active,
 						},
 					);
 					this.create_config_form = {
@@ -1065,7 +1065,7 @@
 						name: null,
                         is_convert_header: false,
                         convert_file_type_id: null,
-                        is_official: false,
+                        active: false,
 					};
 					this.$showMessage('success', 'Tạo cấu hình thành công');
 				} catch (error) {
