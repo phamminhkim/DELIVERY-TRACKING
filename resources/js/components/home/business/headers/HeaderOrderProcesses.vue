@@ -11,7 +11,7 @@
                             </div>
                         </div>
                         <div class="col-lg-8">
-                            <div v-if="case_data_temporary.type_file == 'PDF'" class="row">
+                            <div class="row">
                                 <div class="col-lg-6">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
@@ -35,8 +35,8 @@
                                         </div>
                                         <select v-model="form_filter.config_id" class="form-control font-smaller"
                                             :disabled="form_filter.customer_group == null">
-                                            <option v-for="(extract_order, index) in extract_order_configs" :key="index"
-                                                :value="extract_order.id">{{ extract_order.name }}
+                                            <option v-for="(extract_order, index) in type_file_extract_order_configs"
+                                                :key="index" :value="extract_order.id">{{ extract_order.name }}
                                             </option>
                                         </select>
                                     </div>
@@ -63,13 +63,12 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group" v-if="case_data_temporary.type_file == 'Excel'">
-                                <input @change="handleFileUpload" type="file"
+                                <input @change="extractFilePDF" type="file"
                                     class="custom-file-inputs w-100 shadow-sm mb-2" :disabled="isDisabledFile()">
                             </div>
                             <div v-else class="form-group">
-                                <b-form-file @change="extractFilePDF" @reset="demoClick()"
-                                    v-model="form_filter.pdf_files" ref="file-input" plain multiple
-                                    browse-text="Chọn file" />
+                                <b-form-file @change="extractFilePDF" v-model="form_filter.pdf_files" ref="file-input"
+                                    plain multiple browse-text="Chọn file" />
                             </div>
                         </div>
                     </div>
@@ -159,6 +158,7 @@ export default {
             type: String,
             default: 'order'
         },
+      
 
     },
     components: {
@@ -173,6 +173,7 @@ export default {
             data_excels: [],
             is_case_loading: {
                 extract_pdf: false,
+                extract_client: false,
             },
             case_error: {
                 extract_pdf: '',
@@ -240,21 +241,6 @@ export default {
                 this.is_loading = false;
             }
         },
-        async fetchSapMaterial() {
-            try {
-                this.is_loading = true;
-                const { data } = await this.api_handler.get(this.api_sap_materials, {
-                    bar_codes: this.bar_codes,
-                });
-                if (Array.isArray(data)) {
-                    this.sap_materials = data;
-                }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            } finally {
-                this.is_loading = false;
-            }
-        },
         async fetchCustomerGroup() {
             try {
                 this.is_loading = true;
@@ -292,7 +278,6 @@ export default {
                     }
                 );
                 //this.sap_codes =  data.original.mappingData;
-                console.log(data);
                 if (data.success == true) {
                     this.$emit('getListMaterialDetect', data.items);
                 } else {
@@ -307,16 +292,12 @@ export default {
             }
         },
         async fetchCheckInventory(file) {
-
             try {
-                this.is_loading = true;
                 var form_data = new FormData();
                 form_data.append('file', file);
                 form_data.append('warehouse_code', '3101');
 
                 const { data } = await this.api_handler.post(this.api_check_inventory, {}, form_data);
-                //this.sap_codes =  data.original.mappingData;
-                console.log(data, 'check inventory');
                 if (data.success == true) {
                     this.$emit('getInventory', data.inventory);
                 } else {
@@ -403,6 +384,7 @@ export default {
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                console.log(excelData);
                 this.browserExcelHeader(excelData[0]);
                 this.browserExcelData(excelData);
                 this.fetchSapMaterial();
@@ -485,21 +467,40 @@ export default {
         replaceCalculatorAmount(string) {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
-        detectSapCode() {
-
-            this.orders.forEach(element => {
-                this.case_data_temporary.sap_codes.push({
-                    customer_sku_code: element.customer_sku_code,
-                    customer_sku_unit: element.customer_sku_unit
+        updateLoadingState(state, message = null, messageType = null, messageTitle = null) {
+            this.is_case_loading.extract_client = state;
+            this.$emit('isLoadingDetectSapCode', state);
+            if (message) {
+                this.$showMessage(messageType, messageTitle, message);
+            }
+        },
+        updateLoadingState(state, message = null, messageType = null, messageTitle = null) {
+            this.is_case_loading.extract_client = state;
+            this.$emit('isLoadingDetectSapCode', state);
+            if (message) {
+                this.$showMessage(messageType, messageTitle, message);
+            }
+        },
+        async detectSapCode() {
+            this.updateLoadingState(true);
+            try {
+                this.orders.forEach(element => {
+                    this.case_data_temporary.sap_codes.push({
+                        customer_sku_code: element.customer_sku_code,
+                        customer_sku_unit: element.customer_sku_unit
+                    });
                 });
-            });
-
-            this.fetchSapCodeFromSkuCustomer();
+                await this.fetchSapCodeFromSkuCustomer();
+                this.updateLoadingState(false, 'Dò mã SAP thành công', 'success', 'Thành công');
+            } catch (error) {
+                console.error(error);
+                this.updateLoadingState(false, error, 'error', 'Lỗi');
+            }
             //  this.fetchMaterialDonated();
             // this.fetchMaterialCombo();
         },
         isDisabledFile() {
-            if (this.form_filter.customer_group == null) {
+            if (this.form_filter.config_id == null) {
                 return true;
             }
             return false;
@@ -612,7 +613,7 @@ export default {
                 let file_response = await this.apiConvertPDF(formData);
                 await this.getConvertFilePDF(file_response);
                 this.resetEventTargetFile(event);
-                this.$showMessage('success', 'Thành công', 'Giải nén file PDF thành công');
+                this.$showMessage('success', 'Thành công', 'Giải nén file thành công');
 
             } catch (error) {
                 this.hideModalExtractPDF();
@@ -635,12 +636,9 @@ export default {
         clearFileExtractPDF() {
             this.form_filter.pdf_files = [];
         },
-        demoClick() {
-            console.log('chạy demo');
-        },
         downloadExcel() {
             const group_by_so_num = Object.groupBy(this.orders, ({ so_num }) => so_num);
-            const convert_array = Object.values(Object.keys(group_by_so_num));   
+            const convert_array = Object.values(Object.keys(group_by_so_num));
             var data_header = [
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
                 ...convert_array.map(item => [item])
@@ -680,6 +678,16 @@ export default {
             const view = new Uint8Array(buf);
             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
             return buf;
+        }
+    },
+    computed: {
+        type_file_extract_order_configs() {
+            var type_file = this.case_data_temporary.type_file;
+            return this.extract_order_configs.map((extract_order) => {
+                if (type_file.toLowerCase() == extract_order.convert_file_type.toLowerCase()) {
+                    return extract_order;
+                }
+            });
         }
     }
 }

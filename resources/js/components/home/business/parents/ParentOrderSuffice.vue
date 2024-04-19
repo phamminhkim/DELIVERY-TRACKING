@@ -2,7 +2,8 @@
     <div>
         <TableOrderSuffice @deleteRow="getDeleteRow" :current_page="current_page" :per_page="per_page"
             :material_combos="material_combos" :material_donateds="material_donateds" :orders="orders"
-            :tab_value="tab_value" @onChangeCategoryType="getOnChangeCategoryType"></TableOrderSuffice>
+            :tab_value="tab_value" @onChangeCategoryType="getOnChangeCategoryType"
+            :is_loading_detect_sap_code="is_loading_detect_sap_code" @checkBoxRow="getCheckBoxRow"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -35,6 +36,10 @@ export default {
         row_orders: {
             type: Number,
             default: 0
+        },
+        is_loading_detect_sap_code: {
+            type: Boolean,
+            default: false
         }
     },
     components: {
@@ -46,6 +51,12 @@ export default {
             per_page: 10,
             page_options: [10, 20, 50, 100],
             current_page: 1,
+            case_data_temporary: {
+                item_selecteds: [],
+                orders: [],
+                material_donateds: [],
+                material_combos: [],
+            },
 
         }
     },
@@ -55,6 +66,9 @@ export default {
         },
         getPageChange(page) {
             this.current_page = page;
+        },
+        getCheckBoxRow(items) {
+            this.$emit('checkBoxRow', items);
         },
 
     },

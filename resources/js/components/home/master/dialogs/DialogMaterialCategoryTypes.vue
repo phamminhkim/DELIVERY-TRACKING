@@ -201,9 +201,9 @@ export default {
             to: 0,
             current_page: 1,
             pageOptions: [10, 50, 100, 500, { value: this.rows, text: "All" }],
-            api_material_category_type_store: '/api/master/materials/store',
-            api_material_category_type_update: '/api/master/materials/update',
-            api_material_category_type_delete: '/api/master/materials/delete',
+            api_material_category_type_store: '/api/master/material-category',
+            api_material_category_type_update: '/api/master/material-category',
+            api_material_category_type_delete: '/api/master/material-category',
 
         }
     },

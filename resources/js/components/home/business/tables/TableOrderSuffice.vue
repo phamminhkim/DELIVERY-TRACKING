@@ -2,30 +2,41 @@
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" -->
-            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices" 
+            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices"
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(row_custom)="data">
-                    <b-dropdown size="sm" id="dropdown-offset" offset="25" text=""
-                    variant="link" toggle-class="text-decoration-none" no-caret
-                        class="">
+                    <b-dropdown size="sm" id="dropdown-offset" offset="25" text="" variant="link"
+                        toggle-class="text-decoration-none" no-caret class="">
                         <template #button-content>
                             <button class="btn btn-xs btn-light dropdown-toggle" type="button" data-toggle="dropdown"
-                            aria-expanded="false"><i class="fas fa-th-list"></i></button>
+                                aria-expanded="false"><i class="fas fa-th-list"></i></button>
                         </template>
-                        <b-dropdown-item @click="deleteRow(data.index)" class="text-danger" href="#">Xóa dòng</b-dropdown-item>
+                        <b-dropdown-item @click="deleteRow(data.index)" class="text-danger" href="#">Xóa
+                            dòng</b-dropdown-item>
                     </b-dropdown>
                 </template>
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
-                        {{ (data.index + 1)  + (current_page * per_page) - per_page }}
+                        {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
-                <template #cell(selected)="data">
-                    <b-form-checkbox v-model="selected" :value="data.item" ></b-form-checkbox>
+                <template #cell(selected)="data">   
+                    <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox()" :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
                     <div class="">
                         {{ data.item.barcode }}
+                    </div>
+                </template>
+                <template #head(sku_sap_code)="header">
+                    <div class="text-center">
+                        <label class="mb-0" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
@@ -33,7 +44,9 @@
             'is-donated': isMaterialDonated(data.item.sku_sap_code),
             'is-combo': isMaterialCombo(data.item.sku_sap_code)
         }">
-                        {{ data.item.sku_sap_code }}
+                        <p class="text-center">
+                            {{ data.item.sku_sap_code }}
+                        </p>
                     </div>
                 </template>
                 <template #cell(promotive)="data">
@@ -85,7 +98,11 @@ export default {
             type: Number,
             default: 10
         },
-        
+        is_loading_detect_sap_code: {
+            type: Boolean,
+            default: false
+        }
+
     },
     components: {
         DialogMaterialCategoryTypes
@@ -284,7 +301,10 @@ export default {
 
                 },
             ],
-            selected: [],
+            case_checkbox: {
+                selected: [],
+                selected_all: false,
+            },
             select_mode: 'multi',
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
@@ -292,7 +312,7 @@ export default {
 
             material_category_types: [],
 
-            api_material_category_types: '/api/master/materials/get-all',
+            api_material_category_types: '/api/master/material-category',
         }
     },
     created() {
@@ -304,8 +324,8 @@ export default {
             try {
                 this.is_loading = true;
                 const { data } = await this.api_handler.get(this.api_material_category_types);
-                if (Array.isArray(data)) {
-                    this.material_category_types = data;
+                if (data.success) {
+                    this.material_category_types = data.items;
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -352,7 +372,10 @@ export default {
             return false;
         },
         deleteRow(index) {
-           this.$emit('deleteRow', index)
+            this.$emit('deleteRow', index)
+        },
+        emitCheckBox() {
+            this.$emit('checkBoxRow', this.case_checkbox.selected)
         }
 
     }
@@ -389,5 +412,4 @@ export default {
     color: white;
     padding: 3px;
 }
-
 </style>
