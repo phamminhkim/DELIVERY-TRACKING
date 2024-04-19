@@ -14,7 +14,12 @@ class MaterialComboRepository extends RepositoryAbs
             $query = MaterialCombo::query();
             if($request->filled('sap_codes')){
                 $query = $query->whereIn('sap_code',$request->sap_codes);
-            }   
+            }
+            $query->with([
+                'customer_group' => function ($query) {
+                    $query->select(['id', 'name']);
+                },
+            ]);
             $materialDonated = $query->orderBy('id', 'desc')->get();
             return $materialDonated;
         } catch (\Exception $exception) {
@@ -44,7 +49,7 @@ class MaterialComboRepository extends RepositoryAbs
                 $material_donated = MaterialCombo::create($this->data);
                 return $material_donated;
             }
-        } catch (\Exception $exception) {       
+        } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }

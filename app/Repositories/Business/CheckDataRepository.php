@@ -6,6 +6,9 @@ use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
 use App\Models\Master\CustomerGroup;
+use App\Models\Master\MaterialCombo;
+use App\Models\Master\MaterialDonated;
+use App\Models\Master\MaterialCategoryType;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
 use App\Services\Excel\ExcelExtractor;
@@ -53,9 +56,6 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = 'Không tìm thấy nhóm khách hàng';
                 return false;
             }
-
-            $mappingData = [];
-
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 $customer_sku_code = $item['customer_sku_code'];
@@ -78,16 +78,6 @@ class CheckDataRepository extends RepositoryAbs
                     } else {
                         $unit_code = null; // Xử lý khi đơn vị không tồn tại
                     }
-
-                    $mappingData[] = [
-                        'customer_sku_code' => $customer_sku_code,
-                        'customer_sku_unit' => $customer_sku_unit,
-                        'bar_code' => $bar_code,
-                        'sap_code' => $sap_code,
-                        'unit_id' => $unit_id,
-                        'name' => $name,
-                        'unit_code' => $unit_code,
-                    ];
                 } else {
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
                     $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
@@ -114,19 +104,90 @@ class CheckDataRepository extends RepositoryAbs
                             } else {
                                 $unit_code = null; // Xử lý khi đơn vị không tồn tại
                             }
-
-                            $mappingData[] = [
-                                'customer_sku_code' => $customer_sku_code,
-                                'customer_sku_unit' => $customer_sku_unit,
-                                'bar_code' => $bar_code,
-                                'sap_code' => $sap_code,
-                                'unit_id' => $unit_id,
-                                'name' => $name,
-                                'unit_code' => $unit_code,
-                            ];
                         }
                     }
                 }
+                // Kiểm tra nếu dữ liệu trong bảng material_category_type
+                $materialCategoryType = MaterialCategoryType::whereIn('name', ['Combo', 'ExtraOffer'])
+                    ->first();
+
+                if ($materialCategoryType) {
+                    // Kiểm tra cột name tương ứng với is_deleted là true hay không
+                    $category_type_name = MaterialCategoryType::where('name', $materialCategoryType->name)
+                        ->where('is_deleted', true)
+                        ->first();
+
+                    // Dò tìm mã customer_group_id và mã bar_code trong bảng material_combo
+                    $materialCombo = MaterialCombo::where(function ($query) use ($customer_group_id, $customer_sku_code) {
+                        $query->where('customer_group_id', $customer_group_id)
+                            ->where(function ($query) use ($customer_sku_code) {
+                                $query->where('bar_code', $customer_sku_code)
+                                    ->orWhere('sap_code', $customer_sku_code);
+                            });
+                    })->first();
+
+                    if ($materialCombo) {
+                        // Lấy thông tin từ MaterialCombo
+                        $sap_code = $materialCombo->sap_code;
+                        $bar_code = $materialCombo->bar_code;
+
+                        // Kiểm tra cột name tương ứng với is_deleted là false hay không
+                        $combo_category_type = MaterialCategoryType::where('name', 'Combo')
+                            ->where('is_deleted', false)
+                            ->first();
+
+                        if ($combo_category_type) {
+                            $category_type_name = 'Combo';
+                        } else {
+                            $category_type_name = null;
+                        }
+                    } else {
+                        $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                            $query->where('customer_group_id', $customer_group_id)
+                                ->where('customer_sku_code', $customer_sku_code);
+                        })->get();
+
+                        if ($sapMaterialMappings) {
+                            foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                                $sap_material_id = $sapMaterialMapping->sap_material_id;
+                                // Dò tìm thông tin trong bảng sap_material với mã sap_material_id
+                                $sapMaterial = SapMaterial::find($sap_material_id);
+
+                                if ($sapMaterial) {
+                                    // Lấy thông tin từ SapMaterial
+                                    $sap_code = $sapMaterial->sap_code;
+                                    // Dò tìm thông tin trong bảng material_donated với mã sap_code
+                                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
+
+                                    if ($materialDonated) {
+                                        $sap_code = $materialDonated->sap_code;
+                                        // Kiểm tra cột name tương ứng với is_deleted là false hay không
+                                        $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                                            ->where('is_deleted', false)
+                                            ->first();
+
+                                        if ($combo_category_type) {
+                                            $category_type_name = 'ExtraOffer';
+                                        } else {
+                                            $category_type_name = null;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $mappingData[] = [
+                    'customer_sku_code' => $customer_sku_code,
+                    'customer_sku_unit' => $customer_sku_unit,
+                    'bar_code' => $bar_code,
+                    'sap_code' => $sap_code,
+                    'unit_id' => $unit_id,
+                    'name' => $name,
+                    'unit_code' => $unit_code,
+                    'category_type' => $category_type_name ?? null,
+                ];
             }
 
             return [
@@ -251,7 +312,6 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($row->getCellIterator() as $cell) {
                     $column_index = Coordinate::columnIndexFromString($cell->getColumn());
                     $column_title = $cell->getValue();
-
                     // Kiểm tra xem tiêu đề của cột có trong mảng $column_titles không
                     if (in_array($column_title, $column_titles)) {
                         $column_indexes[$column_title] = $column_index;
@@ -266,16 +326,13 @@ class CheckDataRepository extends RepositoryAbs
             // Lặp qua từng dòng trong tệp tin Excel
             foreach ($worksheet->getRowIterator() as $row) {
                 $row_data = [];
-
                 // Lặp qua các ô trong hàng hiện tại
                 foreach ($row->getCellIterator() as $cell) {
                     $column_index = Coordinate::columnIndexFromString($cell->getColumn());
-
                     // Kiểm tra xem chỉ mục cột có trong mảng $column_indexes không
                     if (in_array($column_index, $column_indexes)) {
                         $column_title = array_search($column_index, $column_indexes);
                         $column_value = $cell->getValue();
-
                         // Đặt tên biến mới cho các trường dữ liệu
                         $new_column_title = '';
                         if ($column_title === 'Ma SP') {
@@ -292,17 +349,14 @@ class CheckDataRepository extends RepositoryAbs
                             // Không thực hiện thay đổi tên biến cho các trường khác
                             $new_column_title = $column_title;
                         }
-
                         // Lưu trữ dữ liệu tìm thấy trong mảng $row_data
                         $row_data[$new_column_title] = $column_value;
                     }
                 }
                 // Kiểm tra xem dữ liệu liên quan đến mã vạch có tồn tại trong hàng hiện tại không
                 if (isset($row_data['bar_code']) && $row_data['bar_code'] !== '') {
-                    // Thêm dữ liệu vào mảng $check_price
                     $check_price[] = $row_data;
                 } elseif (isset($row_data['sap_code']) && $row_data['sap_code'] !== '') {
-                    // Thêm dữ liệu vào mảng $check_price
                     $check_price[] = $row_data;
                 }
             }
@@ -319,4 +373,8 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
+
+    // public function findCodeSap()
+    // {
+    // }
 }

@@ -10,46 +10,46 @@ use Illuminate\Support\Facades\Validator;
 
 class MaterialCategoryTypeController extends ResponseController
 {
-    public function getAll(Request $request)
+    public function getAvailableCategoryTypes(Request $request)
     {
         $handler = MasterRepository::materialCategoryTypeRequest($request);
-        $materialCategoryTypes = $handler->getAll($request);
+        $materialCategoryTypes = $handler->getAvailableCategoryTypes($request);
         if ($materialCategoryTypes) {
-            return $this->responseSuccess($materialCategoryTypes);
+            return $this->response($materialCategoryTypes);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
 
     }
 
-    public function store(Request $request)
+    public function createNewCategoryType(Request $request)
     {
         $handler = MasterRepository::materialCategoryTypeRequest($request);
-        $materialCategoryType = $handler->store($request);
+        $materialCategoryType = $handler->createNewCategoryType($request);
         if ($materialCategoryType) {
-            return $this->responseSuccess($materialCategoryType);
+            return $this->response($materialCategoryType);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
 
-    public function update(Request $request, $id)
+    public function updateExistingCategoryType(Request $request, $id)
     {
         $handler = MasterRepository::materialCategoryTypeRequest($request);
-        $materialCategoryType = $handler->update($request, $id);
+        $materialCategoryType = $handler->updateExistingCategoryType($request, $id);
         if ($materialCategoryType) {
-            return $this->responseSuccess($materialCategoryType);
+            return $this->response($materialCategoryType);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
 
-    public function delete(Request $request, $id)
+    public function deleteExistingCategoryType(Request $request, $id)
     {
         $handler = MasterRepository::materialCategoryTypeRequest($request);
-        $materialCategoryType = $handler->delete($request, $id);
+        $materialCategoryType = $handler->deleteExistingCategoryType($request, $id);
         if ($materialCategoryType) {
-            return $this->responseSuccess($materialCategoryType);
+            return $this->response($materialCategoryType);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }

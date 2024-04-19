@@ -8,20 +8,25 @@ use Illuminate\Support\Facades\Validator;
 
 class MaterialCategoryTypeRepository extends RepositoryAbs
 {
-    public function getAll($request)
+    public function getAvailableCategoryTypes()
     {
         try {
-            $materialCategoryTypes = MaterialCategoryType::orderBy('id', 'desc')->get();
-            return $materialCategoryTypes;
+            $materialCategoryTypes = MaterialCategoryType::orderBy('id', 'desc')
+                ->get();
+
+                return [
+                    'success' => true,
+                    'items' => $materialCategoryTypes
+                ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
-    
-    public function store($request)
+
+    public function createNewCategoryType()
     {
-       
+
         try {
             $validator = Validator::make($this->data, [
                 'code' => 'required|string|unique:material_category_types,code',
@@ -39,15 +44,18 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
             } else {
                 $material_category_type = MaterialCategoryType::create($this->data);
 
-                return $material_category_type;
+                // return $material_category_type;
+                return [
+                    'success' => true,
+                    'items' => $material_category_type
+                ];
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
-        
     }
-    public function update($request, $id)
+    public function updateExistingCategoryType($id)
     {
         try {
             $validator = Validator::make($this->data, [
@@ -67,7 +75,10 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
                 $material_category_type = MaterialCategoryType::find($id);
                 $material_category_type->update($this->data);
 
-                return $material_category_type;
+                return [
+                    'success' => true,
+                    'items' => $material_category_type
+                ];
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -75,13 +86,16 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
         }
     }
 
-    public function delete($request, $id)
+    public function deleteExistingCategoryType($id)
     {
         try {
             $material_category_type = MaterialCategoryType::find($id);
             $material_category_type->delete();
 
-            return $material_category_type;
+            return [
+                'success' => true,
+                'items' => $material_category_type
+            ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

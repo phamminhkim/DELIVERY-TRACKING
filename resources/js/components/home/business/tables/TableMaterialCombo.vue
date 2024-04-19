@@ -6,6 +6,19 @@
                     <label>{{ data.index + 1 }}</label>
                 </div>
             </template>
+            <template #cell(customer_group_id)="data">
+                <div v-if="index_edit == data.index">
+                    <input type="text" class="form-control form-control-edit"
+                        v-model="edit_material_combo.customer_group" :placeholder="data.item.customer_group_id"
+                        v-bind:class="hasError('customer_group_id') ? 'is-invalid' : ''" />
+                    <span v-if="hasError('customer_group_id')" class="invalid-feedback" role="alert">
+                        <strong>{{ getError('customer_group_id') }}</strong>
+                    </span>
+                </div>
+                <div v-else>
+                    <label>{{ data.item.customer_group_id }}</label>
+                </div>
+            </template>
             <template #cell(sap_code)="data">
                 <div v-if="index_edit == data.index">
                     <input type="text" class="form-control form-control-edit" v-model="edit_material_combo.sap_code"
@@ -42,22 +55,28 @@
             <template #cell(action)="data">
                 <div v-if="index_edit != data.index" class="text-center">
                     <button type="button" @click="onChangeEdit(data.index, data.item)"
-                        class="btn btn-sm py-1 btn-light px-3 text-info"><i class="fas fa-pen mr-2"></i>Sửa</button>
+                        class="btn btn-sm py-1 btn-light px-3 text-info">
+                        <i class="fas fa-pen mr-2"></i>Sửa
+                    </button>
                     <button type="button" @click="btnDelete(data.index, data.item.id)"
-                        class="btn btn-sm py-1 btn-light px-3 text-danger"><i class="fas fa-trash mr-2"></i>Xóa</button>
+                        class="btn btn-sm py-1 btn-light px-3 text-danger">
+                        <i class="fas fa-trash mr-2"></i>Xóa
+                    </button>
                 </div>
                 <div v-else class="d-inline">
                     <button type="button" @click="btnUpdate(data.index, data.item.id, data.item)"
-                        class="btn btn-sm py-1 btn-light px-3 text-success"><i class="fas fa-save mr-2"></i>Cập
-                        nhật</button>
+                        class="btn btn-sm py-1 btn-light px-3 text-success">
+                        <i class="fas fa-save mr-2"></i>Cập nhật
+                    </button>
                     <button @click="onChangeEditCancel()" type="button"
-                        class="btn btn-sm py-1 btn-light px-3 text-secondary"><i
-                            class="fas fa-door-closed mr-2"></i>Thoát</button>
+                        class="btn btn-sm py-1 btn-light px-3 text-secondary">
+                        <i class="fas fa-door-closed mr-2"></i>Thoát
+                    </button>
                 </div>
             </template>
         </b-table>
         <div class="row">
-            <div class="col-lg-12 text-left ">
+            <div class="col-lg-12 text-left">
                 <div class="btn-group">
                     <label class="col-form-label-sm text-nowrap mr-1">Per page: </label>
                     <b-form-select size="sm" v-model="per_page" :options="pageOptions">
@@ -75,16 +94,16 @@ export default {
     props: {
         tab_value: {
             type: String,
-            default: 'order_combo'
+            default: 'order_combo',
         },
         count_order_lack: {
             type: Number,
-            default: 0
+            default: 0,
         },
         material_combos: {
             type: Array,
-            default: []
-        }
+            default: [],
+        },
     },
     data() {
         return {
@@ -96,6 +115,12 @@ export default {
                 {
                     key: 'index',
                     label: 'STT',
+                    sortable: true,
+                    class: 'text-center',
+                },
+                {
+                    key: 'customer_group.name',
+                    label: 'Nhóm khách hàng',
                     sortable: true,
                     class: 'text-center',
                 },
@@ -127,19 +152,16 @@ export default {
             index_edit: -1,
             edit_material_combo: {
                 id: '',
+                customer_group: '',
                 sap_code: '',
                 name: '',
                 bar_code: '',
             },
             api_material_combo_update: '/api/master/material-combos/update',
             api_material_combo_delete: '/api/master/material-combos/delete',
-
-
-        }
+        };
     },
-    created() {
-
-    },
+    created() { },
     methods: {
         async btnUpdate(index, id, item) {
             try {
@@ -188,9 +210,9 @@ export default {
     computed: {
         rows() {
             return this.material_combos.length;
-        }
-    }
-}
+        },
+    },
+};
 </script>
 <style lang="scss" scoped>
 .form-control-edit {
