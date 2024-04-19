@@ -14,64 +14,64 @@ use App\Models\Master\Company;
 class SapMaterialRepository extends RepositoryAbs
 {
     public function getAvailableSapMaterials($is_minified, $request)
-    {
-        try {
-            $query = SapMaterial::query();
+{
+    try {
+        $query = SapMaterial::query();
 
-            // Tối ưu hóa dữ liệu theo dạng phân trang
-            $result = array();
-            $sapMaterials = $query->paginate(200, ['*'], 'page', $request->page);
-            $result['sap_material_mappings'] = $sapMaterials->items();
-            $result['paginate'] = [
-                'current_page' => $sapMaterials->currentPage(),
-                'last_page' => $sapMaterials->lastPage(),
-                'total' => $sapMaterials->total(),
-            ];
-
-            $is_searching = false;
-            if ($request->filled('search')) {
-                $query->search($request->search);
-                $query->with(['unit']);
-                $query->limit(50);
-                $is_searching = true;
-            }
-            if ($request->filled('bar_codes')) {
-                $query->whereIn('bar_code', $request->bar_codes);
-            }
-            if ($request->filled('unit_ids')) {
-                $query->whereIn('unit_id', $request->unit_ids);
-            }
-            if ($request->filled('ids')) {
-                $query->whereIn('id', $request->ids);
-            }
-            if ($request->filled('id')) {
-                $query->where('id', $request->id);
-            }
-
-            if ($is_minified) {
-                $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
-            }
-            $query->with([
-                'unit' => function ($query) {
-                    $query->select(['id', 'unit_code']);
-                },
-            ]);
-            $sap_materials = $query->get();
-            if ($is_searching) {
-                $sap_materials_clone = clone $sap_materials;
-                $sap_materials_clone->where('code', $request->search);
-                if (!$sap_materials_clone->count()) {
-                    $sap_materials = $sap_materials_clone;
-                }
-            }
-            return $sap_materials;
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
+        $is_searching = false;
+        if ($request->filled('search')) {
+            $query->search($request->search);
+            $query->with(['unit']);
+            $query->limit(50);
+            $is_searching = true;
         }
+        if ($request->filled('bar_codes')) {
+            $query->whereIn('bar_code', $request->bar_codes);
+        }
+        if ($request->filled('unit_ids')) {
+            $query->whereIn('unit_id', $request->unit_ids);
+        }
+        if ($request->filled('ids')) {
+            $query->whereIn('id', $request->ids);
+        }
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($is_minified) {
+            $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
+        }
+        $query->with([
+            'unit' => function ($query) {
+                $query->select(['id', 'unit_code']);
+            },
+        ]);
+
+        $perPage = $request->filled('per_page') ? $request->per_page : 10; // Số lượng dữ liệu trên mỗi trang (mặc định là 10)
+        $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
+
+        // Kiểm tra kết quả tìm kiếm
+        if ($is_searching && $sap_materials->isEmpty()) {
+            $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page); // Lấy tất cả dữ liệu nếu không tìm thấy kết quả
+        }
+
+        $result = [
+            'data' => $sap_materials->items(),
+            'per_page' => $sap_materials->perPage(), // Giá trị "per_page"
+        ];
+
+        $result['paginate'] = [
+            'current_page' => $sap_materials->currentPage(),
+            'last_page' => $sap_materials->lastPage(),
+            'total' => $sap_materials->total(),
+        ];
+
+        return $result;
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
     }
-
-
+}
     public function createSapMaterialFormExcel()
     {
         try {
