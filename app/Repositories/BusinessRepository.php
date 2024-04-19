@@ -229,7 +229,7 @@ class BusinessRepository
             default:
                 $header_table_converter = new RegexMatchConverter();
         }
-        $method = $restruct_header_config->restructure_method;
+        $method = $restruct_header_config->method;
         switch ($method) {
             case RestructureMethod::INDEXARRAYMAPPING:
                 $header_restructure = new IndexArrayMappingRestructure();
