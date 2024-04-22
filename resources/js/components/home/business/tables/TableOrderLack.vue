@@ -1,242 +1,252 @@
 <template>
     <div>
         <div v-show="tab_value == 'order_lack'" class="form-group">
-            <b-table small responsive striped hover :items="order_lacks" :fields="field_order_lacks"></b-table>
+            <b-table small responsive striped hover :items="order_lacks" :fields="field_order_lacks"
+                :current-page="current_page" :per-page="per_page" >
+                <template #cell(index)="data">
+                    <div class="font-weight-bold">
+                        {{ (data.index + 1) + (current_page * per_page) - per_page }}
+                    </div>
+                </template>
+            </b-table>
+            <div class="form-group">
+                <PaginationTable :rows="order_lacks.length" :per_page="per_page" :page_options="page_options"
+                    :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
+                </PaginationTable>
+            </div>
         </div>
     </div>
 </template>
 <script>
+import PaginationTable from '../paginations/PaginationTable.vue';
 export default {
     props: {
         tab_value: {
             type: String,
             default: 'order_lack'
+        },
+        order_lacks: {
+            type: Array,
+            default: () => []
         }
+
+    },
+    components: {
+        PaginationTable
     },
     data() {
         return {
-            order_lacks: [
-                {
-                    book_store: 'TENNS',
-                    barcode_company: 'BARCODE_CTY',
-                    code_sap: 'MaSAP',
-                    name: 'TenSP',
-                    unit: 'DVT',
-                    voucher_free: 'KM',
-                    description: 'GHI_CHU',
-                    code_customer: 'MAKH',
-                    unit_barcode: 'UNIT_BARCODE',
-                    unit_barcode_description: 'UNIT_BARCODE_DESCRIPTION',
-                    po: 'PO',
-                    qty: 'QTY',
-                    combo: 'combo',
-                    check_ton: 'check tồn',
-                    po_qty: 'PO_QTY',
-                    pur_price: 'PUR_PRICE',
-                    amount: 'AMOUNT',
-                    description_2: 'GHI_CHU_2',
-                    price_company: 'GIA_CTY',
-                    level_two: 'LEVEL_2',
-                    level_three: 'LEVEL_3',
-                    level_four: 'LEVEL_4',
-                },
-                {
-                    book_store: 'TENNS',
-                    barcode_company: 'BARCODE_CTY',
-                    code_sap: 'MaSAP',
-                    name: 'TenSP',
-                    unit: 'DVT',
-                    voucher_free: 'KM',
-                    description: 'GHI_CHU',
-                    code_customer: 'MAKH',
-                    unit_barcode: 'UNIT_BARCODE',
-                    unit_barcode_description: 'UNIT_BARCODE_DESCRIPTION',
-                    po: 'PO',
-                    qty: 'QTY',
-                    combo: 'combo',
-                    check_ton: 'check tồn',
-                    po_qty: 'PO_QTY',
-                    pur_price: 'PUR_PRICE',
-                    amount: 'AMOUNT',
-                    description_2: 'GHI_CHU_2',
-                    price_company: 'GIA_CTY',
-                    level_two: 'LEVEL_2',
-                    level_three: 'LEVEL_3',
-                    level_four: 'LEVEL_4',
-                },
-                {
-                    book_store: 'TENNS',
-                    barcode_company: 'BARCODE_CTY',
-                    code_sap: 'MaSAP',
-                    name: 'TenSP',
-                    unit: 'DVT',
-                    voucher_free: 'KM',
-                    description: 'GHI_CHU',
-                    code_customer: 'MAKH',
-                    unit_barcode: 'UNIT_BARCODE',
-                    unit_barcode_description: 'UNIT_BARCODE_DESCRIPTION',
-                    po: 'PO',
-                    qty: 'QTY',
-                    combo: 'combo',
-                    check_ton: 'check tồn',
-                    po_qty: 'PO_QTY',
-                    pur_price: 'PUR_PRICE',
-                    amount: 'AMOUNT',
-                    description_2: 'GHI_CHU_2',
-                    price_company: 'GIA_CTY',
-                    level_two: 'LEVEL_2',
-                    level_three: 'LEVEL_3',
-                    level_four: 'LEVEL_4',
-                },
-                {
-                    book_store: 'TENNS',
-                    barcode_company: 'BARCODE_CTY',
-                    code_sap: 'MaSAP',
-                    name: 'TenSP',
-                    unit: 'DVT',
-                    voucher_free: 'KM',
-                    description: 'GHI_CHU',
-                    code_customer: 'MAKH',
-                    unit_barcode: 'UNIT_BARCODE',
-                    unit_barcode_description: 'UNIT_BARCODE_DESCRIPTION',
-                    po: 'PO',
-                    qty: 'QTY',
-                    combo: 'combo',
-                    check_ton: 'check tồn',
-                    po_qty: 'PO_QTY',
-                    pur_price: 'PUR_PRICE',
-                    amount: 'AMOUNT',
-                    description_2: 'GHI_CHU_2',
-                    price_company: 'GIA_CTY',
-                    level_two: 'LEVEL_2',
-                    level_three: 'LEVEL_3',
-                    level_four: 'LEVEL_4',
-                },
-                {
-                    book_store: 'TENNS',
-                    barcode_company: 'BARCODE_CTY',
-                    code_sap: 'MaSAP',
-                    name: 'TenSP',
-                    unit: 'DVT',
-                    voucher_free: 'KM',
-                    description: 'GHI_CHU',
-                    code_customer: 'MAKH',
-                    unit_barcode: 'UNIT_BARCODE',
-                    unit_barcode_description: 'UNIT_BARCODE_DESCRIPTION',
-                    po: 'PO',
-                    qty: 'QTY',
-                    combo: 'combo',
-                    check_ton: 'check tồn',
-                    po_qty: 'PO_QTY',
-                    pur_price: 'PUR_PRICE',
-                    amount: 'AMOUNT',
-                    description_2: 'GHI_CHU_2',
-                    price_company: 'GIA_CTY',
-                    level_two: 'LEVEL_2',
-                    level_three: 'LEVEL_3',
-                    level_four: 'LEVEL_4',
-                },
-            ],
             field_order_lacks: [
                 {
-                    key: 'book_store',
-                    name: 'TENNS',
+                    key: 'row_custom',
+                    label: '',
+                    class: 'text-nowrap',
                 },
                 {
-                    key: 'barcode_company',
-                    name: 'BARCODE_CTY',
+                    key: 'selected',
+                    label: '',
+                    class: 'text-nowrap',
                 },
                 {
-                    key: 'code_sap',
-                    name: 'MaSAP',
+                    key: 'index',
+                    label: 'Stt',
+                    class: 'text-nowrap text-center',
+                    sortable: true,
                 },
                 {
-                    key: 'name',
-                    name: 'TenSP',
+                    key: 'so_num',
+                    label: 'Tenns',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
-                    key: 'unit',
-                    name: 'DVT',
+                    key: 'barcode',
+                    label: 'Barcode_cty',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
-                    key: 'voucher_free',
-                    name: 'KM',
+                    key: 'sku_sap_code',
+                    label: 'Masap',
+                    class: 'text-nowrap text-center',
+                    sortable: true,
+
+
+                },
+                {
+                    key: 'sku_sap_name',
+                    label: 'Tensp',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+                },
+                {
+                    key: 'sku_sap_unit',
+                    label: 'Dvt',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+                },
+
+                {
+                    key: 'promotive',
+                    label: 'Km',
+                    class: 'text-nowrap',
+                    tdClass: 'voucher-custom border',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'description',
-                    name: 'GHI_CHU',
+                    label: 'Ghi_chu',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'code_customer',
-                    name: 'MAKH',
+                    label: 'Makh',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
-                    key: 'unit_barcode',
-                    name: 'UNIT_BARCODE',
+                    key: 'customer_sku_code',
+                    label: 'Unit_barcode',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
-                    key: 'unit_barcode_description',
-                    name: 'UNIT_BARCODE_DESCRIPTION',
+                    key: 'customer_sku_name',
+                    label: 'Unit_barcode_description',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+                },
+                {
+                    key: 'customer_sku_unit',
+                    label: 'Dvt_po',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
                     key: 'po',
-                    name: 'PO',
+                    label: 'Po',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
-                    key: 'qty',
-                    name: 'QTY',
+                    key: 'quantity_po',
+                    label: 'Qty',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
                     key: 'combo',
-                    name: 'combo',
+                    label: 'Combo',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'check_ton',
-                    name: 'check tồn',
+                    label: 'Check tồn',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'po_qty',
-                    name: 'PO_QTY',
+                    label: 'Po_qty',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
-                    key: 'pur_price',
-                    name: 'PUR_PRICE',
+                    key: 'price_po',
+                    label: 'Pur_price',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
-                    key: 'amount',
-                    name: 'AMOUNT',
+                    key: 'amount_po',
+                    label: 'Amount',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'description_2',
-                    name: 'GHI_CHU_2',
+                    label: 'Ghi chú 1',
+                    class: 'text-nowrap',
+                    sortable: true,
+
+
                 },
                 {
                     key: 'price_company',
-                    name: 'GIA_CTY',
+                    label: 'Gia_cty',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
                     key: 'level_two',
-                    name: 'LEVEL_2',
+                    label: 'Level_2',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
                     key: 'level_three',
-                    name: 'LEVEL_3',
+                    label: 'Level_3',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
                 {
                     key: 'level_four',
-                    name: 'LEVEL_4',
+                    label: 'Level_4',
+                    class: 'text-nowrap',
+                    sortable: true,
+
                 },
-            ]
+            ],
+            per_page: 10,
+            page_options: [10, 20, 50, 100],
+            current_page: 1,
         }
     },
     mounted() {
         this.countOrderLack();
     },
-    
+
     methods: {
+        getPerPageChange(per_page) {
+            this.per_page = per_page;
+        },
+        getPageChange(page) {
+            this.current_page = page;
+        },
         countOrderLack() {
             this.$emit('countOrderLack', this.order_lacks.length);
-        }
+        },
+        
     }
 }
 </script>

@@ -4,7 +4,7 @@
             <b-tab v-for="(tab, index) in tabs" :key="index" :title="tab.name" @click="onChangeTab(tab)" :active="tab_value == tab.value" >
               <template #title>
                 {{ tab.name }}
-                <small v-if="tab.value == 'order_lack'" class="badge badge-danger" > {{ count_order_lack }}</small>
+                <small v-if="tab.value == 'order_lack'" class="badge badge-warning" > {{ count_order_lack }}</small>
               </template>
             </b-tab>
         </b-tabs>
@@ -26,10 +26,7 @@ export default {
         return {
             tabs: [
                 { name: 'Đơn hàng', value: 'order' },
-                { name: 'Hàng tặng hàng', value: 'order_donated' },
-                { name: 'Hàng combo', value: 'order_combo' },
                 { name: 'Đơn hàng thiếu', value: 'order_lack' },
-
             ],
             change_value: 'order'
         }

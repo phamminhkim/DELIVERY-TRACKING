@@ -16,17 +16,50 @@
                     </b-dropdown>
                 </template>
                 <template #cell(index)="data">
-                    <div class="font-weight-bold">
+                    <div class="font-weight-bold" :class="{
+            'bg-warning rounded': rowColor(data.item)
+        }">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
                 <template #cell(selected)="data">
-                    <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox()"
+                    <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
                     <div class="">
                         {{ data.item.barcode }}
+                    </div>
+                </template>
+                <template #cell(so_num)="data">
+                    <div v-if="isCheckLack(data.item)" >
+                        {{ data.item.so_num }} <br>
+                        <small class="text-danger">Hàng thiếu</small>
+                        <small v-if="rowColor(data.item)" class="text-success ml-2"><i class="fas fa-circle fa-xs mr-1"></i>Đã lưu</small>
+                    </div>
+                    <div v-else>
+                        {{ data.item.so_num }}
+                    </div>
+                </template>
+                <template #cell(quantity_po)="data">
+                    <div :class="{
+                        'text-danger': isCheckLack(data.item)
+                    }">
+                        {{ data.item.quantity_po }}
+                    </div>
+                </template>
+                <template #cell(po_qty)="data">
+                    <div :class="{
+                        'text-danger': isCheckLack(data.item)
+                    }">
+                        {{ data.item.po_qty }}
+                    </div>
+                </template>
+                <template #cell(check_ton)="data">
+                    <div :class="{
+                        'text-danger': isCheckLack(data.item)
+                    }">
+                        {{ data.item.check_ton }}
                     </div>
                 </template>
                 <template #head(barcode)="header">
@@ -124,7 +157,11 @@ export default {
         is_loading_detect_sap_code: {
             type: Boolean,
             default: false
-        }
+        },
+        order_lacks: {
+            type: Array,
+            default: () => []
+        },
 
     },
     components: {
@@ -397,9 +434,28 @@ export default {
         deleteRow(index) {
             this.$emit('deleteRow', index)
         },
-        emitCheckBox() {
-            this.$emit('checkBoxRow', this.case_checkbox.selected)
+        emitCheckBox(index) {
+            this.$emit('checkBoxRow', this.case_checkbox.selected, index)
+        },
+        refeshCaseCheckBox() {
+            this.case_checkbox.selected = [];
+        },
+        rowColor(item, index) {
+            for (let index = 0; index < this.order_lacks.length; index++) {
+                if (this.order_lacks[index].customer_sku_code == item.customer_sku_code && this.order_lacks[index].sku_sap_unit == item.sku_sap_unit) {
+                    return true;
+                }
+            }
+        },
+        isCheckLack(item){
+            let result = item.quantity_po * item.po_qty;
+            if(result > item.check_ton){
+                return true;
+            }
+            return false;
         }
+       
+
 
     }
 }

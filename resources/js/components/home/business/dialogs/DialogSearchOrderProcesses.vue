@@ -2,7 +2,7 @@
     <div>
         <div class="modal fade" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
             tabindex="-1">
-            <div class="modal-dialog modal-lg ">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">tìm kiếm tên hàng</h5>
@@ -18,18 +18,24 @@
                                     <div class="form-group">
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text font-weight-bold" id="basic-addon1">Nhập
-                                                    ký tự
-                                                    cần tìm</span>
+                                                <span @click="fetchSapMaterial()" type="button"
+                                                    class="input-group-text font-weight-bold bg-light border-light"
+                                                    id="basic-addon1">
+                                                    <i v-if="!case_is_loading.fetch_api" class="fas fa-search mr-2"></i>
+                                                    <span v-else><i
+                                                            class="fas fa-spinner fa-spin fa-xs mr-2"></i></span>
+                                                    Tìm kiếm</span>
+
                                             </div>
-                                            <input type="text" class="form-control input__focus"
+                                            <input v-model="case_filter.search" @keyup.enter="fetchSapMaterial"
+                                                type="text" class="form-control input__focus"
                                                 placeholder="Nhập ký tự cần tìm">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="btn-group-sm" role="group" aria-label="Basic example">
-                                        <button type="button"
+                                        <button @click="refeshFilter()" type="button"
                                             class="btn w-100 btn-sm btn-danger px-4 mb-2 shadow-btn">Xóa kí
                                             tự</button>
                                         <button type="button" @click="closeModalSearchOrderProcesses()"
@@ -53,7 +59,10 @@
                                 </template>
                             </b-table>
                             <div class="form-group">
-                                <PaginationRequest></PaginationRequest>
+                                <PaginationRequest @pageChange="getPageChange" @perPageChange="getPerPageChange"
+                                    :per_page="case_pagination.per_page" :current_page="case_pagination.page"
+                                    :rows="case_pagination.total">
+                                </PaginationRequest>
                             </div>
                         </div>
                     </div>
@@ -86,15 +95,6 @@ export default {
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
-            products: [
-                {
-                    bar_code: '123456',
-                    sap_code: '33333',
-                    name: 'Sản phẩm 1',
-                    unit_id: 'Hộp',
-                },
-
-            ],
             field_products: [
                 {
                     key: 'index',
@@ -174,19 +174,22 @@ export default {
     methods: {
         async fetchSapMaterial() {
             try {
-                this.is_loading = true;
+                this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.get(this.case_api.api_sap_materials, {
                     search: this.case_filter.search,
                     page: this.case_pagination.page,
+                    per_page: this.case_pagination.per_page,
                     sap_codes: this.mapSapCodes(),
                 });
                 if (Array.isArray(data.data)) {
                     this.case_data.sap_materials = data.data;
+                    this.case_pagination.total = data.paginate.total;
+                    this.case_pagination.page = data.paginate.current_page;
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
-                this.is_loading = false;
+                this.case_is_loading.fetch_api = false;
             }
         },
         mapSapCodes() {
@@ -197,6 +200,20 @@ export default {
         },
         removeItemSelect(index) {
             this.case_data.item_selecteds.splice(index, 1);
+        },
+        getPageChange(page) {
+            this.case_pagination.page = page;
+            this.fetchSapMaterial();
+        },
+        getPerPageChange(per_page) {
+            this.case_pagination.per_page = per_page;
+            this.fetchSapMaterial();
+        },
+        refeshFilter() {
+            this.case_filter = {
+                search: '',
+            }
+            this.fetchSapMaterial();
         }
     }
 }

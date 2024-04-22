@@ -1,0 +1,36 @@
+<template>
+    <div>
+        <TableOrderLack :tab_value="tab_value"
+            :order_lacks="order_lacks"></TableOrderLack>
+    </div>
+</template>
+<script>
+import TableOrderLack from '../tables/TableOrderLack.vue';
+export default {
+    props: {
+        tab_value: {
+            type: String,
+            default: 'order_lack'
+        },
+        count_order_lack: {
+            type: Number,
+            default: 0
+        },
+        order_lacks: {
+            type: Array,
+            default: () => []
+        }
+    },
+    components: {
+        TableOrderLack
+    },
+    data() {
+        return {
+        }
+    },
+    methods: {
+
+    }
+}
+</script>
+<style lang="scss" scoped></style>

@@ -1,25 +1,29 @@
 <template>
     <div class="container-header bg-white p-3 shadow-sm rounded css-font-size">
-        <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="count_order_lack"></HeaderTabOrderProcesses>
+        <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="case_data_temporary.order_lacks.length"></HeaderTabOrderProcesses>
         <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo"
             @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" @getInventory="getInventory"
             @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
-            @isLoadingDetectSapCode="getIsLoadingDetectSapCode"></HeaderOrderProcesses>
+            @isLoadingDetectSapCode="getIsLoadingDetectSapCode" 
+            @changeEventOrderLack="getEventOrderLack"
+            @changeEventOrderDelete="getEventOrderDelete"
+            :item_selecteds="case_data_temporary.item_selecteds"></HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
-        <TableOrderLack :tab_value="tab_value" @countOrderLack="getCountOrderLack"></TableOrderLack>
+
         <!-- Parent -->
-        <ParentOrderSuffice v-show="tab_value == 'order'" :row_orders="row_orders" :orders="orders"
+        <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders" :orders="orders"
             :getDeleteRow="getDeleteRow" :material_donateds="material_donateds" :material_combos="material_combos"
+            :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
         </ParentOrderSuffice>
-        <ParentMaterialDonated v-show="tab_value == 'order_donated'" :tab_value="tab_value"
-            :count_order_lack="count_order_lack"></ParentMaterialDonated>
-        <ParentMaterialCombo v-show="tab_value == 'order_combo'" :tab_value="tab_value"
-            :count_order_lack="count_order_lack"></ParentMaterialCombo>
+        <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
+            @countOrderLack="getCountOrderLack"></ParentOrderLack>
+
+
     </div>
 </template>
 <script>
@@ -27,20 +31,16 @@ import HeaderOrderProcesses from './headers/HeaderOrderProcesses.vue';
 import DialogSearchOrderProcesses from './dialogs/DialogSearchOrderProcesses.vue';
 import HeaderTabOrderProcesses from './headers/HeaderTabOrderProcesses.vue';
 import TableOrderLack from './tables/TableOrderLack.vue';
-import DialogMaterialDonated from '../master/dialogs/DialogMaterialDonated.vue';
-import ParentMaterialDonated from './parents/ParentMaterialDonated.vue';
-import ParentMaterialCombo from './parents/ParentMaterialCombo.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
+import ParentOrderLack from './parents/ParentOrderLack.vue';
 export default {
     components: {
         HeaderOrderProcesses,
         DialogSearchOrderProcesses,
         HeaderTabOrderProcesses,
         TableOrderLack,
-        DialogMaterialDonated,
-        ParentMaterialDonated,
-        ParentMaterialCombo,
-        ParentOrderSuffice
+        ParentOrderSuffice,
+        ParentOrderLack
     },
     data() {
         return {
@@ -53,12 +53,15 @@ export default {
             material_saps: [],
             material_inventories: [],
             material_prices: [],
+            case_index: {
+                check_box: [],
+            },
             case_is_loading: {
                 detect_sap_code: false
             },
             case_data_temporary: {
                 item_selecteds: [],
-
+                order_lacks: []
             }
         }
     },
@@ -131,11 +134,25 @@ export default {
         },
         getIsLoadingDetectSapCode(is_loading) {
             this.case_is_loading.detect_sap_code = is_loading;
-            console.log(this.case_is_loading.detect_sap_code, is_loading);
         },
-        getCheckBoxRow(items) {
+        getCheckBoxRow(items, index) {
             this.case_data_temporary.item_selecteds = items;
+        },
+        getEventOrderLack() {
+            // sử dụng inclues để kiểm tra xem item đã tồn tại trong mảng chưa
+            this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+            this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
+            this.refeshCheckBox();
+        },
+        refeshCheckBox() {
+            this.$refs.parentOrderSuffice.refeshCheckBox();
+            this.case_data_temporary.item_selecteds = [];
+        },
+        getEventOrderDelete() {
+            this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+            this.refeshCheckBox();
         }
+       
 
     },
     computed: {

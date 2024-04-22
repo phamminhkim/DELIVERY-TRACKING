@@ -93,10 +93,10 @@
                 <button @click="handleCheckPrice()" type="button"
                     class="shadow btn-sm btn-light  text-orange btn-group__border">Check
                     giá</button>
-                <button type="button"
+                <button @click="emitOrderLack()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold text-success btn-light  text-center btn-group__border shadow-btn">Lưu
                     hàng thiếu</button>
-                <button
+                <button @click="emitOrderDelete()"
                     class="btn-sm font-smaller btn font-weight-bold btn-light  text-danger  btn-group__border shadow-btn">Xóa
                     dữ liệu</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
@@ -158,6 +158,10 @@ export default {
             type: String,
             default: 'order'
         },
+        item_selecteds: {
+            type: Array,
+            default: () => []
+        }
       
 
     },
@@ -268,7 +272,6 @@ export default {
             }
         },
         async fetchSapCodeFromSkuCustomer() {
-
             try {
                 this.is_loading = true;
                 const { data } = await this.api_handler.post(this.api_detect_sap_code, {},
@@ -397,7 +400,6 @@ export default {
         },
         mappingCheckInventory(data) {
             var list = [...data];
-
         },
         browserExcelHeader(data_firsts) {
             for (let index = 0; index < data_firsts.length; index++) {
@@ -678,6 +680,12 @@ export default {
             const view = new Uint8Array(buf);
             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
             return buf;
+        },
+        emitOrderLack() {
+            this.$emit('changeEventOrderLack');
+        },
+        emitOrderDelete() {
+            this.$emit('changeEventOrderDelete');
         }
     },
     computed: {
