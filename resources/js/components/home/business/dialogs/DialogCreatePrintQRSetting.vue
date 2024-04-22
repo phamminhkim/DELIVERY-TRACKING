@@ -298,7 +298,7 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style >
 	* {
 		margin: 0;
 		padding: 0;

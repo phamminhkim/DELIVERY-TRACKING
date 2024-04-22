@@ -835,7 +835,7 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style >
 	.title {
 		font-size: 1.5rem;
 		font-weight: 500;

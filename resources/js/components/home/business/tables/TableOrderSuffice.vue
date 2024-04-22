@@ -20,15 +20,38 @@
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
-                <template #cell(selected)="data">   
-                    <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox()" :value="data.item"></b-form-checkbox>
+                <template #cell(selected)="data">
+                    <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox()"
+                        :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
                     <div class="">
                         {{ data.item.barcode }}
                     </div>
                 </template>
+                <template #head(barcode)="header">
+                    <div class="text-center">
+                        <label class="mb-0" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                    </div>
+                </template>
                 <template #head(sku_sap_code)="header">
+                    <div class="text-center">
+                        <label class="mb-0" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                    </div>
+                </template>
+                <template #head(sku_sap_name)="header">
                     <div class="text-center">
                         <label class="mb-0" :class="{
             'text-danger': is_loading_detect_sap_code == true
@@ -49,6 +72,8 @@
                         </p>
                     </div>
                 </template>
+
+
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index)" class="text-center">
                         <div class="d-flex align-items-baseline justify-content-around">

@@ -46,13 +46,20 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <b-table small striped hover sticky-header head-variant="light" :items="products"
-                                :fields="field_products" responsive="sm"></b-table>
+                            <b-table small striped hover sticky-header head-variant="light"
+                                :items="case_data.sap_materials" :fields="field_products" responsive="sm">
+                                <template #cell(index)="data">
+                                    {{ data.index + 1 }}
+                                </template>
+                            </b-table>
+                            <div class="form-group">
+                                <PaginationRequest></PaginationRequest>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer d-block text-center">
                         <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
-                        <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button>
+                        <!-- <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button> -->
                     </div>
                 </div>
             </div>
@@ -61,6 +68,7 @@
 </template>
 <script>
 import ApiHandler, { APIRequest } from '../../ApiHandler';
+import PaginationRequest from '../paginations/PaginationRequest.vue';
 export default {
     props: {
         is_open_modal_search_order_processes: {
@@ -72,6 +80,9 @@ export default {
         }
 
     },
+    components: {
+        PaginationRequest
+    },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -82,30 +93,44 @@ export default {
                     name: 'Sản phẩm 1',
                     unit_id: 'Hộp',
                 },
-               
+
             ],
             field_products: [
                 {
+                    key: 'index',
+                    label: 'Stt',
+                    sortable: true,
+                    class: 'text-nowarp',
+                },
+                {
                     key: 'bar_code',
                     label: 'BarCode',
-                    required: false,
+                    sortable: true,
+                    class: 'text-nowarp',
+
                 },
                 {
                     key: 'sap_code',
                     label: 'Mã SAP',
-                    required: false,
+                    sortable: true,
+                    class: 'text-nowarp',
+
                 },
                 {
                     key: 'name',
                     label: 'Sản phẩm',
-                    required: false,
+                    sortable: true,
+                    class: 'text-nowarp',
+
                 },
                 {
-                    key: 'unit_id',
+                    key: 'unit.unit_code',
                     label: 'Đơn vị tính',
-                    required: false,
+                    sortable: true,
+                    class: 'text-nowarp',
+
                 },
-                
+
             ],
             case_is_loading: {
                 fetch_api: false,
@@ -132,6 +157,7 @@ export default {
     watch: {
         is_open_modal_search_order_processes: function (val_new) {
             if (val_new) {
+                this.fetchSapMaterial();
                 $('#form_search_order_processes').modal('show');
             } else {
                 $('#form_search_order_processes').modal('hide');
@@ -143,7 +169,7 @@ export default {
 
     },
     created() {
-        this.fetchSapMaterial();
+        // this.fetchSapMaterial();
     },
     methods: {
         async fetchSapMaterial() {
@@ -152,15 +178,19 @@ export default {
                 const { data } = await this.api_handler.get(this.case_api.api_sap_materials, {
                     search: this.case_filter.search,
                     page: this.case_pagination.page,
+                    sap_codes: this.mapSapCodes(),
                 });
-                if (Array.isArray(data)) {
-                    this.case_data.sap_materials = data;
+                if (Array.isArray(data.data)) {
+                    this.case_data.sap_materials = data.data;
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
                 this.is_loading = false;
             }
+        },
+        mapSapCodes() {
+            return this.case_data.item_selecteds.map(item => item.sku_sap_code);
         },
         closeModalSearchOrderProcesses() {
             this.$emit('closeModalSearchOrderProcesses');

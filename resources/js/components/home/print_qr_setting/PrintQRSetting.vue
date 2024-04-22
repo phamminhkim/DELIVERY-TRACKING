@@ -183,12 +183,12 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style >
 	* {
 		margin: 0;
 		padding: 0;
 		border: 0;
-		font-size: 98%;
+		font-size: 100%;
 	}
 	.visualize-container {
 		min-height: 300px;
