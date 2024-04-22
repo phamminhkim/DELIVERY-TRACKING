@@ -56,6 +56,9 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = 'Không tìm thấy nhóm khách hàng';
                 return false;
             }
+
+            $mappingData = [];
+
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 $customer_sku_code = $item['customer_sku_code'];
@@ -78,6 +81,16 @@ class CheckDataRepository extends RepositoryAbs
                     } else {
                         $unit_code = null; // Xử lý khi đơn vị không tồn tại
                     }
+
+                    $mappingData[] = [
+                        'customer_sku_code' => $customer_sku_code,
+                        'customer_sku_unit' => $customer_sku_unit,
+                        'bar_code' => $bar_code,
+                        'sap_code' => $sap_code,
+                        'unit_id' => $unit_id,
+                        'name' => $name,
+                        'unit_code' => $unit_code,
+                    ];
                 } else {
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
                     $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
@@ -104,73 +117,77 @@ class CheckDataRepository extends RepositoryAbs
                             } else {
                                 $unit_code = null; // Xử lý khi đơn vị không tồn tại
                             }
+
+                            $mappingData[] = [
+                                'customer_sku_code' => $customer_sku_code,
+                                'customer_sku_unit' => $customer_sku_unit,
+                                'bar_code' => $bar_code,
+                                'sap_code' => $sap_code,
+                                'unit_id' => $unit_id,
+                                'name' => $name,
+                                'unit_code' => $unit_code,
+                            ];
                         }
                     }
                 }
-                // Kiểm tra nếu dữ liệu trong bảng material_category_type
-                $materialCategoryType = MaterialCategoryType::whereIn('name', ['Combo', 'ExtraOffer'])
-                    ->first();
+            }
+            foreach ($mappingData as &$mappingItem) {
+                // Lấy thông tin từ mappingItem
+                $customer_sku_code = $mappingItem['customer_sku_code'];
+                $customer_sku_unit = $mappingItem['customer_sku_unit'];
 
-                if ($materialCategoryType) {
-                    // Kiểm tra cột name tương ứng với is_deleted là true hay không
-                    $category_type_name = MaterialCategoryType::where('name', $materialCategoryType->name)
-                        ->where('is_deleted', true)
+                $materialCombo = MaterialCombo::where(function ($query) use ($customer_group_id, $customer_sku_code) {
+                    $query->where('customer_group_id', $customer_group_id)
+                        ->where(function ($query) use ($customer_sku_code) {
+                            $query->where('bar_code', $customer_sku_code)
+                                ->orWhere('sap_code', $customer_sku_code);
+                        });
+                })->first();
+
+                if ($materialCombo) {
+                    // Lấy thông tin từ MaterialCombo
+                    $sap_code = $materialCombo->sap_code;
+                    $bar_code = $materialCombo->bar_code;
+
+                    // Kiểm tra cột name tương ứng với is_deleted là false hay không
+                    $combo_category_type = MaterialCategoryType::where('name', 'Combo')
+                        ->where('is_deleted', false)
                         ->first();
 
-                    // Dò tìm mã customer_group_id và mã bar_code trong bảng material_combo
-                    $materialCombo = MaterialCombo::where(function ($query) use ($customer_group_id, $customer_sku_code) {
-                        $query->where('customer_group_id', $customer_group_id)
-                            ->where(function ($query) use ($customer_sku_code) {
-                                $query->where('bar_code', $customer_sku_code)
-                                    ->orWhere('sap_code', $customer_sku_code);
-                            });
-                    })->first();
-
-                    if ($materialCombo) {
-                        // Lấy thông tin từ MaterialCombo
-                        $sap_code = $materialCombo->sap_code;
-                        $bar_code = $materialCombo->bar_code;
-
-                        // Kiểm tra cột name tương ứng với is_deleted là false hay không
-                        $combo_category_type = MaterialCategoryType::where('name', 'Combo')
-                            ->where('is_deleted', false)
-                            ->first();
-
-                        if ($combo_category_type) {
-                            $category_type_name = 'Combo';
-                        } else {
-                            $category_type_name = null;
-                        }
+                    if ($combo_category_type) {
+                        $category_type_name = 'Combo';
                     } else {
-                        $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                            $query->where('customer_group_id', $customer_group_id)
-                                ->where('customer_sku_code', $customer_sku_code);
-                        })->get();
+                        $category_type_name = null;
+                    }
+                } else {
+                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                        $query->where('customer_group_id', $customer_group_id)
+                            ->where('customer_sku_code', $customer_sku_code);
+                    })->get();
 
-                        if ($sapMaterialMappings) {
-                            foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                                $sap_material_id = $sapMaterialMapping->sap_material_id;
-                                // Dò tìm thông tin trong bảng sap_material với mã sap_material_id
-                                $sapMaterial = SapMaterial::find($sap_material_id);
+                    if ($sapMaterialMappings) {
+                        foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                            $sap_material_id = $sapMaterialMapping->sap_material_id;
+                            // Dò tìm thông tin trong bảng sap_material với mã sap_material_id
+                            $sapMaterial = SapMaterial::find($sap_material_id);
 
-                                if ($sapMaterial) {
-                                    // Lấy thông tin từ SapMaterial
-                                    $sap_code = $sapMaterial->sap_code;
-                                    // Dò tìm thông tin trong bảng material_donated với mã sap_code
-                                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
+                            if ($sapMaterial) {
+                                // Lấy thông tin từ SapMaterial
+                                $sap_code = $sapMaterial->sap_code;
+                                // Dò tìm thông tin trong bảng material_donated với mã sap_code
+                                $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
 
-                                    if ($materialDonated) {
-                                        $sap_code = $materialDonated->sap_code;
-                                        // Kiểm tra cột name tương ứng với is_deleted là false hay không
-                                        $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
-                                            ->where('is_deleted', false)
-                                            ->first();
+                                if ($materialDonated) {
+                                    $sap_code = $materialDonated->sap_code;
+                                    // Kiểm tra cột name tương ứng với is_deleted là false hay không
+                                    $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                                        ->where('is_deleted', false)
+                                        ->first();
 
-                                        if ($combo_category_type) {
-                                            $category_type_name = 'ExtraOffer';
-                                        } else {
-                                            $category_type_name = null;
-                                        }
+                                    if ($combo_category_type) {
+                                        $category_type_name = 'ExtraOffer';
+                                    } else {
+                                        $category_type_name = null;
                                     }
                                 }
                             }
@@ -178,16 +195,10 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
 
-                $mappingData[] = [
-                    'customer_sku_code' => $customer_sku_code,
-                    'customer_sku_unit' => $customer_sku_unit,
-                    'bar_code' => $bar_code,
-                    'sap_code' => $sap_code,
-                    'unit_id' => $unit_id,
-                    'name' => $name,
-                    'unit_code' => $unit_code,
-                    'category_type' => $category_type_name ?? null,
-                ];
+                // Thêm thông tin mã khuyến mãi vào mappingItem (nếu có)
+                if (isset($category_type_name)) {
+                    $mappingItem['promotion_category'] = $category_type_name;
+                }
             }
 
             return [
