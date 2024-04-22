@@ -282,7 +282,7 @@ export default {
 
 <style lang="css">
 .container {
-	border: 1px solid #ccc;
+	/* border: 1px solid #ccc; */
 	padding: 10px;
 	/* Add any additional styling for the container */
 }

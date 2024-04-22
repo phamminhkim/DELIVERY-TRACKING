@@ -72,8 +72,6 @@
                         </p>
                     </div>
                 </template>
-
-
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index)" class="text-center">
                         <div class="d-flex align-items-baseline justify-content-around">
