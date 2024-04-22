@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 use App\Http\Controllers\Api\Master\CustomerMaterialController;
 use App\Http\Controllers\Api\Master\CustomerGroupPivotController;
 use App\Http\Controllers\Api\Master\CustomerPromotionController;
+use App\Http\Controllers\Api\Master\CustomerPartnerController;
 
 
 use App\Http\Controllers\Api\Master\MasterDataController;
@@ -201,6 +202,12 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
+        });
+        Route::prefix('/customer-partners')->group(function () {
+            Route::get('/', [CustomerPartnerController::class, 'getAvailableCustomerPartners']);
+            Route::post('/', [CustomerPartnerController::class, 'createNewCustomerPartner']);
+            Route::put('/{id}', [CustomerPartnerController::class, 'updateExistingCustomerPartner']);
+            Route::delete('/{id}', [CustomerPartnerController::class, 'deleteExistingCustomerPartner']);
         });
 
         Route::prefix('/customer-promotions')->group(function () {
