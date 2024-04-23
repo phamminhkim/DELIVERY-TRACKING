@@ -1,22 +1,22 @@
 <template>
     <div class="container-header bg-white p-3 shadow-sm rounded css-font-size">
-        <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="case_data_temporary.order_lacks.length"></HeaderTabOrderProcesses>
+        <HeaderTabOrderProcesses @changeTab="getTab" :count_order_lack="case_data_temporary.order_lacks.length">
+        </HeaderTabOrderProcesses>
         <HeaderOrderProcesses ref="headerOrderProcesses" @listMaterialCombo="getListMaterialCombo"
             @listMaterialDonated="getListMaterialDonated" @listOrders="getOrders" @getInventory="getInventory"
             @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
-            @isLoadingDetectSapCode="getIsLoadingDetectSapCode" 
-            @changeEventOrderLack="getEventOrderLack"
-            @changeEventOrderDelete="getEventOrderDelete"
-            :item_selecteds="case_data_temporary.item_selecteds"></HeaderOrderProcesses>
+            @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
+            @changeEventOrderDelete="getEventOrderDelete" :item_selecteds="case_data_temporary.item_selecteds">
+        </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
-            @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses"
+            @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
 
         <!-- Parent -->
-        <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders" :orders="orders"
-            :getDeleteRow="getDeleteRow" :material_donateds="material_donateds" :material_combos="material_combos"
-            :order_lacks="case_data_temporary.order_lacks"
+        <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
+            :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
+            :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
         </ParentOrderSuffice>
@@ -151,8 +151,19 @@ export default {
         getEventOrderDelete() {
             this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
             this.refeshCheckBox();
+        },
+        getReplaceItem(item_materials) {
+            this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
+                item_materials.forEach(item_material => {
+                    this.orders[this.orders.indexOf(item_selected)].barcode = item_material.bar_code;
+                    this.orders[this.orders.indexOf(item_selected)].sku_sap_code = item_material.sap_code;
+                    this.orders[this.orders.indexOf(item_selected)].sku_sap_name = item_material.name;
+                    this.orders[this.orders.indexOf(item_selected)].sku_sap_unit = item_material.unit.unit_code;
+                });
+            });
+            this.closeModalSearchOrderProcesses();
         }
-       
+
 
     },
     computed: {

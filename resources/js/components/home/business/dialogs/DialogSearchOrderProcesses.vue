@@ -44,18 +44,49 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div v-for="(select, index) in case_data.item_selecteds" :key="index" type="button"
-                                @click="removeItemSelect(index)" class="badge badge-sm mr-2 p-2 badge-secondary">
-                                {{ select.sku_sap_code }}
-                                <span @click="removeItemSelect(index)" class="badge badge-light">x</span>
+                        <div class="d-flex form-group border-bottom p-1">
+                            <div class="flex-fill">
+                                <span class="text-success">Items đã chọn ({{ case_data.item_selecteds.length }})</span>
+                            </div>
+                            <div class="">
+                                <div v-for="(select, index) in case_data.item_selecteds" :key="index" type="button"
+                                    class="badge badge-sm mr-2 p-2 badge-primary">
+                                    {{ select.sku_sap_code }}
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <b-table small striped hover sticky-header head-variant="light"
-                                :items="case_data.sap_materials" :fields="field_products" responsive="sm">
+                            <b-table small striped hover head-variant="light" table-class="box-max-height-500"
+                                :items="case_data.sap_materials" :fields="field_products" responsive
+                                :per_page="case_pagination.per_page" :current_page="case_pagination.page">
                                 <template #cell(index)="data">
-                                    {{ data.index + 1 }}
+                                    {{ (data.index + 1) + (case_pagination.page * case_pagination.per_page) -
+                            case_pagination.per_page }}
+                                </template>
+                                <template #cell(action)="data">
+                                    <div class="form-group">
+                                        <input type="checkbox"
+                                            :disabled="case_check_box.selected_item && case_check_box.selected_item !== data.item.id"
+                                            v-model="case_check_box.item_materials" :value="data.item"
+                                            @input="selectItem(data.item.id)" />
+                                    </div>
+                                    <!-- <div class="relative-action">
+                                        <button @click="showDropdown(data.index)" class="btn btn-light btn-sm">
+                                            <i class="fas fa-th fa-rotate-90  text-secondary"></i>
+                                        </button>
+                                        <div :id="'dropdown_' + data.index" @click.stop
+                                            class="form-group card-absolute text-nowrap px-3 bg-white shadow border rounded">
+                                            <b-dropdown id="dropdown-dropright" dropright text="Replace" variant="link" toggle-class="text-decoration-none" no-caret>
+                                                <b-dropdown-item href="#"  v-for="(select, index) in case_data.item_selecteds" :key="index"
+                                                    @click="itemReplace(data.index, data.item, select)">
+                                                    {{ select.sku_sap_code }}
+                                                </b-dropdown-item>
+                                                
+                                            </b-dropdown>
+                                        </div>
+                                    </div> -->
+
+
                                 </template>
                             </b-table>
                             <div class="form-group">
@@ -67,7 +98,8 @@
                         </div>
                     </div>
                     <div class="modal-footer d-block text-center">
-                        <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
+                        <button @click="emitReplaceItem()" type="button"
+                            class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
                         <!-- <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button> -->
                     </div>
                 </div>
@@ -96,6 +128,11 @@ export default {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
             field_products: [
+                {
+                    key: 'action',
+                    label: '',
+                    class: 'text-nowarp',
+                },
                 {
                     key: 'index',
                     label: 'Stt',
@@ -134,6 +171,10 @@ export default {
             ],
             case_is_loading: {
                 fetch_api: false,
+            },
+            case_check_box: {
+                item_materials: [],
+                selected_item: null,
             },
             case_filter: {
                 bar_codes: '',
@@ -179,7 +220,7 @@ export default {
                     search: this.case_filter.search,
                     page: this.case_pagination.page,
                     per_page: this.case_pagination.per_page,
-                    sap_codes: this.mapSapCodes(),
+                    // sap_codes: this.mapSapCodes(),
                 });
                 if (Array.isArray(data.data)) {
                     this.case_data.sap_materials = data.data;
@@ -198,9 +239,6 @@ export default {
         closeModalSearchOrderProcesses() {
             this.$emit('closeModalSearchOrderProcesses');
         },
-        removeItemSelect(index) {
-            this.case_data.item_selecteds.splice(index, 1);
-        },
         getPageChange(page) {
             this.case_pagination.page = page;
             this.fetchSapMaterial();
@@ -214,7 +252,25 @@ export default {
                 search: '',
             }
             this.fetchSapMaterial();
-        }
+        },
+        showDropdown(index) {
+            const dropdown = document.getElementById('dropdown_' + index);
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            } else {
+                dropdown.style.display = 'block';
+            }
+        },
+        selectItem(id) {
+            if (this.case_check_box.selected_item === id) {
+                this.case_check_box.selected_item = null;
+            } else {
+                this.case_check_box.selected_item = id;
+            }
+        },
+        emitReplaceItem() {
+            this.$emit('itemReplace', this.case_check_box.item_materials);
+        },
     }
 }
 </script>
@@ -228,5 +284,17 @@ export default {
 
 .shadow-btn {
     box-shadow: 0px 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+.relative-action {
+    position: relative;
+}
+
+.card-absolute {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    z-index: 1000;
+    display: none;
 }
 </style>

@@ -599,7 +599,7 @@ export default {
                     'Content-Type': 'multipart/form-data',
                 })
                 .post(
-                    '/api/sales-order/convert-pdf',
+                    '/api/sales-order/convert-orders',
                     {},
                     formData,
                 );
