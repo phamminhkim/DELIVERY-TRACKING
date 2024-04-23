@@ -312,7 +312,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{id}', [SoDataController::class, 'updateSoData']);
         Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
-        Route::get('order-process-list', [SoDataController::class, 'getOrderProcessList']);
+        Route::get('/', [SoDataController::class, 'getOrderProcessList']);
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);

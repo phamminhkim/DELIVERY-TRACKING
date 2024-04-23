@@ -15,6 +15,9 @@ class OrderProcess extends Model
         'created_by',
         'updated_by',
     ];
+    protected $casts = [
+        'is_deleted' => 'boolean',
+    ];
 
     public function so_data_items()
     {
