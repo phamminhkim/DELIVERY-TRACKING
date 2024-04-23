@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\Business\DeliveryController;
 use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Business\CheckDataController;
+use App\Http\Controllers\Api\Business\SoDataController;
+
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
@@ -305,7 +307,12 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('sales-order')->group(function () {
-        Route::post('convert-pdf', [AiController::class, 'extractOrderDirect']);
+        Route::post('convert-orders', [AiController::class, 'extractOrderDirect']);
+        Route::post('save-so', [SoDataController::class, 'saveSoData']);
+        Route::put('/{id}', [SoDataController::class, 'updateSoData']);
+        Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
+        Route::get('/{id}', [SoDataController::class, 'getSoData']);
+        Route::get('order-process-list', [SoDataController::class, 'getOrderProcessList']);
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);

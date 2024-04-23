@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Repositories\Business;
+
+use App\Enums\File\FileStatuses;
+use App\Models\Business\FileStatus;
+use App\Repositories\Abstracts\RepositoryAbs;
+use App\Models\Business\SoHeader;
+use App\Models\Business\SoDataItem;
+use App\Models\Business\OrderProcess;
+use App\Models\Business\UploadedFile;
+use App\Utilities\UniqueIdUtility;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class SoDataRepository extends RepositoryAbs
+{
+    public function __construct($request)
+    {
+        parent::__construct($request);
+    }
+
+    public function saveSoData()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'title' => 'required',
+            ], [
+                'title.required' => 'Title là bắt buộc',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $result = [];
+                $current_user_id = $this->current_user->id;
+                $serial_number = UniqueIdUtility::generateSerialUniqueNumber('Order');
+                $order_process = OrderProcess::create([
+                    'serial_number' => $serial_number,
+                    'title' => $this->data['title'],
+                    'created_by' => $current_user_id,
+                    'updated_by' => $current_user_id,
+                ]);
+                if ($order_process->id) {
+                    $order_data = collect($this->data['order_data'])->groupBy('customer_name')->map(function ($items, $key) use ($order_process) {
+                        $so_header = SoHeader::create([
+                            'order_process_id' => $order_process->id,
+                            'customer_name' => $key,
+                            'customer_code' => $items[0]['customer_code'],
+                            'company_price' => $items[0]['company_price'],
+                            'note' => $items[0]['note'],
+                            'level2' => $items[0]['level2'],
+                            'level3' => $items[0]['level3'],
+                            'level4' => $items[0]['level4'],
+                        ]);
+                        $so_data_items = collect($items)->map(function ($item) use ($so_header, $order_process) {
+                            $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
+                            return [
+                                'so_number' => $so_number,
+                                'order_process_id' => $order_process->id,
+                                'so_header_id' => $so_header->id,
+                                'barcode' => $item['barcode'],
+                                'sku_sap_code' => $item['sku_sap_code'],
+                                'sku_sap_name' => $item['sku_sap_name'],
+                                'sku_sap_unit' => $item['sku_sap_unit'],
+                                'is_promotive' => $item['is_promotive'],
+                                'note' => $item['note'],
+                                'customer_sku_code' => $item['customer_sku_code'],
+                                'customer_sku_name' => $item['customer_sku_name'],
+                                'customer_sku_unit' => $item['customer_sku_unit'],
+                                'quantity1_po' => $item['quantity1_po'],
+                                'quantity2_po' => $item['quantity2_po'],
+                                'is_inventory' => $item['is_inventory'],
+                                'price_po' => $item['price_po'],
+                                'amount_po' => $item['amount_po'],
+                            ];
+                        });
+                        SoDataItem::insert($so_data_items->toArray());
+                    });
+                }
+
+                DB::commit();
+                $order_process->load(['so_data_items', 'so_data_items.so_header']);
+                return $order_process;
+            }
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function updateSoData(){
+
+    }
+    public function getSoData(){
+
+    }
+    public function deleteSoData(){
+
+    }
+    public function getOrderProcessList(){
+
+    }
+}
