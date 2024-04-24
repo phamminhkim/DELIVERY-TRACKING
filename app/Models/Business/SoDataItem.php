@@ -17,6 +17,7 @@ class SoDataItem extends Model
         'sku_sap_name',
         'sku_sap_unit',
         'is_promotive',
+        'promotive_name',
         'note',
         'customer_sku_code',
         'customer_sku_name',
