@@ -218,7 +218,7 @@ export default {
                     promotive_name: data_item.promotive_name,
                     quantity1_po: data_item.quantity1_po,
                     quantity2_po: data_item.quantity2_po,
-                    customer_key: data_item.so_header.customer_key,
+                    customer_name: data_item.so_header.customer_name,
 
                 });
             });

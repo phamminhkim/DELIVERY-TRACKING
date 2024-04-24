@@ -2,7 +2,7 @@
     <div>
         <div class="form-group border-bottom d-inline-block p-2 px-4 rounded"
             style="background: rgb(234 234 234 / 50%);">
-            <label clsas="bg-success">Tiêu đề SO: </label>
+            <label clsas="font-weight-normal">Tiêu đề SO: </label>
             <span v-if="case_save_so.title !== ''">
                 <span  class="font-weight-bold mr-2"> {{ case_save_so.title }} </span>
                 <span  class="text-success"><i class="fas fa-circle fa-xs mr-1"></i>Đã

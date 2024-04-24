@@ -31,14 +31,14 @@
                         {{ data.item.barcode }}
                     </div>
                 </template>
-                <template #cell(customer_key)="data">
+                <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)" >
-                        {{ data.item.customer_key }} <br>
+                        {{ data.item.customer_name }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                         <small v-if="rowColor(data.item)" class="text-success ml-2"><i class="fas fa-circle fa-xs mr-1"></i>Đã lưu</small>
                     </div>
                     <div v-else>
-                        {{ data.item.customer_key }}{{ data.item.promotive }}
+                        {{ data.item.customer_name }}{{ data.item.promotive }}
                     </div>
                 </template>
                 <template #cell(quantity1_po)="data">
@@ -200,7 +200,7 @@ export default {
                     sortable: true,
                 },
                 {
-                    key: 'customer_key',
+                    key: 'customer_name',
                     label: 'Tenns',
                     class: 'text-nowrap',
                     sortable: true,

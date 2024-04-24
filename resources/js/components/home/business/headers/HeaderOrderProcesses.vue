@@ -444,7 +444,7 @@ export default {
                     sku_sap_unit: '',
                     promotive: '',
                     promotive_name: '',
-                    customer_key: data[index][this.case_index.store],
+                    customer_name: data[index][this.case_index.store],
                     description: data[index][this.case_index.store],
                     note: data[index][this.case_index.store],
                     customer_sku_code: data[index][this.case_index.customer_sku_code],
@@ -565,8 +565,8 @@ export default {
                         sku_sap_unit: '',
                         promotive: '',
                         promotive_name: '',
-                        customer_key: file_response.data[index].headers.PoPerson,
-                        note: file_response.data[index].headers.PoPerson,
+                        customer_name: file_response.data[index].headers.CustomerKey,
+                        note: file_response.data[index].headers.CustomerKey,
                         note1: file_response.data[index].headers.CustomerNote,
                         customer_sku_code: item.ProductID,
                         customer_sku_name: item.ProductName,
@@ -647,9 +647,7 @@ export default {
             this.form_filter.pdf_files = [];
         },
         downloadExcel() {
-            // group by customer_key + promotive_name
-            const group_by_so_num = Object.groupBy(this.orders, ({ customer_key, promotive_name }) => customer_key + promotive_name);
-            // const group_by_so_num = Object.groupBy(this.orders, ({ customer_key }) => customer_key);
+            const group_by_so_num = Object.groupBy(this.orders, ({ customer_name, promotive_name }) => customer_name + promotive_name);
             const convert_array = Object.values(Object.keys(group_by_so_num));
             var data_header = [
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
@@ -657,7 +655,7 @@ export default {
             ];
             const data_news = this.orders.map((item) => {
                 return {
-                    'Số SO': item.customer_key + item.promotive_name,
+                    'Số SO': item.customer_name + item.promotive_name,
                     'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.customer_sku_code,
                     'Số lượng': (item.quantity2_po * item.quantity1_po),

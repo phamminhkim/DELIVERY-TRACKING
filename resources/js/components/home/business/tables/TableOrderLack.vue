@@ -8,9 +8,9 @@
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
-                <template #cell(customer_key)="data">
+                <template #cell(customer_name)="data">
                     <div>
-                        {{ data.item.customer_key }}{{ data.item.promotive }}
+                        {{ data.item.customer_name }}{{ data.item.promotive }}
                     </div>
                 </template>
                 <template #cell(sku_sap_name)="data">
@@ -71,7 +71,7 @@ export default {
                     sortable: true,
                 },
                 {
-                    key: 'customer_key',
+                    key: 'customer_name',
                     label: 'Tenns',
                     class: 'text-nowrap',
                     sortable: true,
