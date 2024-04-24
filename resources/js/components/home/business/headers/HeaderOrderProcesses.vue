@@ -648,7 +648,7 @@ export default {
             this.form_filter.pdf_files = [];
         },
         downloadExcel() {
-            const group_by_so_num = Object.groupBy(this.orders, ({ customer_name, promotive_name }) => customer_name + promotive_name);
+            const group_by_so_num = Object.groupBy(this.orders, ({ customer_name, promotive_name }) => customer_name + (promotive_name == null ? '' : promotive_name));
             const convert_array = Object.values(Object.keys(group_by_so_num));
             var data_header = [
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
