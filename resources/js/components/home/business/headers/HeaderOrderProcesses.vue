@@ -701,6 +701,9 @@ export default {
         },
         emitListOrderProcessSO() {
             this.$emit('listOrderProcessSO');
+        },
+        updateOrders(items){
+            this.orders = items;
         }
     },
     computed: {

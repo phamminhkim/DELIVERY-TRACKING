@@ -225,6 +225,8 @@ export default {
 
                 });
             });
+            this.refHeaderOrderProcesses();
+
         },
         refeshOrders() {
             this.orders = [];
@@ -235,6 +237,9 @@ export default {
         getFetchOrderProcessSODetail(item) {
             console.log(item);
            this.getSaveOrderSO(item);
+        },
+        refHeaderOrderProcesses() {
+            this.$refs.headerOrderProcesses.updateOrders(this.orders);
         }
 
 
