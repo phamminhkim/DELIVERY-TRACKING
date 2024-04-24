@@ -47,7 +47,7 @@ class SoDataRepository extends RepositoryAbs
                             'customer_name' => $key,
                             'customer_code' => $items[0]['customer_code'],
                             'company_price' => $items[0]['company_price'],
-                            'note' => $items[0]['note'],
+                            'note' => $items[0]['note1'],
                             'level2' => $items[0]['level2'],
                             'level3' => $items[0]['level3'],
                             'level4' => $items[0]['level4'],
