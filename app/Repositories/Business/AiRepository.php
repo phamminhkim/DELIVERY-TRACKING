@@ -19,6 +19,7 @@ use App\Models\Business\RestructureDataConfig;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
 use App\Models\Master\CustomerPromotion;
+use App\Models\Master\CustomerPartner;
 use App\Models\Master\UserMorph;
 use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
@@ -183,12 +184,14 @@ class AiRepository extends RepositoryAbs
                     $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
                     // Header
                     $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
-                    $order_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                    $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                    $order_header = $this->addCustomerPartner($restruct_header);
                 } else if ($convert_file_type == 'excel') {
                     // Data
                     $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
                     // Header
-                    $order_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
+                    $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
+                    $order_header = $this->addCustomerPartner($restruct_header);
                 }
                 $array_data = [
                     // 'file_name' => '',
@@ -799,6 +802,31 @@ class AiRepository extends RepositoryAbs
         return $table;
     }
 
+    private function addCustomerPartner($table_data)
+    {
+        if (isset( $table_data['CustomerKey'])) {
+            $customer_key = trim($table_data['CustomerKey']);
+            $customer_partner = CustomerPartner::query()->where('name', $customer_key)->first();
+            if ($customer_partner) {
+                $table_data['CustomerCode'] = $customer_partner->code;
+                $table_data['CustomerPrice'] = $customer_partner->company_price;
+                $table_data['CustomerNote'] = $customer_partner->note;
+                $table_data['CustomerLevel2'] = $customer_partner->LV2;
+                $table_data['CustomerLevel3'] = $customer_partner->LV3;
+                $table_data['CustomerLevel4'] = $customer_partner->LV4;
+
+            } else {
+                $table_data['CustomerCode'] = null;
+                $table_data['CustomerPrice'] = null;
+                $table_data['CustomerNote'] = null;
+                $table_data['CustomerLevel2'] = null;
+                $item['CustomerLevel3'] = null;
+                $table_data['CustomerLevel4'] = null;
+            }
+        }
+        return $table_data;
+    }
+
     public function extractDataForConfig()
     {
         try {
@@ -877,7 +905,8 @@ class AiRepository extends RepositoryAbs
     {
         try {
             $table_data = json_decode($this->data['table_data'], true);
-            return $this->restructureData($table_data);
+            $restruct_data = $this->restructureData($table_data);
+            return $this->addCustomerPartner($restruct_data);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
