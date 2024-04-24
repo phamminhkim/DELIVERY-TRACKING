@@ -4,17 +4,17 @@
             <!-- sticky-header="500px" -->
             <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices"
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
-                <template #cell(row_custom)="data">
+                <!-- <template #cell(row_custom)="data">
                     <b-dropdown size="sm" id="dropdown-offset" offset="25" text="" variant="link"
                         toggle-class="text-decoration-none" no-caret class="">
                         <template #button-content>
                             <button class="btn btn-xs btn-light dropdown-toggle" type="button" data-toggle="dropdown"
                                 aria-expanded="false"><i class="fas fa-th-list"></i></button>
                         </template>
-                        <b-dropdown-item @click="deleteRow(data.index)" class="text-danger" href="#">Xóa
+                        <b-dropdown-item @click="deleteRow(data.index, data.item)" class="text-danger" href="#">Xóa
                             dòng</b-dropdown-item>
                     </b-dropdown>
-                </template>
+                </template> -->
                 <template #cell(index)="data">
                     <div class="font-weight-bold" :class="{
             'bg-warning rounded': rowColor(data.item)
@@ -31,35 +31,35 @@
                         {{ data.item.barcode }}
                     </div>
                 </template>
-                <template #cell(so_num)="data">
+                <template #cell(customer_key)="data">
                     <div v-if="isCheckLack(data.item)" >
-                        {{ data.item.so_num }} <br>
+                        {{ data.item.customer_key }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                         <small v-if="rowColor(data.item)" class="text-success ml-2"><i class="fas fa-circle fa-xs mr-1"></i>Đã lưu</small>
                     </div>
                     <div v-else>
-                        {{ data.item.so_num }}
+                        {{ data.item.customer_key }}{{ data.item.promotive }}
                     </div>
                 </template>
-                <template #cell(quantity_po)="data">
+                <template #cell(quantity1_po)="data">
                     <div :class="{
                         'text-danger': isCheckLack(data.item)
                     }">
-                        {{ data.item.quantity_po }}
+                        {{ data.item.quantity1_po }}
                     </div>
                 </template>
-                <template #cell(po_qty)="data">
+                <template #cell(quantity2_po)="data">
                     <div :class="{
                         'text-danger': isCheckLack(data.item)
                     }">
-                        {{ data.item.po_qty }}
+                        {{ data.item.quantity2_po }}
                     </div>
                 </template>
-                <template #cell(check_ton)="data">
+                <template #cell(inventory_quantity)="data">
                     <div :class="{
                         'text-danger': isCheckLack(data.item)
                     }">
-                        {{ data.item.check_ton }}
+                        {{ data.item.inventory_quantity }}
                     </div>
                 </template>
                 <template #head(barcode)="header">
@@ -104,6 +104,18 @@
                             {{ data.item.sku_sap_code }}
                         </p>
                     </div>
+                </template>
+                <template #cell(sku_sap_name)="data">
+                        {{ data.item.sku_sap_name }}{{ data.item.promotive }}
+                </template>
+                <template #cell(promotive_name)="data">
+                   {{ data.item.promotive }}
+                </template>
+                <template #cell(note1)="data">
+                    {{ data.item.note1 }}{{ data.item.promotive }}
+                </template>
+                <template #cell(note)="data">
+                    {{ data.item.note }}{{ data.item.promotive }}
                 </template>
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index)" class="text-center">
@@ -188,7 +200,7 @@ export default {
                     sortable: true,
                 },
                 {
-                    key: 'so_num',
+                    key: 'customer_key',
                     label: 'Tenns',
                     class: 'text-nowrap',
                     sortable: true,
@@ -235,7 +247,7 @@ export default {
 
                 },
                 {
-                    key: 'description',
+                    key: 'note',
                     label: 'Ghi_chu',
                     class: 'text-nowrap',
                     sortable: true,
@@ -243,7 +255,7 @@ export default {
 
                 },
                 {
-                    key: 'code_customer',
+                    key: 'customer_code',
                     label: 'Makh',
                     class: 'text-nowrap',
                     sortable: true,
@@ -278,14 +290,14 @@ export default {
 
                 },
                 {
-                    key: 'quantity_po',
+                    key: 'quantity1_po',
                     label: 'Qty',
                     class: 'text-nowrap',
                     sortable: true,
 
                 },
                 {
-                    key: 'combo',
+                    key: 'promotive_name',
                     label: 'Combo',
                     class: 'text-nowrap',
                     sortable: true,
@@ -293,7 +305,7 @@ export default {
 
                 },
                 {
-                    key: 'check_ton',
+                    key: 'inventory_quantity',
                     label: 'Check tồn',
                     class: 'text-nowrap',
                     sortable: true,
@@ -301,7 +313,7 @@ export default {
 
                 },
                 {
-                    key: 'po_qty',
+                    key: 'quantity2_po',
                     label: 'Po_qty',
                     class: 'text-nowrap',
                     sortable: true,
@@ -325,7 +337,7 @@ export default {
 
                 },
                 {
-                    key: 'description_2',
+                    key: 'note',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',
                     sortable: true,
@@ -333,28 +345,28 @@ export default {
 
                 },
                 {
-                    key: 'price_company',
+                    key: 'company_price',
                     label: 'Gia_cty',
                     class: 'text-nowrap',
                     sortable: true,
 
                 },
                 {
-                    key: 'level_two',
+                    key: 'level2',
                     label: 'Level_2',
                     class: 'text-nowrap',
                     sortable: true,
 
                 },
                 {
-                    key: 'level_three',
+                    key: 'level3',
                     label: 'Level_3',
                     class: 'text-nowrap',
                     sortable: true,
 
                 },
                 {
-                    key: 'level_four',
+                    key: 'level4',
                     label: 'Level_4',
                     class: 'text-nowrap',
                     sortable: true,
@@ -431,8 +443,8 @@ export default {
             }
             return false;
         },
-        deleteRow(index) {
-            this.$emit('deleteRow', index)
+        deleteRow(index, item) {
+            this.$emit('deleteRow', index , item)
         },
         emitCheckBox(index) {
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
@@ -448,12 +460,16 @@ export default {
             }
         },
         isCheckLack(item){
-            let result = item.quantity_po * item.po_qty;
-            if(result > item.check_ton){
+            let result =  this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
+            if(result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0){
                 return true;
             }
             return false;
-        }
+        },
+        convertToNumber(value) {
+            return Number(value);
+        },
+        
        
 
 

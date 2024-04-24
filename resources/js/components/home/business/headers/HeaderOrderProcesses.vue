@@ -81,38 +81,38 @@
             </b-collapse>
             <div class="form-group btn-group btn-group-custom" role="group">
                 <button @click="detectSapCode()" type="button"
-                    class="shadow btn-sm btn-light  text-orange btn-group__border">Dò mã
+                    class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
                 <button type="button" v-on:click="handleCheckInventory"
-                    class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                    class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     tồn</button>
                 <input type="file" ref="file_check_ton" style="display: none" accept=".xls,.xlsx"
                     @change="eventChooseFile($event)" class="shadow btn-sm btn-light text">
                 <input type="file" ref="file_check_price" style="display: none" accept=".xls,.xlsx"
                     @change="chooseFileEventCheckPrice($event)" class="shadow btn-sm btn-light text">
                 <button @click="handleCheckPrice()" type="button"
-                    class="shadow btn-sm btn-light  text-orange btn-group__border">Check
+                    class="shadow btn-sm btn-light rounded text-orange btn-group__border">Check
                     giá</button>
                 <button @click="emitOrderLack()" type="button"
-                    class="btn-sm font-smaller btn font-weight-bold text-success btn-light  text-center btn-group__border shadow-btn">Lưu
+                    class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">Lưu
                     hàng thiếu</button>
                 <button @click="emitOrderDelete()"
-                    class="btn-sm font-smaller btn font-weight-bold btn-light  text-danger  btn-group__border shadow-btn">Xóa
+                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">Xóa
                     dữ liệu</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
-                    class="btn-sm font-smaller btn font-weight-bold btn-light  text-center btn-group__border shadow-btn"><i
+                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
                         class="fas fa-search mr-2"></i>Tìm
                     mã...</button>
                 <button @click="downloadExcel()"
-                    class="btn-sm font-smaller btn btn-light text-success  btn-group__border shadow-btn"><i
+                    class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Tạo
                     upload</button>
-                <!-- <button class="btn-sm font-smaller btn-warning  btn-group__border shadow-btn">Khóa
-                    Event</button>
-                <button class="btn-sm  font-smaller btn-success  text-center btn-group__border shadow-btn">Mở
-                    Event</button> -->
                 <button type="button"
                     class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
+                <button @click="emitSaveOrderProcess()" type="button"
+                    class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
+                    <i class="fas fa-save mr-2"></i>Lưu</button>
+
 
             </div>
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
@@ -162,7 +162,7 @@ export default {
             type: Array,
             default: () => []
         }
-      
+
 
     },
     components: {
@@ -182,13 +182,14 @@ export default {
             case_error: {
                 extract_pdf: '',
             },
+           
             case_index: {
                 code_type: 0,
                 name_product: 0,
                 customer_sku_code: 0,
                 store: 0,
                 customer_sku_unit: 0,
-                po_qty: 0,
+                quantity2_po: 0,
                 price_po: 0,
             },
             case_data_temporary: {
@@ -336,11 +337,13 @@ export default {
         handleCheckPrice() {
             this.$refs.file_check_price.click();
         },
-        chooseFileEventCheckPrice(event) {
-            this.fetchCheckPrice(event.target.files[0]);
+        async chooseFileEventCheckPrice(event) {
+            await this.fetchCheckPrice(event.target.files[0]);
+            this.resetEventTargetFile(event);
         },
-        eventChooseFile(event) {
-            this.fetchCheckInventory(event.target.files[0]);
+        async eventChooseFile(event) {
+            await this.fetchCheckInventory(event.target.files[0]);
+            this.resetEventTargetFile(event);
         },
         async fetchMaterialDonated() {
             try {
@@ -420,7 +423,7 @@ export default {
                         this.case_index.customer_sku_unit = index;
                         break;
                     case "Số lượng đặt hàng":
-                        this.case_index.po_qty = index;
+                        this.case_index.quantity2_po = index;
                         break;
                     case "Đơn giá":
                         this.case_index.price_po = index;
@@ -434,24 +437,25 @@ export default {
         browserExcelData(data) {
             for (let index = 1; index < data.length; index++) {
                 this.orders.push({
+                    id: '',
                     barcode: '',
                     sku_sap_code: '',
                     sku_sap_name: '',
                     sku_sap_unit: '',
                     promotive: '',
-                    combo: '',
-                    so_num: data[index][this.case_index.store],
+                    promotive_name: '',
+                    customer_key: data[index][this.case_index.store],
                     description: data[index][this.case_index.store],
-                    description_2: data[index][this.case_index.store],
+                    note: data[index][this.case_index.store],
                     customer_sku_code: data[index][this.case_index.customer_sku_code],
                     customer_sku_name: data[index][this.case_index.name_product],
                     customer_sku_unit: data[index][this.case_index.customer_sku_unit],
-                    quantity_po: '',
-                    po_qty: data[index][this.case_index.po_qty],
+                    quantity1_po: '',
+                    quantity2_po: data[index][this.case_index.quantity2_po],
                     price_po: data[index][this.case_index.price_po],
                     amount_po: this.calculatorAmount(data[index][this.case_index.price_po]),
-                    code_customer: this.browserCustomerCode(data[index][this.case_index.store] == undefined ? '' : data[index][this.case_index.store]),
-
+                    customer_code: this.browserCustomerCode(data[index][this.case_index.store] == undefined ? '' : data[index][this.case_index.store]),
+                    inventory_quantity:'',
                 });
                 this.bar_codes.push(data[index][this.case_index.customer_sku_code]);
             }
@@ -543,13 +547,9 @@ export default {
             this.case_data_temporary.type_file = change_file.type;
         },
         updateMaterialCategoryTypeInOrder(index, item) {
-            if (this.orders[index].promotive != item.code) {
-                this.orders[index].so_num = this.orders[index].so_num + item.name;
-                this.orders[index].promotive = item.code;
-                this.orders[index].sku_sap_name = this.orders[index].sku_sap_name + item.name;
-                this.orders[index].description = this.orders[index].description + item.name;
-                this.orders[index].combo = this.orders[index].combo + item.name;
-                this.orders[index].description_2 = this.orders[index].description_2 + item.name;
+            if (this.orders[index].promotive != item.name) {
+                this.orders[index].promotive = item.name;
+                this.orders[index].promotive_name = item.name;
             }
         },
         async getConvertFilePDF(file_response) {
@@ -558,23 +558,31 @@ export default {
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
+                        id: '',
                         barcode: '',
                         sku_sap_code: '',
                         sku_sap_name: '',
                         sku_sap_unit: '',
                         promotive: '',
-                        combo: '',
-                        so_num: file_response.data[index].headers.PoPerson,
-                        description: file_response.data[index].headers.PoPerson,
-                        description_2: '',
+                        promotive_name: '',
+                        customer_key: file_response.data[index].headers.PoPerson,
+                        note: file_response.data[index].headers.PoPerson,
+                        note1: file_response.data[index].headers.CustomerNote,
                         customer_sku_code: item.ProductID,
                         customer_sku_name: item.ProductName,
                         customer_sku_unit: item.OrdUnit,
-                        quantity_po: item.Quantity1,
-                        po_qty: item.Quantity2,
+                        quantity1_po: item.Quantity1,
+                        quantity2_po: item.Quantity2,
                         price_po: item.ProductPrice,
                         amount_po: this.calculatorAmount(item.ProductAmount),
-                        code_customer: '',
+                        customer_code: file_response.data[index].headers.CustomerCode,
+                        company_price: '',
+                        level2: file_response.data[index].headers.CustomerLevel2,
+                        level3: file_response.data[index].headers.CustomerLevel3,
+                        level4: file_response.data[index].headers.CustomerLevel4,
+                        is_promotive: false,
+                        is_inventory: false,
+                        inventory_quantity: '',
                     });
                     this.bar_codes.push(item.ProductID);
                 }
@@ -639,7 +647,9 @@ export default {
             this.form_filter.pdf_files = [];
         },
         downloadExcel() {
-            const group_by_so_num = Object.groupBy(this.orders, ({ so_num }) => so_num);
+            // group by customer_key + promotive_name
+            const group_by_so_num = Object.groupBy(this.orders, ({ customer_key, promotive_name }) => customer_key + promotive_name);
+            // const group_by_so_num = Object.groupBy(this.orders, ({ customer_key }) => customer_key);
             const convert_array = Object.values(Object.keys(group_by_so_num));
             var data_header = [
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
@@ -647,17 +657,17 @@ export default {
             ];
             const data_news = this.orders.map((item) => {
                 return {
-                    'Số SO': item.so_num,
-                    'Mã khách hàng': item.code_customer,
+                    'Số SO': item.customer_key + item.promotive_name,
+                    'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.customer_sku_code,
-                    'Số lượng': (item.po_qty * item.quantity_po),
+                    'Số lượng': (item.quantity2_po * item.quantity1_po),
                     'Đơn vị tính': item.sku_sap_unit,
-                    'Combo': item.combo,
+                    'Combo': item.promotive_name,
                     'Phiên bản BOM Sale': '',
-                    'level2': '',
-                    'level3': '',
-                    'level4': '',
-                    'Ghi_chú': item.description,
+                    'level2': item.level2,
+                    'level3': item.level3,
+                    'level4': item.level4,
+                    'Ghi_chú': item.note + item.promotive_name,
                     'Barcode': item.barcode,
                 };
             });
@@ -686,6 +696,9 @@ export default {
         },
         emitOrderDelete() {
             this.$emit('changeEventOrderDelete');
+        },
+        emitSaveOrderProcess() {
+            this.$emit('saveOrderProcess');
         }
     },
     computed: {

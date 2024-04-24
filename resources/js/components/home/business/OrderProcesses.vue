@@ -7,17 +7,19 @@
             @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
-            @changeEventOrderDelete="getEventOrderDelete" :item_selecteds="case_data_temporary.item_selecteds">
+            @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
+            :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
-
+        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" @saveOrderSO="getSaveOrderSO">
+        </DialogTitleOrderSO>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
-            :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
+            :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
@@ -29,6 +31,7 @@
 <script>
 import HeaderOrderProcesses from './headers/HeaderOrderProcesses.vue';
 import DialogSearchOrderProcesses from './dialogs/DialogSearchOrderProcesses.vue';
+import DialogTitleOrderSO from './dialogs/DialogTitleOrderSO.vue';
 import HeaderTabOrderProcesses from './headers/HeaderTabOrderProcesses.vue';
 import TableOrderLack from './tables/TableOrderLack.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
@@ -40,7 +43,8 @@ export default {
         HeaderTabOrderProcesses,
         TableOrderLack,
         ParentOrderSuffice,
-        ParentOrderLack
+        ParentOrderLack,
+        DialogTitleOrderSO
     },
     data() {
         return {
@@ -55,6 +59,11 @@ export default {
             material_prices: [],
             case_index: {
                 check_box: [],
+            },
+            case_save_so: {
+                id: '',
+                title: '',
+                serial_number: '',
             },
             case_is_loading: {
                 detect_sap_code: false
@@ -90,7 +99,8 @@ export default {
         getListMaterialCombo(data) {
             this.material_combos = data;
         },
-        getDeleteRow(index) {
+        getDeleteRow(index, item) {
+
             this.orders.splice(index, 1);
         },
         getListMaterialDetect(data) {
@@ -109,12 +119,11 @@ export default {
         },
         getInventory(data) {
             this.material_inventories = [...data];
-            console.log(this.material_inventories);
             var orders = [...this.orders];
             this.material_inventories.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['Material'] == this.orders[i]['sku_sap_code']) {
-                        orders[i]['check_ton'] = tmp['ATP_Quantity'];
+                        orders[i]['inventory_quantity'] = tmp['ATP_Quantity'];
                     }
                 }
             });
@@ -126,7 +135,7 @@ export default {
             this.material_prices.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['bar_code'] !== "" && tmp['bar_code'] == this.orders[i]['barcode']) {
-                        orders[i]['price_company'] = tmp['price'];
+                        orders[i]['company_price'] = tmp['price'];
                     }
                 }
             });
@@ -149,7 +158,11 @@ export default {
             this.case_data_temporary.item_selecteds = [];
         },
         getEventOrderDelete() {
-            this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+            // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+            const index = this.orders.findIndex(item =>
+                this.case_data_temporary.item_selecteds.some(selected => selected.customer_sku_code === item.customer_sku_code)
+            );
+            this.orders.splice(index, 1);
             this.refeshCheckBox();
         },
         getReplaceItem(item_materials) {
@@ -162,7 +175,58 @@ export default {
                 });
             });
             this.closeModalSearchOrderProcesses();
+            this.refeshCheckBox();
+        },
+        getSaveOrderProcesses() {
+            console.log('saveOrderProcesses');
+            this.showDialogTitleOrderSo();
+            // this.$refs.parentOrderSuffice.saveOrderProcesses();
+        },
+        showDialogTitleOrderSo() {
+            this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
+        },
+        getSaveOrderSO(item) {
+            this.refeshOrders();
+            this.case_save_so.id = item.id;
+            this.case_save_so.title = item.title;
+            this.case_save_so.serial_number = item.serial_number;
+            console.log('getSaveOrderSO', item);
+            item.so_data_items.forEach(data_item => {
+                this.orders.push({
+                    id: data_item.id,
+                    customer_sku_code: data_item.customer_sku_code,
+                    customer_sku_name: data_item.customer_sku_name,
+                    customer_sku_unit: data_item.customer_sku_unit,
+                    quantity: data_item.quantity,
+                    company_price: data_item.so_header.company_price,
+                    customer_code: data_item.so_header.customer_code,
+                    level2: data_item.so_header.level2,
+                    level3: data_item.so_header.level3,
+                    level4: data_item.so_header.level4,
+                    note1: data_item.so_header.note,
+                    note: data_item.note,
+                    barcode: data_item.barcode,
+                    sku_sap_code: data_item.sku_sap_code,
+                    sku_sap_name: data_item.sku_sap_name,
+                    sku_sap_unit: data_item.sku_sap_unit,
+                    inventory_quantity: data_item.inventory_quantity,
+                    amount_po: data_item.amount_po,
+                    is_inventory: data_item.is_inventory,
+                    is_promotive: data_item.is_promotive,
+                    price_po: data_item.price_po,
+                    promotive: data_item.promotive,
+                    promotive_name: data_item.promotive_name,
+                    quantity1_po: data_item.quantity1_po,
+                    quantity2_po: data_item.quantity2_po,
+                    customer_key: data_item.so_header.customer_key,
+
+                });
+            });
+        },
+        refeshOrders() {
+            this.orders = [];
         }
+
 
 
     },

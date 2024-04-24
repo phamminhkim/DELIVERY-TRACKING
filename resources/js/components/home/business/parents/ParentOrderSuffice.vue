@@ -1,10 +1,19 @@
 <template>
     <div>
-        <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page" :per_page="per_page"
-            :material_combos="material_combos" :material_donateds="material_donateds" :orders="orders"
-            :order_lacks="order_lacks"
-            :tab_value="tab_value" @onChangeCategoryType="getOnChangeCategoryType"
-            :is_loading_detect_sap_code="is_loading_detect_sap_code" @checkBoxRow="getCheckBoxRow"></TableOrderSuffice>
+        <div class="form-group border-bottom d-inline-block p-2 px-4 rounded"
+            style="background: rgb(234 234 234 / 50%);">
+            <label clsas="bg-success">Tiêu đề SO: </label>
+            <span v-if="case_save_so.title !== ''">
+                <span  class="font-weight-bold mr-2"> {{ case_save_so.title }} </span>
+                <span  class="text-success"><i class="fas fa-circle fa-xs mr-1"></i>Đã
+                    lưu</span>
+            </span>
+        </div>
+        <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"
+            :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
+            :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value"
+            @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
+            @checkBoxRow="getCheckBoxRow"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -45,6 +54,9 @@ export default {
         order_lacks: {
             type: Array,
             default: () => []
+        },
+        case_save_so: {
+            type: Object
         }
     },
     components: {
@@ -77,6 +89,9 @@ export default {
         },
         refeshCheckBox() {
             this.$refs.tableOrderSuffice.refeshCaseCheckBox();
+        },
+        isEmptyObject() {
+            return Object.keys(this.case_save_so).length === 0;
         }
 
     },
