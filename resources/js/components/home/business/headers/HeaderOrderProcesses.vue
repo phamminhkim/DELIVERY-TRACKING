@@ -624,7 +624,6 @@ export default {
                 await this.getConvertFilePDF(file_response);
                 this.resetEventTargetFile(event);
                 this.$showMessage('success', 'Thành công', 'Giải nén file thành công');
-
             } catch (error) {
                 this.hideModalExtractPDF();
                 this.case_error.extract_pdf = error;
@@ -632,6 +631,7 @@ export default {
             } finally {
                 this.hideModalExtractPDF();
                 this.is_case_loading.extract_pdf = false;
+                this.resetEventTargetFile(event);
             }
         },
         resetEventTargetFile(event) {
