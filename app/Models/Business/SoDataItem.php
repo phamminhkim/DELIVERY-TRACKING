@@ -28,6 +28,7 @@ class SoDataItem extends Model
         'inventory_quantity',
         'price_po',
         'amount_po',
+        'company_price',
     ];
 
     protected $casts = [

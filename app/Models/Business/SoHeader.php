@@ -12,7 +12,6 @@ class SoHeader extends Model
         'order_process_id',
         'customer_name',
         'customer_code',
-        'company_price',
         'note',
         'level2',
         'level3',

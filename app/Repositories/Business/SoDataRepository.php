@@ -46,7 +46,6 @@ class SoDataRepository extends RepositoryAbs
                             'order_process_id' => $order_process->id,
                             'customer_name' => $key,
                             'customer_code' => $items[0]['customer_code'],
-                            'company_price' => $items[0]['company_price'],
                             'note' => $items[0]['note1'],
                             'level2' => $items[0]['level2'],
                             'level3' => $items[0]['level3'],
@@ -75,6 +74,7 @@ class SoDataRepository extends RepositoryAbs
                                 'inventory_quantity' => $item['inventory_quantity'],
                                 'price_po' => $item['price_po'],
                                 'amount_po' => $item['amount_po'],
+                                'company_price' => $item['company_price'],
                                 'created_at' => $date_now,
                                 'updated_at' => $date_now,
                             ];
@@ -121,7 +121,6 @@ class SoDataRepository extends RepositoryAbs
                         'order_process_id' => $order_process->id,
                         'customer_name' => $key,
                         'customer_code' => $items[0]['customer_code'],
-                        'company_price' => $items[0]['company_price'],
                         'note' => $items[0]['note'],
                         'level2' => $items[0]['level2'],
                         'level3' => $items[0]['level3'],
@@ -150,6 +149,7 @@ class SoDataRepository extends RepositoryAbs
                             'inventory_quantity' => $item['inventory_quantity'],
                             'price_po' => $item['price_po'],
                             'amount_po' => $item['amount_po'],
+                            'company_price' => $item['company_price'],
                             'created_at' => $date_now,
                             'updated_at' => $date_now,
                         ];

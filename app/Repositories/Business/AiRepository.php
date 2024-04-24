@@ -809,7 +809,6 @@ class AiRepository extends RepositoryAbs
             $customer_partner = CustomerPartner::query()->where('name', $customer_key)->first();
             if ($customer_partner) {
                 $table_data['CustomerCode'] = $customer_partner->code;
-                $table_data['CustomerPrice'] = $customer_partner->company_price;
                 $table_data['CustomerNote'] = $customer_partner->note;
                 $table_data['CustomerLevel2'] = $customer_partner->LV2;
                 $table_data['CustomerLevel3'] = $customer_partner->LV3;
@@ -817,7 +816,6 @@ class AiRepository extends RepositoryAbs
 
             } else {
                 $table_data['CustomerCode'] = null;
-                $table_data['CustomerPrice'] = null;
                 $table_data['CustomerNote'] = null;
                 $table_data['CustomerLevel2'] = null;
                 $table_data['CustomerLevel3'] = null;
