@@ -208,7 +208,7 @@ class SoDataRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $order_processes = OrderProcess::where('is_deleted', false)->get();
+                $order_processes = OrderProcess::where('is_deleted', false)->orderBy('updated_at', 'desc')->get();
                 return $order_processes;
             }
             return false;
