@@ -8,13 +8,15 @@
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
+            @listOrderProcessSO="getListOrderProcessSO"
             :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
-        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" @saveOrderSO="getSaveOrderSO">
+        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" @saveOrderSO="getSaveOrderSO" :case_save_so="case_save_so">
         </DialogTitleOrderSO>
+        <DialogListOrderProcessSO ref="dialogListOrderProcessSo" @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
@@ -32,6 +34,7 @@
 import HeaderOrderProcesses from './headers/HeaderOrderProcesses.vue';
 import DialogSearchOrderProcesses from './dialogs/DialogSearchOrderProcesses.vue';
 import DialogTitleOrderSO from './dialogs/DialogTitleOrderSO.vue';
+import DialogListOrderProcessSO from './dialogs/DialogListOrderProcessSO.vue';
 import HeaderTabOrderProcesses from './headers/HeaderTabOrderProcesses.vue';
 import TableOrderLack from './tables/TableOrderLack.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
@@ -44,7 +47,8 @@ export default {
         TableOrderLack,
         ParentOrderSuffice,
         ParentOrderLack,
-        DialogTitleOrderSO
+        DialogTitleOrderSO,
+        DialogListOrderProcessSO
     },
     data() {
         return {
@@ -190,7 +194,6 @@ export default {
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
             this.case_save_so.serial_number = item.serial_number;
-            console.log('getSaveOrderSO', item);
             item.so_data_items.forEach(data_item => {
                 this.orders.push({
                     id: data_item.id,
@@ -198,7 +201,7 @@ export default {
                     customer_sku_name: data_item.customer_sku_name,
                     customer_sku_unit: data_item.customer_sku_unit,
                     quantity: data_item.quantity,
-                    company_price: data_item.so_header.company_price,
+                    company_price: data_item.company_price,
                     customer_code: data_item.so_header.customer_code,
                     level2: data_item.so_header.level2,
                     level3: data_item.so_header.level3,
@@ -214,7 +217,7 @@ export default {
                     is_inventory: data_item.is_inventory,
                     is_promotive: data_item.is_promotive,
                     price_po: data_item.price_po,
-                    promotive: data_item.promotive,
+                    promotive: data_item.promotive_name,
                     promotive_name: data_item.promotive_name,
                     quantity1_po: data_item.quantity1_po,
                     quantity2_po: data_item.quantity2_po,
@@ -225,6 +228,13 @@ export default {
         },
         refeshOrders() {
             this.orders = [];
+        },
+        getListOrderProcessSO() {
+            this.$refs.dialogListOrderProcessSo.showModal();
+        },
+        getFetchOrderProcessSODetail(item) {
+            console.log(item);
+           this.getSaveOrderSO(item);
         }
 
 

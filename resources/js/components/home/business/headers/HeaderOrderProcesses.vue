@@ -1,7 +1,8 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group p-1 mb-0" style="background: rgb(0 0 0 / 2%);">
-            <b-button v-b-toggle.collapse-1 class="btn btn-sm btn-warning px-3 mt-1 mb-2">Xử lý đơn hàng</b-button>
+            <b-button v-b-toggle.collapse-1 class="btn btn-sm btn-warning px-3 mt-1 mb-2"><i class="fas fa-recycle mr-2"></i>Xử lý đơn hàng</b-button>
+            <button @click="emitListOrderProcessSO()" type="button" class="btn btn-sm btn-primary px-3 mt-1 mb-2 ml-2"><i class="fas fa-list-ol mr-2"></i>Danh sách xử lý đơn hàng</button>
             <b-collapse id="collapse-1" class="mt-2">
                 <b-card class="border-0 shadow-sm">
                     <div class="row">
@@ -107,8 +108,8 @@
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Tạo
                     upload</button>
-                <button type="button"
-                    class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button>
+                <!-- <button type="button"
+                    class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button> -->
                 <button @click="emitSaveOrderProcess()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-save mr-2"></i>Lưu</button>
@@ -697,6 +698,9 @@ export default {
         },
         emitSaveOrderProcess() {
             this.$emit('saveOrderProcess');
+        },
+        emitListOrderProcessSO() {
+            this.$emit('listOrderProcessSO');
         }
     },
     computed: {

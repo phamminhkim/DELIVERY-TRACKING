@@ -36,6 +36,10 @@ export default {
         orders: {
             type: Array,
             default: () => []
+        },
+        case_save_so: {
+            type: Object,
+            default: () => { }
         }
     },
     data() {
@@ -48,10 +52,12 @@ export default {
                 order_data: [],
             },
             api_order_save_so: '/api/sales-order/save-so',
+            api_order_update_so: '/api/sales-order',
         }
     },
     methods: {
         showDialogTitleOrderSo() {
+            this.case_data.title = this.case_save_so.title;
             $('#dialogTitleOrderSo').modal('show');
         },
         hideDialogTitleOrderSo() {
@@ -61,18 +67,24 @@ export default {
             try {
                 this.is_loading = true;
                 this.case_data.order_data = this.orders;
-                console.log(this.case_data);
-                if (this.api_order_save_so) {
-                    let { data } = await this.api_handler.post(this.api_order_save_so, {} ,this.case_data)
+                if (this.case_save_so.id !== "") {
+                    let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
+                        .finally(() => {
+                            this.is_loading = false;
+                        });
+                    this.$showMessage('success', 'Cập nhật thành công');
+                    this.$emit('saveOrderSO', data);
+                    this.hideDialogTitleOrderSo();
+                } else {
+                    let { data } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
                         .finally(() => {
                             this.is_loading = false;
                         });
                     this.$showMessage('success', 'Thêm thành công');
                     this.$emit('saveOrderSO', data);
                     this.hideDialogTitleOrderSo();
-                } else {
-                    console.error('API endpoint is undefined');
                 }
+               
             } catch (error) {
                 // handle error
             }
