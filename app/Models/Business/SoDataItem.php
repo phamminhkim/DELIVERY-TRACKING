@@ -24,6 +24,7 @@ class SoDataItem extends Model
         'quantity1_po',
         'quantity2_po',
         'is_inventory',
+        'inventory_quantity',
         'price_po',
         'amount_po',
     ];
