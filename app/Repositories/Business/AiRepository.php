@@ -820,7 +820,7 @@ class AiRepository extends RepositoryAbs
                 $table_data['CustomerPrice'] = null;
                 $table_data['CustomerNote'] = null;
                 $table_data['CustomerLevel2'] = null;
-                $item['CustomerLevel3'] = null;
+                $table_data['CustomerLevel3'] = null;
                 $table_data['CustomerLevel4'] = null;
             }
         }
