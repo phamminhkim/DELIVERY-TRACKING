@@ -656,7 +656,7 @@ export default {
             ];
             const data_news = this.orders.map((item) => {
                 return {
-                    'Số SO': item.customer_name + item.promotive_name,
+                    'Số SO': item.customer_name + (item.promotive_name == null ? '' : item.promotive_name),
                     'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.customer_sku_code,
                     'Số lượng': (item.quantity2_po * item.quantity1_po),
@@ -666,7 +666,7 @@ export default {
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': item.note + item.promotive_name,
+                    'Ghi_chú': item.customer_name + (item.promotive_name == null ? '' : item.promotive_name),
                     'Barcode': item.barcode,
                 };
             });
