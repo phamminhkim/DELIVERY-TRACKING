@@ -41,48 +41,49 @@ class SoDataRepository extends RepositoryAbs
                     'updated_by' => $current_user_id,
                 ]);
                 if ($order_process->id) {
-                    $order_data = collect($this->data['order_data'])->groupBy('customer_name')->map(function ($items, $key) use ($order_process) {
-                        $so_header = SoHeader::create([
-                            'order_process_id' => $order_process->id,
-                            'customer_name' => $key,
-                            'customer_code' => $items[0]['customer_code'],
-                            'note' => $items[0]['note1'],
-                            'level2' => $items[0]['level2'],
-                            'level3' => $items[0]['level3'],
-                            'level4' => $items[0]['level4'],
-                        ]);
-                        $so_data_items = collect($items)->map(function ($item) use ($so_header, $order_process) {
-                            $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
-                            $date_now = now();
-                            return [
-                                'so_number' => $so_number,
+                    $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                        $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
+                            $so_header = SoHeader::create([
                                 'order_process_id' => $order_process->id,
-                                'so_header_id' => $so_header->id,
-                                'barcode' => $item['barcode'],
-                                'sku_sap_code' => $item['sku_sap_code'],
-                                'sku_sap_name' => $item['sku_sap_name'],
-                                'sku_sap_unit' => $item['sku_sap_unit'],
-                                'is_promotive' => $item['is_promotive'],
-                                'promotive_name' => $item['promotive_name'],
-                                'note' => $item['note'],
-                                'customer_sku_code' => $item['customer_sku_code'],
-                                'customer_sku_name' => $item['customer_sku_name'],
-                                'customer_sku_unit' => $item['customer_sku_unit'],
-                                'quantity1_po' => $item['quantity1_po'],
-                                'quantity2_po' => $item['quantity2_po'],
-                                'is_inventory' => $item['is_inventory'],
-                                'inventory_quantity' => $item['inventory_quantity'],
-                                'price_po' => $item['price_po'],
-                                'amount_po' => $item['amount_po'],
-                                'company_price' => $item['company_price'],
-                                'created_at' => $date_now,
-                                'updated_at' => $date_now,
-                            ];
-                        });
+                                'customer_name' => $key,
+                                'customer_code' => $so_items[0]['customer_code'],
+                                'note' => $so_items[0]['note1'],
+                                'level2' => $so_items[0]['level2'],
+                                'level3' => $so_items[0]['level3'],
+                                'level4' => $so_items[0]['level4'],
+                            ]);
+                            $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
+                            $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
+                                $date_now = now();
+                                return [
+                                    'so_number' => $so_number,
+                                    'order_process_id' => $order_process->id,
+                                    'so_header_id' => $so_header->id,
+                                    'barcode' => $item['barcode'],
+                                    'sku_sap_code' => $item['sku_sap_code'],
+                                    'sku_sap_name' => $item['sku_sap_name'],
+                                    'sku_sap_unit' => $item['sku_sap_unit'],
+                                    'is_promotive' => $item['is_promotive'],
+                                    'promotive_name' => $item['promotive_name'],
+                                    'note' => $item['note'],
+                                    'customer_sku_code' => $item['customer_sku_code'],
+                                    'customer_sku_name' => $item['customer_sku_name'],
+                                    'customer_sku_unit' => $item['customer_sku_unit'],
+                                    'quantity1_po' => $item['quantity1_po'],
+                                    'quantity2_po' => $item['quantity2_po'],
+                                    'is_inventory' => $item['is_inventory'],
+                                    'inventory_quantity' => $item['inventory_quantity'],
+                                    'price_po' => $item['price_po'],
+                                    'amount_po' => $item['amount_po'],
+                                    'company_price' => $item['company_price'],
+                                    'created_at' => $date_now,
+                                    'updated_at' => $date_now,
+                                ];
+                            });
                         SoDataItem::insert($so_data_items->toArray());
+                        });
                     });
                 }
-
                 DB::commit();
                 $order_process->load(['so_data_items', 'so_data_items.so_header']);
                 return $order_process;
@@ -116,45 +117,47 @@ class SoDataRepository extends RepositoryAbs
                 $order_process->updated_at = now();
                 $order_process->save();
                 // Tạo lại so_data_items và so_headers
-                $order_data = collect($this->data['order_data'])->groupBy('customer_name')->map(function ($items, $key) use ($order_process) {
-                    $so_header = SoHeader::create([
-                        'order_process_id' => $order_process->id,
-                        'customer_name' => $key,
-                        'customer_code' => $items[0]['customer_code'],
-                        'note' => $items[0]['note'],
-                        'level2' => $items[0]['level2'],
-                        'level3' => $items[0]['level3'],
-                        'level4' => $items[0]['level4'],
-                    ]);
-                    $so_data_items = collect($items)->map(function ($item) use ($so_header, $order_process) {
-                        $date_now = now();
-                        $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
-                        return [
-                            'so_number' => $so_number,
+                $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                    $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
+                        $so_header = SoHeader::create([
                             'order_process_id' => $order_process->id,
-                            'so_header_id' => $so_header->id,
-                            'barcode' => $item['barcode'],
-                            'sku_sap_code' => $item['sku_sap_code'],
-                            'sku_sap_name' => $item['sku_sap_name'],
-                            'sku_sap_unit' => $item['sku_sap_unit'],
-                            'is_promotive' => $item['is_promotive'],
-                            'promotive_name' => $item['promotive_name'],
-                            'note' => $item['note'],
-                            'customer_sku_code' => $item['customer_sku_code'],
-                            'customer_sku_name' => $item['customer_sku_name'],
-                            'customer_sku_unit' => $item['customer_sku_unit'],
-                            'quantity1_po' => $item['quantity1_po'],
-                            'quantity2_po' => $item['quantity2_po'],
-                            'is_inventory' => $item['is_inventory'],
-                            'inventory_quantity' => $item['inventory_quantity'],
-                            'price_po' => $item['price_po'],
-                            'amount_po' => $item['amount_po'],
-                            'company_price' => $item['company_price'],
-                            'created_at' => $date_now,
-                            'updated_at' => $date_now,
-                        ];
-                    });
+                            'customer_name' => $key,
+                            'customer_code' => $so_items[0]['customer_code'],
+                            'note' => $so_items[0]['note1'],
+                            'level2' => $so_items[0]['level2'],
+                            'level3' => $so_items[0]['level3'],
+                            'level4' => $so_items[0]['level4'],
+                        ]);
+                        $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
+                        $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
+                            $date_now = now();
+                            return [
+                                'so_number' => $so_number,
+                                'order_process_id' => $order_process->id,
+                                'so_header_id' => $so_header->id,
+                                'barcode' => $item['barcode'],
+                                'sku_sap_code' => $item['sku_sap_code'],
+                                'sku_sap_name' => $item['sku_sap_name'],
+                                'sku_sap_unit' => $item['sku_sap_unit'],
+                                'is_promotive' => $item['is_promotive'],
+                                'promotive_name' => $item['promotive_name'],
+                                'note' => $item['note'],
+                                'customer_sku_code' => $item['customer_sku_code'],
+                                'customer_sku_name' => $item['customer_sku_name'],
+                                'customer_sku_unit' => $item['customer_sku_unit'],
+                                'quantity1_po' => $item['quantity1_po'],
+                                'quantity2_po' => $item['quantity2_po'],
+                                'is_inventory' => $item['is_inventory'],
+                                'inventory_quantity' => $item['inventory_quantity'],
+                                'price_po' => $item['price_po'],
+                                'amount_po' => $item['amount_po'],
+                                'company_price' => $item['company_price'],
+                                'created_at' => $date_now,
+                                'updated_at' => $date_now,
+                            ];
+                        });
                     SoDataItem::insert($so_data_items->toArray());
+                    });
                 });
                 DB::commit();
                 $order_process->load(['so_data_items', 'so_data_items.so_header']);
