@@ -167,7 +167,9 @@ class CheckDataRepository extends RepositoryAbs
             $sap_code = $item['sap_code'];
             $bar_code = $item['bar_code'];
 
-            $materialCombo = MaterialCombo::where('bar_code', $bar_code)->first();
+            $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
+                ->where('bar_code', $bar_code)
+                ->first();
 
             if ($materialCombo) {
                 $combo_category_type = MaterialCategoryType::where('name', 'Combo')
