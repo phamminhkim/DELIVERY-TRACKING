@@ -35,10 +35,15 @@
                     <div v-if="isCheckLack(data.item)" >
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
-                        <small v-if="rowColor(data.item)" class="text-success ml-2"><i class="fas fa-circle fa-xs mr-1"></i>Đã lưu</small>
+                        <small v-if="rowColor(data.item)" class="text-success ml-2 font-weight-bold">
+                            <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
+                        </small>
                     </div>
                     <div v-else>
-                        {{ data.item.customer_name }}{{ data.item.promotive }}
+                        {{ data.item.customer_name }}{{ data.item.promotive }}<br>
+                        <small v-if="rowColor(data.item)" class="text-success font-weight-bold">
+                            <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
+                        </small>
                     </div>
                 </template>
                 <template #cell(quantity1_po)="data">
