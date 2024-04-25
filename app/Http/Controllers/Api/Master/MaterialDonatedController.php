@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class MaterialDonatedController extends ResponseController
 {
-    
+
     public function getAll(Request $request)
     {
         $handler = MasterRepository::materialDonatedRequest($request);
@@ -18,9 +18,21 @@ class MaterialDonatedController extends ResponseController
         if ($materialDonated) {
             return $this->responseSuccess($materialDonated);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
 
+    }
+    public function getAllMinified(Request $request)
+    {
+
+        $handler = MasterRepository::materialDonatedRequest($request);
+        $materialDonated = $handler->getAll(true);
+
+        if ($materialDonated) {
+            return $this->response($materialDonated);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+        }
     }
 
     public function store(Request $request)
@@ -30,7 +42,7 @@ class MaterialDonatedController extends ResponseController
         if ($material_donated) {
             return $this->responseSuccess($material_donated);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 
@@ -41,7 +53,7 @@ class MaterialDonatedController extends ResponseController
         if ($material_donated) {
             return $this->responseSuccess($material_donated);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 

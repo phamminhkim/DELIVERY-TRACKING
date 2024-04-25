@@ -60,12 +60,12 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Khách hàng liên kết',
                 'path' => '/customer-group-pivots',
-                'component' => 'home/sap/CustomerGroupPivots'
+                'component' => 'home/sap/CustomerGroupPivots/CustomerGroupPivots'
             ],
             [
                 'name' => 'Khách hàng khuyến mãi',
                 'path' => '/customer-promotions',
-                'component' => 'home/sap/CustomerPromotion'
+                'component' => 'home/sap/CustomerPromotion/CustomerPromotion'
             ],
 
             // [
@@ -123,12 +123,12 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Bảng mapping SAP',
                 'path' => '/sap-material-mappings',
-                'component' => 'home/sap/SapMaterialMapping'
+                'component' => 'home/sap/SapMaterialMapping/SapMaterialMapping'
             ],
             [
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
-                'component' => 'home/sap/SapMaterials'
+                'component' => 'home/sap/SapMaterial/SapMaterials'
             ],
             [
                 'name' => 'Nhóm khách hàng',
@@ -139,6 +139,21 @@ class RouterSeeder extends Seeder
                 'name' => 'Xử lý đơn hàng',
                 'path' => '/order-processes',
                 'component' => 'home/business/OrderProcesses'
+            ],
+            [
+                'name' => 'KM combo',
+                'path' => '/material-combos',
+                'component' => 'home/sap/MaterialCombo/MaterialCombos'
+            ],
+            [
+                'name' => 'KM hàng tặng hàng',
+                'path' => '/material-donateds',
+                'component' => 'home/sap/MaterialDonated/MaterialDonateds'
+            ],
+            [
+                'name' => 'Khách hàng đối tác',
+                'path' => '/customer-partners',
+                'component' => 'home/sap/CustomerPartner/CustomerPartners'
             ],
 
         ];

@@ -1,14 +1,14 @@
 <template>
 	<div
 		class="modal fade"
-		id="DialogImportExcelToCreateSapMaterial"
+		id="DialogImportExcelToCreateMaterialDonated"
 		tabindex="-1"
 		role="dialog"
 		data-backdrop="static"
 	>
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="createNewSapMaterial">
+				<form @submit.prevent="createNewMaterialDonated">
 					<div class="modal-header">
 						<h4 class="modal-title">
 							<span>Tạo dữ liệu mới từ excel</span>
@@ -74,13 +74,13 @@
 	import Vue, { reactive } from 'vue';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-	import APIHandler from '../../ApiHandler';
-	import { APIRequest } from '../../ApiHandler';
-	import TextInputSearch from '../../general/controls/TextInputSearch.vue';
+	import APIHandler from '../../../ApiHandler';
+	import { APIRequest } from '../../../ApiHandler';
+	import TextInputSearch from '../../../general/controls/TextInputSearch.vue';
 	import axios from 'axios';
 
 	export default {
-		name: 'DialogImportExcelToCreateSapMaterial',
+		name: 'DialogImportExcelToCreateMaterialDonated',
 		components: {
 			Vue,
 			Treeselect,
@@ -100,7 +100,7 @@
 				errors: [],
 
 				error_message: '',
-				api_url: '/api/master/sap-materials',
+				api_url: '/api/master/material-donateds',
 			};
 		},
 		created() {
@@ -108,7 +108,7 @@
 		},
 
 		methods: {
-			async createNewSapMaterial() {
+			async createNewMaterialDonated() {
 				try {
 					this.errors = [];
 					this.is_loading = true;
@@ -118,27 +118,27 @@
 							'Content-Type': 'multipart/form-data',
 						})
 						.post(
-							'/api/master/sap-materials/excel',
+							'/api/master/material-donateds/excel',
 							{},
 							APIHandler.createFormData({
 								file: this.form.file,
 							}),
 						);
 
-					if (!data.success) {
+					if (!data.error) {
 						if (Array.isArray(data)) {
-							this.sap_materials.push(...data);
+							this.material_donateds.push(...data); // Add the new mappings to the end of the list
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
-						this.resetForm();
-						await this.refetchData(); // Refetch the data
+						this.refetchData(); // Load the data again after successful creation
 					} else {
+
 						this.errors = data.errors;
 						this.showMessage('error', 'Thêm không thành công');
-						this.resetForm();
 					}
 				} catch (error) {
+                    console.log(error);
 					this.showMessage('error', 'Thêm không thành công');
 					this.resetForm();
 				} finally {
@@ -146,7 +146,7 @@
 				}
 			},
 			downloadTemplate() {
-				const filename = 'SapMaterial.xlsx';
+				const filename = 'Donated.xlsx';
 				window.location.href = `/excel/${filename}`;
 			},
 			showMessage(type, title, message) {
@@ -190,7 +190,7 @@
 			closeDialog() {
 				this.resetForm();
 				this.resetDialog();
-				$('#DialogImportExcelToCreateSapMaterial').modal('hide');
+				$('#DialogImportExcelToCreateMaterialDonated').modal('hide');
 			},
 			addPropertyToObject(obj, key, value) {
 				this.$set(obj, key, value);

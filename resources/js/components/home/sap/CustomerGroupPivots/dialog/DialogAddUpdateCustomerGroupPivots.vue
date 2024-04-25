@@ -109,8 +109,8 @@
 </template>
 
 <script>
-	import APIHandler from '../../ApiHandler';
-	import { APIRequest } from '../../ApiHandler';
+	import APIHandler from '../../../ApiHandler';
+	import { APIRequest } from '../../../ApiHandler';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import toastr from 'toastr';

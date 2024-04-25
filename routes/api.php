@@ -72,16 +72,20 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('master')->group(function () {
         Route::prefix('/material-donateds')->group(function () {
-            Route::get('/get-all', [MaterialDonatedController::class, 'getAll']);
-            Route::post('/store', [MaterialDonatedController::class, 'store']);
-            Route::put('/update/{id}', [MaterialDonatedController::class, 'update']);
-            Route::delete('/delete/{id}', [MaterialDonatedController::class, 'destroy']);
+            Route::get('/', [MaterialDonatedController::class, 'getAll']);
+            Route::get('/minified', [MaterialDonatedController::class, 'getAllMinified']);
+            Route::post('/excel', [MaterialDonatedController::class, 'createMaterialDonatedFormExcel']);
+            Route::post('/', [MaterialDonatedController::class, 'store']);
+            Route::put('/{id}', [MaterialDonatedController::class, 'update']);
+            Route::delete('/{id}', [MaterialDonatedController::class, 'destroy']);
         });
         Route::prefix('/material-combos')->group(function () {
-            Route::get('/get-all', [MaterialComboController::class, 'getAll']);
-            Route::post('/store', [MaterialComboController::class, 'store']);
-            Route::put('/update/{id}', [MaterialComboController::class, 'update']);
-            Route::delete('/delete/{id}', [MaterialComboController::class, 'destroy']);
+            Route::get('/minified', [MaterialComboController::class, 'getAllMinified']);
+            Route::get('/', [MaterialComboController::class, 'getAll']);
+            Route::post('/excel', [MaterialComboController::class, 'createMaterialComboFormExcel']);
+            Route::post('/', [MaterialComboController::class, 'store']);
+            Route::put('/{id}', [MaterialComboController::class, 'update']);
+            Route::delete('/{id}', [MaterialComboController::class, 'destroy']);
         });
         Route::prefix('/material-category')->group(function () {
             Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
@@ -206,8 +210,10 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
         });
         Route::prefix('/customer-partners')->group(function () {
+            Route::get('/minified', [CustomerPartnerController::class, 'getAvailableCustomerPartnersMinified']);
             Route::get('/', [CustomerPartnerController::class, 'getAvailableCustomerPartners']);
             Route::post('/', [CustomerPartnerController::class, 'createNewCustomerPartner']);
+            Route::post('/excel', [CustomerPartnerController::class, 'createCustomerPartnerFormExcel']);
             Route::put('/{id}', [CustomerPartnerController::class, 'updateExistingCustomerPartner']);
             Route::delete('/{id}', [CustomerPartnerController::class, 'deleteExistingCustomerPartner']);
         });
@@ -312,7 +318,7 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/{id}', [SoDataController::class, 'updateSoData']);
         Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
-        Route::get('/', [SoDataController::class, 'getOrderProcessList']);
+        Route::get('order-process-list', [SoDataController::class, 'getOrderProcessList']);
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);

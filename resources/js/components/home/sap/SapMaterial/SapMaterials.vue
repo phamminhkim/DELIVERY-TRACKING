@@ -158,12 +158,12 @@
 								striped
 								show-empty
 								:busy="is_loading"
-								:bordered="true"
+								bordered
 								:current-page="pagination.current_page"
 								:per-page="pagination.item_per_page"
 								:filter="search_pattern"
 								:fields="fields"
-								:items="sap_materials"
+								:items="sap_materials.data"
 								:tbody-tr-class="rowClass"
 							>
 								<template #empty="scope">
@@ -181,6 +181,9 @@
 										(pagination.current_page - 1) * pagination.item_per_page +
 										1
 									}}
+								</template>
+								<template #cell(sap_code)="data">
+									<span> {{ data.item.sap_code }} </span>
 								</template>
 
 								<template #cell(action)="data">
@@ -259,11 +262,10 @@
 <script>
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-	import CrudPage from '../general/crudform/CrudPage.vue';
 	import Vue from 'vue';
-	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import DialogAddUpdateSapMaterial from './dialogs/DialogAddUpdateSapMaterial.vue';
-	import DialogImportExcelToCreateSapMaterial from './dialogs/DialogImportExcelToCreateSapMaterial.vue';
+	import ApiHandler, { APIRequest } from '../../ApiHandler';
+	import DialogAddUpdateSapMaterial from './dialog/DialogAddUpdateSapMaterial.vue';
+	import DialogImportExcelToCreateSapMaterial from './dialog/DialogImportExcelToCreateSapMaterial.vue';
 
 	export default {
 		name: 'SapMaterials',
@@ -323,7 +325,10 @@
 						class: 'text-nowrap',
 					},
 				],
-				sap_materials: [],
+				sap_materials: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 				unit_options: [],
 				api_url: 'api/master/sap-materials',
 			};
@@ -336,13 +341,29 @@
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const { data } = await this.api_handler.get(this.api_url, {
+					const params = {
+						page: this.page,
+						per_page: this.perPage,
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
-					});
+					};
+					const response = await this.api_handler.get(this.api_url, { params });
+					const { data, paginate } = response.data.sap_materials;
+
 					if (Array.isArray(data)) {
-						this.sap_materials = data;
+						this.sap_materials = data.map((item) => ({
+							sap_code: item.sap_code,
+							unit_id: item.unit_id,
+							bar_code: item.bar_code,
+							name: item.name,
+							// Thêm các trường khác nếu cần
+						}));
 					}
+
+					// Gán thông tin phân trang
+					this.currentPage = paginate.current_page;
+					this.lastPage = paginate.last_page;
+					this.totalItems = paginate.total;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -357,13 +378,13 @@
 							new APIRequest('get', '/api/master/sap-units'),
 							new APIRequest('get', '/api/master/sap-materials'),
 						]);
+
 					this.sap_materials = sap_materials;
-					this.unit_options = unit_options.map((unit) => {
-						return {
-							id: unit.id,
-							label: `(${unit.id}) ${unit.unit_code}`,
-						};
-					});
+
+					this.unit_options = unit_options.map((unit) => ({
+						id: unit.id,
+						label: `(${unit.id}) ${unit.unit_code}`,
+					}));
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -386,12 +407,10 @@
 						'api/master/sap-materials/minified',
 						params,
 					);
-					let options = data.map((item) => {
-						return {
-							id: item.id,
-							label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
-						};
-					});
+					let options = data.data.map((item) => ({
+						id: item.id,
+						label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
+					}));
 					// console.log(data);
 					//const options = data;
 					callback(null, options);
@@ -403,21 +422,20 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					const { data } = await this.api_handler.get(this.api_url, {
+					const response = await this.api_handler.get(this.api_url, {
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
 					});
-					// console.log(this.page_structure.api_url);
-					// console.log(data,'u');
+					const data = response.data;
 
 					this.sap_materials = data;
-					// this.$refs.CrudPage.refValue(this.sap_materials)
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
 			},
+
 
 			async clearFilter() {
 				try {
@@ -427,10 +445,10 @@
 					this.form_filter.unit = null;
 					this.form_filter.sap_material = [];
 
-					await this.fetchData();
-					//this.$refs.CrudPage.refValue(this.sap_materials)
+					await this.fetchOptionsData();
+					// this.$refs.CrudPage.refValue(this.sap_materials)
 				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error);
+					this.showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
@@ -442,18 +460,18 @@
 			async deleteSapMaterial(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
-						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.sap_materials = result.data;
+								this.sap_materials.data = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
-							await this.fetchData(); // Load the data again after successful deletion
+							await this.fetchOptionsData(); // Load the data again after successful deletion
 						} else {
 							this.showMessage('error', 'Lỗi', result.message);
 						}
 					} catch (error) {
-						this.$showMessage('error', 'Lỗi', error);
+						this.showMessage('error', 'Lỗi', error);
 					}
 				}
 			},
