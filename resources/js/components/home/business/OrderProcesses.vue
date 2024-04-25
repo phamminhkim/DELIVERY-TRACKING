@@ -10,6 +10,7 @@
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO"
             @getCustomerGroupId="getCustomerGroupId"
+            @checkPromotion="getCheckPromotion"
             :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
@@ -273,6 +274,9 @@ export default {
                 // this.case_is_loading.fetch_api = false;
             }
         },
+        getCheckPromotion(){
+            console.log('getCheckPromotion');
+        }
 
 
 

@@ -87,7 +87,7 @@
                 <button @click="detectSapCode()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
-                <button type="button" class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
+                <button @click="checkPromotion()" type="button" class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
                     khuyến mãi</button>
                 <button type="button" v-on:click="handleCheckInventory"
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
@@ -719,6 +719,9 @@ export default {
             this.form_filter.customer_group = customer_group_id;
             this.browserCustomerGroup();
         },
+        checkPromotion(){
+            this.$emit('checkPromotion');
+        }
     },
     computed: {
         type_file_extract_order_configs() {

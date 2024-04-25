@@ -342,7 +342,7 @@ export default {
 
                 },
                 {
-                    key: 'note',
+                    key: 'note1',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',
                     sortable: true,
