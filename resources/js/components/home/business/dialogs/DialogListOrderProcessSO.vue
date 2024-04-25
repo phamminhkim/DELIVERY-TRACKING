@@ -12,7 +12,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
-                                @editOrderProcessSO="getEditOrderProcessSO" @handleDoubleClick="getHandleDoubleClick"
+                                @handleDoubleClick="getHandleDoubleClick"
                                 @dltOrderProcessSO="getDltOrderProcessSO" :current_page="current_page"
                                 :per_page="per_page">
                             </TableOrderProcessSO>
@@ -79,9 +79,7 @@ export default {
                 this.case_is_loading.fetch_api = false;
             }
         },
-        getEditOrderProcessSO(item) {
-            console.log(item);
-        },
+       
         getHandleDoubleClick(item) {
             this.fetchOrderProcessSODetail(item.id);
         },
@@ -89,7 +87,6 @@ export default {
             try {
                 this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.get(this.api_order_process_so + '/' + id);
-                console.log(data);
                 this.$emit('fetchOrderProcessSODetail', data);
                 this.hideModal();
             } catch (error) {
@@ -102,7 +99,6 @@ export default {
             try {
                 this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
-                console.log(data);
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {

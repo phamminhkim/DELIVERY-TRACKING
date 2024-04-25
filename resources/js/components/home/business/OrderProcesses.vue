@@ -9,12 +9,13 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO"
+            @getCustomerGroupId="getCustomerGroupId"
             :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
-        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" @saveOrderSO="getSaveOrderSO" :case_save_so="case_save_so">
+        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO" :case_save_so="case_save_so">
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo" @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
         <!-- Parent -->
@@ -68,6 +69,7 @@ export default {
                 id: '',
                 title: '',
                 serial_number: '',
+                customer_group_id: -1
             },
             case_is_loading: {
                 detect_sap_code: false
@@ -192,6 +194,7 @@ export default {
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
             this.case_save_so.serial_number = item.serial_number;
+            this.case_save_so.customer_group_id = item.customer_group_id;
             item.so_data_items.forEach(data_item => {
                 this.orders.push({
                     id: data_item.id,
@@ -237,6 +240,10 @@ export default {
         },
         refHeaderOrderProcesses() {
             this.$refs.headerOrderProcesses.updateOrders(this.orders);
+        },
+        getCustomerGroupId(customer_group_id) {
+            this.case_save_so.customer_group_id = customer_group_id;
+            // this.$refs.headerOrderProcesses.getCustomerGroupId(customer_group_id);
         }
 
 
