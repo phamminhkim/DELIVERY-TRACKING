@@ -41,7 +41,7 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Khách hàng</label
+									>Mã/tên Khách hàng</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
@@ -50,11 +50,11 @@
 										required
 										:load-options="loadOptionsCustomer"
 										:async="true"
-										v-model="form_filter.customer"
+										v-model="form_filter.customer_partner"
 									/>
 								</div>
 							</div>
-							<div class="form-group row">
+							<!-- <div class="form-group row">
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
@@ -87,8 +87,8 @@
 										:async="true"
 										v-model="form_filter.sap_material"
 									/>
-								</div>
-							</div>
+								</div> -->
+							<!-- </div> -->
 
 
 							<div class="col-md-12" style="text-align: center">
@@ -140,7 +140,7 @@
 				<div class="card-body">
 					<div class="row">
 						<div class="col-md-9">
-							<!-- <div class="form-group row">
+							<div class="form-group row">
 								<button
 									type="button"
 									class="btn btn-info btn-sm ml-1 mt-1"
@@ -152,7 +152,7 @@
 									>
 								</button>
 
-								<button
+								<!-- <button
 									type="button"
 									class="btn btn-info btn-sm ml-1 mt-1"
 									@click="exportToExcel"
@@ -160,8 +160,8 @@
 									<strong>
 										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
 									</strong>
-								</button>
-							</div> -->
+								</button> -->
+							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="input-group input-group-sm mt-1 mb-1">
@@ -196,12 +196,12 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="customer_promotions"
+							:items="customer_partners"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
 								<h6 class="text-center">
-									Không có khách hàng khuyến mãi nào để hiển thị
+									Không có khách hàng đối tác nào để hiển thị
 								</h6>
 							</template>
 							<template #table-busy>
@@ -229,7 +229,7 @@
 
 									<button
 										class="btn btn-xs mr-1"
-										@click="deleteCustomerPromotion(data.item.id)"
+										@click="deleteCustomerPartner(data.item.id)"
 									>
 										<i
 											class="fas fa-trash text-red bigger-120"
@@ -237,14 +237,6 @@
 										></i>
 									</button>
 								</div>
-							</template>
-							<template #cell(is_active)="data">
-								<span v-if="data.item.is_active == 1" class="badge bg-success"
-									>Đang khuyến mãi</span
-								>
-								<span v-else-if="data.item.is_active == 0" class="badge bg-warning"
-									>Chưa khuyến mãi</span
-								>
 							</template>
 						</b-table>
 					</div>
@@ -280,13 +272,13 @@
 					<!-- end phân trang -->
 
 					<!-- tạo form -->
-					<DialogAddUpdateCustomerPromotion
+					<DialogAddUpdateCustomerPartner
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
 						:refetchData="fetchData"
-					></DialogAddUpdateCustomerPromotion>
-					<!-- <DialogImportExcelToCreateMapping /> -->
+					></DialogAddUpdateCustomerPartner>
+					<DialogImportExcelToCreateCustomerPartner :refetchData="fetchData"/>
 
 					<!-- end tạo form -->
 				</div>
@@ -299,15 +291,16 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import Vue from 'vue';
-	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import DialogAddUpdateCustomerPromotion from './dialogs/DialogAddUpdateCustomerPromotion.vue';
-	// import DialogImportExcelToCreateMapping from './dialogs/DialogImportExcelToCreateMapping.vue';
+	import ApiHandler, { APIRequest } from '../../ApiHandler';
+	import DialogAddUpdateCustomerPartner from './dialog/DialogAddUpdateCustomerPartner.vue';
+	import DialogImportExcelToCreateCustomerPartner from './dialog/DialogImportExcelToCreateCustomerPartner.vue';
 
 	export default {
 		components: {
 			Treeselect,
 			Vue,
-			DialogAddUpdateCustomerPromotion,
+			DialogAddUpdateCustomerPartner,
+            DialogImportExcelToCreateCustomerPartner
 		},
 		data() {
 			return {
@@ -318,11 +311,8 @@
 				search_pattern: '',
 
 				form_filter: {
-					customer: null,
-					customer_group: null,
-					sap_materials: [],
+					customer_partner: null,
 				},
-                customer_group_options: [],
 
 				is_editing: false,
 				editing_item: {},
@@ -341,46 +331,40 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'customer.code',
-						label: 'Mã khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'customer.name',
-						label: 'Tên khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-left',
-					},
-					{
-						key: 'customer_group.name',
+						key: 'name',
 						label: 'Nhóm khách hàng',
 						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'code',
+						label: 'Mã khách hàng',
+						sortable: true,
 						class: 'text-nowrap text-left',
 					},
 					{
-						key: 'sap_material.sap_code',
-						label: 'Mã SAP',
+						key: 'note',
+						label: 'Ghi chú',
+						sortable: true,
+						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'LV2',
+						label: 'LV2',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'sap_material.name',
-						label: 'Tên sản phẩm SAP',
+						key: 'LV3',
+						label: 'LV3',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
 					{
-						key: 'sap_material.unit.unit_code',
-						label: 'Đơn vị tính SAP',
+						key: 'LV4',
+						label: 'LV4',
 						sortable: true,
 						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'is_active',
-						label: 'Khuyến mãi',
-						sortable: true,
-						class: 'text-nowrap text-left',
 					},
 					{
 						key: 'action',
@@ -388,11 +372,10 @@
 						class: 'text-nowrap',
 					},
 				],
-				sap_materials: [],
-				customer_promotions: [],
-				customer_options: [],
+				customer_partners: [],
 
-				api_url: 'api/master/customer-promotions',
+
+				api_url: 'api/master/customer-partners',
 			};
 		},
 		created() {
@@ -403,13 +386,11 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_ids: this.form_filter.customer,
-						customer_group_ids: this.form_filter.customer_group,
-						sap_material_ids: this.form_filter.sap_material,
+						ids: this.form_filter.customer_partner,
 					});
 
 					if (Array.isArray(data)) {
-						this.customer_promotions = data;
+						this.customer_partners = data;
 					}
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -420,13 +401,11 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_group_options,customer_promotions] =
+					const [customer_partners] =
 						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/customer-groups'),
-                            new APIRequest('get', '/api/master/customer-promotions'),
+                            new APIRequest('get', '/api/master/customer-partners'),
 						]);
-					this.customer_group_options = customer_group_options;
-					this.customer_promotions = customer_promotions;
+					this.customer_partners = customer_partners;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -439,44 +418,19 @@
 					label: node.name,
 				};
 			},
-			async loadOptions({ action, searchQuery, callback }) {
-				if (action === ASYNC_SEARCH) {
-					const params = {
-						search: searchQuery,
-						// customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: this.form_filter.sap_material,
-					};
-					const { data } = await this.api_handler.get(
-						'api/master/sap-materials/minified',
-						params,
-					);
-					let options = data.map((item) => {
-						return {
-							id: item.id,
-							label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
-						};
-					});
-					// console.log(data);
-					//const options = data;
-					callback(null, options);
-				}
-			},
-
             async loadOptionsCustomer({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
-						// customer_material_ids: this.form_filter.customer_material,
-						customer_ids: [this.form_filter.customer],
 					};
 					const { data } = await this.api_handler.get(
-						'api/master/customers/minified',
+						'api/master/customer-partners/minified',
 						params,
 					);
 					let options = data.map((item) => {
 						return {
 							id: item.id,
-							label: `(${item.code}) ${item.name}`,
+							label: `(${item.code}) ${item.note}`,
 						};
 					});
 					// console.log(data);
@@ -491,14 +445,12 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_group_ids: this.form_filter.customer_group,
-						customer_ids: this.form_filter.customer,
-						sap_material_ids: this.form_filter.sap_material,
+						ids: this.form_filter.customer_partner,
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');
 
-					this.customer_promotions = data;
+					this.customer_partners = data;
 					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -512,22 +464,20 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					this.form_filter.customer_group = null;
-					this.form_filter.customer = [];
-					this.form_filter.sap_material = []; // Ensure it is an array
+					this.form_filter.customer_partner = [];
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			async deleteCustomerPromotion(id) {
+			async deleteCustomerPartner(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
 						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.customer_promotions = result.data;
+								this.customer_partners = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
 							await this.fetchData(); // Load the data again after successful deletion
@@ -542,15 +492,15 @@
 			showCreateDialog() {
 				this.is_editing = false;
 				this.editing_item = {};
-				$('#DialogAddUpdateCustomerPromotion').modal('show');
+				$('#DialogAddUpdateCustomerPartner').modal('show');
 			},
 			showEditDialog(item) {
 				this.is_editing = true;
 				this.editing_item = item;
-				$('#DialogAddUpdateCustomerPromotion').modal('show');
+				$('#DialogAddUpdateCustomerPartner').modal('show');
 			},
 			showExcelDialog() {
-				$('#DialogAddUpdateCustomerPromotion').modal('show');
+				$('#DialogImportExcelToCreateCustomerPartner').modal('show');
 			},
 			// async exportToExcel() {
 			// 	try {
@@ -603,7 +553,7 @@
 		},
 		computed: {
 			rows() {
-				return this.customer_promotions.length;
+				return this.customer_partners.length;
 			},
 		},
 	};

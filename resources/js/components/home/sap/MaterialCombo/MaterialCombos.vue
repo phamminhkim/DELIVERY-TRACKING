@@ -59,33 +59,16 @@
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
-									>Mã/tên sản phẩm khách hàng</label
+									>Mã/tên khuyến mãi</label
 								>
 								<div class="col-sm-10 mt-1 mb-1">
 									<treeselect
-										placeholder="Mã/tên sản phẩm khách hàng.."
-										:multiple="true"
-										id="customer_material_id"
-										:disable-branch-nodes="false"
-										v-model="form_filter.customer_material"
-										:options="customer_options"
-									></treeselect>
-								</div>
-							</div>
-							<div class="form-group row">
-								<label
-									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-									for=""
-									>Mã/tên SAP</label
-								>
-								<div class="col-sm-10 mt-1 mb-1">
-									<treeselect
-										placeholder="Chọn sản phẩm.."
+										placeholder="Nhập khách hàng.."
 										:multiple="true"
 										required
 										:load-options="loadOptions"
 										:async="true"
-										v-model="form_filter.sap_material"
+										v-model="form_filter.material_combo"
 									/>
 								</div>
 							</div>
@@ -151,7 +134,7 @@
 									>
 								</button>
 
-								<button
+								<!-- <button
 									type="button"
 									class="btn btn-info btn-sm ml-1 mt-1"
 									@click="exportToExcel"
@@ -159,7 +142,7 @@
 									<strong>
 										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
 									</strong>
-								</button>
+								</button> -->
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -195,11 +178,13 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="sap_material_mappings"
+							:items="material_combos"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
-								<h6 class="text-center">Không có đơn hàng nào để hiển thị</h6>
+								<h6 class="text-center">
+									Không có khuyến mãi combo nào để hiển thị
+								</h6>
 							</template>
 							<template #table-busy>
 								<div class="text-center text-primary my-2">
@@ -226,7 +211,7 @@
 
 									<button
 										class="btn btn-xs mr-1"
-										@click="deleteSapMapping(data.item.id)"
+										@click="deleteMaterialCombo(data.item.id)"
 									>
 										<i
 											class="fas fa-trash text-red bigger-120"
@@ -269,13 +254,13 @@
 					<!-- end phân trang -->
 
 					<!-- tạo form -->
-					<DialogAddUpdateSapMapping
+					<DialogAddUpdateMaterialCombo
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
 						:refetchData="fetchData"
-					></DialogAddUpdateSapMapping>
-					<DialogImportExcelToCreateMapping :refetchData="fetchData" />
+					></DialogAddUpdateMaterialCombo>
+					<DialogImportExcelToCreateMaterialCombo :refetchData="fetchData" />
 
 					<!-- end tạo form -->
 				</div>
@@ -288,16 +273,16 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import Vue from 'vue';
-	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import DialogAddUpdateSapMapping from './dialogs/DialogAddUpdateSapMapping.vue';
-	import DialogImportExcelToCreateMapping from './dialogs/DialogImportExcelToCreateMapping.vue';
+	import ApiHandler, { APIRequest } from '../../ApiHandler';
+	import DialogAddUpdateMaterialCombo from './dialog/DialogAddUpdateMaterialCombo.vue';
+	import DialogImportExcelToCreateMaterialCombo from './dialog/DialogImportExcelToCreateMaterialCombo.vue';
 
 	export default {
 		components: {
 			Treeselect,
 			Vue,
-			DialogAddUpdateSapMapping,
-			DialogImportExcelToCreateMapping,
+			DialogAddUpdateMaterialCombo,
+			DialogImportExcelToCreateMaterialCombo,
 		},
 		data() {
 			return {
@@ -309,11 +294,9 @@
 
 				form_filter: {
 					customer_group: null,
-					customer_material: null,
-					sap_materials: [],
+					material_combo: null,
 				},
-				customer_group_options: [],
-
+                customer_group_options: [],
 				is_editing: false,
 				editing_item: {},
 				is_loading: false,
@@ -331,77 +314,39 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'customer_material.customer_group.name',
+						key: 'customer_group.name',
 						label: 'Nhóm khách hàng',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'customer_material.customer_sku_code',
-						label: 'Mã SKU khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'customer_material.customer_sku_name',
-						label: 'Tên SKU khách hàng',
+						key: 'sap_code',
+						label: 'Mã sản phẩm',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
                     {
-						key: 'customer_number',
-						label: 'Số lượng - SKU KH',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'customer_material.customer_sku_unit',
-						label: 'Đơn vị SKU khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-
-					{
-						key: 'sap_material.sap_code',
-						label: 'Mã SAP',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
-						key: 'sap_material.unit.unit_code',
-						label: 'Đơn vị tính SAP',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-
-					{
-						key: 'sap_material.name',
-						label: 'Tên sản phẩm SAP',
+						key: 'name',
+						label: 'Tên sản phẩm',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
                     {
-						key: 'conversion_rate_sap',
-						label: 'Số lượng -SAP',
+						key: 'bar_code',
+						label: 'Mã BarCode',
 						sortable: true,
-						class: 'text-nowrap text-center',
+						class: 'text-nowrap text-left',
 					},
-					{
-						key: 'percentage',
-						label: 'Tỷ lệ màu',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
+
 					{
 						key: 'action',
 						label: 'Action',
 						class: 'text-nowrap',
 					},
 				],
-				sap_materials: [],
-				sap_material_mappings: [],
-				customer_options: [],
-				api_url: 'api/master/sap-material-mappings',
+				material_combos: [],
+
+				api_url: 'api/master/material-combos',
 			};
 		},
 		created() {
@@ -412,13 +357,13 @@
 				try {
 					this.is_loading = true;
 					const { data } = await this.api_handler.get(this.api_url, {
+						ids: this.form_filter.material_combo,
 						customer_group_ids: this.form_filter.customer_group,
-						customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: this.form_filter.sap_material,
+
 					});
 
 					if (Array.isArray(data)) {
-						this.sap_material_mappings = data;
+						this.material_combos = data;
 					}
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -429,20 +374,12 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_group_options, customer_options, sap_material_mappings] =
-						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/customer-groups'),
-							new APIRequest('get', '/api/master/customer-materials'),
-							new APIRequest('get', '/api/master/sap-material-mappings'),
-						]);
+					const [material_combos, customer_group_options] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/material-combos'),
+						new APIRequest('get', '/api/master/customer-groups'),
+					]);
 					this.customer_group_options = customer_group_options;
-					this.sap_material_mappings = sap_material_mappings;
-					this.customer_options = customer_options.map((customer_material) => {
-						return {
-							id: customer_material.id,
-							label: `(${customer_material.customer_sku_code})(${customer_material.customer_sku_unit}) ${customer_material.customer_sku_name}  `,
-						};
-					});
+					this.material_combos = material_combos;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -455,21 +392,19 @@
 					label: node.name,
 				};
 			},
-			async loadOptions({ action, searchQuery, callback }) {
+            async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
-						// customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: [this.form_filter.sap_material],
 					};
 					const { data } = await this.api_handler.get(
-						'api/master/sap-materials/minified',
+						'api/master/material-combos/minified',
 						params,
 					);
 					let options = data.map((item) => {
 						return {
 							id: item.id,
-							label: `(${item.sap_code}) (${item.unit.unit_code}) ${item.name}`,
+							label: `(${item.bar_code}) (${item.sap_code}) ${item.name}`,
 						};
 					});
 					// console.log(data);
@@ -477,21 +412,18 @@
 					callback(null, options);
 				}
 			},
-
 			async filterData() {
 				try {
 					if (this.is_loading) return;
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-						customer_group_ids: this.form_filter.customer_group,
-						customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: this.form_filter.sap_material,
+						ids: this.form_filter.material_combo,
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');
 
-					this.sap_material_mappings = data;
+					this.material_combos = data;
 					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -505,24 +437,20 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
-					this.form_filter.customer_group = null;
-					this.form_filter.customer_material = null;
-					this.form_filter.sap_material = []; // Ensure it is an array
-
-					// this.$refs.CrudPage.refValue(this.sap_material_mappings);
+					this.form_filter.material_combo = [];
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
 					this.is_loading = false;
 				}
 			},
-			async deleteSapMapping(id) {
+			async deleteMaterialCombo(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
 						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.sap_material_mappings = result.data;
+								this.material_combos = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
 							await this.fetchData(); // Load the data again after successful deletion
@@ -537,40 +465,40 @@
 			showCreateDialog() {
 				this.is_editing = false;
 				this.editing_item = {};
-				$('#DialogAddUpdateSapMapping').modal('show');
+				$('#DialogAddUpdateMaterialCombo').modal('show');
 			},
 			showEditDialog(item) {
 				this.is_editing = true;
 				this.editing_item = item;
-				$('#DialogAddUpdateSapMapping').modal('show');
+				$('#DialogAddUpdateMaterialCombo').modal('show');
 			},
 			showExcelDialog() {
-				$('#DialogImportExcelToCreateMapping').modal('show');
+				$('#DialogImportExcelToCreateMaterialCombo').modal('show');
 			},
-			async exportToExcel() {
-				try {
-					const response = await this.api_handler.get(
-						`api/master/sap-material-mappings/exportToExcel`,
-						{},
-						'blob',
-					);
-					const blobData = new Blob([response]);
+			// async exportToExcel() {
+			// 	try {
+			// 		const response = await this.api_handler.get(
+			// 			`api/master/sap-material-mappings/exportToExcel`,
+			// 			{},
+			// 			'blob',
+			// 		);
+			// 		const blobData = new Blob([response]);
 
-					const url = window.URL.createObjectURL(blobData);
-					const link = document.createElement('a');
-					link.href = url;
-					link.setAttribute('download', 'Dữ liệu Mapping SAP.xlsx');
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
+			// 		const url = window.URL.createObjectURL(blobData);
+			// 		const link = document.createElement('a');
+			// 		link.href = url;
+			// 		link.setAttribute('download', 'Dữ liệu Mapping SAP.xlsx');
+			// 		document.body.appendChild(link);
+			// 		link.click();
+			// 		document.body.removeChild(link);
 
-					// Giải phóng URL đã tạo ra
-					window.URL.revokeObjectURL(url);
-				} catch (error) {
-					// Xử lý lỗi khi không thể tải xuống file
-					console.error(error);
-				}
-			},
+			// 		// Giải phóng URL đã tạo ra
+			// 		window.URL.revokeObjectURL(url);
+			// 	} catch (error) {
+			// 		// Xử lý lỗi khi không thể tải xuống file
+			// 		console.error(error);
+			// 	}
+			// },
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
@@ -598,7 +526,7 @@
 		},
 		computed: {
 			rows() {
-				return this.sap_material_mappings.length;
+				return this.material_combos.length;
 			},
 		},
 	};

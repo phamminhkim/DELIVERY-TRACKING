@@ -1,14 +1,14 @@
 <template>
 	<div
 		class="modal fade"
-		id="DialogImportExcelToCreateMapping"
+		id="DialogImportExcelToCreateSapMaterial"
 		tabindex="-1"
 		role="dialog"
 		data-backdrop="static"
 	>
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="createNewMapping">
+				<form @submit.prevent="createNewSapMaterial">
 					<div class="modal-header">
 						<h4 class="modal-title">
 							<span>Tạo dữ liệu mới từ excel</span>
@@ -74,21 +74,21 @@
 	import Vue, { reactive } from 'vue';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-	import APIHandler from '../../ApiHandler';
-	import { APIRequest } from '../../ApiHandler';
-	import TextInputSearch from '../../general/controls/TextInputSearch.vue';
+	import APIHandler from '../../../ApiHandler';
+	import { APIRequest } from '../../../ApiHandler';
+	import TextInputSearch from '../../../general/controls/TextInputSearch.vue';
 	import axios from 'axios';
 
 	export default {
-		name: 'DialogImportExcelToCreateMapping',
+		name: 'DialogImportExcelToCreateSapMaterial',
 		components: {
 			Vue,
 			Treeselect,
 			TextInputSearch,
 		},
-        props: {
-            refetchData: Function,
-        },
+		props: {
+			refetchData: Function,
+		},
 		data() {
 			return {
 				api_handler: new APIHandler(window.Laravel.access_token),
@@ -100,7 +100,7 @@
 				errors: [],
 
 				error_message: '',
-				api_url: '/api/master/sap-material-mappings',
+				api_url: '/api/master/sap-materials',
 			};
 		},
 		created() {
@@ -108,8 +108,7 @@
 		},
 
 		methods: {
-
-			async createNewMapping() {
+			async createNewSapMaterial() {
 				try {
 					this.errors = [];
 					this.is_loading = true;
@@ -119,16 +118,16 @@
 							'Content-Type': 'multipart/form-data',
 						})
 						.post(
-							'/api/master/sap-material-mappings/excel',
+							'/api/master/sap-materials/excel',
 							{},
 							APIHandler.createFormData({
 								file: this.form.file,
 							}),
 						);
 
-					if (!data.errors) {
+					if (!data.success) {
 						if (Array.isArray(data)) {
-							this.sap_material_mappings.push(...data);
+							this.sap_materials.push(...data);
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
@@ -147,7 +146,7 @@
 				}
 			},
 			downloadTemplate() {
-				const filename = 'Mapping.xlsx';
+				const filename = 'SapMaterial.xlsx';
 				window.location.href = `/excel/${filename}`;
 			},
 			showMessage(type, title, message) {
@@ -191,7 +190,7 @@
 			closeDialog() {
 				this.resetForm();
 				this.resetDialog();
-				$('#DialogImportExcelToCreateMapping').modal('hide');
+				$('#DialogImportExcelToCreateSapMaterial').modal('hide');
 			},
 			addPropertyToObject(obj, key, value) {
 				this.$set(obj, key, value);

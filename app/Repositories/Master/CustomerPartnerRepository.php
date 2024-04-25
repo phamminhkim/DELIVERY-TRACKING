@@ -5,6 +5,8 @@ namespace App\Repositories\Master;
 use App\Models\Master\CustomerPartner;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Excel\ExcelExtractor;
+use Illuminate\Support\Facades\DB;
 
 class CustomerPartnerRepository extends RepositoryAbs
 {
@@ -21,10 +23,10 @@ class CustomerPartnerRepository extends RepositoryAbs
                 $query->whereIn('id', $this->request->ids);
             }
             if ($is_minified) {
-                $query->select('id', 'code', 'name',);
+                $query->select('id', 'code', 'name', 'note');
             }
 
-            $customer_partners = $query->get();
+            $customer_partners = $query->orderBy('id', 'desc')->get();
 
             return $customer_partners;
         } catch (\Exception $exception) {
@@ -35,11 +37,66 @@ class CustomerPartnerRepository extends RepositoryAbs
     public function getCustomerPartnerById($id)
     {
         try {
-        $customer_partners = CustomerPartner::find($id);
+            $customer_partners = CustomerPartner::find($id);
             return $customer_partners;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+    public function createCustomerPartnerFormExcel()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'file' => 'required|mimes:xlsx,xls',
+            ], [
+                'file.required' => 'File là bắt buộc.',
+                'file.mimes' => 'File không đúng định dạng.',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+                return false;
+            } else {
+                $file = $this->request->file('file');
+                $excel_extractor = new ExcelExtractor();
+                $data = $excel_extractor->extractData($file);
+                $template_structure = [
+                    'name' => 0,
+                    'code' => 1,
+                    'note' => 2,
+                    'LV2' => 3,
+                    'LV3' => 4,
+                    'LV4' => 5,
+                ];
+                $result = collect([]);
+
+                foreach ($data as $row) {
+                    $customer_partners = CustomerPartner::updateOrCreate(
+
+                        [
+                            'code' => $row[$template_structure['code']],
+                            'name' => $row[$template_structure['name']],
+                            'note' => $row[$template_structure['note']],
+                            'LV2' => $row[$template_structure['LV2']],
+                            'LV3' => $row[$template_structure['LV3']],
+                            'LV4' => $row[$template_structure['LV4']],
+                        ]
+                    );
+
+                    $result->push($customer_partners);
+                }
+
+                return array(
+                    "created_list" => $result,
+                    "errors" => $this->errors
+                );
+            }
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
         }
     }
     public function createNewCustomerPartner()
@@ -74,6 +131,7 @@ class CustomerPartnerRepository extends RepositoryAbs
             } else {
                 $this->data['is_deleted'] = false;
                 $customer_partner = CustomerPartner::create($this->data);
+
 
                 return $customer_partner;
             }
@@ -114,20 +172,24 @@ class CustomerPartnerRepository extends RepositoryAbs
     public function updateExistingCustomerPartner($id)
     {
         try {
+            $customer_partner = CustomerPartner::where('id', $id)->firstOrFail();
+
             $validator = Validator::make($this->data, [
-                'code' => 'string',
+                'code' => 'required|string',
                 'name' => 'string',
                 'note' => 'string',
                 'LV2' => 'string',
                 'LV3' => 'string',
                 'LV4' => 'string',
             ], [
+                'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
                 'name.string' => 'Tên khách hàng phải là chuỗi.',
                 'note.string' => 'Ghi chú phải là chuỗi.',
                 'LV2.string' => 'LV2 phải là chuỗi.',
                 'LV3.string' => 'LV3 phải là chuỗi.',
                 'LV4.string' => 'LV4 phải là chuỗi.',
+
             ]);
 
             if ($validator->fails()) {
@@ -141,7 +203,6 @@ class CustomerPartnerRepository extends RepositoryAbs
             } else {
                 $customer_partner = CustomerPartner::findOrFail($id);
                 $customer_partner->update($this->data);
-
                 return $customer_partner;
             }
         } catch (\Exception $exception) {

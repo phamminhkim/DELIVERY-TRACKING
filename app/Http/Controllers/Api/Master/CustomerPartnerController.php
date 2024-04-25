@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Master;
 use App\Http\Controllers\BaseController\ResponseController;
 use Illuminate\Http\Request;
 use App\Repositories\MasterRepository;
+use Illuminate\Support\Facades\Response;
+
 
 class CustomerPartnerController extends ResponseController
 {
@@ -43,6 +45,25 @@ class CustomerPartnerController extends ResponseController
             return $this->responseSuccess($customerPartner);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function createCustomerPartnerFormExcel(Request $request)
+    {
+        $handler = MasterRepository::CustomerPartnerRequest($request);
+        $result = $handler->createCustomerPartnerFormExcel();
+
+        if ($result) {
+            return $this->responseSuccess($result);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
+    public function download($filename)
+    {
+        $filePath = public_path('excel/' . $filename);
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
         }
     }
     //update

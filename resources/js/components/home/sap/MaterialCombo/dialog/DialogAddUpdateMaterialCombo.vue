@@ -2,21 +2,21 @@
 	<!-- tạo form -->
 	<div
 		class="modal fade"
-		id="DialogAddUpdateSapMaterial"
+		id="DialogAddUpdateMaterialCombo"
 		tabindex="-1"
 		role="dialog"
 		data-backdrop="static"
 	>
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="addSapMaterial">
+				<form @submit.prevent="addMaterialCombo">
 					<div class="modal-header">
 						<h5 class="modal-title">
 							<span>
 								{{
 									is_editing
-										? 'Cập nhật sản phẩm SAP'
-										: 'Thêm mới sản phẩm SAP'
+										? 'Cập nhật khuyến mãi combo'
+										: 'Thêm mới khuyến mãi combo'
 								}}</span
 							>
 						</h5>
@@ -31,90 +31,93 @@
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
-
 					<div class="modal-body">
 						<div class="form-group">
-							<label>Mã sản phẩm SAP</label>
-                            <small class="text-danger">*</small>
-							<input
-								v-model="sap_material.sap_code"
-								class="form-control"
-								id="sap_code"
-								name="sap_code"
-                                required
-								placeholder="Yêu cầu nhập mã SAP..."
-								v-bind:class="hasError('sap_code') ? 'is-invalid' : ''"
-								type="text"
-							/>
-							<span
-								v-if="hasError('sap_code')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('sap_code') }}</strong>
-								<!-- <div v-for="(error, index) in getError('customer_sku_code')" :key="index">
+							<label>Nhóm khách hàng</label>
+							<treeselect
+								:multiple="false"
+								id="customer_group_id"
+								placeholder="Chọn nhóm khách hàng.."
+								v-model="material_combo.customer_group_id"
+								:options="customer_group_options"
+								:normalizer="normalizer"
+								required
+							></treeselect>
+
+							<span v-if="hasError('customer_group_id')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('customer_group_id') }}</strong>
+								<!-- <div v-for="(error, index) in getError('customer_group_id')" :key="index">
                                     <strong>{{ error }}</strong>
                                     <br />
                                 </div> -->
 							</span>
 						</div>
-						<div class="form-group" >
-							<label>Mã unit</label>
-							<small class="text-danger">*</small>
-							<treeselect
-								v-model="sap_material.unit_id"
-								placeholder="Nhập unit.."
-								required
-								:load-options="loadOptions"
-                                v-bind:class="hasError('unit_id') ? 'is-invalid' : ''"
-								:async="true"
-							/>
-							<span
-								v-if="hasError('unit_id')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('unit_id') }}</strong>
-							</span>
-						</div>
-                        <div class="form-group">
-							<label>Mã Barcode</label>
-							<small class="text-danger">*</small>
-							<input
-								v-model="sap_material.bar_code"
-								class="form-control"
-								id="bar_code"
-								name="bar_code"
-								placeholder="Nhập mã Barcode(nếu có)..."
-								v-bind:class="hasError('bar_code') ? 'is-invalid' : ''"
-								type="text"
-							/>
-							<span
-								v-if="hasError('bar_code')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('bar_code') }}</strong>
-							</span>
-						</div>
+					</div>
+					<div class="modal-body">
 						<div class="form-group">
-							<label>Tên sản phẩm SAP</label>
-							<small class="text-danger">*</small>
+							<label>Mã sản phẩm</label>
 							<input
-								v-model="sap_material.name"
+								v-model="material_combo.sap_code"
+								class="form-control"
+								id="sap_code"
+								name="sap_code"
+								placeholder="Yêu cầu nhập mã sản phẩm..."
+								v-bind:class="hasError('sap_code') ? 'is-invalid' : ''"
+								type="text"
+								required
+							/>
+
+							<span v-if="hasError('sap_code')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('sap_code') }}</strong>
+								<!-- <div v-for="(error, index) in getError('sap_code')" :key="index">
+                                    <strong>{{ error }}</strong>
+                                    <br />
+                                </div> -->
+							</span>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label>Tên sản phẩm</label>
+							<input
+								v-model="material_combo.name"
 								class="form-control"
 								id="name"
 								name="name"
-								placeholder="Yêu cầu nhập tên sản phẩm SAP..."
+								placeholder="Yêu cầu nhập tên sản phẩm..."
 								v-bind:class="hasError('name') ? 'is-invalid' : ''"
 								type="text"
+								required
 							/>
-							<span
-								v-if="hasError('name')"
-								class="invalid-feedback"
-								role="alert"
-							>
+
+							<span v-if="hasError('name')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('name') }}</strong>
+								<!-- <div v-for="(error, index) in getError('name')" :key="index">
+                                    <strong>{{ error }}</strong>
+                                    <br />
+                                </div> -->
+							</span>
+						</div>
+					</div>
+                    <div class="modal-body">
+						<div class="form-group">
+							<label>Mã Barcode</label>
+							<input
+								v-model="material_combo.bar_code"
+								class="form-control"
+								id="bar_code"
+								name="bar_code"
+								placeholder="Nhập mã barcode..."
+								v-bind:class="hasError('bar_code') ? 'is-invalid' : ''"
+								type="text"
+							/>
+
+							<span v-if="hasError('bar_code')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('bar_code') }}</strong>
+								<!-- <div v-for="(error, index) in getError('bar_code')" :key="index">
+                                    <strong>{{ error }}</strong>
+                                    <br />
+                                </div> -->
 							</span>
 						</div>
 					</div>
@@ -135,16 +138,15 @@
 </template>
 
 <script>
-	import APIHandler from '../../ApiHandler';
-	import { APIRequest } from '../../ApiHandler';
+	import APIHandler from '../../../ApiHandler';
+	import { APIRequest } from '../../../ApiHandler';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-    import Vue from 'vue';
 	import toastr from 'toastr';
 	import 'toastr/toastr.scss';
 
 	export default {
-		name: 'DialogAddUpdateSapMaterial',
+		name: 'DialogAddUpdateMaterialCombo',
 		props: {
 			is_editing: Boolean,
 			editing_item: Object,
@@ -152,8 +154,6 @@
 		},
 		components: {
 			Treeselect,
-            Vue,
-
 		},
 		data() {
 			return {
@@ -161,47 +161,48 @@
 
 				is_loading: false,
 				errors: {},
+				is_active: true,
 
-				sap_material: {
+				material_combo: {
+					customer_group_id: null,
 					sap_code: '',
-                    unit_id: null,
-                    bar_code: '',
-                    name: '',
-				},
-				unit_options:[],
-				sap_materials: [],
+					name: '',
+					bar_code: '',
 
-				api_url: '/api/master/sap-materials',
+				},
+				material_combos: [],
+                customer_group_options:[],
+
+				api_url: '/api/master/material-combos',
 			};
 		},
 		created() {
 			this.fetchOptionsData();
 		},
 		methods: {
-			async addSapMaterial() {
-
+			async addMaterialCombo() {
 				if (this.is_loading) return;
 				this.is_loading = true;
 
 				if (this.is_editing === false) {
-					this.createSapMaterial();
+					this.createMaterialCombo();
 				} else {
-					this.updateSapMaterial();
+					this.updateMaterialCombo();
 				}
 			},
-			async createSapMaterial() {
+			async createMaterialCombo() {
 				try {
+					console.log('createMaterialCombo');
 					this.is_loading = true;
-					const data = await this.api_handler.post('/api/master/sap-materials', {
-						sap_code: this.sap_material.sap_code,
-                        unit_id: this.sap_material.unit_id,
-                        bar_code: this.sap_material.bar_code,
-                        name: this.sap_material.name,
-
+					const data = await this.api_handler.post('/api/master/material-combos', {
+						customer_group_id: this.material_combo.customer_group_id,
+						sap_code: this.material_combo.sap_code,
+						bar_code: this.material_combo.bar_code,
+                        name: this.material_combo.name,
 					});
 					if (data.success) {
 						if (Array.isArray(data)) {
-							this.sap_materials.push(...data); // Add the new mappings to the end of the list
+							this.material_combos.push(...data); // Add the new mappings to the end of the list
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
@@ -217,18 +218,18 @@
 				}
 			},
 
-			async updateSapMaterial() {
+			async updateMaterialCombo() {
 				try {
 					this.is_loading = true;
 					const data = await this.api_handler.put(
-						`${this.api_url}/${this.sap_material.id}`,
-						this.sap_material,
+						`${this.api_url}/${this.material_combo.id}`,
+						this.material_combo,
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (data.success) {
+					if (!data.success) {
 						if (Array.isArray(data)) {
-							this.sap_materials.push(...data); // Add the new mappings to the end of the list
+							this.material_combos.push(...data); // Add the new mappings to the end of the list
 						}
 						this.showMessage('success', 'Cập nhật thành công');
 						this.closeDialog();
@@ -245,44 +246,15 @@
 			},
 
 			async fetchOptionsData() {
-				try {
-                    this.is_loading = true;
-					const [unit_options, sap_materials] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/sap-units'),
-						// new APIRequest('get', '/api/master/sap-materials'),
-					]);
-                    this.sap_materials = sap_materials;
-					this.unit_options = unit_options.map((unit) => {
-						return {
-							id: unit.id,
-							label: `(${unit.id}) ${unit.unit_code}`,
-						};
-					});
-				} catch (error) {
-					this.$showMessage('error', 'Lỗi', error);
-				} finally {
-					this.is_loading = false;
-				}
+				const [material_combo_options, customer_group_options] = await this.api_handler.handleMultipleRequest([
+					new APIRequest('get', '/api/master/material-combos'),
+					new APIRequest('get', '/api/master/customer-groups'),
+				]);
+				this.material_combos = material_combo_options;
+				this.customer_group_options = customer_group_options;
 			},
-			async loadOptions({ action, searchQuery, callback }) {
-				if (action === ASYNC_SEARCH) {
-					const params = {
-						search: searchQuery,
-					};
-					const { data } = await this.api_handler.get(
-						'api/master/sap-units',
-						params,
-					);
-					let options = data.map((item) => {
-						return {
-							id: item.id,
-							label: `(${item.id}) ${item.unit_code}`,
-						};
-					});
-					callback(null, options);
-				}
-			},
-			normalizerOption(node) {
+
+			normalizer(node) {
 				return {
 					id: node.id,
 					label: node.name,
@@ -291,21 +263,21 @@
 			closeDialog() {
 				this.clearForm();
 				this.clearErrors();
-				$('#DialogAddUpdateSapMaterial').modal('hide');
+				$('#DialogAddUpdateMaterialCombo').modal('hide');
 			},
 			resetDialog() {
-				this.sap_material.sap_code = null;
-				this.sap_material.unit_id = null;
-				this.sap_material.bar_code = '';
-				this.sap_material.name = '';
+				this.material_combo.customer_group_id = null;
+				this.material_combo.name = null;
+				this.material_combo.sap_code = null;
+				this.material_combo.bar_code = null;
 				this.clearErrors();
 			},
 
 			clearForm() {
-				this.sap_material.sap_code = null;
-				this.sap_material.unit_id = null;
-				this.sap_material.bar_code = null;
-				this.sap_material.name = null;
+				this.material_combo.customer_group_id = null;
+				this.material_combo.name = null;
+				this.material_combo.sap_code = null;
+				this.material_combo.bar_code = null;
 			},
 			clearErrors() {
 				this.errors = {};
@@ -346,16 +318,17 @@
 			},
 			editing_item: function (item) {
 				console.log(item);
-                this.sap_material.sap_code = item.sap_code;
-                this.sap_material.unit_id = item.unit_id;
-                this.sap_material.bar_code = item.bar_code;
-				this.sap_material.name = item.name;
-				this.sap_material.id = item.id;
+                this.material_combo.customer_group_id = item.customer_group_id;
+				this.material_combo.name = item.name;
+				this.material_combo.sap_code = item.sap_code;
+				this.material_combo.bar_code = item.bar_code;
+				this.material_combo.id = item.id;
+
 			},
 		},
 		computed: {
 			rows() {
-				return this.sap_materials.length;
+				return this.material_combos.length;
 			},
 		},
 	};

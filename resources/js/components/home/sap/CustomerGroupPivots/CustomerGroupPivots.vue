@@ -150,8 +150,8 @@
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import Vue from 'vue';
-	import ApiHandler, { APIRequest } from '../ApiHandler';
-	import DialogAddUpdateCustomerGroupPivots from './dialogs/DialogAddUpdateCustomerGroupPivots.vue';
+	import ApiHandler, { APIRequest } from '../../ApiHandler';
+	import DialogAddUpdateCustomerGroupPivots from './dialog/DialogAddUpdateCustomerGroupPivots.vue';
 
 	export default {
 		components: {
