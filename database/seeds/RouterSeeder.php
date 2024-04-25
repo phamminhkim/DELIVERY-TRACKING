@@ -51,22 +51,22 @@ class RouterSeeder extends Seeder
                 'component' => 'home/business/OrderExtractConfigs'
             ],
 
-            [
-                'name' => 'Danh sách file',
-                'path' => '/order-file-uploads',
-                'component' => 'home/business/OrderFileUploads'
-            ],
+            // [
+            //     'name' => 'Danh sách file',
+            //     'path' => '/order-file-uploads',
+            //     'component' => 'home/business/OrderFileUploads'
+            // ],
 
             [
                 'name' => 'Khách hàng liên kết',
                 'path' => '/customer-group-pivots',
                 'component' => 'home/sap/CustomerGroupPivots/CustomerGroupPivots'
             ],
-            [
-                'name' => 'Khách hàng khuyến mãi',
-                'path' => '/customer-promotions',
-                'component' => 'home/sap/CustomerPromotion/CustomerPromotion'
-            ],
+            // [
+            //     'name' => 'Khách hàng khuyến mãi',
+            //     'path' => '/customer-promotions',
+            //     'component' => 'home/sap/CustomerPromotion/CustomerPromotion'
+            // ],
 
             // [
             //     'name' => 'Upload đơn hàng',

@@ -127,7 +127,7 @@
 								</button> -->
 							</div>
 						</div>
-						<div class="col-md-3">
+						<!-- <div class="col-md-3">
 							<div class="input-group input-group-sm mt-1 mb-1">
 								<input
 									type="search"
@@ -145,7 +145,7 @@
 									</button>
 								</div>
 							</div>
-						</div>
+						</div> -->
 					</div>
 					<!-- tạo nút edit và delete -->
 					<div class="row">

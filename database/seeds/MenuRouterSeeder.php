@@ -289,13 +289,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản trị hệ thống',
             ],
 
-            [
-                'title' => "Danh sách file",
-                'icon' => "fas fa-pencil-square-o",
-                'link' => "order-file-uploads",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Danh sách file",
+            //     'icon' => "fas fa-pencil-square-o",
+            //     'link' => "order-file-uploads",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
 
             [
                 'title' => "Khách hàng liên kết",
@@ -304,13 +304,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
-            [
-                'title' => "Khách hàng khuyến mãi",
-                'icon' => "fas fa-project-diagram	",
-                'link' => "customer-promotions",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Khách hàng khuyến mãi",
+            //     'icon' => "fas fa-project-diagram	",
+            //     'link' => "customer-promotions",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
 
             // [
             //     'title' => "Upload đơn hàng",

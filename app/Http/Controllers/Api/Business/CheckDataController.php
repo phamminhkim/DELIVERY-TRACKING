@@ -19,6 +19,16 @@ class CheckDataController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function checkPromotions(Request $request)
+    {
+        $handler = BusinessRepository::checkDataRequest($request);
+        $data = $handler->checkPromotions($request);
+        if ($data) {
+            return $this->response($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
     public function checkInventory(Request $request)
     {

@@ -322,6 +322,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);
+        Route::post('check-promotion', [CheckDataController::class, 'checkPromotions']);
         Route::post('check-inventory', [CheckDataController::class, 'checkInventory']);
         Route::post('check-price', [CheckDataController::class, 'checkPrice']);
     });

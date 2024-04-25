@@ -171,7 +171,7 @@
 								</button> -->
 							</div>
 						</div>
-						<div class="col-md-3">
+						<!-- <div class="col-md-3">
 							<div class="input-group input-group-sm mt-1 mb-1">
 								<input
 									type="search"
@@ -189,7 +189,7 @@
 									</button>
 								</div>
 							</div>
-						</div>
+						</div> -->
 					</div>
 					<!-- tạo nút edit và delete -->
 					<div class="row">
@@ -328,7 +328,7 @@
 				api_handler: new ApiHandler(window.Laravel.access_token),
 
 				form_title: window.Laravel.form_title,
-				search_placeholder: 'Tìm kiếm..',
+				// search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
 
 				form_filter: {
