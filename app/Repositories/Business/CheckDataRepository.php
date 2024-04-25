@@ -137,120 +137,88 @@ class CheckDataRepository extends RepositoryAbs
         }
     }
     public function checkPromotions()
-    {
-        try {
-            $validator = Validator::make($this->request->all(), [
-                'customer_group_id' => 'required',
-                'items' => 'required|array',
-                'items.*.customer_sku_code' => 'required',
-                'items.*.customer_sku_unit' => 'required',
-            ]);
+{
+    try {
+        $validator = Validator::make($this->request->all(), [
+            'customer_group_id' => 'required',
+            'items' => 'required|array',
+            'items.*.sap_code' => 'required',
+            'items.*.bar_code' => 'required',
+        ]);
 
-            if ($validator->fails()) {
-                $this->message = $validator->errors()->first();
-                return false;
-            }
-
-            $customer_group_id = $this->request->input('customer_group_id');
-            $items = $this->request->input('items');
-
-            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
-
-            if (!$customerMaterials) {
-                $this->message = 'Không tìm thấy nhóm khách hàng';
-                return false;
-            }
-
-            $mappingData = [];
-
-            foreach ($items as &$item) {
-                $customer_sku_code = $item['customer_sku_code'];
-                $customer_sku_unit = $item['customer_sku_unit'];
-
-                $bar_code = null;
-                $sap_code = null;
-
-                $materialCombo = MaterialCombo::where(function ($query) use ($customer_group_id, $customer_sku_code) {
-                    $query->where('customer_group_id', $customer_group_id)
-                        ->where(function ($query) use ($customer_sku_code) {
-                            $query->where('bar_code', $customer_sku_code)
-                                ->orWhere('sap_code', $customer_sku_code);
-                        });
-                })->first();
-
-                if ($materialCombo) {
-                    $sap_code = $materialCombo->sap_code;
-                    $bar_code = $materialCombo->bar_code;
-
-                    $combo_category_type = MaterialCategoryType::where('name', 'Combo')
-                        ->where('is_deleted', false)
-                        ->first();
-
-                    $category_type_name = $combo_category_type ? 'Combo' : null;
-                } else {
-                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                        $query->where('customer_group_id', $customer_group_id)
-                            ->where('customer_sku_code', $customer_sku_code);
-                    })->get();
-
-                    if ($sapMaterialMappings->isNotEmpty()) {
-                        foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                            $sap_material_id = $sapMaterialMapping->sap_material_id;
-                            $sapMaterial = SapMaterial::find($sap_material_id);
-
-                            if ($sapMaterial) {
-                                $sap_code = $sapMaterial->sap_code;
-                                $name = $sapMaterial->name;
-
-                                $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
-
-                                if ($materialDonated) {
-                                    $bar_code = $materialDonated->bar_code;
-
-                                    $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
-                                        ->where('is_deleted', false)
-                                        ->first();
-
-                                    $category_type_name = $combo_category_type ? 'ExtraOffer' : null;
-                                } else {
-                                    $category_type_name = null; // Không tìm thấy dữ liệu bar_code và sap_code trong bảng MaterialDonated
-
-                                }
-                            } else {
-                                $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng SapMaterial
-
-                            }
-                        }
-                    } else {
-                        $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng SapMaterialMapping
-
-                    }
-                }
-                $item['promotion_category'] = isset($category_type_name) ? $category_type_name : null;
-                $item['sap_code'] = $sap_code;
-                $item['name'] = $name;
-                $item['bar_code'] = $bar_code;
-
-                $mappingData[] = [
-                    'customer_sku_code' => $customer_sku_code,
-                    'customer_sku_unit' => $customer_sku_unit,
-                    'sap_code' => $item['sap_code'],
-                    'name' =>  $item['name'],
-                    'bar_code' => $item['bar_code'],
-                    'promotion_category' => $item['promotion_category'],
-                ];
-            }
-
-            return [
-                'success' => true,
-                'items' => $mappingData
-            ];
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
+        if ($validator->fails()) {
+            $this->message = $validator->errors()->first();
             return false;
         }
+
+        $customer_group_id = $this->request->input('customer_group_id');
+        $items = $this->request->input('items');
+
+        $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
+
+        if (!$customerMaterials) {
+            $this->message = 'Không tìm thấy nhóm khách hàng';
+            return false;
+        }
+
+        $mappingData = [];
+
+        foreach ($items as &$item) {
+            $sap_code = $item['sap_code'];
+            $bar_code = $item['bar_code'];
+
+            $materialCombo = MaterialCombo::where('bar_code', $bar_code)->first();
+
+            if ($materialCombo) {
+                $combo_category_type = MaterialCategoryType::where('name', 'Combo')
+                    ->where('is_deleted', false)
+                    ->first();
+
+                $category_type_name = $combo_category_type ? 'Combo' : null;
+                $name = $materialCombo->name;
+            } else {
+                $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
+
+                if ($sapMaterial) {
+                    $name = $sapMaterial->name;
+
+                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
+
+                    if ($materialDonated) {
+                        $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                            ->where('is_deleted', false)
+                            ->first();
+
+                        $category_type_name = $combo_category_type ? 'ExtraOffer' : null;
+                    } else {
+                        $category_type_name = null; // Không tìm thấy dữ liệu bar_code và sap_code trong bảng MaterialDonated
+                    }
+                } else {
+                    $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng SapMaterial
+                }
+            }
+
+            $item['promotion_category'] = isset($category_type_name) ? $category_type_name : null;
+            $item['name'] = $name ?? null;
+
+            $mappingData[] = [
+                'sap_code' => $sap_code,
+                'bar_code' => $bar_code,
+                'name' =>  $item['name'],
+                'promotion_category' => $item['promotion_category'],
+            ];
+        }
+
+        return [
+            'success' => true,
+            'items' => $mappingData
+        ];
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        return false;
     }
+}
     public function checkInventory()
     {
         try {
