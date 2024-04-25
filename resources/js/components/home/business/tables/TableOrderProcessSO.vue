@@ -16,6 +16,12 @@
             <template #cell(index)="data">
                 {{ (data.index + 1) + (current_page * per_page) - per_page }}
             </template>
+            <template #cell(serial_number)="data">
+                <div>
+                    <a class="link-item" @click="getUrl(data.item)" style="cursor: pointer;">{{ data.item.serial_number
+                        }}</a>
+                </div>
+            </template>
             <template #cell(created_at)="data">
                 {{ data.item.created_at | formatDate }}
             </template>
@@ -40,9 +46,6 @@
                 </div>
             </template>
             <template #cell(action)="data">
-                <!-- <button @click="emitEditOrderProcessSO(data.item)" type="button" class="btn btn-sm btn-info px-4">
-                    Chỉnh sửa
-                </button> -->
                 <button @click="emitDltOrderProcessSO(data.index, data.item)" type="button"
                     class="btn btn-sm btn-danger ">
                     <i class="fas fa-trash-alt"></i>
@@ -112,7 +115,7 @@ export default {
                     class: 'text-nowrap',
                     sortable: true,
                 },
-               
+
                 {
                     key: 'updated_at',
                     label: 'Ngày cập nhật',
@@ -143,8 +146,11 @@ export default {
         },
         emitDltOrderProcessSO(index, item) {
             this.$emit('dltOrderProcessSO', index, item);
-        }
-
+        },
+        getUrl(item) {
+            const url = window.location.origin + this.$route.path + '#' + item.id + '?seri=' + item.serial_number;
+            window.open(url, '_blank');
+        },
     },
 }
 </script>

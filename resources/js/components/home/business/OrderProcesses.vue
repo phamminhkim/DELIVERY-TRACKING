@@ -40,6 +40,7 @@ import HeaderTabOrderProcesses from './headers/HeaderTabOrderProcesses.vue';
 import TableOrderLack from './tables/TableOrderLack.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
 import ParentOrderLack from './parents/ParentOrderLack.vue';
+import ApiHandler, { APIRequest } from '../ApiHandler';
 export default {
     components: {
         HeaderOrderProcesses,
@@ -53,6 +54,7 @@ export default {
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             is_open_modal_search_order_processes: false,
             tab_value: 'order',
             count_order_lack: 0,
@@ -77,8 +79,13 @@ export default {
             case_data_temporary: {
                 item_selecteds: [],
                 order_lacks: []
-            }
+            },
+            api_order_process_so: '/api/sales-order',
+
         }
+    },
+    created() {
+        this.getUrl();
     },
     methods: {
         openModalSearchOrderProcesses() {
@@ -246,7 +253,26 @@ export default {
         getCustomerGroupId(customer_group_id) {
             this.case_save_so.customer_group_id = customer_group_id;
             // this.$refs.headerOrderProcesses.getCustomerGroupId(customer_group_id);
-        }
+        },
+        getUrl() {
+            const url = window.location.href;
+            const id = url.split('#')[1];
+            if (id) {
+                this.fetchOrderProcessSODetail(id);
+            }
+            
+        },
+        async fetchOrderProcessSODetail(id) {
+            try {
+                // this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.get(this.api_order_process_so + '/' + id);
+                this.getSaveOrderSO(data);
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                // this.case_is_loading.fetch_api = false;
+            }
+        },
 
 
 
