@@ -29,12 +29,8 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
 
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:material_category_types,code',
                 'name' => 'required|string',
             ], [
-                'code.required' => 'Không được để mã trống.',
-                'code.string' => 'Mã công ty phải là chuỗi.',
-                'code.unique' => 'Mã đã tồn tại.',
                 'name.required' => 'Không được để tên trống.',
                 'name.string' => 'Tên phải là chuỗi.',
             ]);
@@ -43,8 +39,6 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $material_category_type = MaterialCategoryType::create($this->data);
-
-                // return $material_category_type;
                 return [
                     'success' => true,
                     'items' => $material_category_type
@@ -55,20 +49,15 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function updateExistingCategoryType($id)
+    public function updateExistingCategoryType($request, $id)
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required|string|unique:material_category_types,code,' . $id,
                 'name' => 'required|string',
             ], [
-                'code.required' => 'Không được để mã trống.',
-                'code.string' => 'Mã công ty phải là chuỗi.',
-                'code.unique' => 'Mã đã tồn tại.',
                 'name.required' => 'Không được để tên trống.',
                 'name.string' => 'Tên phải là chuỗi.',
             ]);
-
             if ($validator->fails()) {
                 $this->errors = $validator->errors();
             } else {
@@ -86,7 +75,7 @@ class MaterialCategoryTypeRepository extends RepositoryAbs
         }
     }
 
-    public function deleteExistingCategoryType($id)
+    public function deleteExistingCategoryType($request ,$id)
     {
         try {
             $material_category_type = MaterialCategoryType::find($id);

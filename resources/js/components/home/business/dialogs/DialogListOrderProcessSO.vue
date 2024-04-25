@@ -62,6 +62,7 @@ export default {
             this.current_page = page;
         },
         showModal() {
+            this.fetchOrderProcessSO();
             $('#listOrderProcessSO').modal('show');
         },
         hideModal() {

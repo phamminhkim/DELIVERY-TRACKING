@@ -17,7 +17,7 @@
                         </div>
                         <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel">
                             <div class="form-create mt-3 shadow p-3 mb-2 ">
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text border-0 bg-light" id="basic-addon1">Mã
@@ -27,7 +27,7 @@
                                             class="form-control border-bottom border-right-0 border-top-0 rounded-0"
                                             placeholder="Nhập mã phiếu...">
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="form-group">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend">
@@ -59,7 +59,7 @@
                                 <template #cell(index)="data">
                                     {{ data.index + 1 }}
                                 </template>
-                                <template #cell(code)="data">
+                                <!-- <template #cell(code)="data">
                                     <div v-show="edit_index != data.index" class="">
                                         {{ data.item.code }}
                                     </div>
@@ -71,7 +71,7 @@
                                             <strong>{{ getError('code') }}</strong>
                                         </span>
                                     </div>
-                                </template>
+                                </template> -->
                                 <template #cell(name)="data">
                                     <div v-show="edit_index != data.index" class="">
                                         {{ data.item.name }}
@@ -162,13 +162,6 @@ export default {
                     sortable: true
                 },
                 {
-                    key: 'code',
-                    label: 'Loại phiếu',
-                    class: 'text-nowrap',
-                    sortable: true,
-                    tdClass: 'item-hover'
-                },
-                {
                     key: 'name',
                     label: 'Tên phiếu',
                     class: 'text-nowrap',
@@ -187,12 +180,10 @@ export default {
             selected: [],
             material_category_type: {
                 id: '',
-                code: '',
                 name: ''
             },
             edit_item: {
                 id: '',
-                code: '',
                 name: ''
             },
             total: 0,
@@ -224,12 +215,12 @@ export default {
         async storeMaterialCategoryType() {
             try {
                 let data = await this.api_handler
-                    .post(this.api_material_category_type_store, this.material_category_type)
+                    .post(this.api_material_category_type_store, {}, this.material_category_type)
                     .finally(() => {
                         this.is_loading = false;
                     });
                 this.$showMessage('success', 'Thêm thành công');
-                this.$emit('storeMaterialCategoryType', data);
+                this.$emit('storeMaterialCategoryType', data.data.items);
                 this.refeshModel();
             } catch (error) {
                 this.errors = error.response.data.errors;
@@ -244,11 +235,11 @@ export default {
                         this.is_loading = false;
                     });
                 this.$showMessage('success', 'Cập nhật thành công');
-                this.$emit('updateMaterialCategoryType', index, data);
+                this.$emit('updateMaterialCategoryType', index, data.data.items);
                 this.onChangeEditCancel();
             } catch (error) {
                 this.errors = error.response.data.errors;
-                this.$showMessage('error', 'Cập nhật không thành công', data.message);
+                this.$showMessage('error', 'Cập nhật không thành công', data.data.message);
             }
         },
         async deleteMaterialCategoryType(id, index) {
@@ -263,13 +254,12 @@ export default {
                 this.refeshModel();
             } catch (error) {
                 this.errors = error.response.data.errors;
-                this.$showMessage('error', 'Xóa không thành công', data.message);
+                this.$showMessage('error', 'Xóa không thành công', data.data.message);
             }
         },
         refeshModel() {
             this.material_category_type = {
                 id: '',
-                code: '',
                 name: ''
             }
         },
@@ -291,12 +281,12 @@ export default {
             }
         },
         btnUpdate(index, id, item) {
+            this.edit_item.id = id;
             this.updateMaterialCategoryType(id, index);
         },
         refeshEditModel() {
             this.edit_item = {
                 id: '',
-                code: '',
                 name: ''
             }
         },

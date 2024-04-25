@@ -33,7 +33,7 @@
                 </template>
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)" >
-                        {{ data.item.customer_name }} <br>
+                        {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                         <small v-if="rowColor(data.item)" class="text-success ml-2"><i class="fas fa-circle fa-xs mr-1"></i>Đã lưu</small>
                     </div>
@@ -106,7 +106,7 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_name)="data">
-                        {{ data.item.sku_sap_name }}{{ data.item.promotive }}
+                        {{ data.item.sku_sap_name }}
                 </template>
                 <template #cell(promotive_name)="data">
                    {{ data.item.promotive }}
@@ -419,10 +419,10 @@ export default {
             this.$emit('onChangeCategoryType', index, item);
         },
         getStoreMaterialCategoryType(data) {
-            this.material_category_types.unshift({ ...data.data })
+            this.material_category_types.unshift({ ...data })
         },
         getUpdateMaterialCategoryType(index, data) {
-            this.material_category_types.splice(index, 1, { ...data.data })
+            this.material_category_types.splice(index, 1, { ...data })
         },
         getDeleteMaterialCategoryType(index) {
             this.material_category_types.splice(index, 1)

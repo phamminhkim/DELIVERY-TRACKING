@@ -235,7 +235,6 @@ export default {
             this.$refs.dialogListOrderProcessSo.showModal();
         },
         getFetchOrderProcessSODetail(item) {
-            console.log(item);
            this.getSaveOrderSO(item);
         },
         refHeaderOrderProcesses() {
