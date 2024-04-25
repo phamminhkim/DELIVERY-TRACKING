@@ -524,6 +524,7 @@ export default {
             this.case_error.extract_pdf = '';
         },
         browserCustomerGroup() {
+            this.emitCustomerGroupId(this.form_filter.customer_group);
             this.resetConfig();
             this.customer_groups.forEach(customer_group => {
                 if (customer_group.id == this.form_filter.customer_group) {
@@ -704,7 +705,10 @@ export default {
         },
         updateOrders(items){
             this.orders = items;
-        }
+        },
+        emitCustomerGroupId(customer_group_id) {
+            this.$emit('getCustomerGroupId', customer_group_id);
+        },
     },
     computed: {
         type_file_extract_order_configs() {

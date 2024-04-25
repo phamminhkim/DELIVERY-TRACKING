@@ -40,6 +40,10 @@ export default {
         case_save_so: {
             type: Object,
             default: () => { }
+        },
+        customer_group_id: {
+            type: Number,
+            default: -1
         }
     },
     data() {
@@ -49,6 +53,7 @@ export default {
             errors: [],
             case_data: {
                 title: '',
+                customer_group_id: -1,
                 order_data: [],
             },
             api_order_save_so: '/api/sales-order/save-so',
@@ -58,6 +63,7 @@ export default {
     methods: {
         showDialogTitleOrderSo() {
             this.case_data.title = this.case_save_so.title;
+            this.case_data.customer_group_id = this.customer_group_id;
             $('#dialogTitleOrderSo').modal('show');
         },
         hideDialogTitleOrderSo() {
@@ -67,6 +73,7 @@ export default {
             try {
                 this.is_loading = true;
                 this.case_data.order_data = this.orders;
+                this.case_data.customer_group_id = this.case_save_so.customer_group_id;
                 if (this.case_save_so.id !== "") {
                     let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
                         .finally(() => {
