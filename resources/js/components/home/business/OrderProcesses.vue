@@ -162,11 +162,9 @@ export default {
             this.case_data_temporary.item_selecteds = [];
         },
         getEventOrderDelete() {
-            // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
-            const index = this.orders.findIndex(item =>
-                this.case_data_temporary.item_selecteds.some(selected => selected.customer_sku_code === item.customer_sku_code)
-            );
-            this.orders.splice(index, 1);
+            this.case_data_temporary.item_selecteds.forEach(item_selected => {
+                this.orders.splice(this.orders.indexOf(item_selected), 1);
+            });
             this.refeshCheckBox();
         },
         getReplaceItem(item_materials) {
