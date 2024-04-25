@@ -709,6 +709,9 @@ export default {
         emitCustomerGroupId(customer_group_id) {
             this.$emit('getCustomerGroupId', customer_group_id);
         },
+        setCustomerGroupId(customer_group_id) {
+            this.form_filter.customer_group = customer_group_id;
+        },
     },
     computed: {
         type_file_extract_order_configs() {

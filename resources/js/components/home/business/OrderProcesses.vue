@@ -195,6 +195,7 @@ export default {
             this.case_save_so.title = item.title;
             this.case_save_so.serial_number = item.serial_number;
             this.case_save_so.customer_group_id = item.customer_group_id;
+            this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
             item.so_data_items.forEach(data_item => {
                 this.orders.push({
                     id: data_item.id,
