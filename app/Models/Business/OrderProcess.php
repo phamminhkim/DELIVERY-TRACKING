@@ -2,7 +2,7 @@
 
 namespace App\Models\Business;
 
-use App\Models\Master\Customer;
+use App\Models\Master\CustomerGroup;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,6 +10,7 @@ class OrderProcess extends Model
 {
     // use SoftDeletes;
     protected $fillable = [
+        'customer_group_id',
         'serial_number',
         'title',
         'created_by',
@@ -34,6 +35,10 @@ class OrderProcess extends Model
     public function updated_by()
     {
         return $this->belongsTo(User::class, 'updated_by')->select('id', 'name', 'username');
+    }
+    public function customer_group()
+    {
+        return $this->belongsTo(CustomerGroup::class);
     }
 
 

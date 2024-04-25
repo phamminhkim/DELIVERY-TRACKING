@@ -35,6 +35,7 @@ class SoDataRepository extends RepositoryAbs
                 $current_user_id = $this->current_user->id;
                 $serial_number = UniqueIdUtility::generateSerialUniqueNumber('Order');
                 $order_process = OrderProcess::create([
+                    'customer_group_id' => $this->data['customer_group_id'],
                     'serial_number' => $serial_number,
                     'title' => $this->data['title'],
                     'created_by' => $current_user_id,
@@ -114,6 +115,7 @@ class SoDataRepository extends RepositoryAbs
                 $order_process->so_headers()->delete();
                 $order_process->updated_by = $current_user_id;
                 $order_process->title = $this->data['title'];
+                $order_process->customer_group_id = $this->data['customer_group_id'];
                 $order_process->updated_at = now();
                 $order_process->save();
                 // Tạo lại so_data_items và so_headers
@@ -209,7 +211,7 @@ class SoDataRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $order_processes = OrderProcess::where('is_deleted', false)->orderBy('updated_at', 'desc')->get();
-                $order_processes->load(['created_by', 'updated_by']);
+                $order_processes->load(['created_by', 'updated_by', 'customer_group']);
                 return $order_processes;
             }
             return false;
