@@ -209,6 +209,7 @@ class SoDataRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $order_processes = OrderProcess::where('is_deleted', false)->orderBy('updated_at', 'desc')->get();
+                $order_processes->load(['created_by', 'updated_by']);
                 return $order_processes;
             }
             return false;
