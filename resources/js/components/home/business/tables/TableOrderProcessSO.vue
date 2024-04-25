@@ -22,6 +22,13 @@
             <template #cell(updated_at)="data">
                 {{ data.item.updated_at | formatDate }}
             </template>
+            <template #cell(created_by)="data">
+                <div>
+                    <span class="mr-1 text-primary"><i class="fas fa-id-card-alt"></i></span>
+                    <span class="mr-1 text-primary font-weight-bold">{{ data.item.created_by.name }} </span><b>-</b>
+                    <small class="font-weight-italic text-secondary">{{ data.item.created_by.username }}</small>
+                </div>
+            </template>
             <template #cell(action)="data">
                 <!-- <button @click="emitEditOrderProcessSO(data.item)" type="button" class="btn btn-sm btn-info px-4">
                     Chỉnh sửa
@@ -68,6 +75,12 @@ export default {
                 {
                     key: 'title',
                     label: 'Tiêu đề',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    key: 'created_by',
+                    label: 'Người tạo',
                     class: 'text-nowrap',
                     sortable: true,
                 },
