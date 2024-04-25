@@ -2,11 +2,12 @@
     <div>
         <div class="form-group border-bottom d-inline-block p-2 px-4 rounded"
             style="background: rgb(234 234 234 / 50%);">
-            <label clsas="font-weight-normal">Tiêu đề SO: </label>
+            <span clsas="font-weight-normal">Tiêu đề: </span>
             <span v-if="case_save_so.title !== ''">
-                <span  class="font-weight-bold mr-2"> {{ case_save_so.title }} </span>
-                <span  class="text-success"><i class="fas fa-circle fa-xs mr-1"></i>Đã
-                    lưu</span>
+                <span  class="font-weight-bold mr-2 text-danger"> {{ case_save_so.title }} </span>
+            </span>
+            <span v-else>
+                <small class="font-weight-italic"><i>(Bản nháp)</i></small>
             </span>
         </div>
         <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"

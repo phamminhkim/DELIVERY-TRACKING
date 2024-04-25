@@ -52,7 +52,7 @@ export default {
         }
     },
     created() {
-        this.fetchOrderProcessSO();
+        // this.fetchOrderProcessSO();
     },
     methods: {
         getPerPageChange(per_page) {

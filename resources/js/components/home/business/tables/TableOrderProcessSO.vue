@@ -19,14 +19,24 @@
             <template #cell(created_at)="data">
                 {{ data.item.created_at | formatDate }}
             </template>
+            <template #cell(customer_group_id)="data">
+                <div v-if="data.item.customer_group">
+                    {{ data.item.customer_group.name }}
+                </div>
+            </template>
+            <template #cell(updated_by)="data">
+                <div>
+                    <span class="mr-1 text-primary"><i class="fas fa-id-card-alt"></i></span>
+                    <span class="mr-1 text-primary font-weight-bold"> {{ data.item.updated_by.name }}</span>
+                </div>
+            </template>
             <template #cell(updated_at)="data">
                 {{ data.item.updated_at | formatDate }}
             </template>
             <template #cell(created_by)="data">
                 <div>
                     <span class="mr-1 text-primary"><i class="fas fa-id-card-alt"></i></span>
-                    <span class="mr-1 text-primary font-weight-bold">{{ data.item.created_by.name }} </span><b>-</b>
-                    <small class="font-weight-italic text-secondary">{{ data.item.created_by.username }}</small>
+                    <span class="mr-1 text-primary font-weight-bold">{{ data.item.created_by.name }} </span>
                 </div>
             </template>
             <template #cell(action)="data">
@@ -34,8 +44,8 @@
                     Chỉnh sửa
                 </button> -->
                 <button @click="emitDltOrderProcessSO(data.index, data.item)" type="button"
-                    class="btn btn-sm btn-danger px-4">
-                    Xóa
+                    class="btn btn-sm btn-danger ">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </template>
         </b-table>
@@ -73,6 +83,12 @@ export default {
                     sortable: true,
                 },
                 {
+                    key: 'customer_group_id',
+                    label: 'Nhóm khách hàng',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
                     key: 'title',
                     label: 'Tiêu đề',
                     class: 'text-nowrap',
@@ -91,6 +107,13 @@ export default {
                     sortable: true,
                 },
                 {
+                    key: 'updated_by',
+                    label: 'Người cập nhật',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+               
+                {
                     key: 'updated_at',
                     label: 'Ngày cập nhật',
                     class: 'text-nowrap',
@@ -99,7 +122,7 @@ export default {
 
                 {
                     key: 'action',
-                    label: '',
+                    label: 'Hành động',
                     class: 'text-nowrap',
                     sortable: true,
                 },

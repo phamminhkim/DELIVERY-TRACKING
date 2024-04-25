@@ -467,9 +467,10 @@ export default {
         isCheckLack(item){
             let result =  this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
             if(result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0){
+                item.is_inventory = true;
                 return true;
             }
-            return false;
+            return item.is_inventory;
         },
         convertToNumber(value) {
             return Number(value);

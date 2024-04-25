@@ -237,6 +237,7 @@ export default {
             this.$refs.dialogListOrderProcessSo.showModal();
         },
         getFetchOrderProcessSODetail(item) {
+            this.case_data_temporary.order_lacks = [];
            this.getSaveOrderSO(item);
         },
         refHeaderOrderProcesses() {

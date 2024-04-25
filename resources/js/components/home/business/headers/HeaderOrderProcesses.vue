@@ -1,8 +1,11 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group p-1 mb-0" style="background: rgb(0 0 0 / 2%);">
-            <b-button v-b-toggle.collapse-1 class="btn btn-sm btn-warning px-3 mt-1 mb-2"><i class="fas fa-recycle mr-2"></i>Xử lý đơn hàng</b-button>
-            <button @click="emitListOrderProcessSO()" type="button" class="btn btn-sm btn-primary px-3 mt-1 mb-2 ml-2"><i class="fas fa-list-ol mr-2"></i>Danh sách xử lý đơn hàng</button>
+            <b-button v-b-toggle.collapse-1 class="btn btn-sm btn-warning px-3 mt-1 mb-2"><i
+                    class="fas fa-recycle mr-2"></i>Xử lý đơn hàng</b-button>
+            <button @click="emitListOrderProcessSO()" type="button"
+                class="btn btn-sm btn-primary px-3 mt-1 mb-2 ml-2"><i class="fas fa-list-ol mr-2"></i>Danh sách xử lý
+                đơn hàng</button>
             <b-collapse id="collapse-1" class="mt-2">
                 <b-card class="border-0 shadow-sm">
                     <div class="row">
@@ -63,9 +66,9 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-6">
-                            <div class="form-group" v-if="case_data_temporary.type_file == 'Excel'">
+                            <div v-if="case_data_temporary.type_file == 'Excel'" class="form-group">
                                 <input @change="extractFilePDF" type="file"
-                                    class="custom-file-inputs w-100 shadow-sm mb-2" :disabled="isDisabledFile()">
+                                    class="custom-file-inputs w-100 shadow-sm mb-2">
                             </div>
                             <div v-else class="form-group">
                                 <b-form-file @change="extractFilePDF" v-model="form_filter.pdf_files" ref="file-input"
@@ -84,6 +87,8 @@
                 <button @click="detectSapCode()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
+                <button type="button" class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
+                    khuyến mãi</button>
                 <button type="button" v-on:click="handleCheckInventory"
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     tồn</button>
@@ -183,7 +188,7 @@ export default {
             case_error: {
                 extract_pdf: '',
             },
-           
+
             case_index: {
                 code_type: 0,
                 name_product: 0,
@@ -456,7 +461,7 @@ export default {
                     price_po: data[index][this.case_index.price_po],
                     amount_po: this.calculatorAmount(data[index][this.case_index.price_po]),
                     customer_code: this.browserCustomerCode(data[index][this.case_index.store] == undefined ? '' : data[index][this.case_index.store]),
-                    inventory_quantity:'',
+                    inventory_quantity: '',
                 });
                 this.bar_codes.push(data[index][this.case_index.customer_sku_code]);
             }
@@ -535,7 +540,7 @@ export default {
                             code: customer_group.customers[index].code,
                         });
                     }
-                }
+                } 
             });
         },
         browserCustomerCode(store) {
@@ -547,6 +552,7 @@ export default {
         },
         getChangeFile(change_file) {
             this.case_data_temporary.type_file = change_file.type;
+            this.extract_order_configs = [];
         },
         updateMaterialCategoryTypeInOrder(index, item) {
             if (this.orders[index].promotive != item.name) {
@@ -703,7 +709,7 @@ export default {
         emitListOrderProcessSO() {
             this.$emit('listOrderProcessSO');
         },
-        updateOrders(items){
+        updateOrders(items) {
             this.orders = items;
         },
         emitCustomerGroupId(customer_group_id) {
@@ -711,6 +717,7 @@ export default {
         },
         setCustomerGroupId(customer_group_id) {
             this.form_filter.customer_group = customer_group_id;
+            this.browserCustomerGroup();
         },
     },
     computed: {
@@ -719,9 +726,12 @@ export default {
             return this.extract_order_configs.map((extract_order) => {
                 if (type_file.toLowerCase() == extract_order.convert_file_type.toLowerCase()) {
                     return extract_order;
+                } else {
+                    return [];
                 }
             });
-        }
+        },
+
     }
 }
 
