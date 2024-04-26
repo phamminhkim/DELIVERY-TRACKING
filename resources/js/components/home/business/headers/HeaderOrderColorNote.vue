@@ -1,19 +1,19 @@
 <template>
     <div>
-        <label class="font-weight-bold font-smaller">Ghi chú: </label>
-        <div class="row mb-1 font-smaller" v-for="(note, index) in list_notes" :key="index">
+        <!-- <label class="font-weight-bold font-smaller">Ghi chú: </label> -->
+        <div class="row mb-1 font-smaller">
             <div class="col-lg-12">
-                <div class="row align-items-center">
-                    <div class="col-lg-3" >
-                        <div :style="{ background: note.background, height: '30px' }">
+                <div class="p-1" style="background: rgba(0, 0, 0, 0.02);">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <div class="d-flex mr-2 align-items-center" v-for="(note, index) in list_notes" :key="index">
+                            <div class="mr-2 rounded"
+                                :style="{ background: note.background, height: '20px', width: '3rem' }">
+                            </div>
+                            <div class="text-secondary font-smaller">{{ note.name }}</div>
                         </div>
-                    </div>
-                    <div class="col-lg-9">
-                        <div class="text-secondary font-smaller">{{ note.name }}</div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
@@ -26,16 +26,13 @@ export default {
             list_notes: [
                 {
                     name: 'Khuyến mãi',
-                    background: '#FFFF00'
+                    background: '#ffc107'
                 },
                 {
                     name: 'Combo',
-                    background: '#FF0000'
+                    background: '#007bff'
                 },
-                // {
-                //     name: 'Khác',
-                //     background: '#0000FF'
-                // },
+
             ]
         }
     }

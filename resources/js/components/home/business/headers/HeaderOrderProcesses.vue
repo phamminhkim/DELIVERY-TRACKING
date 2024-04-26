@@ -87,7 +87,8 @@
                 <button @click="detectSapCode()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
-                <button @click="checkPromotion()" type="button" class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
+                <button @click="fetchApiCheckPromotion()" type="button"
+                    class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
                     khuyến mãi</button>
                 <button type="button" v-on:click="handleCheckInventory"
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
@@ -227,6 +228,7 @@ export default {
             api_detect_sap_code: '/api/check-data/check-material-sap',
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
+            api_check_promotion: '/api/check-data/check-promotion',
 
 
         }
@@ -486,13 +488,6 @@ export default {
                 this.$showMessage(messageType, messageTitle, message);
             }
         },
-        updateLoadingState(state, message = null, messageType = null, messageTitle = null) {
-            this.is_case_loading.extract_client = state;
-            this.$emit('isLoadingDetectSapCode', state);
-            if (message) {
-                this.$showMessage(messageType, messageTitle, message);
-            }
-        },
         async detectSapCode() {
             this.updateLoadingState(true);
             try {
@@ -508,8 +503,6 @@ export default {
                 console.error(error);
                 this.updateLoadingState(false, error, 'error', 'Lỗi');
             }
-            //  this.fetchMaterialDonated();
-            // this.fetchMaterialCombo();
         },
         isDisabledFile() {
             if (this.form_filter.config_id == null) {
@@ -540,7 +533,7 @@ export default {
                             code: customer_group.customers[index].code,
                         });
                     }
-                } 
+                }
             });
         },
         browserCustomerCode(store) {
@@ -573,6 +566,7 @@ export default {
                         sku_sap_unit: '',
                         promotive: '',
                         promotive_name: '',
+                        promotion_category: '',
                         customer_name: file_response.data[index].headers.CustomerKey,
                         note: file_response.data[index].headers.CustomerKey,
                         note1: file_response.data[index].headers.CustomerNote,
@@ -719,9 +713,48 @@ export default {
             this.form_filter.customer_group = customer_group_id;
             this.browserCustomerGroup();
         },
-        checkPromotion(){
+        checkPromotion() {
             this.$emit('checkPromotion');
-        }
+        },
+        getCheckPromotion(orders) {
+            const data_check_promotion =
+                orders.map((item) => {
+                    return {
+                        sap_code: item.sku_sap_code,
+                        bar_code: item.barcode,
+                    }
+                });
+            return data_check_promotion;
+        },
+        async fetchApiCheckPromotion() {
+            const filter = {
+                customer_group_id: this.form_filter.customer_group,
+                items: this.getCheckPromotion(this.orders)
+            }
+            console.log('fetchApiCheckPromotion', filter);
+            try {
+                // this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.post(this.api_check_promotion, {}, filter);
+                if(data.success){
+                    this.getValuePromotionCategory(data.items);
+                }   
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                // this.case_is_loading.fetch_api = false;
+            }
+        },
+        async getValuePromotionCategory(items) {
+           await items.forEach(item => {
+                this.orders.forEach(order => {
+                    if (order.sku_sap_code == item.sap_code) {
+                        order.promotion_category = item.promotion_category;
+                        order.is_promotive = true;
+                    }
+                });
+            });
+            this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
+        },
     },
     computed: {
         type_file_extract_order_configs() {

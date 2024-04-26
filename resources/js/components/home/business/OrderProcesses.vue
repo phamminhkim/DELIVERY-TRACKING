@@ -10,7 +10,6 @@
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO"
             @getCustomerGroupId="getCustomerGroupId"
-            @checkPromotion="getCheckPromotion"
             :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
@@ -232,6 +231,7 @@ export default {
                     quantity1_po: data_item.quantity1_po,
                     quantity2_po: data_item.quantity2_po,
                     customer_name: data_item.so_header.customer_name,
+                    promotion_category: '',
 
                 });
             });
@@ -274,9 +274,7 @@ export default {
                 // this.case_is_loading.fetch_api = false;
             }
         },
-        getCheckPromotion(){
-            console.log('getCheckPromotion');
-        }
+       
 
 
 

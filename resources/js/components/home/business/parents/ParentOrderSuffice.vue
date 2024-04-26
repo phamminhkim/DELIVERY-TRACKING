@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="form-group border-bottom d-inline-block p-2 px-4 rounded"
+        <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
             <span clsas="font-weight-normal">Tiêu đề: </span>
             <span v-if="case_save_so.title !== ''">
@@ -18,11 +18,14 @@
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
+        <HeaderOrderColorNote></HeaderOrderColorNote>
+
     </div>
 </template>
 <script>
 import TableOrderSuffice from '../tables/TableOrderSuffice.vue';
 import PaginationTable from '../paginations/PaginationTable.vue';
+import HeaderOrderColorNote from '../headers/HeaderOrderColorNote.vue';
 export default {
     props: {
         tab_value: {
@@ -62,7 +65,8 @@ export default {
     },
     components: {
         TableOrderSuffice,
-        PaginationTable
+        PaginationTable,
+        HeaderOrderColorNote
     },
     data() {
         return {

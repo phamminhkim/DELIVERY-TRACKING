@@ -2,8 +2,9 @@
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" -->
-            <b-table small responsive hover head-variant="light" :items="orders" :fields="field_order_suffices"
-                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
+            <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
+                :fields="field_order_suffices" table-class="table-order-suffices" :current-page="current_page"
+                :per-page="per_page">
                 <!-- <template #cell(row_custom)="data">
                     <b-dropdown size="sm" id="dropdown-offset" offset="25" text="" variant="link"
                         toggle-class="text-decoration-none" no-caret class="">
@@ -11,10 +12,10 @@
                             <button class="btn btn-xs btn-light dropdown-toggle" type="button" data-toggle="dropdown"
                                 aria-expanded="false"><i class="fas fa-th-list"></i></button>
                         </template>
-                        <b-dropdown-item @click="deleteRow(data.index, data.item)" class="text-danger" href="#">Xóa
-                            dòng</b-dropdown-item>
-                    </b-dropdown>
-                </template> -->
+<b-dropdown-item @click="deleteRow(data.index, data.item)" class="text-danger" href="#">Xóa
+    dòng</b-dropdown-item>
+</b-dropdown>
+</template> -->
                 <template #cell(index)="data">
                     <div class="font-weight-bold" :class="{
             'bg-warning rounded': rowColor(data.item)
@@ -32,7 +33,7 @@
                     </div>
                 </template>
                 <template #cell(customer_name)="data">
-                    <div v-if="isCheckLack(data.item)" >
+                    <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                         <small v-if="rowColor(data.item)" class="text-success ml-2 font-weight-bold">
@@ -48,22 +49,22 @@
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div :class="{
-                        'text-danger': isCheckLack(data.item)
-                    }">
+            'text-danger': isCheckLack(data.item)
+        }">
                         {{ data.item.quantity1_po }}
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
                     <div :class="{
-                        'text-danger': isCheckLack(data.item)
-                    }">
+            'text-danger': isCheckLack(data.item)
+        }">
                         {{ data.item.quantity2_po }}
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
                     <div :class="{
-                        'text-danger': isCheckLack(data.item)
-                    }">
+            'text-danger': isCheckLack(data.item)
+        }">
                         {{ data.item.inventory_quantity }}
                     </div>
                 </template>
@@ -101,20 +102,18 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
-                    <div :class="{
-            'is-donated': isMaterialDonated(data.item.sku_sap_code),
-            'is-combo': isMaterialCombo(data.item.sku_sap_code)
+                    <span class="text-center rounded" :class="{
+            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
+            'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                        <p class="text-center">
-                            {{ data.item.sku_sap_code }}
-                        </p>
-                    </div>
+                        {{ data.item.sku_sap_code }}
+                    </span>
                 </template>
                 <template #cell(sku_sap_name)="data">
-                        {{ data.item.sku_sap_name }}
+                    {{ data.item.sku_sap_name }}
                 </template>
                 <template #cell(promotive_name)="data">
-                   {{ data.item.promotive }}
+                    {{ data.item.promotive }}
                 </template>
                 <template #cell(note1)="data">
                     {{ data.item.note1 }}{{ data.item.promotive }}
@@ -123,11 +122,10 @@
                     {{ data.item.note }}{{ data.item.promotive }}
                 </template>
                 <template #cell(promotive)="data">
-                    <div @click="onChangeShowModal(data.index)" class="text-center">
-                        <div class="d-flex align-items-baseline justify-content-around">
-                            <p class="font-weight-bold mr-2">{{ data.item.promotive }}</p>
-                            <button class="btn btn-sm btn-light p-1 px-2 "><i
-                                    class="far fa-caret-square-down"></i></button>
+                    <div @click="onChangeShowModal(data.index)" class="d-inline-block">
+                        <div class="d-flex justify-content-around">
+                            <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{ data.item.promotive }}</small>
+                            <i class="far fa-caret-square-down"></i>
                         </div>
                     </div>
                 </template>
@@ -209,44 +207,37 @@ export default {
                     label: 'Tenns',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
                     class: 'text-nowrap',
                     sortable: true,
-
-
                 },
                 {
                     key: 'sku_sap_code',
                     label: 'Masap',
                     class: 'text-nowrap text-center',
                     sortable: true,
-
-
                 },
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'sku_sap_unit',
                     label: 'Dvt',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
 
                 {
                     key: 'promotive',
                     label: 'Km',
                     class: 'text-nowrap',
-                    tdClass: 'voucher-custom border',
+                    tdClass: 'voucher-custom border p-0 ',
                     sortable: true,
 
 
@@ -256,50 +247,42 @@ export default {
                     label: 'Ghi_chu',
                     class: 'text-nowrap',
                     sortable: true,
-
-
                 },
                 {
                     key: 'customer_code',
                     label: 'Makh',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'customer_sku_name',
                     label: 'Unit_barcode_description',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'po',
                     label: 'Po',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
                     class: 'text-nowrap',
                     sortable: true,
-
                 },
                 {
                     key: 'promotive_name',
@@ -307,13 +290,13 @@ export default {
                     class: 'text-nowrap',
                     sortable: true,
 
-
                 },
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
 
                 },
@@ -322,6 +305,7 @@ export default {
                     label: 'Po_qty',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
 
                 },
@@ -330,6 +314,7 @@ export default {
                     label: 'Pur_price',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
 
                 },
@@ -338,7 +323,7 @@ export default {
                     label: 'Amount',
                     class: 'text-nowrap',
                     sortable: true,
-
+                    
 
                 },
                 {
@@ -347,6 +332,7 @@ export default {
                     class: 'text-nowrap',
                     sortable: true,
 
+                    
 
                 },
                 {
@@ -354,6 +340,7 @@ export default {
                     label: 'Gia_cty',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
                 },
                 {
@@ -361,6 +348,7 @@ export default {
                     label: 'Level_2',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
                 },
                 {
@@ -368,6 +356,7 @@ export default {
                     label: 'Level_3',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
                 },
                 {
@@ -375,6 +364,7 @@ export default {
                     label: 'Level_4',
                     class: 'text-nowrap',
                     sortable: true,
+                    
 
                 },
             ],
@@ -449,7 +439,7 @@ export default {
             return false;
         },
         deleteRow(index, item) {
-            this.$emit('deleteRow', index , item)
+            this.$emit('deleteRow', index, item)
         },
         emitCheckBox(index) {
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
@@ -464,9 +454,9 @@ export default {
                 }
             }
         },
-        isCheckLack(item){
-            let result =  this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
-            if(result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0){
+        isCheckLack(item) {
+            let result = this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
+            if (result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0) {
                 item.is_inventory = true;
                 return true;
             }
@@ -475,8 +465,8 @@ export default {
         convertToNumber(value) {
             return Number(value);
         },
-        
-       
+
+
 
 
     }
@@ -506,10 +496,11 @@ export default {
 .is-donated {
     background: yellow;
     padding: 3px;
+    color: white;
 }
 
 .is-combo {
-    background: #FF0000;
+    background: blue;
     color: white;
     padding: 3px;
 }
