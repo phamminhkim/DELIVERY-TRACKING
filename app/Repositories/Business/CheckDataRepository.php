@@ -137,90 +137,95 @@ class CheckDataRepository extends RepositoryAbs
         }
     }
     public function checkPromotions()
-{
-    try {
-        $validator = Validator::make($this->request->all(), [
-            'customer_group_id' => 'required',
-            'items' => 'required|array',
-            'items.*.sap_code' => 'required',
-            'items.*.bar_code' => 'required',
-        ]);
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'customer_group_id' => 'required',
+                'items' => 'required|array',
+                'items.*.sap_code' => '',
+                'items.*.bar_code' => '',
+            ]);
 
-        if ($validator->fails()) {
-            $this->message = $validator->errors()->first();
-            return false;
-        }
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
 
-        $customer_group_id = $this->request->input('customer_group_id');
-        $items = $this->request->input('items');
+            $customer_group_id = $this->request->input('customer_group_id');
+            $items = $this->request->input('items');
 
-        $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
+            $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
 
-        if (!$customerMaterials) {
-            $this->message = 'Không tìm thấy nhóm khách hàng';
-            return false;
-        }
+            if (!$customerMaterials) {
+                $this->message = 'Không tìm thấy nhóm khách hàng';
+                return false;
+            }
+            $mappingData = [];
+            foreach ($items as $item) {
+                $sap_code = isset($item['sap_code']) ? $item['sap_code'] : null;
+                $bar_code = isset($item['bar_code']) ? $item['bar_code'] : null;
+                $name = isset($item['name']) ? $item['name'] : null;
+                $promotion_category = isset($item['promotion_category']) ? $item['promotion_category'] : null;
 
-        $mappingData = [];
+                $materialCombo = null;
 
-        foreach ($items as $item) {
-            $sap_code = isset($item['sap_code']) ? $item['sap_code'] : null;
-            $bar_code = isset($item['bar_code']) ? $item['bar_code'] : null;
-            $name = isset($item['name']) ? $item['name'] : null;
-            $promotion_category = isset($item['promotion_category']) ? $item['promotion_category'] : null;
+                // Kiểm tra xem sap_code hoặc bar_code có được cung cấp hay không
+                if (!empty($sap_code) || !empty($bar_code)) {
+                    $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
+                        ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                            return $query->where('sap_code', $sap_code);
+                        })
+                        ->when(!empty($bar_code), function ($query) use ($bar_code) {
+                            return $query->where('bar_code', $bar_code);
+                        })
+                        ->first();
+                }
+                if ($materialCombo) {
+                    $combo_category_type = MaterialCategoryType::where('name', 'Combo')
+                        ->where('is_deleted', false)
+                        ->first();
 
-            $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
-                ->where('bar_code', $bar_code)
-                ->first();
+                    $promotion_category = $combo_category_type ? 'Combo' : null;
+                    $name = $materialCombo->name;
+                } else {
+                    $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
 
-            if ($materialCombo) {
-                $combo_category_type = MaterialCategoryType::where('name', 'Combo')
-                    ->where('is_deleted', false)
-                    ->first();
+                    if ($sapMaterial) {
+                        $name = $sapMaterial->name;
 
-                $promotion_category = $combo_category_type ? 'Combo' : null;
-                $name = $materialCombo->name;
-            } else {
-                $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
+                        $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
 
-                if ($sapMaterial) {
-                    $name = $sapMaterial->name;
+                        if ($materialDonated) {
+                            $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                                ->where('is_deleted', false)
+                                ->first();
 
-                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
-
-                    if ($materialDonated) {
-                        $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
-                            ->where('is_deleted', false)
-                            ->first();
-
-                        $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
+                            $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
+                        }
                     }
                 }
-            }
+                if ($promotion_category !== null) {
+                    $item['promotion_category'] = $promotion_category;
+                    $item['name'] = $name;
 
-            if ($promotion_category !== null) {
-                $item['promotion_category'] = $promotion_category;
-                $item['name'] = $name;
-
-                $mappingData[] = [
-                    'sap_code' => $sap_code,
-                    'bar_code' => $bar_code,
-                    'name' => $name,
-                    'promotion_category' => $promotion_category,
-                ];
+                    $mappingData[] = [
+                        'sap_code' => $sap_code,
+                        'bar_code' => $bar_code,
+                        'name' => $name,
+                        'promotion_category' => $promotion_category,
+                    ];
+                }
             }
+            return [
+                'success' => true,
+                'items' => $mappingData
+            ];
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
         }
-
-        return [
-            'success' => true,
-            'items' => $mappingData
-        ];
-    } catch (\Exception $exception) {
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
-        return false;
     }
-}
     public function checkInventory()
     {
         try {
