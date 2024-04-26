@@ -164,8 +164,10 @@ class CheckDataRepository extends RepositoryAbs
         $mappingData = [];
 
         foreach ($items as $item) {
-            $sap_code = $item['sap_code'];
-            $bar_code = $item['bar_code'];
+            $sap_code = isset($item['sap_code']) ? $item['sap_code'] : null;
+            $bar_code = isset($item['bar_code']) ? $item['bar_code'] : null;
+            $name = isset($item['name']) ? $item['name'] : null;
+            $promotion_category = isset($item['promotion_category']) ? $item['promotion_category'] : null;
 
             $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
                 ->where('bar_code', $bar_code)
@@ -176,7 +178,7 @@ class CheckDataRepository extends RepositoryAbs
                     ->where('is_deleted', false)
                     ->first();
 
-                $category_type_name = $combo_category_type ? 'Combo' : null;
+                $promotion_category = $combo_category_type ? 'Combo' : null;
                 $name = $materialCombo->name;
             } else {
                 $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
@@ -191,24 +193,22 @@ class CheckDataRepository extends RepositoryAbs
                             ->where('is_deleted', false)
                             ->first();
 
-                        $category_type_name = $donated_category_type ? 'ExtraOffer' : null;
-                    } else {
-                        $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng MaterialDonated
+                        $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
                     }
-                } else {
-                    $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng SapMaterial
                 }
             }
 
-            $item['promotion_category'] = isset($category_type_name) ? $category_type_name : null;
-            $item['name'] = $name ?? null;
+            if ($promotion_category !== null) {
+                $item['promotion_category'] = $promotion_category;
+                $item['name'] = $name;
 
-            $mappingData[] = [
-                'sap_code' => $sap_code,
-                'bar_code' => $bar_code,
-                'name' =>  $item['name'],
-                'promotion_category' => $item['promotion_category'],
-            ];
+                $mappingData[] = [
+                    'sap_code' => $sap_code,
+                    'bar_code' => $bar_code,
+                    'name' => $name,
+                    'promotion_category' => $promotion_category,
+                ];
+            }
         }
 
         return [
