@@ -446,9 +446,7 @@ export default {
         emitCheckBox(index) {
             if(this.case_checkbox.selected_all){
                 this.case_checkbox.selected = this.orders;
-            } else {
-                this.case_checkbox.selected = [];
-            }
+            } 
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
             
         },
