@@ -163,7 +163,7 @@ class CheckDataRepository extends RepositoryAbs
 
         $mappingData = [];
 
-        foreach ($items as &$item) {
+        foreach ($items as $item) {
             $sap_code = $item['sap_code'];
             $bar_code = $item['bar_code'];
 
@@ -187,13 +187,13 @@ class CheckDataRepository extends RepositoryAbs
                     $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
 
                     if ($materialDonated) {
-                        $combo_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                        $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
                             ->where('is_deleted', false)
                             ->first();
 
-                        $category_type_name = $combo_category_type ? 'ExtraOffer' : null;
+                        $category_type_name = $donated_category_type ? 'ExtraOffer' : null;
                     } else {
-                        $category_type_name = null; // Không tìm thấy dữ liệu bar_code và sap_code trong bảng MaterialDonated
+                        $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng MaterialDonated
                     }
                 } else {
                     $category_type_name = null; // Không tìm thấy dữ liệu sap_code trong bảng SapMaterial
