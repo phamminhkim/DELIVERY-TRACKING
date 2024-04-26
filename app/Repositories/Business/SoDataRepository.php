@@ -210,7 +210,10 @@ class SoDataRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
-                $order_processes = OrderProcess::where('is_deleted', false)->orderBy('updated_at', 'desc')->get();
+                $current_user_id = $this->current_user->id;
+                $order_processes = OrderProcess::where('is_deleted', false)
+                    ->where('created_by', $current_user_id)
+                    ->orderBy('updated_at', 'desc')->get();
                 $order_processes->load(['created_by', 'updated_by', 'customer_group']);
                 return $order_processes;
             }
