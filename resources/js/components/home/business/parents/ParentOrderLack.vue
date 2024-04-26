@@ -1,6 +1,7 @@
 <template>
     <div>
         <TableOrderLack :tab_value="tab_value"
+        @convertOrderLack="getConvertOrderLack"
             :order_lacks="order_lacks"></TableOrderLack>
     </div>
 </template>
@@ -29,7 +30,9 @@ export default {
         }
     },
     methods: {
-
+        getConvertOrderLack(index, data) {
+            this.$emit('convertOrderLack', index, data);
+        }
     }
 }
 </script>

@@ -8,6 +8,11 @@
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
+                <template #cell(row_custom)="data">
+                    <button @click="convertOrderLack(data.index, data.item)" type="button" class="btn btn-sm btn-warning px-4">
+                        <i class="fas fa-undo mr-2"></i>Convert
+                    </button>
+                </template>
                 <template #cell(customer_name)="data">
                     <div>
                         {{ data.item.customer_name }}{{ data.item.promotive }}
@@ -263,6 +268,9 @@ export default {
         countOrderLack() {
             this.$emit('countOrderLack', this.order_lacks.length);
         },
+        convertOrderLack(index, item) {
+            this.$emit('convertOrderLack', index, item);
+        }
 
     }
 }

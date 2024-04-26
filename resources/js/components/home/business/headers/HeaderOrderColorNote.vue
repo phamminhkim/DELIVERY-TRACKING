@@ -25,7 +25,7 @@ export default {
             tab_value: 'order',
             list_notes: [
                 {
-                    name: 'Khuyến mãi',
+                    name: 'Hàng tặng hàng',
                     background: '#ffc107'
                 },
                 {

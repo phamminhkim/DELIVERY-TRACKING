@@ -17,11 +17,13 @@
 </b-dropdown>
 </template> -->
                 <template #cell(index)="data">
-                    <div class="font-weight-bold" :class="{
-            'bg-warning rounded': rowColor(data.item)
-        }">
+                    <div class="font-weight-bold">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
+                </template>
+                <template #head(selected)="data">
+                    <b-form-checkbox v-model="case_checkbox.selected_all" @change="emitCheckBox(data.index)"
+                    ></b-form-checkbox>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
@@ -33,16 +35,16 @@
                     </div>
                 </template>
                 <template #cell(customer_name)="data">
-                    <div v-if="isCheckLack(data.item)">
+                    <div v-if="isCheckLack(data.item) ">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
-                        <small v-if="rowColor(data.item)" class="text-success ml-2 font-weight-bold">
+                        <small v-if="rowColor(data.item) " class="text-danger ml-2 font-weight-bold">
                             <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
                         </small>
                     </div>
                     <div v-else>
                         {{ data.item.customer_name }}{{ data.item.promotive }}<br>
-                        <small v-if="rowColor(data.item)" class="text-success font-weight-bold">
+                        <small v-if="rowColor(data.item) || data.item.is_inventory == true" class="text-danger font-weight-bold">
                             <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
                         </small>
                     </div>
@@ -122,8 +124,8 @@
                     {{ data.item.note }}{{ data.item.promotive }}
                 </template>
                 <template #cell(promotive)="data">
-                    <div @click="onChangeShowModal(data.index)" class="d-inline-block">
-                        <div class="d-flex justify-content-around">
+                    <div @click="onChangeShowModal(data.index)" class="">
+                        <div class="d-flex justify-content-end">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{ data.item.promotive }}</small>
                             <i class="far fa-caret-square-down"></i>
                         </div>
@@ -442,7 +444,13 @@ export default {
             this.$emit('deleteRow', index, item)
         },
         emitCheckBox(index) {
+            if(this.case_checkbox.selected_all){
+                this.case_checkbox.selected = this.orders;
+            } else {
+                this.case_checkbox.selected = [];
+            }
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
+            
         },
         refeshCaseCheckBox() {
             this.case_checkbox.selected = [];

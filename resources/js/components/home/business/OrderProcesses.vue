@@ -8,16 +8,18 @@
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
-            @listOrderProcessSO="getListOrderProcessSO"
-            @getCustomerGroupId="getCustomerGroupId"
+            @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
             :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
-        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders" :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO" :case_save_so="case_save_so">
+        <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders"
+            :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO"
+            :case_save_so="case_save_so">
         </DialogTitleOrderSO>
-        <DialogListOrderProcessSO ref="dialogListOrderProcessSo" @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
+        <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
+            @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
@@ -26,6 +28,7 @@
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
+            @convertOrderLack="getConvertOrderLack"
             @countOrderLack="getCountOrderLack"></ParentOrderLack>
 
 
@@ -161,9 +164,29 @@ export default {
             this.case_data_temporary.item_selecteds = items;
         },
         getEventOrderLack() {
-            // sử dụng inclues để kiểm tra xem item đã tồn tại trong mảng chưa
-            this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
-            this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
+            let exists = false;
+            if (this.case_data_temporary.item_selecteds.length == 0) {
+                this.orders.filter((item, index_order) => {
+                    if (item.is_inventory == true) {
+                        this.case_data_temporary.order_lacks.forEach(order_lack => {
+                            if (order_lack.customer_sku_code == item.customer_sku_code && order_lack.customer_sku_unit == item.customer_sku_unit) {
+                                exists = true;
+
+                            }
+                        });
+                        if (!exists) {
+                            this.case_data_temporary.order_lacks.push(item);
+                            this.orders.splice(index_order, 1);
+                        }
+                    }
+                });
+            } else {
+                // sử dụng inclues để kiểm tra xem item đã tồn tại trong mảng chưa
+                this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+                this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
+                this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+            }
+
             this.refeshCheckBox();
         },
         refeshCheckBox() {
@@ -204,36 +227,69 @@ export default {
             this.case_save_so.customer_group_id = item.customer_group_id;
             this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
             item.so_data_items.forEach(data_item => {
-                this.orders.push({
-                    id: data_item.id,
-                    customer_sku_code: data_item.customer_sku_code,
-                    customer_sku_name: data_item.customer_sku_name,
-                    customer_sku_unit: data_item.customer_sku_unit,
-                    quantity: data_item.quantity,
-                    company_price: data_item.company_price,
-                    customer_code: data_item.so_header.customer_code,
-                    level2: data_item.so_header.level2,
-                    level3: data_item.so_header.level3,
-                    level4: data_item.so_header.level4,
-                    note1: data_item.so_header.note,
-                    note: data_item.note,
-                    barcode: data_item.barcode,
-                    sku_sap_code: data_item.sku_sap_code,
-                    sku_sap_name: data_item.sku_sap_name,
-                    sku_sap_unit: data_item.sku_sap_unit,
-                    inventory_quantity: data_item.inventory_quantity,
-                    amount_po: data_item.amount_po,
-                    is_inventory: data_item.is_inventory,
-                    is_promotive: data_item.is_promotive,
-                    price_po: data_item.price_po,
-                    promotive: data_item.promotive_name,
-                    promotive_name: data_item.promotive_name,
-                    quantity1_po: data_item.quantity1_po,
-                    quantity2_po: data_item.quantity2_po,
-                    customer_name: data_item.so_header.customer_name,
-                    promotion_category: '',
+                if (data_item.is_inventory == true) {
+                    this.case_data_temporary.order_lacks.push({
+                        id: data_item.id,
+                        customer_sku_code: data_item.customer_sku_code,
+                        customer_sku_name: data_item.customer_sku_name,
+                        customer_sku_unit: data_item.customer_sku_unit,
+                        quantity: data_item.quantity,
+                        company_price: data_item.company_price,
+                        customer_code: data_item.so_header.customer_code,
+                        level2: data_item.so_header.level2,
+                        level3: data_item.so_header.level3,
+                        level4: data_item.so_header.level4,
+                        note1: data_item.so_header.note,
+                        note: data_item.note,
+                        barcode: data_item.barcode,
+                        sku_sap_code: data_item.sku_sap_code,
+                        sku_sap_name: data_item.sku_sap_name,
+                        sku_sap_unit: data_item.sku_sap_unit,
+                        inventory_quantity: data_item.inventory_quantity,
+                        amount_po: data_item.amount_po,
+                        is_inventory: data_item.is_inventory,
+                        is_promotive: data_item.is_promotive,
+                        price_po: data_item.price_po,
+                        promotive: data_item.promotive_name,
+                        promotive_name: data_item.promotive_name,
+                        quantity1_po: data_item.quantity1_po,
+                        quantity2_po: data_item.quantity2_po,
+                        customer_name: data_item.so_header.customer_name,
+                        promotion_category: '',
+                    });
+                } else {
+                    this.orders.push({
+                        id: data_item.id,
+                        customer_sku_code: data_item.customer_sku_code,
+                        customer_sku_name: data_item.customer_sku_name,
+                        customer_sku_unit: data_item.customer_sku_unit,
+                        quantity: data_item.quantity,
+                        company_price: data_item.company_price,
+                        customer_code: data_item.so_header.customer_code,
+                        level2: data_item.so_header.level2,
+                        level3: data_item.so_header.level3,
+                        level4: data_item.so_header.level4,
+                        note1: data_item.so_header.note,
+                        note: data_item.note,
+                        barcode: data_item.barcode,
+                        sku_sap_code: data_item.sku_sap_code,
+                        sku_sap_name: data_item.sku_sap_name,
+                        sku_sap_unit: data_item.sku_sap_unit,
+                        inventory_quantity: data_item.inventory_quantity,
+                        amount_po: data_item.amount_po,
+                        is_inventory: data_item.is_inventory,
+                        is_promotive: data_item.is_promotive,
+                        price_po: data_item.price_po,
+                        promotive: data_item.promotive_name,
+                        promotive_name: data_item.promotive_name,
+                        quantity1_po: data_item.quantity1_po,
+                        quantity2_po: data_item.quantity2_po,
+                        customer_name: data_item.so_header.customer_name,
+                        promotion_category: '',
 
-                });
+                    });
+                }
+
             });
             this.refHeaderOrderProcesses();
 
@@ -246,7 +302,7 @@ export default {
         },
         getFetchOrderProcessSODetail(item) {
             this.case_data_temporary.order_lacks = [];
-           this.getSaveOrderSO(item);
+            this.getSaveOrderSO(item);
         },
         refHeaderOrderProcesses() {
             this.$refs.headerOrderProcesses.updateOrders(this.orders);
@@ -261,7 +317,7 @@ export default {
             if (id) {
                 this.fetchOrderProcessSODetail(id);
             }
-            
+
         },
         async fetchOrderProcessSODetail(id) {
             try {
@@ -274,7 +330,11 @@ export default {
                 // this.case_is_loading.fetch_api = false;
             }
         },
-       
+        getConvertOrderLack(index, data) {
+            this.orders.unshift(data);
+            this.case_data_temporary.order_lacks.splice(index, 1);
+        }
+
 
 
 
