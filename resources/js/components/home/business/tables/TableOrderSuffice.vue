@@ -60,7 +60,11 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        {{ data.item.quantity2_po }}
+                         <span
+                      ><strong
+                        >{{ data.value.toLocaleString(locale_format) }}
+                      </strong></span
+                    >
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
@@ -131,6 +135,21 @@
                         </div>
                     </div>
                 </template>
+                <template #cell(amount_po)="data">
+                    <span
+                      ><strong
+                        >{{ data.value.toLocaleString(locale_format) }}
+                      </strong></span
+                    >
+                  </template>
+                  <template #cell(price_po)="data">
+                    <span
+                      ><strong
+                        >{{ data.value.toLocaleString(locale_format) }}
+                      </strong></span
+                    >
+                  </template>
+                 
             </b-table>
             <DialogMaterialCategoryTypes ref="dialogMaterialCategoryTypes"
                 :material_category_types="material_category_types" @onChangeCategoryType="getOnChangeCategoryType"
@@ -186,6 +205,7 @@ export default {
     },
     data() {
         return {
+            locale_format: "de-DE",
             is_modal_material_category_type: false,
             field_order_suffices: [
                 {
@@ -283,7 +303,7 @@ export default {
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
-                    class: 'text-nowrap',
+                    class: "text-nowrap text-right",
                     sortable: true,
                 },
                 {
@@ -296,34 +316,25 @@ export default {
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
-                    class: 'text-nowrap',
+                    class: "text-nowrap text-right",
                     sortable: true,
-                    
-
-
                 },
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
-                    class: 'text-nowrap',
+                    class: "text-nowrap text-right",
                     sortable: true,
-                    
-
-
                 },
                 {
                     key: 'price_po',
                     label: 'Pur_price',
-                    class: 'text-nowrap',
+                    class: "text-nowrap text-right",
                     sortable: true,
-                    
-
-
                 },
                 {
                     key: 'amount_po',
                     label: 'Amount',
-                    class: 'text-nowrap',
+                    class: "text-right",
                     sortable: true,
                     
 

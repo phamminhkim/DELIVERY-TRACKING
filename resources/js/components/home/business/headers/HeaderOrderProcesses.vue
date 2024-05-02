@@ -461,7 +461,7 @@ export default {
                     quantity1_po: '',
                     quantity2_po: data[index][this.case_index.quantity2_po],
                     price_po: data[index][this.case_index.price_po],
-                    amount_po: this.calculatorAmount(data[index][this.case_index.price_po]),
+                    amount_po: data[index][this.case_index.price_po],// this.calculatorAmount(data[index][this.case_index.price_po]),
                     customer_code: this.browserCustomerCode(data[index][this.case_index.store] == undefined ? '' : data[index][this.case_index.store]),
                     inventory_quantity: '',
                 });
@@ -576,7 +576,7 @@ export default {
                         quantity1_po: item.Quantity1,
                         quantity2_po: item.Quantity2,
                         price_po: item.ProductPrice,
-                        amount_po: this.calculatorAmount(item.ProductAmount),
+                        amount_po: item.ProductAmount  ,// this.calculatorAmount(item.ProductAmount),
                         customer_code: file_response.data[index].headers.CustomerCode,
                         company_price: '',
                         level2: file_response.data[index].headers.CustomerLevel2,
