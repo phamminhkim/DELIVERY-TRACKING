@@ -28,7 +28,7 @@ class MaterialCategorySeeder extends Seeder
 
             if ($existing_category_type) {
                 $existing_category_type->update([
-                    'is_delete' => $material_category_type['is_delete'],
+                    'is_deleted' => $material_category_type['is_deleted'],
                 ]);
             } else {
                 MaterialCategoryType::create($material_category_type);

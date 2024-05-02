@@ -158,9 +158,17 @@ class RouterSeeder extends Seeder
 
         ];
 
-        foreach ($routes as $route) {
-            if (!Route::where('path', $route['path'])->where('component', $route['component'])->exists()) {
-                Route::create($route);
+        foreach ($routes as $routeData) {
+            $route = Route::where('path', $routeData['path'])->first();
+
+            if ($route) {
+                // Kiểm tra nếu component đã thay đổi
+                if ($route->component !== $routeData['component']) {
+                    $route->component = $routeData['component'];
+                    $route->save();
+                }
+            } else {
+                Route::create($routeData);
             }
         }
 
@@ -172,8 +180,10 @@ class RouterSeeder extends Seeder
     public function assignRouteIntoMenuRouter()
     {
         $menu_routers = MenuRouter::all();
+
         foreach ($menu_routers as $menu_router) {
             $route = Route::where('path', '/' . $menu_router->link)->first();
+
             if ($route) {
                 $menu_router->route_id = $route->id;
                 $menu_router->save();

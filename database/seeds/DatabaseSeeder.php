@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(ExtractOrderConfigSeeder::class);
         $this->call(ExtractErrorsSeeder::class);
         $this->call(FileStatusesSeeder::class);
+        $this->call(MaterialCategorySeeder::class);
     }
 }
