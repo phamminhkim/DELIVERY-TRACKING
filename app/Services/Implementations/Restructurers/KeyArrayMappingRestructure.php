@@ -39,6 +39,10 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     } else {
                         $output[$key] = $value_item['default'];
                     }
+                    // Thay thế dấu phân cách thập phân và phân cách hàng nghìn
+                    if (isset($value_item['decimal_separator']) && isset($value_item['thousand_separator'])) {
+                        $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
+                    }
                 }
                 // Check trường bắt buộc mà không có giá trị thì skip row
                 if ($this->isValidArrayValue($output, $structure)) {

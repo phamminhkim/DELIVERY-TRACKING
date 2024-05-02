@@ -3,6 +3,7 @@
 namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
+use App\Utilities\OperatorUtility;
 
 class IndexArrayMappingRestructure implements DataRestructureInterface
 {
@@ -21,6 +22,10 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                         $match[$value_item['value']]);
                     } else {
                         $output[$key] = $value_item['default'];
+                    }
+                    // Thay thế dấu phân cách thập phân và phân cách hàng nghìn
+                    if (isset($value_item['decimal_separator']) && isset($value_item['thousand_separator'])) {
+                        $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
                     }
                 }
                 // Check trường bắt buộc mà không có giá trị thì skip row
