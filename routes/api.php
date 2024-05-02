@@ -180,6 +180,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+           
+
         });
         Route::prefix('/order-review-options')->group(function () {
             Route::get('/', [OrderReviewOptionController::class, 'getAvailableOrderReviewOptions']);
@@ -342,6 +344,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [RawSoController::class, 'deleteRawSoItem']);
         });
     });
+    Route::post('/expand-left-menu', [UserController::class, 'expandLeftMenuUser']);
 });
 
 //api

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\BaseController;
 
-use App\Http\Controllers\Controller;
 use App\Models\System\Route;
-use App\Utilities\MenuUtility;
 use Illuminate\Http\Request;
+use App\Utilities\MenuUtility;
+use App\Models\Shared\ConfigUser;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class WebBaseController  extends ResponseController
@@ -30,12 +31,27 @@ class WebBaseController  extends ResponseController
                     $request->session()->put('user', $access_token);
                 }
             }
+               //Cấu hình expand_menu left
+               $config_user  =  ConfigUser::where('user_id', $auth_user->id)->where('code', MenuUtility::$EXPAND_LEFT_MENU)->first();
+
+               $expand_menu = "sidebar-mini layout-fixed";
+               $expand_menu_value = 0;
+               if ($config_user) {
+                   if ($config_user->value == 1) {
+                       $expand_menu_value = 1;
+                       $expand_menu = 'sidebar-mini layout-fixed sidebar-collapse';
+                   } else {
+                       $expand_menu_value = 0;
+                       $expand_menu = 'sidebar-mini layout-fixed';
+                   }
+               }
+               
             $menus_and_routes = MenuUtility::getMenusAndRoutesForUser(Auth::user()->id);
             $menus = $menus_and_routes['menus'];
             $routes = $menus_and_routes['routes'];
             $version = env('FRONTEND_VERSION', 1);
             
-            view()->share(compact('access_token', 'menus', 'routes', 'version'));
+            view()->share(compact('access_token', 'menus', 'routes', 'version','expand_menu_value','expand_menu'));
             return $next($request);
         });
     }
