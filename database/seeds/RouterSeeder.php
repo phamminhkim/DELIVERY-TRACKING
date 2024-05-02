@@ -57,11 +57,11 @@ class RouterSeeder extends Seeder
             //     'component' => 'home/business/OrderFileUploads'
             // ],
 
-            [
-                'name' => 'Khách hàng liên kết',
-                'path' => '/customer-group-pivots',
-                'component' => 'home/sap/CustomerGroupPivots/CustomerGroupPivots'
-            ],
+            // [
+            //     'name' => 'Khách hàng liên kết',
+            //     'path' => '/customer-group-pivots',
+            //     'component' => 'home/sap/CustomerGroupPivots/CustomerGroupPivots'
+            // ],
             // [
             //     'name' => 'Khách hàng khuyến mãi',
             //     'path' => '/customer-promotions',

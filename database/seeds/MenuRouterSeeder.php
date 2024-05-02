@@ -297,13 +297,13 @@ class MenuRouterSeeder extends Seeder
             //     'parent' => 'Trích xuất đơn hàng',
             // ],
 
-            [
-                'title' => "Khách hàng liên kết",
-                'icon' => "fas fa-wrench",
-                'link' => "customer-group-pivots",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Khách hàng liên kết",
+            //     'icon' => "fas fa-wrench",
+            //     'link' => "customer-group-pivots",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
             // [
             //     'title' => "Khách hàng khuyến mãi",
             //     'icon' => "fas fa-project-diagram	",

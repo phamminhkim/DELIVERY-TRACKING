@@ -125,7 +125,7 @@
 							}),
 						);
 
-					if (!data.error) {
+					if (!data.errors) {
 						if (Array.isArray(data)) {
 							this.customer_partners.push(...data); // Add the new mappings to the end of the list
 						}
@@ -133,7 +133,6 @@
 						this.closeDialog();
 						this.refetchData(); // Load the data again after successful creation
 					} else {
-
 						this.errors = data.errors;
 						this.showMessage('error', 'Thêm không thành công');
 					}

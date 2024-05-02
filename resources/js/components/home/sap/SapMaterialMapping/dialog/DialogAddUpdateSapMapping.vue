@@ -35,6 +35,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
+							<small class="text-danger">*</small>
 							<div class="readonly-field">
 								<treeselect
 									v-model="sap_material_mapping.customer_group_id"
@@ -43,6 +44,7 @@
 									placeholder="Yêu cầu chọn nhóm khách hàng.."
 									:options="customer_group_options"
 									:normalizer="normalizerOption"
+								required
 									:disabled="is_editing"
 									v-bind:class="hasError('v') ? 'is-invalid' : ''"
 								></treeselect>
@@ -63,12 +65,14 @@
 						</div>
 						<div class="form-group">
 							<label>Mã SKU khách hàng</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="sap_material_mapping.customer_sku_code"
 								class="form-control"
 								id="customer_sku_code"
 								name="customer_sku_code"
 								placeholder="Yêu cầu nhập mã SKU..."
+								required
 								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
@@ -94,7 +98,7 @@
 						</div>
 						<div class="form-group">
 							<label>Tên SKU khách hàng</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<input
 								v-model="sap_material_mapping.customer_sku_name"
 								class="form-control"
@@ -103,6 +107,8 @@
 								placeholder="Yêu cầu nhập tên SKU..."
 								v-bind:class="hasError('customer_sku_name') ? 'is-invalid' : ''"
 								type="text"
+								required
+
 							/>
 							<span
 								v-if="hasError('customer_sku_name')"
@@ -114,7 +120,7 @@
 						</div>
 						<div class="form-group">
 							<label>Đơn vị tính SKU khách hàng</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<input
 								v-model="sap_material_mapping.customer_sku_unit"
 								class="form-control"
@@ -124,6 +130,8 @@
 								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
+								required
+
 							/>
 							<span
 								v-if="is_editing"
@@ -141,17 +149,19 @@
 						</div>
 						<div class="form-group">
 							<label for="customer_number">Số lượng - KH</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<input
 								value="1"
 								class="form-control"
-                                v-model="sap_material_mapping.customer_number"
+								v-model="sap_material_mapping.customer_number"
 								id="customer_number"
 								name="customer_number"
 								placeholder="Nhập số lượng khách hàng..."
 								v-bind:class="hasError('customer_number') ? 'is-invalid' : ''"
 								type="number"
 								min="1"
+								required
+
 							/>
 							<span
 								v-if="hasError('customer_number')"
@@ -163,7 +173,7 @@
 						</div>
 						<div class="form-group" v-if="!editing_item || !editing_item.id">
 							<label>SKU SAP</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<treeselect
 								v-model="sap_material_mapping.sap_material_id"
 								placeholder="Chọn sản phẩm.."
@@ -181,7 +191,7 @@
 						</div>
 						<div class="form-group" v-if="editing_item && editing_item.id">
 							<label>SKU SAP</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<treeselect
 								v-model="sap_material_mapping.sap_material_code"
 								placeholder="Chọn sản phẩm.."
@@ -204,17 +214,18 @@
 								<strong>{{ getError('sap_material_id') }}</strong>
 							</span>
 						</div>
-                        <div class="form-group">
+						<div class="form-group">
 							<label for="conversion_rate_sap">Số lượng - SAP</label>
-							<!-- <small class="text-danger"></small> -->
+							<small class="text-danger">*</small>
 							<input
 								class="form-control"
-                                v-model="sap_material_mapping.conversion_rate_sap"
+								v-model="sap_material_mapping.conversion_rate_sap"
 								id="conversion_rate_sap"
 								name="conversion_rate_sap"
 								placeholder="Nhập số lượng SAP..."
 								v-bind:class="hasError('conversion_rate_sap') ? 'is-invalid' : ''"
 								type="number"
+								required
 								min="1"
 							/>
 							<span
@@ -236,6 +247,7 @@
 								placeholder="Nhập tỉ lệ màu sản phẩm..."
 								v-bind:class="hasError('percentage') ? 'is-invalid' : ''"
 								type="number"
+								required
 								min="1"
 								max="100"
 							/>
@@ -303,7 +315,14 @@
 				},
 				customer_group_options: [],
 				customer_options: [],
-				sap_material_mappings: [],
+				sap_materials: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
+				sap_material_mappings: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 
 				api_url: '/api/master/sap-material-mappings',
 			};
@@ -325,24 +344,27 @@
 			async createSapMapping() {
 				try {
 					this.is_loading = true;
-					const data = await this.api_handler.post('/api/master/sap-material-mappings', {
-						customer_material_id: parseInt(
-							this.sap_material_mapping.customer_material_id,
-						),
-						sap_material_id: parseInt(this.sap_material_mapping.sap_material_id),
-						percentage: this.sap_material_mapping.percentage,
-						customer_number: this.sap_material_mapping.customer_number,
-						conversion_rate_sap: this.sap_material_mapping.conversion_rate_sap,
-						customer_group_id: this.sap_material_mapping.customer_group_id,
-						customer_sku_code: this.sap_material_mapping.customer_sku_code,
-						customer_sku_name: this.sap_material_mapping.customer_sku_name,
-						customer_sku_unit: this.sap_material_mapping.customer_sku_unit,
-					});
-					if (data.success) {
-						if (Array.isArray(data)) {
-							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+					const result = await this.api_handler.post(
+						'/api/master/sap-material-mappings',
+						{
+							customer_material_id: parseInt(
+								this.sap_material_mapping.customer_material_id,
+							),
+							sap_material_id: parseInt(this.sap_material_mapping.sap_material_id),
+							percentage: this.sap_material_mapping.percentage,
+							customer_number: this.sap_material_mapping.customer_number,
+							conversion_rate_sap: this.sap_material_mapping.conversion_rate_sap,
+							customer_group_id: this.sap_material_mapping.customer_group_id,
+							customer_sku_code: this.sap_material_mapping.customer_sku_code,
+							customer_sku_name: this.sap_material_mapping.customer_sku_name,
+							customer_sku_unit: this.sap_material_mapping.customer_sku_unit,
+						},
+					);
+					if (!result.errors) {
+						if (result.data && Array.isArray(result.data)) {
+							this.sap_material_mappings.data.unshift(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -359,17 +381,17 @@
 			async updateSapMapping() {
 				try {
 					this.is_loading = true;
-					const data = await this.api_handler.put(
+					const result = await this.api_handler.put(
 						`${this.api_url}/${this.sap_material_mapping.id}`,
 						this.sap_material_mapping,
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (data.success) {
-						if (Array.isArray(data)) {
-							this.sap_material_mappings.push(...data); // Add the new mappings to the end of the list
+					if (result.success) {
+						if (result.data && Array.isArray(result.data)) {
+							this.sap_material_mappings.data.push(result.data);
 						}
-						this.showMessage('success', 'Cập nhật thành công');
+						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -401,20 +423,23 @@
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
+						// customer_material_ids: this.form_filter.customer_material,
+						// sap_material_ids: [this.form_filter.sap_material],
 					};
 					const { data } = await this.api_handler.get(
 						'api/master/sap-materials/minified',
 						params,
 					);
-					let options = data.map((item) => {
-						return {
-							id: item.id,
-							label: `(${item.sap_code}) (${item.unit.unit_code}) ${item.name}`,
-						};
-					});
+					let options = data.data.map((item) => ({
+						id: item.id,
+						label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
+					}));
+					// console.log(data);
+					//const options = data;
 					callback(null, options);
 				}
 			},
+
 			normalizerOption(node) {
 				return {
 					id: node.id,
@@ -444,7 +469,7 @@
 				this.sap_material_mapping.sap_material_id = null;
 				this.sap_material_mapping.customer_material_id = null;
 				this.sap_material_mapping.percentage = null;
-                this.sap_material_mapping.customer_number = '';
+				this.sap_material_mapping.customer_number = '';
 				this.sap_material_mapping.conversion_rate_sap = '';
 				this.sap_material_mapping.customer_group_id = null;
 				this.sap_material_mapping.customer_sku_code = null;

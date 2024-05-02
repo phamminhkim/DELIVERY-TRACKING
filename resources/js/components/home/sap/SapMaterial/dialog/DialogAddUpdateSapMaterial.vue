@@ -189,7 +189,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
-						this.fetchOptionsData();
+						await this.refetchData();
 					} else {
 						this.showMessage('error', 'Lỗi', result.message);
 					}
@@ -212,7 +212,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
-						this.fetchOptionsData();
+						await this.refetchData();
 					} else {
 						this.showMessage('error', 'Lỗi', result.message);
 					}

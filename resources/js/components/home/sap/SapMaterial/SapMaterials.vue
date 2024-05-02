@@ -247,7 +247,7 @@
 							ref="AddUpdateDialog"
 							:is_editing="is_editing"
 							:editing_item="editing_item"
-							:refetchData="fetchData"
+							:refetchData="fetchOptionsData"
 						></DialogAddUpdateSapMaterial>
 						<DialogImportExcelToCreateSapMaterial :refetchData="fetchData" />
 
