@@ -418,7 +418,9 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-						ids: this.form_filter.material_combo,
+                        customer_group_ids: this.form_filter.customer_group,
+
+                        ids: this.form_filter.material_combo,
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');

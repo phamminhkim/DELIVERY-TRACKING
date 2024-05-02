@@ -204,7 +204,7 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="sap_material_mappings"
+							:items="sap_material_mappings.data"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
@@ -297,7 +297,7 @@
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
-						:refetchData="fetchData"
+						:refetchData="fetchOptionsData"
 					></DialogAddUpdateSapMapping>
 					<DialogImportExcelToCreateMapping :refetchData="fetchData" />
 
@@ -433,7 +433,10 @@
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
-				sap_material_mappings: [],
+				sap_material_mappings: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 				customer_options: [],
 				api_url: 'api/master/sap-material-mappings',
 			};
@@ -442,18 +445,45 @@
 			this.fetchOptionsData();
 		},
 		methods: {
+			// async fetchData() {
+			// 	try {
+			// 		this.is_loading = true;
+			// 		const { data } = await this.api_handler.get(this.api_url, {
+			// 			customer_group_ids: this.form_filter.customer_group,
+			// 			customer_material_ids: this.form_filter.customer_material,
+			// 			sap_material_ids: this.form_filter.sap_material,
+			// 		});
+
+			// 		if (Array.isArray(data)) {
+			// 			this.sap_material_mappings = data;
+			// 		}
+			// 	} catch (error) {
+			// 		this.$showMessage('error', 'Lỗi', error);
+			// 	} finally {
+			// 		this.is_loading = false;
+			// 	}
+			// },
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const { data } = await this.api_handler.get(this.api_url, {
+					const params = {
+						page: this.page,
+						per_page: this.perPage,
 						customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
-						sap_material_ids: this.form_filter.sap_material,
-					});
+						sap_material_ids: this.form_filter.sap_materials,
+					};
+					const response = await this.api_handler.get(this.api_url, { params });
+					const { data, paginate } = response.data.sap_material_mappings;
 
 					if (Array.isArray(data)) {
-						this.sap_material_mappings = data;
+						this.sap_material_mappings = data.map();
 					}
+
+					// Gán thông tin phân trang
+					this.currentPage = paginate.current_page;
+					this.lastPage = paginate.last_page;
+					this.totalItems = paginate.total;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -587,18 +617,18 @@
 			async deleteSapMapping(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
-						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.sap_material_mappings = result.data;
+								this.sap_material_mappings.data = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
-							await this.fetchData(); // Load the data again after successful deletion
+							await this.fetchOptionsData(); // Load the data again after successful deletion
 						} else {
 							this.showMessage('error', 'Lỗi', result.message);
 						}
 					} catch (error) {
-						this.$showMessage('error', 'Lỗi', error);
+						this.showMessage('error', 'Lỗi', error);
 					}
 				}
 			},

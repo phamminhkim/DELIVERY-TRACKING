@@ -54,7 +54,7 @@
 									/>
 								</div>
 							</div>
-							<!-- <div class="form-group row">
+							<div class="form-group row">
 								<label
 									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
 									for=""
@@ -72,25 +72,6 @@
 									></treeselect>
 								</div>
 							</div>
-							<div class="form-group row">
-								<label
-									class="col-form-label-sm col-sm-2 col-form-label text-left text-md-right mt-1"
-									for=""
-									>Mã/tên sản phẩm SAP</label
-								>
-								<div class="col-sm-10 mt-1 mb-1">
-									<treeselect
-										placeholder="Chọn sản phẩm.."
-										:multiple="true"
-										required
-										:load-options="loadOptions"
-										:async="true"
-										v-model="form_filter.sap_material"
-									/>
-								</div> -->
-							<!-- </div> -->
-
-
 							<div class="col-md-12" style="text-align: center">
 								<button
 									type="submit"
@@ -196,7 +177,7 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="customer_partners"
+							:items="customer_partners.data"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
@@ -276,9 +257,9 @@
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
-						:refetchData="fetchData"
+						:refetchData="fetchOptionsData"
 					></DialogAddUpdateCustomerPartner>
-					<DialogImportExcelToCreateCustomerPartner :refetchData="fetchData"/>
+					<DialogImportExcelToCreateCustomerPartner :refetchData="fetchData" />
 
 					<!-- end tạo form -->
 				</div>
@@ -300,7 +281,7 @@
 			Treeselect,
 			Vue,
 			DialogAddUpdateCustomerPartner,
-            DialogImportExcelToCreateCustomerPartner
+			DialogImportExcelToCreateCustomerPartner,
 		},
 		data() {
 			return {
@@ -311,6 +292,7 @@
 				search_pattern: '',
 
 				form_filter: {
+					customer_group: null,
 					customer_partner: null,
 				},
 
@@ -331,8 +313,14 @@
 						class: 'text-nowrap',
 					},
 					{
-						key: 'name',
+						key: 'customer_group.name',
 						label: 'Nhóm khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'name',
+						label: 'Key khách hàng ',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -372,8 +360,11 @@
 						class: 'text-nowrap',
 					},
 				],
-				customer_partners: [],
-
+				customer_partners: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
+				customer_group_options: [],
 
 				api_url: 'api/master/customer-partners',
 			};
@@ -385,13 +376,23 @@
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const { data } = await this.api_handler.get(this.api_url, {
+					const params = {
+						page: this.page,
+						per_page: this.perPage,
+						customer_group_ids: this.form_filter.customer_group,
 						ids: this.form_filter.customer_partner,
-					});
+					};
+					const response = await this.api_handler.get(this.api_url, { params });
+					const { data, paginate } = response.data.customer_partners;
 
 					if (Array.isArray(data)) {
-						this.customer_partners = data;
+						this.customer_partners = data.map();
 					}
+
+					// Gán thông tin phân trang
+					this.currentPage = paginate.current_page;
+					this.lastPage = paginate.last_page;
+					this.totalItems = paginate.total;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -401,10 +402,12 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_partners] =
+					const [customer_partners, customer_group_options] =
 						await this.api_handler.handleMultipleRequest([
-                            new APIRequest('get', '/api/master/customer-partners'),
+							new APIRequest('get', '/api/master/customer-partners'),
+							new APIRequest('get', '/api/master/customer-groups'),
 						]);
+					this.customer_group_options = customer_group_options;
 					this.customer_partners = customer_partners;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -418,7 +421,7 @@
 					label: node.name,
 				};
 			},
-            async loadOptionsCustomer({ action, searchQuery, callback }) {
+			async loadOptionsCustomer({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
@@ -445,6 +448,7 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
+						customer_group_ids: this.form_filter.customer_group,
 						ids: this.form_filter.customer_partner,
 					});
 					// console.log(this.page_structure.api_url);
@@ -464,6 +468,7 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 
+					this.form_filter.customer_group = null;
 					this.form_filter.customer_partner = [];
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
@@ -474,18 +479,18 @@
 			async deleteCustomerPartner(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
-						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.customer_partners = result.data;
+								this.customer_partners.data = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
-							await this.fetchData(); // Load the data again after successful deletion
+							await this.fetchOptionsData(); // Load the data again after successful deletion
 						} else {
 							this.showMessage('error', 'Lỗi', result.message);
 						}
 					} catch (error) {
-						this.$showMessage('error', 'Lỗi', error);
+						this.showMessage('error', 'Lỗi', error);
 					}
 				}
 			},

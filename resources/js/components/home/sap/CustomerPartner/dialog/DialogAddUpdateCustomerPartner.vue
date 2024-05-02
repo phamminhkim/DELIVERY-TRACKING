@@ -31,9 +31,35 @@
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
+							<treeselect
+								:multiple="false"
+								id="customer_group_id"
+								placeholder="Chọn nhóm khách hàng.."
+								v-model="customer_partner.customer_group_id"
+								:options="customer_group_options"
+								:normalizer="normalizer"
+								required
+							></treeselect>
+
+							<span
+								v-if="hasError('customer_group_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('customer_group_id') }}</strong>
+								<!-- <div v-for="(error, index) in getError('customer_group_id')" :key="index">
+                                    <strong>{{ error }}</strong>
+                                    <br />
+                                </div> -->
+							</span>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label>Khách hàng Key</label>
 							<input
 								v-model="customer_partner.name"
 								class="form-control"
@@ -44,11 +70,7 @@
 								type="text"
 							/>
 
-							<span
-								v-if="hasError('name')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('name')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('name') }}</strong>
 								<!-- <div v-for="(error, index) in getError('name')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -57,7 +79,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>Mã khách hàng</label>
 							<input
@@ -68,14 +90,10 @@
 								placeholder="Yêu cầu nhập mã khách hàng..."
 								v-bind:class="hasError('code') ? 'is-invalid' : ''"
 								type="text"
-                                required
+								required
 							/>
 
-							<span
-								v-if="hasError('code')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('code')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('code') }}</strong>
 								<!-- <div v-for="(error, index) in getError('code')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -84,7 +102,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>Ghi chú</label>
 							<input
@@ -95,14 +113,10 @@
 								placeholder="Nhập ghi chú..."
 								v-bind:class="hasError('note') ? 'is-invalid' : ''"
 								type="text"
-                                required
+								required
 							/>
 
-							<span
-								v-if="hasError('note')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('note')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('note') }}</strong>
 								<!-- <div v-for="(error, index) in getError('note')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -111,7 +125,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>LV2</label>
 							<input
@@ -124,11 +138,7 @@
 								type="text"
 							/>
 
-							<span
-								v-if="hasError('LV2')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('LV2')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('LV2') }}</strong>
 								<!-- <div v-for="(error, index) in getError('LV2')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -137,7 +147,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>LV3</label>
 							<input
@@ -150,11 +160,7 @@
 								type="text"
 							/>
 
-							<span
-								v-if="hasError('LV3')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('LV3')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('LV3') }}</strong>
 								<!-- <div v-for="(error, index) in getError('LV3')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -163,7 +169,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>LV4</label>
 							<input
@@ -176,11 +182,7 @@
 								type="text"
 							/>
 
-							<span
-								v-if="hasError('LV4')"
-								class="invalid-feedback"
-								role="alert"
-							>
+							<span v-if="hasError('LV4')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('LV4') }}</strong>
 								<!-- <div v-for="(error, index) in getError('LV4')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -232,6 +234,7 @@
 				is_active: true,
 
 				customer_partner: {
+					customer_group_id: null,
 					name: '',
 					code: '',
 					note: '',
@@ -240,8 +243,11 @@
 					LV4: '',
 					id: '',
 				},
-				customer_partners: [],
-
+				customer_partners: {
+                    data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+                },
+				customer_group_options: [],
 
 				api_url: '/api/master/customer-partners',
 			};
@@ -264,7 +270,8 @@
 				try {
 					console.log('createCustomerPartner');
 					this.is_loading = true;
-					const data = await this.api_handler.post('/api/master/customer-partners', {
+					const result = await this.api_handler.post('/api/master/customer-partners', {
+						customer_group_id: this.customer_partner.customer_group_id,
 						name: this.customer_partner.name,
 						code: this.customer_partner.code,
 						note: this.customer_partner.note,
@@ -272,11 +279,11 @@
 						LV3: this.customer_partner.LV3,
 						LV4: this.customer_partner.LV4,
 					});
-					if (data.success) {
-						if (Array.isArray(data)) {
-							this.customer_partners.push(...data); // Add the new mappings to the end of the list
+					if (result.success) {
+						if (result.data && Array.isArray(result.data)) {
+							this.customer_partners.data.unshift(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -293,17 +300,17 @@
 			async updateCustomerPartner() {
 				try {
 					this.is_loading = true;
-					const data = await this.api_handler.put(
+					const result = await this.api_handler.put(
 						`${this.api_url}/${this.customer_partner.id}`,
 						this.customer_partner,
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (data.success) {
-						if (Array.isArray(data)) {
-							this.customer_partners.push(...data); // Add the new mappings to the end of the list
+					if (result.success) {
+						if (result.data && Array.isArray(result.data)) {
+							this.customer_partners.data.push(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -318,11 +325,13 @@
 			},
 
 			async fetchOptionsData() {
-				const [customer_partner_options] =
+				const [customer_partner_options, customer_group_options] =
 					await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/customer-partners'),
+						new APIRequest('get', '/api/master/customer-groups'),
 					]);
 				this.customer_partners = customer_partner_options;
+				this.customer_group_options = customer_group_options;
 			},
 
 			normalizer(node) {
@@ -337,6 +346,7 @@
 				$('#DialogAddUpdateCustomerPartner').modal('hide');
 			},
 			resetDialog() {
+				this.customer_partner.customer_group_id = null;
 				this.customer_partner.name = null;
 				this.customer_partner.code = null;
 				this.customer_partner.note = null;
@@ -347,6 +357,7 @@
 			},
 
 			clearForm() {
+				this.customer_partner.customer_group_id = null;
 				this.customer_partner.name = null;
 				this.customer_partner.code = null;
 				this.customer_partner.note = null;
@@ -393,6 +404,7 @@
 			},
 			editing_item: function (item) {
 				console.log(item);
+                this.customer_partner.customer_group_id = item.customer_group_id;
 				this.customer_partner.name = item.name;
 				this.customer_partner.code = item.code;
 				this.customer_partner.note = item.note;
@@ -401,7 +413,6 @@
 				this.customer_partner.LV4 = item.LV4;
 				this.customer_partner.id = item.id;
 			},
-
 		},
 		computed: {
 			rows() {

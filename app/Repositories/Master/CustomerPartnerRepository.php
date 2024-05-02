@@ -7,33 +7,63 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
+use App\Models\Master\CustomerGroup;
+
 
 class CustomerPartnerRepository extends RepositoryAbs
 {
     public function getAvailableCustomerPartners($is_minified)
-    {
-        try {
+{
+    try {
+        $query = CustomerPartner::query();
 
-            $query = CustomerPartner::query();
-            if ($this->request->filled('search')) {
-                $query = $query->search($this->request->search);
-                $query->limit(200);
-            }
-            if ($this->request->filled('ids')) {
-                $query->whereIn('id', $this->request->ids);
-            }
-            if ($is_minified) {
-                $query->select('id', 'code', 'name', 'note');
-            }
-
-            $customer_partners = $query->orderBy('id', 'desc')->get();
-
-            return $customer_partners;
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
+        if ($this->request->filled('search')) {
+            $query = $query->search($this->request->search);
+            $query->limit(200);
         }
+        if ($this->request->filled('ids')) {
+            $query->whereIn('id', $this->request->ids);
+        }
+        if ($this->request->filled('customer_group_ids')) {
+            $customer_group_ids = $this->request->customer_group_ids;
+            if (!is_array($customer_group_ids)) {
+                $customer_group_ids = explode(',', $customer_group_ids);
+            }
+            $query->whereIn('customer_group_id', $customer_group_ids);
+        }
+        if ($is_minified) {
+            $query->select('id', 'code', 'name', 'note');
+        }
+        $query->with([
+            'customer_group' => function ($query) {
+                $query->select(['id', 'name']);
+            },
+        ]);
+        $perPage = $this->request->filled('per_page') ? $this->request->per_page : 500;
+        $customer_partners = $query->paginate($perPage, ['*'], 'page', $this->request->page);
+
+
+
+        $result = [
+            'data' => $customer_partners->items(),
+            'per_page' => $customer_partners->perPage(),
+        ];
+
+        $result['paginate'] = [
+            'current_page' => $customer_partners->currentPage(),
+            'last_page' => $customer_partners->lastPage(),
+            'total' => $customer_partners->total(),
+        ];
+
+        // Retrieve the customer partners again, this time ordering by 'id' in descending order
+        $customer_partners = $query->orderBy('id', 'desc')->get();
+
+        return $result;
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
     }
+}
     public function getCustomerPartnerById($id)
     {
         try {
@@ -57,87 +87,106 @@ class CustomerPartnerRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
                 return false;
-            } else {
-                $file = $this->request->file('file');
-                $excel_extractor = new ExcelExtractor();
-                $data = $excel_extractor->extractData($file);
-                $template_structure = [
-                    'name' => 0,
-                    'code' => 1,
-                    'note' => 2,
-                    'LV2' => 3,
-                    'LV3' => 4,
-                    'LV4' => 5,
-                ];
-                $result = collect([]);
+            }
 
-                foreach ($data as $row) {
-                    $customer_partners = CustomerPartner::updateOrCreate(
+            $file = $this->request->file('file');
+            $excel_extractor = new ExcelExtractor();
+            $data = $excel_extractor->extractData($file);
+            $template_structure = [
+                'customer_group_name' => 0,
+                'name' => 1,
+                'code' => 2,
+                'note' => 3,
+                'LV2' => 4,
+                'LV3' => 5,
+                'LV4' => 6,
+            ];
+            $result = [];
 
-                        [
-                            'code' => $row[$template_structure['code']],
-                            'name' => $row[$template_structure['name']],
-                            'note' => $row[$template_structure['note']],
-                            'LV2' => $row[$template_structure['LV2']],
-                            'LV3' => $row[$template_structure['LV3']],
-                            'LV4' => $row[$template_structure['LV4']],
-                        ]
-                    );
+            DB::beginTransaction(); // Start a database transaction
 
-                    $result->push($customer_partners);
+            foreach ($data as $row) {
+                $customer_group_name = $row[$template_structure['customer_group_name']];
+                $customer_group = CustomerGroup::where('name', $customer_group_name)->first();
+                if (!$customer_group) {
+                    $this->errors[] = 'Không tìm thấy nhóm khách hàng ' . $customer_group_name;
+                    continue;
                 }
 
-                return array(
-                    "created_list" => $result,
-                    "errors" => $this->errors
+                $customer_partner_data = [
+                    'code' => $row[$template_structure['code']],
+                    'name' => $row[$template_structure['name']],
+                    'note' => $row[$template_structure['note']],
+                    'LV2' => $row[$template_structure['LV2']],
+                    'LV3' => $row[$template_structure['LV3']],
+                    'LV4' => $row[$template_structure['LV4']],
+                    'customer_group_id' => $customer_group->id,
+                ];
+
+                $customer_partner = CustomerPartner::updateOrCreate(
+                    $customer_partner_data
                 );
+
+                $result[] = $customer_partner;
             }
+
+            DB::commit(); // Commit the database transaction
+
+            return [
+                'created_list' => $result,
+                'errors' => $this->errors,
+            ];
         } catch (\Exception $exception) {
-            DB::rollBack();
+            DB::rollBack(); // Roll back the database transaction in case of an exception
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
             return false;
         }
     }
+
     public function createNewCustomerPartner()
     {
         try {
             $validator = Validator::make($this->data, [
-                'code' => 'required:customer_partners,code',
+                'customer_group_id' => 'required|integer|exists:customer_groups,id',
+                'code' => 'required|string',
                 'name' => 'string',
                 'note' => 'string',
                 'LV2' => 'string',
                 'LV3' => 'string',
                 'LV4' => 'string',
             ], [
-                'code.required' => 'Yêu cầu nhập mã kho.',
-                'code.string' => 'Mã kho phải là chuỗi.',
+                'customer_group_id.required' => 'Yêu cầu chọn nhóm khách hàng.',
+                'customer_group_id.integer' => 'ID nhóm khách hàng phải là số nguyên.',
+                'customer_group_id.exists' => 'ID nhóm khách hàng không tồn tại.',
+                'code.required' => 'Yêu cầu nhập mã khách hàng.',
+                'code.string' => 'Mã khách hàng phải là chuỗi.',
                 'name.string' => 'Tên khách hàng phải là chuỗi.',
                 'note.string' => 'Ghi chú phải là chuỗi.',
                 'LV2.string' => 'LV2 phải là chuỗi.',
                 'LV3.string' => 'LV3 phải là chuỗi.',
                 'LV4.string' => 'LV4 phải là chuỗi.',
-
             ]);
 
             if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $customer_partner => $validator) {
-                    if ($errors->has($customer_partner)) {
-                        $this->errors[$customer_partner] = $errors->first($customer_partner);
-                        return false;
-                    }
-                }
-            } else {
-                $this->data['is_deleted'] = false;
-                $customer_partner = CustomerPartner::create($this->data);
-
-
-                return $customer_partner;
+                $this->errors = $validator->errors()->toArray();
+                return false;
             }
+
+            $customerGroup = CustomerGroup::find($this->data['customer_group_id']);
+            if (!$customerGroup) {
+                $this->errors['customer_group_id'] = 'ID nhóm khách hàng không tồn tại.';
+                return false;
+            }
+
+            $this->data['is_deleted'] = false;
+            $customerPartner = CustomerPartner::create($this->data);
+
+            return $customerPartner;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
     // public function updateOrInsert()

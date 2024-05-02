@@ -95,7 +95,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     }
 
                     if ($customer_material->sap_material_id) {
-                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code ;
+                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng sap ' . $customer_material->sap_material->sap_code;
                         continue;
                     }
                     $totalPercentage = SapMaterialMapping::query()
@@ -105,7 +105,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     $newTotalPercentage = $totalPercentage + $material['percentage'];
 
                     if ($newTotalPercentage > 100) {
-                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%' ;
+                        $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%';
                         continue;
                     }
 
@@ -290,9 +290,20 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 },
             ]);
 
-            $sapMaterialMappings = $query->orderBy('id', 'desc')->get();
+            $sapMaterialMappings = $query->paginate(PHP_INT_MAX);
 
-            return $sapMaterialMappings;
+            $result = [
+                'data' => $sapMaterialMappings->items(),
+                'per_page' => $sapMaterialMappings->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $sapMaterialMappings->currentPage(),
+                'last_page' => $sapMaterialMappings->lastPage(),
+                'total' => $sapMaterialMappings->total(),
+            ];
+
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

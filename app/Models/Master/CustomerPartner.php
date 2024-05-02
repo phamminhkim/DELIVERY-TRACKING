@@ -10,6 +10,7 @@ class CustomerPartner extends Model
     protected $table = 'customer_partners';
 
     protected $fillable = [
+        'customer_group_id',
         'name',
         'code',
         'note',
@@ -23,4 +24,8 @@ class CustomerPartner extends Model
         'customer_partners.name',
         'customer_partners.note',
     ];
+    public function customer_group()
+    {
+        return $this->belongsTo(CustomerGroup::class);
+    }
 }

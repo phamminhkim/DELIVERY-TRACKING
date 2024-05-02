@@ -125,7 +125,7 @@
 							}),
 						);
 
-					if (!data.error) {
+					if (data.errors) {
 						if (Array.isArray(data)) {
 							this.material_donateds.push(...data); // Add the new mappings to the end of the list
 						}
