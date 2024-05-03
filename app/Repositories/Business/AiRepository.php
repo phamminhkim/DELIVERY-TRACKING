@@ -570,6 +570,9 @@ class AiRepository extends RepositoryAbs
                 $options['is_specify_table_area'] = $this->request->is_specify_table_area == 'true' ? true : false;
                 $table_area_info = json_decode($this->request->table_area_info);
                 $options['table_area_info'] = $table_area_info;
+                $options['is_specify_advanced_settings'] = $this->request->is_specify_advanced_settings == 'true' ? true : false;
+                $advanced_settings_info = json_decode($this->request->advanced_settings_info);
+                $options['advanced_settings_info'] = $advanced_settings_info;
             } else {
                 $options['is_merge_pages'] = $extract_data_config->is_merge_pages ? $extract_data_config->is_merge_pages : false;
                 $options['flavor'] = $extract_data_config->camelot_flavor ? $extract_data_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
@@ -579,6 +582,9 @@ class AiRepository extends RepositoryAbs
                 $options['is_specify_table_area'] = $extract_data_config->is_specify_table_area ? $extract_data_config->is_specify_table_area : false;
                 $table_area_info = json_decode($extract_data_config->table_area_info);
                 $options['table_area_info'] = $table_area_info;
+                $options['is_specify_advanced_settings'] = $extract_data_config->is_specify_advanced_settings ? $extract_data_config->is_specify_advanced_settings : false;
+                $advanced_settings_info = json_decode($extract_data_config->advanced_settings_info);
+                $options['advanced_settings_info'] = $advanced_settings_info;
             }
         } else if ($this->data_extractor instanceof ExcelExtractorService) {
             if (!$extract_data_config) {
@@ -620,6 +626,9 @@ class AiRepository extends RepositoryAbs
                 $options['is_specify_table_area'] = $this->request->is_specify_table_area == 'true' ? true : false;
                 $table_area_info = json_decode($this->request->table_area_info);
                 $options['table_area_info'] = $table_area_info;
+                $options['is_specify_advanced_settings'] = $this->request->is_specify_advanced_settings == 'true' ? true : false;
+                $advanced_settings_info = json_decode($this->request->advanced_settings_info);
+                $options['advanced_settings_info'] = $advanced_settings_info;
             } else {
                 $options['is_merge_pages'] = $extract_header_config->is_merge_pages ? $extract_header_config->is_merge_pages : false;
                 $options['flavor'] = $extract_header_config->camelot_flavor ? $extract_header_config->camelot_flavor : 'lattice'; // Lưu trữ 'stream' hoặc 'lattice' với từng trường hợp
@@ -629,6 +638,9 @@ class AiRepository extends RepositoryAbs
                 $options['is_specify_table_area'] = $extract_header_config->is_specify_table_area ? $extract_header_config->is_specify_table_area : false;
                 $table_area_info = json_decode($extract_header_config->table_area_info);
                 $options['table_area_info'] = $table_area_info;
+                $options['is_specify_advanced_settings'] = $extract_header_config->is_specify_advanced_settings ? $extract_header_config->is_specify_advanced_settings : false;
+                $advanced_settings_info = json_decode($extract_header_config->advanced_settings_info);
+                $options['advanced_settings_info'] = $advanced_settings_info;
             }
         } else if ($this->data_extractor instanceof ExcelExtractorService) {
             if (!$extract_header_config) {

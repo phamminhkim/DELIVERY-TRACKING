@@ -161,9 +161,22 @@
                                         />
                                     </div>
                                     <div v-if="extract_phase_form.is_specify_table_area" class="form-group">
-                                        <label for="manualPattern">Table area information</label>
+                                        <label for="advancedSettings">Table area information</label>
                                         <small class="text-danger">*</small>
                                         <VueJsonEditor v-model="extract_phase_form.table_area_info" />
+                                    </div>
+
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Specify advanced settings</label>
+                                        <b-form-checkbox
+                                            v-model="extract_phase_form.is_specify_advanced_settings"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div v-if="extract_phase_form.is_specify_advanced_settings" class="form-group">
+                                        <label for="manualPattern">Advanced settings information</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="extract_phase_form.advanced_settings_info" />
                                     </div>
 
                                     <div class="d-flex justify-content-between">
@@ -434,6 +447,19 @@
                                         <VueJsonEditor v-model="extract_header_phase_form.table_area_info" />
                                     </div>
 
+                                    <div class="form-group d-flex flex-row">
+                                        <label>Specify advanced settings</label>
+                                        <b-form-checkbox
+                                            v-model="extract_header_phase_form.is_specify_advanced_settings"
+                                            style="margin-left: 10px"
+                                        />
+                                    </div>
+                                    <div v-if="extract_header_phase_form.is_specify_advanced_settings" class="form-group">
+                                        <label for="advancedSettings">Advanced settings information</label>
+                                        <small class="text-danger">*</small>
+                                        <VueJsonEditor v-model="extract_header_phase_form.advanced_settings_info" />
+                                    </div>
+
                                     <div class="d-flex justify-content-between">
                                         <b-button variant="success" @click="onClickNextPhaseInExtractPhase(data_config_type.HEADER)"
                                             >Bước tiếp theo</b-button
@@ -702,6 +728,8 @@
                     specify_table_number: 0,
                     is_specify_table_area: false,
                     table_area_info: [],
+                    is_specify_advanced_settings: false,
+                    advanced_settings_info: null,
 				},
                 extract_header_phase_form: {
 					method: 'camelot',
@@ -712,6 +740,8 @@
                     specify_table_number: 0,
                     is_specify_table_area: false,
                     table_area_info: [],
+                    is_specify_advanced_settings: false,
+                    advanced_settings_info: null,
 				},
 
 				extract_phase_result: [],
@@ -846,6 +876,9 @@
                                     table_area_info: JSON.stringify(
                                         this.extract_phase_form.table_area_info,
                                     ),
+                                    advanced_settings_info: JSON.stringify(
+                                        this.extract_phase_form.advanced_settings_info,
+                                    ),
                                     convert_file_type: this.load_convert_file_type_id,
                                 }),
                             )
@@ -868,6 +901,9 @@
                                     extract_method: this.extract_header_phase_form.method,
                                     table_area_info: JSON.stringify(
                                         this.extract_header_phase_form.table_area_info,
+                                    ),
+                                    advanced_settings_info: JSON.stringify(
+                                        this.extract_header_phase_form.advanced_settings_info,
                                     ),
                                     convert_file_type: this.load_convert_file_type_id,
                                 }),
@@ -1096,6 +1132,10 @@
                             table_area_info: extract_response.table_area_info
                                 ? JSON.parse(extract_response.table_area_info)
                                 : null,
+                            is_specify_advanced_settings: extract_response.is_specify_advanced_settings,
+                            advanced_settings_info: extract_response.advanced_settings_info
+                                ? JSON.parse(extract_response.advanced_settings_info)
+                                : null,
                         } : this.extract_phase_form;
 
                     let extract_header_response = extract_order_config_response.extract_header_config;
@@ -1109,6 +1149,10 @@
                             is_specify_table_area: extract_header_response.is_specify_table_area,
                             table_area_info: extract_header_response.table_area_info
                                 ? JSON.parse(extract_header_response.table_area_info)
+                                : null,
+                            is_specify_advanced_settings: extract_header_response.is_specify_advanced_settings,
+                            advanced_settings_info: extract_header_response.advanced_settings_info
+                                ? JSON.parse(extract_header_response.advanced_settings_info)
                                 : null,
                         } : this.extract_header_phase_form;
 
@@ -1212,7 +1256,9 @@
                     exclude_tail_tables_count: 0,
                     specify_table_number: 0,
                     is_specify_table_area: false,
-                    table_area_info: []
+                    table_area_info: [],
+                    is_specify_advanced_settings: false,
+                    advanced_settings_info: null,
                 };
                 this.extract_header_phase_form = {
                     method: 'camelot',
@@ -1222,7 +1268,9 @@
                     exclude_tail_tables_count: 0,
                     specify_table_number: 0,
                     is_specify_table_area: false,
-                    table_area_info: []
+                    table_area_info: [],
+                    is_specify_advanced_settings: false,
+                    advanced_settings_info: null,
                 };
 
                 this.extract_phase_result = [];
