@@ -16,8 +16,7 @@
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
         <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders"
             :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO"
-            :order_lacks="case_data_temporary.order_lacks"
-            :case_save_so="case_save_so">
+            :order_lacks="case_data_temporary.order_lacks" :case_save_so="case_save_so">
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
@@ -29,8 +28,7 @@
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
-            @convertOrderLack="getConvertOrderLack"
-            @countOrderLack="getCountOrderLack"></ParentOrderLack>
+            @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
 
 
     </div>
@@ -164,15 +162,28 @@ export default {
         getCheckBoxRow(items, index) {
             this.case_data_temporary.item_selecteds = items;
         },
+        isCheckLack(item) {
+            let result = this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
+            if (result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0) {
+                // item.is_inventory = true;
+                return true;
+            }
+            // return item.is_inventory;
+            return false;
+        },
+        convertToNumber(value) {
+            return Number(value);
+        },
         getEventOrderLack() {
             let exists = false;
             if (this.case_data_temporary.item_selecteds.length == 0) {
                 this.orders.filter((item, index_order) => {
-                    if (item.is_inventory == true) {
+                    
+                    if (this.isCheckLack(item)) {
+                        item.is_inventory = true;
                         this.case_data_temporary.order_lacks.forEach(order_lack => {
                             if (order_lack.customer_sku_code == item.customer_sku_code && order_lack.customer_sku_unit == item.customer_sku_unit) {
                                 exists = true;
-
                             }
                         });
                         if (!exists) {
@@ -182,10 +193,23 @@ export default {
                     }
                 });
             } else {
-                // sử dụng inclues để kiểm tra xem item đã tồn tại trong mảng chưa
-                this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
-                this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
-                this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+                // sử dụng inclues để kiểm tra xem item đã tồn tại trong mảng chưa và set is_inventory = true
+                this.case_data_temporary.item_selecteds.forEach(item_selected => {
+                    item_selected.is_inventory = true;
+                    this.case_data_temporary.order_lacks.forEach(order_lack => {
+                        if (order_lack.customer_sku_code == item_selected.customer_sku_code && order_lack.customer_sku_unit == item_selected.customer_sku_unit) {
+                            exists = true;
+                        }
+                    });
+                    if (!exists) {
+                        this.case_data_temporary.order_lacks.push(item_selected);
+                        this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+                    }
+                });
+                // this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+                // this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
+                // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+
             }
 
             this.refeshCheckBox();
@@ -333,13 +357,10 @@ export default {
             }
         },
         getConvertOrderLack(index, data) {
+            data.is_inventory = false;
             this.orders.unshift(data);
             this.case_data_temporary.order_lacks.splice(index, 1);
         }
-
-
-
-
     },
     computed: {
         row_orders() {

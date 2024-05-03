@@ -38,15 +38,15 @@
                     <div v-if="isCheckLack(data.item) ">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
-                        <small v-if="rowColor(data.item) " class="text-danger ml-2 font-weight-bold">
+                        <!-- <small v-if="rowColor(data.item) " class="text-danger ml-2 font-weight-bold">
                             <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
-                        </small>
+                        </small> -->
                     </div>
                     <div v-else>
                         {{ data.item.customer_name }}{{ data.item.promotive }}<br>
-                        <small v-if="rowColor(data.item) || data.item.is_inventory == true" class="text-danger font-weight-bold">
+                        <!-- <small v-if="rowColor(data.item) || data.item.is_inventory == true" class="text-danger font-weight-bold">
                             <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
-                        </small>
+                        </small> -->
                     </div>
                 </template>
                 <template #cell(quantity1_po)="data">
@@ -474,10 +474,11 @@ export default {
         isCheckLack(item) {
             let result = this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
             if (result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0) {
-                item.is_inventory = true;
+                // item.is_inventory = true;
                 return true;
             }
-            return item.is_inventory;
+            // return item.is_inventory;
+            return false;
         },
         convertToNumber(value) {
             return Number(value);
