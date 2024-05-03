@@ -3,6 +3,7 @@
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
+                @sort-changed="sortingChanged"
                 :fields="field_order_suffices" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
                 <!-- <template #cell(row_custom)="data">
@@ -128,7 +129,7 @@
                     {{ data.item.note }}{{ data.item.promotive }}
                 </template>
                 <template #cell(promotive)="data">
-                    <div @click="onChangeShowModal(data.index)" class="">
+                    <div @click="onChangeShowModal(data.index, data.item)" class="">
                         <div class="d-flex justify-content-end">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{ data.item.promotive }}</small>
                             <i class="far fa-caret-square-down"></i>
@@ -420,11 +421,11 @@ export default {
                 return true
             }
         },
-        onChangeShowModal(index) {
-            this.$refs.dialogMaterialCategoryTypes.showModalCategoryType(index)
+        onChangeShowModal(index, item) {
+            this.$refs.dialogMaterialCategoryTypes.showModalCategoryType(index , item)
         },
-        getOnChangeCategoryType(index, item) {
-            this.$emit('onChangeCategoryType', index, item);
+        getOnChangeCategoryType(index, item, order) {
+            this.$emit('onChangeCategoryType', index, item, order);
         },
         getStoreMaterialCategoryType(data) {
             this.material_category_types.unshift({ ...data })
@@ -483,6 +484,9 @@ export default {
         convertToNumber(value) {
             return Number(value);
         },
+        sortingChanged(sort, item) {
+            this.$emit('sortingChanged', sort)
+        }
 
 
 

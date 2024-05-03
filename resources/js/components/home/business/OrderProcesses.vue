@@ -25,7 +25,8 @@
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
-            :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow">
+            :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
+            @sortingChanged="getSortingChanged">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -105,8 +106,8 @@ export default {
         getOrders(orders) {
             this.orders = orders;
         },
-        getOnChangeCategoryType(index, item) {
-            this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item);
+        getOnChangeCategoryType(index, item, order) {
+            this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
         },
         getListMaterialDonated(data) {
             this.material_donateds = data;
@@ -360,6 +361,9 @@ export default {
             data.is_inventory = false;
             this.orders.unshift(data);
             this.case_data_temporary.order_lacks.splice(index, 1);
+        },
+        getSortingChanged(sort) {
+            this.$refs.headerOrderProcesses.getSortingChanged(sort);
         }
     },
     computed: {

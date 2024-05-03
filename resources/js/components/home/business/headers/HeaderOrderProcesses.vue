@@ -547,11 +547,17 @@ export default {
             this.case_data_temporary.type_file = change_file.type;
             this.extract_order_configs = [];
         },
-        updateMaterialCategoryTypeInOrder(index, item) {
-            if (this.orders[index].promotive != item.name) {
-                this.orders[index].promotive = item.name;
-                this.orders[index].promotive_name = item.name;
-            }
+        updateMaterialCategoryTypeInOrder(index, item, order) {
+            this.orders.forEach((item_order, index) => {
+                if (item_order.promotive != item.name && item_order.customer_sku_code == order.customer_sku_code) {
+                    item_order.promotive = item.name;
+                    item_order.promotive_name = item.name;
+                }
+            });
+            // if (this.orders[index].promotive != item.name) {
+            //     this.orders[index].promotive = item.name;
+            //     this.orders[index].promotive_name = item.name;
+            // }
         },
         async getConvertFilePDF(file_response) {
             for (let index = 0; index < file_response.data.length; index++) {
@@ -576,7 +582,7 @@ export default {
                         quantity1_po: item.Quantity1,
                         quantity2_po: item.Quantity2,
                         price_po: item.ProductPrice,
-                        amount_po: item.ProductAmount  ,// this.calculatorAmount(item.ProductAmount),
+                        amount_po: item.ProductAmount,// this.calculatorAmount(item.ProductAmount),
                         customer_code: file_response.data[index].headers.CustomerCode,
                         company_price: '',
                         level2: file_response.data[index].headers.CustomerLevel2,
@@ -735,9 +741,9 @@ export default {
             try {
                 // this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.post(this.api_check_promotion, {}, filter);
-                if(data.success){
+                if (data.success) {
                     this.getValuePromotionCategory(data.items);
-                }   
+                }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -745,7 +751,7 @@ export default {
             }
         },
         async getValuePromotionCategory(items) {
-           await items.forEach(item => {
+            await items.forEach(item => {
                 this.orders.forEach(order => {
                     if (order.sku_sap_code == item.sap_code) {
                         order.promotion_category = item.promotion_category;
@@ -755,6 +761,14 @@ export default {
             });
             this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
         },
+        getSortingChanged(sort) {
+            console.log(sort);
+            let sortedOrders = this.orders.slice().sort((a, b) => {
+                return a[sort.sortBy] > b[sort.sortBy] ? -1 : 1;
+            });
+            this.orders = sortedOrders;
+            console.log(this.orders);
+        }
     },
     computed: {
         type_file_extract_order_configs() {

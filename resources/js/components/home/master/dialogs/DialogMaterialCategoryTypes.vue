@@ -186,6 +186,9 @@ export default {
                 id: '',
                 name: ''
             },
+            case_ref: {
+                order: {}
+            },
             total: 0,
             per_page: 10,
             from: 1,
@@ -201,15 +204,16 @@ export default {
 
 
     methods: {
-        showModalCategoryType(index) {
+        showModalCategoryType(index, item) {
             this.modal_index = index;
+            this.case_ref.order = item;
             $('#modalMaterialCategory').modal('show');
         },
         hideModalCategoryType() {
             $('#modalMaterialCategory').modal('hide');
         },
         onChangeCategoryType(index, item) {
-            this.$emit('onChangeCategoryType', index, item);
+            this.$emit('onChangeCategoryType', index, item, this.case_ref.order);
             this.hideModalCategoryType();
         },
         async storeMaterialCategoryType() {

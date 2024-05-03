@@ -14,7 +14,8 @@
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value"
             @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
-            @checkBoxRow="getCheckBoxRow"></TableOrderSuffice>
+            @checkBoxRow="getCheckBoxRow"
+            @sortingChanged="sortingChanged"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -97,6 +98,9 @@ export default {
         },
         isEmptyObject() {
             return Object.keys(this.case_save_so).length === 0;
+        },
+        sortingChanged(sort) {
+            this.$emit('sortingChanged', sort);
         }
 
     },
