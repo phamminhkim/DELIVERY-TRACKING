@@ -16,6 +16,7 @@
             :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
         <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders"
             :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO"
+            :order_lacks="case_data_temporary.order_lacks"
             :case_save_so="case_save_so">
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
@@ -296,6 +297,7 @@ export default {
         },
         refeshOrders() {
             this.orders = [];
+            this.case_data_temporary.order_lacks = [];
         },
         getListOrderProcessSO() {
             this.$refs.dialogListOrderProcessSo.showModal();
