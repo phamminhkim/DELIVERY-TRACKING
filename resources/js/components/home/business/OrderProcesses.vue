@@ -9,7 +9,9 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            :item_selecteds="case_data_temporary.item_selecteds">
+            @exportExcel="getExportExcel"
+            :item_selecteds="case_data_temporary.item_selecteds"
+            >
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
@@ -35,6 +37,7 @@
     </div>
 </template>
 <script>
+import * as XLSX from 'xlsx';
 import HeaderOrderProcesses from './headers/HeaderOrderProcesses.vue';
 import DialogSearchOrderProcesses from './dialogs/DialogSearchOrderProcesses.vue';
 import DialogTitleOrderSO from './dialogs/DialogTitleOrderSO.vue';
@@ -364,7 +367,28 @@ export default {
         },
         getSortingChanged(sort) {
             this.$refs.headerOrderProcesses.getSortingChanged(sort);
-        }
+        },
+        getExportExcel() {
+            let data = this.orders.concat(this.case_data_temporary.order_lacks);
+            var ws = XLSX.utils.json_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            const blob = new Blob([this.s2ab(wbout)], { type: 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'xu_ly_don_hang.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+        },
     },
     computed: {
         row_orders() {

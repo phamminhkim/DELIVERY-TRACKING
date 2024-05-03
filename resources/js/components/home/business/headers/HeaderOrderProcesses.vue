@@ -114,6 +114,9 @@
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Tạo
                     upload</button>
+                    <button @click="emitExportExcel()" type="button"
+                    class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
+                    <i class="fas fa-file-excel mr-2"></i>Xuất Excel</button>
                 <!-- <button type="button"
                     class="btn-sm btn btn-secondary shadow-btn rounded btn-group__border">Refesh</button> -->
                 <button @click="emitSaveOrderProcess()" type="button"
@@ -693,10 +696,13 @@ export default {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'xử_lý_đơn_hàng.xlsx';
+            link.download = 'Đơn-hàng-upload.xlsx';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        },
+        emitExportExcel() {
+            this.$emit('exportExcel');
         },
         s2ab(s) {
             const buf = new ArrayBuffer(s.length);

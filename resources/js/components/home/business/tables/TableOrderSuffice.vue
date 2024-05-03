@@ -19,9 +19,19 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <div class="">
-                        {{ data.item.barcode }}
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode" @keydown="copyItem"
+                        @mousedown="startSelection($event, data.item.barcode)"
+                        @mousemove="selectItem(data.index, data.item.barcode, $event)"
+                        @mouseup="endSelection(data.item.barcode, $event)"
+                        :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
+                        <span class="text-center rounded" :class="{
+            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
+            'badge badge-primary': data.item.promotion_category == 'Combo'
+        }">
+                            {{ data.item.barcode }}
+                        </span>
                     </div>
+                    
                 </template>
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)">
@@ -94,12 +104,19 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
-                    <span class="text-center rounded" :class="{
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code" @keydown="copyItem"
+                        @mousedown="startSelection($event, data.item.sku_sap_code)"
+                        @mousemove="selectItem(data.index, data.item.sku_sap_code, $event)"
+                        @mouseup="endSelection(data.item.sku_sap_code, $event)"
+                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
+                        <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
             'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                        {{ data.item.sku_sap_code }}
-                    </span>
+                            {{ data.item.sku_sap_code }}
+                        </span>
+                    </div>
+
                 </template>
                 <template #cell(sku_sap_name)="data">
                     {{ data.item.sku_sap_name }}
@@ -135,7 +152,8 @@
                         </strong></span>
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <div @mousedown="startSelection($event, data.item.customer_sku_code)"
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code" @keydown="copyItem"
+                        @mousedown="startSelection($event, data.item.customer_sku_code)"
                         @mousemove="selectItem(data.index, data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
@@ -402,7 +420,6 @@ export default {
     created() {
         this.fetchMaterialCategoryType();
     },
-
     methods: {
         async fetchMaterialCategoryType() {
             try {
@@ -490,13 +507,14 @@ export default {
         sortingChanged(sort, item) {
             this.$emit('sortingChanged', sort)
         },
-        startSelection(e, item) {
+        startSelection(e, item, index) {
             e.preventDefault();
             this.isSelecting = true;
             this.selectedItems = [];
             this.case_index.copys = [];
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
+            this.setFocusToKeyListener(item);
         },
         selectItem(index, item, event) {
             event.preventDefault();
@@ -521,10 +539,22 @@ export default {
         endSelection(item, event) {
             event.preventDefault();
             this.isSelecting = false;
-            const textToCopy = this.selectedItems.join('\n');
-            this.copyToClipboard(textToCopy);
-            this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
+            // const textToCopy = this.selectedItems.join('\n');
+            // this.copyToClipboard(textToCopy);
+            // this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
         },
+        copyItem(event) {
+            if (event.keyCode === 67) {
+                const textToCopy = this.selectedItems.join('\n');
+                this.copyToClipboard(textToCopy);
+                this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
+            }
+        },
+        // copySelectedItems() {
+        //     const textToCopy = this.selectedItems.join('\n');
+        //     this.copyToClipboard(textToCopy);
+        //     this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
+        // },
         isChangeBorder(item) {
             let exits = false;
             this.case_index.copys.forEach((element, index) => {
@@ -533,11 +563,13 @@ export default {
                 }
             });
             return exits;
+        },
+        setFocusToKeyListener(customer_sku_code) {
+            // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
+            const ref = 'keyListenerDiv_' + customer_sku_code;
+            this.$refs[ref].focus();
+            console.log('ref', this.$refs[ref]);
         }
-
-
-
-
     }
 }
 </script>
@@ -579,7 +611,7 @@ export default {
 }
 
 .change-border {
-    border: 3px solid #00fc11;
+    border: 1px solid #00fc11;
     background: rgb(227 227 227 / 50%);
 }
 </style>
