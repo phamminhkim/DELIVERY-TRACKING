@@ -5,7 +5,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold text-uppercase">Loại danh mục phiếu</h5>
+                        <h5 class="modal-title font-weight-bold text-uppercase">Danh mục loại phiếu khuyến mãi</h5>
                         <button type="button" class="close" @click="hideModalCategoryType(index)">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -51,7 +51,7 @@
                         </b-collapse>
                         <div class="list-material-category">
                             <div class="text-center bg-light text-uppercase p-2">
-                                <label class="font-weight-bold">Danh sách loại danh mục phiếu</label>
+                                <label class="font-weight-bold">Danh sách</label>
                             </div>
                             <b-table :current-page="current_page" :per-page="per_page" small responsive
                                 :items="material_category_types" :fields="fields" :hover="false"

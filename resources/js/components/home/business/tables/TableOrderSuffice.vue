@@ -3,28 +3,16 @@
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
-                @sort-changed="sortingChanged"
-                :fields="field_order_suffices" table-class="table-order-suffices" :current-page="current_page"
-                :per-page="per_page">
-                <!-- <template #cell(row_custom)="data">
-                    <b-dropdown size="sm" id="dropdown-offset" offset="25" text="" variant="link"
-                        toggle-class="text-decoration-none" no-caret class="">
-                        <template #button-content>
-                            <button class="btn btn-xs btn-light dropdown-toggle" type="button" data-toggle="dropdown"
-                                aria-expanded="false"><i class="fas fa-th-list"></i></button>
-                        </template>
-<b-dropdown-item @click="deleteRow(data.index, data.item)" class="text-danger" href="#">Xóa
-    dòng</b-dropdown-item>
-</b-dropdown>
-</template> -->
+                :class="{ 'table-order-suffices': true, }" @sort-changed="sortingChanged" :fields="field_order_suffices"
+                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
                 <template #head(selected)="data">
-                    <b-form-checkbox v-model="case_checkbox.selected_all" @change="emitCheckBox(data.index)"
-                    ></b-form-checkbox>
+                    <b-form-checkbox v-model="case_checkbox.selected_all"
+                        @change="emitCheckBox(data.index)"></b-form-checkbox>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
@@ -36,7 +24,7 @@
                     </div>
                 </template>
                 <template #cell(customer_name)="data">
-                    <div v-if="isCheckLack(data.item) ">
+                    <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                         <!-- <small v-if="rowColor(data.item) " class="text-danger ml-2 font-weight-bold">
@@ -61,11 +49,8 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                         <span
-                      ><strong
-                        >{{ data.value.toLocaleString(locale_format) }}
-                      </strong></span
-                    >
+                        <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
@@ -131,27 +116,35 @@
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index, data.item)" class="">
                         <div class="d-flex justify-content-end">
-                            <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{ data.item.promotive }}</small>
+                            <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
+            data.item.promotive }}</small>
                             <i class="far fa-caret-square-down"></i>
                         </div>
                     </div>
                 </template>
                 <template #cell(amount_po)="data">
-                    <span
-                      ><strong
-                        >{{ data.value.toLocaleString(locale_format) }}
-                      </strong></span
-                    >
-                  </template>
-                  <template #cell(price_po)="data">
-                    <span
-                      ><strong
-                        >{{ data.value.toLocaleString(locale_format) }}
-                      </strong></span
-                    >
-                  </template>
-                 
+                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
+                </template>
+                <template #cell(price_po)="data">
+                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
+                </template>
+                <template #cell(company_price)="data">
+                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
+                </template>
+                <template #cell(customer_sku_code)="data">
+                    <div @mousedown="startSelection($event, data.item.customer_sku_code)"
+                        @mousemove="selectItem(data.index, data.item.customer_sku_code, $event)"
+                        @mouseup="endSelection(data.item.customer_sku_code, $event)"
+                        :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
+                        {{ data.item.customer_sku_code }}
+                    </div>
+                </template>
+
             </b-table>
+            <textarea ref="clipboard" style="position: absolute; left: -9999px"></textarea>
             <DialogMaterialCategoryTypes ref="dialogMaterialCategoryTypes"
                 :material_category_types="material_category_types" @onChangeCategoryType="getOnChangeCategoryType"
                 @storeMaterialCategoryType="getStoreMaterialCategoryType"
@@ -208,6 +201,13 @@ export default {
         return {
             locale_format: "de-DE",
             is_modal_material_category_type: false,
+            case_is_status: {
+                event: false,
+            },
+            case_index: {
+                event: -1,
+                copys: [],
+            },
             field_order_suffices: [
                 {
                     key: 'row_custom',
@@ -337,7 +337,7 @@ export default {
                     label: 'Amount',
                     class: "text-right",
                     sortable: true,
-                    
+
 
                 },
                 {
@@ -346,7 +346,7 @@ export default {
                     class: 'text-nowrap',
                     sortable: true,
 
-                    
+
 
                 },
                 {
@@ -354,7 +354,7 @@ export default {
                     label: 'Gia_cty',
                     class: 'text-nowrap',
                     sortable: true,
-                    
+
 
                 },
                 {
@@ -362,7 +362,7 @@ export default {
                     label: 'Level_2',
                     class: 'text-nowrap',
                     sortable: true,
-                    
+
 
                 },
                 {
@@ -370,7 +370,7 @@ export default {
                     label: 'Level_3',
                     class: 'text-nowrap',
                     sortable: true,
-                    
+
 
                 },
                 {
@@ -378,7 +378,7 @@ export default {
                     label: 'Level_4',
                     class: 'text-nowrap',
                     sortable: true,
-                    
+
 
                 },
             ],
@@ -394,6 +394,9 @@ export default {
             material_category_types: [],
 
             api_material_category_types: '/api/master/material-category',
+            items: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
+            isSelecting: false,
+            selectedItems: []
         }
     },
     created() {
@@ -422,7 +425,7 @@ export default {
             }
         },
         onChangeShowModal(index, item) {
-            this.$refs.dialogMaterialCategoryTypes.showModalCategoryType(index , item)
+            this.$refs.dialogMaterialCategoryTypes.showModalCategoryType(index, item)
         },
         getOnChangeCategoryType(index, item, order) {
             this.$emit('onChangeCategoryType', index, item, order);
@@ -456,11 +459,11 @@ export default {
             this.$emit('deleteRow', index, item)
         },
         emitCheckBox(index) {
-            if(this.case_checkbox.selected_all){
+            if (this.case_checkbox.selected_all) {
                 this.case_checkbox.selected = this.orders;
-            } 
+            }
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
-            
+
         },
         refeshCaseCheckBox() {
             this.case_checkbox.selected = [];
@@ -486,6 +489,50 @@ export default {
         },
         sortingChanged(sort, item) {
             this.$emit('sortingChanged', sort)
+        },
+        startSelection(e, item) {
+            e.preventDefault();
+            this.isSelecting = true;
+            this.selectedItems = [];
+            this.case_index.copys = [];
+            this.selectedItems.push(item);
+            this.case_index.copys.push(item);
+        },
+        selectItem(index, item, event) {
+            event.preventDefault();
+            if (this.isSelecting) {
+                let exits = false;
+                this.case_index.copys.forEach((element, index) => {
+                    if (element == item) {
+                        exits = true;
+                    }
+                });
+                if (!exits) {
+                    this.case_index.copys.push(item);
+                    this.selectedItems.push(item);
+                }
+            }
+        },
+        copyToClipboard(text) {
+            this.$refs.clipboard.value = text;
+            this.$refs.clipboard.select();
+            document.execCommand('copy');
+        },
+        endSelection(item, event) {
+            event.preventDefault();
+            this.isSelecting = false;
+            const textToCopy = this.selectedItems.join('\n');
+            this.copyToClipboard(textToCopy);
+            this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
+        },
+        isChangeBorder(item) {
+            let exits = false;
+            this.case_index.copys.forEach((element, index) => {
+                if (element == item) {
+                    exits = true;
+                }
+            });
+            return exits;
         }
 
 
@@ -525,5 +572,14 @@ export default {
     background: blue;
     color: white;
     padding: 3px;
+}
+
+.table-order-suffices {
+    cursor: crosshair;
+}
+
+.change-border {
+    border: 3px solid #00fc11;
+    background: rgb(227 227 227 / 50%);
 }
 </style>
