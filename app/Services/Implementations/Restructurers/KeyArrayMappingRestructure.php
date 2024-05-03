@@ -43,6 +43,9 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     if (isset($value_item['decimal_separator']) && isset($value_item['thousand_separator'])) {
                         $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
                     }
+                    if (isset($value_item['regex_match'])) {
+                        $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
+                    }
                 }
                 // Check trường bắt buộc mà không có giá trị thì skip row
                 if ($this->isValidArrayValue($output, $structure)) {
