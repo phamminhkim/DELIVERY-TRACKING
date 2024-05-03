@@ -461,13 +461,18 @@ export default {
                     quantity1_po: '',
                     quantity2_po: data[index][this.case_index.quantity2_po],
                     price_po: data[index][this.case_index.price_po],
-                    amount_po: data[index][this.case_index.price_po],// this.calculatorAmount(data[index][this.case_index.price_po]),
+                    amount_po: this.convertStringToNumber(data[index][this.case_index.price_po]),
+                    // amount_po: data[index][this.case_index.price_po],
+                    // this.calculatorAmount(data[index][this.case_index.price_po]),
                     customer_code: this.browserCustomerCode(data[index][this.case_index.store] == undefined ? '' : data[index][this.case_index.store]),
                     inventory_quantity: '',
                 });
                 this.bar_codes.push(data[index][this.case_index.customer_sku_code]);
             }
             this.$emit('listOrders', this.orders);
+        },
+        convertStringToNumber(string) {
+            return parseFloat(string);
         },
         calculatorAmount(price_po, number = 10) {
             price_po = this.replaceString(price_po);
@@ -582,7 +587,9 @@ export default {
                         quantity1_po: item.Quantity1,
                         quantity2_po: item.Quantity2,
                         price_po: item.ProductPrice,
-                        amount_po: item.ProductAmount,// this.calculatorAmount(item.ProductAmount),
+                        amount_po: this.convertStringToNumber(item.ProductAmount),
+                        // amount_po: item.ProductAmount,
+                        // this.calculatorAmount(item.ProductAmount),
                         customer_code: file_response.data[index].headers.CustomerCode,
                         company_price: '',
                         level2: file_response.data[index].headers.CustomerLevel2,
