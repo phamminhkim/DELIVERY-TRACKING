@@ -12,9 +12,8 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
-                                @handleDoubleClick="getHandleDoubleClick"
-                                @dltOrderProcessSO="getDltOrderProcessSO" :current_page="current_page"
-                                :per_page="per_page">
+                                @handleDoubleClick="getHandleDoubleClick" @dltOrderProcessSO="getDltOrderProcessSO"
+                                :current_page="current_page" :per_page="per_page">
                             </TableOrderProcessSO>
                             <PaginationTable :rows="list_order_process_so.length" :per_page="per_page"
                                 :page_options="page_options" :current_page="current_page" @pageChange="getPageChange"
@@ -79,7 +78,7 @@ export default {
                 this.case_is_loading.fetch_api = false;
             }
         },
-       
+
         getHandleDoubleClick(item) {
             this.fetchOrderProcessSODetail(item.id);
         },
@@ -99,6 +98,7 @@ export default {
             try {
                 this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
+                this.$showMessage('success', 'Xóa thành công');
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -106,8 +106,11 @@ export default {
             }
         },
         getDltOrderProcessSO(index, item) {
-            this.list_order_process_so.splice(index, 1);
-            this.DeleteOrderProcessSO(item.id);
+            if (confirm('Bạn có chắc chắn muốn xóa không?')) {
+                this.list_order_process_so.splice(index, 1);
+                this.DeleteOrderProcessSO(item.id);
+            }
+
         }
     },
     computed: {
