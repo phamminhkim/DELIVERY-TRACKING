@@ -27,6 +27,7 @@ use App\Repositories\Master\MaterialCategoryTypeRepository;
 use App\Repositories\Master\MaterialComboRepository;
 use App\Repositories\Master\MaterialDonatedRepository;
 use App\Repositories\Master\CustomerPartnerRepository;
+use App\Repositories\Master\SapComplianceRepository;
 
 use Illuminate\Http\Request;
 
@@ -129,5 +130,9 @@ class MasterRepository
     public static function customerPartnerRequest(Request $request)
     {
         return new CustomerPartnerRepository($request);
+    }
+    public static function sapComplianceRequest(Request $request)
+    {
+        return new SapComplianceRepository($request);
     }
 }
