@@ -19,9 +19,10 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode" @keydown="copyItem"
-                        @mousedown="startSelection($event, data.item.barcode)"
-                        @mousemove="selectItem(data.index, data.item.barcode, $event)"
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode"
+                        @keydown="copyItem($event, data.item.barcode)"
+                        @mousedown="startSelection($event, data.item.barcode, data.index)"
+                        @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
                         <span class="text-center rounded" :class="{
@@ -31,7 +32,8 @@
                             {{ data.item.barcode }}
                         </span>
                     </div>
-                    
+
+
                 </template>
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)">
@@ -71,18 +73,29 @@
                     </div>
                 </template>
                 <template #head(barcode)="header">
-                    <div class="text-center">
-                        <label class="mb-0" :class="{
+                    <div class="text-center d-flex">
+                        <label class="mb-0 " :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
                             <span v-if="is_loading_detect_sap_code == true"><i
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
+                        <div>
+                            <b-dropdown id="dropdown-1" size="sm" variant="light"
+                                toggle-class="text-center rounded p-0 px-1 ml-1">
+                                <template #button-content class="button">
+                                    <!-- <i class="fas fa-cog"></i> -->
+                                    <i class="fas fa-clipboard-list"></i>
+                                </template>
+                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
+                                    all</b-dropdown-item>
+                            </b-dropdown>
+                        </div>
                     </div>
                 </template>
                 <template #head(sku_sap_code)="header">
-                    <div class="text-center">
+                    <div class="text-center d-flex ">
                         <label class="mb-0" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
@@ -90,6 +103,16 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
+                        <div>
+                            <b-dropdown id="dropdown-1" size="sm" variant="light"
+                                toggle-class="text-center rounded p-0 px-1 ml-1">
+                                <template #button-content>
+                                    <i class="fas fa-clipboard-list"></i>
+                                </template>
+                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
+                                    all</b-dropdown-item>
+                            </b-dropdown>
+                        </div>
                     </div>
                 </template>
                 <template #head(sku_sap_name)="header">
@@ -103,10 +126,28 @@
                         </label>
                     </div>
                 </template>
+                <template #head(customer_sku_code)="header">
+                    <div class="text-center d-flex  ">
+                        <label class="mb-0">
+                            {{ header.label }}
+                        </label>
+                        <div>
+                            <b-dropdown id="dropdown-1" size="sm" variant="light"
+                                toggle-class="text-center rounded p-0 px-1 ml-1">
+                                <template #button-content>
+                                    <i class="fas fa-clipboard-list"></i>
+                                </template>
+                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
+                                    all</b-dropdown-item>
+                            </b-dropdown>
+                        </div>
+                    </div>
+                </template>
                 <template #cell(sku_sap_code)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code" @keydown="copyItem"
-                        @mousedown="startSelection($event, data.item.sku_sap_code)"
-                        @mousemove="selectItem(data.index, data.item.sku_sap_code, $event)"
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code"
+                        @keydown="copyItem($event, data.item.sku_sap_code)"
+                        @mousedown="startSelection($event, data.item.sku_sap_code, data.index)"
+                        @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
                         <span class="text-center rounded" :class="{
@@ -116,7 +157,6 @@
                             {{ data.item.sku_sap_code }}
                         </span>
                     </div>
-
                 </template>
                 <template #cell(sku_sap_name)="data">
                     {{ data.item.sku_sap_name }}
@@ -152,9 +192,12 @@
                         </strong></span>
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code" @keydown="copyItem"
-                        @mousedown="startSelection($event, data.item.customer_sku_code)"
-                        @mousemove="selectItem(data.index, data.item.customer_sku_code, $event)"
+
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code"
+                        @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
+                        @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
+                        @mousedown="startSelection($event, data.item.customer_sku_code, data.index)"
+                        @mousemove="selectItem(data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
                         {{ data.item.customer_sku_code }}
@@ -225,6 +268,7 @@ export default {
             case_index: {
                 event: -1,
                 copys: [],
+                change: -1,
             },
             field_order_suffices: [
                 {
@@ -298,7 +342,7 @@ export default {
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap text-center',
                     sortable: true,
                 },
                 {
@@ -508,16 +552,20 @@ export default {
             this.$emit('sortingChanged', sort)
         },
         startSelection(e, item, index) {
-            e.preventDefault();
+            if (e !== undefined) {
+                e.preventDefault();
+                this.case_index.change = index;
+            }
             this.isSelecting = true;
-            this.selectedItems = [];
-            this.case_index.copys = [];
+            this.refeshItem();
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
             this.setFocusToKeyListener(item);
         },
-        selectItem(index, item, event) {
-            event.preventDefault();
+        selectItem(item, event) {
+            if (event !== undefined) {
+                event.preventDefault();
+            }
             if (this.isSelecting) {
                 let exits = false;
                 this.case_index.copys.forEach((element, index) => {
@@ -531,30 +579,82 @@ export default {
                 }
             }
         },
+        selectItemEventKey(item, event) {
+            if (event !== undefined) {
+                event.preventDefault();
+            }
+            let exits = false;
+            this.case_index.copys.forEach((element, index) => {
+                if (element == item) {
+                    exits = true;
+                }
+            });
+            if (!exits) {
+                this.case_index.copys.push(item);
+                this.selectedItems.push(item);
+            }
+        },
         copyToClipboard(text) {
             this.$refs.clipboard.value = text;
             this.$refs.clipboard.select();
             document.execCommand('copy');
         },
         endSelection(item, event) {
-            event.preventDefault();
+            if (event !== undefined) {
+                event.preventDefault();
+            }
             this.isSelecting = false;
-            // const textToCopy = this.selectedItems.join('\n');
-            // this.copyToClipboard(textToCopy);
-            // this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
         },
-        copyItem(event) {
-            if (event.keyCode === 67) {
-                const textToCopy = this.selectedItems.join('\n');
-                this.copyToClipboard(textToCopy);
-                this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
+        copyItem(event, item, field) {
+            console.log(field);
+            console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
+            switch (event.keyCode) {
+                case 67: // ctrl + c
+                    if (event.ctrlKey) {
+                        this.copyToClipboard(this.selectedItems.join('\n'));
+                        this.$showMessage('success', 'Copy thành công');
+                    }
+                    break;
+                case 16: // ctrl + shift
+                    // this.isSelecting = true;
+                    this.selectItemEventKey(item, event);
+                    break;
+                case 27: // esc
+                    this.isSelecting = false;
+                    this.refeshItem();
+                    break;
+                case 40: // down
+                    // if(event.ctrlKey, event.shiftKey)
+                    if (event.ctrlKey && event.shiftKey) {
+
+                        this.orders.forEach((order, index) => {
+                            if(this.case_index.change < index){
+                                this.selectItemEventKey(order.customer_sku_code, event);
+                            }
+                            // this.selectItemEventKey(order.customer_sku_code, event);
+                        });
+                        console.log(this.selectedItems);
+                        // this.isChangeBorder(item);
+                        // this.setFocusToKeyListener(item);
+                        // this.selectItemEventKey(item, event);
+                    }
+                    break;
             }
         },
-        // copySelectedItems() {
-        //     const textToCopy = this.selectedItems.join('\n');
-        //     this.copyToClipboard(textToCopy);
-        //     this.$showMessage('success', 'Copy thành công', 'Đã copy vào clipboard');
-        // },
+        fieldColumnHeader(column, e) {
+            this.refeshItem();
+            this.orders.forEach((order, index) => {
+                if (order[column] != null && order[column] != '') {
+                    this.selectItemEventKey(order[column], e);
+                }
+            });
+            this.copyAll(this.selectedItems.join('\n'));
+
+        },
+        copyAll(items) {
+            this.copyToClipboard(items);
+            this.$showMessage('success', 'Copy thành công');
+        },
         isChangeBorder(item) {
             let exits = false;
             this.case_index.copys.forEach((element, index) => {
@@ -568,7 +668,14 @@ export default {
             // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
             const ref = 'keyListenerDiv_' + customer_sku_code;
             this.$refs[ref].focus();
-            console.log('ref', this.$refs[ref]);
+        },
+        refeshItem() {
+            this.case_index.copys = [];
+            this.selectedItems = [];
+
+        },
+        changeCtrl(event, item) {
+            this.selectItemEventKey(item, event);
         }
     }
 }
