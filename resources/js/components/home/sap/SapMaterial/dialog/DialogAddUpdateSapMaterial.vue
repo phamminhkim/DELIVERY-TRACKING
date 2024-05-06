@@ -183,15 +183,16 @@
 					});
 					console.log(result);
 
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.sap_materials.data.unshift(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công', result.message);
+						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
 						await this.refetchData();
 					} else {
-						this.showMessage('error', 'Lỗi', result.message);
+						this.errors = result.errors;
+						this.showMessage('error', 'Lỗi');
 					}
 				} catch (error) {
 					this.showMessage('error', 'Lỗi', error);
@@ -214,6 +215,7 @@
 						this.closeDialog();
 						await this.refetchData();
 					} else {
+						this.errors = result.errors;
 						this.showMessage('error', 'Lỗi', result.message);
 					}
 				} catch (error) {

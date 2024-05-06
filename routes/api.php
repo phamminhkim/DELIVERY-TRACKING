@@ -34,8 +34,7 @@ use App\Http\Controllers\Api\Master\CustomerMaterialController;
 use App\Http\Controllers\Api\Master\CustomerGroupPivotController;
 use App\Http\Controllers\Api\Master\CustomerPromotionController;
 use App\Http\Controllers\Api\Master\CustomerPartnerController;
-
-
+use App\Http\Controllers\Api\Master\SapComplianceController;
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
@@ -175,12 +174,20 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SapUnitController::class, 'updateExistingSapUnit']);
             Route::delete('/{id}', [SapUnitController::class, 'deleteExistingSapUnit']);
         });
+        Route::prefix('/sap-compliances')->group(function () {
+            Route::get('/minified', [SapComplianceController::class, 'getAvailableSapCompliancesMinified']);
+            Route::get('/', [SapComplianceController::class, 'getAvailableSapCompliances']);
+            Route::post('/excel', [SapComplianceController::class, 'createSapComplianceFormExcel']);
+            Route::post('/', [SapComplianceController::class, 'createNewSapCompliance']);
+            Route::put('/{id}', [SapComplianceController::class, 'updateExistingSapCompliance']);
+            Route::delete('/{id}', [SapComplianceController::class, 'deleteExistingSapCompliance']);
+        });
+
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
-           
 
         });
         Route::prefix('/order-review-options')->group(function () {

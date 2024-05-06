@@ -44,7 +44,7 @@ class CustomerPartnerController extends ResponseController
         if ($customerPartner) {
             return $this->responseSuccess($customerPartner);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
     public function createCustomerPartnerFormExcel(Request $request)
@@ -75,7 +75,7 @@ class CustomerPartnerController extends ResponseController
         if ($customer_partner) {
             return $this->responseSuccess($customer_partner);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
     public function deleteExistingCustomerPartner(Request $request, $id)

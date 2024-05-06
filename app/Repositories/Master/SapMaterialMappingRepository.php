@@ -600,14 +600,14 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
             $new_total_percent = $total_existing_percent - $sap_material_mapping->percentage + $customerMaterialData['percentage'];
 
-            if ($new_total_percent > 100) {
-                $this->errors = [
-                    'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
-                    'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
-                    'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
-                ];
-                return false; // Stop updating the item and display the error message
-            }
+            // if ($new_total_percent > 100) {
+            //     $this->errors = [
+            //         'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
+            //         'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
+            //         'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
+            //     ];
+            //     return false; // Stop updating the item and display the error message
+            // }
             // Bắt đầu giao dịch
             DB::beginTransaction();
 

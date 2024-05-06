@@ -279,15 +279,15 @@
 						LV3: this.customer_partner.LV3,
 						LV4: this.customer_partner.LV4,
 					});
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.customer_partners.data.unshift(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công', result.message);
+						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
-						this.errors = data.errors;
+						this.errors = result.errors;
 						this.showMessage('error', 'Thêm không thành công');
 					}
 				} catch (error) {
@@ -314,7 +314,7 @@
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
-						this.errors = data.errors;
+						this.errors = result.errors;
 						this.showMessage('error', 'Thêm không thành công');
 					}
 				} catch (error) {

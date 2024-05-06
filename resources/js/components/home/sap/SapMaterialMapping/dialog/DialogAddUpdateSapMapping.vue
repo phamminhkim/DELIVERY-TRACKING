@@ -368,7 +368,7 @@
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
-						this.errors = data.errors;
+						this.errors = result.errors;
 						this.showMessage('error', 'Thêm không thành công');
 					}
 				} catch (error) {
@@ -387,15 +387,15 @@
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.sap_material_mappings.data.push(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công', result.message);
+						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
-						this.errors = data.errors;
+						this.errors = result.errors;
 						this.showMessage('error', 'Cập nhật không thành công');
 					}
 				} catch (error) {

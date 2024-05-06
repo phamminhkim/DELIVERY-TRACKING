@@ -214,28 +214,32 @@
 							<label
 								class="col-form-label-sm col-md-2"
 								style="text-align: left"
-								for=""
-								>Số lượng mỗi trang:</label
+								for="per-page-select"
 							>
+								Số lượng mỗi trang:
+							</label>
 							<div class="col-md-2">
 								<b-form-select
 									size="sm"
-									v-model="pagination.item_per_page"
-									:options="pagination.page_options"
-								>
-								</b-form-select>
+									:value="pagination.item_per_page.toString()"
+									:options="
+										pagination.page_options.map((option) => option.toString())
+									"
+									@change="fetchOptionsData"
+								></b-form-select>
 							</div>
 							<label
 								class="col-form-label-sm col-md-1"
 								style="text-align: left"
-								for=""
 							></label>
 							<div class="col-md-3">
 								<b-pagination
 									v-model="pagination.current_page"
-									:total-rows="rows"
+									:total-rows="sap_materials.data.length"
 									:per-page="pagination.item_per_page"
-									size="sm"
+                                    :limit="3"
+									:size="pagination.page_options.length.toString()"
+									@input="fetchOptionsData"
 									class="ml-1"
 								></b-pagination>
 							</div>
@@ -286,9 +290,11 @@
 				is_loading: false,
 				is_show_search: false,
 				pagination: {
-					item_per_page: 10,
 					current_page: 1,
-					page_options: [10, 50, 100, 500, { value: this.rows, text: 'All' }],
+					item_per_page: 10,
+					total_items: 0,
+					last_page: 0,
+					page_options: [10, 20, 50, 100, 500],
 				},
 				form_filter: {
 					unit: null,
@@ -342,8 +348,8 @@
 				try {
 					this.is_loading = true;
 					const params = {
-						page: this.page,
-						per_page: this.perPage,
+						page: this.pagination.current_page,
+						per_page: this.pagination.item_per_page,
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
 					};
@@ -361,9 +367,9 @@
 					}
 
 					// Gán thông tin phân trang
-					this.currentPage = paginate.current_page;
-					this.lastPage = paginate.last_page;
-					this.totalItems = paginate.total;
+					this.pagination.current_page = paginate.current_page;
+					this.pagination.last_page = paginate.last_page;
+					this.pagination.total_items = paginate.total;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -436,7 +442,6 @@
 				}
 			},
 
-
 			async clearFilter() {
 				try {
 					if (this.is_loading) return;
@@ -446,7 +451,6 @@
 					this.form_filter.sap_material = [];
 
 					await this.fetchOptionsData();
-					// this.$refs.CrudPage.refValue(this.sap_materials)
 				} catch (error) {
 					this.showMessage('error', 'Lỗi', error);
 				} finally {

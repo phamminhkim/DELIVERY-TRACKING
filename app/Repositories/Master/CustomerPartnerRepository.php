@@ -13,57 +13,57 @@ use App\Models\Master\CustomerGroup;
 class CustomerPartnerRepository extends RepositoryAbs
 {
     public function getAvailableCustomerPartners($is_minified)
-{
-    try {
-        $query = CustomerPartner::query();
+    {
+        try {
+            $query = CustomerPartner::query();
 
-        if ($this->request->filled('search')) {
-            $query = $query->search($this->request->search);
-            $query->limit(200);
-        }
-        if ($this->request->filled('ids')) {
-            $query->whereIn('id', $this->request->ids);
-        }
-        if ($this->request->filled('customer_group_ids')) {
-            $customer_group_ids = $this->request->customer_group_ids;
-            if (!is_array($customer_group_ids)) {
-                $customer_group_ids = explode(',', $customer_group_ids);
+            if ($this->request->filled('search')) {
+                $query = $query->search($this->request->search);
+                $query->limit(200);
             }
-            $query->whereIn('customer_group_id', $customer_group_ids);
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                if (!is_array($customer_group_ids)) {
+                    $customer_group_ids = explode(',', $customer_group_ids);
+                }
+                $query->whereIn('customer_group_id', $customer_group_ids);
+            }
+            if ($is_minified) {
+                $query->select('id', 'code', 'name', 'note');
+            }
+            $query->with([
+                'customer_group' => function ($query) {
+                    $query->select(['id', 'name']);
+                },
+            ]);
+            $perPage = $this->request->filled('per_page') ? $this->request->per_page : 500;
+            $customer_partners = $query->paginate($perPage, ['*'], 'page', $this->request->page);
+
+
+
+            $result = [
+                'data' => $customer_partners->items(),
+                'per_page' => $customer_partners->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $customer_partners->currentPage(),
+                'last_page' => $customer_partners->lastPage(),
+                'total' => $customer_partners->total(),
+            ];
+
+            // Retrieve the customer partners again, this time ordering by 'id' in descending order
+            $customer_partners = $query->orderBy('id', 'desc')->get();
+
+            return $result;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
         }
-        if ($is_minified) {
-            $query->select('id', 'code', 'name', 'note');
-        }
-        $query->with([
-            'customer_group' => function ($query) {
-                $query->select(['id', 'name']);
-            },
-        ]);
-        $perPage = $this->request->filled('per_page') ? $this->request->per_page : 500;
-        $customer_partners = $query->paginate($perPage, ['*'], 'page', $this->request->page);
-
-
-
-        $result = [
-            'data' => $customer_partners->items(),
-            'per_page' => $customer_partners->perPage(),
-        ];
-
-        $result['paginate'] = [
-            'current_page' => $customer_partners->currentPage(),
-            'last_page' => $customer_partners->lastPage(),
-            'total' => $customer_partners->total(),
-        ];
-
-        // Retrieve the customer partners again, this time ordering by 'id' in descending order
-        $customer_partners = $query->orderBy('id', 'desc')->get();
-
-        return $result;
-    } catch (\Exception $exception) {
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
     }
-}
     public function getCustomerPartnerById($id)
     {
         try {
@@ -113,9 +113,19 @@ class CustomerPartnerRepository extends RepositoryAbs
                     continue;
                 }
 
+                $customer_partner_name = $row[$template_structure['name']];
+                $existingCustomerPartner = CustomerPartner::where('name', $customer_partner_name)
+                    ->where('customer_group_id', $customer_group->id)
+                    ->first();
+
+                if ($existingCustomerPartner) {
+                    $this->errors[] = 'Tên khách hàng ' . $customer_partner_name . ' đã tồn tại trong nhóm này.';
+                    continue;
+                }
+
                 $customer_partner_data = [
                     'code' => $row[$template_structure['code']],
-                    'name' => $row[$template_structure['name']],
+                    'name' => $customer_partner_name,
                     'note' => $row[$template_structure['note']],
                     'LV2' => $row[$template_structure['LV2']],
                     'LV3' => $row[$template_structure['LV3']],
@@ -124,6 +134,7 @@ class CustomerPartnerRepository extends RepositoryAbs
                 ];
 
                 $customer_partner = CustomerPartner::updateOrCreate(
+                    ['code' => $customer_partner_data['code']],
                     $customer_partner_data
                 );
 
@@ -176,6 +187,16 @@ class CustomerPartnerRepository extends RepositoryAbs
             $customerGroup = CustomerGroup::find($this->data['customer_group_id']);
             if (!$customerGroup) {
                 $this->errors['customer_group_id'] = 'ID nhóm khách hàng không tồn tại.';
+                return false;
+            }
+
+            // Kiểm tra xem đã tồn tại mã code nào được gắn với tên này trong nhóm khách hàng hay chưa
+            $existingCustomerPartner = CustomerPartner::where('customer_group_id', $this->data['customer_group_id'])
+                ->where('name', $this->data['name'])
+                ->first();
+
+            if ($existingCustomerPartner) {
+                $this->errors['name'] = 'Tên khách hàng đã được gắn với một mã code khác trong nhóm này.';
                 return false;
             }
 
@@ -238,7 +259,6 @@ class CustomerPartnerRepository extends RepositoryAbs
                 'LV2.string' => 'LV2 phải là chuỗi.',
                 'LV3.string' => 'LV3 phải là chuỗi.',
                 'LV4.string' => 'LV4 phải là chuỗi.',
-
             ]);
 
             if ($validator->fails()) {
@@ -250,13 +270,30 @@ class CustomerPartnerRepository extends RepositoryAbs
                     }
                 }
             } else {
-                $customer_partner = CustomerPartner::findOrFail($id);
+                $customerGroup = CustomerGroup::find($this->data['customer_group_id']);
+                if (!$customerGroup) {
+                    $this->errors['customer_group_id'] = 'ID nhóm khách hàng không tồn tại.';
+                    return false;
+                }
+
+                // Kiểm tra xem đã tồn tại mã code nào được gắn với tên này trong nhóm khách hàng hay chưa
+                $existingCustomerPartner = CustomerPartner::where('customer_group_id', $this->data['customer_group_id'])
+                    ->where('name', $this->data['name'])
+                    ->where('id', '!=', $id) // Loại trừ bản ghi hiện tại để tránh xung đột
+                    ->first();
+
+                if ($existingCustomerPartner) {
+                    $this->errors['name'] = 'Tên khách hàng đã được gắn với một mã code khác trong nhóm này.';
+                    return false;
+                }
+
                 $customer_partner->update($this->data);
                 return $customer_partner;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return false;
         }
     }
     public function deleteExistingCustomerPartner($id)
