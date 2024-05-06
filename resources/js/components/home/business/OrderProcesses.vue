@@ -108,6 +108,7 @@ export default {
         },
         getOrders(orders) {
             this.orders = orders;
+            this.case_data_temporary.order_lacks = [];
         },
         getOnChangeCategoryType(index, item, order) {
             this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
