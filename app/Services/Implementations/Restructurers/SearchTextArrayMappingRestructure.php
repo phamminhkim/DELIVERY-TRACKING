@@ -22,7 +22,10 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
                 $start_offset = $array['start_offset'] ? $array['start_offset'] : 0;
                 $end_str = $array['end_str'] ? $array['end_str'] : "";
                 $end_offset = $array['end_offset'] ? $array['end_offset'] : 0;
+                // Theo độ dài, tham số tùy chọn
+                $str_length = isset($array['str_length']) ? $array['str_length'] : 0;
 
+                // Lấy string theo vị trí start, end
                 if ($start_str && $end_str) {
                     $output[$structure_key] = $this->getBetweenTwoStr($data_str, $start_str, $start_offset, $end_str, $end_offset);
                 } elseif ($start_str) {
@@ -31,6 +34,10 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
                     $output[$structure_key] = $this->getFromBeginToStr($data_str, $end_str, $end_offset);
                 } else {
                     $output[$structure_key] = "";
+                }
+                // Lấy string theo độ dài
+                if ($str_length) {
+                    $output[$structure_key] = $this->getStrWithLength($output[$structure_key], $str_length);
                 }
 
                 if ($output[$structure_key] && isset($array['date_format'])) {
@@ -75,6 +82,17 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
         if ($end_pos !== false) {
             $result = substr($str, 0, $end_pos - $end_offset);
             $result = trim(str_replace("\n", " ", $result));
+        }
+        return $result;
+    }
+    public function getStrWithLength($str, $str_length)
+    {
+        $result = "";
+        if ($str_length) {
+            $result = substr($str, 0, $str_length);
+            $result = trim(str_replace("\n", " ", $result));
+        } else {
+            $result = $str;
         }
         return $result;
     }
