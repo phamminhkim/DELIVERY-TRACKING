@@ -12,7 +12,7 @@
                 </template>
                 <template #head(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected_all"
-                        @change="emitCheckBox(data.index)"></b-form-checkbox>
+                        @change="checkBoxAll(data.index)"></b-form-checkbox>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
@@ -54,7 +54,9 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        {{ data.item.quantity1_po }}
+                            <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
+                         
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
@@ -69,7 +71,8 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        {{ data.item.inventory_quantity }}
+                          <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
                     </div>
                 </template>
                 <template #head(barcode)="header">
@@ -180,6 +183,11 @@
                     </div>
                 </template>
                 <template #cell(amount_po)="data">
+                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
+                </template>
+
+                <template #cell(variant_quantity)="data">
                     <span><strong>{{ data.value.toLocaleString(locale_format) }}
                         </strong></span>
                 </template>
@@ -389,6 +397,12 @@ export default {
                     sortable: true,
                 },
                 {
+                    key: 'variant_quantity',
+                    label: 'SL Chênh lệch',
+                    class: "text-nowrap text-right",
+                    sortable: true,
+                },
+                {
                     key: 'price_po',
                     label: 'Pur_price',
                     class: "text-nowrap text-right",
@@ -519,11 +533,18 @@ export default {
         deleteRow(index, item) {
             this.$emit('deleteRow', index, item)
         },
-        emitCheckBox(index) {
+        checkBoxAll(index) {
             if (this.case_checkbox.selected_all) {
                 this.case_checkbox.selected = this.orders;
-            }
-            this.$emit('checkBoxRow', this.case_checkbox.selected, index)
+            }else {
+                this.case_checkbox.selected = [];
+            } 
+             this.$emit('checkBoxRow', this.case_checkbox.selected, 0)
+
+        },
+        emitCheckBox(index) {
+           
+             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
 
         },
         refeshCaseCheckBox() {

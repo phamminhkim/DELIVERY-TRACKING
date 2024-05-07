@@ -37,7 +37,7 @@ class CheckDataController extends ResponseController
         if ($data) {
             return $this->response($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
     public function checkPrice(Request $request)
