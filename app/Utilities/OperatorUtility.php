@@ -36,4 +36,16 @@ class OperatorUtility
                 return 'add';
         }
     }
+    public static function replaceSeparator($string, $decimal_separator = '.', $thousand_separator = ',') {
+        $string = str_replace($thousand_separator, '', $string);
+        $string = str_replace($decimal_separator, '.', $string);
+        return $string;
+    }
+    public static function regexMatch($raw_data, $regex)
+    {
+        preg_match($regex, $raw_data, $matches);
+        return count($matches) > 0 ? $matches[0] : null;
+    }
+
+
 }

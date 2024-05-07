@@ -23,6 +23,9 @@ use App\Http\Controllers\Api\Master\SapUnitController;
 use App\Http\Controllers\Api\Business\DeliveryController;
 use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
+use App\Http\Controllers\Api\Business\CheckDataController;
+use App\Http\Controllers\Api\Business\SoDataController;
+
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
 use App\Http\Controllers\Api\Master\UserController;
@@ -30,12 +33,16 @@ use App\Http\Controllers\Api\Master\OrderReviewOptionController;
 use App\Http\Controllers\Api\Master\CustomerMaterialController;
 use App\Http\Controllers\Api\Master\CustomerGroupPivotController;
 use App\Http\Controllers\Api\Master\CustomerPromotionController;
-
-
+use App\Http\Controllers\Api\Master\CustomerPartnerController;
+use App\Http\Controllers\Api\Master\SapComplianceController;
 use App\Http\Controllers\Api\Master\MasterDataController;
+use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
+use App\Http\Controllers\Api\Master\MaterialComboController;
+use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Models\Business\Delivery;
 use App\Models\Business\UploadedFile;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +70,28 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
     });
     Route::prefix('master')->group(function () {
+        Route::prefix('/material-donateds')->group(function () {
+            Route::get('/', [MaterialDonatedController::class, 'getAll']);
+            Route::get('/minified', [MaterialDonatedController::class, 'getAllMinified']);
+            Route::post('/excel', [MaterialDonatedController::class, 'createMaterialDonatedFormExcel']);
+            Route::post('/', [MaterialDonatedController::class, 'store']);
+            Route::put('/{id}', [MaterialDonatedController::class, 'update']);
+            Route::delete('/{id}', [MaterialDonatedController::class, 'destroy']);
+        });
+        Route::prefix('/material-combos')->group(function () {
+            Route::get('/minified', [MaterialComboController::class, 'getAllMinified']);
+            Route::get('/', [MaterialComboController::class, 'getAll']);
+            Route::post('/excel', [MaterialComboController::class, 'createMaterialComboFormExcel']);
+            Route::post('/', [MaterialComboController::class, 'store']);
+            Route::put('/{id}', [MaterialComboController::class, 'update']);
+            Route::delete('/{id}', [MaterialComboController::class, 'destroy']);
+        });
+        Route::prefix('/material-category')->group(function () {
+            Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
+            Route::post('/', [MaterialCategoryTypeController::class, 'createNewCategoryType']);
+            Route::put('/{id}', [MaterialCategoryTypeController::class, 'updateExistingCategoryType']);
+            Route::delete('/{id}', [MaterialCategoryTypeController::class, 'deleteExistingCategoryType']);
+        });
         Route::prefix('/warehouses')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
             Route::get('/active', [WarehouseController::class, 'getAvailableWarehousesActive']);
@@ -145,11 +174,21 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [SapUnitController::class, 'updateExistingSapUnit']);
             Route::delete('/{id}', [SapUnitController::class, 'deleteExistingSapUnit']);
         });
+        Route::prefix('/sap-compliances')->group(function () {
+            Route::get('/minified', [SapComplianceController::class, 'getAvailableSapCompliancesMinified']);
+            Route::get('/', [SapComplianceController::class, 'getAvailableSapCompliances']);
+            Route::post('/excel', [SapComplianceController::class, 'createSapComplianceFormExcel']);
+            Route::post('/', [SapComplianceController::class, 'createNewSapCompliance']);
+            Route::put('/{id}', [SapComplianceController::class, 'updateExistingSapCompliance']);
+            Route::delete('/{id}', [SapComplianceController::class, 'deleteExistingSapCompliance']);
+        });
+
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+
         });
         Route::prefix('/order-review-options')->group(function () {
             Route::get('/', [OrderReviewOptionController::class, 'getAvailableOrderReviewOptions']);
@@ -178,6 +217,14 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
+        });
+        Route::prefix('/customer-partners')->group(function () {
+            Route::get('/minified', [CustomerPartnerController::class, 'getAvailableCustomerPartnersMinified']);
+            Route::get('/', [CustomerPartnerController::class, 'getAvailableCustomerPartners']);
+            Route::post('/', [CustomerPartnerController::class, 'createNewCustomerPartner']);
+            Route::post('/excel', [CustomerPartnerController::class, 'createCustomerPartnerFormExcel']);
+            Route::put('/{id}', [CustomerPartnerController::class, 'updateExistingCustomerPartner']);
+            Route::delete('/{id}', [CustomerPartnerController::class, 'deleteExistingCustomerPartner']);
         });
 
         Route::prefix('/customer-promotions')->group(function () {
@@ -253,6 +300,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/file/{id}', [AiController::class, 'extractOrderFromUploadedFile']);
             Route::post('/', [AiController::class, 'extractOrder']);
             Route::post('/reconvert/{id}', [AiController::class, 'reconvertUploadedFile']);
+            Route::post('test', [AiController::class, 'extractOrderDirect']);
         });
         Route::prefix('config')->group(function () {
             Route::get('/customer-groups', [AiController::class, 'getExtractOrderConfigs']);
@@ -270,6 +318,22 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);
         });
+
+    });
+
+    Route::prefix('sales-order')->group(function () {
+        Route::post('convert-orders', [AiController::class, 'extractOrderDirect']);
+        Route::post('save-so', [SoDataController::class, 'saveSoData']);
+        Route::put('/{id}', [SoDataController::class, 'updateSoData']);
+        Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
+        Route::get('/{id}', [SoDataController::class, 'getSoData']);
+        Route::get('/', [SoDataController::class, 'getOrderProcessList']);
+    });
+    Route::prefix('check-data')->group(function () {
+        Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);
+        Route::post('check-promotion', [CheckDataController::class, 'checkPromotions']);
+        Route::post('check-inventory', [CheckDataController::class, 'checkInventory']);
+        Route::post('check-price', [CheckDataController::class, 'checkPrice']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {
@@ -287,6 +351,7 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [RawSoController::class, 'deleteRawSoItem']);
         });
     });
+    Route::post('/expand-left-menu', [UserController::class, 'expandLeftMenuUser']);
 });
 
 //api

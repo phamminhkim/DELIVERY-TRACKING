@@ -2,12 +2,14 @@
 
 namespace App\Repositories\Master;
 
-use App\Models\System\Role;
 use App\User;
-use App\Repositories\Abstracts\RepositoryAbs;
+use App\Models\System\Role;
+use App\Utilities\MenuUtility;
 use App\Utilities\RedisUtility;
+use App\Models\Shared\ConfigUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\Abstracts\RepositoryAbs;
 
 class UserRepository extends RepositoryAbs
 {
@@ -132,5 +134,48 @@ class UserRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    public function expandLeftMenu()
+    {
+      
+ 
+      $validator = Validator::make($this->request->all(), [
+        'code' => 'required',
+        'value' => 'required',
+      ]);
+      $failed = $validator->fails();
+      if ($failed) {
+        $this->errors =  $validator->errors();
+        // $result['data']['errors']  = $validator->errors();
+      } else {
+        $code = $this->request->code;
+        switch ($code) {
+          case MenuUtility::$EXPAND_LEFT_MENU:
+  
+            $expand = ConfigUser::where('user_id', auth()->user()->id)
+              ->where('code', 'expand_menu')->first();
+  
+            if ($expand == null) {
+              $expand = new ConfigUser;
+              //dd("test");
+              $expand->code = MenuUtility::$EXPAND_LEFT_MENU;
+              $expand->value =  $this->request->value;
+              $expand->user_id = auth()->user()->id;
+  
+              $expand->save();
+            } else {
+  
+              $expand->value = $this->request->value;
+              $expand->save();
+            }
+            break;
+        }
+        return $expand;
+        // $result['data']['success']  = 1;
+        // $result['data']['config']  = $expand;
+      }
+      return null;
+  
+    //  return json_encode($result, JSON_UNESCAPED_UNICODE); //Response($result);
     }
 }

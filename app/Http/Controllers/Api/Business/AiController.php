@@ -38,6 +38,18 @@ class AiController extends ResponseController
         }
     }
 
+    public function extractOrderDirect(Request $request)
+    {
+        $handler = BusinessRepository::aiRequestDirect($request);
+        $data = $handler->extractOrderDirect();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
     public function extractOrderFromUploadedFile(Request $request, $id)
     {
         $handler = BusinessRepository::aiRequest($request);
@@ -49,6 +61,7 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
 
     public function reconvertUploadedFile(Request $request, $id)
     {

@@ -51,28 +51,28 @@ class RouterSeeder extends Seeder
                 'component' => 'home/business/OrderExtractConfigs'
             ],
 
-            [
-                'name' => 'Danh sách file',
-                'path' => '/order-file-uploads',
-                'component' => 'home/business/OrderFileUploads'
-            ],
+            // [
+            //     'name' => 'Danh sách file',
+            //     'path' => '/order-file-uploads',
+            //     'component' => 'home/business/OrderFileUploads'
+            // ],
 
-            [
-                'name' => 'Khách hàng liên kết',
-                'path' => '/customer-group-pivots',
-                'component' => 'home/sap/CustomerGroupPivots'
-            ],
-            [
-                'name' => 'Khách hàng khuyến mãi',
-                'path' => '/customer-promotions',
-                'component' => 'home/sap/CustomerPromotion'
-            ],
+            // [
+            //     'name' => 'Khách hàng liên kết',
+            //     'path' => '/customer-group-pivots',
+            //     'component' => 'home/sap/CustomerGroupPivots/CustomerGroupPivots'
+            // ],
+            // [
+            //     'name' => 'Khách hàng khuyến mãi',
+            //     'path' => '/customer-promotions',
+            //     'component' => 'home/sap/CustomerPromotion/CustomerPromotion'
+            // ],
 
-            [
-                'name' => 'Upload đơn hàng',
-                'path' => '/order-uploads',
-                'component' => 'home/business/OrderUploads'
-            ],
+            // [
+            //     'name' => 'Upload đơn hàng',
+            //     'path' => '/order-uploads',
+            //     'component' => 'home/business/OrderUploads'
+            // ],
 
             // Master Data
             [
@@ -123,24 +123,52 @@ class RouterSeeder extends Seeder
             [
                 'name' => 'Bảng mapping SAP',
                 'path' => '/sap-material-mappings',
-                'component' => 'home/sap/SapMaterialMapping'
+                'component' => 'home/sap/SapMaterialMapping/SapMaterialMapping'
             ],
             [
                 'name' => 'Sản phẩm SAP',
                 'path' => '/sap-materials',
-                'component' => 'home/sap/SapMaterials'
+                'component' => 'home/sap/SapMaterial/SapMaterials'
             ],
             [
                 'name' => 'Nhóm khách hàng',
                 'path' => '/customer-groups',
                 'component' => 'home/master/CustomerGroup'
-            ]
+            ],
+            [
+                'name' => 'Xử lý đơn hàng',
+                'path' => '/order-processes',
+                'component' => 'home/business/OrderProcesses'
+            ],
+            [
+                'name' => 'KM combo',
+                'path' => '/material-combos',
+                'component' => 'home/sap/MaterialCombo/MaterialCombos'
+            ],
+            [
+                'name' => 'KM hàng tặng hàng',
+                'path' => '/material-donateds',
+                'component' => 'home/sap/MaterialDonated/MaterialDonateds'
+            ],
+            [
+                'name' => 'Khách hàng đối tác',
+                'path' => '/customer-partners',
+                'component' => 'home/sap/CustomerPartner/CustomerPartners'
+            ],
 
         ];
 
-        foreach ($routes as $route) {
-            if (!Route::where('path', $route['path'])->where('component', $route['component'])->exists()) {
-                Route::create($route);
+        foreach ($routes as $routeData) {
+            $route = Route::where('path', $routeData['path'])->first();
+
+            if ($route) {
+                // Kiểm tra nếu component đã thay đổi
+                if ($route->component !== $routeData['component']) {
+                    $route->component = $routeData['component'];
+                    $route->save();
+                }
+            } else {
+                Route::create($routeData);
             }
         }
 
@@ -152,8 +180,10 @@ class RouterSeeder extends Seeder
     public function assignRouteIntoMenuRouter()
     {
         $menu_routers = MenuRouter::all();
+
         foreach ($menu_routers as $menu_router) {
             $route = Route::where('path', '/' . $menu_router->link)->first();
+
             if ($route) {
                 $menu_router->route_id = $route->id;
                 $menu_router->save();

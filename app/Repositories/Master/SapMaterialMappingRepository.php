@@ -84,7 +84,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                         })
                         ->first();
                     if (!$sap_material) {
-                        $this->errors[] = 'Không tìm thấy mã hàng sap (' . $material['sap_material_code'] . ') với đơn vị tính (' . $material['sap_material_unit'] . ')';
+                        $this->errors[] = 'Không tìm thấy mã hàng sap (' . $material['sap_material_code'] . ') với đơn vị tính (' . $material['sap_material_unit'] .  ')';
                         // $exist_sap_material = SapMaterial::query()
                         //     ->where('sap_code', $material['sap_material_code'])
                         //     ->first();
@@ -106,7 +106,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
                     if ($newTotalPercentage > 100) {
                         $this->errors[] = 'Mã hàng khách hàng ' . $material['customer_material_sku_code'] . ' đã được map với mã hàng SAP với tổng tỷ lệ đã đủ/vượt quá 100%';
-                        break;
+                        continue;
                     }
 
                     $sap_material_mapping = SapMaterialMapping::create([
@@ -290,9 +290,20 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 },
             ]);
 
-            $sapMaterialMappings = $query->orderBy('id', 'desc')->get();
+            $sapMaterialMappings = $query->paginate(PHP_INT_MAX);
 
-            return $sapMaterialMappings;
+            $result = [
+                'data' => $sapMaterialMappings->items(),
+                'per_page' => $sapMaterialMappings->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $sapMaterialMappings->currentPage(),
+                'last_page' => $sapMaterialMappings->lastPage(),
+                'total' => $sapMaterialMappings->total(),
+            ];
+
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -589,14 +600,14 @@ class SapMaterialMappingRepository extends RepositoryAbs
 
             $new_total_percent = $total_existing_percent - $sap_material_mapping->percentage + $customerMaterialData['percentage'];
 
-            if ($new_total_percent > 100) {
-                $this->errors = [
-                    'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
-                    'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
-                    'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
-                ];
-                return false; // Stop updating the item and display the error message
-            }
+            // if ($new_total_percent > 100) {
+            //     $this->errors = [
+            //         'percentage' => 'Tổng tỷ lệ sản phẩm vượt quá 100.',
+            //         'customer_sku_code' => 'Mã SKU khách hàng đã tồn tại trong ' . $customer_group->name,
+            //         'customer_sku_unit' => 'Mã Unit khách hàng đã tồn tại trong ' . $customer_group->name,
+            //     ];
+            //     return false; // Stop updating the item and display the error message
+            // }
             // Bắt đầu giao dịch
             DB::beginTransaction();
 

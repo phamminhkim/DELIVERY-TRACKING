@@ -21,8 +21,9 @@ class DatabaseSeeder extends Seeder
         $this->call(ExternalDeliveryPartnerSeeder::class);
         $this->call(RegexPatternSeeder::class);
         $this->call(PublicHolidaySeeder::class);
-        $this->call(ExtractOrderConfigSeeder::class);
+        // $this->call(ExtractOrderConfigSeeder::class);
         $this->call(ExtractErrorsSeeder::class);
         $this->call(FileStatusesSeeder::class);
+        $this->call(MaterialCategorySeeder::class);
     }
 }

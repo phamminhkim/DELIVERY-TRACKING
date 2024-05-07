@@ -23,6 +23,11 @@ use App\Repositories\Master\SapUnitRepository;
 use App\Repositories\Master\CustomerMaterialRepository;
 use App\Repositories\Master\CustomerGroupPivotRepository;
 use App\Repositories\Master\CustomerPromotionRepository;
+use App\Repositories\Master\MaterialCategoryTypeRepository;
+use App\Repositories\Master\MaterialComboRepository;
+use App\Repositories\Master\MaterialDonatedRepository;
+use App\Repositories\Master\CustomerPartnerRepository;
+use App\Repositories\Master\SapComplianceRepository;
 
 use Illuminate\Http\Request;
 
@@ -109,5 +114,25 @@ class MasterRepository
     public static function customerPromotionRequest(Request $request)
     {
         return new CustomerPromotionRepository($request);
+    }
+    public static function materialCategoryTypeRequest(Request $request)
+    {
+        return new MaterialCategoryTypeRepository($request);
+    }
+    public static function materialDonatedRequest(Request $request)
+    {
+        return new MaterialDonatedRepository($request);
+    }
+    public static function materialComboRequest(Request $request)
+    {
+        return new MaterialComboRepository($request);
+    }
+    public static function customerPartnerRequest(Request $request)
+    {
+        return new CustomerPartnerRepository($request);
+    }
+    public static function sapComplianceRequest(Request $request)
+    {
+        return new SapComplianceRepository($request);
     }
 }

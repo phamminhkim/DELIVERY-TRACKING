@@ -121,6 +121,30 @@ class UploadedFileRepository extends RepositoryAbs
 
         return $excelData;
     }
+
+    // public function getDataForMapping($id)
+    // {
+    //     try {
+    //         $query = UploadedFile::query();
+
+    //         // Lọc các tệp lỗi chưa có dữ liệu ánh xạ và có ID trong danh sách được cung cấp
+    //         $query->whereHas('file_extract_error', function ($query) {
+    //             $query->whereDoesntHave('log');
+    //         })->whereIn('id', $id);
+
+    //         $query
+    //             ->with(['file_extract_error.extract_error'])
+    //             ->orderBy('created_at', 'desc');
+
+    //         $files = $query->get();
+
+    //         return response()->json(['files' => $files], 200);
+    //     } catch (\Exception $exception) {
+    //         return response()->json(['message' => $exception->getMessage()], 500);
+    //     }
+    // }
+
+
     public function prepareUploadFile()
     {
         try {
@@ -179,8 +203,12 @@ class UploadedFileRepository extends RepositoryAbs
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            DB::rollBack();
+            return false;
         }
     }
+
+
 
     public function uploadFile()
     {
@@ -198,7 +226,9 @@ class UploadedFileRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
             } else {
+
                 $new_status = FileStatus::where('code', FileStatuses::NEW)->first();
+
                 DB::beginTransaction();
                 $file = $this->request->file('file');
                 $file_path = $this->file_service->saveProtectedFile($file, $this->current_user->id, $this->data['batch_id']);
@@ -214,9 +244,11 @@ class UploadedFileRepository extends RepositoryAbs
                 return $uploaded_file;
             }
         } catch (\Throwable $exception) {
-            DB::rollBack();
+            // DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            DB::rollBack();
+            return false;
         }
     }
 

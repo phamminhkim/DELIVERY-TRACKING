@@ -1,0 +1,226 @@
+<?php
+
+namespace App\Repositories\Business;
+
+use App\Enums\File\FileStatuses;
+use App\Models\Business\FileStatus;
+use App\Repositories\Abstracts\RepositoryAbs;
+use App\Models\Business\SoHeader;
+use App\Models\Business\SoDataItem;
+use App\Models\Business\OrderProcess;
+use App\Models\Business\UploadedFile;
+use App\Utilities\UniqueIdUtility;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class SoDataRepository extends RepositoryAbs
+{
+    public function __construct($request)
+    {
+        parent::__construct($request);
+    }
+
+    public function saveSoData()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'title' => 'required',
+            ], [
+                'title.required' => 'Title là bắt buộc',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $current_user_id = $this->current_user->id;
+                $serial_number = UniqueIdUtility::generateSerialUniqueNumber('Order');
+                $order_process = OrderProcess::create([
+                    'customer_group_id' => $this->data['customer_group_id'],
+                    'serial_number' => $serial_number,
+                    'title' => $this->data['title'],
+                    'created_by' => $current_user_id,
+                    'updated_by' => $current_user_id,
+                ]);
+                if ($order_process->id) {
+                    $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                        $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
+                            $so_header = SoHeader::create([
+                                'order_process_id' => $order_process->id,
+                                'customer_name' => $key,
+                                'customer_code' => $so_items[0]['customer_code'],
+                                'note' => $so_items[0]['note1'],
+                                'level2' => $so_items[0]['level2'],
+                                'level3' => $so_items[0]['level3'],
+                                'level4' => $so_items[0]['level4'],
+                            ]);
+                            $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
+                            $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
+                                $date_now = now();
+                                return [
+                                    'so_number' => $so_number,
+                                    'order_process_id' => $order_process->id,
+                                    'so_header_id' => $so_header->id,
+                                    'barcode' => $item['barcode'],
+                                    'sku_sap_code' => $item['sku_sap_code'],
+                                    'sku_sap_name' => $item['sku_sap_name'],
+                                    'sku_sap_unit' => $item['sku_sap_unit'],
+                                    'is_promotive' => $item['is_promotive'],
+                                    'promotive_name' => $item['promotive_name'],
+                                    'note' => $item['note'],
+                                    'customer_sku_code' => $item['customer_sku_code'],
+                                    'customer_sku_name' => $item['customer_sku_name'],
+                                    'customer_sku_unit' => $item['customer_sku_unit'],
+                                    'quantity1_po' => $item['quantity1_po'],
+                                    'quantity2_po' => $item['quantity2_po'],
+                                    'is_inventory' => $item['is_inventory'],
+                                    'inventory_quantity' => $item['inventory_quantity'],
+                                    'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
+                                    'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
+                                    'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
+                                    'created_at' => $date_now,
+                                    'updated_at' => $date_now,
+                                ];
+                            });
+                        SoDataItem::insert($so_data_items->toArray());
+                        });
+                    });
+                }
+                DB::commit();
+                $order_process->load(['so_data_items', 'so_data_items.so_header']);
+                return $order_process;
+            }
+            return false;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function updateSoData($id){
+        try {
+            $validator = Validator::make($this->data, [
+                'title' => 'required',
+            ], [
+                'title.required' => 'Title là bắt buộc',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $current_user_id = $this->current_user->id;
+                $order_process = OrderProcess::findOrFail($id);
+
+                // Xóa tất cả so_data_items và so_headers của order_process
+                $order_process->so_data_items()->delete();
+                $order_process->so_headers()->delete();
+                $order_process->updated_by = $current_user_id;
+                $order_process->title = $this->data['title'];
+                $order_process->customer_group_id = $this->data['customer_group_id'];
+                $order_process->updated_at = now();
+                $order_process->save();
+                // Tạo lại so_data_items và so_headers
+                $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                    $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
+                        $so_header = SoHeader::create([
+                            'order_process_id' => $order_process->id,
+                            'customer_name' => $key,
+                            'customer_code' => $so_items[0]['customer_code'],
+                            'note' => $so_items[0]['note1'],
+                            'level2' => $so_items[0]['level2'],
+                            'level3' => $so_items[0]['level3'],
+                            'level4' => $so_items[0]['level4'],
+                        ]);
+                        $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
+                        $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
+                            $date_now = now();
+                            return [
+                                'so_number' => $so_number,
+                                'order_process_id' => $order_process->id,
+                                'so_header_id' => $so_header->id,
+                                'barcode' => $item['barcode'],
+                                'sku_sap_code' => $item['sku_sap_code'],
+                                'sku_sap_name' => $item['sku_sap_name'],
+                                'sku_sap_unit' => $item['sku_sap_unit'],
+                                'is_promotive' => $item['is_promotive'],
+                                'promotive_name' => $item['promotive_name'],
+                                'note' => $item['note'],
+                                'customer_sku_code' => $item['customer_sku_code'],
+                                'customer_sku_name' => $item['customer_sku_name'],
+                                'customer_sku_unit' => $item['customer_sku_unit'],
+                                'quantity1_po' => $item['quantity1_po'],
+                                'quantity2_po' => $item['quantity2_po'],
+                                'is_inventory' => $item['is_inventory'],
+                                'inventory_quantity' => $item['inventory_quantity'],
+                                'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
+                                'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
+                                'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
+                                'created_at' => $date_now,
+                                'updated_at' => $date_now,
+                            ];
+                        });
+                    SoDataItem::insert($so_data_items->toArray());
+                    });
+                });
+                DB::commit();
+                $order_process->load(['so_data_items', 'so_data_items.so_header']);
+                return $order_process;
+            }
+            return false;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function getSoData($id){
+        try {
+                $order_process = OrderProcess::findOrFail($id);
+                $order_process->load(['so_data_items', 'so_data_items.so_header']);
+                return $order_process;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function deleteSoData($id){
+        try {
+            $validator = Validator::make($this->data, [], []);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $current_user_id = $this->current_user->id;
+                DB::beginTransaction();
+                $order_process = OrderProcess::findOrFail($id);
+                $order_process->is_deleted = true;
+                $order_process->updated_by = $current_user_id;
+                $order_process->save();
+                DB::commit();
+                return true;
+            }
+            return false;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function getOrderProcessList(){
+        try {
+            $validator = Validator::make($this->data, [], []);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                $current_user_id = $this->current_user->id;
+                $order_processes = OrderProcess::where('is_deleted', false)
+                    ->where('created_by', $current_user_id)
+                    ->orderBy('updated_at', 'desc')->get();
+                $order_processes->load(['created_by', 'updated_by', 'customer_group']);
+                return $order_processes;
+            }
+            return false;
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+}

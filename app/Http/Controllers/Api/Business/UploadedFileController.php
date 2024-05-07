@@ -31,6 +31,17 @@ class UploadedFileController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    // public function getDataForMapping(Request $request, $id)
+    // {
+    //     $handler = BusinessRepository::uploadedFileRequest($request);
+    //     $data = $handler->getDataForMapping($id);
+
+    //     if ($data) {
+    //         return $this->responseSuccess($data);
+    //     } else {
+    //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+    //     }
+    // }
 
     public function uploadFile(Request $request)
     {
@@ -40,7 +51,7 @@ class UploadedFileController extends ResponseController
         if ($data) {
             return $this->responseSuccess($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 
@@ -52,7 +63,7 @@ class UploadedFileController extends ResponseController
         if ($data) {
             return $this->responseSuccess($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 

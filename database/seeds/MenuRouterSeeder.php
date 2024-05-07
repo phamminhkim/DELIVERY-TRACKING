@@ -37,6 +37,7 @@ class MenuRouterSeeder extends Seeder
 
         foreach ($this->getMenuLevel2() as $menu) {
             $existing_menu = MenuRouter::where('title', $menu['title'])->where('link', $menu['link'])->first();
+
             if (!$existing_menu) {
                 $menu['order'] = $order++;
                 $menu['parent_id'] = MenuRouter::where('title', $menu['parent'])->first()->id;
@@ -55,7 +56,6 @@ class MenuRouterSeeder extends Seeder
             $existing_menu->guard_name = 'web';
             $existing_menu->assignRole($roles);
         }
-
         $transformer = new NestedSetSync();
         $transformer->traverseUpdate();
         RedisUtility::deleteByCategory('menu-tree');
@@ -289,45 +289,71 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Quản trị hệ thống',
             ],
 
-            [
-                'title' => "Danh sách file",
-                'icon' => "fas fa-pencil-square-o",
-                'link' => "order-file-uploads",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Danh sách file",
+            //     'icon' => "fas fa-pencil-square-o",
+            //     'link' => "order-file-uploads",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
 
-            [
-                'title' => "Khách hàng liên kết",
-                'icon' => "fas fa-wrench",
-                'link' => "customer-group-pivots",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
-            [
-                'title' => "Khách hàng khuyến mãi",
-                'icon' => "fas fa-project-diagram	",
-                'link' => "customer-promotions",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Khách hàng liên kết",
+            //     'icon' => "fas fa-wrench",
+            //     'link' => "customer-group-pivots",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
+            // [
+            //     'title' => "Khách hàng khuyến mãi",
+            //     'icon' => "fas fa-project-diagram	",
+            //     'link' => "customer-promotions",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
 
-            [
-                'title' => "Upload đơn hàng",
-                'icon' => "fas fa-upload",
-                'link' => "order-uploads",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Upload đơn hàng",
+            //     'icon' => "fas fa-upload",
+            //     'link' => "order-uploads",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
             [
                 'title' => "Nhóm khách hàng",
                 'icon' => "fas fa-id-card-alt",
                 'link' => "customer-groups",
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
+            ],
+            [
+                'title' => "Xử lý đơn hàng",
+                'icon' => "fas fa-tasks",
+                'link' => "order-processes",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "KM combo",
+                'icon' => "fas fa-gift",
+                'link' => "material-combos",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "KM hàng tặng hàng",
+                'icon' => "fas fa-gift",
+                'link' => "material-donateds",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Khách hàng đối tác",
+                'icon' => "fas fa-handshake",
+                'link' => "customer-partners",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
             ]
-
-
         ];
     }
 }
