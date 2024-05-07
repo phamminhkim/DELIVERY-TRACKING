@@ -124,6 +124,8 @@
                     <div class="modal-footer justify-content-center border-0">
                         <button type="button" class="btn btn-sm py-1 btn-light px-3 text-secondary font-weight-bold w-25"
                             @click="hideModalCategoryType(index)"><i class="fas fa-clone mr-2"></i>Đóng</button>
+                            <button type="button" class="btn btn-sm py-1 btn-light px-3 text-secondary font-weight-bold w-25"
+                            @click="onChangeCategoryType(modal_index, null)"><i class="fas fa-clone mr-2"></i>Xóa chọn</button>
                     </div>
                 </div>
             </div>

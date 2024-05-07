@@ -574,10 +574,21 @@ export default {
         },
         updateMaterialCategoryTypeInOrder(index, item, order) {
             this.orders.forEach((item_order, index) => {
-                if (item_order.promotive != item.name && item_order.customer_sku_code == order.customer_sku_code) {
-                    item_order.promotive = item.name;
-                    item_order.promotive_name = item.name;
+
+                if (item_order.customer_sku_code == order.customer_sku_code) {
+                    if(item){
+                       if(item_order.promotive != item.name)  {
+                        item_order.promotive = item.name;
+                        item_order.promotive_name = item.name;
+                       }
+                    }else{
+                        item_order.promotive = '';
+                        item_order.promotive_name = '';
+                        
+                    }
+                   
                 }
+              
             });
             // if (this.orders[index].promotive != item.name) {
             //     this.orders[index].promotive = item.name;
@@ -692,7 +703,7 @@ export default {
                 return {
                     'Số SO': item.customer_name + (item.promotive_name == null ? '' : item.promotive_name),
                     'Mã khách hàng': item.customer_code,
-                    'Mã sản phẩm': item.customer_sku_code,
+                    'Mã sản phẩm': item.sku_sap_code,
                     'Số lượng': (item.quantity2_po * item.quantity1_po),
                     'Đơn vị tính': item.sku_sap_unit,
                     'Combo': item.promotive_name,

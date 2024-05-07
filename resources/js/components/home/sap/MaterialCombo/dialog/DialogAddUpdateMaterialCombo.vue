@@ -34,6 +34,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
+							<small class="text-danger">*</small>
 							<treeselect
 								:multiple="false"
 								id="customer_group_id"
@@ -56,6 +57,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Mã sản phẩm</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="material_combo.sap_code"
 								class="form-control"
@@ -79,6 +81,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Tên sản phẩm</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="material_combo.name"
 								class="form-control"
@@ -102,6 +105,7 @@
                     <div class="modal-body">
 						<div class="form-group">
 							<label>Mã Barcode</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="material_combo.bar_code"
 								class="form-control"
