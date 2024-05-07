@@ -34,6 +34,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Nhóm khách hàng</label>
+							<small class="text-danger">*</small>
 							<treeselect
 								:multiple="false"
 								id="customer_group_id"
@@ -82,6 +83,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Mã khách hàng</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="customer_partner.code"
 								class="form-control"
@@ -105,6 +107,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Ghi chú</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="customer_partner.note"
 								class="form-control"
