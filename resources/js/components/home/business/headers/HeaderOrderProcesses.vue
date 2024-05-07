@@ -93,6 +93,7 @@
                 <button type="button" v-on:click="handleCheckInventory"
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     tồn</button>
+              
                 <input type="file" ref="file_check_ton" style="display: none" accept=".xls,.xlsx"
                     @change="eventChooseFile($event)" class="shadow btn-sm btn-light text">
                 <input type="file" ref="file_check_price" style="display: none" accept=".xls,.xlsx"
@@ -122,9 +123,18 @@
                 <button @click="emitSaveOrderProcess()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-save mr-2"></i>Lưu</button>
-
-
             </div>
+            <div class="row">
+                <div class="col-3">
+                    <div class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Kho</span>
+                        </div>
+                        <input type="text" v-model="warehouse_code"  class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1">
+                        </div>
+                </div>
+            </div>
+       
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
@@ -185,6 +195,7 @@ export default {
             is_loading: false,
             is_open_modal_search_order_processes: false,
             data_excels: [],
+
             is_case_loading: {
                 extract_pdf: false,
                 extract_client: false,
@@ -223,6 +234,7 @@ export default {
             customer_groups: [],
             extract_order_configs: [],
             warehouses: [],
+            warehouse_code:"",
             api_sap_materials: 'api/master/sap-materials',
             api_customer_groups: 'api/master/customer-groups',
             api_warehouses: 'api/master/warehouses',
@@ -310,16 +322,15 @@ export default {
             try {
                 var form_data = new FormData();
                 form_data.append('file', file);
-                form_data.append('warehouse_code', '3101');
+                form_data.append('warehouse_code', this.warehouse_code);
 
-                const { data } = await this.api_handler.post(this.api_check_inventory, {}, form_data);
-                if (data.success == true) {
-                    this.$emit('getInventory', data.inventory);
+                const data = await this.api_handler.post(this.api_check_inventory, {},   form_data);
+                
+                if (data.data && data.data.success == true ) {
+                    this.$emit('getInventory', data.data.inventory);
                 } else {
-                    this.$showMessage('error', 'Lỗi');
+                    this.$showMessage('error', data.message);
                 }
-
-
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -353,6 +364,7 @@ export default {
             this.resetEventTargetFile(event);
         },
         async eventChooseFile(event) {
+        
             await this.fetchCheckInventory(event.target.files[0]);
             this.resetEventTargetFile(event);
         },
@@ -410,6 +422,11 @@ export default {
         },
 
         handleCheckInventory() {
+            
+            if (this.warehouse_code === '') {
+                alert("Vui lòng nhập mã kho");
+                return;
+            }
             this.$refs.file_check_ton.click();
         },
         mappingCheckInventory(data) {
