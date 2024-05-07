@@ -200,7 +200,7 @@
 						bar_code: this.material_combo.bar_code,
                         name: this.material_combo.name,
 					});
-					if (!data.success) {
+					if (!data.errors) {
 						if (Array.isArray(data)) {
 							this.material_combos.push(...data); // Add the new mappings to the end of the list
 						}
