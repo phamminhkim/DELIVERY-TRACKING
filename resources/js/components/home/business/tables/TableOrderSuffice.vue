@@ -606,9 +606,9 @@ export default {
             }
             let exits = false;
             this.case_index.copys.forEach((element, index) => {
-                if (element == item) {
-                    exits = true;
-                }
+                // if (element == item) {
+                //     exits = true;
+                // }
             });
             if (!exits) {
                 this.case_index.copys.push(item);

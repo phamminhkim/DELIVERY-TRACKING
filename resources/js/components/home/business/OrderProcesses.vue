@@ -258,6 +258,9 @@ export default {
             this.case_save_so.customer_group_id = item.customer_group_id;
             this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
             item.so_data_items.forEach(data_item => {
+               
+              
+                var   variant_quantity =  this.convertToNumber(data_item.inventory_quantity)  - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
                 if (data_item.is_inventory == true) {
                     this.case_data_temporary.order_lacks.push({
                         id: data_item.id,
@@ -286,6 +289,7 @@ export default {
                         quantity1_po: data_item.quantity1_po,
                         quantity2_po: data_item.quantity2_po,
                         customer_name: data_item.so_header.customer_name,
+                         variant_quantity: variant_quantity,
                         promotion_category: '',
                     });
                 } else {
@@ -316,6 +320,7 @@ export default {
                         quantity1_po: data_item.quantity1_po,
                         quantity2_po: data_item.quantity2_po,
                         customer_name: data_item.so_header.customer_name,
+                        variant_quantity: variant_quantity,
                         promotion_category: '',
 
                     });

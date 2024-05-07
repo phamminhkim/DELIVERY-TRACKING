@@ -35,6 +35,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Mã sản phẩm</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="material_donated.sap_code"
 								class="form-control"
@@ -58,6 +59,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Tên sản phẩm</label>
+							<small class="text-danger">*</small>
 							<input
 								v-model="material_donated.name"
 								class="form-control"
