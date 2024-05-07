@@ -57,4 +57,16 @@ class UserController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function expandLeftMenuUser(Request $request)
+    {
+        
+        $handler = MasterRepository::UserRequest($request);
+        $is_success = $handler->expandLeftMenu();
+
+        if ($is_success) {
+            return $this->responseOk('success');
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

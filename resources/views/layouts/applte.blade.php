@@ -35,6 +35,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 'access_token' => $access_token,
                 'routes' => $routes,
                 'current_user' => Auth::user(),
+                'expand_menu_value' => $expand_menu_value,
             ]) !!};
         } catch (err) {
 
@@ -42,12 +43,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </script>
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="{{ $expand_menu }}" >
     <div class="wrapper" id="app">
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
+            <a class="nav-link" data-widget="pushmenu" onclick="showHideLeftMenu()" href="#" role="button"><i
                     class="fas fa-bars text-secondary"></i></a>
 
             <router-link to="/dashboard" class="navbar-brand">
@@ -153,7 +154,47 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="/template/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="/template/js/adminlte.min.js"></script>
+    <script>
+        function showHideLeftMenu() {
+            // alert(window.Laravel.expand_menu);
+            if (window.Laravel.expand_menu_value == 1) {
+                $('body').addClass('sidebar-collapse');
+                //$('#menu_hotline').removeClass("show-hotline")
+                $('#menu_hotline').addClass("show-hotline");;
+                $('#menu_hotline').removeClass("hide-hotline")
+                window.Laravel.expand_menu_value = 0;
 
+            } else {
+                $('body').removeClass('sidebar-collapse');
+                $('#menu_hotline').removeClass("show-hotline");
+                $('#menu_hotline').addClass("hide-hotline");
+                window.Laravel.expand_menu_value = 1;
+
+            }
+            var data = {
+                'code': 'expand_menu',
+                'value': window.Laravel.expand_menu_value
+            };
+            var page_url = '/api/expand-left-menu';
+
+            $.ajax({
+                type: 'post',
+                url: page_url,
+                data: data,
+                dataType: 'json',
+                headers: {
+                    "Authorization": 'Bearer ' + window.Laravel.access_token,
+                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                success: callback,
+            });
+
+
+        }
+        function callback(data, status) {
+            //Chưa xử lý
+        }
+    </script>
 </body>
 
 </html>

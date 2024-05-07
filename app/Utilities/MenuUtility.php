@@ -8,6 +8,7 @@ use App\User;
 
 class MenuUtility
 {
+    public static $EXPAND_LEFT_MENU = "expand_menu";
     public static function convertTreeToArray($menus, $parent_id = 0)
     {
         $tree_array = array();

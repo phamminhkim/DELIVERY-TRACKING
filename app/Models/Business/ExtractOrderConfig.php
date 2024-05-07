@@ -22,11 +22,14 @@ class ExtractOrderConfig extends Model
         'reference_id',
         'is_official',
         'is_convert_header',
+        'convert_file_type',
+        'active'
     ];
 
     protected $casts = [
         'is_official' => 'boolean',
-        'is_convert_header' => 'boolean'
+        'is_convert_header' => 'boolean',
+        'active' => 'boolean',
     ];
 
     public function customer_group()

@@ -17,6 +17,8 @@ class ExtractDataConfig extends Model
         'specify_table_number',
         'is_specify_table_area',
         'table_area_info',
+        'is_specify_advanced_settings',
+        'advanced_settings_info',
     ];
 
     protected $casts = [
@@ -26,6 +28,7 @@ class ExtractDataConfig extends Model
         'specify_table_number' => 'integer',
         'is_specify_table_area' => 'boolean',
         'table_area_info' => 'array',
+        'is_specify_advanced_settings' => 'boolean',
     ];
 
     public function customer_group()

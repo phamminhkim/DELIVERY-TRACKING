@@ -42,7 +42,37 @@ class CamelotExtractorService implements DataExtractorInterface
                 $instance->inAreas($areas);
             }
         }
-
+        // Xử lý cài đặt nâng cao
+        if ($options['is_specify_advanced_settings']) {
+            $advanced_settings_info = $options['advanced_settings_info'];
+            if (isset($advanced_settings_info->line_scale)) {
+                $instance->setLineScale($advanced_settings_info->line_scale);
+            }
+            if (isset($advanced_settings_info->shift_text)) {
+                $shift_text = $advanced_settings_info->shift_text;
+                $instance->shiftText($shift_text);
+            }
+            if (isset($advanced_settings_info->strip_text)) {
+                $strip_text = $advanced_settings_info->strip_text;
+                $instance->strip($strip_text);
+            }
+            if (isset($advanced_settings_info->split_text)) {
+                $split_text = (array) $advanced_settings_info->split_text;
+                $instance->setColumnSeparators($split_text);
+            }
+            if (isset($advanced_settings_info->flag_size)) {
+                $instance->flagSize($advanced_settings_info->flag_size);
+            }
+            if (isset($advanced_settings_info->copy_text)) {
+                $instance->copyTextSpanningCells($advanced_settings_info->copy_text);
+            }
+            if (isset($advanced_settings_info->edge_tol)) {
+                $instance->setEdgeTolerance($advanced_settings_info->edge_tol);
+            }
+            if (isset($advanced_settings_info->row_tol)) {
+                $instance->setRowTolerance($advanced_settings_info->row_tol);
+            }
+        }
         $table = $instance->extract();
         return $table;
     }

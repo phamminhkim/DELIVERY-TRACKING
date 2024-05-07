@@ -1,1 +1,497 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[11],{302:function(e,t,a){"use strict";a.r(t);var r=a(1),l=a.n(r),u=a(6),s={name:"SaleGroups",components:{Vue:l.a,CrudPage:u.default},data:function(){return{page_structure:{}}},created:function(){this.page_structure={header:{title:"SaleGroups",title_icon:"fas fa-truck"},table:{table_fields:[{key:"code",label:"Mã (code)",sortable:!0,class:"text-center"},{key:"name",label:"Tên Sale Group",sortable:!0,class:"text-nowrap text-center"}],table_cells:[]},form:{unique_name:"sale-groups",form_name:"Sale Groups",form_fields:[{label:"Mã (code)",placeholder:"Nhập mã..",key:"code",type:"text",required:!0},{label:"Tên sale group",placeholder:"Nhập tên sale group..",key:"name",type:"text",required:!0}]},api_url:"/api/master/sale-groups"}}},n=a(2),o=Object(n.a)(s,(function(){return(0,this._self._c)("CrudPage",{attrs:{structure:this.page_structure}})}),[],!1,null,null,null);t.default=o.exports}}]);
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([[11],{
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _general_draggable_div_DraggableDiv_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../general/draggable_div/DraggableDiv.vue */ "./resources/js/components/home/general/draggable_div/DraggableDiv.vue");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'PrintQRSetting',
+  components: {
+    DraggableDiv: _general_draggable_div_DraggableDiv_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  data: function data() {
+    return {
+      print_config: {
+        dimension: {
+          width: '5cm',
+          height: '3cm'
+        },
+        DO: {
+          top: '0cm',
+          left: '0cm'
+        },
+        SO: {
+          top: '0cm',
+          left: '0cm'
+        },
+        qr_code: {
+          top: '0cm',
+          left: '0cm'
+        }
+      }
+    };
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true&":
+/*!*********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true& ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function render() {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "container-fluid"
+  }, [_c("div", {
+    staticClass: "card row"
+  }, [_c("div", {
+    staticClass: "card-body"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left",
+    attrs: {
+      "for": "start_date"
+    }
+  }, [_vm._v("Kích thước:")]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right",
+    attrs: {
+      "for": "start_date"
+    }
+  }, [_vm._v("Chiều rộng")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.dimension.width,
+      expression: "print_config.dimension.width"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.dimension.width
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.dimension, "width", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Chiều cao")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.dimension.height,
+      expression: "print_config.dimension.height"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.dimension.height
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.dimension, "height", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left"
+  }, [_vm._v("DO:")]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+  }, [_vm._v("Top")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.DO.top,
+      expression: "print_config.DO.top"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.DO.top
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.DO, "top", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Left")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.DO.left,
+      expression: "print_config.DO.left"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.DO.left
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.DO, "left", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left"
+  }, [_vm._v("SO:")]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+  }, [_vm._v("Top")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.SO.top,
+      expression: "print_config.SO.top"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.SO.top
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.SO, "top", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Left")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.SO.left,
+      expression: "print_config.SO.left"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.SO.left
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.SO, "left", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left"
+  }, [_vm._v("QR Code:")]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+  }, [_vm._v("Top")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.qr_code.top,
+      expression: "print_config.qr_code.top"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.qr_code.top
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.qr_code, "top", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-sm-2 col-form-label text-left text-md-right"
+  }, [_vm._v("Left")]), _vm._v(" "), _c("div", {
+    staticClass: "col-sm-3"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.print_config.qr_code.left,
+      expression: "print_config.qr_code.left"
+    }],
+    staticClass: "form-control form-control-sm mt-1",
+    attrs: {
+      type: "text"
+    },
+    domProps: {
+      value: _vm.print_config.qr_code.left
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.print_config.qr_code, "left", $event.target.value);
+      }
+    }
+  })])])])]), _vm._v(" "), _c("div", {
+    staticClass: "card row"
+  }, [_c("div", {
+    staticClass: "card-body"
+  }, [_c("div", {
+    staticClass: "visualize-container"
+  }, [_c("div", {
+    staticClass: "barcode-container",
+    style: "width: ".concat(_vm.print_config.dimension.width, "; height: ").concat(_vm.print_config.dimension.height)
+  }, [_c("DraggableDiv", {
+    staticClass: "so-number",
+    model: {
+      value: _vm.print_config.SO,
+      callback: function callback($$v) {
+        _vm.$set(_vm.print_config, "SO", $$v);
+      },
+      expression: "print_config.SO"
+    }
+  }, [_c("p", [_vm._v("Z000000ZZZ0ZZ")])]), _vm._v(" "), _c("DraggableDiv", {
+    staticClass: "do-number",
+    model: {
+      value: _vm.print_config.DO,
+      callback: function callback($$v) {
+        _vm.$set(_vm.print_config, "DO", $$v);
+      },
+      expression: "print_config.DO"
+    }
+  }, [_c("p", [_vm._v("DO:0000000000")])]), _vm._v(" "), _c("DraggableDiv", {
+    model: {
+      value: _vm.print_config.qr_code,
+      callback: function callback($$v) {
+        _vm.$set(_vm.print_config, "qr_code", $$v);
+      },
+      expression: "print_config.qr_code"
+    }
+  }, [_c("svg", {
+    attrs: {
+      xmlns: "http://www.w3.org/2000/svg",
+      version: "1.1",
+      width: "80",
+      height: "80",
+      viewBox: "0 0 100 100"
+    }
+  }, [_c("rect", {
+    attrs: {
+      x: "0",
+      y: "0",
+      width: "100",
+      height: "100",
+      fill: "#ffffff"
+    }
+  }), _vm._v(" "), _c("g", {
+    attrs: {
+      transform: "scale(1.754)"
+    }
+  }, [_c("g", {
+    attrs: {
+      transform: "translate(0,0)"
+    }
+  }, [_c("path", {
+    attrs: {
+      "fill-rule": "evenodd",
+      d: "M8 0L8 1L10 1L10 3L12 3L12 2L13 2L13 1L14 1L14 4L13 4L13 6L12 6L12 7L13 7L13 6L14 6L14 7L15 7L15 8L11 8L11 5L12 5L12 4L10 4L10 8L8 8L8 9L7 9L7 8L4 8L4 9L3 9L3 8L2 8L2 9L1 9L1 11L0 11L0 12L1 12L1 13L0 13L0 16L1 16L1 17L0 17L0 18L1 18L1 19L0 19L0 21L1 21L1 20L2 20L2 21L3 21L3 22L2 22L2 23L1 23L1 24L4 24L4 30L2 30L2 27L3 27L3 26L2 26L2 25L1 25L1 26L2 26L2 27L1 27L1 28L0 28L0 32L1 32L1 36L0 36L0 37L1 37L1 38L0 38L0 40L1 40L1 41L0 41L0 44L3 44L3 45L0 45L0 48L5 48L5 47L7 47L7 48L6 48L6 49L7 49L7 48L9 48L9 49L8 49L8 50L9 50L9 51L8 51L8 53L9 53L9 54L8 54L8 55L9 55L9 54L10 54L10 55L11 55L11 56L10 56L10 57L13 57L13 56L14 56L14 57L15 57L15 56L14 56L14 55L13 55L13 56L12 56L12 55L11 55L11 54L12 54L12 51L11 51L11 52L10 52L10 50L11 50L11 49L10 49L10 48L11 48L11 47L12 47L12 50L13 50L13 48L15 48L15 47L16 47L16 48L17 48L17 49L16 49L16 52L18 52L18 53L17 53L17 55L18 55L18 56L17 56L17 57L19 57L19 54L20 54L20 53L19 53L19 52L20 52L20 51L21 51L21 54L22 54L22 55L20 55L20 56L22 56L22 55L25 55L25 57L26 57L26 55L25 55L25 53L27 53L27 56L29 56L29 57L31 57L31 54L33 54L33 55L32 55L32 56L34 56L34 57L36 57L36 56L38 56L38 57L40 57L40 53L41 53L41 55L42 55L42 56L43 56L43 57L45 57L45 56L46 56L46 57L47 57L47 56L46 56L46 55L45 55L45 53L46 53L46 51L45 51L45 46L46 46L46 44L47 44L47 42L48 42L48 41L49 41L49 43L50 43L50 44L51 44L51 45L52 45L52 44L53 44L53 42L54 42L54 43L55 43L55 42L56 42L56 44L55 44L55 47L56 47L56 48L55 48L55 49L56 49L56 50L54 50L54 48L53 48L53 47L54 47L54 45L53 45L53 47L52 47L52 48L51 48L51 46L50 46L50 45L49 45L49 44L48 44L48 45L47 45L47 46L48 46L48 47L46 47L46 48L48 48L48 49L47 49L47 51L48 51L48 55L49 55L49 56L48 56L48 57L50 57L50 55L51 55L51 56L52 56L52 55L53 55L53 57L57 57L57 56L56 56L56 55L57 55L57 54L56 54L56 53L57 53L57 52L55 52L55 54L54 54L54 53L53 53L53 50L54 50L54 51L57 51L57 49L56 49L56 48L57 48L57 45L56 45L56 44L57 44L57 41L56 41L56 40L55 40L55 42L54 42L54 40L53 40L53 38L54 38L54 35L52 35L52 36L53 36L53 38L52 38L52 37L51 37L51 36L50 36L50 37L51 37L51 38L50 38L50 39L51 39L51 40L49 40L49 35L51 35L51 31L53 31L53 32L54 32L54 31L55 31L55 32L56 32L56 33L53 33L53 34L55 34L55 36L56 36L56 35L57 35L57 34L56 34L56 33L57 33L57 32L56 32L56 31L57 31L57 28L56 28L56 31L55 31L55 29L53 29L53 26L52 26L52 25L53 25L53 23L52 23L52 24L51 24L51 26L50 26L50 24L49 24L49 26L45 26L45 23L46 23L46 22L44 22L44 23L43 23L43 22L42 22L42 23L41 23L41 24L40 24L40 25L41 25L41 26L40 26L40 27L39 27L39 26L38 26L38 28L37 28L37 27L36 27L36 26L37 26L37 25L35 25L35 24L37 24L37 22L38 22L38 21L37 21L37 20L38 20L38 19L36 19L36 20L35 20L35 19L34 19L34 18L35 18L35 17L34 17L34 16L36 16L36 18L37 18L37 17L38 17L38 15L35 15L35 14L34 14L34 15L33 15L33 17L32 17L32 13L34 13L34 12L32 12L32 11L33 11L33 10L31 10L31 9L32 9L32 8L31 8L31 5L34 5L34 7L33 7L33 6L32 6L32 7L33 7L33 8L34 8L34 7L35 7L35 8L37 8L37 6L38 6L38 8L39 8L39 9L38 9L38 11L40 11L40 12L39 12L39 13L41 13L41 12L42 12L42 10L41 10L41 11L40 11L40 9L43 9L43 11L44 11L44 13L43 13L43 15L42 15L42 16L41 16L41 14L40 14L40 15L39 15L39 19L40 19L40 20L39 20L39 21L46 21L46 20L48 20L48 19L50 19L50 20L51 20L51 19L52 19L52 21L54 21L54 22L55 22L55 23L54 23L54 25L55 25L55 24L56 24L56 25L57 25L57 24L56 24L56 23L57 23L57 17L56 17L56 16L53 16L53 17L52 17L52 15L53 15L53 14L52 14L52 13L56 13L56 15L57 15L57 12L56 12L56 11L57 11L57 8L56 8L56 11L55 11L55 12L53 12L53 10L54 10L54 8L53 8L53 10L52 10L52 9L51 9L51 11L52 11L52 12L50 12L50 11L49 11L49 10L46 10L46 9L47 9L47 8L46 8L46 7L47 7L47 5L48 5L48 0L45 0L45 1L44 1L44 0L40 0L40 1L39 1L39 0L37 0L37 1L36 1L36 0L35 0L35 1L34 1L34 0L31 0L31 1L30 1L30 0L29 0L29 2L28 2L28 4L27 4L27 3L26 3L26 2L27 2L27 1L26 1L26 2L25 2L25 1L24 1L24 0L22 0L22 1L23 1L23 2L24 2L24 4L23 4L23 5L22 5L22 4L20 4L20 3L21 3L21 2L20 2L20 1L21 1L21 0L18 0L18 1L19 1L19 3L18 3L18 2L16 2L16 0ZM11 1L11 2L12 2L12 1ZM31 1L31 2L32 2L32 4L35 4L35 5L36 5L36 6L35 6L35 7L36 7L36 6L37 6L37 2L36 2L36 3L34 3L34 1ZM40 1L40 2L38 2L38 3L39 3L39 4L43 4L43 7L44 7L44 9L45 9L45 7L46 7L46 5L47 5L47 3L46 3L46 2L47 2L47 1L45 1L45 2L44 2L44 1L43 1L43 3L42 3L42 2L41 2L41 1ZM8 3L8 4L9 4L9 3ZM17 3L17 4L18 4L18 5L17 5L17 7L16 7L16 5L14 5L14 6L15 6L15 7L16 7L16 10L14 10L14 9L11 9L11 8L10 8L10 10L11 10L11 12L12 12L12 14L10 14L10 16L9 16L9 13L8 13L8 10L7 10L7 9L5 9L5 10L7 10L7 11L6 11L6 12L5 12L5 11L4 11L4 10L3 10L3 9L2 9L2 11L4 11L4 12L2 12L2 13L1 13L1 14L2 14L2 15L1 15L1 16L3 16L3 17L1 17L1 18L3 18L3 17L4 17L4 18L5 18L5 17L6 17L6 18L8 18L8 21L6 21L6 20L7 20L7 19L6 19L6 20L5 20L5 19L4 19L4 20L5 20L5 21L6 21L6 22L7 22L7 23L5 23L5 25L6 25L6 26L7 26L7 25L6 25L6 24L7 24L7 23L8 23L8 22L9 22L9 24L8 24L8 26L10 26L10 27L9 27L9 30L10 30L10 31L11 31L11 32L9 32L9 31L8 31L8 32L9 32L9 33L6 33L6 32L7 32L7 31L5 31L5 32L2 32L2 31L1 31L1 32L2 32L2 33L3 33L3 35L2 35L2 36L1 36L1 37L2 37L2 41L1 41L1 42L2 42L2 41L4 41L4 40L5 40L5 42L3 42L3 44L5 44L5 42L8 42L8 43L9 43L9 44L11 44L11 43L12 43L12 45L11 45L11 46L10 46L10 47L9 47L9 48L10 48L10 47L11 47L11 46L13 46L13 47L14 47L14 46L15 46L15 45L16 45L16 46L17 46L17 45L18 45L18 44L20 44L20 42L21 42L21 44L22 44L22 43L23 43L23 46L22 46L22 47L23 47L23 48L24 48L24 49L22 49L22 48L19 48L19 47L17 47L17 48L19 48L19 49L18 49L18 52L19 52L19 50L20 50L20 49L21 49L21 51L22 51L22 50L23 50L23 51L25 51L25 52L26 52L26 48L25 48L25 47L27 47L27 48L30 48L30 47L29 47L29 46L31 46L31 50L32 50L32 51L31 51L31 53L29 53L29 54L31 54L31 53L33 53L33 52L34 52L34 51L37 51L37 52L36 52L36 53L35 53L35 54L34 54L34 56L36 56L36 55L37 55L37 54L36 54L36 53L37 53L37 52L38 52L38 53L39 53L39 52L38 52L38 49L39 49L39 50L40 50L40 48L38 48L38 45L39 45L39 46L40 46L40 47L41 47L41 46L42 46L42 48L43 48L43 47L44 47L44 45L43 45L43 44L42 44L42 42L43 42L43 43L44 43L44 44L46 44L46 41L48 41L48 39L47 39L47 38L48 38L48 37L47 37L47 35L48 35L48 34L50 34L50 33L48 33L48 32L50 32L50 31L47 31L47 30L48 30L48 28L47 28L47 27L46 27L46 28L47 28L47 29L45 29L45 32L46 32L46 31L47 31L47 33L44 33L44 35L46 35L46 37L45 37L45 38L44 38L44 37L43 37L43 36L42 36L42 35L43 35L43 32L42 32L42 31L44 31L44 29L41 29L41 37L38 37L38 38L35 38L35 39L34 39L34 38L33 38L33 39L32 39L32 38L31 38L31 39L32 39L32 40L35 40L35 41L34 41L34 42L32 42L32 45L29 45L29 43L25 43L25 41L26 41L26 40L27 40L27 41L28 41L28 42L29 42L29 41L30 41L30 44L31 44L31 41L30 41L30 40L29 40L29 38L28 38L28 36L29 36L29 37L31 37L31 33L32 33L32 32L30 32L30 31L29 31L29 32L28 32L28 31L27 31L27 32L22 32L22 31L21 31L21 30L24 30L24 31L26 31L26 28L25 28L25 27L26 27L26 26L27 26L27 25L26 25L26 24L25 24L25 23L26 23L26 21L28 21L28 20L29 20L29 21L30 21L30 24L31 24L31 25L32 25L32 24L31 24L31 23L33 23L33 21L31 21L31 20L32 20L32 19L33 19L33 18L32 18L32 17L27 17L27 16L28 16L28 14L31 14L31 13L32 13L32 12L31 12L31 10L28 10L28 9L26 9L26 3L25 3L25 5L24 5L24 6L23 6L23 7L22 7L22 6L21 6L21 5L19 5L19 4L18 4L18 3ZM29 3L29 4L31 4L31 3ZM45 3L45 4L44 4L44 5L46 5L46 3ZM18 5L18 7L17 7L17 8L18 8L18 7L19 7L19 5ZM27 5L27 8L30 8L30 5ZM39 5L39 8L41 8L41 7L42 7L42 6L41 6L41 5ZM8 6L8 7L9 7L9 6ZM20 6L20 7L21 7L21 6ZM24 6L24 7L25 7L25 6ZM28 6L28 7L29 7L29 6ZM40 6L40 7L41 7L41 6ZM44 6L44 7L45 7L45 6ZM48 6L48 7L49 7L49 6ZM20 8L20 10L19 10L19 9L18 9L18 10L19 10L19 12L20 12L20 10L22 10L22 9L23 9L23 13L24 13L24 14L23 14L23 16L22 16L22 17L21 17L21 16L20 16L20 15L21 15L21 13L22 13L22 11L21 11L21 13L18 13L18 11L16 11L16 12L17 12L17 13L15 13L15 11L14 11L14 10L13 10L13 16L11 16L11 17L9 17L9 16L8 16L8 14L6 14L6 13L7 13L7 12L6 12L6 13L5 13L5 12L4 12L4 13L2 13L2 14L6 14L6 15L3 15L3 16L6 16L6 17L7 17L7 16L8 16L8 18L9 18L9 19L10 19L10 20L9 20L9 22L10 22L10 21L11 21L11 20L12 20L12 21L13 21L13 20L15 20L15 18L14 18L14 19L13 19L13 16L16 16L16 15L15 15L15 14L17 14L17 17L16 17L16 19L17 19L17 20L16 20L16 21L15 21L15 22L16 22L16 23L15 23L15 24L16 24L16 25L17 25L17 27L16 27L16 26L15 26L15 25L14 25L14 23L13 23L13 22L11 22L11 24L9 24L9 25L10 25L10 26L11 26L11 27L12 27L12 28L11 28L11 29L10 29L10 30L11 30L11 31L12 31L12 32L11 32L11 34L10 34L10 33L9 33L9 34L10 34L10 35L9 35L9 36L10 36L10 37L8 37L8 35L7 35L7 34L5 34L5 33L4 33L4 36L5 36L5 38L4 38L4 37L3 37L3 39L5 39L5 40L6 40L6 41L8 41L8 40L9 40L9 42L10 42L10 43L11 43L11 42L10 42L10 41L11 41L11 40L13 40L13 39L12 39L12 38L13 38L13 37L11 37L11 36L15 36L15 37L14 37L14 38L16 38L16 37L17 37L17 39L14 39L14 41L12 41L12 42L13 42L13 43L14 43L14 42L15 42L15 44L18 44L18 41L19 41L19 42L20 42L20 41L19 41L19 39L21 39L21 40L22 40L22 41L23 41L23 42L24 42L24 41L25 41L25 40L26 40L26 39L24 39L24 40L22 40L22 39L23 39L23 37L24 37L24 36L25 36L25 37L26 37L26 38L27 38L27 39L28 39L28 38L27 38L27 37L26 37L26 36L27 36L27 34L28 34L28 35L30 35L30 34L29 34L29 33L30 33L30 32L29 32L29 33L26 33L26 34L25 34L25 33L23 33L23 34L21 34L21 33L20 33L20 34L19 34L19 33L18 33L18 34L19 34L19 35L17 35L17 32L16 32L16 31L18 31L18 32L19 32L19 29L16 29L16 30L15 30L15 29L14 29L14 27L15 27L15 28L21 28L21 29L22 29L22 27L23 27L23 28L24 28L24 30L25 30L25 28L24 28L24 27L23 27L23 25L25 25L25 24L24 24L24 23L25 23L25 22L24 22L24 23L23 23L23 25L21 25L21 24L20 24L20 23L21 23L21 22L23 22L23 21L24 21L24 20L25 20L25 19L26 19L26 20L28 20L28 19L32 19L32 18L28 18L28 19L26 19L26 18L27 18L27 17L23 17L23 16L25 16L25 15L26 15L26 14L27 14L27 13L28 13L28 11L27 11L27 10L26 10L26 11L25 11L25 10L24 10L24 9L25 9L25 8L24 8L24 9L23 9L23 8ZM48 8L48 9L50 9L50 8ZM35 9L35 10L34 10L34 11L35 11L35 13L36 13L36 14L37 14L37 11L36 11L36 9ZM44 10L44 11L45 11L45 10ZM9 11L9 12L10 12L10 11ZM24 11L24 12L25 12L25 14L24 14L24 15L25 15L25 14L26 14L26 12L27 12L27 11L26 11L26 12L25 12L25 11ZM29 11L29 12L30 12L30 11ZM47 11L47 12L45 12L45 13L46 13L46 14L44 14L44 15L45 15L45 16L47 16L47 17L43 17L43 16L42 16L42 20L43 20L43 19L44 19L44 20L46 20L46 19L48 19L48 18L49 18L49 17L50 17L50 19L51 19L51 17L50 17L50 16L51 16L51 13L50 13L50 12L49 12L49 11ZM48 12L48 13L49 13L49 15L47 15L47 16L49 16L49 15L50 15L50 13L49 13L49 12ZM14 13L14 14L15 14L15 13ZM17 13L17 14L18 14L18 13ZM54 14L54 15L55 15L55 14ZM6 15L6 16L7 16L7 15ZM29 15L29 16L31 16L31 15ZM18 16L18 17L17 17L17 19L19 19L19 21L18 21L18 20L17 20L17 22L19 22L19 23L20 23L20 22L21 22L21 20L20 20L20 19L19 19L19 18L20 18L20 16ZM18 17L18 18L19 18L19 17ZM47 17L47 18L48 18L48 17ZM53 17L53 18L52 18L52 19L53 19L53 20L54 20L54 21L56 21L56 20L55 20L55 18L56 18L56 17ZM10 18L10 19L12 19L12 20L13 20L13 19L12 19L12 18ZM21 18L21 19L22 19L22 21L23 21L23 19L24 19L24 18ZM40 18L40 19L41 19L41 18ZM44 18L44 19L45 19L45 18ZM53 18L53 19L54 19L54 18ZM47 21L47 22L48 22L48 23L47 23L47 24L46 24L46 25L47 25L47 24L48 24L48 23L49 23L49 22L48 22L48 21ZM27 22L27 24L29 24L29 22ZM50 22L50 23L51 23L51 22ZM16 23L16 24L17 24L17 23ZM34 23L34 24L35 24L35 23ZM42 23L42 24L43 24L43 23ZM12 24L12 25L13 25L13 27L14 27L14 25L13 25L13 24ZM18 24L18 26L19 26L19 25L20 25L20 24ZM38 24L38 25L39 25L39 24ZM28 25L28 26L29 26L29 25ZM33 25L33 26L35 26L35 25ZM42 25L42 26L43 26L43 27L41 27L41 28L43 28L43 27L44 27L44 26L43 26L43 25ZM31 26L31 31L32 31L32 30L33 30L33 33L34 33L34 34L33 34L33 35L32 35L32 37L37 37L37 36L38 36L38 35L37 35L37 34L40 34L40 33L38 33L38 32L37 32L37 31L39 31L39 32L40 32L40 31L39 31L39 29L40 29L40 28L38 28L38 29L36 29L36 27L35 27L35 28L34 28L34 29L33 29L33 28L32 28L32 26ZM56 26L56 27L57 27L57 26ZM5 27L5 30L8 30L8 27ZM27 27L27 30L30 30L30 27ZM49 27L49 30L52 30L52 27ZM6 28L6 29L7 29L7 28ZM28 28L28 29L29 29L29 28ZM50 28L50 29L51 29L51 28ZM12 29L12 31L15 31L15 30L13 30L13 29ZM35 29L35 30L34 30L34 33L35 33L35 35L33 35L33 36L37 36L37 35L36 35L36 33L37 33L37 32L36 32L36 31L35 31L35 30L36 30L36 29ZM13 32L13 34L11 34L11 35L13 35L13 34L14 34L14 35L16 35L16 34L14 34L14 32ZM15 32L15 33L16 33L16 32ZM35 32L35 33L36 33L36 32ZM47 33L47 34L46 34L46 35L47 35L47 34L48 34L48 33ZM23 34L23 35L25 35L25 36L26 36L26 35L25 35L25 34ZM5 35L5 36L7 36L7 35ZM19 35L19 36L18 36L18 37L19 37L19 38L18 38L18 39L17 39L17 40L16 40L16 41L15 41L15 42L16 42L16 41L18 41L18 39L19 39L19 38L21 38L21 39L22 39L22 37L23 37L23 36L21 36L21 37L19 37L19 36L20 36L20 35ZM6 37L6 38L5 38L5 39L6 39L6 40L8 40L8 39L6 39L6 38L7 38L7 37ZM10 37L10 40L11 40L11 37ZM41 37L41 38L40 38L40 39L39 39L39 38L38 38L38 39L37 39L37 43L36 43L36 44L37 44L37 43L38 43L38 44L39 44L39 45L41 45L41 43L40 43L40 44L39 44L39 42L40 42L40 41L43 41L43 40L41 40L41 38L42 38L42 37ZM56 37L56 38L55 38L55 39L57 39L57 37ZM43 38L43 39L44 39L44 38ZM45 38L45 39L46 39L46 40L47 40L47 39L46 39L46 38ZM35 39L35 40L36 40L36 39ZM38 39L38 40L39 40L39 39ZM44 40L44 41L45 41L45 40ZM52 40L52 42L51 42L51 41L50 41L50 42L51 42L51 43L52 43L52 42L53 42L53 40ZM35 41L35 42L36 42L36 41ZM38 41L38 42L39 42L39 41ZM44 42L44 43L45 43L45 42ZM6 43L6 44L7 44L7 43ZM33 43L33 44L34 44L34 46L33 46L33 45L32 45L32 48L34 48L34 49L35 49L35 50L36 50L36 49L35 49L35 48L36 48L36 47L34 47L34 46L35 46L35 43ZM13 44L13 46L14 46L14 44ZM24 44L24 45L25 45L25 44ZM26 44L26 45L27 45L27 46L28 46L28 44ZM3 45L3 47L5 47L5 46L8 46L8 45ZM19 45L19 46L20 46L20 47L21 47L21 45ZM36 45L36 46L37 46L37 45ZM48 45L48 46L49 46L49 45ZM1 46L1 47L2 47L2 46ZM23 46L23 47L25 47L25 46ZM9 49L9 50L10 50L10 49ZM14 49L14 51L15 51L15 49ZM27 49L27 52L30 52L30 49ZM32 49L32 50L33 50L33 49ZM41 49L41 50L42 50L42 51L41 51L41 52L42 52L42 55L43 55L43 56L45 56L45 55L44 55L44 50L43 50L43 49ZM49 49L49 52L52 52L52 49ZM28 50L28 51L29 51L29 50ZM50 50L50 51L51 51L51 50ZM32 51L32 52L33 52L33 51ZM9 52L9 53L10 53L10 54L11 54L11 53L10 53L10 52ZM13 52L13 53L14 53L14 52ZM23 52L23 54L24 54L24 52ZM15 53L15 55L16 55L16 53ZM18 53L18 54L19 54L19 53ZM50 53L50 54L49 54L49 55L50 55L50 54L52 54L52 53ZM35 54L35 55L36 55L36 54ZM55 54L55 55L54 55L54 56L55 56L55 55L56 55L56 54ZM23 56L23 57L24 57L24 56ZM0 0L0 7L7 7L7 0ZM1 1L1 6L6 6L6 1ZM2 2L2 5L5 5L5 2ZM50 0L50 7L57 7L57 0ZM51 1L51 6L56 6L56 1ZM52 2L52 5L55 5L55 2ZM0 50L0 57L7 57L7 50ZM1 51L1 56L6 56L6 51ZM2 52L2 55L5 55L5 52Z",
+      fill: "#000000"
+    }
+  })])])])])], 1)])])])]);
+};
+var staticRenderFns = [];
+render._withStripped = true;
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "*[data-v-19296688] {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  font-size: 98%;\n}\n.visualize-container[data-v-19296688] {\n  min-height: 300px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.barcode-container[data-v-19296688] {\n  box-sizing: border-box;\n  border: 1px solid black;\n  position: relative;\n}\n.do-number[data-v-19296688] {\n  top: 0cm;\n  left: 0cm;\n}\n.do-number > p[data-v-19296688] {\n  font-size: 0.39cm;\n  font-family: monospace;\n  margin-bottom: 0;\n}\n.so-number[data-v-19296688] {\n  top: 0cm;\n  left: 0cm;\n  transform: rotate(-90deg);\n}\n.so-number > p[data-v-19296688] {\n  font-size: 0.39cm;\n  font-family: monospace;\n  margin-bottom: 0;\n}\n.drag-draggable[data-v-19296688] {\n  position: absolute;\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../../node_modules/css-loader!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--7-2!../../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../../node_modules/vue-loader/lib??vue-loader-options!./PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
+/***/ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue":
+/*!**************************************************************************!*\
+  !*** ./resources/js/components/home/print_qr_setting/PrintQRSetting.vue ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true& */ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true&");
+/* harmony import */ var _PrintQRSetting_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PrintQRSetting.vue?vue&type=script&lang=js& */ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& */ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _PrintQRSetting_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "19296688",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/home/print_qr_setting/PrintQRSetting.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************!*\
+  !*** ./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib??vue-loader-options!./PrintQRSetting.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&":
+/*!************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& ***!
+  \************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/style-loader!../../../../../node_modules/css-loader!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--7-2!../../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../../node_modules/vue-loader/lib??vue-loader-options!./PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=style&index=0&id=19296688&lang=scss&scoped=true&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_style_index_0_id_19296688_lang_scss_scoped_true___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+
+
+/***/ }),
+
+/***/ "./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true&":
+/*!*********************************************************************************************************************!*\
+  !*** ./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true& ***!
+  \*********************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!../../../../../node_modules/vue-loader/lib??vue-loader-options!./PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/print_qr_setting/PrintQRSetting.vue?vue&type=template&id=19296688&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_PrintQRSetting_vue_vue_type_template_id_19296688_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ })
+
+}]);
