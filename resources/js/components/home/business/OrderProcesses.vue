@@ -144,6 +144,7 @@ export default {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['Material'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['inventory_quantity'] = tmp['ATP_Quantity'];
+                        orders[i]['variant_quantity'] =  orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                     }
                 }
             });
