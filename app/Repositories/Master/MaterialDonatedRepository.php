@@ -95,6 +95,7 @@ class MaterialDonatedRepository extends RepositoryAbs
                 ],
                 [
                     'sap_code.required' => 'Mã SAP không được để trống',
+                    'sap_code.unique' => 'Mã SAP đã tồn tại',
                     'name.required' => 'Tên không được để trống',
                 ]
             );
