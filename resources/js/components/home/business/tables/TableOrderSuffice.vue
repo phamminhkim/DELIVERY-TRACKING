@@ -54,7 +54,9 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        {{ data.item.quantity1_po }}
+                            <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
+                         
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
@@ -69,7 +71,8 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        {{ data.item.inventory_quantity }}
+                          <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
                     </div>
                 </template>
                 <template #head(barcode)="header">
