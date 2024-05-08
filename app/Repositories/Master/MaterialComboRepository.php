@@ -42,8 +42,25 @@ class MaterialComboRepository extends RepositoryAbs
                 },
             ]);
 
-            $material_combo = $query->orderBy('id', 'desc')->get();
-            return $material_combo;
+            $perPage = $this->request->filled('per_page') ? $this->request->per_page : 500;
+            $material_combo = $query->paginate($perPage, ['*'], 'page', $this->request->page);
+
+            if ($this->request->filled('search') && $material_combo->isEmpty()) {
+                $material_combo = $query->paginate($perPage, ['*'], 'page', $this->request->page);
+            }
+
+            $result = [
+                'data' => $material_combo->items(),
+                'per_page' => $material_combo->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $material_combo->currentPage(),
+                'last_page' => $material_combo->lastPage(),
+                'total' => $material_combo->total(),
+            ];
+
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -71,6 +88,7 @@ class MaterialComboRepository extends RepositoryAbs
                     'sap_code' => 1,
                     'name' => 2,
                     'bar_code' => 3,
+                    'is_active' => 4, // Thêm trường is_active vào cấu trúc mẫu
                 ];
                 $result = [];
 
@@ -79,6 +97,7 @@ class MaterialComboRepository extends RepositoryAbs
                     $sap_code = $row[$template_structure['sap_code']];
                     $name = $row[$template_structure['name']];
                     $bar_code = $row[$template_structure['bar_code']];
+                    $is_active = $row[$template_structure['is_active']];
 
                     $customer_group = CustomerGroup::where('name', $customer_group_name)->first();
 
@@ -87,28 +106,44 @@ class MaterialComboRepository extends RepositoryAbs
                         continue;
                     }
 
-                    $material_combo = MaterialCombo::where('sap_code', $sap_code)->first();
-
-                    if ($material_combo) {
-                        // Mã code đã tồn tại, cập nhật thông tin của MaterialCombo hiện có
-                        $material_combo->name = $name;
-                        $material_combo->bar_code = $bar_code;
-                        $material_combo->save();
-
-                        $result[] = $material_combo;
+                    $existing_material_combo = MaterialCombo::where('sap_code', $sap_code)
+                        ->where('customer_group_id', $customer_group->id)
+                        ->first();
+                        $is_active = ($is_active === null) ? 1 : 0;
+                    if ($existing_material_combo) {
+                        // Kiểm tra nếu dữ liệu có sự thay đổi thì cập nhật
+                        if ($existing_material_combo->name !== $name || $existing_material_combo->bar_code !== $bar_code || $existing_material_combo->is_active !== $is_active) {
+                            $existing_material_combo->name = $name;
+                            $existing_material_combo->bar_code = $bar_code;
+                            $existing_material_combo->is_active = $is_active;
+                            $existing_material_combo->save();
+                        }
+                        $result[] = $existing_material_combo;
                     } else {
-                        // Mã code chưa tồn tại, tạo mới MaterialCombo
-                        $new_material_combo = MaterialCombo::create([
-                            'customer_group_id' => $customer_group->id,
-                            'sap_code' => $sap_code,
-                            'name' => $name,
-                            'bar_code' => $bar_code,
-                        ]);
+                        $material_combo = MaterialCombo::where('sap_code', $sap_code)->first();
 
-                        $result[] = $new_material_combo;
+                        if ($material_combo) {
+                            // Mã code đã tồn tại, cập nhật thông tin của MaterialCombo hiện có
+                            $material_combo->name = $name;
+                            $material_combo->bar_code = $bar_code;
+                            $material_combo->is_active = $is_active;
+                            $material_combo->save();
+
+                            $result[] = $material_combo;
+                        } else {
+                            // Mã code chưa tồn tại, tạo mới MaterialCombo
+                            $new_material_combo = MaterialCombo::create([
+                                'customer_group_id' => $customer_group->id,
+                                'sap_code' => $sap_code,
+                                'name' => $name,
+                                'bar_code' => $bar_code,
+                                'is_active' => $is_active,
+                            ]);
+
+                            $result[] = $new_material_combo;
+                        }
                     }
                 }
-
                 return [
                     "created_list" => $result,
                     "errors" => $this->errors
@@ -130,6 +165,8 @@ class MaterialComboRepository extends RepositoryAbs
                     'sap_code' => 'required|unique:material_combos,sap_code',
                     'bar_code' => 'string',
                     'name' => 'required',
+                    'is_active' => 'in:0,1',
+
                 ],
                 [
                     'customer_group_id.required' => 'Mã SAP không được để trống',
@@ -137,6 +174,8 @@ class MaterialComboRepository extends RepositoryAbs
                     'sap_code.unique' => 'Mã SAP đã tồn tại',
                     'bar_code.string' => 'Tên không được để trống',
                     'name.required' => 'Tên không được để trống',
+                    'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
+
                 ]
             );
 
@@ -168,11 +207,15 @@ class MaterialComboRepository extends RepositoryAbs
                 'sap_code' => 'string',
                 'bar_code' => 'string',
                 'name' => 'string',
+                'is_active' => 'in:0,1',
+
             ], [
                 'customer_group_id.integer' => 'Nhóm khách hàng phải là số nguyên.',
                 'sap_code.string' => 'Mã sản phẩm phải là chuỗi.',
                 'bar_code.string' => 'Mã sản phẩm phải là chuỗi.',
                 'name.string' => 'Mã sản phẩm phải là chuỗi.',
+                'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
+
             ]);
 
             if ($validator->fails()) {

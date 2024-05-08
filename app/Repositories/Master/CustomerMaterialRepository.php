@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerMaterialRepository extends RepositoryAbs
 {
-    public function getCustomerMaterials()
+    public function getCustomerMaterials($is_minified)
     {
         try {
             $query = CustomerMaterial::query();
@@ -16,6 +16,9 @@ class CustomerMaterialRepository extends RepositoryAbs
             if ($this->request->filled('search')) {
                 $query->search($this->request->search);
                 $query->limit(50);
+            }
+            if ($is_minified) {
+                $query->select('id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit');
             }
 
             $customer_materials = $query->get();

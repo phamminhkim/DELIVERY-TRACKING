@@ -9,9 +9,7 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            @exportExcel="getExportExcel"
-            :item_selecteds="case_data_temporary.item_selecteds"
-            >
+            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
@@ -28,8 +26,7 @@
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="getSortingChanged"
-            @createRow="getCreateRow">
+            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -145,7 +142,7 @@ export default {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['Material'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['inventory_quantity'] = tmp['ATP_Quantity'];
-                        orders[i]['variant_quantity'] =  orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
+                        orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                     }
                 }
             });
@@ -185,7 +182,7 @@ export default {
             let exists = false;
             if (this.case_data_temporary.item_selecteds.length == 0) {
                 this.orders.filter((item, index_order) => {
-                    
+
                     if (this.isCheckLack(item)) {
                         item.is_inventory = true;
                         this.case_data_temporary.order_lacks.forEach(order_lack => {
@@ -258,7 +255,7 @@ export default {
             this.case_save_so.customer_group_id = item.customer_group_id;
             this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
             item.so_data_items.forEach(data_item => {
-                var   variant_quantity =  this.convertToNumber(data_item.inventory_quantity)  - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
+                var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
                 if (data_item.is_inventory == true) {
                     this.case_data_temporary.order_lacks.push({
                         id: data_item.id,
@@ -287,8 +284,8 @@ export default {
                         quantity1_po: data_item.quantity1_po,
                         quantity2_po: data_item.quantity2_po,
                         customer_name: data_item.so_header.customer_name,
-                         variant_quantity: variant_quantity,
-                         extra_offer: '',
+                        variant_quantity: variant_quantity,
+                        extra_offer: '',
                         promotion_category: '',
                     });
                 } else {
@@ -428,6 +425,10 @@ export default {
                 extra_offer: '',
                 promotion_category: '',
             });
+            this.refHeaderOrderProcesses();
+        },
+        getHandleItem(item, field, index) {
+            this.orders[index][field] = item;
             this.refHeaderOrderProcesses();
         }
     },
