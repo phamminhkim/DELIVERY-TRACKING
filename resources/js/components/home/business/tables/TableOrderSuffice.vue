@@ -40,7 +40,7 @@
                         <small class="text-danger">Hàng thiếu</small>
                     </div>
                     <div v-else>
-                        <input class="px-2" v-model="data.item.customer_name"
+                        <input class="px-2" v-model="data.item.customer_name" :readonly="case_is_status.edit == false"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
                         {{ data.item.promotive }}
 
@@ -51,7 +51,7 @@
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.quantity1_po }} -->
-                        <input class="px-2" v-model="data.item.quantity1_po"
+                        <input class="px-2" v-model="data.item.quantity1_po" :readonly="case_is_status.edit == false"
                             @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
                     </div>
                 </template>
@@ -59,7 +59,7 @@
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        <input class="px-2" v-model="data.item.quantity2_po"
+                        <input class="px-2" v-model="data.item.quantity2_po" :readonly="case_is_status.edit == false"
                             @input="handleItem(data.item.quantity2_po, 'quantity2_po', data.index)" />
                         <!-- <strong>{{ data.value.toLocaleString(locale_format) }}</strong> -->
                     </div>
@@ -70,6 +70,7 @@
         }">
                         <!-- {{ data.item.inventory_quantity }} -->
                         <input class="px-2" v-model="data.item.inventory_quantity"
+                            :readonly="case_is_status.edit == false"
                             @input="handleItem(data.item.inventory_quantity, 'inventory_quantity', data.index)" />
                     </div>
                 </template>
@@ -169,26 +170,27 @@
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <!-- {{ data.item.sku_sap_name }} -->
-                    <input class="px-2" v-model="data.item.sku_sap_name"
+                    <input class="px-2" v-model="data.item.sku_sap_name" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
                 </template>
                 <template #cell(customer_sku_name)="data">
-                    <input class="px-2" v-model="data.item.customer_sku_name"
+                    <input class="px-2" v-model="data.item.customer_sku_name" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
                 </template>
                 <template #cell(customer_sku_unit)="data">
-                    <input class="px-2" v-model="data.item.customer_sku_unit"
+                    <input class="px-2" v-model="data.item.customer_sku_unit" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
                 </template>
                 <template #cell(po)="data">
-                    <input class="px-2" v-model="data.item.po" @input="handleItem(data.item.po, 'po', data.index)" />
+                    <input class="px-2" :readonly="case_is_status.edit == false" v-model="data.item.po"
+                        @input="handleItem(data.item.po, 'po', data.index)" />
                 </template>
                 <template #cell(sku_sap_unit)="data">
-                    <input class="px-2" v-model="data.item.sku_sap_unit"
+                    <input class="px-2" v-model="data.item.sku_sap_unit" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
                 </template>
                 <template #cell(customer_code)="data">
-                    <input class="px-2" v-model="data.item.customer_code"
+                    <input class="px-2" v-model="data.item.customer_code" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
                 </template>
                 <template #cell(promotive_name)="data">
@@ -197,25 +199,25 @@
                 </template>
                 <template #cell(note1)="data">
                     <!-- {{ data.item.note1 }}{{ data.item.promotive }} -->
-                    <input class="px-2" v-model="data.item.note1"
+                    <input class="px-2" v-model="data.item.note1" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.note1, 'note1', data.index)" />
                     {{ data.item.promotive }}
                 </template>
                 <template #cell(note)="data">
-                    <input class="px-2" v-model="data.item.note"
+                    <input class="px-2" v-model="data.item.note" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.note, 'note', data.index)" />
                     {{ data.item.promotive }}
                 </template>
                 <template #cell(level2)="data">
-                    <input class="px-2" v-model="data.item.level2"
+                    <input class="px-2" v-model="data.item.level2" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.level2, 'level2', data.index)" />
                 </template>
                 <template #cell(level3)="data">
-                    <input class="px-2" v-model="data.item.level3"
+                    <input class="px-2" v-model="data.item.level3" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.level3, 'level3', data.index)" />
                 </template>
                 <template #cell(level4)="data">
-                    <input class="px-2" v-model="data.item.level4"
+                    <input class="px-2" v-model="data.item.level4" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.level4, 'level4', data.index)" />
                 </template>
                 <template #cell(promotive)="data">
@@ -230,19 +232,19 @@
                 <template #cell(amount_po)="data">
                     <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
                         </strong></span> -->
-                    <input class="px-2" v-model="data.item.amount_po"
+                    <input class="px-2" v-model="data.item.amount_po" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
                 </template>
                 <template #cell(price_po)="data">
                     <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
                         </strong></span> -->
-                    <input class="px-2" v-model="data.item.price_po"
+                    <input class="px-2" v-model="data.item.price_po" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.price_po, 'price_po', data.index)" />
                 </template>
                 <template #cell(company_price)="data">
                     <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
                         </strong></span> -->
-                    <input class="px-2" v-model="data.item.company_price"
+                    <input class="px-2" v-model="data.item.company_price" :readonly="case_is_status.edit == false"
                         @input="handleItem(data.item.company_price, 'company_price', data.index)" />
                 </template>
                 <template #cell(customer_sku_code)="data">
@@ -323,6 +325,7 @@ export default {
             case_is_status: {
                 event: false,
                 sort: false,
+                edit: false,
             },
             case_index: {
                 event: -1,
@@ -687,6 +690,7 @@ export default {
                 case 27: // esc
                     this.isSelecting = false;
                     this.case_order.db_click = false;
+                    this.case_is_status.edit = false;
                     this.$emit('isHandleDbClick', this.case_order.db_click);
                     this.refeshItem();
                     break;
@@ -765,6 +769,7 @@ export default {
         editRow(status) {
             this.case_order.db_click = status;
             this.isSelecting = false;
+            this.case_is_status.edit = status;
 
         }
     }
