@@ -19,7 +19,8 @@
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value"
             @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
             @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="sortingChanged"></TableOrderSuffice>
+            @sortingChanged="sortingChanged"
+            @handleItem="getHandleItem"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -108,6 +109,9 @@ export default {
         },
         createRow() {
             this.$emit('createRow');
+        },
+        getHandleItem(item, field, index) {
+            this.$emit('handleItem', item, field, index);
         }
 
     },
