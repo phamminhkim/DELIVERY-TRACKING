@@ -4,6 +4,11 @@
             <i class="fas fa-plus mr-1"></i>
             <span class="font-weight-bold">Thêm dòng</span>
         </button>
+        <button @click="editRow()" type="button" class="btn btn-sm btn-light">
+            <i class="fas fa-edit mr-1"></i>
+            <span v-if="!case_boolean.is_show_hide " class="font-weight-bold ">Bật chỉnh sửa</span>
+            <span v-else class="font-weight-bold text-danger">Tắt chỉnh sửa</span>
+        </button>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
             <span clsas="font-weight-normal">Tiêu đề: </span>
@@ -20,6 +25,7 @@
             @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
             @checkBoxRow="getCheckBoxRow"
             @sortingChanged="sortingChanged"
+            @isHandleDbClick="getIsHandleDbClick"
             @handleItem="getHandleItem"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -85,6 +91,10 @@ export default {
                 material_donateds: [],
                 material_combos: [],
             },
+            case_boolean: {
+                is_show_hide: false,
+                is_hide: true
+            }
 
         }
     },
@@ -110,8 +120,15 @@ export default {
         createRow() {
             this.$emit('createRow');
         },
+        editRow() {
+            this.case_boolean.is_show_hide = !this.case_boolean.is_show_hide;
+            this.$refs.tableOrderSuffice.editRow(this.case_boolean.is_show_hide);
+        },
         getHandleItem(item, field, index, orders) {
             this.$emit('handleItem', item, field, index, orders);
+        },
+        getIsHandleDbClick(is_dbclick) {
+            this.case_boolean.is_show_hide = is_dbclick;
         }
 
     },

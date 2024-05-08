@@ -26,7 +26,8 @@
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem">
+            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
+           >
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -429,6 +430,7 @@ export default {
             });
             this.refHeaderOrderProcesses();
         },
+        
         getHandleItem(item, field, index, orders) {
             this.orders = [...orders];
             this.orders[index][field] = item;
