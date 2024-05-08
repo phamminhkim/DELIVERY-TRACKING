@@ -290,6 +290,7 @@ export default {
                         quantity2_po: data_item.quantity2_po,
                         customer_name: data_item.so_header.customer_name,
                          variant_quantity: variant_quantity,
+                         extra_offer: '',
                         promotion_category: '',
                     });
                 } else {
@@ -321,6 +322,7 @@ export default {
                         quantity2_po: data_item.quantity2_po,
                         customer_name: data_item.so_header.customer_name,
                         variant_quantity: variant_quantity,
+                        extra_offer: '',
                         promotion_category: '',
 
                     });
