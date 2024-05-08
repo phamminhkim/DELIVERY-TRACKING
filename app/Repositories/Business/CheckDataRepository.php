@@ -168,6 +168,8 @@ class CheckDataRepository extends RepositoryAbs
                 $promotion_category = isset($item['promotion_category']) ? $item['promotion_category'] : null;
 
                 $materialCombo = null;
+                $extra_offer = ''; //
+                $promotion_category = ''; //
 
                 // Kiểm tra xem sap_code hoặc bar_code có được cung cấp hay không
                 if (!empty($sap_code) || !empty($bar_code)) {
@@ -181,11 +183,12 @@ class CheckDataRepository extends RepositoryAbs
                         ->first();
                 }
                 if ($materialCombo) {
-                    $combo_category_type = MaterialCategoryType::where('name', 'Combo')
-                        ->where('is_deleted', false)
-                        ->first();
+                    // $combo_category_type = MaterialCategoryType::where('name', 'Combo')
+                    //     ->where('is_deleted', false)
+                    //     ->first();
 
-                    $promotion_category = $combo_category_type ? 'Combo' : null;
+                    // $promotion_category = $combo_category_type ? 'Combo' : null;
+                    $promotion_category = 'X';
                     $name = $materialCombo->name;
                 } else {
                     $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
@@ -196,25 +199,29 @@ class CheckDataRepository extends RepositoryAbs
                         $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
 
                         if ($materialDonated) {
-                            $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
-                                ->where('is_deleted', false)
-                                ->first();
+                            // $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
+                            //     ->where('is_deleted', false)
+                            //     ->first();
 
-                            $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
+                            // $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
+                            $extra_offer  = 'X';
                         }
                     }
                 }
-                if ($promotion_category !== null) {
-                    $item['promotion_category'] = $promotion_category;
+                // if ($promotion_category !== null) {
+                    // $item['promotion_category'] = $promotion_category;
                     $item['name'] = $name;
-
-                    $mappingData[] = [
-                        'sap_code' => $sap_code,
-                        'bar_code' => $bar_code,
-                        'name' => $name,
-                        'promotion_category' => $promotion_category,
-                    ];
-                }
+                    if( $promotion_category == 'X' || $extra_offer == 'X'){
+                        $mappingData[] = [
+                            'sap_code' => $sap_code,
+                            'bar_code' => $bar_code,
+                            'name' => $name,
+                            'promotion_category' => $promotion_category,
+                           'extra_offer' =>  $extra_offer,
+                        ];
+                    }
+                   
+                // }
             }
             return [
                 'success' => true,

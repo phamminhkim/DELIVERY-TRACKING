@@ -609,6 +609,7 @@ export default {
                         promotive: '',
                         promotive_name: '',
                         promotion_category: '',
+                        extra_offer: '',
                         customer_name: file_response.data[index].headers.CustomerKey,
                         note: file_response.data[index].headers.CustomerKey,
                         note1: file_response.data[index].headers.CustomerNote,
@@ -797,6 +798,7 @@ export default {
                     if (order.sku_sap_code == item.sap_code) {
                         order.promotion_category = item.promotion_category;
                         order.is_promotive = true;
+                        order.extra_offer = item.extra_offer;
                     }
                 });
             });
