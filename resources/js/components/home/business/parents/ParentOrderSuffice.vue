@@ -110,8 +110,8 @@ export default {
         createRow() {
             this.$emit('createRow');
         },
-        getHandleItem(item, field, index) {
-            this.$emit('handleItem', item, field, index);
+        getHandleItem(item, field, index, orders) {
+            this.$emit('handleItem', item, field, index, orders);
         }
 
     },

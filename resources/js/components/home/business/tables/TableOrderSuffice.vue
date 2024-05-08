@@ -4,7 +4,7 @@
             <!-- sticky-header="500px" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
                 :class="{ 'table-order-suffices': true, }" @sort-changed="sortingChanged" :fields="field_order_suffices"
-                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
+                ref="btable" table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
@@ -19,23 +19,22 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode"
-                        @keydown="copyItem($event, data.item.barcode)"
+                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
+                        @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
+                        @input="handleItem(data.item.barcode, 'barcode', data.index)" />
+                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode"
+                        @keydown="copyItem($event, data.item.barcode, data.field.key)"
+                        @mousedown="startSelection($event, data.item.barcode, data.index)"
                         @mousemove="selectItem(data.item.barcode, $event)"
-                        @mouseup="endSelection(data.item.barcode, $event)"
+                        @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
                         <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
             'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                            <!-- {{ data.item.barcode }} -->
-                            <!-- @mousedown="startSelection($event, data.item.barcode, data.index)" -->
-                            <input class="px-2" v-model="data.item.barcode"
-                                @input="handleItem(data.item.barcode, 'barcode', data.index)" />
+                            {{ data.item.barcode }}
                         </span>
                     </div>
-
-
                 </template>
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)">
@@ -148,9 +147,13 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code"
+                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
+                        @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
+                        @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
+                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
-                        @keydown="copyItem($event, data.item.sku_sap_code)"
+                        @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
+                        @mousedown="startSelection($event, data.item.sku_sap_code, data.index)"
                         @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
@@ -158,10 +161,9 @@
             'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
             'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                            <!-- {{ data.item.sku_sap_code }} -->
-                            <!-- @mousedown="startSelection($event, data.item.sku_sap_code, data.index)" -->
-                            <input class="px-2" v-model="data.item.sku_sap_code"
-                                @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
+                            {{ data.item.sku_sap_code }}
+
+
                         </span>
                     </div>
                 </template>
@@ -244,17 +246,17 @@
                         @input="handleItem(data.item.company_price, 'company_price', data.index)" />
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code"
+                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
+                        @keydown="copyItem($event, data.item.customer_sku_code)" @dblclick="handleDoubleClick($event)"
+                        @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
+                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
+                        @mousedown="startSelection($event, data.item.customer_sku_code, data.index)"
                         @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                         @mousemove="selectItem(data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
-                        <!-- {{ data.item.customer_sku_code }} -->
-                        <!-- @mousedown="startSelection($event, data.item.customer_sku_code, data.index)" -->
-                        <input class="px-2" v-model="data.item.customer_sku_code"
-                            @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
-
+                        {{ data.item.customer_sku_code }}
                     </div>
                 </template>
 
@@ -318,6 +320,7 @@ export default {
             is_modal_material_category_type: false,
             case_is_status: {
                 event: false,
+                sort: false,
             },
             case_index: {
                 event: -1,
@@ -326,6 +329,7 @@ export default {
             },
             case_order: {
                 customer_name: '',
+                db_click: false,
             },
             field_order_suffices: [
                 {
@@ -604,15 +608,19 @@ export default {
         convertToNumber(value) {
             return Number(value);
         },
-        sortingChanged(sort, item) {
+        sortingChanged() {
+            this.case_is_status.sort = true;
+            let sort = this.$refs.btable.sortedItems;
             this.$emit('sortingChanged', sort)
         },
+
         startSelection(e, item, index) {
+            this.case_order.db_click = false;
             if (e !== undefined) {
                 e.preventDefault();
                 this.case_index.change = index;
+                this.isSelecting = true;
             }
-            this.isSelecting = true;
             this.refeshItem();
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
@@ -662,7 +670,6 @@ export default {
             this.isSelecting = false;
         },
         copyItem(event, item, field) {
-            console.log(field);
             console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
             switch (event.keyCode) {
                 case 67: // ctrl + c
@@ -677,6 +684,7 @@ export default {
                     break;
                 case 27: // esc
                     this.isSelecting = false;
+                    this.case_order.db_click = false;
                     this.refeshItem();
                     break;
                 case 40: // down
@@ -685,11 +693,10 @@ export default {
 
                         this.orders.forEach((order, index) => {
                             if (this.case_index.change < index) {
-                                this.selectItemEventKey(order.customer_sku_code, event);
+                                this.selectItemEventKey(order[field], event);
                             }
                             // this.selectItemEventKey(order.customer_sku_code, event);
                         });
-                        console.log(this.selectedItems);
                         // this.isChangeBorder(item);
                         // this.setFocusToKeyListener(item);
                         // this.selectItemEventKey(item, event);
@@ -723,12 +730,10 @@ export default {
         renderRefDefault(default_value, name) {
             let ref = default_value + name;
             return ref;
-            console.log(name);
         },
         setFocusToKeyListener(customer_sku_code) {
             // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
             const ref = 'keyListenerDiv_' + customer_sku_code;
-            console.log(ref);
             this.$refs[ref].focus();
         },
         refeshItem() {
@@ -740,12 +745,18 @@ export default {
             this.selectItemEventKey(item, event);
         },
         handleItem(item, field, index) {
-            console.log(this.case_order.customer_name, field, index)
-            this.$emit('handleItem', item, field, index)
+            let orders = this.$refs.btable.sortedItems;
+            this.$emit('handleItem', item, field, index, orders);
         },
-        demo(item) {
-            return true;
-        }
+        isHandleDbClick() {
+            return this.case_order.db_click;
+        },
+        handleDoubleClick(e) {
+            if (e.type == 'dblclick') {
+                this.isSelecting = false;
+                this.case_order.db_click = true;
+            }
+        },
     }
 }
 </script>
