@@ -256,12 +256,14 @@
 			resetDialog() {
 				this.material_donated.name = null;
 				this.material_donated.sap_code = null;
+				this.material_donated.is_active = false;
 				this.clearErrors();
 			},
 
 			clearForm() {
 				this.material_donated.name = null;
 				this.material_donated.sap_code = null;
+				this.material_donated.is_active = false;
 			},
 			clearErrors() {
 				this.errors = {};
@@ -305,6 +307,7 @@
 
 				this.material_donated.sap_code = item.sap_code;
 				this.material_donated.name = item.name;
+				this.material_donated.is_active = item.is_active;
 				this.material_donated.id = item.id;
 			},
 		},

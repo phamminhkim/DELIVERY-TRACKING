@@ -125,7 +125,7 @@
 							}),
 						);
 
-					if (data.errors) {
+					if (!data.errors) {
 						if (Array.isArray(data)) {
 							this.material_combos.push(...data); // Add the new mappings to the end of the list
 						}

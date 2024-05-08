@@ -217,6 +217,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/customer-materials')->group(function () {
             Route::get('/', [CustomerMaterialController::class, 'getCustomerMaterials']);
+            Route::get('/minified', [CustomerMaterialController::class, 'getCustomerMaterialsMinified']);
         });
         Route::prefix('/customer-partners')->group(function () {
             Route::get('/minified', [CustomerPartnerController::class, 'getAvailableCustomerPartnersMinified']);
