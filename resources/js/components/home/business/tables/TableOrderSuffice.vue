@@ -22,9 +22,9 @@
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
                         @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
                         @input="handleItem(data.item.barcode, 'barcode', data.index)" />
-                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode"
+                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode + data.index + data.field.key"
                         @keydown="copyItem($event, data.item.barcode, data.field.key)"
-                        @mousedown="startSelection($event, data.item.barcode, data.index)"
+                        @mousedown="startSelection($event, data.item.barcode, data.index, data.field.key)"
                         @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
@@ -150,10 +150,11 @@
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
                         @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
                         @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
-                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code"
+                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.index + data.field.key"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
                         @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
-                        @mousedown="startSelection($event, data.item.sku_sap_code, data.index)"
+                        @dblclick="handleDoubleClick($event)"
+                        @mousedown="startSelection($event, data.item.sku_sap_code, data.index, data.field.key)"
                         @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
@@ -249,9 +250,10 @@
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
                         @keydown="copyItem($event, data.item.customer_sku_code)" @dblclick="handleDoubleClick($event)"
                         @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
-                    <div v-else tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code"
+                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.index + data.field.key"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
-                        @mousedown="startSelection($event, data.item.customer_sku_code, data.index)"
+                        @dblclick="handleDoubleClick($event)"
+                        @mousedown="startSelection($event, data.item.customer_sku_code, data.index, data.field.key)"
                         @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                         @mousemove="selectItem(data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
@@ -614,7 +616,7 @@ export default {
             this.$emit('sortingChanged', sort)
         },
 
-        startSelection(e, item, index) {
+        startSelection(e, item, index, header) {
             this.case_order.db_click = false;
             if (e !== undefined) {
                 e.preventDefault();
@@ -624,7 +626,7 @@ export default {
             this.refeshItem();
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
-            this.setFocusToKeyListener(item);
+            this.setFocusToKeyListener(item, index , header);
         },
         selectItem(item, event) {
             if (event !== undefined) {
@@ -731,9 +733,9 @@ export default {
             let ref = default_value + name;
             return ref;
         },
-        setFocusToKeyListener(customer_sku_code) {
+        setFocusToKeyListener(customer_sku_code , index, header) {
             // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
-            const ref = 'keyListenerDiv_' + customer_sku_code;
+            const ref = 'keyListenerDiv_' + customer_sku_code + index + header;
             this.$refs[ref].focus();
         },
         refeshItem() {
