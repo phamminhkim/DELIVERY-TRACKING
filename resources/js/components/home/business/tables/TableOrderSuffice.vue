@@ -40,9 +40,10 @@
                         <small class="text-danger">Hàng thiếu</small>
                     </div>
                     <div v-else>
-                        <input class="px-2" v-model="data.item.customer_name" :readonly="case_is_status.edit == false"
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
                         {{ data.item.promotive }}
+                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }}{{ data.item.promotive }}</span>
 
                     </div>
                 </template>
@@ -51,17 +52,18 @@
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.quantity1_po }} -->
-                        <input class="px-2" v-model="data.item.quantity1_po" :readonly="case_is_status.edit == false"
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity1_po"
                             @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
+                        <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        <input class="px-2" v-model="data.item.quantity2_po" :readonly="case_is_status.edit == false"
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity2_po"
                             @input="handleItem(data.item.quantity2_po, 'quantity2_po', data.index)" />
-                        <!-- <strong>{{ data.value.toLocaleString(locale_format) }}</strong> -->
+                        <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
@@ -69,9 +71,9 @@
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.inventory_quantity }} -->
-                        <input class="px-2" v-model="data.item.inventory_quantity"
-                            :readonly="case_is_status.edit == false"
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.inventory_quantity"
                             @input="handleItem(data.item.inventory_quantity, 'inventory_quantity', data.index)" />
+                        <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
                 <template #head(barcode)="header">
@@ -170,28 +172,37 @@
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <!-- {{ data.item.sku_sap_name }} -->
-                    <input class="px-2" v-model="data.item.sku_sap_name" :readonly="case_is_status.edit == false"
+                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sku_sap_name"
                         @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
+                    <span v-else>{{ data.item.sku_sap_name }}</span>
                 </template>
                 <template #cell(customer_sku_name)="data">
-                    <input class="px-2" v-model="data.item.customer_sku_name" :readonly="case_is_status.edit == false"
+                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_sku_name"
                         @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
+                    <span v-else>{{ data.item.customer_sku_name }}</span>
                 </template>
                 <template #cell(customer_sku_unit)="data">
-                    <input class="px-2" v-model="data.item.customer_sku_unit" :readonly="case_is_status.edit == false"
+                    <input class="px-2" v-model="data.item.customer_sku_unit" v-if="case_is_status.edit"
                         @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
+                    <span v-else>{{ data.item.customer_sku_unit }}</span>
                 </template>
                 <template #cell(po)="data">
-                    <input class="px-2" :readonly="case_is_status.edit == false" v-model="data.item.po"
+                    <input class="px-2" v-if="case_is_status.edit" v-model="data.item.po"
                         @input="handleItem(data.item.po, 'po', data.index)" />
+                    <span v-else>{{ data.item.po }}</span>
+
                 </template>
                 <template #cell(sku_sap_unit)="data">
-                    <input class="px-2" v-model="data.item.sku_sap_unit" :readonly="case_is_status.edit == false"
+                    <input class="px-2" v-model="data.item.sku_sap_unit" v-if="case_is_status.edit"
                         @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
+                    <span v-else>{{ data.item.sku_sap_unit }}</span>
+
                 </template>
                 <template #cell(customer_code)="data">
-                    <input class="px-2" v-model="data.item.customer_code" :readonly="case_is_status.edit == false"
+                    <input class="px-2" v-model="data.item.customer_code" v-if="case_is_status.edit"
                         @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
+                    <span v-else>{{ data.item.customer_code }}</span>
+
                 </template>
                 <template #cell(promotive_name)="data">
                     {{ data.item.promotive }}
@@ -199,26 +210,42 @@
                 </template>
                 <template #cell(note1)="data">
                     <!-- {{ data.item.note1 }}{{ data.item.promotive }} -->
-                    <input class="px-2" v-model="data.item.note1" :readonly="case_is_status.edit == false"
-                        @input="handleItem(data.item.note1, 'note1', data.index)" />
-                    {{ data.item.promotive }}
+                    <div v-if="case_is_status.edit">
+                        <input class="px-2" v-model="data.item.note1"
+                            @input="handleItem(data.item.note1, 'note1', data.index)" />
+                        {{ data.item.promotive }}
+                    </div>
+                    <span v-else>{{ data.item.note1 }}{{ data.item.promotive }}</span>
                 </template>
                 <template #cell(note)="data">
-                    <input class="px-2" v-model="data.item.note" :readonly="case_is_status.edit == false"
-                        @input="handleItem(data.item.note, 'note', data.index)" />
-                    {{ data.item.promotive }}
+                    <div v-if="case_is_status.edit">
+                        <input class="px-2" v-model="data.item.note" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.note, 'note', data.index)" />
+                        {{ data.item.promotive }}
+                    </div>
+                    <span v-else>{{ data.item.note }}</span>
+
                 </template>
                 <template #cell(level2)="data">
-                    <input class="px-2" v-model="data.item.level2" :readonly="case_is_status.edit == false"
-                        @input="handleItem(data.item.level2, 'level2', data.index)" />
+                    <div v-if="case_is_status.edit">
+                        <input class="px-2" v-model="data.item.level2"
+                            @input="handleItem(data.item.level2, 'level2', data.index)" />
+                    </div>
+                    <span v-else>{{ data.item.level2 }}</span>
+
                 </template>
                 <template #cell(level3)="data">
-                    <input class="px-2" v-model="data.item.level3" :readonly="case_is_status.edit == false"
-                        @input="handleItem(data.item.level3, 'level3', data.index)" />
+                    <div v-if="case_is_status.edit">
+                        <input class="px-2" v-model="data.item.level3"
+                            @input="handleItem(data.item.level3, 'level3', data.index)" />
+                    </div>
+                    <span v-else>{{ data.item.level3 }}</span>
+
                 </template>
                 <template #cell(level4)="data">
-                    <input class="px-2" v-model="data.item.level4" :readonly="case_is_status.edit == false"
+                    <input class="px-2" v-model="data.item.level4" v-if="case_is_status.edit"
                         @input="handleItem(data.item.level4, 'level4', data.index)" />
+                    <span v-else>{{ data.item.level4 }}</span>
                 </template>
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index, data.item)" class="">
@@ -230,22 +257,25 @@
                     </div>
                 </template>
                 <template #cell(amount_po)="data">
-                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span> -->
-                    <input class="px-2" v-model="data.item.amount_po" :readonly="case_is_status.edit == false"
+
+                    <input class="px-2" v-model="data.item.amount_po" v-if="case_is_status.edit"
                         @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
+                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
                 </template>
                 <template #cell(price_po)="data">
-                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span> -->
-                    <input class="px-2" v-model="data.item.price_po" :readonly="case_is_status.edit == false"
+
+                    <input class="px-2" v-model="data.item.price_po" v-if="case_is_status.edit"
                         @input="handleItem(data.item.price_po, 'price_po', data.index)" />
+                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
                 </template>
                 <template #cell(company_price)="data">
-                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span> -->
-                    <input class="px-2" v-model="data.item.company_price" :readonly="case_is_status.edit == false"
+
+                    <input class="px-2" v-model="data.item.company_price" v-if="case_is_status.edit"
                         @input="handleItem(data.item.company_price, 'company_price', data.index)" />
+                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span>
                 </template>
                 <template #cell(customer_sku_code)="data">
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
