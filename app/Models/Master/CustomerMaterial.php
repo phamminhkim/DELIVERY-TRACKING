@@ -3,10 +3,14 @@
 namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\FullTextSearch;
 
 class CustomerMaterial extends Model
 {
+    use FullTextSearch;
     public $timestamps = false;
+    protected $table = 'customer_materials';
+
 
     //fillable
     protected $fillable = [
@@ -14,6 +18,11 @@ class CustomerMaterial extends Model
         'customer_sku_code',
         'customer_sku_name',
         'customer_sku_unit',
+    ];
+    protected $searchable = [
+        'customer_materials.customer_sku_code',
+        'customer_materials.customer_sku_name',
+        'customer_materials.customer_sku_unit',
     ];
 
     public function customer_group()
