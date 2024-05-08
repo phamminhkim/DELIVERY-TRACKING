@@ -28,7 +28,8 @@
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="getSortingChanged">
+            @sortingChanged="getSortingChanged"
+            @createRow="getCreateRow">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -243,7 +244,6 @@ export default {
             this.refeshCheckBox();
         },
         getSaveOrderProcesses() {
-            console.log('saveOrderProcesses');
             this.showDialogTitleOrderSo();
             // this.$refs.parentOrderSuffice.saveOrderProcesses();
         },
@@ -258,8 +258,6 @@ export default {
             this.case_save_so.customer_group_id = item.customer_group_id;
             this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
             item.so_data_items.forEach(data_item => {
-               
-              
                 var   variant_quantity =  this.convertToNumber(data_item.inventory_quantity)  - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
                 if (data_item.is_inventory == true) {
                     this.case_data_temporary.order_lacks.push({
@@ -398,6 +396,40 @@ export default {
             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
             return buf;
         },
+        getCreateRow() {
+            this.orders.unshift({
+                id: '',
+                customer_sku_code: '',
+                customer_sku_name: '',
+                customer_sku_unit: '',
+                quantity: '',
+                company_price: '',
+                customer_code: '',
+                level2: '',
+                level3: '',
+                level4: '',
+                note1: '',
+                note: '',
+                barcode: '',
+                sku_sap_code: '',
+                sku_sap_name: '',
+                sku_sap_unit: '',
+                inventory_quantity: '',
+                amount_po: '',
+                is_inventory: false,
+                is_promotive: false,
+                price_po: '',
+                promotive: '',
+                promotive_name: '',
+                quantity1_po: '',
+                quantity2_po: '',
+                customer_name: '',
+                variant_quantity: '',
+                extra_offer: '',
+                promotion_category: '',
+            });
+            this.refHeaderOrderProcesses();
+        }
     },
     computed: {
         row_orders() {
