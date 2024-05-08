@@ -430,9 +430,6 @@ export default {
             this.refHeaderOrderProcesses();
         },
         getHandleItem(item, field, index, orders) {
-            console.log(this.orders,'masdata');
-            console.log(orders,'dữ liệu tự sort');
-            console.log(index, 'index');
             this.orders = [...orders];
             this.orders[index][field] = item;
             this.refHeaderOrderProcesses();
