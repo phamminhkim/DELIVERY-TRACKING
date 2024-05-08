@@ -28,10 +28,7 @@
                         @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
-                        <span class="text-center rounded" :class="{
-            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
-            'badge badge-primary': data.item.promotion_category == 'Combo'
-        }">
+                        <span class="text-center rounded">
                             {{ data.item.barcode }}
                         </span>
                     </div>
@@ -159,8 +156,8 @@
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
                         <span class="text-center rounded" :class="{
-            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
-            'badge badge-primary': data.item.promotion_category == 'Combo'
+            'badge badge-warning': data.item.extra_offer == 'X',
+            'badge badge-primary': data.item.promotion_category == 'X'
         }">
                             {{ data.item.sku_sap_code }}
 
