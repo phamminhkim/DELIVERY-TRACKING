@@ -1,5 +1,9 @@
 <template>
     <div>
+        <button @click="createRow()" type="button" class="btn btn-sm btn-info">
+            <i class="fas fa-plus mr-1"></i>
+            <span class="font-weight-bold">Thêm dòng</span>
+        </button>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
             <span clsas="font-weight-normal">Tiêu đề: </span>
@@ -101,6 +105,9 @@ export default {
         },
         sortingChanged(sort) {
             this.$emit('sortingChanged', sort);
+        },
+        createRow() {
+            this.$emit('createRow');
         }
 
     },
