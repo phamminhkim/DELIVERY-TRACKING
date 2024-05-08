@@ -89,7 +89,7 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
     {
         $result = "";
         if ($str_length) {
-            $result = substr($str, 0, $str_length);
+            $result = mb_substr($str, 0, $str_length);
             $result = trim(str_replace("\n", " ", $result));
         } else {
             $result = $str;
