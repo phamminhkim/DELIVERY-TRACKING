@@ -80,7 +80,27 @@
 							</span>
 						</div>
 					</div>
-
+					<div class="modal-body">
+						<div class="form-group">
+							<label>Trạng thái</label>
+							<input
+								v-model="material_donated.is_active"
+								class="form-check-input"
+								id="is_active"
+								name="is_active"
+								type="checkbox"
+								@change="validateIsActive"
+								v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
+							/>
+							<span
+								v-if="hasError('is_active')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('is_active') }}</strong>
+							</span>
+						</div>
+					</div>
 
 					<div class="modal-footer justify-content-between">
 						<button type="submit" title="Submit" class="btn btn-primary">
@@ -121,14 +141,17 @@
 
 				is_loading: false,
 				errors: [],
-				is_active: true,
+				// is_active: true,
 
 				material_donated: {
 					sap_code: '',
 					name: '',
-
+					is_active: false, // Giá trị mặc định là false
 				},
-				material_donateds: [],
+				material_donateds: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 				api_url: '/api/master/material-donateds',
 			};
 		},
@@ -136,6 +159,14 @@
 			this.fetchOptionsData();
 		},
 		methods: {
+			validateIsActive() {
+				if (
+					this.material_donated.is_active !== true &&
+					this.material_donated.is_active !== false
+				) {
+					this.material_donated.is_active = false; // Giá trị mặc định là false nếu không hợp lệ
+				}
+			},
 			async addMaterialDonated() {
 				if (this.is_loading) return;
 				this.is_loading = true;
@@ -148,15 +179,15 @@
 			},
 			async createMaterialDonated() {
 				try {
-					console.log('createMaterialDonated');
 					this.is_loading = true;
 					const data = await this.api_handler.post('/api/master/material-donateds', {
 						sap_code: this.material_donated.sap_code,
-                        name: this.material_donated.name,
+						name: this.material_donated.name,
+						is_active: this.material_donated.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
 					});
 					if (data.success) {
-						if (Array.isArray(data)) {
-							this.material_donateds.push(...data); // Add the new mappings to the end of the list
+						if (data.data && Array.isArray(data.data)) {
+							this.material_donateds.data.unshift(data.data);
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
@@ -175,19 +206,24 @@
 			async updateMaterialDonated() {
 				try {
 					this.is_loading = true;
+					const request = {
+						sap_code: this.material_donated.sap_code,
+						name: this.material_donated.name,
+						is_active: this.material_donated.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
+					};
 					const data = await this.api_handler.put(
 						`${this.api_url}/${this.material_donated.id}`,
-						this.material_donated,
+						request,
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
 					if (!data.errors) {
-						if (Array.isArray(data)) {
-							this.material_donateds.push(...data); // Add the new mappings to the end of the list
+						if (data.data && Array.isArray(data.data)) {
+							this.material_donateds.data.push(data.data);
 						}
-						this.showMessage('success', 'Cập nhật thành công');
+						this.showMessage('success', 'Cập nhật thành công', data.message);
 						this.closeDialog();
-						await this.refetchData(); // Load the data again after successful creation
+						await this.refetchData(); // Load the data again after successful update
 					} else {
 						this.errors = data.errors;
 						this.showMessage('error', 'Cập nhật không thành công');
@@ -270,7 +306,6 @@
 				this.material_donated.sap_code = item.sap_code;
 				this.material_donated.name = item.name;
 				this.material_donated.id = item.id;
-
 			},
 		},
 		computed: {

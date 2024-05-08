@@ -14,7 +14,7 @@ class MaterialCombo extends Model
         'sap_code',
         'name',
         'bar_code',
-        'is_deleted'
+        'is_active'
     ];
 
 

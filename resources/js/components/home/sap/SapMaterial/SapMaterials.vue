@@ -253,7 +253,7 @@
 							:editing_item="editing_item"
 							:refetchData="fetchOptionsData"
 						></DialogAddUpdateSapMaterial>
-						<DialogImportExcelToCreateSapMaterial :refetchData="fetchData" />
+						<DialogImportExcelToCreateSapMaterial :refetchData="fetchOptionsData" />
 
 						<!-- end tạo form -->
 					</div>

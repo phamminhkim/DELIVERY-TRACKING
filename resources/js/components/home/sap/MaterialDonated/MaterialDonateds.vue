@@ -160,7 +160,7 @@
 							:per-page="pagination.item_per_page"
 							:filter="search_pattern"
 							:fields="fields"
-							:items="material_donateds"
+							:items="material_donateds.data"
 							:tbody-tr-class="rowClass"
 						>
 							<template #empty="scope">
@@ -180,6 +180,14 @@
 									(pagination.current_page - 1) * pagination.item_per_page +
 									1
 								}}
+							</template>
+							<template #cell(is_active)="data">
+								<span class="badge bg-success" v-if="data.item.is_active == 1"
+									>Đang hoạt động</span
+								>
+								<span class="badge bg-warning" v-if="data.item.is_active == 0"
+									>Không hoạt động</span
+								>
 							</template>
 
 							<template #cell(action)="data">
@@ -213,22 +221,22 @@
 						<div class="col-md-2">
 							<b-form-select
 								size="sm"
-								v-model="pagination.item_per_page"
-								:options="pagination.page_options"
-							>
-							</b-form-select>
+								:value="pagination.item_per_page.toString()"
+								:options="
+									pagination.page_options.map((option) => option.toString())
+								"
+								@change="fetchOptionsData"
+							></b-form-select>
 						</div>
-						<label
-							class="col-form-label-sm col-md-1"
-							style="text-align: left"
-							for=""
-						></label>
+						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
 						<div class="col-md-3">
 							<b-pagination
 								v-model="pagination.current_page"
-								:total-rows="rows"
+								:total-rows="material_donateds.data.length"
 								:per-page="pagination.item_per_page"
-								size="sm"
+								:limit="3"
+								:size="pagination.page_options.length.toString()"
+								@input="fetchOptionsData"
 								class="ml-1"
 							></b-pagination>
 						</div>
@@ -236,13 +244,13 @@
 					<!-- end phân trang -->
 
 					<!-- tạo form -->
-					 <DialogAddUpdateMaterialDonated
+					<DialogAddUpdateMaterialDonated
 						ref="AddUpdateDialog"
 						:is_editing="is_editing"
 						:editing_item="editing_item"
-						:refetchData="fetchData"
+						:refetchData="fetchOptionsData"
 					></DialogAddUpdateMaterialDonated>
-					<DialogImportExcelToCreateMaterialDonated :refetchData="fetchData" />
+					<DialogImportExcelToCreateMaterialDonated :refetchData="fetchOptionsData" />
 
 					<!-- end tạo form -->
 				</div>
@@ -281,10 +289,13 @@
 				editing_item: {},
 				is_loading: false,
 				is_show_search: false,
-				pagination: {
-					item_per_page: 10,
+
+                pagination: {
 					current_page: 1,
-					page_options: [10, 50, 100, 500, { value: this.rows, text: 'All' }],
+					item_per_page: 10,
+					total_items: 0,
+					last_page: 0,
+					page_options: [10, 20, 50, 100, 500, { value: this.rows, text: 'All' }],
 				},
 				fields: [
 					{
@@ -299,11 +310,17 @@
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-                    {
+					{
 						key: 'name',
 						label: 'Tên sản phẩm',
 						sortable: true,
 						class: 'text-nowrap text-left',
+					},
+					{
+						key: 'is_active',
+						label: 'Trạng thái',
+						sortable: true,
+						class: 'text-nowrap text-center',
 					},
 					{
 						key: 'action',
@@ -311,7 +328,10 @@
 						class: 'text-nowrap',
 					},
 				],
-				material_donateds: [],
+				material_donateds: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 
 				api_url: 'api/master/material-donateds',
 			};
@@ -323,14 +343,20 @@
 			async fetchData() {
 				try {
 					this.is_loading = true;
-					const { data } = await this.api_handler.get(this.api_url, {
-                        ids: this.form_filter.material_donated,
-
-					});
+                    const params = {
+						page: this.pagination.current_page,
+						per_page: this.pagination.item_per_page,
+						ids: this.form_filter.material_donated,
+					};
+					const response = await this.api_handler.get(this.api_url, { params });
+					const { data, paginate } = response.data.material_donateds;
 
 					if (Array.isArray(data)) {
-						this.material_donateds = data;
+						this.material_donateds = data.map();
 					}
+                    this.pagination.current_page = paginate.current_page;
+					this.pagination.last_page = paginate.last_page;
+					this.pagination.total_items = paginate.total;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -356,7 +382,7 @@
 					label: node.name,
 				};
 			},
-            async loadOptions({ action, searchQuery, callback }) {
+			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
@@ -383,7 +409,6 @@
 
 					const { data } = await this.api_handler.get(this.api_url, {
 						ids: this.form_filter.material_donated,
-
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');
@@ -412,18 +437,18 @@
 			async deleteMaterialDonated(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
-						let result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.material_donateds = result.data;
+								this.material_donateds.data = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
-							await this.fetchData(); // Load the data again after successful deletion
+							await this.fetchOptionsData(); // Load the data again after successful deletion
 						} else {
 							this.showMessage('error', 'Lỗi', result.message);
 						}
 					} catch (error) {
-						this.$showMessage('error', 'Lỗi', error);
+						this.showMessage('error', 'Lỗi', error);
 					}
 				}
 			},
