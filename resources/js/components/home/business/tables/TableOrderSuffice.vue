@@ -801,6 +801,7 @@ export default {
             if (e.type == 'dblclick') {
                 this.isSelecting = false;
                 this.case_order.db_click = true;
+                this.case_is_status.edit = true;
                 this.$emit('isHandleDbClick', this.case_order.db_click);
 
             }
