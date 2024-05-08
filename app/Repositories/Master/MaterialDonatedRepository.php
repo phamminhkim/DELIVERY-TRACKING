@@ -12,25 +12,56 @@ use Illuminate\Support\Facades\DB;
 
 class MaterialDonatedRepository extends RepositoryAbs
 {
-    public function getAll($is_minified)
+    public function getAll($is_minified, $request)
     {
         try {
             $query = MaterialDonated::query();
-            if ($this->request->filled('search')) {
-                $query = $query->search($this->request->search);
-                $query->limit(200);
+
+            if ($request->filled('search')) {
+                $query->limit(50);
             }
-            if ($this->request->filled('sap_codes')) {
-                $query = $query->whereIn('sap_code', $this->request->sap_codes);
+            if ($request->filled('sap_codes')) {
+                $query->whereIn('sap_code', $request->sap_codes);
             }
-            if ($this->request->filled('ids')) {
-                $query->whereIn('id', $this->request->ids);
+
+            if ($request->filled('ids')) {
+                $query->whereIn('id', $request->ids);
+            }
+
+            if ($request->filled('id')) {
+                $query->where('id', $request->id);
+            }
+
+            if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('sap_code', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%");
+                });
             }
             if ($is_minified) {
-                $query->select('id', 'sap_code', 'name');
+                $query->select('id', 'name', 'sap_code');
             }
-            $materialDonated = $query->orderBy('id', 'desc')->get();
-            return $materialDonated;
+
+            $perPage = $request->filled('per_page') ? $request->per_page : 500;
+            $material_donateds = $query->paginate($perPage, ['*'], 'page', $request->page);
+
+            if ($request->filled('search') && $material_donateds->isEmpty()) {
+                $material_donateds = $query->paginate($perPage, ['*'], 'page', $request->page);
+            }
+
+            $result = [
+                'data' => $material_donateds->items(),
+                'per_page' => $material_donateds->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $material_donateds->currentPage(),
+                'last_page' => $material_donateds->lastPage(),
+                'total' => $material_donateds->total(),
+            ];
+
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -56,25 +87,32 @@ class MaterialDonatedRepository extends RepositoryAbs
                 $template_structure = [
                     'sap_code' => 0,
                     'name' => 1,
+                    'is_active' => 2, // Index of the 'is_active' column in the Excel file
                 ];
                 $result = collect([]);
 
                 foreach ($data as $row) {
-                    $material_donateds = MaterialDonated::updateOrCreate(
+                    $is_active = strtolower($row[$template_structure['is_active']]);
 
+                    // Chuyển đổi giá trị 'is_active' thành 1 nếu chuỗi là null, ngược lại thành 0
+                    $is_active = ($is_active != null) ? 0 : 1;
+                    $material_donated = MaterialDonated::updateOrCreate(
                         [
                             'sap_code' => $row[$template_structure['sap_code']],
                             'name' => $row[$template_structure['name']],
+                        ],
+                        [
+                            'is_active' => $is_active,
                         ]
                     );
 
-                    $result->push($material_donateds);
+                    $result->push($material_donated);
                 }
 
-                return array(
-                    "created_list" => $result,
-                    "errors" => $this->errors
-                );
+                return [
+                    'created_list' => $result,
+                    'errors' => $this->errors,
+                ];
             }
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -83,8 +121,7 @@ class MaterialDonatedRepository extends RepositoryAbs
             return false;
         }
     }
-
-    public function store($request)
+    public function store()
     {
         try {
             $validator = Validator::make(
@@ -92,19 +129,32 @@ class MaterialDonatedRepository extends RepositoryAbs
                 [
                     'sap_code' => 'required|unique:material_donateds,sap_code',
                     'name' => 'required',
+                    'is_active' => 'in:0,1',
                 ],
                 [
                     'sap_code.required' => 'Mã SAP không được để trống',
                     'sap_code.unique' => 'Mã SAP đã tồn tại',
                     'name.required' => 'Tên không được để trống',
+                    'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
                 ]
             );
 
             if ($validator->fails()) {
                 $this->errors = $validator->errors();
             } else {
-                $material_donated = MaterialDonated::create($this->data);
-                return $material_donated;
+                $material_donated_data = [
+                    'sap_code' => $this->data['sap_code'],
+                    'name' => $this->data['name'],
+                ];
+                if (isset($this->data['is_active'])) {
+                    $material_donated_data['is_active'] = (int) $this->data['is_active'];
+                }
+
+                $materialDonated = MaterialDonated::create($material_donated_data);
+
+
+
+                return $materialDonated;
             }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -120,22 +170,40 @@ class MaterialDonatedRepository extends RepositoryAbs
                 [
                     'sap_code' => 'integer',
                     'name' => 'required',
+                    'is_active' => 'in:0,1', // Thay đổi quy tắc kiểm tra cho check_pc
+
                 ],
                 [
                     'sap_code.integer' => 'Mã SAP phải là số nguyên',
                     'name.required' => 'Tên không được để trống',
+                    'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
+
                 ]
             );
 
             if ($validator->fails()) {
-                $this->errors = $validator->errors();
-                return false;
-            }
-            $material_donated = MaterialDonated::findOrFail($id);
+                $errors = $validator->errors();
+                foreach ($this->data as $materialDonated => $validator) {
+                    if ($errors->has($materialDonated)) {
+                        $this->errors[$materialDonated] = $errors->first($materialDonated);
+                        return false;
+                    }
+                }
+            } else {
 
-            // Tiếp tục với việc cập nhật dữ liệu
-            $material_donated->update($this->data);
-            return $material_donated;
+                $materialDonated = MaterialDonated::findOrFail($id);
+                $materialDonated->fill([
+                    'sap_code' => $this->data['sap_code'],
+                    'name' => $this->data['name'],
+                ]);
+
+                if (isset($this->data['is_active'])) {
+                    $materialDonated->is_active = (int) $this->data['is_active'];
+                }
+                $materialDonated->save();
+
+                return $materialDonated;
+            }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
