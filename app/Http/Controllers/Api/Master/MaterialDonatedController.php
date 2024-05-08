@@ -16,7 +16,7 @@ class MaterialDonatedController extends ResponseController
     public function getAll(Request $request)
     {
         $handler = MasterRepository::materialDonatedRequest($request);
-        $materialDonated = $handler->getAll($request);
+        $materialDonated = $handler->getAll(false,$request);
         if ($materialDonated) {
             return $this->responseSuccess($materialDonated);
         } else {
@@ -28,7 +28,7 @@ class MaterialDonatedController extends ResponseController
     {
 
         $handler = MasterRepository::materialDonatedRequest($request);
-        $materialDonated = $handler->getAll(true);
+        $materialDonated = $handler->getAll(true, $request);
 
         if ($materialDonated) {
             return $this->response($materialDonated);
