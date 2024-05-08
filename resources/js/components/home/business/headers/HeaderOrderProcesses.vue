@@ -413,7 +413,6 @@ export default {
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                console.log(excelData);
                 this.browserExcelHeader(excelData[0]);
                 this.browserExcelData(excelData);
                 this.fetchSapMaterial();
@@ -779,7 +778,6 @@ export default {
                 customer_group_id: this.form_filter.customer_group,
                 items: this.getCheckPromotion(this.orders)
             }
-            console.log('fetchApiCheckPromotion', filter);
             try {
                 // this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.post(this.api_check_promotion, {}, filter);
@@ -804,14 +802,6 @@ export default {
             });
             this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
         },
-        getSortingChanged(sort) {
-            console.log(sort);
-            let sortedOrders = this.orders.slice().sort((a, b) => {
-                return a[sort.sortBy] > b[sort.sortBy] ? -1 : 1;
-            });
-            this.orders = sortedOrders;
-            console.log(this.orders);
-        }
     },
     computed: {
         type_file_extract_order_configs() {
