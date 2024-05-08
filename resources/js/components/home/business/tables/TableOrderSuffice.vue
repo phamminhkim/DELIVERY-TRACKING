@@ -32,7 +32,7 @@
                             <!-- {{ data.item.barcode }} -->
                             <!-- @mousedown="startSelection($event, data.item.barcode, data.index)" -->
                             <input class="px-2" v-model="data.item.barcode"
-                                @input="demo(data)" />
+                            @input="handleItem(data.item.barcode, 'barcode', data.index)" />
                         </span>
                     </div>
 
