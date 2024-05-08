@@ -12,7 +12,7 @@
                 </template>
                 <template #head(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected_all"
-                        @change="emitCheckBox(data.index)"></b-form-checkbox>
+                        @change="checkBoxAll(data.index)"></b-form-checkbox>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
@@ -583,6 +583,15 @@ export default {
         },
         deleteRow(index, item) {
             this.$emit('deleteRow', index, item)
+        },
+        checkBoxAll(index) {
+            if (this.case_checkbox.selected_all) {
+                this.case_checkbox.selected = this.orders;
+            }else {
+                this.case_checkbox.selected = [];
+            } 
+             this.$emit('checkBoxRow', this.case_checkbox.selected, 0)
+
         },
         emitCheckBox(index) {
             if (this.case_checkbox.selected_all) {
