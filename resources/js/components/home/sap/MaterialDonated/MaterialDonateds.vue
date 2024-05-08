@@ -295,7 +295,7 @@
 					item_per_page: 10,
 					total_items: 0,
 					last_page: 0,
-					page_options: [10, 20, 50, 100, 500, { value: this.rows, text: 'All' }],
+					page_options: [10, 20, 50, 100, 500],
 				},
 				fields: [
 					{
@@ -391,7 +391,7 @@
 						'api/master/material-donateds/minified',
 						params,
 					);
-					let options = data.map((item) => {
+					let options = data.data.map((item) => {
 						return {
 							id: item.id,
 							label: ` (${item.sap_code}) ${item.name}`,

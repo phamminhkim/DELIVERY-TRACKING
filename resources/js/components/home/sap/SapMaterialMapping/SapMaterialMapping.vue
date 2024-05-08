@@ -66,9 +66,9 @@
 										placeholder="Mã/tên sản phẩm khách hàng.."
 										:multiple="true"
 										id="customer_material_id"
-										:disable-branch-nodes="false"
 										v-model="form_filter.customer_material"
-										:options="customer_options"
+                                        :load-options="loadOptionsCustomer"
+										:async="true"
 									></treeselect>
 								</div>
 							</div>
@@ -306,7 +306,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchOptionsData"
 					></DialogAddUpdateSapMapping>
-					<DialogImportExcelToCreateMapping :refetchData="fetchData" />
+					<DialogImportExcelToCreateMapping :refetchData="fetchOptionsData" />
 
 					<!-- end tạo form -->
 				</div>
@@ -548,7 +548,28 @@
 					callback(null, options);
 				}
 			},
-
+            async loadOptionsCustomer({ action, searchQuery, callback }) {
+				if (action === ASYNC_SEARCH) {
+					const params = {
+						search: searchQuery,
+						// customer_material_ids: this.form_filter.customer_material,
+						customer_ids: [this.form_filter.customer],
+					};
+					const { data } = await this.api_handler.get(
+						'api/master/customer-materials/minified',
+						params,
+					);
+					let options = data.map((item) => {
+						return {
+							id: item.id,
+							label: `(${item.customer_sku_code}) (${item.customer_sku_unit}) ${item.customer_sku_name} `,
+						};
+					});
+					// console.log(data);
+					//const options = data;
+					callback(null, options);
+				}
+			},
 			async filterData() {
 				try {
 					if (this.is_loading) return;

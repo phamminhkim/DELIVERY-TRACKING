@@ -12,7 +12,7 @@
                 </template>
                 <template #head(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected_all"
-                        @change="checkBoxAll(data.index)"></b-form-checkbox>
+                        @change="emitCheckBox(data.index)"></b-form-checkbox>
                 </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
@@ -21,17 +21,17 @@
                 <template #cell(barcode)="data">
                     <div tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode"
                         @keydown="copyItem($event, data.item.barcode)"
-                        @mousedown="startSelection($event, data.item.barcode, data.index)"
                         @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
                         <span class="text-center rounded" :class="{
-            // 'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
-            // 'badge badge-primary': data.item.promotion_category == 'Combo'
-                      'badge badge-warning': data.item.extra_offer == 'X',
-                      'badge badge-primary': data.item.promotion_category == 'X'
+            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
+            'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                            {{ data.item.barcode }}
+                            <!-- {{ data.item.barcode }} -->
+                            <!-- @mousedown="startSelection($event, data.item.barcode, data.index)" -->
+                            <input class="px-2" v-model="data.item.barcode"
+                                @input="handleItem(data.item.barcode, 'barcode', data.index)" />
                         </span>
                     </div>
 
@@ -41,40 +41,39 @@
                     <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
-                        <!-- <small v-if="rowColor(data.item) " class="text-danger ml-2 font-weight-bold">
-                            <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
-                        </small> -->
                     </div>
                     <div v-else>
-                        {{ data.item.customer_name }}{{ data.item.promotive }}<br>
-                        <!-- <small v-if="rowColor(data.item) || data.item.is_inventory == true" class="text-danger font-weight-bold">
-                            <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px;"></i>Đã lưu hàng thiếu
-                        </small> -->
+                        <input class="px-2" v-model="data.item.customer_name"
+                            @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
+                        {{ data.item.promotive }}
+
                     </div>
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                            <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                            </strong></span>
-                         
+                        <!-- {{ data.item.quantity1_po }} -->
+                        <input class="px-2" v-model="data.item.quantity1_po"
+                            @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                        <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                            </strong></span>
+                        <input class="px-2" v-model="data.item.quantity2_po"
+                            @input="handleItem(data.item.quantity2_po, 'quantity2_po', data.index)" />
+                        <!-- <strong>{{ data.value.toLocaleString(locale_format) }}</strong> -->
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
                     <div :class="{
             'text-danger': isCheckLack(data.item)
         }">
-                          <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                            </strong></span>
+                        <!-- {{ data.item.inventory_quantity }} -->
+                        <input class="px-2" v-model="data.item.inventory_quantity"
+                            @input="handleItem(data.item.inventory_quantity, 'inventory_quantity', data.index)" />
                     </div>
                 </template>
                 <template #head(barcode)="header">
@@ -150,30 +149,72 @@
                 </template>
                 <template #cell(sku_sap_code)="data">
                     <div tabindex="0" :ref="'keyListenerDiv_' + data.item.sku_sap_code"
+                        @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
                         @keydown="copyItem($event, data.item.sku_sap_code)"
-                        @mousedown="startSelection($event, data.item.sku_sap_code, data.index)"
                         @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
                         <span class="text-center rounded" :class="{
-            'badge badge-warning': data.item.extra_offer == 'X',
-            'badge badge-primary': data.item.promotion_category == 'X'
+            'badge badge-warning': data.item.promotion_category == 'ExtraOffer',
+            'badge badge-primary': data.item.promotion_category == 'Combo'
         }">
-                            {{ data.item.sku_sap_code }}
+                            <!-- {{ data.item.sku_sap_code }} -->
+                            <!-- @mousedown="startSelection($event, data.item.sku_sap_code, data.index)" -->
+                            <input class="px-2" v-model="data.item.sku_sap_code"
+                                @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
                         </span>
                     </div>
                 </template>
                 <template #cell(sku_sap_name)="data">
-                    {{ data.item.sku_sap_name }}
+                    <!-- {{ data.item.sku_sap_name }} -->
+                    <input class="px-2" v-model="data.item.sku_sap_name"
+                        @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
+                </template>
+                <template #cell(customer_sku_name)="data">
+                    <input class="px-2" v-model="data.item.customer_sku_name"
+                        @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
+                </template>
+                <template #cell(customer_sku_unit)="data">
+                    <input class="px-2" v-model="data.item.customer_sku_unit"
+                        @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
+                </template>
+                <template #cell(po)="data">
+                    <input class="px-2" v-model="data.item.po" @input="handleItem(data.item.po, 'po', data.index)" />
+                </template>
+                <template #cell(sku_sap_unit)="data">
+                    <input class="px-2" v-model="data.item.sku_sap_unit"
+                        @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
+                </template>
+                <template #cell(customer_code)="data">
+                    <input class="px-2" v-model="data.item.customer_code"
+                        @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
                 </template>
                 <template #cell(promotive_name)="data">
                     {{ data.item.promotive }}
+
                 </template>
                 <template #cell(note1)="data">
-                    {{ data.item.note1 }}{{ data.item.promotive }}
+                    <!-- {{ data.item.note1 }}{{ data.item.promotive }} -->
+                    <input class="px-2" v-model="data.item.note1"
+                        @input="handleItem(data.item.note1, 'note1', data.index)" />
+                    {{ data.item.promotive }}
                 </template>
                 <template #cell(note)="data">
-                    {{ data.item.note }}{{ data.item.promotive }}
+                    <input class="px-2" v-model="data.item.note"
+                        @input="handleItem(data.item.note, 'note', data.index)" />
+                    {{ data.item.promotive }}
+                </template>
+                <template #cell(level2)="data">
+                    <input class="px-2" v-model="data.item.level2"
+                        @input="handleItem(data.item.level2, 'level2', data.index)" />
+                </template>
+                <template #cell(level3)="data">
+                    <input class="px-2" v-model="data.item.level3"
+                        @input="handleItem(data.item.level3, 'level3', data.index)" />
+                </template>
+                <template #cell(level4)="data">
+                    <input class="px-2" v-model="data.item.level4"
+                        @input="handleItem(data.item.level4, 'level4', data.index)" />
                 </template>
                 <template #cell(promotive)="data">
                     <div @click="onChangeShowModal(data.index, data.item)" class="">
@@ -185,32 +226,35 @@
                     </div>
                 </template>
                 <template #cell(amount_po)="data">
-                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
-                </template>
-
-                <template #cell(variant_quantity)="data">
-                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
+                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span> -->
+                    <input class="px-2" v-model="data.item.amount_po"
+                        @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
                 </template>
                 <template #cell(price_po)="data">
-                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
+                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span> -->
+                    <input class="px-2" v-model="data.item.price_po"
+                        @input="handleItem(data.item.price_po, 'price_po', data.index)" />
                 </template>
                 <template #cell(company_price)="data">
-                    <span><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
+                    <!-- <span><strong>{{ data.value.toLocaleString(locale_format) }}
+                        </strong></span> -->
+                    <input class="px-2" v-model="data.item.company_price"
+                        @input="handleItem(data.item.company_price, 'company_price', data.index)" />
                 </template>
                 <template #cell(customer_sku_code)="data">
-
                     <div tabindex="0" :ref="'keyListenerDiv_' + data.item.customer_sku_code"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
                         @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
-                        @mousedown="startSelection($event, data.item.customer_sku_code, data.index)"
                         @mousemove="selectItem(data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
-                        {{ data.item.customer_sku_code }}
+                        <!-- {{ data.item.customer_sku_code }} -->
+                        <!-- @mousedown="startSelection($event, data.item.customer_sku_code, data.index)" -->
+                        <input class="px-2" v-model="data.item.customer_sku_code"
+                            @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
+
                     </div>
                 </template>
 
@@ -279,6 +323,9 @@ export default {
                 event: -1,
                 copys: [],
                 change: -1,
+            },
+            case_order: {
+                customer_name: '',
             },
             field_order_suffices: [
                 {
@@ -376,7 +423,7 @@ export default {
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
-                    class: "text-nowrap text-right",
+                    class: "text-nowrap",
                     sortable: true,
                 },
                 {
@@ -389,31 +436,24 @@ export default {
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
-                    class: "text-nowrap text-right",
+                    class: "text-nowrap ",
                     sortable: true,
                 },
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
-                    class: "text-nowrap text-right",
-                    sortable: true,
-                },
-                {
-                    key: 'variant_quantity',
-                    label: 'SL Chênh lệch',
-                    class: "text-nowrap text-right",
+                    class: "text-nowrap",
                     sortable: true,
                 },
                 {
                     key: 'price_po',
                     label: 'Pur_price',
-                    class: "text-nowrap text-right",
+                    class: "text-nowrap",
                     sortable: true,
                 },
                 {
                     key: 'amount_po',
                     label: 'Amount',
-                    class: "text-right",
                     sortable: true,
 
 
@@ -535,18 +575,11 @@ export default {
         deleteRow(index, item) {
             this.$emit('deleteRow', index, item)
         },
-        checkBoxAll(index) {
+        emitCheckBox(index) {
             if (this.case_checkbox.selected_all) {
                 this.case_checkbox.selected = this.orders;
-            }else {
-                this.case_checkbox.selected = [];
-            } 
-             this.$emit('checkBoxRow', this.case_checkbox.selected, 0)
-
-        },
-        emitCheckBox(index) {
-           
-             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
+            }
+            this.$emit('checkBoxRow', this.case_checkbox.selected, index)
 
         },
         refeshCaseCheckBox() {
@@ -608,9 +641,9 @@ export default {
             }
             let exits = false;
             this.case_index.copys.forEach((element, index) => {
-                // if (element == item) {
-                //     exits = true;
-                // }
+                if (element == item) {
+                    exits = true;
+                }
             });
             if (!exits) {
                 this.case_index.copys.push(item);
@@ -651,7 +684,7 @@ export default {
                     if (event.ctrlKey && event.shiftKey) {
 
                         this.orders.forEach((order, index) => {
-                            if(this.case_index.change < index){
+                            if (this.case_index.change < index) {
                                 this.selectItemEventKey(order.customer_sku_code, event);
                             }
                             // this.selectItemEventKey(order.customer_sku_code, event);
@@ -687,9 +720,15 @@ export default {
             });
             return exits;
         },
+        renderRefDefault(default_value, name) {
+            let ref = default_value + name;
+            return ref;
+            console.log(name);
+        },
         setFocusToKeyListener(customer_sku_code) {
             // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
             const ref = 'keyListenerDiv_' + customer_sku_code;
+            console.log(ref);
             this.$refs[ref].focus();
         },
         refeshItem() {
@@ -699,6 +738,13 @@ export default {
         },
         changeCtrl(event, item) {
             this.selectItemEventKey(item, event);
+        },
+        handleItem(item, field, index) {
+            console.log(this.case_order.customer_name, field, index)
+            this.$emit('handleItem', item, field, index)
+        },
+        demo(item) {
+            return true;
         }
     }
 }

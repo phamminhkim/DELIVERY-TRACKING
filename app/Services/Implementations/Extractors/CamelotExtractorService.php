@@ -50,7 +50,7 @@ class CamelotExtractorService implements DataExtractorInterface
             }
             if (isset($advanced_settings_info->shift_text)) {
                 $shift_text = $advanced_settings_info->shift_text;
-                $instance->shiftText($shift_text);
+                $instance->shiftText(...$shift_text);
             }
             if (isset($advanced_settings_info->strip_text)) {
                 $strip_text = $advanced_settings_info->strip_text;

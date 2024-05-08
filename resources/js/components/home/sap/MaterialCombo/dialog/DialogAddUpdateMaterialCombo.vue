@@ -125,6 +125,27 @@
 							</span>
 						</div>
 					</div>
+                    <div class="modal-body">
+						<div class="form-group">
+							<label>Trạng thái</label>
+							<input
+								v-model="material_combo.is_active"
+								class="form-check-input"
+								id="is_active"
+								name="is_active"
+								type="checkbox"
+								@change="validateIsActive"
+								v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
+							/>
+							<span
+								v-if="hasError('is_active')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('is_active') }}</strong>
+							</span>
+						</div>
+					</div>
 
 					<div class="modal-footer justify-content-between">
 						<button type="submit" title="Submit" class="btn btn-primary">
@@ -165,16 +186,20 @@
 
 				is_loading: false,
 				errors: {},
-				is_active: true,
 
 				material_combo: {
 					customer_group_id: null,
 					sap_code: '',
 					name: '',
 					bar_code: '',
+					is_active: false, // Giá trị mặc định là false
+
 
 				},
-				material_combos: [],
+				material_combos: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
                 customer_group_options:[],
 
 				api_url: '/api/master/material-combos',
@@ -184,6 +209,14 @@
 			this.fetchOptionsData();
 		},
 		methods: {
+            validateIsActive() {
+				if (
+					this.material_combo.is_active !== true &&
+					this.material_combo.is_active !== false
+				) {
+					this.material_combo.is_active = false; // Giá trị mặc định là false nếu không hợp lệ
+				}
+			},
 			async addMaterialCombo() {
 				if (this.is_loading) return;
 				this.is_loading = true;
@@ -203,10 +236,12 @@
 						sap_code: this.material_combo.sap_code,
 						bar_code: this.material_combo.bar_code,
                         name: this.material_combo.name,
+						is_active: this.material_combo.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
+
 					});
 					if (!data.errors) {
-						if (Array.isArray(data)) {
-							this.material_combos.push(...data); // Add the new mappings to the end of the list
+						if (data.data && Array.isArray(data.data)) {
+							this.material_combos.data.unshift(data.data);
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
@@ -225,17 +260,24 @@
 			async updateMaterialCombo() {
 				try {
 					this.is_loading = true;
+					const request = {
+						customer_group_id: this.material_combo.customer_group_id,
+						sap_code: this.material_combo.sap_code,
+						bar_code: this.material_combo.bar_code,
+                        name: this.material_combo.name,
+						is_active: this.material_combo.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
+					};
 					const data = await this.api_handler.put(
 						`${this.api_url}/${this.material_combo.id}`,
-						this.material_combo,
+						request,
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
 					if (!data.success) {
-						if (Array.isArray(data)) {
-							this.material_combos.push(...data); // Add the new mappings to the end of the list
+						if (data.data && Array.isArray(data.data)) {
+							this.material_combos.data.push(data.data);
 						}
-						this.showMessage('success', 'Cập nhật thành công');
+						this.showMessage('success', 'Cập nhật thành công', data.message);
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -274,6 +316,8 @@
 				this.material_combo.name = null;
 				this.material_combo.sap_code = null;
 				this.material_combo.bar_code = null;
+				this.material_combo.is_active = false;
+
 				this.clearErrors();
 			},
 
@@ -282,6 +326,7 @@
 				this.material_combo.name = null;
 				this.material_combo.sap_code = null;
 				this.material_combo.bar_code = null;
+				this.material_combo.is_active = false;
 			},
 			clearErrors() {
 				this.errors = {};
@@ -326,6 +371,7 @@
 				this.material_combo.name = item.name;
 				this.material_combo.sap_code = item.sap_code;
 				this.material_combo.bar_code = item.bar_code;
+				this.material_combo.is_active = item.is_active;
 				this.material_combo.id = item.id;
 
 			},
