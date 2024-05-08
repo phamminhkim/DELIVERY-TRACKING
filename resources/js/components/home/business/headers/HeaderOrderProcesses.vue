@@ -804,14 +804,6 @@ export default {
             });
             this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
         },
-        getSortingChanged(sort) {
-            console.log(sort);
-            let sortedOrders = this.orders.slice().sort((a, b) => {
-                return a[sort.sortBy] > b[sort.sortBy] ? -1 : 1;
-            });
-            this.orders = sortedOrders;
-            console.log(this.orders);
-        }
     },
     computed: {
         type_file_extract_order_configs() {

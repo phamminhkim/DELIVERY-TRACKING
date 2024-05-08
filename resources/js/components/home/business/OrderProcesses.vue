@@ -370,7 +370,9 @@ export default {
             this.case_data_temporary.order_lacks.splice(index, 1);
         },
         getSortingChanged(sort) {
-            this.$refs.headerOrderProcesses.getSortingChanged(sort);
+            this.orders = [...sort];
+            console.log(this.orders);
+            this.refHeaderOrderProcesses();
         },
         getExportExcel() {
             let data = this.orders.concat(this.case_data_temporary.order_lacks);
@@ -427,7 +429,11 @@ export default {
             });
             this.refHeaderOrderProcesses();
         },
-        getHandleItem(item, field, index) {
+        getHandleItem(item, field, index, orders) {
+            console.log(this.orders,'masdata');
+            console.log(orders,'dữ liệu tự sort');
+            console.log(index, 'index');
+            this.orders = [...orders];
             this.orders[index][field] = item;
             this.refHeaderOrderProcesses();
         }

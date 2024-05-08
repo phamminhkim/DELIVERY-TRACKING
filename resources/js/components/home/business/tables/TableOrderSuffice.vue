@@ -4,6 +4,7 @@
             <!-- sticky-header="500px" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
                 :class="{ 'table-order-suffices': true, }" @sort-changed="sortingChanged" :fields="field_order_suffices"
+                ref="btable"
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
@@ -31,7 +32,7 @@
                             <!-- {{ data.item.barcode }} -->
                             <!-- @mousedown="startSelection($event, data.item.barcode, data.index)" -->
                             <input class="px-2" v-model="data.item.barcode"
-                                @input="handleItem(data.item.barcode, 'barcode', data.index)" />
+                                @input="demo(data)" />
                         </span>
                     </div>
 
@@ -318,6 +319,7 @@ export default {
             is_modal_material_category_type: false,
             case_is_status: {
                 event: false,
+                sort: false,
             },
             case_index: {
                 event: -1,
@@ -604,9 +606,12 @@ export default {
         convertToNumber(value) {
             return Number(value);
         },
-        sortingChanged(sort, item) {
+        sortingChanged() {
+            this.case_is_status.sort = true;
+            let sort = this.$refs.btable.sortedItems;
             this.$emit('sortingChanged', sort)
         },
+       
         startSelection(e, item, index) {
             if (e !== undefined) {
                 e.preventDefault();
@@ -662,7 +667,6 @@ export default {
             this.isSelecting = false;
         },
         copyItem(event, item, field) {
-            console.log(field);
             console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
             switch (event.keyCode) {
                 case 67: // ctrl + c
@@ -689,7 +693,6 @@ export default {
                             }
                             // this.selectItemEventKey(order.customer_sku_code, event);
                         });
-                        console.log(this.selectedItems);
                         // this.isChangeBorder(item);
                         // this.setFocusToKeyListener(item);
                         // this.selectItemEventKey(item, event);
@@ -740,11 +743,12 @@ export default {
             this.selectItemEventKey(item, event);
         },
         handleItem(item, field, index) {
-            console.log(this.case_order.customer_name, field, index)
-            this.$emit('handleItem', item, field, index)
+            let orders = this.$refs.btable.sortedItems;
+            this.$emit('handleItem', item, field, index, orders);
+            console.log(this.$refs.btable.sortedItems);
         },
-        demo(item) {
-            return true;
+        demo(header, item) {
+            console.log(header, item);
         }
     }
 }
