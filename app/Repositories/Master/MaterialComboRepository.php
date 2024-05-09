@@ -67,38 +67,40 @@ class MaterialComboRepository extends RepositoryAbs
         }
     }
     public function createMaterialComboFormExcel()
-    {
-        try {
-            $validator = Validator::make($this->data, [
-                'file' => 'required|mimes:xlsx,xls',
-            ], [
-                'file.required' => 'File là bắt buộc.',
-                'file.mimes' => 'File không đúng định dạng.',
-            ]);
+{
+    try {
+        $validator = Validator::make($this->data, [
+            'file' => 'required|mimes:xlsx,xls',
+        ], [
+            'file.required' => 'File là bắt buộc.',
+            'file.mimes' => 'File không đúng định dạng.',
+        ]);
 
-            if ($validator->fails()) {
-                $this->errors = $validator->errors()->all();
-                return false;
-            } else {
-                $file = $this->request->file('file');
-                $excel_extractor = new ExcelExtractor();
-                $data = $excel_extractor->extractData($file);
-                $template_structure = [
-                    'customer_group_name' => 0,
-                    'sap_code' => 1,
-                    'name' => 2,
-                    'bar_code' => 3,
-                    'is_active' => 4, // Thêm trường is_active vào cấu trúc mẫu
-                ];
-                $result = [];
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->all();
+            return false;
+        } else {
+            $file = $this->request->file('file');
+            $excel_extractor = new ExcelExtractor();
+            $data = $excel_extractor->extractData($file);
+            $template_structure = [
+                'customer_group_name' => 0,
+                'sap_code' => 1,
+                'name' => 2,
+                'bar_code' => 3,
+                'is_active' => 4, // Thêm trường is_active vào cấu trúc mẫu
+            ];
+            $result = [];
+            $existing_combos = [];
 
-                foreach ($data as $row) {
-                    $customer_group_name = $row[$template_structure['customer_group_name']];
-                    $sap_code = $row[$template_structure['sap_code']];
-                    $name = $row[$template_structure['name']];
-                    $bar_code = $row[$template_structure['bar_code']];
-                    $is_active = $row[$template_structure['is_active']];
+            foreach ($data as $row) {
+                $sap_code = $row[$template_structure['sap_code']];
+                $name = $row[$template_structure['name']];
+                $bar_code = $row[$template_structure['bar_code']];
+                $is_active = $row[$template_structure['is_active']];
+                $customer_group_names = explode(',', $row[$template_structure['customer_group_name']]);
 
+                foreach ($customer_group_names as $customer_group_name) {
                     $customer_group = CustomerGroup::where('name', $customer_group_name)->first();
 
                     if (!$customer_group) {
@@ -106,55 +108,43 @@ class MaterialComboRepository extends RepositoryAbs
                         continue;
                     }
 
-                    $existing_material_combo = MaterialCombo::where('sap_code', $sap_code)
+                    $existing_combo = MaterialCombo::where('sap_code', $sap_code)
                         ->where('customer_group_id', $customer_group->id)
                         ->first();
-                        $is_active = ($is_active === null) ? 1 : 0;
-                    if ($existing_material_combo) {
-                        // Kiểm tra nếu dữ liệu có sự thay đổi thì cập nhật
-                        if ($existing_material_combo->name !== $name || $existing_material_combo->bar_code !== $bar_code || $existing_material_combo->is_active !== $is_active) {
-                            $existing_material_combo->name = $name;
-                            $existing_material_combo->bar_code = $bar_code;
-                            $existing_material_combo->is_active = $is_active;
-                            $existing_material_combo->save();
-                        }
-                        $result[] = $existing_material_combo;
+
+                    if ($existing_combo) {
+                        // Bộ mã đã tồn tại, cập nhật thông tin
+                        $existing_combo->name = $name;
+                        $existing_combo->bar_code = $bar_code;
+                        $existing_combo->is_active = ($is_active === null) ? 1 : 0;
+                        $existing_combo->save();
+
+                        $result[] = $existing_combo;
                     } else {
-                        $material_combo = MaterialCombo::where('sap_code', $sap_code)->first();
+                        // Tạo mới bộ mã
+                        $new_material_combo = MaterialCombo::create([
+                            'customer_group_id' => $customer_group->id,
+                            'sap_code' => $sap_code,
+                            'name' => $name,
+                            'bar_code' => $bar_code,
+                            'is_active' => ($is_active === null) ? 1 : 0,
+                        ]);
 
-                        if ($material_combo) {
-                            // Mã code đã tồn tại, cập nhật thông tin của MaterialCombo hiện có
-                            $material_combo->name = $name;
-                            $material_combo->bar_code = $bar_code;
-                            $material_combo->is_active = $is_active;
-                            $material_combo->save();
-
-                            $result[] = $material_combo;
-                        } else {
-                            // Mã code chưa tồn tại, tạo mới MaterialCombo
-                            $new_material_combo = MaterialCombo::create([
-                                'customer_group_id' => $customer_group->id,
-                                'sap_code' => $sap_code,
-                                'name' => $name,
-                                'bar_code' => $bar_code,
-                                'is_active' => $is_active,
-                            ]);
-
-                            $result[] = $new_material_combo;
-                        }
+                        $result[] = $new_material_combo;
                     }
                 }
-                return [
-                    "created_list" => $result,
-                    "errors" => $this->errors
-                ];
             }
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
-            return false;
+            return [
+                "created_list" => $result,
+                "errors" => $this->errors
+            ];
         }
+    } catch (\Exception $exception) {
+        $this->message = $exception->getMessage();
+        $this->errors = $exception->getTrace();
+        return false;
     }
+}
     public function store()
     {
         try {

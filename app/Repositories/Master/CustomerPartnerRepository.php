@@ -119,26 +119,30 @@ class CustomerPartnerRepository extends RepositoryAbs
                     ->first();
 
                 if ($existingCustomerPartner) {
-                    $this->errors[] = 'Tên khách hàng ' . $customer_partner_name . ' đã tồn tại trong nhóm này.';
-                    continue;
+                    // Khách hàng đã tồn tại, thực hiện cập nhật dữ liệu
+                    $existingCustomerPartner->code = $row[$template_structure['code']];
+                    $existingCustomerPartner->note = $row[$template_structure['note']];
+                    $existingCustomerPartner->LV2 = $row[$template_structure['LV2']];
+                    $existingCustomerPartner->LV3 = $row[$template_structure['LV3']];
+                    $existingCustomerPartner->LV4 = $row[$template_structure['LV4']];
+                    $existingCustomerPartner->save();
+
+                    $result[] = $existingCustomerPartner;
+                } else {
+                    // Khách hàng chưa tồn tại, thực hiện tạo mới
+                    $customer_partner_data = [
+                        'code' => $row[$template_structure['code']],
+                        'name' => $customer_partner_name,
+                        'note' => $row[$template_structure['note']],
+                        'LV2' => $row[$template_structure['LV2']],
+                        'LV3' => $row[$template_structure['LV3']],
+                        'LV4' => $row[$template_structure['LV4']],
+                        'customer_group_id' => $customer_group->id,
+                    ];
+
+                    $customer_partner = CustomerPartner::create($customer_partner_data);
+                    $result[] = $customer_partner;
                 }
-
-                $customer_partner_data = [
-                    'code' => $row[$template_structure['code']],
-                    'name' => $customer_partner_name,
-                    'note' => $row[$template_structure['note']],
-                    'LV2' => $row[$template_structure['LV2']],
-                    'LV3' => $row[$template_structure['LV3']],
-                    'LV4' => $row[$template_structure['LV4']],
-                    'customer_group_id' => $customer_group->id,
-                ];
-
-                $customer_partner = CustomerPartner::updateOrCreate(
-                    ['code' => $customer_partner_data['code']],
-                    $customer_partner_data
-                );
-
-                $result[] = $customer_partner;
             }
 
             DB::commit(); // Commit the database transaction
