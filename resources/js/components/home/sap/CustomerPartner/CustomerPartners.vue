@@ -263,7 +263,7 @@
 						:editing_item="editing_item"
 						:refetchData="fetchOptionsData"
 					></DialogAddUpdateCustomerPartner>
-					<DialogImportExcelToCreateCustomerPartner :refetchData="fetchData" />
+					<DialogImportExcelToCreateCustomerPartner :refetchData="fetchOptionsData" />
 
 					<!-- end tạo form -->
 				</div>

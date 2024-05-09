@@ -309,7 +309,7 @@
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.customer_partners.data.push(result.data);
 						}
