@@ -725,7 +725,7 @@ export default {
             console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
             switch (event.keyCode) {
                 case 67: // ctrl + c
-                    if (event.ctrlKey) {
+                    if (event.ctrlKey && !this.case_is_status.edit) {
                         this.copyToClipboard(this.selectedItems.join('\n'));
                         this.$showMessage('success', 'Copy thành công');
                     }
