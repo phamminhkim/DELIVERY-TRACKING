@@ -45,7 +45,11 @@
 								required
 							></treeselect>
 
-							<span v-if="hasError('customer_group_id')" class="invalid-feedback" role="alert">
+							<span
+								v-if="hasError('customer_group_id')"
+								class="invalid-feedback"
+								role="alert"
+							>
 								<strong>{{ getError('customer_group_id') }}</strong>
 								<!-- <div v-for="(error, index) in getError('customer_group_id')" :key="index">
                                     <strong>{{ error }}</strong>
@@ -102,7 +106,7 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
 							<label>Mã Barcode</label>
 							<small class="text-danger">*</small>
@@ -125,18 +129,20 @@
 							</span>
 						</div>
 					</div>
-                    <div class="modal-body">
+					<div class="modal-body">
 						<div class="form-group">
-							<label>Trạng thái</label>
-							<input
-								v-model="material_combo.is_active"
-								class="form-check-input"
-								id="is_active"
-								name="is_active"
-								type="checkbox"
-								@change="validateIsActive"
-								v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
-							/>
+							<label class="mr-5" >Trạng thái</label>
+							<div class="form-check form-check-inline">
+								<input
+									v-model="material_combo.is_active"
+									class="form-check-input"
+									id="is_active"
+									name="is_active"
+									type="checkbox"
+									@change="validateIsActive"
+									v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
+								/>
+							</div>
 							<span
 								v-if="hasError('is_active')"
 								class="invalid-feedback"
@@ -193,14 +199,12 @@
 					name: '',
 					bar_code: '',
 					is_active: false, // Giá trị mặc định là false
-
-
 				},
 				material_combos: {
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
-                customer_group_options:[],
+				customer_group_options: [],
 
 				api_url: '/api/master/material-combos',
 			};
@@ -209,7 +213,7 @@
 			this.fetchOptionsData();
 		},
 		methods: {
-            validateIsActive() {
+			validateIsActive() {
 				if (
 					this.material_combo.is_active !== true &&
 					this.material_combo.is_active !== false
@@ -235,9 +239,8 @@
 						customer_group_id: this.material_combo.customer_group_id,
 						sap_code: this.material_combo.sap_code,
 						bar_code: this.material_combo.bar_code,
-                        name: this.material_combo.name,
+						name: this.material_combo.name,
 						is_active: this.material_combo.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
-
 					});
 					if (!data.errors) {
 						if (data.data && Array.isArray(data.data)) {
@@ -264,7 +267,7 @@
 						customer_group_id: this.material_combo.customer_group_id,
 						sap_code: this.material_combo.sap_code,
 						bar_code: this.material_combo.bar_code,
-                        name: this.material_combo.name,
+						name: this.material_combo.name,
 						is_active: this.material_combo.is_active ? 1 : 0, // Chuyển đổi giá trị boolean thành 0 hoặc 1
 					};
 					const data = await this.api_handler.put(
@@ -292,10 +295,11 @@
 			},
 
 			async fetchOptionsData() {
-				const [material_combo_options, customer_group_options] = await this.api_handler.handleMultipleRequest([
-					new APIRequest('get', '/api/master/material-combos'),
-					new APIRequest('get', '/api/master/customer-groups'),
-				]);
+				const [material_combo_options, customer_group_options] =
+					await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/material-combos'),
+						new APIRequest('get', '/api/master/customer-groups'),
+					]);
 				this.material_combos = material_combo_options;
 				this.customer_group_options = customer_group_options;
 			},
@@ -367,13 +371,12 @@
 			},
 			editing_item: function (item) {
 				console.log(item);
-                this.material_combo.customer_group_id = item.customer_group_id;
+				this.material_combo.customer_group_id = item.customer_group_id;
 				this.material_combo.name = item.name;
 				this.material_combo.sap_code = item.sap_code;
 				this.material_combo.bar_code = item.bar_code;
 				this.material_combo.is_active = item.is_active;
 				this.material_combo.id = item.id;
-
 			},
 		},
 		computed: {
