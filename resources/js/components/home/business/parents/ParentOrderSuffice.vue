@@ -26,7 +26,8 @@
             @checkBoxRow="getCheckBoxRow"
             @sortingChanged="sortingChanged"
             @isHandleDbClick="getIsHandleDbClick"
-            @handleItem="getHandleItem"></TableOrderSuffice>
+            @handleItem="getHandleItem"
+            @btnDuplicateRow="getBtnDuplicateRow"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -129,6 +130,9 @@ export default {
         },
         getIsHandleDbClick(is_dbclick) {
             this.case_boolean.is_show_hide = is_dbclick;
+        },
+        getBtnDuplicateRow(index, item) {
+            this.$emit('btnDuplicateRow', index, item);
         }
 
     },
