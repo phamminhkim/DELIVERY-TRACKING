@@ -154,6 +154,13 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $query->whereIn('sap_material_id', $sap_material_ids);
             }
 
+            if (request()->filled('customer_group_ids')) {
+                $customer_group_ids = (array) request()->customer_group_ids;
+                $query->whereHas('customer_material', function ($subQuery) use ($customer_group_ids) {
+                    $subQuery->whereIn('customer_group_id', $customer_group_ids);
+                });
+            }
+
             $query->with([
                 'customer_material' => function ($query) {
                     $query->select(['id', 'customer_group_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit']);
@@ -172,14 +179,17 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $sheet = $spreadsheet->getActiveSheet();
 
             // Đặt tiêu đề cho các cột
+            // Đặt tiêu đề cho các cột
             $sheet->setCellValue('A1', 'Nhóm khách hàng');
             $sheet->setCellValue('B1', 'Mã SKU KH');
             $sheet->setCellValue('C1', 'Tên SKU KH');
-            $sheet->setCellValue('D1', 'Đơn vị SKU KH');
-            $sheet->setCellValue('E1', 'Mã SAP');
-            $sheet->setCellValue('F1', 'Tên SAP');
-            $sheet->setCellValue('G1', 'Đơn vị tính SAP');
-            $sheet->setCellValue('H1', 'Tỉ lệ');
+            $sheet->setCellValue('D1', 'Số lượng - SKU KH');
+            $sheet->setCellValue('E1', 'Đơn vị SKU KH');
+            $sheet->setCellValue('F1', 'Mã SAP');
+            $sheet->setCellValue('G1', 'Tên SAP');
+            $sheet->setCellValue('H1', 'Đơn vị tính SAP');
+            $sheet->setCellValue('I1', 'Số lượng SAP');
+            $sheet->setCellValue('J1', 'Tỉ lệ');
 
             // Ghi dữ liệu vào file Excel
             $row = 2;
@@ -187,14 +197,31 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $sheet->setCellValue('A' . $row, $mapping->customer_material->customer_group->name);
                 $sheet->setCellValue('B' . $row, $mapping->customer_material->customer_sku_code);
                 $sheet->setCellValue('C' . $row, $mapping->customer_material->customer_sku_name);
-                $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_sku_unit);
-                $sheet->setCellValue('E' . $row, $mapping->sap_material->sap_code);
-                $sheet->setCellValue('F' . $row, $mapping->sap_material->name);
-                $sheet->setCellValue('G' . $row, $mapping->sap_material->unit->unit_code);
-                $sheet->setCellValue('H' . $row, $mapping->percentage);
+                $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_number); // Thay đổi thành cột số lượng SKU KH
+                $sheet->setCellValue('E' . $row, $mapping->customer_material->customer_sku_unit);
+                $sheet->setCellValue('F' . $row, $mapping->sap_material->sap_code);
+                $sheet->setCellValue('G' . $row, $mapping->sap_material->name);
+                $sheet->setCellValue('H' . $row, $mapping->sap_material->unit->unit_code);
+                $sheet->setCellValue('I' . $row, $mapping->sap_material->conversion_rate_sap); // Thêm cột số lượng SAP
+                $sheet->setCellValue('J' . $row, $mapping->percentage);
                 $row++;
             }
-            $sheet->freezePane('A2');
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+            // Đặt style cho header
             $headerStyle = [
                 'font' => [
                     'bold' => true,
@@ -217,20 +244,6 @@ class SapMaterialMappingRepository extends RepositoryAbs
             ];
 
             $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
-
-            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-            $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-            foreach ($columns as $column) {
-                $columnDimension = $sheet->getColumnDimension($column);
-                $columnWidth = $columnDimension->getWidth();
-                $highestRow = $sheet->getHighestRow();
-                for ($row = 1; $row <= $highestRow; $row++) {
-                    $cellValue = $sheet->getCell($column . $row)->getValue();
-                    $cellLength = mb_strlen($cellValue);
-                    $columnWidth = max($columnWidth, $cellLength);
-                }
-                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
-            }
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);
