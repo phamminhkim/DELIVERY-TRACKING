@@ -67,7 +67,7 @@
 										:multiple="true"
 										id="customer_material_id"
 										v-model="form_filter.customer_material"
-                                        :load-options="loadOptionsCustomer"
+										:load-options="loadOptionsCustomer"
 										:async="true"
 									></treeselect>
 								</div>
@@ -264,39 +264,36 @@
 					<!-- end tạo nút -->
 					<!-- phân trang -->
 					<div class="row">
-							<label
-								class="col-form-label-sm col-md-2"
-								style="text-align: left"
-								for="per-page-select"
-							>
-								Số lượng mỗi trang:
-							</label>
-							<div class="col-md-2">
-								<b-form-select
-									size="sm"
-									:value="pagination.item_per_page.toString()"
-									:options="
-										pagination.page_options.map((option) => option.toString())
-									"
-									@change="fetchOptionsData"
-								></b-form-select>
-							</div>
-							<label
-								class="col-form-label-sm col-md-1"
-								style="text-align: left"
-							></label>
-							<div class="col-md-3">
-								<b-pagination
-									v-model="pagination.current_page"
-									:total-rows="sap_material_mappings.data.length"
-									:per-page="pagination.item_per_page"
-                                    :limit="3"
-									:size="pagination.page_options.length.toString()"
-									@input="fetchOptionsData"
-									class="ml-1"
-								></b-pagination>
-							</div>
+						<label
+							class="col-form-label-sm col-md-2"
+							style="text-align: left"
+							for="per-page-select"
+						>
+							Số lượng mỗi trang:
+						</label>
+						<div class="col-md-2">
+							<b-form-select
+								size="sm"
+								:value="pagination.item_per_page.toString()"
+								:options="
+									pagination.page_options.map((option) => option.toString())
+								"
+								@change="fetchOptionsData"
+							></b-form-select>
 						</div>
+						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
+						<div class="col-md-3">
+							<b-pagination
+								v-model="pagination.current_page"
+								:total-rows="sap_material_mappings.data.length"
+								:per-page="pagination.item_per_page"
+								:limit="3"
+								:size="pagination.page_options.length.toString()"
+								@input="fetchOptionsData"
+								class="ml-1"
+							></b-pagination>
+						</div>
+					</div>
 					<!-- end phân trang -->
 
 					<!-- tạo form -->
@@ -548,7 +545,7 @@
 					callback(null, options);
 				}
 			},
-            async loadOptionsCustomer({ action, searchQuery, callback }) {
+			async loadOptionsCustomer({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
@@ -616,34 +613,7 @@
 					}
 				}
 			},
-			// async deleteMultipleSapMappings(id) {
-			// 	if (this.selected_ids.length === 0) {
-			// 		toastr.error('Vui lòng chọn ít nhất 1 file');
-			// 		return;
-			// 	}
-			// 	if (confirm('Bạn muốn xoá?')) {
-			// 		try {
-			// 			let result = await this.api_handler.delete(`${this.api_url}`, {
-			// 				data: {
-			// 					ids: this.selected_ids,
-			// 				},
-			// 			});
-			// 			if (result.success) {
-			// 				if (Array.isArray(result.data)) {
-			// 					this.sap_material_mappings = this.sap_material_mappings.filter(
-			// 						(item) => !this.selected_ids.includes(item.id),
-			// 					);
-			// 				}
-			// 				this.showMessage('success', 'Xóa thành công', result.message);
-			// 				await this.fetchData(); // Load the data again after successful deletion
-			// 			} else {
-			// 				this.showMessage('error', 'Lỗi', result.message);
-			// 			}
-			// 		} catch (error) {
-			// 			this.showMessage('error', 'Lỗi', error);
-			// 		}
-			// 	}
-			// },
+
 			async deleteSapMapping(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
@@ -677,11 +647,19 @@
 			},
 			async exportToExcel() {
 				try {
+					const params = {
+						search: this.search,
+						customer_group_ids: this.form_filter.customer_group,
+						customer_material_ids: this.form_filter.customer_material,
+						sap_material_ids: this.form_filter.sap_material,
+					};
+
 					const response = await this.api_handler.get(
-						`api/master/sap-material-mappings/exportToExcel`,
-						{},
+						'api/master/sap-material-mappings/exportToExcel',
+						params,
 						'blob',
 					);
+
 					const blobData = new Blob([response]);
 
 					const url = window.URL.createObjectURL(blobData);
