@@ -10,6 +10,16 @@
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
+                <template #cell(action)="data">
+                    <b-dropdown id="dropdown-left" size="sm" variant="light"
+                                toggle-class="text-center rounded p-0 px-1 border">
+                        <template #button-content>
+                            <i class="fas fa-grip-vertical fa-sm"></i>
+                        </template>
+                        <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
+                      
+                    </b-dropdown>
+                </template>
                 <template #head(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected_all"
                         @change="checkBoxAll(data.index)"></b-form-checkbox>
@@ -368,12 +378,12 @@ export default {
             },
             field_order_suffices: [
                 {
-                    key: 'row_custom',
+                    key: 'selected',
                     label: '',
                     class: 'text-nowrap',
                 },
                 {
-                    key: 'selected',
+                    key: 'action',
                     label: '',
                     class: 'text-nowrap',
                 },
@@ -535,8 +545,6 @@ export default {
                     label: 'Level_4',
                     class: 'text-nowrap',
                     sortable: true,
-
-
                 },
             ],
             case_checkbox: {
@@ -617,10 +625,10 @@ export default {
         checkBoxAll(index) {
             if (this.case_checkbox.selected_all) {
                 this.case_checkbox.selected = this.orders;
-            }else {
+            } else {
                 this.case_checkbox.selected = [];
-            } 
-             this.$emit('checkBoxRow', this.case_checkbox.selected, 0)
+            }
+            this.$emit('checkBoxRow', this.case_checkbox.selected, 0)
 
         },
         emitCheckBox(index) {
@@ -810,7 +818,9 @@ export default {
             this.case_order.db_click = status;
             this.isSelecting = false;
             this.case_is_status.edit = status;
-
+        },
+        btnDuplicateRow(index, item) {
+            this.$emit('btnDuplicateRow', index, item);
         }
     }
 }

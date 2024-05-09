@@ -27,6 +27,7 @@
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
+            @btnDuplicateRow="getBtnDuplicateRow"
            >
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
@@ -435,7 +436,13 @@ export default {
             this.orders = [...orders];
             this.orders[index][field] = item;
             this.refHeaderOrderProcesses();
-        }
+        },
+        getBtnDuplicateRow(index, item) {
+            // Thêm item vào sau vị trí index
+            this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(item)));
+            this.refHeaderOrderProcesses();
+          
+        },
     },
     computed: {
         row_orders() {
