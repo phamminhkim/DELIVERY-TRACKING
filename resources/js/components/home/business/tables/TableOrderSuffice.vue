@@ -1,15 +1,16 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
-            <!-- sticky-header="500px" -->
+            <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
-                :class="{ 'table-order-suffices': true, }" @sort-changed="sortingChanged" :fields="field_order_suffices"
+                :class="{ 'table-order-suffices': true, }"  :fields="field_order_suffices" 
                 ref="btable" table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
+               
                 <template #cell(action)="data">
                     <b-dropdown id="dropdown-left" size="sm" variant="light"
                                 toggle-class="text-center rounded p-0 px-1 border">
@@ -61,7 +62,7 @@
                     <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
                             @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
                         {{ data.item.promotive }}
-                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }}{{ data.item.promotive }}</span>
+                        <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{ data.item.promotive }}</span>
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div :class="{
@@ -397,43 +398,43 @@ export default {
                     key: 'index',
                     label: 'Stt',
                     class: 'text-nowrap text-center',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
-                    key: 'customer_name',
+                    key: 'c',
                     label: 'Makh Key',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'sap_so_number',
                     label: 'Mã Sap So',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'sku_sap_code',
                     label: 'Masap',
                     class: 'text-nowrap text-center',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'sku_sap_unit',
                     label: 'Dvt',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
 
                 {
@@ -441,7 +442,7 @@ export default {
                     label: 'Km',
                     class: 'text-nowrap',
                     tdClass: 'voucher-custom border p-0 ',
-                    sortable: true,
+                    sortable: false,
 
 
                 },
@@ -449,126 +450,115 @@ export default {
                     key: 'note',
                     label: 'Ghi_chu',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'customer_code',
                     label: 'Makh',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
                     class: 'text-nowrap text-center',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'customer_sku_name',
                     label: 'Unit_barcode_description',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'po',
                     label: 'Po',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
                     class: "text-nowrap",
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'promotive_name',
                     label: 'Combo',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
 
                 },
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
                     class: "text-nowrap ",
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
                     class: "text-nowrap",
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'price_po',
                     label: 'Pur_price',
                     class: "text-nowrap",
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'amount_po',
                     label: 'Amount',
-                    sortable: true,
-
-
+                    sortable: false,
                 },
                 {
                     key: 'note1',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',
-                    sortable: true,
-
-
-
+                    sortable: false,
                 },
                 {
                     key: 'company_price',
                     label: 'Gia_cty',
                     class: 'text-nowrap',
-                    sortable: true,
-
-
+                    sortable: false,
                 },
                 {
                     key: 'level2',
                     label: 'Level_2',
                     class: 'text-nowrap',
-                    sortable: true,
-
-
+                    sortable: false,
                 },
                 {
                     key: 'level3',
                     label: 'Level_3',
                     class: 'text-nowrap',
-                    sortable: true,
-
-
+                    sortable: false,
                 },
                 {
                     key: 'level4',
                     label: 'Level_4',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'po_number',
                     label: 'po_number',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'po_delivery_date',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
             ],
             case_checkbox: {
@@ -846,6 +836,10 @@ export default {
         btnDuplicateRow(index, item) {
             this.$emit('btnDuplicateRow', index, item);
         }
+    },
+    comments:{
+       
+ 
     }
 }
 </script>
