@@ -185,13 +185,14 @@ class AiRepository extends RepositoryAbs
                     // Header
                     $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
                     $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
-                    $order_header = $this->addCustomerPartner($restruct_header);
+                    $order_header = $this->addCustomInfo($restruct_header);
+
                 } else if ($convert_file_type == 'excel') {
                     // Data
                     $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
                     // Header
                     $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
-                    $order_header = $this->addCustomerPartner($restruct_header);
+                    $order_header = $this->addCustomInfo($restruct_header);
                 }
                 $array_data = [
                     // 'file_name' => '',
@@ -847,8 +848,9 @@ class AiRepository extends RepositoryAbs
         return $table;
     }
 
-    private function addCustomerPartner($table_data)
+    private function addCustomInfo($table_data)
     {
+        // Thêm thông tin customer partner
         if (isset( $table_data['CustomerKey'])) {
             $customer_key = trim($table_data['CustomerKey']);
             $customer_partner = CustomerPartner::query()->where('name', $customer_key)->first();
@@ -867,6 +869,11 @@ class AiRepository extends RepositoryAbs
                 $table_data['CustomerLevel4'] = null;
             }
         }
+        // Thêm trường SapSoNumber
+        $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
+        $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
+            : $table_data['PoNumber'];
+
         return $table_data;
     }
 
@@ -949,7 +956,7 @@ class AiRepository extends RepositoryAbs
         try {
             $table_data = json_decode($this->data['table_data'], true);
             $restruct_data = $this->restructureData($table_data);
-            return $this->addCustomerPartner($restruct_data);
+            return $this->addCustomInfo($restruct_data);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
