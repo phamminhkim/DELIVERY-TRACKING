@@ -57,6 +57,7 @@
 							<small class="text-danger">*</small>
 							<treeselect
 								v-model="sap_material.unit_id"
+								:multiple="false"
 								placeholder="Nhập unit.."
 								required
 								:load-options="loadOptions"
@@ -183,7 +184,7 @@
 					});
 					console.log(result);
 
-					if (!result.errors) {
+					if (result.success) {
 						if (result.data && Array.isArray(result.data)) {
 							this.sap_materials.data.unshift(result.data);
 						}
@@ -196,6 +197,8 @@
 					}
 				} catch (error) {
 					this.showMessage('error', 'Lỗi', error);
+				} finally {
+					this.is_loading = false;
 				}
 			},
 			async updateSapMaterial() {
@@ -207,7 +210,7 @@
 					);
 
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.sap_materials.data.push(result.data);
 						}
@@ -220,6 +223,8 @@
 					}
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
+				}finally {
+					this.is_loading = false;
 				}
 			},
 
@@ -231,13 +236,8 @@
 							new APIRequest('get', '/api/master/sap-units'),
 							new APIRequest('get', '/api/master/sap-materials'),
 						]);
-					this.sap_materials.data = sap_materials;
-					this.unit_options = unit_options.map((unit) => {
-						return {
-							id: unit.id,
-							label: `(${unit.id}) ${unit.unit_code}`,
-						};
-					});
+					this.sap_materials = sap_materials;
+					this.unit_options = unit_options;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -324,7 +324,7 @@
 			editing_item: function (item) {
 				console.log(item);
 				this.sap_material.sap_code = item.sap_code;
-				this.sap_material.unit_id = item.unit_id;
+				this.sap_material.unit_id = item.unit.unit_code;
 				this.sap_material.bar_code = item.bar_code;
 				this.sap_material.name = item.name;
 				this.sap_material.id = item.id;
