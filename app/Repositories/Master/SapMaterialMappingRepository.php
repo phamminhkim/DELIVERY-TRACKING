@@ -197,12 +197,12 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $sheet->setCellValue('A' . $row, $mapping->customer_material->customer_group->name);
                 $sheet->setCellValue('B' . $row, $mapping->customer_material->customer_sku_code);
                 $sheet->setCellValue('C' . $row, $mapping->customer_material->customer_sku_name);
-                $sheet->setCellValue('D' . $row, $mapping->customer_material->customer_number); // Thay đổi thành cột số lượng SKU KH
+                $sheet->setCellValue('D' . $row, $mapping->customer_number); // Thay đổi thành cột số lượng SKU KH
                 $sheet->setCellValue('E' . $row, $mapping->customer_material->customer_sku_unit);
                 $sheet->setCellValue('F' . $row, $mapping->sap_material->sap_code);
                 $sheet->setCellValue('G' . $row, $mapping->sap_material->name);
                 $sheet->setCellValue('H' . $row, $mapping->sap_material->unit->unit_code);
-                $sheet->setCellValue('I' . $row, $mapping->sap_material->conversion_rate_sap); // Thêm cột số lượng SAP
+                $sheet->setCellValue('I' . $row, $mapping->conversion_rate_sap); // Thêm cột số lượng SAP
                 $sheet->setCellValue('J' . $row, $mapping->percentage);
                 $row++;
             }
