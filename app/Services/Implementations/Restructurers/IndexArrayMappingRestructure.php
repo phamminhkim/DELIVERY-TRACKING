@@ -30,7 +30,13 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                     if (isset($value_item['regex_match'])) {
                         $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
                     }
+                    // Xử lý giá trị theo điều kiên
+                    if (isset($value_item['condition'])) {
+                        $condition = $value_item['condition'];
+                        $output[$key] = OperatorUtility::GetValueWithCondition($match, $condition);
+                    }
                 }
+
                 // Check trường bắt buộc mà không có giá trị thì skip row
                 if ($this->isValidArrayValue($output, $structure)) {
                     $collection->push($output);
