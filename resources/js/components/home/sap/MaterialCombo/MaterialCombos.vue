@@ -238,13 +238,13 @@
 						>
 						<div class="col-md-2">
 							<b-form-select
-								size="sm"
-								:value="pagination.item_per_page.toString()"
-								:options="
-									pagination.page_options.map((option) => option.toString())
-								"
-								@change="fetchOptionsData"
-							></b-form-select>
+									size="sm"
+									v-model="pagination.item_per_page"
+									:options="
+										pagination.page_options.map((option) => option.toString())
+									"
+									@change="fetchOptionsData"
+								></b-form-select>
 						</div>
 						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
 						<div class="col-md-3">
@@ -383,7 +383,7 @@
 					const { data, paginate } = response.data.material_combos;
 
 					if (Array.isArray(data)) {
-						this.material_combos = data.map();
+						this.material_combos.data = data.map();
 					}
                     this.pagination.current_page = paginate.current_page;
 					this.pagination.last_page = paginate.last_page;

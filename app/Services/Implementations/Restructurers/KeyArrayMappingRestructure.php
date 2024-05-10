@@ -12,10 +12,16 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
         try {
             $structure = $options['structure'];
             $collection = collect([]);
+            $skip_item = false;
             foreach ($data as $match) {
                 $output = [];
                 foreach ($structure as $key => $value_item) {
                     if (isset($value_item['value'])) {
+                        if (!isset($match[$value_item['value']])) {
+                            // Tìm không thấy key trong mảng data thì bỏ qua
+                            $skip_item = true;
+                            continue;
+                        }
                         $output[$key] = $match[$value_item['value']] ?
                         $match[$value_item['value']] :
                         (isset($value_item['default']) ? $value_item['default'] :
@@ -23,6 +29,11 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     } else if (isset($value_item['value_1'])
                         && isset($value_item['value_2'])
                         && isset($value_item['operator'])) {
+                        if (!isset($match[$value_item['value1']]) || !isset($match[$value_item['value2']])) {
+                            // Tìm không thấy key trong mảng data thì bỏ qua
+                            $skip_item = true;
+                            continue;
+                        }
                         // Lấy giá trị 1 và giá trị 2, thực hiện phép toán
                         $value_1 = $match[$value_item['value_1']] ?
                         $match[$value_item['value_1']] :
@@ -46,6 +57,11 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     if (isset($value_item['regex_match'])) {
                         $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
                     }
+                }
+                if ($skip_item) {
+                    // Tìm không thấy key trong mảng data thì bỏ qua
+                    $skip_item = false;
+                    continue;
                 }
                 // Check trường bắt buộc mà không có giá trị thì skip row
                 if ($this->isValidArrayValue($output, $structure)) {

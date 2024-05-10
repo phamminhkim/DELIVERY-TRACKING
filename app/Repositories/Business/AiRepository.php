@@ -687,8 +687,12 @@ class AiRepository extends RepositoryAbs
         } elseif ($this->table_converter instanceof LeagueCsvConverter) {
             if (!$convert_table_config) {
                 $options['is_without_header'] = $this->request->is_without_header == 'true' ? true : false;
+                $manual_patterns = json_decode($this->request->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
             } else {
                 $options['is_without_header'] = $convert_table_config->is_without_header ? $convert_table_config->is_without_header : false;
+                $manual_patterns = json_decode($convert_table_config->manual_patterns);
+                $options['manual_patterns'] = $manual_patterns;
             }
         } elseif ($this->table_converter instanceof ManualConverter) {
             if (!$convert_table_config) {
@@ -700,11 +704,23 @@ class AiRepository extends RepositoryAbs
             }
         }
 
-
         $table = [];
         for ($i = 0; $i < count($array); $i++) {
             $extracted_table = $this->table_converter->convert($array[$i], $options);
             $table = array_merge($table, $extracted_table);
+        }
+        // Merge các array theo số lượng được config
+        if (isset($options['manual_patterns'])) {
+            $manual_patterns = $options['manual_patterns'];
+            if (isset($manual_patterns->step4->merge_array)) {
+                $merge_array = $manual_patterns->step4->merge_array;
+                if (isset($merge_array->number_array)) {
+                    $number_array = $merge_array->number_array;
+                    $table = collect($table)->chunk($number_array)->map(function ($item) {
+                        return $item->flatten();
+                    });
+                }
+            }
         }
         return $table;
     }
