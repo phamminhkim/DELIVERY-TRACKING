@@ -47,6 +47,17 @@ class CustomerPartnerController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::CustomerPartnerRequest($request);
+        $customer_partner = $handler->exportToExcel();
+
+        if ($customer_partner) {
+            return $this->responseSuccess($customer_partner);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function createCustomerPartnerFormExcel(Request $request)
     {
         $handler = MasterRepository::CustomerPartnerRequest($request);

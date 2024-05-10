@@ -128,16 +128,15 @@
 											Excel</strong
 										>
 									</button>
-									<!-- <button
-										type="button"
-										class="btn btn-info btn-sm ml-1 mt-1"
-										@click="exportToExcel"
-									>
-										<strong>
-											<i class="fas fa-upload mr-1 text-bold"></i>Download
-											Excel</strong
-										>
-									</button> -->
+									<button
+									type="button"
+									class="btn btn-info btn-sm ml-1 mt-1"
+									@click="exportToExcel"
+								>
+									<strong>
+										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
+									</strong>
+								</button>
 								</div>
 							</div>
 							<!-- <div class="col-md-3">
@@ -235,7 +234,6 @@
 									:options="
 										pagination.page_options.map((option) => option.toString())
 									"
-									@change="fetchOptionsData"
 								></b-form-select>
 							</div>
 							<label
@@ -249,7 +247,7 @@
 									:per-page="pagination.item_per_page"
 									:limit="3"
 									:size="pagination.page_options.length.toString()"
-									@input="fetchOptionsData"
+
 									class="ml-1"
 								></b-pagination>
 							</div>
@@ -503,7 +501,37 @@
 				this.editing_item = item;
 				$('#DialogAddUpdateSapMaterial').modal('show');
 			},
+            async exportToExcel() {
+				try {
+					const params = {
+						search: this.search,
+						unit_ids: this.form_filter.unit,
+						ids: this.form_filter.sap_material,
+					};
 
+					const response = await this.api_handler.get(
+						'api/master/sap-materials/exportToExcel',
+						params,
+						'blob',
+					);
+
+					const blobData = new Blob([response]);
+
+					const url = window.URL.createObjectURL(blobData);
+					const link = document.createElement('a');
+					link.href = url;
+					link.setAttribute('download', 'Dữ liệu Sap.xlsx');
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+
+					// Giải phóng URL đã tạo ra
+					window.URL.revokeObjectURL(url);
+				} catch (error) {
+					// Xử lý lỗi khi không thể tải xuống file
+					console.error(error);
+				}
+			},
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';

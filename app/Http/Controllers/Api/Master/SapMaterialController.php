@@ -21,6 +21,17 @@ class SapMaterialController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialRequest($request);
+        $sapMaterials = $handler->exportToExcel();
+
+        if ($sapMaterials) {
+            return $this->responseSuccess($sapMaterials);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function getAvailableSapMaterialsMinified(Request $request)
     {
         $handler = MasterRepository::sapMaterialRequest($request);

@@ -74,12 +74,14 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [MaterialDonatedController::class, 'getAll']);
             Route::get('/minified', [MaterialDonatedController::class, 'getAllMinified']);
             Route::post('/excel', [MaterialDonatedController::class, 'createMaterialDonatedFormExcel']);
+            Route::get('/exportToExcel', [MaterialDonatedController::class, 'exportToExcel']);
             Route::post('/', [MaterialDonatedController::class, 'store']);
             Route::put('/{id}', [MaterialDonatedController::class, 'update']);
             Route::delete('/{id}', [MaterialDonatedController::class, 'destroy']);
         });
         Route::prefix('/material-combos')->group(function () {
             Route::get('/minified', [MaterialComboController::class, 'getAllMinified']);
+            Route::get('/exportToExcel', [MaterialComboController::class, 'exportToExcel']);
             Route::get('/', [MaterialComboController::class, 'getAll']);
             Route::post('/excel', [MaterialComboController::class, 'createMaterialComboFormExcel']);
             Route::post('/', [MaterialComboController::class, 'store']);
@@ -153,9 +155,11 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [SaleGroupController::class, 'deleteExistingSaleGroup']);
         });
         Route::prefix('/sap-materials')->group(function () {
+            Route::get('/excel', [SapMaterialController::class, 'exportToExcel']);
             Route::get('/minified', [SapMaterialController::class, 'getAvailableSapMaterialsMinified']);
             Route::get('/', [SapMaterialController::class, 'getAvailableSapMaterials']);
             Route::post('/excel', [SapMaterialController::class, 'createSapMaterialFormExcel']);
+            Route::get('/exportToExcel', [SapMaterialController::class, 'exportToExcel']);
             Route::post('/', [SapMaterialController::class, 'createNewSapMaterial']);
             Route::put('/{id}', [SapMaterialController::class, 'updateExistingSapMaterial']);
             Route::delete('/{id}', [SapMaterialController::class, 'deleteExistingSapMaterial']);
@@ -223,6 +227,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/minified', [CustomerPartnerController::class, 'getAvailableCustomerPartnersMinified']);
             Route::get('/', [CustomerPartnerController::class, 'getAvailableCustomerPartners']);
             Route::post('/', [CustomerPartnerController::class, 'createNewCustomerPartner']);
+            Route::get('/exportToExcel', [CustomerPartnerController::class, 'exportToExcel']);
             Route::post('/excel', [CustomerPartnerController::class, 'createCustomerPartnerFormExcel']);
             Route::put('/{id}', [CustomerPartnerController::class, 'updateExistingCustomerPartner']);
             Route::delete('/{id}', [CustomerPartnerController::class, 'deleteExistingCustomerPartner']);

@@ -66,6 +66,17 @@ class MaterialDonatedController extends ResponseController
             return Response::download($filePath);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::materialDonatedRequest($request);
+        $material_donated = $handler->exportToExcel();
+
+        if ($material_donated) {
+            return $this->responseSuccess($material_donated);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function update(Request $request, $id)
     {
         $handler = MasterRepository::materialDonatedRequest($request);

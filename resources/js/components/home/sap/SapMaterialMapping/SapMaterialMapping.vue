@@ -278,7 +278,6 @@
 									:options="
 										pagination.page_options.map((option) => option.toString())
 									"
-									@change="fetchOptionsData"
 								></b-form-select>
 						</div>
 						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
@@ -289,7 +288,7 @@
 									:per-page="pagination.item_per_page"
 									:limit="3"
 									:size="pagination.page_options.length.toString()"
-									@input="fetchOptionsData"
+
 									class="ml-1"
 								></b-pagination>
 						</div>

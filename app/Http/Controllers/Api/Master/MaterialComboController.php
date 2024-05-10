@@ -48,6 +48,17 @@ class MaterialComboController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::materialComboRequest($request);
+        $material_combo = $handler->exportToExcel();
+
+        if ($material_combo) {
+            return $this->responseSuccess($material_combo);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function download($filename)
     {
         $filePath = public_path('excel/' . $filename);
