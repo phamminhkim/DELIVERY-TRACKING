@@ -425,7 +425,7 @@
 					);
 					let options = data.data.map((item) => ({
 						id: item.id,
-						label: `(${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
+						label: `(${item.sap_code}) (${item.bar_code}) (${item.unit.unit_code})  ${item.name}`,
 					}));
 					// console.log(data);
 					//const options = data;

@@ -52,27 +52,11 @@
                                 </div> -->
 							</span>
 						</div>
-						<div class="form-group"  v-if="!editing_item || !editing_item.id">
+						<div class="form-group">
 							<label>Mã unit</label>
 							<small class="text-danger">*</small>
 							<treeselect
 								v-model="sap_material.unit_id"
-								:multiple="false"
-								placeholder="Nhập unit.."
-								required
-								:load-options="loadOptions"
-								v-bind:class="hasError('unit_id') ? 'is-invalid' : ''"
-								:async="true"
-							/>
-							<span v-if="hasError('unit_id')" class="invalid-feedback" role="alert">
-								<strong>{{ getError('unit_id') }}</strong>
-							</span>
-						</div>
-                        <div class="form-group"  v-if="editing_item && editing_item.id">
-							<label>Mã unit</label>
-							<small class="text-danger">*</small>
-							<treeselect
-								v-model="sap_material.unit_code"
 								:multiple="false"
 								placeholder="Nhập unit.."
 								required
@@ -163,7 +147,6 @@
 				sap_material: {
 					sap_code: '',
 					unit_id: null,
-					unit_code: null,
 					bar_code: '',
 					name: '',
 				},
@@ -221,26 +204,32 @@
 			async updateSapMaterial() {
 				try {
 					this.is_loading = true;
-					const result = await this.api_handler.put(
+					const request = {
+						sap_code: this.sap_material.sap_code,
+						unit_id: this.sap_material.unit_id,
+						bar_code: this.sap_material.bar_code,
+						name: this.sap_material.name,
+					};
+					const data = await this.api_handler.put(
 						`${this.api_url}/${this.sap_material.id}`,
-						this.sap_material,
+						request,
 					);
-
+					console.log(data);
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (!result.errors) {
-						if (result.data && Array.isArray(result.data)) {
-							this.sap_materials.data.push(result.data);
+					if (data.success) {
+						if (data.data && Array.isArray(data.data)) {
+							this.sap_materials.data.push(data.data);
 						}
-						this.showMessage('success', 'Thêm thành công', result.message);
+						this.showMessage('success', 'Cập nhật thành công', data.message);
 						this.closeDialog();
-						await this.refetchData();
+						await this.refetchData(); // Load the data again after successful creation
 					} else {
-						this.errors = result.errors;
-						this.showMessage('error', 'Lỗi', result.message);
+						this.errors = data.errors;
+						this.showMessage('error', 'Cập nhật không thành công');
 					}
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
-				}finally {
+				} finally {
 					this.is_loading = false;
 				}
 			},
@@ -290,7 +279,6 @@
 			resetDialog() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
-				this.sap_material.unit_code = null;
 				this.sap_material.bar_code = '';
 				this.sap_material.name = '';
 				this.clearErrors();
@@ -299,7 +287,6 @@
 			clearForm() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
-				this.sap_material.unit_code= null;
 				this.sap_material.bar_code = null;
 				this.sap_material.name = null;
 			},
@@ -344,7 +331,6 @@
 				console.log(item);
 				this.sap_material.sap_code = item.sap_code;
 				this.sap_material.unit_id = item.unit_id;
-				this.sap_material.unit_code = item.unit.unit_code;
 				this.sap_material.bar_code = item.bar_code;
 				this.sap_material.name = item.name;
 				this.sap_material.id = item.id;
