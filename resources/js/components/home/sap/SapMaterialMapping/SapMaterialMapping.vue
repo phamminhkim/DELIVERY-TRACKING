@@ -273,25 +273,25 @@
 						</label>
 						<div class="col-md-2">
 							<b-form-select
-								size="sm"
-								:value="pagination.item_per_page.toString()"
-								:options="
-									pagination.page_options.map((option) => option.toString())
-								"
-								@change="fetchOptionsData"
-							></b-form-select>
+									size="sm"
+									v-model="pagination.item_per_page"
+									:options="
+										pagination.page_options.map((option) => option.toString())
+									"
+									@change="fetchOptionsData"
+								></b-form-select>
 						</div>
 						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
 						<div class="col-md-3">
 							<b-pagination
-								v-model="pagination.current_page"
-								:total-rows="sap_material_mappings.data.length"
-								:per-page="pagination.item_per_page"
-								:limit="3"
-								:size="pagination.page_options.length.toString()"
-								@input="fetchOptionsData"
-								class="ml-1"
-							></b-pagination>
+									v-model="pagination.current_page"
+									:total-rows="sap_material_mappings.data.length"
+									:per-page="pagination.item_per_page"
+									:limit="3"
+									:size="pagination.page_options.length.toString()"
+									@input="fetchOptionsData"
+									class="ml-1"
+								></b-pagination>
 						</div>
 					</div>
 					<!-- end phân trang -->
@@ -483,7 +483,7 @@
 					const { data, paginate } = response.data.sap_material_mappings;
 
 					if (Array.isArray(data)) {
-						this.sap_material_mappings = data.map();
+						this.sap_material_mappings.data = data.map();
 					}
 
 					// Gán thông tin phân trang

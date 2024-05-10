@@ -46,6 +46,23 @@ class OperatorUtility
         preg_match($regex, $raw_data, $matches);
         return count($matches) > 0 ? $matches[0] : null;
     }
+    public static function GetValueWithCondition($array, $condition)
+    {
+        $result = "";
+        $index = $condition->index;
+        $value = $condition->value;
+        $action = $condition->action;
+        $new_index = $action->new_index;
+        $regex_match = $action->regex_match;
+
+        if ($array[$index] ==  $value) {
+            preg_match($regex_match, $array[$new_index], $matches);
+            $result = count($matches) > 0 ? $matches[0] : null;
+        } else {
+            $result = $array[$index];
+        }
+        return $result;
+    }
 
 
 }

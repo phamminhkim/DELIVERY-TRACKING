@@ -128,6 +128,16 @@
 											Excel</strong
 										>
 									</button>
+									<!-- <button
+										type="button"
+										class="btn btn-info btn-sm ml-1 mt-1"
+										@click="exportToExcel"
+									>
+										<strong>
+											<i class="fas fa-upload mr-1 text-bold"></i>Download
+											Excel</strong
+										>
+									</button> -->
 								</div>
 							</div>
 							<!-- <div class="col-md-3">
@@ -221,7 +231,7 @@
 							<div class="col-md-2">
 								<b-form-select
 									size="sm"
-									:value="pagination.item_per_page.toString()"
+									v-model="pagination.item_per_page"
 									:options="
 										pagination.page_options.map((option) => option.toString())
 									"
@@ -237,7 +247,7 @@
 									v-model="pagination.current_page"
 									:total-rows="sap_materials.data.length"
 									:per-page="pagination.item_per_page"
-                                    :limit="3"
+									:limit="3"
 									:size="pagination.page_options.length.toString()"
 									@input="fetchOptionsData"
 									class="ml-1"
@@ -270,6 +280,7 @@
 	import ApiHandler, { APIRequest } from '../../ApiHandler';
 	import DialogAddUpdateSapMaterial from './dialog/DialogAddUpdateSapMaterial.vue';
 	import DialogImportExcelToCreateSapMaterial from './dialog/DialogImportExcelToCreateSapMaterial.vue';
+	import { saveExcel } from '@progress/kendo-vue-excel-export';
 
 	export default {
 		name: 'SapMaterials',
@@ -335,6 +346,7 @@
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
+
 				unit_options: [],
 				api_url: 'api/master/sap-materials',
 			};
@@ -357,7 +369,7 @@
 					const { data, paginate } = response.data.sap_materials;
 
 					if (Array.isArray(data)) {
-						this.sap_materials = data.map((item) => ({
+						this.sap_materials.data = data.map((item) => ({
 							sap_code: item.sap_code,
 							unit_id: item.unit_id,
 							bar_code: item.bar_code,
@@ -479,6 +491,7 @@
 					}
 				}
 			},
+
 			showCreateDialog() {
 				console.log('object');
 				this.is_editing = false;

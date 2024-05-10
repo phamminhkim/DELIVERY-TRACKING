@@ -19,6 +19,7 @@ class CamelotExtractorService implements DataExtractorInterface
         if ($options['is_merge_pages']) {
             $instance->pages('1-end');
         }
+
         // Xử lý vùng bảng
         if ($options['is_specify_table_area']) {
             $table_area_info = $options['table_area_info'];
@@ -40,6 +41,8 @@ class CamelotExtractorService implements DataExtractorInterface
                     $areas->add($x_top_left, $y_top_left, $x_bottom_right, $y_bottom_right);
                 }
                 $instance->inAreas($areas);
+                // $instance->inRegions($areas);
+
             }
         }
         // Xử lý cài đặt nâng cao
@@ -56,9 +59,11 @@ class CamelotExtractorService implements DataExtractorInterface
                 $strip_text = $advanced_settings_info->strip_text;
                 $instance->strip($strip_text);
             }
-            if (isset($advanced_settings_info->split_text)) {
-                $split_text = (array) $advanced_settings_info->split_text;
-                $instance->setColumnSeparators($split_text);
+            if (isset($advanced_settings_info->columns)) {
+                $columns = $advanced_settings_info->columns;
+                $instance->setColumnSeparators($columns, true);
+                // $instance->setColumnSeparators(['44,168,274,333,398,475'], true);
+                // $instance->setColumnSeparators(['72,95,209,327,442,529,566,606,683'], false);
             }
             if (isset($advanced_settings_info->flag_size)) {
                 $instance->flagSize($advanced_settings_info->flag_size);
@@ -71,6 +76,11 @@ class CamelotExtractorService implements DataExtractorInterface
             }
             if (isset($advanced_settings_info->row_tol)) {
                 $instance->setRowTolerance($advanced_settings_info->row_tol);
+            }
+            if (isset($advanced_settings_info->process_background)) {
+                if ($advanced_settings_info->process_background) {
+                    $instance->processBackgroundLines();
+                }
             }
         }
         $table = $instance->extract();
