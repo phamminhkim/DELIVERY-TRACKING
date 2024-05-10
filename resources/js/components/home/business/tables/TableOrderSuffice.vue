@@ -52,15 +52,21 @@
                     <div v-else>
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
-                        {{ data.item.promotive }}
-                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }}{{ data.item.promotive }}</span>
+                       
+                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span>
 
                     </div>
                 </template>
+                <template #cell(sap_so_number)="data">
+                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
+                            @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
+                        {{ data.item.promotive }}
+                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }}{{ data.item.promotive }}</span>
+                </template>
                 <template #cell(quantity1_po)="data">
                     <div :class="{
-            'text-danger': isCheckLack(data.item)
-        }">
+                    'text-danger': isCheckLack(data.item)
+                }">
                         <!-- {{ data.item.quantity1_po }} -->
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity1_po"
                             @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
@@ -395,7 +401,13 @@ export default {
                 },
                 {
                     key: 'customer_name',
-                    label: 'Tenns',
+                    label: 'Makh Key',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    key: 'sap_so_number',
+                    label: 'Mã Sap So',
                     class: 'text-nowrap',
                     sortable: true,
                 },
@@ -543,6 +555,18 @@ export default {
                 {
                     key: 'level4',
                     label: 'Level_4',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    key: 'po_number',
+                    label: 'po_number',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    key: 'po_delivery_date',
+                    label: 'po_delivery_date',
                     class: 'text-nowrap',
                     sortable: true,
                 },
