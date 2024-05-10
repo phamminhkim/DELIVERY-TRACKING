@@ -52,11 +52,27 @@
                                 </div> -->
 							</span>
 						</div>
-						<div class="form-group">
+						<div class="form-group"  v-if="!editing_item || !editing_item.id">
 							<label>Mã unit</label>
 							<small class="text-danger">*</small>
 							<treeselect
 								v-model="sap_material.unit_id"
+								:multiple="false"
+								placeholder="Nhập unit.."
+								required
+								:load-options="loadOptions"
+								v-bind:class="hasError('unit_id') ? 'is-invalid' : ''"
+								:async="true"
+							/>
+							<span v-if="hasError('unit_id')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('unit_id') }}</strong>
+							</span>
+						</div>
+                        <div class="form-group"  v-if="editing_item && editing_item.id">
+							<label>Mã unit</label>
+							<small class="text-danger">*</small>
+							<treeselect
+								v-model="sap_material.unit_code"
 								:multiple="false"
 								placeholder="Nhập unit.."
 								required
@@ -147,6 +163,7 @@
 				sap_material: {
 					sap_code: '',
 					unit_id: null,
+					unit_code: null,
 					bar_code: '',
 					name: '',
 				},
@@ -273,6 +290,7 @@
 			resetDialog() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
+				this.sap_material.unit_code = null;
 				this.sap_material.bar_code = '';
 				this.sap_material.name = '';
 				this.clearErrors();
@@ -281,6 +299,7 @@
 			clearForm() {
 				this.sap_material.sap_code = null;
 				this.sap_material.unit_id = null;
+				this.sap_material.unit_code= null;
 				this.sap_material.bar_code = null;
 				this.sap_material.name = null;
 			},
@@ -324,7 +343,8 @@
 			editing_item: function (item) {
 				console.log(item);
 				this.sap_material.sap_code = item.sap_code;
-				this.sap_material.unit_id = item.unit.unit_code;
+				this.sap_material.unit_id = item.unit_id;
+				this.sap_material.unit_code = item.unit.unit_code;
 				this.sap_material.bar_code = item.bar_code;
 				this.sap_material.name = item.name;
 				this.sap_material.id = item.id;
