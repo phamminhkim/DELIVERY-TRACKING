@@ -629,6 +629,10 @@ export default {
                         is_promotive: false,
                         is_inventory: false,
                         inventory_quantity: '',
+                        sap_so_number: file_response.data[index].headers.SapSoNumber,
+                        po_number: file_response.data[index].headers.PoNumber,
+                        po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
+
                     });
                     this.bar_codes.push(item.ProductID);
                 }

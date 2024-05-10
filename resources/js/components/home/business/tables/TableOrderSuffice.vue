@@ -61,7 +61,7 @@
                 <template #cell(sap_so_number)="data">
                     <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
                             @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
-                        {{ data.item.promotive }}
+                        <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>   
                         <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{ data.item.promotive }}</span>
                 </template>
                 <template #cell(quantity1_po)="data">
@@ -401,7 +401,7 @@ export default {
                     sortable: false,
                 },
                 {
-                    key: 'c',
+                    key: 'customer_name',
                     label: 'Makh Key',
                     class: 'text-nowrap',
                     sortable: false,
