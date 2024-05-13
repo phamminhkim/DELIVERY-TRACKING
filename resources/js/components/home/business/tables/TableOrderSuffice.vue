@@ -3,22 +3,22 @@
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
-                :class="{ 'table-order-suffices': true, }"  :fields="field_order_suffices" 
-                ref="btable" table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
+                :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
+                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
-               
+
                 <template #cell(action)="data">
                     <b-dropdown id="dropdown-left" size="sm" variant="light"
-                                toggle-class="text-center rounded p-0 px-1 border">
+                        toggle-class="text-center rounded p-0 px-1 border">
                         <template #button-content>
                             <i class="fas fa-grip-vertical fa-sm"></i>
                         </template>
                         <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
-                      
+
                     </b-dropdown>
                 </template>
                 <template #head(selected)="data">
@@ -53,21 +53,21 @@
                     <div v-else>
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
-                       
+
                         <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span>
 
                     </div>
                 </template>
                 <template #cell(sap_so_number)="data">
                     <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
-                            @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
-                        <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>   
-                        <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{ data.item.promotive }}</span>
+                        @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
+                    <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
+                    <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{ data.item.promotive }}</span>
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div :class="{
-                    'text-danger': isCheckLack(data.item)
-                }">
+            'text-danger': isCheckLack(data.item)
+        }">
                         <!-- {{ data.item.quantity1_po }} -->
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity1_po"
                             @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
@@ -85,7 +85,8 @@
                 </template>
                 <template #cell(inventory_quantity)="data">
                     <div :class="{
-            'text-danger': isCheckLack(data.item)
+            'text-danger': isCheckLack(data.item),
+            'text-danger': data.item.inventory_quantity <= 0
         }">
                         <!-- {{ data.item.inventory_quantity }} -->
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.inventory_quantity"
@@ -265,11 +266,16 @@
                     <span v-else>{{ data.item.level4 }}</span>
                 </template>
                 <template #cell(promotive)="data">
-                    <div @click="onChangeShowModal(data.index, data.item)" class="">
-                        <div class="d-flex justify-content-end">
+                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.index + data.field.key"
+                        @keydown="copyItem($event, data.item.promotive, data.field.key, data.index)"
+                        @mousedown="startSelection($event, data.item.promotive, data.index, data.field.key)"
+                        @mousemove="selectItem(data.item.promotive, $event, data.index)"
+                        @mouseup="endSelection(data.item.customer_sku_code, $event)"
+                        :class="{ 'change-border': isChangeBorder(data.item.promotive) }">
+                        <div class="d-flex justify-content-end py-2">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
             data.item.promotive }}</small>
-                            <i class="far fa-caret-square-down"></i>
+                            <i @click="onChangeShowModal(data.index, data.item)" class="far fa-caret-square-down"></i>
                         </div>
                     </div>
                 </template>
@@ -378,10 +384,13 @@ export default {
                 event: -1,
                 copys: [],
                 change: -1,
+                orders: [],
+
             },
             case_order: {
                 customer_name: '',
                 db_click: false,
+                parses: [],
             },
             field_order_suffices: [
                 {
@@ -690,23 +699,34 @@ export default {
             this.refeshItem();
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
+            this.case_index.orders.push(index);
             this.setFocusToKeyListener(item, index, header);
         },
-        selectItem(item, event) {
+        selectItem(item, event, index) {
             if (event !== undefined) {
                 event.preventDefault();
             }
             if (this.isSelecting) {
                 let exits = false;
-                this.case_index.copys.forEach((element, index) => {
-                    if (element == item) {
+                let exit_indexs = false;
+                this.case_index.copys.forEach((item_copy, index) => {
+                    if (item_copy == item) {
                         exits = true;
                     }
                 });
                 if (!exits) {
                     this.case_index.copys.push(item);
                     this.selectedItems.push(item);
-                }
+                };
+                this.case_index.orders.forEach((index_order) => {
+                    if (index_order == index) {
+                        exit_indexs = true;
+                    }
+                });
+                if (!exit_indexs) {
+                    this.case_index.orders.push(index);
+                };
+                console.log(this.case_index.orders);
             }
         },
         selectItemEventKey(item, event) {
@@ -734,14 +754,30 @@ export default {
                 event.preventDefault();
             }
             this.isSelecting = false;
+
         },
-        copyItem(event, item, field) {
+        copyItem(event, item, field, index) {
             console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
             switch (event.keyCode) {
                 case 67: // ctrl + c
                     if (event.ctrlKey && !this.case_is_status.edit) {
+                        let new_items = this.selectedItems.map((item) => {
+                            return {
+                                index_order: index,
+                                promotive: item,
+                            }
+                        });
+                        console.log(new_items);
+                        this.case_order.parses = [];
+                        this.case_order.parses = new_items;
                         this.copyToClipboard(this.selectedItems.join('\n'));
                         this.$showMessage('success', 'Copy thành công');
+
+                    }
+                    break;
+                case 86: // ctrl + v
+                    if (event.ctrlKey) {
+                        this.pasteItem(this.case_order.parses, this.case_index.orders, field, event);
                     }
                     break;
                 case 16: // ctrl + shift
@@ -771,6 +807,13 @@ export default {
                     }
                     break;
             }
+        },
+        isDuplicateData() {
+
+        },
+        pasteItem(items, index, field, event) {
+            this.$emit('pasteItem', items, index, field, event);
+            this.$showMessage('success', 'Paste thành công');
         },
         fieldColumnHeader(column, e) {
             this.refeshItem();
@@ -807,6 +850,7 @@ export default {
         refeshItem() {
             this.case_index.copys = [];
             this.selectedItems = [];
+            this.case_index.orders = [];    
 
         },
         changeCtrl(event, item) {
@@ -837,9 +881,9 @@ export default {
             this.$emit('btnDuplicateRow', index, item);
         }
     },
-    comments:{
-       
- 
+    comments: {
+
+
     }
 }
 </script>

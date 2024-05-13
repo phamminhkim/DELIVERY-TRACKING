@@ -27,8 +27,7 @@
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow"
-           >
+            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -431,7 +430,7 @@ export default {
             });
             this.refHeaderOrderProcesses();
         },
-        
+
         getHandleItem(item, field, index, orders) {
             this.orders = [...orders];
             this.orders[index][field] = item;
@@ -441,8 +440,22 @@ export default {
             // Thêm item vào sau vị trí index
             this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(item)));
             this.refHeaderOrderProcesses();
-          
+
         },
+        getPasteItem(items, indexs, field, e) {
+            if (indexs.length !== 0) {
+                e.preventDefault();
+                indexs.forEach(index => {
+                    items.forEach(item => {
+                        this.orders[index][field] = item.promotive;
+                        this.orders[index].promotive_name = item.promotive;
+                    });
+                });
+            }
+            this.refHeaderOrderProcesses();
+            console.log(this.orders);
+            
+        }
     },
     computed: {
         row_orders() {
