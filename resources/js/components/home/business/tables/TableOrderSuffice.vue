@@ -405,6 +405,8 @@ export default {
                     key: 'selected',
                     label: '',
                     class: 'text-nowrap',
+                    tdClass: 'checkbox-sticky-left text-center',
+                    thClass: 'checkbox-sticky-left text-center',
                 },
                 {
                     key: 'action',
@@ -962,5 +964,12 @@ export default {
 }
 ::v-deep .highlight-copy{
     background: rgb(178 178 178 / 21%) !important;
+}
+::v-deep .checkbox-sticky-left{
+    position: sticky !important;
+    left: 0;
+    z-index: 3 !important;
+    background: white;
+    border-right: 1px solid #e9ecef;
 }
 </style>
