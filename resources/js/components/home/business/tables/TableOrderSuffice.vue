@@ -4,6 +4,7 @@
             <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
+                :tbody-tr-class="hightLightCopy"
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
@@ -18,7 +19,11 @@
                         <template #button-content>
                             <i class="fas fa-grip-vertical fa-sm"></i>
                         </template>
+                        <b-dropdown-item>Copy</b-dropdown-item>
+                        <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cắt</b-dropdown-item>
+                        <b-dropdown-item @click="btnParseCreateRow(data.index)" v-if="case_is_status.copy">Parse</b-dropdown-item>
                         <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
+
 
                     </b-dropdown>
                 </template>
@@ -380,12 +385,14 @@ export default {
                 event: false,
                 sort: false,
                 edit: false,
+                copy: false,
             },
             case_index: {
                 event: -1,
                 copys: [],
                 change: -1,
                 orders: [],
+                order: -1,
 
             },
             case_order: {
@@ -880,7 +887,26 @@ export default {
         },
         btnDuplicateRow(index, item) {
             this.$emit('btnDuplicateRow', index, item);
+        },
+        btnCopyDeleteRow(index, item) {
+            this.case_is_status.copy = true;
+            this.case_index.order = item.order;
+            this.$emit('btnCopyDeleteRow', index, item);
+        },
+        btnParseCreateRow(index) {
+            this.refeshCaseCopy();
+            this.$emit('btnParseCreateRow', index);
+        },
+        hightLightCopy(item) {
+           if(item.order == this.case_index.order){
+            return 'font-italic text-secondary highlight-copy';
+           }
+        },
+        refeshCaseCopy(){
+            this.case_is_status.copy = false;
+            this.case_index.order = -1;
         }
+        
     },
     comments: {
 
@@ -928,5 +954,8 @@ export default {
 .change-border {
     border: 1px solid #00fc11;
     background: rgb(227 227 227 / 50%);
+}
+::v-deep .highlight-copy{
+    background: rgb(178 178 178 / 21%) !important;
 }
 </style>

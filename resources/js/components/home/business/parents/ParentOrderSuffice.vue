@@ -28,7 +28,9 @@
             @isHandleDbClick="getIsHandleDbClick"
             @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow"
-            @pasteItem="getPasteItem"></TableOrderSuffice>
+            @pasteItem="getPasteItem"
+            @btnCopyDeleteRow="getBtnCopyDeleteRow"
+            @btnParseCreateRow="getBtnParseCreateRow"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -137,6 +139,12 @@ export default {
         },
         getPasteItem(items, index, field, event) {
             this.$emit('pasteItem', items, index, field, event);
+        },
+        getBtnCopyDeleteRow(index, item) {
+            this.$emit('btnCopyDeleteRow', index, item);
+        },
+        getBtnParseCreateRow(index) {
+            this.$emit('btnParseCreateRow', index);
         }
 
     },
