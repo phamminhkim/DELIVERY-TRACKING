@@ -28,7 +28,7 @@
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow">
+            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -80,7 +80,8 @@ export default {
                 customer_group_id: -1
             },
             case_is_loading: {
-                detect_sap_code: false
+                detect_sap_code: false,
+                delete_row: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -531,22 +532,25 @@ export default {
         },
         getBtnCopyDeleteRow(index, item) {
             this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
-            console.log(this.case_data_temporary.copy);
-            // this.orders.splice(index, 1);
-            // this.changeIndexOrder(index);
-            // this.refHeaderOrderProcesses();
+            this.case_is_loading.delete_row = true;
         },
         getBtnParseCreateRow(index) {
-            let index_item = this.orders.findIndex(item => item.order == this.case_data_temporary.copy.order);
-            if (index_item !== -1) {
-                this.orders.splice(index_item, 1);
+            if (this.case_is_loading.delete_row) {
+                let index_item = this.orders.findIndex(item => item.order == this.case_data_temporary.copy.order);
+                if (index_item !== -1) {
+                    this.orders.splice(index_item, 1);
+                }
             }
             let new_order = this.convertNewOrder(this.case_data_temporary.copy);
             this.orders.splice(index, 0, JSON.parse(JSON.stringify(new_order)));
-            this.orders.forEach((item, index_item) => {
-                item.order = index_item + 1;
+            this.orders.forEach((item, index_order) => {
+                item.order = index_order + 1;
             });
             this.refHeaderOrderProcesses();
+        },
+        getBtnCopy(index, item) {
+            this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
+            this.case_is_loading.delete_row = false;
         }
     },
     computed: {
