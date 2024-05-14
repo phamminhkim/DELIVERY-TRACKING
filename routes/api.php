@@ -182,6 +182,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/minified', [SapComplianceController::class, 'getAvailableSapCompliancesMinified']);
             Route::get('/', [SapComplianceController::class, 'getAvailableSapCompliances']);
             Route::post('/excel', [SapComplianceController::class, 'createSapComplianceFormExcel']);
+            Route::get('/exportToExcel', [SapComplianceController::class, 'exportToExcel']);
             Route::post('/', [SapComplianceController::class, 'createNewSapCompliance']);
             Route::put('/{id}', [SapComplianceController::class, 'updateExistingSapCompliance']);
             Route::delete('/{id}', [SapComplianceController::class, 'deleteExistingSapCompliance']);

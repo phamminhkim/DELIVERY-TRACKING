@@ -155,7 +155,11 @@ class RouterSeeder extends Seeder
                 'path' => '/customer-partners',
                 'component' => 'home/sap/CustomerPartner/CustomerPartners'
             ],
-
+            [
+                'name' => 'Bảng Quy cách',
+                'path' => '/sap-compliances',
+                'component' => 'home/sap/SapCompliance/SapCompliances'
+            ],
         ];
 
         foreach ($routes as $routeData) {
