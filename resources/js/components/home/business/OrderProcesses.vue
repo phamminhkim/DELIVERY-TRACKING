@@ -225,9 +225,12 @@ export default {
         },
         getEventOrderDelete() {
             this.case_data_temporary.item_selecteds.forEach(item_selected => {
-                this.orders.splice(this.orders.indexOf(item_selected), 1);
+               this.orders.splice(this.orders.indexOf(item_selected), 1);
             });
             this.refeshCheckBox();
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         getReplaceItem(item_materials) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
@@ -259,6 +262,7 @@ export default {
                 var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
                 if (data_item.is_inventory == true) {
                     this.case_data_temporary.order_lacks.push({
+                        order: data_item.order,
                         id: data_item.id,
                         customer_sku_code: data_item.customer_sku_code,
                         customer_sku_name: data_item.customer_sku_name,
@@ -295,6 +299,7 @@ export default {
                     });
                 } else {
                     this.orders.push({
+                        order: data_item.order,
                         id: data_item.id,
                         customer_sku_code: data_item.customer_sku_code,
                         customer_sku_name: data_item.customer_sku_name,
@@ -327,7 +332,6 @@ export default {
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
-
                     });
                 }
 
@@ -405,6 +409,7 @@ export default {
         },
         getCreateRow() {
             this.orders.unshift({
+                order: 1,
                 id: '',
                 customer_sku_code: '',
                 customer_sku_name: '',
@@ -434,6 +439,12 @@ export default {
                 variant_quantity: '',
                 extra_offer: '',
                 promotion_category: '',
+                sap_so_number: '',
+                po_number: '',
+                po_delivery_date: '',
+            });
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
         },
@@ -445,8 +456,28 @@ export default {
         },
         getBtnDuplicateRow(index, item) {
             // Thêm item vào sau vị trí index và order của item sau đó thì tăng index lên 1
-            
-            const new_order = {
+            let new_order = this.convertNewOrder(item);
+            this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(new_order)));
+            let start_index = this.startIndex(new_order.order);
+            this.changeIndexOrder(start_index);
+            this.refHeaderOrderProcesses();
+        },
+        getPasteItem(items, indexs, field, e) {
+            if (indexs.length !== 0) {
+                e.preventDefault();
+                indexs.forEach(index => {
+                    items.forEach(item => {
+                        this.orders[index][field] = item.promotive;
+                        this.orders[index].promotive_name = item.promotive;
+                    });
+                });
+            }
+            this.refHeaderOrderProcesses();
+            console.log(this.orders);
+
+        },
+        convertNewOrder(item) {
+            let new_order = {
                 order: item.order + 1,
                 id: item.id ? item.id : '',
                 customer_sku_code: item.customer_sku_code,
@@ -480,32 +511,17 @@ export default {
                 extra_offer: item.extra_offer,
                 promotion_category: item.promotion_category,
             }
-            this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(new_order)));
-            // const index_ = this.orders.indexOf(new_order);
-            // console.log(index_);
-            console.log(new_order.order);
-            let start_index = new_order.order - 1;
-            for (start_index; start_index < this.orders.length; start_index++) {
-                const order_item = this.orders[index];
-                console.log(order_item.order);
-                order_item.order = start_index
-            }
-            this.refHeaderOrderProcesses();
-
+            return new_order;
         },
-        getPasteItem(items, indexs, field, e) {
-            if (indexs.length !== 0) {
-                e.preventDefault();
-                indexs.forEach(index => {
-                    items.forEach(item => {
-                        this.orders[index][field] = item.promotive;
-                        this.orders[index].promotive_name = item.promotive;
-                    });
-                });
+        startIndex(index) {
+            let start = index;
+            return start;
+        },
+        changeIndexOrder(start_index) {
+            for (start_index; start_index < this.orders.length; start_index++) {
+                const order_item = this.orders[start_index];
+                order_item.order = start_index + 1;
             }
-            this.refHeaderOrderProcesses();
-            console.log(this.orders);
-
         }
     },
     computed: {
