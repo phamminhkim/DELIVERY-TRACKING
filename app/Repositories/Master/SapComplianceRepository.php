@@ -8,7 +8,11 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Master\Company;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 class SapComplianceRepository extends RepositoryAbs
@@ -18,17 +22,20 @@ class SapComplianceRepository extends RepositoryAbs
         try {
             $query = SapCompliance::query();
 
-            if ($request->filled('search')) {
-                $query->with(['unit']);
-                $query->limit(50);
-            }
+            // if ($request->filled('search')) {
+            //     $query->with(['unit']);
+            //     $query->limit(50);
+            // }
 
             if ($request->filled('bar_codes')) {
                 $query->whereIn('bar_code', $request->bar_codes);
             }
-            if ($request->filled('sap_codes')) {
-                $query->whereIn('sap_code', $request->sap_codes);
+            if ($request->filled( 'bar_codes', 'sap_codes','names')) {
+                $query->whereIn('bar_code', $request->bar_codes)
+                    ->orWhereIn('sap_code', $request->sap_codes)
+                    ->orWhereIn('name', $request->names);
             }
+
 
             if ($request->filled('unit_ids')) {
                 $query->whereIn('unit_id', $request->unit_ids);
@@ -42,13 +49,13 @@ class SapComplianceRepository extends RepositoryAbs
                 $query->where('id', $request->id);
             }
 
-            if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('sap_code', 'like', "%$search%")
-                        ->orWhere('name', 'like', "%$search%");
-                });
-            }
+            // if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
+            //     $search = $request->input('search');
+            //     $query->where(function ($q) use ($search) {
+            //         $q->where('sap_code', 'like', "%$search%")
+            //             ->orWhere('name', 'like', "%$search%");
+            //     });
+            // }
             if ($is_minified) {
                 $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
             }
@@ -60,9 +67,9 @@ class SapComplianceRepository extends RepositoryAbs
             $perPage = $request->filled('per_page') ? $request->per_page : 500;
             $sap_compliances = $query->paginate($perPage, ['*'], 'page', $request->page);
 
-            if ($request->filled('search') && $sap_compliances->isEmpty()) {
-                $sap_compliances = $query->paginate($perPage, ['*'], 'page', $request->page);
-            }
+            // if ($request->filled('search') && $sap_compliances->isEmpty()) {
+            //     $sap_compliances = $query->paginate($perPage, ['*'], 'page', $request->page);
+            // }
 
             $result = [
                 'data' => $sap_compliances->items(),
@@ -103,6 +110,8 @@ class SapComplianceRepository extends RepositoryAbs
                     'unit_code' => 1, // Thay đổi cột 'unit_id' thành 'unit_code'
                     'bar_code' => 2,
                     'name' => 3,
+                    'quy_cach' => 4,
+                    'check_qc' => 5,
                 ];
                 $result = collect([]);
 
@@ -110,31 +119,139 @@ class SapComplianceRepository extends RepositoryAbs
                     $unit = SapUnit::where('unit_code', $row[$template_structure['unit_code']])->first();
 
                     if ($unit) {
-                        $sapMaterial = SapCompliance::updateOrCreate(
+                        $check_qc = $row[$template_structure['check_qc']];
+
+                        $sapCompliance = SapCompliance::updateOrCreate(
                             [
                                 'sap_code' => $row[$template_structure['sap_code']],
                                 'unit_id' => $unit->id, // Sử dụng 'id' của bảng 'unit'
                             ],
                             [
                                 'bar_code' => $row[$template_structure['bar_code']],
-                                // Thêm các trường dữ liệu khác tương ứng
+                                'name' => $row[$template_structure['name']],
+                                'quy_cach' => $row[$template_structure['quy_cach']],
+                                'check_qc' => $check_qc === null ? 1 : 0,
                             ]
                         );
 
-                        $result->push($sapMaterial);
+                        $result->push($sapCompliance);
                     }
                 }
 
-                return array(
+                return [
                     "created_list" => $result,
                     "errors" => $this->errors
-                );
+                ];
             }
         } catch (\Exception $exception) {
-            DB::rollBack();
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
             return false;
+        }
+    }
+    public function exportToExcel()
+    {
+        try {
+            $query = SapCompliance::query();
+
+            if ($this->request->filled('bar_codes')) {
+                $query->whereIn('bar_code', $this->request->bar_codes);
+            }
+            if ($this->request->filled('sap_codes')) {
+                $query->whereIn('sap_code', $this->request->sap_codes);
+            }
+
+            if ($this->request->filled('unit_ids')) {
+                $query->whereIn('unit_id', $this->request->unit_ids);
+            }
+
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+
+            if ($this->request->filled('id')) {
+                $query->where('id', $this->request->id);
+            }
+
+
+            $sap_compliances = $query->orderBy('id', 'desc')->get();
+
+            // Tạo một đối tượng Spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Đặt tiêu đề cho các cột
+            $sheet->setCellValue('A1', 'Mã sản phẩm');
+            $sheet->setCellValue('B1', 'Mã Barcode');
+            $sheet->setCellValue('C1', 'Đơn vị tính');
+            $sheet->setCellValue('D1', 'Tên sản phẩm');
+            $sheet->setCellValue('E1', 'Quy cách');
+
+            // Ghi dữ liệu vào file Excel
+            $row = 2;
+            foreach ($sap_compliances as $sap_compliance) {
+                $sheet->setCellValue('A' . $row, $sap_compliance->sap_code);
+                $sheet->setCellValue('B' . $row, $sap_compliance->bar_code);
+                $sheet->setCellValue('C' . $row, $sap_compliance->unit->unit_code);
+                $sheet->setCellValue('D' . $row, $sap_compliance->name);
+                $sheet->setCellValue('E' . $row, $sap_compliance->quy_cach);
+                $row++;
+            }
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B', 'C', 'D', 'E'];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+            // Đặt style cho header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'B0C4DE'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+
+            // Tạo đối tượng Writer để ghi file Excel
+            $writer = new Xlsx($spreadsheet);
+
+            // Đặt tên file và định dạng
+            $filename = 'sap_compliances.xlsx';
+
+            // Đặt header cho response
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            //Ghi file Excel vào output
+            $writer->save('php://output');
+        } catch (\Exception  $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
         }
     }
     public function createNewSapCompliance()
@@ -144,59 +261,34 @@ class SapComplianceRepository extends RepositoryAbs
                 'sap_code' => 'required|string',
                 'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
-                'bar_code' => 'string',
-                'quy_cach' => 'string',
-                'check_qc' => 'in:0,1', // Thay đổi quy tắc kiểm tra cho check_pc
-
+                'bar_code' => 'nullable|string',
+                'quy_cach' => 'nullable|string',
+                'check_qc' => 'nullable|in:0,1',
             ], [
-                'sap_code.required' => 'Yêu cầu nhập mã sản phẩm.',
+                'sap_code.required' => 'Yêu cầu nhập mã material.',
                 'sap_code.string' => 'Mã công ty phải là chuỗi.',
-                'sap_code.unique' => 'Mã sản phẩm đã tồn tại.',
+                'sap_code.unique' => 'Mã material đã tồn tại.',
                 'unit_id.integer' => 'Mã unit phải là số nguyên.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
-                'name.required' => 'Yêu cầu nhập tên sản phẩm.',
-                'name.string' => 'Tên sản phẩm phải là chuỗi.',
+                'name.required' => 'Yêu cầu nhập tên material.',
+                'name.string' => 'Tên material phải là chuỗi.',
                 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'quy_cach.string' => 'Quy cách phải là chuỗi.',
-                //'check_qc.integer' => 'Check quy cách phải là kiểu số nguyên.',
                 'check_qc.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
-
             ]);
 
             if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $SapCompliance => $validator) {
-                    if ($errors->has($SapCompliance)) {
-                        $this->errors[$SapCompliance] = $errors->first($SapCompliance);
-                        return false;
-                    }
-                }
+                $this->errors = $validator->errors();
+                return false;
             } else {
-                $sap_unit = SapUnit::find($this->data['unit_id']);
-                if (!$sap_unit) {
-                    $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
-                    return false;
-                }
-                $this->data['is_deleted'] = false;
-
-                $sapComplianceData = [
+                $sapCompliance = SapCompliance::create([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
+                    'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
-                ];
-
-                if (isset($this->data['quy_cach'])) {
-                    $sapComplianceData['quy_cach'] = $this->data['quy_cach'];
-                }
-
-                if (isset($this->data['bar_code'])) {
-                    $sapComplianceData['bar_code'] = $this->data['bar_code'];
-                }
-                if (isset($this->data['check_qc'])) {
-                    $sapComplianceData['check_qc'] = (int) $this->data['check_qc'];
-                }
-
-                $sapCompliance = SapCompliance::create($sapComplianceData);
+                    'quy_cach' => $this->data['quy_cach'],
+                    'check_qc' => $this->data['check_qc'],
+                ]);
 
                 return $sapCompliance;
             }
@@ -285,34 +377,31 @@ class SapComplianceRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
+
                 'sap_code' => 'string:sap_materials,sap_code',
                 'unit_id' => 'integer|exists:sap_units,id',
                 'bar_code' => 'string',
                 'name' => 'required|string',
-                'quy_cach' => 'string',
-                'check_qc' => 'integer|in:0,1', // Thay đổi quy tắc kiểm tra cho check_pc
+                'quy_cach' => 'nullable|string',
+                'check_qc' => 'nullable|in:0,1',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã SAP.',
                 'sap_code.string' => 'Mã công ty phải là chuỗi.',
-                'unit_id.integer' => 'Mã unit phải là số nguyên.',
+                //'sap_code.unique' => 'Mã material đã tồn tại.',
+                'unit_id.integer' => 'Mã unit phải là chuỗi.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
                 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên SAP.',
                 'name.string' => 'Tên SAP phải là chuỗi.',
                 'quy_cach.string' => 'Quy cách phải là chuỗi.',
-                'check_qc.integer' => 'Check quy cách phải là kiểu số nguyên.',
                 'check_qc.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
             ]);
 
             if ($validator->fails()) {
-                $errors = $validator->errors();
-                foreach ($this->data as $SapCompliance => $validator) {
-                    if ($errors->has($SapCompliance)) {
-                        $this->errors[$SapCompliance] = $errors->first($SapCompliance);
-                        return false;
-                    }
-                }
+                $this->errors = $validator->errors();
+                return false;
             } else {
+
                 $sap_unit = SapUnit::find($this->data['unit_id']);
                 if (!$sap_unit) {
                     $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
@@ -323,19 +412,11 @@ class SapComplianceRepository extends RepositoryAbs
                 $sapCompliance->fill([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
+                    'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
+                    'quy_cach' => $this->data['quy_cach'],
+                    'check_qc' => $this->data['check_qc'],
                 ]);
-                if (isset($this->data['quy_cach'])) {
-                    $sapCompliance->quy_cach = $this->data['quy_cach'];
-                }
-
-                if (isset($this->data['bar_code'])) {
-                    $sapCompliance->bar_code = $this->data['bar_code'];
-                }
-
-                if (isset($this->data['check_qc'])) {
-                    $sapCompliance->check_qc = (int) $this->data['check_qc'];
-                }
                 $sapCompliance->save();
 
                 return $sapCompliance;
@@ -343,7 +424,6 @@ class SapComplianceRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-            return false;
         }
     }
     public function deleteExistingSapCompliance($id)

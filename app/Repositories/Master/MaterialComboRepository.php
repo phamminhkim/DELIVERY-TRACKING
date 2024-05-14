@@ -96,7 +96,6 @@ class MaterialComboRepository extends RepositoryAbs
                     'is_active' => 4, // Thêm trường is_active vào cấu trúc mẫu
                 ];
                 $result = [];
-                $existing_combos = [];
 
                 foreach ($data as $row) {
                     $sap_code = $row[$template_structure['sap_code']];
@@ -277,7 +276,7 @@ class MaterialComboRepository extends RepositoryAbs
                     'sap_code.unique' => 'Mã SAP đã tồn tại',
                     'bar_code.string' => 'Tên không được để trống',
                     'name.required' => 'Tên không được để trống',
-                    'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
+                    'is_active.in' => 'Trạng thái chỉ được chứa giá trị 0 hoặc 1.',
 
                 ]
             );
@@ -317,7 +316,7 @@ class MaterialComboRepository extends RepositoryAbs
                 'sap_code.string' => 'Mã sản phẩm phải là chuỗi.',
                 'bar_code.string' => 'Mã sản phẩm phải là chuỗi.',
                 'name.string' => 'Mã sản phẩm phải là chuỗi.',
-                'is_active.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
+                'is_active.in' => 'Trạng thái chỉ được chứa giá trị 0 hoặc 1.',
 
             ]);
 
