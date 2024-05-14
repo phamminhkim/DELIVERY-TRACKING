@@ -20,7 +20,7 @@
                             <i class="fas fa-grip-vertical fa-sm"></i>
                         </template>
                         <b-dropdown-item @click="btnCopy(data.index, data.item)">Copy</b-dropdown-item>
-                        <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cắt</b-dropdown-item>
+                        <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cut</b-dropdown-item>
                         <b-dropdown-item @click="btnParseCreateRow(data.index)" v-if="case_is_status.copy">Parse</b-dropdown-item>
                         <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
 
