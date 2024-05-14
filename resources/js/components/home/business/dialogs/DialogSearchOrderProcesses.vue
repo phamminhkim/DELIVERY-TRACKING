@@ -208,6 +208,7 @@ export default {
             if (val_new) {
                 this.fetchSapMaterial();
                 this.createMapping();
+                this.refeshCaseData();
                 $('#form_search_order_processes').modal('show');
             } else {
                 $('#form_search_order_processes').modal('hide');
@@ -293,6 +294,10 @@ export default {
 
             }
 
+        },
+        refeshCaseData(){
+            this.case_check_box.selected_item = null;
+            this.case_check_box.item_materials = [];
         }
     }
 }

@@ -243,7 +243,7 @@ export default {
                         if (order.barcode == barcode) {
                             order.sku_sap_code = item_material.sap_code;
                             order.sku_sap_name = item_material.name;
-                            order.sku_sap_unit = item_material.unit_code;
+                            order.sku_sap_unit = item_material.unit.unit_code;
                             order.barcode = item_material.bar_code;
                         }
                     })
