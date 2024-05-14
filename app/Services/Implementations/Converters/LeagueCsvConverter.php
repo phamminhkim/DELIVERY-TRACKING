@@ -46,6 +46,17 @@ class LeagueCsvConverter implements TableConverterInterface
                         return isset($item[$index]) && $item[$index] === $value;
                     });
                 }
+                // Xử lý tìm mảng cuối với phần tử bắt đầu với điều kiện
+                // Loại bỏ các mảng tính từ mảng được tìm thấy
+                if (isset($manual_patterns->step2->end_array)) {
+                    $end_array = $manual_patterns->step2->end_array;
+                    $index = $end_array->index;
+                    $value = $end_array->value;
+
+                    $collection = $collection->takeUntil(function ($item) use ($index, $value) {
+                        return isset($item[$index]) && $item[$index] === $value;
+                    });
+                }
             }
             if (isset($manual_patterns->step3)) {
                 // Loại bỏ những mảng có điều kiện được config

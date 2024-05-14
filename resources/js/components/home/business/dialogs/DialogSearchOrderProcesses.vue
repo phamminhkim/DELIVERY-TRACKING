@@ -189,6 +189,7 @@ export default {
             case_data: {
                 sap_materials: [],
                 item_selecteds: this.item_selecteds,
+                barcode: '',
             },
             case_pagination: {
                 page: 1,
@@ -207,6 +208,7 @@ export default {
             if (val_new) {
                 this.fetchSapMaterial();
                 this.createMapping();
+                this.refeshCase();
                 $('#form_search_order_processes').modal('show');
             } else {
                 $('#form_search_order_processes').modal('hide');
@@ -225,16 +227,6 @@ export default {
     },
     created() {
         // this.fetchSapMaterial();
-    },
-    beforeUpdate() {
-        console.log(this.case_filter.search, 'beforeUpdate');
-    },
-    updated() {
-        // lấy dữ liệu sau khi nhập xong
-        this.$nextTick(() => {
-            console.log(this.case_filter.search, 'updated');
-            // this.fetchSapMaterial();
-        });
     },
     methods: {
         async fetchSapMaterial() {
@@ -293,15 +285,19 @@ export default {
             }
         },
         emitReplaceItem() {
-            this.$emit('itemReplace', this.case_check_box.item_materials);
+            this.case_data.barcode = this.case_data.item_selecteds[0].barcode;
+            this.$emit('itemReplace', this.case_check_box.item_materials, this.case_data.barcode);
         },
         createMapping() {
             if (this.item_selecteds.length !== 0) {
-                console.log(this.item_selecteds[0]);
                 this.case_filter.search = this.item_selecteds[0].barcode;
 
             }
 
+        },
+        refeshCase(){
+            this.case_check_box.selected_item = null;
+            this.case_check_box.item_materials = [];
         }
     }
 }

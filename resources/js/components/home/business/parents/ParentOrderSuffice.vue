@@ -30,7 +30,8 @@
             @btnDuplicateRow="getBtnDuplicateRow"
             @pasteItem="getPasteItem"
             @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow"></TableOrderSuffice>
+            @btnParseCreateRow="getBtnParseCreateRow"
+            @btnCopy="getBtnCopy"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -145,6 +146,9 @@ export default {
         },
         getBtnParseCreateRow(index) {
             this.$emit('btnParseCreateRow', index);
+        },
+        getBtnCopy(index, item) {
+            this.$emit('btnCopy', index, item);
         }
 
     },
