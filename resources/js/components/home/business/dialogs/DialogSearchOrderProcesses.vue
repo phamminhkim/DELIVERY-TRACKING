@@ -51,14 +51,20 @@
                             <div class="">
                                 <div v-for="(select, index) in case_data.item_selecteds" :key="index" type="button"
                                     class="badge badge-sm mr-2 p-2 badge-primary">
-                                    {{ select.sku_sap_code }}
+                                    {{ select.barcode }}
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <b-table small striped hover head-variant="light" table-class="box-max-height-500"
                                 :items="case_data.sap_materials" :fields="field_products" responsive
-                                :per_page="case_pagination.per_page" :current_page="case_pagination.page">
+                                :busy="case_is_loading.fetch_api" :per_page="case_pagination.per_page"
+                                sticky-header="400px" :current_page="case_pagination.page">
+                                <template #table-busy>
+                                    <div class="text-center text-secondary my-2">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    </div>
+                                </template>
                                 <template #cell(index)="data">
                                     {{ (data.index + 1) + (case_pagination.page * case_pagination.per_page) -
                             case_pagination.per_page }}
@@ -191,7 +197,8 @@ export default {
             },
             case_api: {
                 api_sap_materials: 'api/master/sap-materials',
-            }
+            },
+            debounce_timeout: null,
 
         }
     },
@@ -199,6 +206,7 @@ export default {
         is_open_modal_search_order_processes: function (val_new) {
             if (val_new) {
                 this.fetchSapMaterial();
+                this.createMapping();
                 $('#form_search_order_processes').modal('show');
             } else {
                 $('#form_search_order_processes').modal('hide');
@@ -206,11 +214,27 @@ export default {
         },
         item_selecteds: function (val_new) {
             this.case_data.item_selecteds = val_new;
-        }
+        },
+        'case_filter.search': function (val_new) {
+            clearTimeout(this.debounce_timeout);
+            this.debounce_timeout = setTimeout(() => {
+                this.fetchSapMaterial();
+            }, 500);
+        },
 
     },
     created() {
         // this.fetchSapMaterial();
+    },
+    beforeUpdate() {
+        console.log(this.case_filter.search, 'beforeUpdate');
+    },
+    updated() {
+        // lấy dữ liệu sau khi nhập xong
+        this.$nextTick(() => {
+            console.log(this.case_filter.search, 'updated');
+            // this.fetchSapMaterial();
+        });
     },
     methods: {
         async fetchSapMaterial() {
@@ -271,6 +295,14 @@ export default {
         emitReplaceItem() {
             this.$emit('itemReplace', this.case_check_box.item_materials);
         },
+        createMapping() {
+            if (this.item_selecteds.length !== 0) {
+                console.log(this.item_selecteds[0]);
+                this.case_filter.search = this.item_selecteds[0].barcode;
+
+            }
+
+        }
     }
 }
 </script>

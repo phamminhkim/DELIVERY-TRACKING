@@ -82,16 +82,18 @@
 					</div>
 					<div class="modal-body">
 						<div class="form-group">
-							<label>Trạng thái</label>
-							<input
-								v-model="material_donated.is_active"
-								class="form-check-input"
-								id="is_active"
-								name="is_active"
-								type="checkbox"
-								@change="validateIsActive"
-								v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
-							/>
+							<label class="mr-5" >Trạng thái</label>
+							<div class="form-check form-check-inline">
+								<input
+									v-model="material_donated.is_active"
+									class="form-check-input"
+									id="is_active"
+									name="is_active"
+									type="checkbox"
+									@change="validateIsActive"
+									v-bind:class="hasError('is_active') ? 'is-invalid' : ''"
+								/>
+							</div>
 							<span
 								v-if="hasError('is_active')"
 								class="invalid-feedback"

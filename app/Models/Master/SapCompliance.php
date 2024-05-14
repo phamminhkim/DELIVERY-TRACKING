@@ -16,7 +16,7 @@ class SapCompliance extends Model
         'name',
         'unit_id',
         'quy_cach',
-        'check_pc',
+        'check_qc',
         'is_deleted',
 
     ];

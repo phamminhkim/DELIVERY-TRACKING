@@ -14,7 +14,10 @@ class AddConvertFileTypeToExtractOrderConfigsTable extends Migration
     public function up()
     {
         Schema::table('extract_order_configs', function (Blueprint $table) {
-            $table->string('convert_file_type',10)->nullable()->default('pdf')->after('is_convert_header');
+            // $table->string('convert_file_type',10)->nullable()->default('pdf')->after('is_convert_header');
+            if (!Schema::hasColumn('extract_order_configs', 'convert_file_type')) {
+                $table->string('convert_file_type',10)->nullable()->default('pdf')->after('is_convert_header');
+            }
         });
     }
 
@@ -26,7 +29,9 @@ class AddConvertFileTypeToExtractOrderConfigsTable extends Migration
     public function down()
     {
         Schema::table('extract_order_configs', function (Blueprint $table) {
-            $table->dropColumn('convert_file_type');
+            if (Schema::hasColumn('extract_order_configs', 'convert_file_type')) {
+                $table->dropColumn('convert_file_type');
+            }
         });
     }
 }

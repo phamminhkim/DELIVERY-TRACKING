@@ -8,78 +8,190 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Master\Company;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 class SapMaterialRepository extends RepositoryAbs
 {
     public function getAvailableSapMaterials($is_minified, $request)
     {
-         try {
-        $query = SapMaterial::query();
+        try {
+            $query = SapMaterial::query();
 
-        if ($request->filled('search')) {
-            $query->with(['unit']);
-            $query->limit(50);
-        }
+            if ($request->filled('search')) {
+                $query->with(['unit']);
+                $query->limit(50);
+            }
 
-        if ($request->filled('bar_codes')) {
-            $query->whereIn('bar_code', $request->bar_codes);
-        }
-        if ($request->filled('sap_codes')) {
-            $query->whereIn('sap_code', $request->sap_codes);
-        }
+            if ($request->filled('bar_codes')) {
+                $query->whereIn('bar_code', $request->bar_codes);
+            }
+            if ($request->filled('sap_codes')) {
+                $query->whereIn('sap_code', $request->sap_codes);
+            }
 
-        if ($request->filled('unit_ids')) {
-            $query->whereIn('unit_id', $request->unit_ids);
-        }
+            if ($request->filled('unit_ids')) {
+                $query->whereIn('unit_id', $request->unit_ids);
+            }
 
-        if ($request->filled('ids')) {
-            $query->whereIn('id', $request->ids);
-        }
+            if ($request->filled('ids')) {
+                $query->whereIn('id', $request->ids);
+            }
 
-        if ($request->filled('id')) {
-            $query->where('id', $request->id);
-        }
+            if ($request->filled('id')) {
+                $query->where('id', $request->id);
+            }
 
-        if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('sap_code', 'like', "%$search%")
-                    ->orWhere('name', 'like', "%$search%");
-            });
-        }
-        if ($is_minified) {
-            $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
-        }
+            if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('sap_code', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%");
+                });
+            }
+            if ($is_minified) {
+                $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
+            }
 
-        $query->with(['unit' => function ($query) {
-            $query->select(['id', 'unit_code']);
-        }]);
+            $query->with(['unit' => function ($query) {
+                $query->select(['id', 'unit_code']);
+            }]);
 
-        $perPage = $request->filled('per_page') ? $request->per_page : 500;
-        $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
-
-        if ($request->filled('search') && $sap_materials->isEmpty()) {
+            $perPage = $request->filled('per_page') ? $request->per_page : 500;
             $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
+
+            if ($request->filled('search') && $sap_materials->isEmpty()) {
+                $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
+            }
+
+            $result = [
+                'data' => $sap_materials->items(),
+                'per_page' => $sap_materials->perPage(),
+            ];
+
+            $result['paginate'] = [
+                'current_page' => $sap_materials->currentPage(),
+                'last_page' => $sap_materials->lastPage(),
+                'total' => $sap_materials->total(),
+            ];
+
+            return $result;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
         }
-
-        $result = [
-            'data' => $sap_materials->items(),
-            'per_page' => $sap_materials->perPage(),
-        ];
-
-        $result['paginate'] = [
-            'current_page' => $sap_materials->currentPage(),
-            'last_page' => $sap_materials->lastPage(),
-            'total' => $sap_materials->total(),
-        ];
-
-        return $result;
-    } catch (\Exception $exception) {
-        $this->message = $exception->getMessage();
-        $this->errors = $exception->getTrace();
     }
+    public function exportToExcel()
+    {
+        try {
+            $query = SapMaterial::query();
+
+            if ($this->request->filled('search')) {
+                $query->with(['unit']);
+                $query->limit(50);
+            }
+
+            if ($this->request->filled('bar_codes')) {
+                $query->whereIn('bar_code', $this->request->bar_codes);
+            }
+            if ($this->request->filled('sap_codes')) {
+                $query->whereIn('sap_code', $this->request->sap_codes);
+            }
+
+            if ($this->request->filled('unit_ids')) {
+                $query->whereIn('unit_id', $this->request->unit_ids);
+            }
+
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+
+            if ($this->request->filled('id')) {
+                $query->where('id', $this->request->id);
+            }
+
+
+            $sap_matearials = $query->orderBy('id', 'desc')->get();
+
+            // Tạo một đối tượng Spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Đặt tiêu đề cho các cột
+            $sheet->setCellValue('A1', 'Mã sản phẩm');
+            $sheet->setCellValue('B1', 'Mã Barcode');
+            $sheet->setCellValue('C1', 'Đơn vị tính');
+            $sheet->setCellValue('D1', 'Tên sản phẩm');
+
+            // Ghi dữ liệu vào file Excel
+            $row = 2;
+            foreach ($sap_matearials as $sap_matearial) {
+                $sheet->setCellValue('A' . $row, $sap_matearial->sap_code);
+                $sheet->setCellValue('B' . $row, $sap_matearial->bar_code);
+                $sheet->setCellValue('C' . $row, $sap_matearial->unit->unit_code);
+                $sheet->setCellValue('D' . $row, $sap_matearial->name);
+                $row++;
+            }
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B', 'C', 'D'];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+            // Đặt style cho header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'B0C4DE'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
+
+            // Tạo đối tượng Writer để ghi file Excel
+            $writer = new Xlsx($spreadsheet);
+
+            // Đặt tên file và định dạng
+            $filename = 'sap_materials.xlsx';
+
+            // Đặt header cho response
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            //Ghi file Excel vào output
+            $writer->save('php://output');
+        } catch (\Exception  $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
     }
     public function createSapMaterialFormExcel()
     {

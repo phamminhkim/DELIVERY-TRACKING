@@ -7,6 +7,11 @@ use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\Validator;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 
@@ -119,6 +124,101 @@ class MaterialDonatedRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
             return false;
+        }
+    }
+    public function exportToExcel()
+    {
+        try {
+            $query = MaterialDonated::query();
+
+            if ($this->request->filled('search')) {
+                $query->limit(50);
+            }
+            if ($this->request->filled('sap_codes')) {
+                $query->whereIn('sap_code', $this->request->sap_codes);
+            }
+
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+
+            if ($this->request->filled('id')) {
+                $query->where('id', $this->request->id);
+            }
+
+
+            $material_donated = $query->orderBy('id', 'desc')->get();
+
+            // Tạo một đối tượng Spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Đặt tiêu đề cho các cột
+            $sheet->setCellValue('A1', 'Mã sản phẩm');
+            $sheet->setCellValue('B1', 'Tên sản phẩm');
+
+            // Ghi dữ liệu vào file Excel
+            $row = 2;
+            foreach ($material_donated as $donated) {
+                $sheet->setCellValue('A' . $row, $donated->sap_code);
+                $sheet->setCellValue('B' . $row, $donated->name);
+                $row++;
+            }
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B'];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+            // Đặt style cho header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'B0C4DE'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:B1')->applyFromArray($headerStyle);
+
+            // Tạo đối tượng Writer để ghi file Excel
+            $writer = new Xlsx($spreadsheet);
+
+            // Đặt tên file và định dạng
+            $filename = 'material_donateds.xlsx';
+
+            // Đặt header cho response
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            //Ghi file Excel vào output
+            $writer->save('php://output');
+        } catch (\Exception  $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
         }
     }
     public function store()

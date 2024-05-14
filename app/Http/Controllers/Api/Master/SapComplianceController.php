@@ -51,6 +51,17 @@ class SapComplianceController extends ResponseController
             return Response::download($filePath);
         }
     }
+    public function exportToExcel(Request $request)
+    {
+        $handler = MasterRepository::sapComplianceRequest($request);
+        $sapCompliances = $handler->exportToExcel();
+
+        if ($sapCompliances) {
+            return $this->responseSuccess($sapCompliances);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     //add
     public function createNewSapCompliance(Request $request)
     {

@@ -25,6 +25,7 @@ class SapMaterial extends Model
 
     protected $searchable = [
         'sap_materials.sap_code',
+        'sap_materials.bar_code',
         'sap_materials.name',
     ];
 

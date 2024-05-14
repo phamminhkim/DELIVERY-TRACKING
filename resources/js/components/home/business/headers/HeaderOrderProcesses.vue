@@ -600,6 +600,7 @@ export default {
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
+                        order: index_item + 1,
                         id: '',
                         barcode: '',
                         sku_sap_code: '',
@@ -615,9 +616,9 @@ export default {
                         customer_sku_code: item.ProductID,
                         customer_sku_name: item.ProductName,
                         customer_sku_unit: item.OrdUnit,
-                        quantity1_po: item.Quantity1,
-                        quantity2_po: item.Quantity2,
-                        price_po: item.ProductPrice,
+                        quantity1_po: this.convertStringToNumber(item.Quantity1),
+                        quantity2_po: this.convertStringToNumber(item.Quantity2),
+                        price_po:  this.convertStringToNumber(item.ProductPrice),
                         amount_po: this.convertStringToNumber(item.ProductAmount),
                         // amount_po: item.ProductAmount,
                         // this.calculatorAmount(item.ProductAmount),
@@ -629,6 +630,10 @@ export default {
                         is_promotive: false,
                         is_inventory: false,
                         inventory_quantity: '',
+                        sap_so_number: file_response.data[index].headers.SapSoNumber,
+                        po_number: file_response.data[index].headers.PoNumber,
+                        po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
+
                     });
                     this.bar_codes.push(item.ProductID);
                 }
@@ -693,7 +698,7 @@ export default {
             this.form_filter.pdf_files = [];
         },
         downloadExcel() {
-            const group_by_so_num = Object.groupBy(this.orders, ({ customer_name, promotive_name }) => customer_name + (promotive_name == null ? '' : promotive_name));
+            const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
             const convert_array = Object.values(Object.keys(group_by_so_num));
             var data_header = [
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
@@ -701,17 +706,17 @@ export default {
             ];
             const data_news = this.orders.map((item) => {
                 return {
-                    'Số SO': item.customer_name + (item.promotive_name == null ? '' : item.promotive_name),
+                    'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
                     'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.sku_sap_code,
                     'Số lượng': (item.quantity2_po * item.quantity1_po),
                     'Đơn vị tính': item.sku_sap_unit,
-                    'Combo': item.promotive_name,
+                    'Combo': '',
                     'Phiên bản BOM Sale': '',
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': item.customer_name + (item.promotive_name == null ? '' : item.promotive_name),
+                    'Ghi_chú': item.note1 +"_"+ item.po_number + (item.po_delivery_date == null ? '' : item.po_delivery_date),
                     'Barcode': item.barcode,
                 };
             });
