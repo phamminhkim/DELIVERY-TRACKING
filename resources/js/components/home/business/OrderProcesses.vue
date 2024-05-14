@@ -183,7 +183,6 @@ export default {
             let exists = false;
             if (this.case_data_temporary.item_selecteds.length == 0) {
                 this.orders.filter((item, index_order) => {
-
                     if (this.isCheckLack(item)) {
                         item.is_inventory = true;
                         this.case_data_temporary.order_lacks.forEach(order_lack => {
@@ -216,8 +215,10 @@ export default {
                 // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
 
             }
-
             this.refeshCheckBox();
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         refeshCheckBox() {
             this.$refs.parentOrderSuffice.refeshCheckBox();
@@ -380,6 +381,9 @@ export default {
             data.is_inventory = false;
             this.orders.unshift(data);
             this.case_data_temporary.order_lacks.splice(index, 1);
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
