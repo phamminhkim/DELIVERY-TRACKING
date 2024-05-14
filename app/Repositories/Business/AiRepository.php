@@ -870,10 +870,11 @@ class AiRepository extends RepositoryAbs
             }
         }
         // Thêm trường SapSoNumber
-        $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
-        $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
-            : $table_data['PoNumber'];
-
+        if (isset( $table_data['PoNumber']) && isset( $table_data['PoDeliveryDate'])) {
+            $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
+            $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
+                : $table_data['PoNumber'];
+        }
         return $table_data;
     }
 
