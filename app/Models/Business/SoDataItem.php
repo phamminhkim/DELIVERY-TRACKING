@@ -12,6 +12,7 @@ class SoDataItem extends Model
         'so_number',
         'order_process_id',
         'so_header_id',
+        'order',
         'barcode',
         'sku_sap_code',
         'sku_sap_name',

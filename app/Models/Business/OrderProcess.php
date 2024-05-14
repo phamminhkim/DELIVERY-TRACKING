@@ -22,7 +22,7 @@ class OrderProcess extends Model
 
     public function so_data_items()
     {
-        return $this->hasMany(SoDataItem::class);
+        return $this->hasMany(SoDataItem::class)->orderBy('order');
     }
     public function so_headers()
     {
