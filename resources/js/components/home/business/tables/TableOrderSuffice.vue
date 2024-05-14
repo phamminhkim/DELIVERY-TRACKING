@@ -7,7 +7,8 @@
                 table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
-                        {{ (data.index + 1) + (current_page * per_page) - per_page }}
+                        {{ data.item.order }}
+                        <!-- {{ (data.index + 1) + (current_page * per_page) - per_page }} -->
                     </div>
                 </template>
 

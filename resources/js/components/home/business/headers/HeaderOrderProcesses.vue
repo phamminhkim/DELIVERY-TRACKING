@@ -600,6 +600,7 @@ export default {
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
+                        order: index_item + 1,
                         id: '',
                         barcode: '',
                         sku_sap_code: '',
