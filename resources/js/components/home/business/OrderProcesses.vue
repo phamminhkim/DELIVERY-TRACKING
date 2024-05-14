@@ -236,13 +236,17 @@ export default {
                 item.order = index + 1;
             });
         },
-        getReplaceItem(item_materials) {
+        getReplaceItem(item_materials, barcode) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
                 item_materials.forEach(item_material => {
-                    this.orders[this.orders.indexOf(item_selected)].barcode = item_material.bar_code;
-                    this.orders[this.orders.indexOf(item_selected)].sku_sap_code = item_material.sap_code;
-                    this.orders[this.orders.indexOf(item_selected)].sku_sap_name = item_material.name;
-                    this.orders[this.orders.indexOf(item_selected)].sku_sap_unit = item_material.unit.unit_code;
+                    this.orders.forEach((order) => {
+                        if (order.barcode == barcode) {
+                            order.sku_sap_code = item_material.sap_code;
+                            order.sku_sap_name = item_material.name;
+                            order.sku_sap_unit = item_material.unit_code;
+                            order.barcode = item_material.bar_code;
+                        }
+                    })
                 });
             });
             this.closeModalSearchOrderProcesses();
