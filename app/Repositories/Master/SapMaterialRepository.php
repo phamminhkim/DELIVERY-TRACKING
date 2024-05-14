@@ -50,7 +50,8 @@ class SapMaterialRepository extends RepositoryAbs
                 $search = $request->input('search');
                 $query->where(function ($q) use ($search) {
                     $q->where('sap_code', 'like', "%$search%")
-                        ->orWhere('name', 'like', "%$search%");
+                        ->orWhere('name', 'like', "%$search%")
+                        ->orWhere('bar_code', 'like', "%$search%");
                 });
             }
             if ($is_minified) {
