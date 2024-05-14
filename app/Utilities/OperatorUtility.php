@@ -46,7 +46,7 @@ class OperatorUtility
         preg_match($regex, $raw_data, $matches);
         return count($matches) > 0 ? $matches[0] : null;
     }
-    public static function GetValueWithCondition($array, $condition)
+    public static function getValueWithCondition($array, $condition)
     {
         $result = "";
         $index = $condition->index;
@@ -60,6 +60,14 @@ class OperatorUtility
             $result = count($matches) > 0 ? $matches[0] : null;
         } else {
             $result = $array[$index];
+        }
+        return $result;
+    }
+
+    public static function mergeValue($array, $index_array) {
+        $result = "";
+        foreach ($index_array as $index) {
+            $result .= $array[$index];
         }
         return $result;
     }

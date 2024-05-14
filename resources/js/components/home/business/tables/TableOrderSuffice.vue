@@ -4,25 +4,28 @@
             <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
             <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
-                :tbody-tr-class="hightLightCopy"
-                table-class="table-order-suffices" :current-page="current_page" :per-page="per_page">
+                :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
+                :per-page="per_page">
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ data.item.order }}
                         <!-- {{ (data.index + 1) + (current_page * per_page) - per_page }} -->
                     </div>
                 </template>
-
                 <template #cell(action)="data">
-                    <b-dropdown id="dropdown-left" size="sm" variant="light"
+                    <b-dropdown id="dropdown-left" dropright  size="sm" variant="light" name="kim" class="form-dropdown"
                         toggle-class="text-center rounded p-0 px-1 border">
                         <template #button-content>
                             <i class="fas fa-grip-vertical fa-sm"></i>
                         </template>
-                        <b-dropdown-item>Copy</b-dropdown-item>
-                        <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cắt</b-dropdown-item>
-                        <b-dropdown-item @click="btnParseCreateRow(data.index)" v-if="case_is_status.copy">Parse</b-dropdown-item>
-                        <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
+                        <b-dropdown-group class="menu ml-2">
+                            <b-dropdown-item @click="btnCopy(data.index, data.item)">Copy</b-dropdown-item>
+                            <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cut</b-dropdown-item>
+                            <b-dropdown-item @click="btnParseCreateRow(data.index)"
+                                v-if="case_is_status.copy">Parse</b-dropdown-item>
+                            <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
+                        </b-dropdown-group>
+
 
 
                     </b-dropdown>
@@ -110,7 +113,7 @@
                             {{ header.label }}
                         </label>
                         <div>
-                            <b-dropdown id="dropdown-1" size="sm" variant="light"
+                            <b-dropdown id="dropdown-1" size="sm" variant="light" @show="filterItems(header.column)"
                                 toggle-class="text-center rounded p-0 px-1 ml-1">
                                 <template #button-content class="button">
                                     <!-- <i class="fas fa-cog"></i> -->
@@ -139,6 +142,9 @@
                                 </template>
                                 <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
                                     all</b-dropdown-item>
+                                <div class="form-group" v-for="(order, index) in case_filter.orders" :key="index">
+                                    {{ order }}
+                                </div>
                             </b-dropdown>
                         </div>
                     </div>
@@ -160,7 +166,7 @@
                             {{ header.label }}
                         </label>
                         <div>
-                            <b-dropdown id="dropdown-1" size="sm" variant="light"
+                            <b-dropdown id="dropdown-offset" offset="25" size="sm" variant="light"
                                 toggle-class="text-center rounded p-0 px-1 ml-1">
                                 <template #button-content>
                                     <i class="fas fa-clipboard-list"></i>
@@ -393,7 +399,9 @@ export default {
                 change: -1,
                 orders: [],
                 order: -1,
-
+            },
+            case_filter: {
+                orders: [],
             },
             case_order: {
                 customer_name: '',
@@ -405,53 +413,71 @@ export default {
                     key: 'selected',
                     label: '',
                     class: 'text-nowrap',
+                    tdClass: 'checkbox-sticky-left text-center',
+                    thClass: 'checkbox-sticky-left text-center',
                 },
                 {
                     key: 'action',
                     label: '',
                     class: 'text-nowrap',
+                    tdClass: 'checkbox-sticky-center text-center',
+                    thClass: 'checkbox-sticky-center text-center',
                 },
                 {
                     key: 'index',
                     label: 'Stt',
                     class: 'text-nowrap text-center',
                     sortable: false,
+                    tdClass: 'checkbox-sticky-end text-center border',
+                    thClass: 'checkbox-sticky-header-end text-center',
                 },
                 {
                     key: 'customer_name',
                     label: 'Makh Key',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'sap_so_number',
                     label: 'Mã Sap So',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'sku_sap_code',
                     label: 'Masap',
                     class: 'text-nowrap text-center',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
+
                 },
                 {
                     key: 'sku_sap_unit',
                     label: 'Dvt',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
 
                 {
@@ -460,7 +486,7 @@ export default {
                     class: 'text-nowrap',
                     tdClass: 'voucher-custom border p-0 ',
                     sortable: false,
-
+                    thClass: 'border'
 
                 },
                 {
@@ -468,48 +494,64 @@ export default {
                     label: 'Ghi_chu',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'customer_code',
                     label: 'Makh',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
                     class: 'text-nowrap text-center',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'customer_sku_name',
                     label: 'Unit_barcode_description',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'po',
                     label: 'Po',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
                     class: "text-nowrap",
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'promotive_name',
                     label: 'Combo',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
 
                 },
                 {
@@ -517,65 +559,87 @@ export default {
                     label: 'Check tồn',
                     class: "text-nowrap ",
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
                     class: "text-nowrap",
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'price_po',
                     label: 'Pur_price',
                     class: "text-nowrap",
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'amount_po',
                     label: 'Amount',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'note1',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'company_price',
                     label: 'Gia_cty',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'level2',
                     label: 'Level_2',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'level3',
                     label: 'Level_3',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'level4',
                     label: 'Level_4',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'po_number',
                     label: 'po_number',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'po_delivery_date',
                     class: 'text-nowrap',
                     sortable: false,
+                    thClass: 'border'
+
                 },
             ],
             case_checkbox: {
@@ -858,7 +922,7 @@ export default {
         refeshItem() {
             this.case_index.copys = [];
             this.selectedItems = [];
-            this.case_index.orders = [];    
+            this.case_index.orders = [];
 
         },
         changeCtrl(event, item) {
@@ -897,19 +961,28 @@ export default {
             this.refeshCaseCopy();
             this.$emit('btnParseCreateRow', index);
         },
-        hightLightCopy(item) {
-           if(item.order == this.case_index.order){
-            return 'font-italic text-secondary highlight-copy';
-           }
+        btnCopy(index, item) {
+            this.case_is_status.copy = true;
+            this.case_index.order = item.order;
+            this.$emit('btnCopy', index, item);
         },
-        refeshCaseCopy(){
+        hightLightCopy(item) {
+            if (item.order == this.case_index.order) {
+                return 'font-italic text-secondary highlight-copy';
+            }
+        },
+        refeshCaseCopy() {
             this.case_is_status.copy = false;
             this.case_index.order = -1;
+        },
+        filterItems(field) {
+            this.case_filter.orders = this.orders.map((order) => {
+                return order[field]
+            })
         }
-        
-    },
-    comments: {
 
+    },
+    computed: {
 
     }
 }
@@ -955,7 +1028,44 @@ export default {
     border: 1px solid #00fc11;
     background: rgb(227 227 227 / 50%);
 }
-::v-deep .highlight-copy{
+
+::v-deep .highlight-copy {
     background: rgb(178 178 178 / 21%) !important;
+}
+
+::v-deep .checkbox-sticky-left {
+    position: sticky !important;
+    left: 0;
+    z-index: 3 !important;
+    background: white;
+    border-right: 1px solid #e9ecef;
+}
+
+::v-deep .checkbox-sticky-center {
+    position: sticky !important;
+    left: 32px;
+    z-index: 3 !important;
+    background: white;
+    border-right: 1px solid #e9ecef;
+}
+
+::v-deep .checkbox-sticky-end {
+    position: sticky !important;
+    left: 65px;
+    // z-index: 3 !important;
+    background: white;
+    border-right: 1px solid #e9ecef;
+}
+::v-deep .checkbox-sticky-header-end {
+    position: sticky !important;
+    left: 65px;
+    z-index: 3 !important;
+    background: white;
+    border-right: 1px solid #e9ecef;
+}
+::v-deep .form-dropdown > ul {
+    margin-left: 5px;
+    border: 0;
+    z-index: 1045 !important;
 }
 </style>
