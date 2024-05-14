@@ -65,7 +65,7 @@
 										required
 										:load-options="loadOptions"
 										:async="true"
-										v-model="form_filter.sap_material"
+										v-model="form_filter.sap_compliance"
 									/>
 								</div>
 							</div>
@@ -129,14 +129,15 @@
 										>
 									</button>
 									<button
-									type="button"
-									class="btn btn-info btn-sm ml-1 mt-1"
-									@click="exportToExcel"
-								>
-									<strong>
-										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
-									</strong>
-								</button>
+										type="button"
+										class="btn btn-info btn-sm ml-1 mt-1"
+										@click="exportToExcel"
+									>
+										<strong>
+											<i class="fas fa-download mr-1 text-bold"></i>Download
+											Excel
+										</strong>
+									</button>
 								</div>
 							</div>
 							<!-- <div class="col-md-3">
@@ -172,7 +173,7 @@
 								:per-page="pagination.item_per_page"
 								:filter="search_pattern"
 								:fields="fields"
-								:items="sap_materials.data"
+								:items="sap_compliances.data"
 								:tbody-tr-class="rowClass"
 							>
 								<template #empty="scope">
@@ -194,6 +195,15 @@
 								<template #cell(sap_code)="data">
 									<span> {{ data.item.sap_code }} </span>
 								</template>
+								<template #cell(check_qc)="data">
+									<span class="badge bg-success" v-if="data.item.check_qc == 1"
+										>x</span
+									>
+									<span
+										class="badge bg-warning"
+										v-if="data.item.check_qc == 0"
+									></span>
+								</template>
 
 								<template #cell(action)="data">
 									<div class="margin">
@@ -206,7 +216,7 @@
 
 										<button
 											class="btn btn-xs mr-1"
-											@click="deleteSapMaterial(data.item.id)"
+											@click="deleteSapCompliance(data.item.id)"
 										>
 											<i
 												class="fas fa-trash text-red bigger-120"
@@ -223,10 +233,9 @@
 							<label
 								class="col-form-label-sm col-md-2"
 								style="text-align: left"
-								for="per-page-select"
+								for=""
+								>Số lượng mỗi trang:</label
 							>
-								Số lượng mỗi trang:
-							</label>
 							<div class="col-md-2">
 								<b-form-select
 									size="sm"
@@ -243,11 +252,10 @@
 							<div class="col-md-3">
 								<b-pagination
 									v-model="pagination.current_page"
-									:total-rows="sap_materials.data.length"
+									:total-rows="sap_compliances.data.length"
 									:per-page="pagination.item_per_page"
 									:limit="3"
 									:size="pagination.page_options.length.toString()"
-
 									class="ml-1"
 								></b-pagination>
 							</div>
@@ -255,13 +263,13 @@
 						<!-- end phân trang -->
 
 						<!-- tạo form -->
-						<DialogAddUpdateSapMaterial
+						<DialogAddUpdateSapCompliance
 							ref="AddUpdateDialog"
 							:is_editing="is_editing"
 							:editing_item="editing_item"
 							:refetchData="fetchOptionsData"
-						></DialogAddUpdateSapMaterial>
-						<DialogImportExcelToCreateSapMaterial :refetchData="fetchOptionsData" />
+						></DialogAddUpdateSapCompliance>
+						<DialogImportExcelToCreateSapCompliance :refetchData="fetchOptionsData" />
 
 						<!-- end tạo form -->
 					</div>
@@ -276,17 +284,16 @@
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import Vue from 'vue';
 	import ApiHandler, { APIRequest } from '../../ApiHandler';
-	import DialogAddUpdateSapMaterial from './dialog/DialogAddUpdateSapMaterial.vue';
-	import DialogImportExcelToCreateSapMaterial from './dialog/DialogImportExcelToCreateSapMaterial.vue';
-	import { saveExcel } from '@progress/kendo-vue-excel-export';
+	import DialogAddUpdateSapCompliance from './dialog/DialogAddUpdateSapCompliance.vue';
+	import DialogImportExcelToCreateSapCompliance from './dialog/DialogImportExcelToCreateSapCompliance.vue';
 
 	export default {
-		name: 'SapMaterials',
+		name: 'SapCompliances',
 		components: {
 			Treeselect,
 			Vue,
-			DialogAddUpdateSapMaterial,
-			DialogImportExcelToCreateSapMaterial,
+			DialogAddUpdateSapCompliance,
+			DialogImportExcelToCreateSapCompliance,
 		},
 		data() {
 			return {
@@ -299,15 +306,13 @@
 				is_loading: false,
 				is_show_search: false,
 				pagination: {
-					current_page: 1,
 					item_per_page: 10,
-					total_items: 0,
-					last_page: 0,
-					page_options: [10, 20, 50, 100, 500],
+					current_page: 1,
+					page_options: [10, 50, 100, 500],
 				},
 				form_filter: {
 					unit: null,
-					sap_material: [],
+					sap_compliance: [],
 				},
 				fields: [
 					{
@@ -335,18 +340,32 @@
 						class: 'text-nowrap text-center',
 					},
 					{
+						key: 'quy_cach',
+						label: 'Quy Cách',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'check_qc',
+						label: 'Check QC',
+						sortable: true,
+						class: 'text-nowrap text-center',
+						formatter: (value) => {
+							return value ? 'x' : '';
+						},
+					},
+					{
 						key: 'action',
 						label: 'Action',
 						class: 'text-nowrap',
 					},
 				],
-				sap_materials: {
+				sap_compliances: {
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
-
 				unit_options: [],
-				api_url: 'api/master/sap-materials',
+				api_url: 'api/master/sap-compliances',
 			};
 		},
 		created() {
@@ -358,16 +377,16 @@
 				try {
 					this.is_loading = true;
 					const params = {
-						page: this.pagination.current_page,
-						per_page: this.pagination.item_per_page,
+						page: this.page,
+						per_page: this.perPage,
 						unit_ids: this.form_filter.unit,
-						ids: this.form_filter.sap_material,
+						ids: this.form_filter.sap_compliance,
 					};
 					const response = await this.api_handler.get(this.api_url, { params });
-					const { data, paginate } = response.data.sap_materials;
+					const { data, paginate } = response.data.sap_compliances;
 
 					if (Array.isArray(data)) {
-						this.sap_materials.data = data.map((item) => ({
+						this.sap_compliances = data.map((item) => ({
 							sap_code: item.sap_code,
 							unit_id: item.unit_id,
 							bar_code: item.bar_code,
@@ -389,13 +408,13 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [unit_options, sap_materials] =
+					const [unit_options, sap_compliances] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/sap-units'),
-							new APIRequest('get', '/api/master/sap-materials'),
+							new APIRequest('get', '/api/master/sap-compliances'),
 						]);
 
-					this.sap_materials = sap_materials;
+					this.sap_compliances = sap_compliances;
 
 					this.unit_options = unit_options.map((unit) => ({
 						id: unit.id,
@@ -420,12 +439,12 @@
 						search: searchQuery,
 					};
 					const { data } = await this.api_handler.get(
-						'api/master/sap-materials/minified',
+						'api/master/sap-compliances/minified',
 						params,
 					);
 					let options = data.data.map((item) => ({
 						id: item.id,
-						label: `(${item.sap_code}) (${item.bar_code}) (${item.unit.unit_code})  ${item.name}`,
+						label: `(${item.bar_code}) (${item.sap_code}) (${item.unit.unit_code})  ${item.name}`,
 					}));
 					// console.log(data);
 					//const options = data;
@@ -440,11 +459,11 @@
 
 					const response = await this.api_handler.get(this.api_url, {
 						unit_ids: this.form_filter.unit,
-						ids: this.form_filter.sap_material,
+						ids: this.form_filter.sap_compliance,
 					});
 					const data = response.data;
 
-					this.sap_materials = data;
+					this.sap_compliances = data;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -458,9 +477,10 @@
 					this.is_loading = true;
 
 					this.form_filter.unit = null;
-					this.form_filter.sap_material = [];
+					this.form_filter.sap_compliance = [];
 
 					await this.fetchOptionsData();
+					// this.$refs.CrudPage.refValue(this.sap_compliances)
 				} catch (error) {
 					this.showMessage('error', 'Lỗi', error);
 				} finally {
@@ -468,16 +488,16 @@
 				}
 			},
 			showExcelDialog() {
-				$('#DialogImportExcelToCreateSapMaterial').modal('show');
+				$('#DialogImportExcelToCreateSapCompliance').modal('show');
 			},
 
-			async deleteSapMaterial(id) {
+			async deleteSapCompliance(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
 						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
 						if (result.success) {
 							if (Array.isArray(result.data)) {
-								this.sap_materials.data = result.data;
+								this.sap_compliances.data = result.data;
 							}
 							this.showMessage('success', 'Xóa thành công', result.message);
 							await this.fetchOptionsData(); // Load the data again after successful deletion
@@ -489,28 +509,16 @@
 					}
 				}
 			},
-
-			showCreateDialog() {
-				console.log('object');
-				this.is_editing = false;
-				this.editing_item = {};
-				$('#DialogAddUpdateSapMaterial').modal('show');
-			},
-			showEditDialog(item) {
-				this.is_editing = true;
-				this.editing_item = item;
-				$('#DialogAddUpdateSapMaterial').modal('show');
-			},
             async exportToExcel() {
 				try {
 					const params = {
 						search: this.search,
 						unit_ids: this.form_filter.unit,
-						ids: this.form_filter.sap_material,
+						ids: this.form_filter.sap_compliance,
 					};
 
 					const response = await this.api_handler.get(
-						'api/master/sap-materials/exportToExcel',
+						'api/master/sap-compliances/exportToExcel',
 						params,
 						'blob',
 					);
@@ -532,6 +540,18 @@
 					console.error(error);
 				}
 			},
+			showCreateDialog() {
+				console.log('object');
+				this.is_editing = false;
+				this.editing_item = {};
+				$('#DialogAddUpdateSapCompliance').modal('show');
+			},
+			showEditDialog(item) {
+				this.is_editing = true;
+				this.editing_item = item;
+				$('#DialogAddUpdateSapCompliance').modal('show');
+			},
+
 			rowClass(item, type) {
 				if (!item || type !== 'row') return;
 				if (item.status === 'awesome') return 'table-success';
@@ -559,7 +579,7 @@
 		},
 		computed: {
 			rows() {
-				return this.sap_materials.length;
+				return this.sap_compliances.length;
 			},
 		},
 	};

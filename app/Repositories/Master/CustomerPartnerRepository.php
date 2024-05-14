@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Services\Excel\ExcelExtractor;
 use Illuminate\Support\Facades\DB;
 use App\Models\Master\CustomerGroup;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 
 class CustomerPartnerRepository extends RepositoryAbs
@@ -156,6 +161,119 @@ class CustomerPartnerRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
             return false;
+        }
+    }
+    public function exportToExcel()
+    {
+        try {
+            $query = CustomerPartner::query();
+
+            if ($this->request->filled('search')) {
+                $query = $query->search($this->request->search);
+                $query->limit(200);
+            }
+            if ($this->request->filled('ids')) {
+                $query->whereIn('id', $this->request->ids);
+            }
+            $query->with([
+                'customer_group' => function ($query) {
+                    $query->select(['id', 'name']);
+                },
+            ]);
+
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                if (!is_array($customer_group_ids)) {
+                    $customer_group_ids = explode(',', $customer_group_ids);
+                }
+                $query->whereHas('customer_group', function ($query) use ($customer_group_ids) {
+                    $query->whereIn('id', $customer_group_ids);
+                });
+            }
+
+            $customer_partners = $query->orderBy('id', 'desc')->get();
+
+            // Tạo một đối tượng Spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Đặt tiêu đề cho các cột
+            $sheet->setCellValue('A1', 'Nhóm khách hàng');
+            $sheet->setCellValue('B1', 'Khác hàng key');
+            $sheet->setCellValue('C1', 'Mã khách hàng');
+            $sheet->setCellValue('D1', 'Ghi chú');
+            $sheet->setCellValue('E1', 'LV2');
+            $sheet->setCellValue('F1', 'LV3');
+            $sheet->setCellValue('G1', 'LV4');
+
+            // Ghi dữ liệu vào file Excel
+            $row = 2;
+            foreach ($customer_partners as $partner) {
+                $sheet->setCellValue('A' . $row, $partner->customer_group->name);
+                $sheet->setCellValue('B' . $row, $partner->name);
+                $sheet->setCellValue('C' . $row, $partner->code);
+                $sheet->setCellValue('D' . $row, $partner->note); // Thay đổi thành cột số lượng SKU KH
+                $sheet->setCellValue('E' . $row, $partner->LV2);
+                $sheet->setCellValue('F' . $row, $partner->LV3);
+                $sheet->setCellValue('G' . $row, $partner->LV4);
+                $row++;
+            }
+
+            // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
+            $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            foreach ($columns as $column) {
+                $columnDimension = $sheet->getColumnDimension($column);
+                $columnWidth = $columnDimension->getWidth();
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $cellValue = $sheet->getCell($column . $row)->getValue();
+                    $cellLength = mb_strlen($cellValue);
+                    $columnWidth = max($columnWidth, $cellLength);
+                }
+                $columnDimension->setWidth($columnWidth + 1); // Thêm một đơn vị cho khoảng cách giữa cột và nội dung
+            }
+
+
+            // Đặt style cho header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => '000000'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'B0C4DE'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+
+            // Tạo đối tượng Writer để ghi file Excel
+            $writer = new Xlsx($spreadsheet);
+
+            // Đặt tên file và định dạng
+            $filename = 'customer_partners.xlsx';
+
+            // Đặt header cho response
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            //Ghi file Excel vào output
+            $writer->save('php://output');
+        } catch (\Exception  $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
         }
     }
 

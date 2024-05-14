@@ -25,8 +25,11 @@ class SoDataRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'title' => 'required',
+                'order_data.*.sap_so_number' => 'required|max:35',
             ], [
                 'title.required' => 'Title là bắt buộc',
+                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc',
+                'order_data.*.sap_so_number.max' => 'Số SAP SO không được vượt quá 35 ký tự',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -42,11 +45,14 @@ class SoDataRepository extends RepositoryAbs
                     'updated_by' => $current_user_id,
                 ]);
                 if ($order_process->id) {
-                    $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                    $order_data = collect($this->data['order_data'])->groupBy(['sap_so_number', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
                         $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
                             $so_header = SoHeader::create([
                                 'order_process_id' => $order_process->id,
-                                'customer_name' => $key,
+                                'sap_so_number' => $key,
+                                'po_number' => $so_items[0]['po_number'],
+                                'po_delivery_date' => $so_items[0]['po_delivery_date'],
+                                'customer_name' => $so_items[0]['customer_name'],
                                 'customer_code' => $so_items[0]['customer_code'],
                                 'note' => $so_items[0]['note1'],
                                 'level2' => $so_items[0]['level2'],
@@ -60,6 +66,7 @@ class SoDataRepository extends RepositoryAbs
                                     'so_number' => $so_number,
                                     'order_process_id' => $order_process->id,
                                     'so_header_id' => $so_header->id,
+                                    'order' => $item['order'],
                                     'barcode' => $item['barcode'],
                                     'sku_sap_code' => $item['sku_sap_code'],
                                     'sku_sap_name' => $item['sku_sap_name'],
@@ -100,8 +107,11 @@ class SoDataRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'title' => 'required',
+                'order_data.*.sap_so_number' => 'required|max:35',
             ], [
                 'title.required' => 'Title là bắt buộc',
+                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc',
+                'order_data.*.sap_so_number.max' => 'Số SAP SO không được vượt quá 35 ký tự',
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -119,11 +129,14 @@ class SoDataRepository extends RepositoryAbs
                 $order_process->updated_at = now();
                 $order_process->save();
                 // Tạo lại so_data_items và so_headers
-                $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                $order_data = collect($this->data['order_data'])->groupBy(['sap_so_number', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
                     $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
                         $so_header = SoHeader::create([
                             'order_process_id' => $order_process->id,
-                            'customer_name' => $key,
+                            'sap_so_number' => $key,
+                            'po_number' => $so_items[0]['po_number'],
+                            'po_delivery_date' => $so_items[0]['po_delivery_date'],
+                            'customer_name' => $so_items[0]['customer_name'],
                             'customer_code' => $so_items[0]['customer_code'],
                             'note' => $so_items[0]['note1'],
                             'level2' => $so_items[0]['level2'],
@@ -137,6 +150,7 @@ class SoDataRepository extends RepositoryAbs
                                 'so_number' => $so_number,
                                 'order_process_id' => $order_process->id,
                                 'so_header_id' => $so_header->id,
+                                'order' => $item['order'],
                                 'barcode' => $item['barcode'],
                                 'sku_sap_code' => $item['sku_sap_code'],
                                 'sku_sap_name' => $item['sku_sap_name'],

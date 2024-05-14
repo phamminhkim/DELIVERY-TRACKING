@@ -5,6 +5,7 @@ namespace App\Repositories\Business;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
+use App\Models\Master\SapCompliance;
 use App\Models\Master\CustomerGroup;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
@@ -136,6 +137,52 @@ class CheckDataRepository extends RepositoryAbs
             return ['success' => false, 'message' => $this->message, 'errors' => $this->errors];
         }
     }
+    public function checkCompliance()
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'items' => 'required|array',
+                'items.*.sap_code' => 'required',
+                'items.*.unit_id' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+
+            $items = $this->request->input('items');
+            $errors = [];
+
+            foreach ($items as $item) {
+                $sap_code = $item['sap_code'];
+                $unit_id = $item['unit_id'];
+
+                $sapCompliance = SapCompliance::where('sap_code', $sap_code)
+                    ->where('unit_id', $unit_id)
+                    ->first();
+
+                if ($sapCompliance) {
+                    $quyCachSap = $sapCompliance->quy_cach;
+
+                    if ($quyCachSap !== 0 && $quyCachSap % $quyCachSap !== 0) {
+                        $errors[] = "Mã SAP {$sap_code} không chia hết cho quy cách {$quyCachSap}.";
+                    }
+                }
+            }
+
+            if (!empty($errors)) {
+                $this->message = implode(' ', $errors);
+                return false;
+            }
+
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
     public function checkPromotions()
     {
         try {
@@ -209,18 +256,18 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
                 // if ($promotion_category !== null) {
-                    // $item['promotion_category'] = $promotion_category;
-                    $item['name'] = $name;
-                    if( $promotion_category == 'X' || $extra_offer == 'X'){
-                        $mappingData[] = [
-                            'sap_code' => $sap_code,
-                            'bar_code' => $bar_code,
-                            'name' => $name,
-                            'promotion_category' => $promotion_category,
-                           'extra_offer' =>  $extra_offer,
-                        ];
-                    }
-                   
+                // $item['promotion_category'] = $promotion_category;
+                $item['name'] = $name;
+                if ($promotion_category == 'X' || $extra_offer == 'X') {
+                    $mappingData[] = [
+                        'sap_code' => $sap_code,
+                        'bar_code' => $bar_code,
+                        'name' => $name,
+                        'promotion_category' => $promotion_category,
+                        'extra_offer' =>  $extra_offer,
+                    ];
+                }
+
                 // }
             }
             return [

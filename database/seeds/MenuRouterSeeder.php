@@ -353,6 +353,13 @@ class MenuRouterSeeder extends Seeder
                 'link' => "customer-partners",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
+                'title' => "Bảng quy cách",
+                'icon' => "fas fa-times-circle",
+                'link' => "sap-compliances",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
             ]
         ];
     }

@@ -2,14 +2,14 @@
 	<!-- tạo form -->
 	<div
 		class="modal fade"
-		id="DialogAddUpdateSapMaterial"
+		id="DialogAddUpdateSapCompliance"
 		tabindex="-1"
 		role="dialog"
 		data-backdrop="static"
 	>
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
-				<form @submit.prevent="addSapMaterial">
+				<form @submit.prevent="addSapCompliance">
 					<div class="modal-header">
 						<h5 class="modal-title">
 							<span>
@@ -35,7 +35,7 @@
 							<label>Mã sản phẩm SAP</label>
 							<small class="text-danger">*</small>
 							<input
-								v-model="sap_material.sap_code"
+								v-model="sap_compliance.sap_code"
 								class="form-control"
 								id="sap_code"
 								name="sap_code"
@@ -56,8 +56,7 @@
 							<label>Mã unit</label>
 							<small class="text-danger">*</small>
 							<treeselect
-								v-model="sap_material.unit_id"
-								:multiple="false"
+								v-model="sap_compliance.unit_id"
 								placeholder="Nhập unit.."
 								required
 								:load-options="loadOptions"
@@ -72,7 +71,7 @@
 							<label>Mã Barcode</label>
 							<small class="text-danger">*</small>
 							<input
-								v-model="sap_material.bar_code"
+								v-model="sap_compliance.bar_code"
 								class="form-control"
 								id="bar_code"
 								name="bar_code"
@@ -88,7 +87,7 @@
 							<label>Tên sản phẩm SAP</label>
 							<small class="text-danger">*</small>
 							<input
-								v-model="sap_material.name"
+								v-model="sap_compliance.name"
 								class="form-control"
 								id="name"
 								name="name"
@@ -100,6 +99,45 @@
 								<strong>{{ getError('name') }}</strong>
 							</span>
 						</div>
+						<div class="form-group">
+							<label>Quy cách</label>
+							<small class="text-danger">*</small>
+							<input
+								v-model="sap_compliance.quy_cach"
+								class="form-control"
+								id="quy_cach"
+								name="quy_cach"
+								placeholder="Nhập số lượng quy cách..."
+								v-bind:class="hasError('quy_cach') ? 'is-invalid' : ''"
+								type="text"
+							/>
+							<span v-if="hasError('quy_cach')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('quy_cach') }}</strong>
+							</span>
+						</div>
+						<div class="modal-body">
+						<div class="form-group">
+							<label class="mr-5" >Trạng thái</label>
+							<div class="form-check form-check-inline">
+								<input
+									v-model="sap_compliance.check_qc"
+									class="form-check-input"
+									id="check_qc"
+									name="check_qc"
+									type="checkbox"
+									@change="validateIsActive"
+									v-bind:class="hasError('check_qc') ? 'is-invalid' : ''"
+								/>
+							</div>
+							<span
+								v-if="hasError('check_qc')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('check_qc') }}</strong>
+							</span>
+						</div>
+					</div>
 					</div>
 
 					<div class="modal-footer justify-content-between">
@@ -127,7 +165,7 @@
 	import 'toastr/toastr.scss';
 
 	export default {
-		name: 'DialogAddUpdateSapMaterial',
+		name: 'DialogAddUpdateSapCompliance',
 		props: {
 			is_editing: Boolean,
 			editing_item: Object,
@@ -144,81 +182,94 @@
 				is_loading: false,
 				errors: {},
 
-				sap_material: {
+				sap_compliance: {
 					sap_code: '',
 					unit_id: null,
 					bar_code: '',
 					name: '',
+					quy_cach: '',
+					check_qc: false,
 				},
 				unit_options: [],
 
-				sap_materials: {
+				sap_compliances: {
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
-				api_url: '/api/master/sap-materials',
+				api_url: '/api/master/sap-compliances',
 			};
 		},
 		created() {
 			this.fetchOptionsData();
 		},
 		methods: {
-			async addSapMaterial() {
+            validateIsActive() {
+				if (
+					this.sap_compliance.check_qc !== true &&
+					this.sap_compliance.check_qc !== false
+				) {
+					this.sap_compliance.check_qc = false; // Giá trị mặc định là false nếu không hợp lệ
+				}
+			},
+			async addSapCompliance() {
 				if (this.is_loading) return;
 				this.is_loading = true;
 
 				if (this.is_editing === false) {
-					this.createSapMaterial();
+					this.createSapCompliance();
 				} else {
-					this.updateSapMaterial();
+					this.updateSapCompliance();
 				}
 			},
-			async createSapMaterial() {
+			async createSapCompliance() {
 				try {
 					this.is_loading = true;
-					const result = await this.api_handler.post('/api/master/sap-materials', {
-						sap_code: this.sap_material.sap_code,
-						unit_id: this.sap_material.unit_id,
-						bar_code: this.sap_material.bar_code,
-						name: this.sap_material.name,
+					const result = await this.api_handler.post('/api/master/sap-compliances', {
+						sap_code: this.sap_compliance.sap_code,
+						unit_id: this.sap_compliance.unit_id,
+						bar_code: this.sap_compliance.bar_code,
+						name: this.sap_compliance.name,
+						quy_cach: this.sap_compliance.quy_cach,
+						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					});
 					console.log(result);
 
-					if (result.success) {
+					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
-							this.sap_materials.data.unshift(result.data);
+							this.sap_compliances.data.unshift(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
 						await this.refetchData();
 					} else {
 						this.errors = result.errors;
-						this.showMessage('error', 'Lỗi');
+						this.showMessage('error', 'Thêm không thành công');
 					}
 				} catch (error) {
 					this.showMessage('error', 'Lỗi', error);
-				} finally {
+				}finally {
 					this.is_loading = false;
 				}
 			},
-			async updateSapMaterial() {
+			async updateSapCompliance() {
 				try {
 					this.is_loading = true;
-					const request = {
-						sap_code: this.sap_material.sap_code,
-						unit_id: this.sap_material.unit_id,
-						bar_code: this.sap_material.bar_code,
-						name: this.sap_material.name,
+                    const request = {
+						sap_code: this.sap_compliance.sap_code,
+						unit_id: this.sap_compliance.unit_id,
+						bar_code: this.sap_compliance.bar_code,
+						name: this.sap_compliance.name,
+						quy_cach: this.sap_compliance.quy_cach,
+						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					};
 					const data = await this.api_handler.put(
-						`${this.api_url}/${this.sap_material.id}`,
+						`${this.api_url}/${this.sap_compliance.id}`,
 						request,
 					);
-					console.log(data);
 					// Xử lý dữ liệu trả về (nếu cần)
-					if (data.success) {
+					if (!data.success) {
 						if (data.data && Array.isArray(data.data)) {
-							this.sap_materials.data.push(data.data);
+							this.sap_compliances.data.push(data.data);
 						}
 						this.showMessage('success', 'Cập nhật thành công', data.message);
 						this.closeDialog();
@@ -229,7 +280,7 @@
 					}
 				} catch (error) {
 					this.showMessage('error', 'Cập nhật không thành công');
-				} finally {
+				}finally {
 					this.is_loading = false;
 				}
 			},
@@ -237,13 +288,18 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [unit_options, sap_materials] =
+					const [unit_options, sap_compliances] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/sap-units'),
-							new APIRequest('get', '/api/master/sap-materials'),
+							new APIRequest('get', '/api/master/sap-compliances'),
 						]);
-					this.sap_materials = sap_materials;
-					this.unit_options = unit_options;
+					this.sap_compliances = sap_compliances;
+					this.unit_options = unit_options.map((unit) => {
+						return {
+							id: unit.id,
+							label: `(${unit.id}) ${unit.unit_code}`,
+						};
+					});
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -274,21 +330,25 @@
 			closeDialog() {
 				this.clearForm();
 				this.clearErrors();
-				$('#DialogAddUpdateSapMaterial').modal('hide');
+				$('#DialogAddUpdateSapCompliance').modal('hide');
 			},
 			resetDialog() {
-				this.sap_material.sap_code = null;
-				this.sap_material.unit_id = null;
-				this.sap_material.bar_code = '';
-				this.sap_material.name = '';
+				this.sap_compliance.sap_code = null;
+				this.sap_compliance.unit_id = null;
+				this.sap_compliance.bar_code = '';
+				this.sap_compliance.name = '';
+				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.check_qc = '';
 				this.clearErrors();
 			},
 
 			clearForm() {
-				this.sap_material.sap_code = null;
-				this.sap_material.unit_id = null;
-				this.sap_material.bar_code = null;
-				this.sap_material.name = null;
+				this.sap_compliance.sap_code = null;
+				this.sap_compliance.unit_id = null;
+				this.sap_compliance.bar_code = null;
+				this.sap_compliance.name = null;
+				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.check_qc = '';
 			},
 			clearErrors() {
 				this.errors = {};
@@ -327,18 +387,24 @@
 					this.clearForm();
 				}
 			},
+			'sap_compliance.check_qc': function (newVal) {
+				this.sap_compliance.check_qc = newVal;
+			},
+
 			editing_item: function (item) {
 				console.log(item);
-				this.sap_material.sap_code = item.sap_code;
-				this.sap_material.unit_id = item.unit_id;
-				this.sap_material.bar_code = item.bar_code;
-				this.sap_material.name = item.name;
-				this.sap_material.id = item.id;
+				this.sap_compliance.sap_code = item.sap_code;
+				this.sap_compliance.unit_id = item.unit_id;
+				this.sap_compliance.bar_code = item.bar_code;
+				this.sap_compliance.name = item.name;
+				this.sap_compliance.quy_cach = item.quy_cach;
+				this.sap_compliance.check_qc = item.check_qc;
+				this.sap_compliance.id = item.id;
 			},
 		},
 		computed: {
 			rows() {
-				return this.sap_materials.length;
+				return this.sap_compliances.length;
 			},
 		},
 	};

@@ -27,8 +27,8 @@
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow"
-           >
+            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
+            @btnParseCreateRow="getBtnParseCreateRow">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -84,7 +84,8 @@ export default {
             },
             case_data_temporary: {
                 item_selecteds: [],
-                order_lacks: []
+                order_lacks: [],
+                copy: {},
             },
             api_order_process_so: '/api/sales-order',
 
@@ -184,7 +185,6 @@ export default {
             let exists = false;
             if (this.case_data_temporary.item_selecteds.length == 0) {
                 this.orders.filter((item, index_order) => {
-
                     if (this.isCheckLack(item)) {
                         item.is_inventory = true;
                         this.case_data_temporary.order_lacks.forEach(order_lack => {
@@ -217,8 +217,10 @@ export default {
                 // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
 
             }
-
             this.refeshCheckBox();
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         refeshCheckBox() {
             this.$refs.parentOrderSuffice.refeshCheckBox();
@@ -229,6 +231,9 @@ export default {
                 this.orders.splice(this.orders.indexOf(item_selected), 1);
             });
             this.refeshCheckBox();
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         getReplaceItem(item_materials) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
@@ -260,6 +265,7 @@ export default {
                 var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
                 if (data_item.is_inventory == true) {
                     this.case_data_temporary.order_lacks.push({
+                        order: data_item.order,
                         id: data_item.id,
                         customer_sku_code: data_item.customer_sku_code,
                         customer_sku_name: data_item.customer_sku_name,
@@ -289,9 +295,14 @@ export default {
                         variant_quantity: variant_quantity,
                         extra_offer: '',
                         promotion_category: '',
+                        po_delivery_date: data_item.so_header.po_delivery_date,
+                        po_number: data_item.so_header.po_number,
+                        sap_so_number: data_item.so_header.sap_so_number,
+
                     });
                 } else {
                     this.orders.push({
+                        order: data_item.order,
                         id: data_item.id,
                         customer_sku_code: data_item.customer_sku_code,
                         customer_sku_name: data_item.customer_sku_name,
@@ -321,7 +332,9 @@ export default {
                         variant_quantity: variant_quantity,
                         extra_offer: '',
                         promotion_category: '',
-
+                        po_delivery_date: data_item.so_header.po_delivery_date,
+                        po_number: data_item.so_header.po_number,
+                        sap_so_number: data_item.so_header.sap_so_number,
                     });
                 }
 
@@ -370,6 +383,9 @@ export default {
             data.is_inventory = false;
             this.orders.unshift(data);
             this.case_data_temporary.order_lacks.splice(index, 1);
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
@@ -399,6 +415,7 @@ export default {
         },
         getCreateRow() {
             this.orders.unshift({
+                order: 1,
                 id: '',
                 customer_sku_code: '',
                 customer_sku_name: '',
@@ -428,21 +445,109 @@ export default {
                 variant_quantity: '',
                 extra_offer: '',
                 promotion_category: '',
+                sap_so_number: '',
+                po_number: '',
+                po_delivery_date: '',
+            });
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
         },
-        
+
         getHandleItem(item, field, index, orders) {
             this.orders = [...orders];
             this.orders[index][field] = item;
             this.refHeaderOrderProcesses();
         },
         getBtnDuplicateRow(index, item) {
-            // Thêm item vào sau vị trí index
-            this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(item)));
+            // Thêm item vào sau vị trí index và order của item sau đó thì tăng index lên 1
+            let new_order = this.convertNewOrder(item);
+            this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(new_order)));
+            let start_index = this.startIndex(new_order.order);
+            this.changeIndexOrder(start_index);
             this.refHeaderOrderProcesses();
-          
         },
+        getPasteItem(items, indexs, field, e) {
+            if (indexs.length !== 0) {
+                e.preventDefault();
+                indexs.forEach(index => {
+                    items.forEach(item => {
+                        this.orders[index][field] = item.promotive;
+                        this.orders[index].promotive_name = item.promotive;
+                    });
+                });
+            }
+            this.refHeaderOrderProcesses();
+            console.log(this.orders);
+
+        },
+        convertNewOrder(item) {
+            let new_order = {
+                order: item.order + 1,
+                id: item.id ? item.id : '',
+                customer_sku_code: item.customer_sku_code,
+                customer_sku_name: item.customer_sku_name,
+                customer_sku_unit: item.customer_sku_unit,
+                quantity: item.quantity,
+                company_price: item.company_price,
+                customer_code: item.customer_code,
+                level2: item.level2,
+                level3: item.level3,
+                level4: item.level4,
+                note1: item.note1,
+                note: item.note,
+                barcode: item.barcode,
+                sap_so_number: item.sap_so_number,
+                sku_sap_code: item.sku_sap_code,
+                sku_sap_name: item.sku_sap_name,
+                sku_sap_unit: item.sku_sap_unit,
+                inventory_quantity: item.inventory_quantity,
+                amount_po: item.amount_po,
+                is_inventory: item.is_inventory,
+                is_promotive: item.is_promotive,
+                po_number: item.po_number,
+                price_po: item.price_po,
+                promotive: item.promotive,
+                promotive_name: item.promotive_name,
+                quantity1_po: item.quantity1_po,
+                quantity2_po: item.quantity2_po,
+                customer_name: item.customer_name,
+                variant_quantity: item.variant_quantity,
+                extra_offer: item.extra_offer,
+                promotion_category: item.promotion_category,
+            }
+            return new_order;
+        },
+        startIndex(index) {
+            let start = index;
+            return start;
+        },
+        changeIndexOrder(start_index) {
+            for (start_index; start_index < this.orders.length; start_index++) {
+                const order_item = this.orders[start_index];
+                order_item.order = start_index + 1;
+            }
+        },
+        getBtnCopyDeleteRow(index, item) {
+            this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
+            console.log(this.case_data_temporary.copy);
+            // this.orders.splice(index, 1);
+            // this.changeIndexOrder(index);
+            // this.refHeaderOrderProcesses();
+        },
+        getBtnParseCreateRow(index) {
+            let index_item = this.orders.findIndex(item => item.order == this.case_data_temporary.copy.order);
+            if (index_item !== -1) {
+                this.orders.splice(index_item, 1);
+            }
+            let new_order = this.convertNewOrder(this.case_data_temporary.copy);
+            this.orders.splice(index, 0, JSON.parse(JSON.stringify(new_order)));
+            this.orders.forEach((item, index_item) => {
+                item.order = index_item + 1;
+            });
+            this.refHeaderOrderProcesses();
+        }
     },
     computed: {
         row_orders() {
