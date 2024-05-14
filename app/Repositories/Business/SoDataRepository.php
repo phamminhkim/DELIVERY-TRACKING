@@ -45,7 +45,7 @@ class SoDataRepository extends RepositoryAbs
                     'updated_by' => $current_user_id,
                 ]);
                 if ($order_process->id) {
-                    $order_data = collect($this->data['order_data'])->groupBy(['customer_name', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                    $order_data = collect($this->data['order_data'])->groupBy(['sap_so_number', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
                         $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
                             $so_header = SoHeader::create([
                                 'order_process_id' => $order_process->id,
