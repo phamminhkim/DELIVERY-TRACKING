@@ -67,7 +67,7 @@
 								<strong>{{ getError('unit_id') }}</strong>
 							</span>
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label>Mã Barcode</label>
 							<small class="text-danger">*</small>
 							<input
@@ -82,7 +82,7 @@
 							<span v-if="hasError('bar_code')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('bar_code') }}</strong>
 							</span>
-						</div>
+						</div> -->
 						<div class="form-group">
 							<label>Tên sản phẩm SAP</label>
 							<small class="text-danger">*</small>
@@ -101,7 +101,7 @@
 						</div>
 						<div class="form-group">
 							<label>Quy cách</label>
-							<small class="text-danger">*</small>
+							<!-- <small class="text-danger">*</small> -->
 							<input
 								v-model="sap_compliance.quy_cach"
 								class="form-control"
@@ -185,7 +185,7 @@
 				sap_compliance: {
 					sap_code: '',
 					unit_id: null,
-					bar_code: '',
+					// bar_code: '',
 					name: '',
 					quy_cach: '',
 					check_qc: false,
@@ -227,7 +227,7 @@
 					const result = await this.api_handler.post('/api/master/sap-compliances', {
 						sap_code: this.sap_compliance.sap_code,
 						unit_id: this.sap_compliance.unit_id,
-						bar_code: this.sap_compliance.bar_code,
+						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
 						quy_cach: this.sap_compliance.quy_cach,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
@@ -257,7 +257,7 @@
                     const request = {
 						sap_code: this.sap_compliance.sap_code,
 						unit_id: this.sap_compliance.unit_id,
-						bar_code: this.sap_compliance.bar_code,
+						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
 						quy_cach: this.sap_compliance.quy_cach,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
@@ -335,7 +335,7 @@
 			resetDialog() {
 				this.sap_compliance.sap_code = null;
 				this.sap_compliance.unit_id = null;
-				this.sap_compliance.bar_code = '';
+				// this.sap_compliance.bar_code = '';
 				this.sap_compliance.name = '';
 				this.sap_compliance.quy_cach = '';
 				this.sap_compliance.check_qc = '';
@@ -345,7 +345,7 @@
 			clearForm() {
 				this.sap_compliance.sap_code = null;
 				this.sap_compliance.unit_id = null;
-				this.sap_compliance.bar_code = null;
+				// this.sap_compliance.bar_code = null;
 				this.sap_compliance.name = null;
 				this.sap_compliance.quy_cach = '';
 				this.sap_compliance.check_qc = '';
@@ -395,7 +395,7 @@
 				console.log(item);
 				this.sap_compliance.sap_code = item.sap_code;
 				this.sap_compliance.unit_id = item.unit_id;
-				this.sap_compliance.bar_code = item.bar_code;
+				// this.sap_compliance.bar_code = item.bar_code;
 				this.sap_compliance.name = item.name;
 				this.sap_compliance.quy_cach = item.quy_cach;
 				this.sap_compliance.check_qc = item.check_qc;
