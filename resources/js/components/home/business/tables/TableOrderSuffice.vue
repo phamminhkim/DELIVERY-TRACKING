@@ -1,8 +1,8 @@
 <template>
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
-            <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
-            <b-table small responsive hover sticky-header="500px" head-variant="light" :items="filterOrders"
+            <!-- sticky-header="500px" responsive @sort-changed="sortingChanged" -->
+            <b-table small  hover sticky-header="500px" head-variant="light" :items="filterOrders"
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
@@ -13,22 +13,10 @@
                     </div>
                 </template>
                 <template #cell(action)="data">
-                    <b-dropdown id="dropdown-left" dropright size="sm" variant="light" name="kim" class="form-dropdown"
-                        toggle-class="text-center rounded p-0 px-1 border">
-                        <template #button-content>
-                            <i class="fas fa-grip-vertical fa-sm"></i>
-                        </template>
-                        <b-dropdown-group class="menu ml-2">
-                            <b-dropdown-item @click="btnCopy(data.index, data.item)">Copy</b-dropdown-item>
-                            <b-dropdown-item @click="btnCopyDeleteRow(data.index, data.item)">Cut</b-dropdown-item>
-                            <b-dropdown-item @click="btnParseCreateRow(data.index)"
-                                v-if="case_is_status.copy">Parse</b-dropdown-item>
-                            <b-dropdown-item @click="btnDuplicateRow(data.index, data.item)">Duplicate</b-dropdown-item>
-                        </b-dropdown-group>
-
-
-
-                    </b-dropdown>
+                    <TagOrderSufficeAction :index="data.index" :item="data.item" :copy="case_is_status.copy"
+                        @btnDuplicateRow="btnDuplicateRow" @btnParseCreateRow="btnParseCreateRow" @btnCopy="btnCopy"
+                        @btnCopyDeleteRow="btnCopyDeleteRow">
+                    </TagOrderSufficeAction>
                 </template>
                 <template #head(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected_all"
@@ -103,6 +91,240 @@
                         <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
+                <template #head(customer_name)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sap_so_number)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sku_sap_name)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sku_sap_unit)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(promotive)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(note)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_code)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_sku_name)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_sku_unit)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(po)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(quantity1_po)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(promotive_name)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(inventory_quantity)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(quantity2_po)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(price_po)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(amount_po)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(note1)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(company_price)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(level2)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(level3)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(level4)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(po_number)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(po_delivery_date)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
                 <template #head(barcode)="header">
                     <div class="text-center d-flex">
                         <label class="mb-0 " :class="{
@@ -112,43 +334,9 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <div>
-                            <b-dropdown id="dropdown-1" size="sm" variant="light" @show="filterItems(header.column)"
-                                toggle-class="text-center rounded p-0 px-1 ml-1">
-                                <template #button-content class="button">
-                                    <!-- <i class="fas fa-cog"></i> -->
-                                    <i class="fas fa-clipboard-list"></i>
-                                </template>
-                                <b-dropdown-item @click="fieldColumnHeader(header.column, $event)">Copy
-                                    all</b-dropdown-item>
-                                <div class="input-group input-group-sm mb-1">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
-                                    </div>
-                                    <input type="text" v-model="case_filter.search" class="form-control" placeholder="Tìm kiếm...">
-                                </div>
-                                <div class="form-group filter-scroll" style="width: 260px;">
-                                    <div class="mb-1 px-4 font-normal">
-                                        <label class="mb-0">
-                                            <input type="checkbox" class="mr-1" /> Select all
-                                        </label>
-                                        <div v-for="(order, index) in filterCaseFilterOrders" :key="index">
-                                            <label class="mb-0">
-                                                <input v-model="case_checkbox.items" :value="order" type="checkbox"
-                                                    class="mr-1" /> {{ order ? order
-            : 'null' }}
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="form-group">
-                                    <button @click="emitFilter(header.column)" type="button"
-                                        class="btn btn-sm btn-light">Tìm kiếm</button>
-                                </div>
-
-                            </b-dropdown>
-                        </div>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(sku_sap_code)="header">
@@ -160,45 +348,20 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <div>
-                            <b-dropdown id="dropdown-1" size="sm" variant="light"
-                                toggle-class="text-center rounded p-0 px-1 ml-1">
-                                <template #button-content>
-                                    <i class="fas fa-clipboard-list"></i>
-                                </template>
-                                <b-dropdown-item @click="fieldColumnHeader(header.column, $event)">Copy
-                                    all</b-dropdown-item>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
 
-                            </b-dropdown>
-                        </div>
-                    </div>
-                </template>
-                <template #head(sku_sap_name)="header">
-                    <div class="text-center">
-                        <label class="mb-0" :class="{
-            'text-danger': is_loading_detect_sap_code == true
-        }">
-                            <span v-if="is_loading_detect_sap_code == true"><i
-                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
-                            {{ header.label }}
-                        </label>
-                    </div>
-                </template>
                 <template #head(customer_sku_code)="header">
                     <div class="text-center d-flex  ">
                         <label class="mb-0">
                             {{ header.label }}
                         </label>
-                        <div>
-                            <b-dropdown id="dropdown-offset" offset="25" size="sm" variant="light"
-                                toggle-class="text-center rounded p-0 px-1 ml-1">
-                                <template #button-content>
-                                    <i class="fas fa-clipboard-list"></i>
-                                </template>
-                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
-                                    all</b-dropdown-item>
-                            </b-dropdown>
-                        </div>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
@@ -367,7 +530,9 @@
 </template>
 <script>
 import ApiHandler, { APIRequest } from '../../ApiHandler';
-import DialogMaterialCategoryTypes from '../../master/dialogs/DialogMaterialCategoryTypes.vue'
+import DialogMaterialCategoryTypes from '../../master/dialogs/DialogMaterialCategoryTypes.vue';
+import TagOrderSufficeAction from './Tags/TagOrderSufficeAction.vue';
+import TagOrderSufficeHeader from './Tags/TagOrderSufficeHeader.vue';
 export default {
     props: {
         tab_value: {
@@ -408,7 +573,9 @@ export default {
 
     },
     components: {
-        DialogMaterialCategoryTypes
+        DialogMaterialCategoryTypes,
+        TagOrderSufficeAction,
+        TagOrderSufficeHeader
     },
     data() {
         return {
@@ -827,7 +994,6 @@ export default {
                 if (!exit_indexs) {
                     this.case_index.orders.push(index);
                 };
-                console.log(this.case_index.orders);
             }
         },
         selectItemEventKey(item, event) {
@@ -868,7 +1034,6 @@ export default {
                                 promotive: item,
                             }
                         });
-                        console.log(new_items);
                         this.case_order.parses = [];
                         this.case_order.parses = new_items;
                         this.copyToClipboard(this.selectedItems.join('\n'));
@@ -1004,24 +1169,23 @@ export default {
             this.case_is_status.copy = false;
             this.case_index.order = -1;
         },
-        filterItems(field) {
-            this.case_filter.orders = this.orders.map((order) => {
-                return order[field]
-            })
+        getUnique(field){
+            let unique = [...new Set(this.orders.map(item => item[field]))];
+            return unique;
         },
-        emitFilter(field) {
-            this.$emit('filterItems', this.case_checkbox.items, field)
+        filterItems(field) {
+            this.case_filter.orders = this.getUnique(field);
+            // this.case_filter.orders = this.orders.map((order) => {
+            //     return order[field]
+            // })
+        },
+        emitFilter(items, field, boolean) {
+            this.$emit('filterItems', items, field, boolean)
         }
 
     },
     computed: {
-        filterCaseFilterOrders() {
-            return this.case_filter.orders.filter((order) => {
-                if (order != null && order != '') {
-                    return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
-                }
-            })
-        }
+
     }
 }
 </script>
@@ -1060,7 +1224,7 @@ export default {
 
 .table-order-suffices {
     cursor: crosshair;
-    height: 24rem !important;
+    height: 25rem !important;
 }
 
 .change-border {
@@ -1104,16 +1268,4 @@ export default {
     border-right: 1px solid #e9ecef;
 }
 
-::v-deep .form-dropdown>ul {
-    margin-left: 5px;
-    border: 0;
-    z-index: 1045 !important;
-    font-style: italic;
-}
-
-.filter-scroll {
-    overflow-y: auto;
-    height: 10rem;
-    font-size: 10px;
-}
 </style>

@@ -24,12 +24,11 @@
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
-            :filterOrders="filterOrders"
-            :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
-            :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
+            :filterOrders="filterOrders" :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
+            :case_save_so="case_save_so" :is_loading_detect_sap_code="case_is_loading.detect_sap_code"
+            @checkBoxRow="getCheckBoxRow" @sortingChanged="getSortingChanged" @createRow="getCreateRow"
+            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
+            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
             @filterItems="getFilterItems">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
@@ -84,6 +83,7 @@ export default {
             case_is_loading: {
                 detect_sap_code: false,
                 delete_row: false,
+                is_inventory: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -560,24 +560,30 @@ export default {
             this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
             this.case_is_loading.delete_row = false;
         },
-        getFilterItems(items, field) {
+        getFilterItems(items, field, boolean) {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
-           console.log(items, field);
+            this.case_is_loading.is_inventory = boolean;
+            console.log(items, field);
         }
     },
     computed: {
         row_orders() {
             return this.orders.length;
         },
-        filterOrders(){
+        filterOrders() {
             var news = [];
-            this.case_data_temporary.items.forEach(item => {
-                news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item))
-            });
-            if(news.length == 0){
-                news = this.orders;
+            if (!this.case_is_loading.is_inventory) {
+                this.case_data_temporary.items.forEach(item => {
+                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item))
+                });
+                if (news.length == 0) {
+                    news = this.orders;
+                }
+            } else {
+                news = this.orders.filter(order => order.is_inventory == true);
             }
+
             return news;
         }
     },
