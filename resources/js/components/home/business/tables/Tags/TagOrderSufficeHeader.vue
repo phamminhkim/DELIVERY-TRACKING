@@ -54,6 +54,7 @@ export default {
                 search: '',
             },
             case_boolean: {
+                is_refesh: false,
                 is_ok: false,
                 is_length_equal: false,
             },
@@ -63,11 +64,15 @@ export default {
     watch: {
         'case_checkbox.select_all': function (val) {
             if (val) {
-                if (this.case_checkbox.items.length <= 0) {
+                if (this.case_checkbox.items.length <= 0 ) {
                     this.case_checkbox.items = this.orders;
+                } 
+                this.case_checkbox.items = this.orders;
+            } 
+            else {
+                if(!this.case_boolean.is_refesh){
+                    this.case_checkbox.items = [];
                 }
-            } else {
-                this.case_checkbox.items = [];
             }
         },
         'case_checkbox.items': function (val) {
@@ -86,7 +91,14 @@ export default {
             this.changeHide();
         },
         filterItems(column) {
-            this.case_checkbox.select_all = true;
+            if(this.case_checkbox.items.length > 0){
+                this.case_checkbox.select_all = false;
+            } else {
+                this.case_checkbox.select_all = true;
+            }
+            if(this.case_checkbox.items.length == this.orders.length){
+                this.case_checkbox.select_all = true;
+            }
             this.$emit('filterItems', column);
         },
         changeHide() {
@@ -101,11 +113,13 @@ export default {
         },
         isLengthEqual() {
             if (this.case_checkbox.items.length == this.orders.length) {
+                this.case_checkbox.select_all = true;
                 this.case_boolean.is_length_equal = false;
             }
-            // else {
-            //     this.case_checkbox.select_all = false;
-            // }
+            else {
+                this.case_boolean.is_refesh = true;
+                this.case_checkbox.select_all = false;
+            }
         },
         filterInventory() {
             this.case_boolean.is_length_equal = true;
