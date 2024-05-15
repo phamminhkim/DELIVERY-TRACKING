@@ -1,14 +1,26 @@
 <template>
     <div>
         <b-dropdown menu-class="form-dropdown" id="dropdown-1" size="sm" variant="light" ref="dropdown"
-           @show="filterItems(column)"
-            toggle-class="text-center rounded p-0 px-1 ml-1">
+            @show="filterItems(column)" toggle-class="text-center rounded p-0 px-1 ml-1">
             <template #button-content class="button">
                 <i v-if="case_boolean.is_length_equal" class="fas fa-filter fa-sm"></i>
             </template>
-            <b-dropdown-item @click="fieldColumnHeader(column, $event)">Copy
+            <b-dropdown-item @click="fieldColumnHeader(column, $event)"><u class="font-weigh-bold">C</u>opy
                 all</b-dropdown-item>
-            <b-dropdown-item @click="filterInventory()">Filter hàng thiếu</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-group id="dropdown-group-1" header="Filter" header-classes="text-left">
+                <b-dropdown-item-button @click="filterInventory()" button-class="px-5"><u class="font-weigh-bold">H</u>àng
+                    thiếu</b-dropdown-item-button>
+                <b-dropdown-group id="dropdown-group-1" header="Color" header-classes="text-left px-5">
+                    <b-dropdown-item-button @click="filterPromotionCategoryExtraOffer()" button-class="px-5 ml-3">
+                        <div  class="mr-2 rounded" style="background: rgb(255, 193, 7); height: 20px; width: 3rem;"></div>
+                    </b-dropdown-item-button>
+                    <b-dropdown-item-button @click="filterPromotionCategoryCombo()" button-class="px-5 ml-3">
+                        <div  class="mr-2 rounded" style="background: rgb(0, 123, 255); height: 20px; width: 3rem;"></div>
+                    </b-dropdown-item-button>
+                </b-dropdown-group>
+            </b-dropdown-group>
+            <b-dropdown-divider></b-dropdown-divider>
             <div class="input-group input-group-sm mb-1 input-group-custom">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
@@ -58,19 +70,22 @@ export default {
                 is_ok: false,
                 is_length_equal: false,
             },
-    
+
         }
     },
     watch: {
         'case_checkbox.select_all': function (val) {
             if (val) {
-                if (this.case_checkbox.items.length <= 0 ) {
+                if (this.case_checkbox.items.length <= 0) {
                     this.case_checkbox.items = this.orders;
-                } 
+                }
                 this.case_checkbox.items = this.orders;
-            } 
+            }
             else {
-                if(!this.case_boolean.is_refesh){
+                if (!this.case_boolean.is_refesh) {
+                    this.case_checkbox.items = [];
+                }
+                if(this.case_checkbox.items.length == this.orders.length){
                     this.case_checkbox.items = [];
                 }
             }
@@ -91,12 +106,12 @@ export default {
             this.changeHide();
         },
         filterItems(column) {
-            if(this.case_checkbox.items.length > 0){
+            if (this.case_checkbox.items.length > 0) {
                 this.case_checkbox.select_all = false;
             } else {
                 this.case_checkbox.select_all = true;
             }
-            if(this.case_checkbox.items.length == this.orders.length){
+            if (this.case_checkbox.items.length == this.orders.length) {
                 this.case_checkbox.select_all = true;
             }
             this.$emit('filterItems', column);
@@ -125,7 +140,17 @@ export default {
             this.case_boolean.is_length_equal = true;
             this.$emit('emitFilter', [], 'is_inventory', true);
         },
-       
+        filterPromotionCategoryExtraOffer() {
+            this.case_boolean.is_length_equal = true;
+            let extra_offers = ['X'];
+            this.$emit('emitFilter', extra_offers, 'extra_offer', false);
+        },
+        filterPromotionCategoryCombo() {
+            this.case_boolean.is_length_equal = true;
+            let combos = ['X'];
+            this.$emit('emitFilter', combos, 'promotion_category', false);
+        },
+
 
     },
     computed: {
@@ -159,11 +184,10 @@ export default {
 
 }
 
-.footer-fixed-bottom {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
 
 </style>
+// .footer-fixed-bottom {
+    //     position: fixed;
+    //     bottom: 0;
+    //     width: 100%;
+    // }

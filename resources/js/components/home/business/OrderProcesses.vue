@@ -564,7 +564,6 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
-            console.log(items, field);
         }
     },
     computed: {
@@ -575,7 +574,7 @@ export default {
             var news = [];
             if (!this.case_is_loading.is_inventory) {
                 this.case_data_temporary.items.forEach(item => {
-                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item))
+                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item)); 
                 });
                 if (news.length == 0) {
                     news = this.orders;
@@ -583,7 +582,7 @@ export default {
             } else {
                 news = this.orders.filter(order => order.is_inventory == true);
             }
-
+            news.sort((a, b) => a.order - b.order);
             return news;
         }
     },
