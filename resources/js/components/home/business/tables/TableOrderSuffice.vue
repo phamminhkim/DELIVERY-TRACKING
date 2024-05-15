@@ -2,7 +2,7 @@
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" @sort-changed="sortingChanged" -->
-            <b-table small responsive hover sticky-header="500px" head-variant="light" :items="orders"
+            <b-table small responsive hover sticky-header="500px" head-variant="light" :items="filterOrders"
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
@@ -13,7 +13,7 @@
                     </div>
                 </template>
                 <template #cell(action)="data">
-                    <b-dropdown id="dropdown-left" dropright  size="sm" variant="light" name="kim" class="form-dropdown"
+                    <b-dropdown id="dropdown-left" dropright size="sm" variant="light" name="kim" class="form-dropdown"
                         toggle-class="text-center rounded p-0 px-1 border">
                         <template #button-content>
                             <i class="fas fa-grip-vertical fa-sm"></i>
@@ -119,8 +119,34 @@
                                     <!-- <i class="fas fa-cog"></i> -->
                                     <i class="fas fa-clipboard-list"></i>
                                 </template>
-                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
+                                <b-dropdown-item @click="fieldColumnHeader(header.column, $event)">Copy
                                     all</b-dropdown-item>
+                                <div class="input-group input-group-sm mb-1">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
+                                    </div>
+                                    <input type="text" v-model="case_filter.search" class="form-control" placeholder="Tìm kiếm...">
+                                </div>
+                                <div class="form-group filter-scroll" style="width: 260px;">
+                                    <div class="mb-1 px-4 font-normal">
+                                        <label class="mb-0">
+                                            <input type="checkbox" class="mr-1" /> Select all
+                                        </label>
+                                        <div v-for="(order, index) in filterCaseFilterOrders" :key="index">
+                                            <label class="mb-0">
+                                                <input v-model="case_checkbox.items" :value="order" type="checkbox"
+                                                    class="mr-1" /> {{ order ? order
+            : 'null' }}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <button @click="emitFilter(header.column)" type="button"
+                                        class="btn btn-sm btn-light">Tìm kiếm</button>
+                                </div>
+
                             </b-dropdown>
                         </div>
                     </div>
@@ -140,11 +166,9 @@
                                 <template #button-content>
                                     <i class="fas fa-clipboard-list"></i>
                                 </template>
-                                <b-dropdown-item active @click="fieldColumnHeader(header.column, $event)">Copy
+                                <b-dropdown-item @click="fieldColumnHeader(header.column, $event)">Copy
                                     all</b-dropdown-item>
-                                <div class="form-group" v-for="(order, index) in case_filter.orders" :key="index">
-                                    {{ order }}
-                                </div>
+
                             </b-dropdown>
                         </div>
                     </div>
@@ -378,6 +402,9 @@ export default {
             type: Array,
             default: () => []
         },
+        filterOrders: {
+            type: Array
+        }
 
     },
     components: {
@@ -402,6 +429,7 @@ export default {
             },
             case_filter: {
                 orders: [],
+                search: '',
             },
             case_order: {
                 customer_name: '',
@@ -645,6 +673,7 @@ export default {
             case_checkbox: {
                 selected: [],
                 selected_all: false,
+                items: [],
             },
             select_mode: 'multi',
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -979,11 +1008,20 @@ export default {
             this.case_filter.orders = this.orders.map((order) => {
                 return order[field]
             })
+        },
+        emitFilter(field) {
+            this.$emit('filterItems', this.case_checkbox.items, field)
         }
 
     },
     computed: {
-
+        filterCaseFilterOrders() {
+            return this.case_filter.orders.filter((order) => {
+                if (order != null && order != '') {
+                    return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
+                }
+            })
+        }
     }
 }
 </script>
@@ -1022,6 +1060,7 @@ export default {
 
 .table-order-suffices {
     cursor: crosshair;
+    height: 24rem !important;
 }
 
 .change-border {
@@ -1056,6 +1095,7 @@ export default {
     background: white;
     border-right: 1px solid #e9ecef;
 }
+
 ::v-deep .checkbox-sticky-header-end {
     position: sticky !important;
     left: 65px;
@@ -1063,9 +1103,17 @@ export default {
     background: white;
     border-right: 1px solid #e9ecef;
 }
-::v-deep .form-dropdown > ul {
+
+::v-deep .form-dropdown>ul {
     margin-left: 5px;
     border: 0;
     z-index: 1045 !important;
+    font-style: italic;
+}
+
+.filter-scroll {
+    overflow-y: auto;
+    height: 10rem;
+    font-size: 10px;
 }
 </style>

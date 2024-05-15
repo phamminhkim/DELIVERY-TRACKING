@@ -595,12 +595,13 @@ export default {
             // }
         },
         async getConvertFilePDF(file_response) {
+            let item_index = 1;
             for (let index = 0; index < file_response.data.length; index++) {
                 let files = file_response.data[index].items;
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
-                        order: index_item + 1,
+                        order: item_index,
                         id: '',
                         barcode: '',
                         sku_sap_code: '',
@@ -635,6 +636,7 @@ export default {
                         po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
 
                     });
+                    item_index++;
                     this.bar_codes.push(item.ProductID);
                 }
             }
