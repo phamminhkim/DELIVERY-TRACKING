@@ -30,11 +30,6 @@ class SapComplianceRepository extends RepositoryAbs
             if ($request->filled('bar_codes')) {
                 $query->whereIn('bar_code', $request->bar_codes);
             }
-            if ($request->filled( 'bar_codes', 'sap_codes','names')) {
-                $query->whereIn('bar_code', $request->bar_codes)
-                    ->orWhereIn('sap_code', $request->sap_codes)
-                    ->orWhereIn('name', $request->names);
-            }
 
 
             if ($request->filled('unit_ids')) {
@@ -49,13 +44,14 @@ class SapComplianceRepository extends RepositoryAbs
                 $query->where('id', $request->id);
             }
 
-            // if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
-            //     $search = $request->input('search');
-            //     $query->where(function ($q) use ($search) {
-            //         $q->where('sap_code', 'like', "%$search%")
-            //             ->orWhere('name', 'like', "%$search%");
-            //     });
-            // }
+            if ($request->filled('search') && $request->search != null && $request->search != 'undefined') {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('sap_code', 'like', "%$search%")
+                        ->orWhere('name', 'like', "%$search%");
+                        // ->orWhere('bar_code', 'like', "%$search%");
+                });
+            }
             if ($is_minified) {
                 $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
             }
@@ -66,10 +62,6 @@ class SapComplianceRepository extends RepositoryAbs
 
             $perPage = $request->filled('per_page') ? $request->per_page : 500;
             $sap_compliances = $query->paginate($perPage, ['*'], 'page', $request->page);
-
-            // if ($request->filled('search') && $sap_compliances->isEmpty()) {
-            //     $sap_compliances = $query->paginate($perPage, ['*'], 'page', $request->page);
-            // }
 
             $result = [
                 'data' => $sap_compliances->items(),
@@ -108,10 +100,10 @@ class SapComplianceRepository extends RepositoryAbs
                 $template_structure = [
                     'sap_code' => 0,
                     'unit_code' => 1, // Thay đổi cột 'unit_id' thành 'unit_code'
-                    'bar_code' => 2,
-                    'name' => 3,
-                    'quy_cach' => 4,
-                    'check_qc' => 5,
+                    // 'bar_code' => 2,
+                    'name' => 2,
+                    'quy_cach' => 3,
+                    'check_qc' => 4,
                 ];
                 $result = collect([]);
 
@@ -127,7 +119,7 @@ class SapComplianceRepository extends RepositoryAbs
                                 'unit_id' => $unit->id, // Sử dụng 'id' của bảng 'unit'
                             ],
                             [
-                                'bar_code' => $row[$template_structure['bar_code']],
+                                // 'bar_code' => $row[$template_structure['bar_code']],
                                 'name' => $row[$template_structure['name']],
                                 'quy_cach' => $row[$template_structure['quy_cach']],
                                 'check_qc' => $check_qc === null ? 1 : 0,
@@ -154,9 +146,9 @@ class SapComplianceRepository extends RepositoryAbs
         try {
             $query = SapCompliance::query();
 
-            if ($this->request->filled('bar_codes')) {
-                $query->whereIn('bar_code', $this->request->bar_codes);
-            }
+            // if ($this->request->filled('bar_codes')) {
+            //     $query->whereIn('bar_code', $this->request->bar_codes);
+            // }
             if ($this->request->filled('sap_codes')) {
                 $query->whereIn('sap_code', $this->request->sap_codes);
             }
@@ -182,24 +174,24 @@ class SapComplianceRepository extends RepositoryAbs
 
             // Đặt tiêu đề cho các cột
             $sheet->setCellValue('A1', 'Mã sản phẩm');
-            $sheet->setCellValue('B1', 'Mã Barcode');
-            $sheet->setCellValue('C1', 'Đơn vị tính');
-            $sheet->setCellValue('D1', 'Tên sản phẩm');
-            $sheet->setCellValue('E1', 'Quy cách');
+            // $sheet->setCellValue('B1', 'Mã Barcode');
+            $sheet->setCellValue('B1', 'Đơn vị tính');
+            $sheet->setCellValue('C1', 'Tên sản phẩm');
+            $sheet->setCellValue('D1', 'Quy cách');
 
             // Ghi dữ liệu vào file Excel
             $row = 2;
             foreach ($sap_compliances as $sap_compliance) {
                 $sheet->setCellValue('A' . $row, $sap_compliance->sap_code);
-                $sheet->setCellValue('B' . $row, $sap_compliance->bar_code);
-                $sheet->setCellValue('C' . $row, $sap_compliance->unit->unit_code);
-                $sheet->setCellValue('D' . $row, $sap_compliance->name);
-                $sheet->setCellValue('E' . $row, $sap_compliance->quy_cach);
+                // $sheet->setCellValue('B' . $row, $sap_compliance->bar_code);
+                $sheet->setCellValue('B' . $row, $sap_compliance->unit->unit_code);
+                $sheet->setCellValue('C' . $row, $sap_compliance->name);
+                $sheet->setCellValue('D' . $row, $sap_compliance->quy_cach);
                 $row++;
             }
 
             // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-            $columns = ['A', 'B', 'C', 'D', 'E'];
+            $columns = ['A', 'B', 'C', 'D'];
             foreach ($columns as $column) {
                 $columnDimension = $sheet->getColumnDimension($column);
                 $columnWidth = $columnDimension->getWidth();
@@ -234,7 +226,7 @@ class SapComplianceRepository extends RepositoryAbs
                 ],
             ];
 
-            $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+            $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);

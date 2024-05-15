@@ -201,7 +201,7 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 } else {
                     // Xử lý khi không tìm thấy ánh xạ
-                    $this->message = "Không tìm thấy ánh xạ cho mã SAP: " . $sap_code;
+                    $this->message = "Không tìm thấy đơn vị tính cho mã SAP: " . $sap_code;
                     return false;
                 }
             }
