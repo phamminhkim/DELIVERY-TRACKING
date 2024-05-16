@@ -169,6 +169,7 @@ class CheckDataRepository extends RepositoryAbs
                     $itemData = [
                         'sap_code' => $sap_code,
                         'unit_code' => $unit_code,
+                        'quantity2_po' => $quantity2_po,
                     ];
                     // Kiểm tra dữ liệu quy cách
                     if ($compliance !== null) {
