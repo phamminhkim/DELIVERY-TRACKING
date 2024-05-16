@@ -327,12 +327,12 @@
 						sortable: true,
 						class: 'text-center',
 					},
-					{
-						key: 'bar_code',
-						label: 'Mã Barcode',
-						sortable: true,
-						class: 'text-center',
-					},
+					// {
+					// 	key: 'bar_code',
+					// 	label: 'Mã Barcode',
+					// 	sortable: true,
+					// 	class: 'text-center',
+					// },
 					{
 						key: 'name',
 						label: 'Tên sản phẩm',
@@ -340,7 +340,7 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'quy_cach',
+						key: 'compliance',
 						label: 'Quy Cách',
 						sortable: true,
 						class: 'text-nowrap text-center',
@@ -389,7 +389,7 @@
 						this.sap_compliances = data.map((item) => ({
 							sap_code: item.sap_code,
 							unit_id: item.unit_id,
-							bar_code: item.bar_code,
+							// bar_code: item.bar_code,
 							name: item.name,
 							// Thêm các trường khác nếu cần
 						}));

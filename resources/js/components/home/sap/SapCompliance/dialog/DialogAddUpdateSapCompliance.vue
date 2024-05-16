@@ -67,7 +67,7 @@
 								<strong>{{ getError('unit_id') }}</strong>
 							</span>
 						</div>
-						<div class="form-group">
+						<!-- <div class="form-group">
 							<label>Mã Barcode</label>
 							<small class="text-danger">*</small>
 							<input
@@ -82,7 +82,7 @@
 							<span v-if="hasError('bar_code')" class="invalid-feedback" role="alert">
 								<strong>{{ getError('bar_code') }}</strong>
 							</span>
-						</div>
+						</div> -->
 						<div class="form-group">
 							<label>Tên sản phẩm SAP</label>
 							<small class="text-danger">*</small>
@@ -101,18 +101,18 @@
 						</div>
 						<div class="form-group">
 							<label>Quy cách</label>
-							<small class="text-danger">*</small>
+							<!-- <small class="text-danger">*</small> -->
 							<input
-								v-model="sap_compliance.quy_cach"
+								v-model="sap_compliance.compliance"
 								class="form-control"
-								id="quy_cach"
-								name="quy_cach"
+								id="compliance"
+								name="compliance"
 								placeholder="Nhập số lượng quy cách..."
-								v-bind:class="hasError('quy_cach') ? 'is-invalid' : ''"
+								v-bind:class="hasError('compliance') ? 'is-invalid' : ''"
 								type="text"
 							/>
-							<span v-if="hasError('quy_cach')" class="invalid-feedback" role="alert">
-								<strong>{{ getError('quy_cach') }}</strong>
+							<span v-if="hasError('compliance')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('compliance') }}</strong>
 							</span>
 						</div>
 						<div class="modal-body">
@@ -185,9 +185,9 @@
 				sap_compliance: {
 					sap_code: '',
 					unit_id: null,
-					bar_code: '',
+					// bar_code: '',
 					name: '',
-					quy_cach: '',
+					compliance: '',
 					check_qc: false,
 				},
 				unit_options: [],
@@ -227,9 +227,9 @@
 					const result = await this.api_handler.post('/api/master/sap-compliances', {
 						sap_code: this.sap_compliance.sap_code,
 						unit_id: this.sap_compliance.unit_id,
-						bar_code: this.sap_compliance.bar_code,
+						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
-						quy_cach: this.sap_compliance.quy_cach,
+						compliance: this.sap_compliance.compliance,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					});
 					console.log(result);
@@ -257,9 +257,9 @@
                     const request = {
 						sap_code: this.sap_compliance.sap_code,
 						unit_id: this.sap_compliance.unit_id,
-						bar_code: this.sap_compliance.bar_code,
+						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
-						quy_cach: this.sap_compliance.quy_cach,
+						compliance: this.sap_compliance.compliance,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					};
 					const data = await this.api_handler.put(
@@ -335,9 +335,9 @@
 			resetDialog() {
 				this.sap_compliance.sap_code = null;
 				this.sap_compliance.unit_id = null;
-				this.sap_compliance.bar_code = '';
+				// this.sap_compliance.bar_code = '';
 				this.sap_compliance.name = '';
-				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.compliance = '';
 				this.sap_compliance.check_qc = '';
 				this.clearErrors();
 			},
@@ -345,9 +345,9 @@
 			clearForm() {
 				this.sap_compliance.sap_code = null;
 				this.sap_compliance.unit_id = null;
-				this.sap_compliance.bar_code = null;
+				// this.sap_compliance.bar_code = null;
 				this.sap_compliance.name = null;
-				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.compliance = '';
 				this.sap_compliance.check_qc = '';
 			},
 			clearErrors() {
@@ -395,9 +395,9 @@
 				console.log(item);
 				this.sap_compliance.sap_code = item.sap_code;
 				this.sap_compliance.unit_id = item.unit_id;
-				this.sap_compliance.bar_code = item.bar_code;
+				// this.sap_compliance.bar_code = item.bar_code;
 				this.sap_compliance.name = item.name;
-				this.sap_compliance.quy_cach = item.quy_cach;
+				this.sap_compliance.compliance = item.compliance;
 				this.sap_compliance.check_qc = item.check_qc;
 				this.sap_compliance.id = item.id;
 			},

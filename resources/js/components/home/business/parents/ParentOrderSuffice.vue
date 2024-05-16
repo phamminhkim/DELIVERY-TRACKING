@@ -31,7 +31,9 @@
             @pasteItem="getPasteItem"
             @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow"
-            @btnCopy="getBtnCopy"></TableOrderSuffice>
+            @btnCopy="getBtnCopy"
+            :filterOrders="filterOrders"
+            @filterItems="getFilterItems"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -78,6 +80,9 @@ export default {
         },
         case_save_so: {
             type: Object
+        },
+        filterOrders: {
+            type: Array
         }
     },
     components: {
@@ -88,7 +93,7 @@ export default {
     data() {
         return {
             per_page: 10,
-            page_options: [10, 20, 50, 100],
+            page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
             case_data_temporary: {
                 item_selecteds: [],
@@ -149,6 +154,9 @@ export default {
         },
         getBtnCopy(index, item) {
             this.$emit('btnCopy', index, item);
+        },
+        getFilterItems(items, field, boolean) {
+            this.$emit('filterItems', items , field, boolean);
         }
 
     },

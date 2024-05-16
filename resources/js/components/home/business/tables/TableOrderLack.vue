@@ -213,6 +213,18 @@ export default {
 
                 },
                 {
+                    key: 'compliance',
+                    label: 'QC',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
+                    key: 'is_compliant',
+                    label: 'Đúng_QC',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
                     key: 'note',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',
@@ -250,7 +262,7 @@ export default {
                 },
             ],
             per_page: 10,
-            page_options: [10, 20, 50, 100],
+            page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
         }
     },
