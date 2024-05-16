@@ -184,10 +184,6 @@ class CheckDataRepository extends RepositoryAbs
                         $itemData['is_compliant'] = true;
                     }
                     $compliance[] = $itemData;
-                } else {
-                    // Xử lý khi không tìm thấy đơn vị tính
-                    $this->message = "Không tìm thấy đơn vị tính cho mã SAP: " . $sap_code;
-                    return false;
                 }
             }
             $result = [
