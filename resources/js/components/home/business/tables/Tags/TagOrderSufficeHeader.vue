@@ -9,14 +9,17 @@
                 all</b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-group id="dropdown-group-1" header="Filter" header-classes="text-left">
-                <b-dropdown-item-button @click="filterInventory()" button-class="px-5"><u class="font-weigh-bold">H</u>àng
+                <b-dropdown-item-button @click="filterInventory()" button-class="px-5"><u
+                        class="font-weigh-bold">H</u>àng
                     thiếu</b-dropdown-item-button>
                 <b-dropdown-group id="dropdown-group-1" header="Color" header-classes="text-left px-5">
                     <b-dropdown-item-button @click="filterPromotionCategoryExtraOffer()" button-class="px-5 ml-3">
-                        <div  class="mr-2 rounded" style="background: rgb(255, 193, 7); height: 20px; width: 3rem;"></div>
+                        <div class="mr-2 rounded" style="background: rgb(255, 193, 7); height: 20px; width: 3rem;">
+                        </div>
                     </b-dropdown-item-button>
                     <b-dropdown-item-button @click="filterPromotionCategoryCombo()" button-class="px-5 ml-3">
-                        <div  class="mr-2 rounded" style="background: rgb(0, 123, 255); height: 20px; width: 3rem;"></div>
+                        <div class="mr-2 rounded" style="background: rgb(0, 123, 255); height: 20px; width: 3rem;">
+                        </div>
                     </b-dropdown-item-button>
                 </b-dropdown-group>
             </b-dropdown-group>
@@ -85,7 +88,7 @@ export default {
                 if (!this.case_boolean.is_refesh) {
                     this.case_checkbox.items = [];
                 }
-                if(this.case_checkbox.items.length == this.orders.length){
+                if (this.case_checkbox.items.length == this.orders.length) {
                     this.case_checkbox.items = [];
                 }
             }
@@ -150,13 +153,28 @@ export default {
             let combos = ['X'];
             this.$emit('emitFilter', combos, 'promotion_category', false);
         },
+        // filterCaseFilterOrders() {
+        //     return this.orders.filter((order) => {
+        //         if (order === null) {
+        //             return true;
+        //         }
+        //         if (order != '') {
+        //             order = order.toString();
+        //             return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
+        //         }
+        //     })
+        // }
 
 
     },
     computed: {
         filterCaseFilterOrders() {
             return this.orders.filter((order) => {
-                if (order != null && order != '') {
+                if (order === null) {
+                    return true;
+                }
+                if (order != '') {
+                    order = order.toString();
                     return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
                 }
             })
@@ -183,11 +201,9 @@ export default {
     height: 340px !important;
 
 }
-
-
 </style>
 // .footer-fixed-bottom {
-    //     position: fixed;
-    //     bottom: 0;
-    //     width: 100%;
-    // }
+// position: fixed;
+// bottom: 0;
+// width: 100%;
+// }
