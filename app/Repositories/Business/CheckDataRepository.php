@@ -143,8 +143,7 @@ class CheckDataRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'items' => 'required|array',
                 'items.*.sap_code' => 'required',
-                'items.*.unit_id' => 'required',
-                'items.*.quantity1_po' => 'required',
+                'items.*.unit_code' => 'required',
                 'items.*.quantity2_po' => 'required',
             ]);
             if ($validator->fails()) {
@@ -154,53 +153,39 @@ class CheckDataRepository extends RepositoryAbs
             $compliance = [];
             foreach ($this->data['items'] as $item) {
                 $sap_code = $item['sap_code'];
-                $unit_id = $item['unit_id'];
-                $quantity1_po = $item['quantity1_po'];
+                $unit_code = $item['unit_code'];
                 $quantity2_po = $item['quantity2_po'];
-
-                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapCompliance hay không
+                // Kiểm tra xem có đơn vị tính trong bảng SapCompliance hay không
                 $sapCompliance = SapCompliance::where('sap_code', $sap_code)
-                    ->where('unit_id', $unit_id)
+                    ->whereHas('unit', function ($query) use ($unit_code) {
+                        $query->where('unit_code', $unit_code);
+                    })
                     ->first();
 
                 if ($sapCompliance) {
-                    // Thêm thông tin vào compliance
-                    // $bar_code = $sapCompliance->bar_code;
-                    $unit_id = $sapCompliance->unit_id;
+                    $unit_code = $sapCompliance->unit->unit_code;
                     $quy_cach = $sapCompliance->quy_cach;
 
-                    $sapUnit = SapUnit::find($unit_id);
-                    if ($sapUnit) {
-                        $unit_code = $sapUnit->unit_code;
-                        $itemData = [
-                            // 'bar_code' => $bar_code,
-                            'sap_code' => $sap_code,
-                            'unit_id' => $unit_id,
-                            'unit_code' => $unit_code,
-                        ];
-                        // Kiểm tra dữ liệu quy cách
-                        if ($quy_cach !== null) {
-                            $itemData['quy_cach'] = $quy_cach;
-
-                            // Kiểm tra chia hết cho quy_cach
-                            if ($quy_cach !== 0 && ($quantity1_po * $quantity2_po) % $quy_cach !== 0) {
-                                $itemData['is_compliant'] = false;
-                            } else {
-                                $itemData['is_compliant'] = true;
-                            }
+                    $itemData = [
+                        'sap_code' => $sap_code,
+                        'unit_code' => $unit_code,
+                    ];
+                    // Kiểm tra dữ liệu quy cách
+                    if ($quy_cach !== null) {
+                        $itemData['quy_cach'] = $quy_cach;
+                        // Kiểm tra chia hết cho quy_cach
+                        if ($quy_cach !== 0 && $quantity2_po % $quy_cach !== 0) {
+                            $itemData['is_compliant'] = false;
                         } else {
-                            $itemData['quy_cach'] = null;
                             $itemData['is_compliant'] = true;
                         }
-
-                        $compliance[] = $itemData;
                     } else {
-                        // Xử lý khi đơn vị không tồn tại
-                        $this->message = "Đơn vị không tồn tại";
-                        return false;
+                        $itemData['quy_cach'] = null;
+                        $itemData['is_compliant'] = true;
                     }
+                    $compliance[] = $itemData;
                 } else {
-                    // Xử lý khi không tìm thấy ánh xạ
+                    // Xử lý khi không tìm thấy đơn vị tính
                     $this->message = "Không tìm thấy đơn vị tính cho mã SAP: " . $sap_code;
                     return false;
                 }
