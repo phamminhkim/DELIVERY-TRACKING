@@ -84,6 +84,8 @@ class SoDataRepository extends RepositoryAbs
                                     'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
                                     'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
                                     'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
+                                    'compliance' => $item['compliance'],
+                                    'is_compliant' => $item['is_compliant'],
                                     'created_at' => $date_now,
                                     'updated_at' => $date_now,
                                 ];
@@ -168,6 +170,8 @@ class SoDataRepository extends RepositoryAbs
                                 'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
                                 'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
                                 'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
+                                'compliance' => $item['compliance'],
+                                'is_compliant' => $item['is_compliant'],
                                 'created_at' => $date_now,
                                 'updated_at' => $date_now,
                             ];
