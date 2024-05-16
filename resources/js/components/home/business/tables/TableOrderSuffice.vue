@@ -6,6 +6,51 @@
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
+                <template #head(index)="header">
+                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                        <span>{{ header.label }}</span>
+                    </div>
+                </template>
+                <template #head(customer_name)="header">
+                    <div class="text-center col-resize d-flex justify-content-between"
+                    :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
+@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sap_so_number)="header">
+                    <div class="text-center col-resize d-flex justify-content-between"
+                    :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
+@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(barcode)="header">
+                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
+@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)" class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 " :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
                 <template #cell(index)="data">
                     <div class="font-weight-bold">
                         {{ data.item.order }}
@@ -94,28 +139,12 @@
                         <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
-                <template #head(customer_name)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(sap_so_number)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
+              
+               
                 <template #head(sku_sap_name)="header">
-                    <div class="text-center d-flex justify-content-between">
+                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
@@ -126,8 +155,6 @@
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
                             @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
-                    </div>
-                    <div class="demo">
                     </div>
                 </template>
                 <template #head(sku_sap_unit)="header">
@@ -352,20 +379,7 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-                <template #head(barcode)="header">
-                    <div class="text-center d-flex">
-                        <label class="mb-0 " :class="{
-            'text-danger': is_loading_detect_sap_code == true
-        }">
-                            <span v-if="is_loading_detect_sap_code == true"><i
-                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
+             
                 <template #head(sku_sap_code)="header">
                     <div class="text-center d-flex ">
                         <label class="mb-0" :class="{
@@ -546,7 +560,7 @@
                     </div>
                 </template>
                 <template #cell(is_compliant)="data">
-                    <div v-show="data.item.is_compliant === false">
+                    <div v-show="!data.item.is_compliant">
                         <span class="text-danger"><i class="fas fa-times"></i></span>
                     </div>
                     <div v-show="data.item.is_compliant">
@@ -624,6 +638,7 @@ export default {
                 sort: false,
                 edit: false,
                 copy: false,
+                click: false,
             },
             case_index: {
                 event: -1,
@@ -904,7 +919,11 @@ export default {
             api_material_category_types: '/api/master/material-category',
             items: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
             isSelecting: false,
-            selectedItems: []
+            selectedItems: [],
+            mouseHoldTimeout: null,
+            mouseIsDown: false,
+            width: 100,
+            previousMousePosition: 0,
         }
     },
     created() {
@@ -1233,7 +1252,38 @@ export default {
         },
         emitFilter(items, field, boolean) {
             this.$emit('filterItems', items, field, boolean)
-        }
+        },
+        handleMouseDownHeader(e, ref_header) {
+            e.preventDefault();
+            // lấy giá trị width hiện tại
+            const style = window.getComputedStyle(this.$refs[ref_header]);
+            const width = parseFloat(style.getPropertyValue('width'));
+            this.width = width;
+            this.mouseIsDown = true;
+            this.mouseHoldTimeout = setTimeout(() => {
+                console.log('Mouse has been held down');
+            }, 10); // Thời gian nhấn giữ (ở đây là 1 giây)
+        },
+        handleMouseUpHeader() {
+            this.mouseIsDown = false;
+            clearTimeout(this.mouseHoldTimeout);
+        },
+        handleMouseLeaveHeader() {
+            this.mouseIsDown = false;
+            clearTimeout(this.mouseHoldTimeout);
+        },
+        handleMouseMoveHeader(e, ref_header) {
+            if (this.mouseIsDown) {
+                // tăng giảm giá trị width theo vị trí chuột
+                if (e.clientX > this.previousMousePosition) {
+                    this.width++; // Tăng giá trị width
+                } else if (e.clientX < this.previousMousePosition) {
+                    this.width--; // Giảm giá trị width
+                }
+                this.$refs[ref_header].style.width = this.width + 'px';
+                this.previousMousePosition = e.clientX; // Cập nhật vị trí chuột trước đó
+            }
+        },
 
     },
     computed: {
@@ -1319,12 +1369,16 @@ export default {
     background: white;
     border-right: 1px solid #e9ecef;
 }
-.demo{
+
+.demo {
     position: absolute;
     width: 3%;
     height: 100%;
     background-color: red;
     right: 0;
     top: 0;
+}
+.col-resize{
+    cursor: col-resize;
 }
 </style>
