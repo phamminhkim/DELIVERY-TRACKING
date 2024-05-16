@@ -175,13 +175,13 @@ class CheckDataRepository extends RepositoryAbs
                         $itemData['compliance'] = $compliance;
                         // Kiểm tra chia hết cho compliance
                         if ($compliance !== 0 && $quantity2_po % $compliance !== 0) {
-                            $itemData['is_compliance'] = false;
+                            $itemData['is_compliant'] = false;
                         } else {
-                            $itemData['is_compliance'] = true;
+                            $itemData['is_compliant'] = true;
                         }
                     } else {
                         $itemData['compliance'] = null;
-                        $itemData['is_compliance'] = true;
+                        $itemData['is_compliant'] = true;
                     }
                     $check_compliance[] = $itemData;
                 }
