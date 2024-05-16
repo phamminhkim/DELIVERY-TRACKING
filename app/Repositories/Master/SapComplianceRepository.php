@@ -253,7 +253,7 @@ class SapComplianceRepository extends RepositoryAbs
                 'sap_code' => 'required|string',
                 'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
-                'bar_code' => 'nullable|string',
+                // 'bar_code' => 'nullable|string',
                 'quy_cach' => 'nullable|string',
                 'check_qc' => 'nullable|in:0,1',
             ], [
@@ -264,7 +264,7 @@ class SapComplianceRepository extends RepositoryAbs
                 'unit_id.exists' => 'Mã unit không tồn tại.',
                 'name.required' => 'Yêu cầu nhập tên material.',
                 'name.string' => 'Tên material phải là chuỗi.',
-                'bar_code.string' => 'Mã Barcode phải là chuỗi.',
+                // 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'quy_cach.string' => 'Quy cách phải là chuỗi.',
                 'check_qc.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
             ]);
@@ -276,7 +276,7 @@ class SapComplianceRepository extends RepositoryAbs
                 $sapCompliance = SapCompliance::create([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
-                    'bar_code' => $this->data['bar_code'],
+                    // 'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
                     'quy_cach' => $this->data['quy_cach'],
                     'check_qc' => $this->data['check_qc'],
