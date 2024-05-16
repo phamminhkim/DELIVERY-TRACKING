@@ -589,17 +589,10 @@ export default {
                     }
                 );
                 if (data.success == true) {
-                    if (data.items.length > 0) {
-                        data.items.forEach(item => {
-                            this.orders.forEach(order => {
-                                if (order.sku_sap_code == item.sap_code) {
-                                    order.compliance = item.compliance;
-                                    order.is_compliant = item.is_compliant;
-                                }
-                            });
-                        });
-                    }
+                    this.resetCompliance();
+                    this.mappingCompliance(data.items);
                     this.$showMessage('success', 'Thành công', 'Kiểm tra quy cách thành công');
+                    this.refHeaderOrderProcesses();
                 } else {
                     this.$showMessage('error', 'Lỗi');
                 }
@@ -622,6 +615,24 @@ export default {
                 return arr;
             }, []);
             return items;
+        },
+        mappingCompliance(items) {
+            if (items.length > 0) {
+                items.forEach(item => {
+                    this.orders.forEach(order => {
+                        if (order.sku_sap_code == item.sap_code && item.quantity2_po == order.quantity2_po) {
+                            order.compliance = item.compliance;
+                            order.is_compliant = item.is_compliant;
+                        }
+                    });
+                });
+            }
+        },
+        resetCompliance() {
+            this.orders.forEach(order => {
+                order.compliance = '';
+                order.is_compliant = null;
+            });
         }
     },
     computed: {

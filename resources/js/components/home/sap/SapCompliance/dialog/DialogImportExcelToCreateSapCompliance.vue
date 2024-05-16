@@ -125,14 +125,13 @@
 							}),
 						);
 
-					if (!data.errors) {
+					if (!data.success) {
 						if (Array.isArray(data)) {
-							this.sap_Compliances.push(...data);
+							this.sap_compliances.push(...data); // Add the new mappings to the end of the list
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
-						this.resetForm();
-						await this.refetchData(); // Refetch the data
+						this.refetchData(); // Refetch the data
 					} else {
 						this.errors = data.errors;
 						this.showMessage('error', 'Thêm không thành công');
