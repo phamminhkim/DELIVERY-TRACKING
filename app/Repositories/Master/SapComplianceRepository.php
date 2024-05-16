@@ -49,7 +49,7 @@ class SapComplianceRepository extends RepositoryAbs
                 $query->where(function ($q) use ($search) {
                     $q->where('sap_code', 'like', "%$search%")
                         ->orWhere('name', 'like', "%$search%");
-                        // ->orWhere('bar_code', 'like', "%$search%");
+                    // ->orWhere('bar_code', 'like', "%$search%");
                 });
             }
             if ($is_minified) {
@@ -93,48 +93,45 @@ class SapComplianceRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
                 return false;
-            } else {
-                $file = $this->request->file('file');
-                $excel_extractor = new ExcelExtractor();
-                $data = $excel_extractor->extractData($file);
-                $template_structure = [
-                    'sap_code' => 0,
-                    'unit_code' => 1, // Thay đổi cột 'unit_id' thành 'unit_code'
-                    // 'bar_code' => 2,
-                    'name' => 2,
-                    'compliance' => 3,
-                    'check_qc' => 4,
-                ];
-                $result = collect([]);
-
-                foreach ($data as $row) {
-                    $unit = SapUnit::where('unit_code', $row[$template_structure['unit_code']])->first();
-
-                    if ($unit) {
-                        $check_qc = $row[$template_structure['check_qc']];
-
-                        $sapCompliance = SapCompliance::updateOrCreate(
-                            [
-                                'sap_code' => $row[$template_structure['sap_code']],
-                                'unit_id' => $unit->id, // Sử dụng 'id' của bảng 'unit'
-                            ],
-                            [
-                                // 'bar_code' => $row[$template_structure['bar_code']],
-                                'name' => $row[$template_structure['name']],
-                                'compliance' => $row[$template_structure['compliance']],
-                                'check_qc' => $check_qc === null ? 1 : 0,
-                            ]
-                        );
-
-                        $result->push($sapCompliance);
-                    }
-                }
-
-                return [
-                    "created_list" => $result,
-                    "errors" => $this->errors
-                ];
             }
+
+            $file = $this->request->file('file');
+            $excel_extractor = new ExcelExtractor();
+            $data = $excel_extractor->extractData($file);
+            $template_structure = [
+                'sap_code' => 0,
+                'unit_code' => 1,
+                'name' => 2,
+                'compliance' => 3,
+                'check_qc' => 4,
+            ];
+            $result = collect([]);
+            $errors = [];
+
+            foreach ($data as $row) {
+                $unit = SapUnit::where('unit_code', $row[$template_structure['unit_code']])->first();
+
+                if ($unit) {
+                    $check_qc = $row[$template_structure['check_qc']];
+                    $sapCode = $row[$template_structure['sap_code']];
+                    $sapCompliance = SapCompliance::updateOrCreate(
+                        ['sap_code' => $sapCode],
+                        [
+                            'unit_id' => $unit->id,
+                            'name' => $row[$template_structure['name']],
+                            'compliance' => $row[$template_structure['compliance']],
+                            'check_qc' => $check_qc === null ? 0 : 1,
+                        ]
+                    );
+
+                    $result->push($sapCompliance);
+                }
+            }
+
+            return [
+                "created_list" => $result,
+                "errors" => $errors
+            ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -273,14 +270,18 @@ class SapComplianceRepository extends RepositoryAbs
                 $this->errors = $validator->errors();
                 return false;
             } else {
-                $sapCompliance = SapCompliance::create([
+                $sapCompliance = [
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
-                    // 'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
-                    'compliance' => $this->data['compliance'],
                     'check_qc' => $this->data['check_qc'],
-                ]);
+                ];
+
+                if (isset($this->data['compliance'])) {
+                    $sapCompliance['compliance'] = $this->data['compliance'];
+                }
+
+                $sapCompliance = SapCompliance::create($sapCompliance);
 
                 return $sapCompliance;
             }
