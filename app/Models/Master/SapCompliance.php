@@ -15,7 +15,7 @@ class SapCompliance extends Model
         'sap_code',
         'name',
         'unit_id',
-        'quy_cach',
+        'compliance',
         'check_qc',
         'is_deleted',
 

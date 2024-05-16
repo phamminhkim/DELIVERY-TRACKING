@@ -340,7 +340,7 @@
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'quy_cach',
+						key: 'compliance',
 						label: 'Quy Cách',
 						sortable: true,
 						class: 'text-nowrap text-center',

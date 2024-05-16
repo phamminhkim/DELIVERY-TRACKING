@@ -103,16 +103,16 @@
 							<label>Quy cách</label>
 							<!-- <small class="text-danger">*</small> -->
 							<input
-								v-model="sap_compliance.quy_cach"
+								v-model="sap_compliance.compliance"
 								class="form-control"
-								id="quy_cach"
-								name="quy_cach"
+								id="compliance"
+								name="compliance"
 								placeholder="Nhập số lượng quy cách..."
-								v-bind:class="hasError('quy_cach') ? 'is-invalid' : ''"
+								v-bind:class="hasError('compliance') ? 'is-invalid' : ''"
 								type="text"
 							/>
-							<span v-if="hasError('quy_cach')" class="invalid-feedback" role="alert">
-								<strong>{{ getError('quy_cach') }}</strong>
+							<span v-if="hasError('compliance')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('compliance') }}</strong>
 							</span>
 						</div>
 						<div class="modal-body">
@@ -187,7 +187,7 @@
 					unit_id: null,
 					// bar_code: '',
 					name: '',
-					quy_cach: '',
+					compliance: '',
 					check_qc: false,
 				},
 				unit_options: [],
@@ -229,7 +229,7 @@
 						unit_id: this.sap_compliance.unit_id,
 						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
-						quy_cach: this.sap_compliance.quy_cach,
+						compliance: this.sap_compliance.compliance,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					});
 					console.log(result);
@@ -259,7 +259,7 @@
 						unit_id: this.sap_compliance.unit_id,
 						// bar_code: this.sap_compliance.bar_code,
 						name: this.sap_compliance.name,
-						quy_cach: this.sap_compliance.quy_cach,
+						compliance: this.sap_compliance.compliance,
 						check_qc: this.sap_compliance.check_qc ? 1 : 0,
 					};
 					const data = await this.api_handler.put(
@@ -337,7 +337,7 @@
 				this.sap_compliance.unit_id = null;
 				// this.sap_compliance.bar_code = '';
 				this.sap_compliance.name = '';
-				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.compliance = '';
 				this.sap_compliance.check_qc = '';
 				this.clearErrors();
 			},
@@ -347,7 +347,7 @@
 				this.sap_compliance.unit_id = null;
 				// this.sap_compliance.bar_code = null;
 				this.sap_compliance.name = null;
-				this.sap_compliance.quy_cach = '';
+				this.sap_compliance.compliance = '';
 				this.sap_compliance.check_qc = '';
 			},
 			clearErrors() {
@@ -397,7 +397,7 @@
 				this.sap_compliance.unit_id = item.unit_id;
 				// this.sap_compliance.bar_code = item.bar_code;
 				this.sap_compliance.name = item.name;
-				this.sap_compliance.quy_cach = item.quy_cach;
+				this.sap_compliance.compliance = item.compliance;
 				this.sap_compliance.check_qc = item.check_qc;
 				this.sap_compliance.id = item.id;
 			},

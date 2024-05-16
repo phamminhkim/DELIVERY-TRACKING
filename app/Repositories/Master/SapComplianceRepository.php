@@ -102,7 +102,7 @@ class SapComplianceRepository extends RepositoryAbs
                     'unit_code' => 1, // Thay đổi cột 'unit_id' thành 'unit_code'
                     // 'bar_code' => 2,
                     'name' => 2,
-                    'quy_cach' => 3,
+                    'compliance' => 3,
                     'check_qc' => 4,
                 ];
                 $result = collect([]);
@@ -121,7 +121,7 @@ class SapComplianceRepository extends RepositoryAbs
                             [
                                 // 'bar_code' => $row[$template_structure['bar_code']],
                                 'name' => $row[$template_structure['name']],
-                                'quy_cach' => $row[$template_structure['quy_cach']],
+                                'compliance' => $row[$template_structure['compliance']],
                                 'check_qc' => $check_qc === null ? 1 : 0,
                             ]
                         );
@@ -186,7 +186,7 @@ class SapComplianceRepository extends RepositoryAbs
                 // $sheet->setCellValue('B' . $row, $sap_compliance->bar_code);
                 $sheet->setCellValue('B' . $row, $sap_compliance->unit->unit_code);
                 $sheet->setCellValue('C' . $row, $sap_compliance->name);
-                $sheet->setCellValue('D' . $row, $sap_compliance->quy_cach);
+                $sheet->setCellValue('D' . $row, $sap_compliance->compliance);
                 $row++;
             }
 
@@ -254,7 +254,7 @@ class SapComplianceRepository extends RepositoryAbs
                 'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
                 // 'bar_code' => 'nullable|string',
-                'quy_cach' => 'nullable|string',
+                'compliance' => 'nullable|string',
                 'check_qc' => 'nullable|in:0,1',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã material.',
@@ -265,7 +265,7 @@ class SapComplianceRepository extends RepositoryAbs
                 'name.required' => 'Yêu cầu nhập tên material.',
                 'name.string' => 'Tên material phải là chuỗi.',
                 // 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
-                'quy_cach.string' => 'Quy cách phải là chuỗi.',
+                'compliance.string' => 'Quy cách phải là chuỗi.',
                 'check_qc.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
             ]);
 
@@ -278,7 +278,7 @@ class SapComplianceRepository extends RepositoryAbs
                     'unit_id' => $this->data['unit_id'],
                     // 'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
-                    'quy_cach' => $this->data['quy_cach'],
+                    'compliance' => $this->data['compliance'],
                     'check_qc' => $this->data['check_qc'],
                 ]);
 
@@ -374,7 +374,7 @@ class SapComplianceRepository extends RepositoryAbs
                 'unit_id' => 'integer|exists:sap_units,id',
                 // 'bar_code' => 'string',
                 'name' => 'required|string',
-                'quy_cach' => 'nullable|string',
+                'compliance' => 'nullable|string',
                 'check_qc' => 'nullable|in:0,1',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã SAP.',
@@ -385,7 +385,7 @@ class SapComplianceRepository extends RepositoryAbs
                 // 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên SAP.',
                 'name.string' => 'Tên SAP phải là chuỗi.',
-                'quy_cach.string' => 'Quy cách phải là chuỗi.',
+                'compliance.string' => 'Quy cách phải là chuỗi.',
                 'check_qc.in' => 'Check quy cách chỉ được chứa giá trị 0 hoặc 1.',
             ]);
 
@@ -406,7 +406,7 @@ class SapComplianceRepository extends RepositoryAbs
                     'unit_id' => $this->data['unit_id'],
                     // 'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
-                    'quy_cach' => $this->data['quy_cach'],
+                    'compliance' => $this->data['compliance'],
                     'check_qc' => $this->data['check_qc'],
                 ]);
                 $sapCompliance->save();

@@ -150,7 +150,7 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = $validator->errors()->first();
                 return false;
             }
-            $compliance = [];
+            $check_compliance = [];
             foreach ($this->data['items'] as $item) {
                 $sap_code = $item['sap_code'];
                 $unit_code = $item['unit_code'];
@@ -164,31 +164,31 @@ class CheckDataRepository extends RepositoryAbs
 
                 if ($sapCompliance) {
                     $unit_code = $sapCompliance->unit->unit_code;
-                    $quy_cach = $sapCompliance->quy_cach;
+                    $compliance = $sapCompliance->compliance;
 
                     $itemData = [
                         'sap_code' => $sap_code,
                         'unit_code' => $unit_code,
                     ];
                     // Kiểm tra dữ liệu quy cách
-                    if ($quy_cach !== null) {
-                        $itemData['quy_cach'] = $quy_cach;
-                        // Kiểm tra chia hết cho quy_cach
-                        if ($quy_cach !== 0 && $quantity2_po % $quy_cach !== 0) {
-                            $itemData['is_compliant'] = false;
+                    if ($compliance !== null) {
+                        $itemData['compliance'] = $compliance;
+                        // Kiểm tra chia hết cho compliance
+                        if ($compliance !== 0 && $quantity2_po % $compliance !== 0) {
+                            $itemData['is_compliance'] = false;
                         } else {
-                            $itemData['is_compliant'] = true;
+                            $itemData['is_compliance'] = true;
                         }
                     } else {
-                        $itemData['quy_cach'] = null;
-                        $itemData['is_compliant'] = true;
+                        $itemData['compliance'] = null;
+                        $itemData['is_compliance'] = true;
                     }
-                    $compliance[] = $itemData;
+                    $check_compliance[] = $itemData;
                 }
             }
             $result = [
                 'success' => true,
-                'items' => $compliance
+                'items' => $check_compliance
             ];
             return $result;
         } catch (\Exception $exception) {
