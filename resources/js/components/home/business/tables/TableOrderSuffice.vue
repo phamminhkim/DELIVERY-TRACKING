@@ -7,15 +7,18 @@
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
                 <template #head(index)="header">
-                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
                         <span>{{ header.label }}</span>
                     </div>
                 </template>
                 <template #head(customer_name)="header">
-                    <div class="text-center col-resize d-flex justify-content-between"
-                    :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
-@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
                         <label class="mb-0 ">
                             {{ header.label }}
                         </label>
@@ -25,9 +28,10 @@
                     </div>
                 </template>
                 <template #head(sap_so_number)="header">
-                    <div class="text-center col-resize d-flex justify-content-between"
-                    :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
-@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)">
+                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
                         <label class="mb-0 ">
                             {{ header.label }}
                         </label>
@@ -37,9 +41,48 @@
                     </div>
                 </template>
                 <template #head(barcode)="header">
-                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
-@mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)" class="text-center col-resize d-flex justify-content-between">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 " :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sku_sap_code)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center d-flex col-resize justify-content-between ">
+                        <label class="mb-0" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(sku_sap_name)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
                             <span v-if="is_loading_detect_sap_code == true"><i
@@ -67,6 +110,17 @@
                     <b-form-checkbox v-model="case_checkbox.selected_all"
                         @change="checkBoxAll(data.index)"></b-form-checkbox>
                 </template>
+                <template #head(sku_sap_unit)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
                         :value="data.item"></b-form-checkbox>
@@ -139,34 +193,10 @@
                         <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
-              
+
+
+
                
-                <template #head(sku_sap_name)="header">
-                    <div :ref="'header_'+ header.column" @mousedown="handleMouseDownHeader($event,'header_'+ header.column)"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader" @mousemove="handleMouseMoveHeader($event,'header_'+ header.column)"
-                        class="text-center col-resize d-flex justify-content-between">
-                        <label class="mb-0" :class="{
-            'text-danger': is_loading_detect_sap_code == true
-        }">
-                            <span v-if="is_loading_detect_sap_code == true"><i
-                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(sku_sap_unit)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
                 <template #head(promotive)="header">
                     <div class="text-center d-flex justify-content-between">
                         <label class="mb-0 ">
@@ -379,21 +409,8 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-             
-                <template #head(sku_sap_code)="header">
-                    <div class="text-center d-flex ">
-                        <label class="mb-0" :class="{
-            'text-danger': is_loading_detect_sap_code == true
-        }">
-                            <span v-if="is_loading_detect_sap_code == true"><i
-                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
+
+
 
                 <template #head(customer_sku_code)="header">
                     <div class="text-center d-flex  ">
@@ -560,10 +577,10 @@
                     </div>
                 </template>
                 <template #cell(is_compliant)="data">
-                    <div v-show="!data.item.is_compliant">
+                    <div v-if="data.item.is_compliant == false && data.item.is_compliant !== null">
                         <span class="text-danger"><i class="fas fa-times"></i></span>
                     </div>
-                    <div v-show="data.item.is_compliant">
+                    <div  v-if="data.item.is_compliant == true && data.item.is_compliant !== null">
                         <span class="text-success"><i class="fas fa-check"></i></span>
                     </div>
                 </template>
@@ -1378,7 +1395,8 @@ export default {
     right: 0;
     top: 0;
 }
-.col-resize{
+
+.col-resize {
     cursor: col-resize;
 }
 </style>
