@@ -2,7 +2,7 @@
     <div>
         <div v-if="tab_value == 'order'" class="form-group">
             <!-- sticky-header="500px" responsive @sort-changed="sortingChanged" -->
-            <b-table small  hover sticky-header="500px" head-variant="light" :items="filterOrders"
+            <b-table small hover sticky-header="500px" head-variant="light" :items="filterOrders"
                 :class="{ 'table-order-suffices': true, }" :fields="field_order_suffices" ref="btable"
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
@@ -37,7 +37,10 @@
                         @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                         :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
-                        <span class="text-center rounded">
+                        <span class="text-center rounded" :class="{
+            'badge badge-warning': data.item.extra_offer == 'X',
+            'badge badge-primary': data.item.promotion_category == 'X'
+        }">
                             {{ data.item.barcode }}
                         </span>
                     </div>
@@ -123,6 +126,8 @@
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
                             @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
+                    </div>
+                    <div class="demo">
                     </div>
                 </template>
                 <template #head(sku_sap_unit)="header">
@@ -220,6 +225,28 @@
                         <label class="mb-0 ">
                             {{ header.label }}
                         </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(compliance)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(is_compliant)="header">
+                    <div class="text-center d-flex justify-content-between">
+                        <label class="mb-0 ">
+                            {{ header.label }}
+                        </label>
+                        <span class="badge badge-sm badge-secondary badge-pill mt-1 ml-1"><i
+                                class="fas fa-question fa-sm"></i></span>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
                             @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
@@ -382,8 +409,6 @@
             'badge badge-primary': data.item.promotion_category == 'X'
         }">
                             {{ data.item.sku_sap_code }}
-
-
                         </span>
                     </div>
                 </template>
@@ -486,18 +511,23 @@
                         </strong></span>
                 </template>
                 <template #cell(price_po)="data">
-
                     <input class="px-2" v-model="data.item.price_po" v-if="case_is_status.edit"
                         @input="handleItem(data.item.price_po, 'price_po', data.index)" />
-                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
+                    <span v-else> <strong :class="{
+            'text-danger': data.item.company_price != data.item.price_po
+        }">{{ data.value.toLocaleString(locale_format) }}
                         </strong></span>
                 </template>
                 <template #cell(company_price)="data">
 
                     <input class="px-2" v-model="data.item.company_price" v-if="case_is_status.edit"
                         @input="handleItem(data.item.company_price, 'company_price', data.index)" />
-                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
+                    <span v-else>
+                        <strong :class="{
+            'text-danger': data.item.company_price != data.item.price_po
+        }">{{ data.value.toLocaleString(locale_format) }}
+                        </strong>
+                    </span>
                 </template>
                 <template #cell(customer_sku_code)="data">
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
@@ -513,6 +543,14 @@
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
                         {{ data.item.customer_sku_code }}
+                    </div>
+                </template>
+                <template #cell(is_compliant)="data">
+                    <div v-show="data.item.is_compliant === false">
+                        <span class="text-danger"><i class="fas fa-times"></i></span>
+                    </div>
+                    <div v-show="data.item.is_compliant">
+                        <span class="text-success"><i class="fas fa-check"></i></span>
                     </div>
                 </template>
 
@@ -620,7 +658,7 @@ export default {
                 },
                 {
                     key: 'index',
-                    label: 'Stt',
+                    label: 'Vị trí',
                     class: 'text-nowrap text-center',
                     sortable: false,
                     tdClass: 'checkbox-sticky-end text-center border',
@@ -773,12 +811,26 @@ export default {
                     thClass: 'border'
 
                 },
+
                 {
                     key: 'amount_po',
                     label: 'Amount',
                     sortable: false,
                     thClass: 'border'
 
+                },
+                {
+                    key: 'compliance',
+                    label: 'QC',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
+                    key: 'is_compliant',
+                    label: 'Đúng_QC',
+                    sortable: false,
+                    thClass: 'border',
+                    class: 'text-center'
                 },
                 {
                     key: 'note1',
@@ -1169,7 +1221,7 @@ export default {
             this.case_is_status.copy = false;
             this.case_index.order = -1;
         },
-        getUnique(field){
+        getUnique(field) {
             let unique = [...new Set(this.orders.map(item => item[field]))];
             return unique;
         },
@@ -1267,5 +1319,12 @@ export default {
     background: white;
     border-right: 1px solid #e9ecef;
 }
-
+.demo{
+    position: absolute;
+    width: 3%;
+    height: 100%;
+    background-color: red;
+    right: 0;
+    top: 0;
+}
 </style>

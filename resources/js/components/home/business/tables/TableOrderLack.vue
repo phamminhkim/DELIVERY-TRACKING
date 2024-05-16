@@ -213,6 +213,18 @@ export default {
 
                 },
                 {
+                    key: 'compliance',
+                    label: 'QC',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
+                    key: 'is_compliant',
+                    label: 'Đúng_QC',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
                     key: 'note',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap',

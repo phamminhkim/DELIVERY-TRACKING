@@ -9,7 +9,8 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds">
+            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds"
+            @changeEventCompliance="getChangeEventCompliance">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
@@ -84,6 +85,7 @@ export default {
                 detect_sap_code: false,
                 delete_row: false,
                 is_inventory: false,
+                fetch_api: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -93,6 +95,8 @@ export default {
                 field: '',
             },
             api_order_process_so: '/api/sales-order',
+            api_order_process_check_compliance: '/api/check-data/check-compliance',
+
 
         }
     },
@@ -307,7 +311,8 @@ export default {
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
-
+                        compliance: data_item.compliance,
+                        is_compliant: data_item.is_compliant,
                     });
                 } else {
                     this.orders.push({
@@ -344,6 +349,8 @@ export default {
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
+                        compliance: data_item.compliance,
+                        is_compliant: data_item.is_compliant,
                     });
                 }
 
@@ -457,6 +464,8 @@ export default {
                 sap_so_number: '',
                 po_number: '',
                 po_delivery_date: '',
+                compliance: '',
+                is_compliant: false,
             });
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
@@ -525,6 +534,8 @@ export default {
                 variant_quantity: item.variant_quantity,
                 extra_offer: item.extra_offer,
                 promotion_category: item.promotion_category,
+                compliance: '',
+                is_compliant: false,
             }
             return new_order;
         },
@@ -564,6 +575,53 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
+        },
+        getChangeEventCompliance() {
+            // console.log('check quy cách');
+            this.CheckComplianceFromOrders();
+        },
+        async CheckComplianceFromOrders() {
+            try {
+                this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.post(this.api_order_process_check_compliance, {},
+                    {
+                        items: this.paramsSearchCompliance(),
+                    }
+                );
+                if (data.success == true) {
+                    if (data.items.length > 0) {
+                        data.items.forEach(item => {
+                            this.orders.forEach(order => {
+                                if (order.sku_sap_code == item.sap_code) {
+                                    order.compliance = item.compliance;
+                                    order.is_compliant = item.is_compliant;
+                                }
+                            });
+                        });
+                    }
+                    this.$showMessage('success', 'Thành công', 'Kiểm tra quy cách thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
+        paramsSearchCompliance() {
+            let items = [];
+            items = this.orders.reduce((arr, item) => {
+                if (item.sku_sap_code) {
+                    arr.push({
+                        sap_code: item.sku_sap_code,
+                        unit_code: item.sku_sap_unit,
+                        quantity2_po: item.quantity2_po,
+                    });
+                }
+                return arr;
+            }, []);
+            return items;
         }
     },
     computed: {
@@ -574,7 +632,7 @@ export default {
             var news = [];
             if (!this.case_is_loading.is_inventory) {
                 this.case_data_temporary.items.forEach(item => {
-                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item)); 
+                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item));
                 });
                 if (news.length == 0) {
                     news = this.orders;

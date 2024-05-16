@@ -93,7 +93,7 @@
                 <button type="button" v-on:click="handleCheckInventory"
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     tồn</button>
-              
+
                 <input type="file" ref="file_check_ton" style="display: none" accept=".xls,.xlsx"
                     @change="eventChooseFile($event)" class="shadow btn-sm btn-light text">
                 <input type="file" ref="file_check_price" style="display: none" accept=".xls,.xlsx"
@@ -101,6 +101,8 @@
                 <button @click="handleCheckPrice()" type="button"
                     class="shadow btn-sm btn-light rounded text-orange btn-group__border">Check
                     giá</button>
+                <button @click="emitCompliance()" type="button" class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
+                    quy cách</button>
                 <button @click="emitOrderLack()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">Lưu
                     hàng thiếu</button>
@@ -115,7 +117,7 @@
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Tạo
                     upload</button>
-                    <button @click="emitExportExcel()" type="button"
+                <button @click="emitExportExcel()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-file-excel mr-2"></i>Xuất Excel</button>
                 <!-- <button type="button"
@@ -130,11 +132,12 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Kho</span>
                         </div>
-                        <input type="text" v-model="warehouse_code"  class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1">
-                        </div>
+                        <input type="text" v-model="warehouse_code" class="form-control" placeholder="..."
+                            aria-label="..." aria-describedby="basic-addon1">
+                    </div>
                 </div>
             </div>
-       
+
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
@@ -234,7 +237,7 @@ export default {
             customer_groups: [],
             extract_order_configs: [],
             warehouses: [],
-            warehouse_code:"",
+            warehouse_code: "",
             api_sap_materials: 'api/master/sap-materials',
             api_customer_groups: 'api/master/customer-groups',
             api_warehouses: 'api/master/warehouses',
@@ -310,8 +313,6 @@ export default {
                 } else {
                     this.$showMessage('error', 'Lỗi');
                 }
-
-
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -324,10 +325,11 @@ export default {
                 form_data.append('file', file);
                 form_data.append('warehouse_code', this.warehouse_code);
 
-                const data = await this.api_handler.post(this.api_check_inventory, {},   form_data);
-                
-                if (data.data && data.data.success == true ) {
+                const data = await this.api_handler.post(this.api_check_inventory, {}, form_data);
+
+                if (data.data && data.data.success == true) {
                     this.$emit('getInventory', data.data.inventory);
+                    this.$showMessage('success', 'Thành công', 'Check tồn thành công');
                 } else {
                     this.$showMessage('error', data.message);
                 }
@@ -346,6 +348,7 @@ export default {
                 const { data } = await this.api_handler.post(this.api_check_price, {}, form_data);
                 if (data.success == true) {
                     this.$emit('checkPrice', data.price);
+                    this.$showMessage('success', 'Thành công', 'Check giá thành công');
                 } else {
                     this.$showMessage('error', 'Lỗi');
                 }
@@ -364,7 +367,7 @@ export default {
             this.resetEventTargetFile(event);
         },
         async eventChooseFile(event) {
-        
+
             await this.fetchCheckInventory(event.target.files[0]);
             this.resetEventTargetFile(event);
         },
@@ -421,7 +424,7 @@ export default {
         },
 
         handleCheckInventory() {
-            
+
             if (this.warehouse_code === '') {
                 alert("Vui lòng nhập mã kho");
                 return;
@@ -575,19 +578,19 @@ export default {
             this.orders.forEach((item_order, index) => {
 
                 if (item_order.customer_sku_code == order.customer_sku_code) {
-                    if(item){
-                       if(item_order.promotive != item.name)  {
-                        item_order.promotive = item.name;
-                        item_order.promotive_name = item.name;
-                       }
-                    }else{
+                    if (item) {
+                        if (item_order.promotive != item.name) {
+                            item_order.promotive = item.name;
+                            item_order.promotive_name = item.name;
+                        }
+                    } else {
                         item_order.promotive = '';
                         item_order.promotive_name = '';
-                        
+
                     }
-                   
+
                 }
-              
+
             });
             // if (this.orders[index].promotive != item.name) {
             //     this.orders[index].promotive = item.name;
@@ -619,7 +622,7 @@ export default {
                         customer_sku_unit: item.OrdUnit,
                         quantity1_po: this.convertStringToNumber(item.Quantity1),
                         quantity2_po: this.convertStringToNumber(item.Quantity2),
-                        price_po:  this.convertStringToNumber(item.ProductPrice),
+                        price_po: this.convertStringToNumber(item.ProductPrice),
                         amount_po: this.convertStringToNumber(item.ProductAmount),
                         // amount_po: item.ProductAmount,
                         // this.calculatorAmount(item.ProductAmount),
@@ -634,6 +637,8 @@ export default {
                         sap_so_number: file_response.data[index].headers.SapSoNumber,
                         po_number: file_response.data[index].headers.PoNumber,
                         po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
+                        compliance: '',
+                        is_compliant: null,
 
                     });
                     item_index++;
@@ -809,6 +814,9 @@ export default {
                 });
             });
             this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
+        },
+        emitCompliance() {
+            this.$emit('changeEventCompliance');
         },
     },
     computed: {
