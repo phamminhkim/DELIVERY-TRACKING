@@ -9,7 +9,8 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds">
+            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds"
+            @changeEventCompliance="getChangeEventCompliance">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
@@ -24,11 +25,12 @@
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
-            :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
-            :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy">
+            :filterOrders="filterOrders" :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
+            :case_save_so="case_save_so" :is_loading_detect_sap_code="case_is_loading.detect_sap_code"
+            @checkBoxRow="getCheckBoxRow" @sortingChanged="getSortingChanged" @createRow="getCreateRow"
+            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
+            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
+            @filterItems="getFilterItems">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -82,13 +84,19 @@ export default {
             case_is_loading: {
                 detect_sap_code: false,
                 delete_row: false,
+                is_inventory: false,
+                fetch_api: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
                 order_lacks: [],
                 copy: {},
+                items: [],
+                field: '',
             },
             api_order_process_so: '/api/sales-order',
+            api_order_process_check_compliance: '/api/check-data/check-compliance',
+
 
         }
     },
@@ -303,7 +311,8 @@ export default {
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
-
+                        compliance: data_item.compliance,
+                        is_compliant: data_item.is_compliant,
                     });
                 } else {
                     this.orders.push({
@@ -340,6 +349,8 @@ export default {
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
+                        compliance: data_item.compliance,
+                        is_compliant: data_item.is_compliant,
                     });
                 }
 
@@ -453,6 +464,8 @@ export default {
                 sap_so_number: '',
                 po_number: '',
                 po_delivery_date: '',
+                compliance: '',
+                is_compliant: false,
             });
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
@@ -521,6 +534,8 @@ export default {
                 variant_quantity: item.variant_quantity,
                 extra_offer: item.extra_offer,
                 promotion_category: item.promotion_category,
+                compliance: '',
+                is_compliant: false,
             }
             return new_order;
         },
@@ -555,12 +570,78 @@ export default {
         getBtnCopy(index, item) {
             this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
             this.case_is_loading.delete_row = false;
+        },
+        getFilterItems(items, field, boolean) {
+            this.case_data_temporary.items = items;
+            this.case_data_temporary.field = field;
+            this.case_is_loading.is_inventory = boolean;
+        },
+        getChangeEventCompliance() {
+            // console.log('check quy cách');
+            this.CheckComplianceFromOrders();
+        },
+        async CheckComplianceFromOrders() {
+            try {
+                this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.post(this.api_order_process_check_compliance, {},
+                    {
+                        items: this.paramsSearchCompliance(),
+                    }
+                );
+                if (data.success == true) {
+                    if (data.items.length > 0) {
+                        data.items.forEach(item => {
+                            this.orders.forEach(order => {
+                                if (order.sku_sap_code == item.sap_code) {
+                                    order.compliance = item.compliance;
+                                    order.is_compliant = item.is_compliant;
+                                }
+                            });
+                        });
+                    }
+                    this.$showMessage('success', 'Thành công', 'Kiểm tra quy cách thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
+        paramsSearchCompliance() {
+            let items = [];
+            items = this.orders.reduce((arr, item) => {
+                if (item.sku_sap_code) {
+                    arr.push({
+                        sap_code: item.sku_sap_code,
+                        unit_code: item.sku_sap_unit,
+                        quantity2_po: item.quantity2_po,
+                    });
+                }
+                return arr;
+            }, []);
+            return items;
         }
     },
     computed: {
         row_orders() {
             return this.orders.length;
-
+        },
+        filterOrders() {
+            var news = [];
+            if (!this.case_is_loading.is_inventory) {
+                this.case_data_temporary.items.forEach(item => {
+                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item));
+                });
+                if (news.length == 0) {
+                    news = this.orders;
+                }
+            } else {
+                news = this.orders.filter(order => order.is_inventory == true);
+            }
+            news.sort((a, b) => a.order - b.order);
+            return news;
         }
     },
 }

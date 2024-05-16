@@ -85,7 +85,7 @@ class CamelotExtractorService implements DataExtractorInterface
                 $instance->flagSize($advanced_settings_info->flag_size);
             }
             if (isset($advanced_settings_info->copy_text)) {
-                $instance->copyTextSpanningCells($advanced_settings_info->copy_text);
+                $instance->copyTextSpanningCells(...$advanced_settings_info->copy_text);
             }
             if (isset($advanced_settings_info->edge_tol)) {
                 $instance->setEdgeTolerance($advanced_settings_info->edge_tol);
@@ -145,7 +145,7 @@ class CamelotExtractorService implements DataExtractorInterface
                 $instance->flagSize($advanced_settings_info->flag_size);
             }
             if (isset($advanced_settings_info->copy_text)) {
-                $instance->copyTextSpanningCells($advanced_settings_info->copy_text);
+                $instance->copyTextSpanningCells(...$advanced_settings_info->copy_text);
             }
             if (isset($advanced_settings_info->edge_tol)) {
                 $instance->setEdgeTolerance($advanced_settings_info->edge_tol);

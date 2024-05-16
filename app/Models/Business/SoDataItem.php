@@ -30,11 +30,14 @@ class SoDataItem extends Model
         'price_po',
         'amount_po',
         'company_price',
+        'compliance',
+        'is_compliant',
     ];
 
     protected $casts = [
         'is_promotive' => 'boolean',
         'is_inventory' => 'boolean',
+        'is_compliant' => 'boolean',
     ];
     public function order_process()
     {

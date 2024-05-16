@@ -16,7 +16,7 @@ class CheckDataController extends ResponseController
         if ($data) {
             return $this->response($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
     public function checkPromotions(Request $request)
@@ -26,7 +26,17 @@ class CheckDataController extends ResponseController
         if ($data) {
             return $this->response($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+        }
+    }
+    public function checkCompliance(Request $request)
+    {
+        $handler = BusinessRepository::checkDataRequest($request);
+        $data = $handler->checkCompliance($request);
+        if ($data) {
+            return $this->response($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 
@@ -47,7 +57,7 @@ class CheckDataController extends ResponseController
         if ($data) {
             return $this->response($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 }

@@ -140,43 +140,57 @@ class CheckDataRepository extends RepositoryAbs
     public function checkCompliance()
     {
         try {
-            $validator = Validator::make($this->request->all(), [
+            $validator = Validator::make($this->data, [
                 'items' => 'required|array',
                 'items.*.sap_code' => 'required',
-                'items.*.unit_id' => 'required',
+                'items.*.unit_code' => 'required',
+                'items.*.quantity2_po' => 'required',
             ]);
-
             if ($validator->fails()) {
                 $this->message = $validator->errors()->first();
                 return false;
             }
-
-            $items = $this->request->input('items');
-            $errors = [];
-
-            foreach ($items as $item) {
+            $check_compliance = [];
+            foreach ($this->data['items'] as $item) {
                 $sap_code = $item['sap_code'];
-                $unit_id = $item['unit_id'];
-
+                $unit_code = $item['unit_code'];
+                $quantity2_po = $item['quantity2_po'];
+                // Kiểm tra xem có đơn vị tính trong bảng SapCompliance hay không
                 $sapCompliance = SapCompliance::where('sap_code', $sap_code)
-                    ->where('unit_id', $unit_id)
+                    ->whereHas('unit', function ($query) use ($unit_code) {
+                        $query->where('unit_code', $unit_code);
+                    })
                     ->first();
 
                 if ($sapCompliance) {
-                    $quyCachSap = $sapCompliance->quy_cach;
+                    $unit_code = $sapCompliance->unit->unit_code;
+                    $compliance = $sapCompliance->compliance;
 
-                    if ($quyCachSap !== 0 && $quyCachSap % $quyCachSap !== 0) {
-                        $errors[] = "Mã SAP {$sap_code} không chia hết cho quy cách {$quyCachSap}.";
+                    $itemData = [
+                        'sap_code' => $sap_code,
+                        'unit_code' => $unit_code,
+                    ];
+                    // Kiểm tra dữ liệu quy cách
+                    if ($compliance !== null) {
+                        $itemData['compliance'] = $compliance;
+                        // Kiểm tra chia hết cho compliance
+                        if ($compliance !== 0 && $quantity2_po % $compliance !== 0) {
+                            $itemData['is_compliant'] = false;
+                        } else {
+                            $itemData['is_compliant'] = true;
+                        }
+                    } else {
+                        $itemData['compliance'] = null;
+                        $itemData['is_compliant'] = true;
                     }
+                    $check_compliance[] = $itemData;
                 }
             }
-
-            if (!empty($errors)) {
-                $this->message = implode(' ', $errors);
-                return false;
-            }
-
-            return true;
+            $result = [
+                'success' => true,
+                'items' => $check_compliance
+            ];
+            return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
