@@ -1046,22 +1046,22 @@ class AiRepository extends RepositoryAbs
             } else {
                 DB::beginTransaction();
 
-                $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
+                // $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
                 $extract_data_config = ExtractDataConfig::create($this->data['extract_data_config']);
 
-                $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
+                // $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
                 $convert_table_config = ConvertTableConfig::create($this->data['convert_table_config']);
 
-                $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
+                // $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
                 $restructure_data_config = RestructureDataConfig::create($this->data['restructure_data_config']);
 
-                $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
+                // $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
                 $extract_header_config = ExtractDataConfig::create($this->data['extract_header_config']);
 
-                $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
+                // $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
                 $convert_table_header_config = ConvertTableConfig::create($this->data['convert_table_header_config']);
 
-                $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
+                // $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
                 $restructure_header_config = RestructureDataConfig::create($this->data['restructure_header_config']);
 
                 $is_convert_header = $this->data['is_convert_header'] == 'true' ? true : false;
@@ -1129,9 +1129,9 @@ class AiRepository extends RepositoryAbs
             } else {
                 DB::beginTransaction();
                 if ($data_config_type == 'data') {
-                    $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
-                    $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
-                    $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
+                    // $this->data['extract_data_config']['table_area_info'] = json_encode($this->data['extract_data_config']['table_area_info']);
+                    // $this->data['convert_table_config']['manual_patterns'] = json_encode($this->data['convert_table_config']['manual_patterns']);
+                    // $this->data['restructure_data_config']['structure'] = json_encode($this->data['restructure_data_config']['structure']);
 
                     $extract_order_config = ExtractOrderConfig::query()->with(['extract_data_config', 'convert_table_config', 'restructure_data_config'])->find($extract_order_config_id);
                     if (!$extract_order_config) {
@@ -1159,9 +1159,9 @@ class AiRepository extends RepositoryAbs
                     }
                     $extract_order_config->save();
                 } elseif ($data_config_type == 'header') {
-                    $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
-                    $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
-                    $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
+                    // $this->data['extract_header_config']['table_area_info'] = json_encode($this->data['extract_header_config']['table_area_info']);
+                    // $this->data['convert_table_header_config']['manual_patterns'] = json_encode($this->data['convert_table_header_config']['manual_patterns']);
+                    // $this->data['restructure_header_config']['structure'] = json_encode($this->data['restructure_header_config']['structure']);
                     $this->data['is_convert_header'] = $this->data['is_convert_header'] == 'true' ? true : false;
 
                     $extract_order_config = ExtractOrderConfig::query()->with(['extract_header_config', 'convert_table_header_config', 'restructure_header_config'])->find($extract_order_config_id);
