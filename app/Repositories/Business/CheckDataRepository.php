@@ -53,24 +53,26 @@ class CheckDataRepository extends RepositoryAbs
             }
 
             $mappingData = [];
+            $existingCodes = [];
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 if (!empty($item['customer_sku_code'])) {
                     // Tiếp tục xử lý thông tin khi 'customer_sku_code' không trống
                     $customer_sku_code = $item['customer_sku_code'];
-
+                    if (in_array($customer_sku_code, $existingCodes)) {
+                        continue;
+                    }
+                    $existingCodes[] = $customer_sku_code;
                     // Kiểm tra sự tồn tại của trường 'customer_sku_unit'
                     if (isset($item['customer_sku_unit'])) {
                         $customer_sku_unit = $item['customer_sku_unit'];
                     } else {
                         $customer_sku_unit = null; // Xử lý khi trường không tồn tại
                     }
-
-                    // Tiếp tục xử lý và thêm thông tin vào 'mappingData'
-                    // ...
+                } else {
+                    continue;
                 }
-
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
