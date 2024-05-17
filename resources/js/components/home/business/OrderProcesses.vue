@@ -491,14 +491,12 @@ export default {
                 e.preventDefault();
                 indexs.forEach(index => {
                     items.forEach(item => {
-                        this.orders[index][field] = item.promotive;
-                        this.orders[index].promotive_name = item.promotive;
+                        this.orders[index - 1][field] = item.promotive;
+                        this.orders[index - 1].promotive_name = item.promotive;
                     });
                 });
             }
             this.refHeaderOrderProcesses();
-            console.log(this.orders);
-
         },
         convertNewOrder(item) {
             let new_order = {
@@ -583,21 +581,24 @@ export default {
         async CheckComplianceFromOrders() {
             try {
                 this.case_is_loading.fetch_api = true;
-                const { data } = await this.api_handler.post(this.api_order_process_check_compliance, {},
+                const { data, message, success } = await this.api_handler.post(this.api_order_process_check_compliance, {},
                     {
                         items: this.paramsSearchCompliance(),
                     }
                 );
-                if (data.success == true) {
-                    this.resetCompliance();
-                    this.mappingCompliance(data.items);
-                    this.$showMessage('success', 'Thành công', 'Kiểm tra quy cách thành công');
-                    this.refHeaderOrderProcesses();
-                } else {
-                    this.$showMessage('error', 'Lỗi');
+                if (!success && success !== undefined) {
+                    this.$showMessage('error', 'Lỗi', message);
+                } 
+                if(success === undefined){
+                    if (data.success == true) {
+                        this.resetCompliance();
+                        this.mappingCompliance(data.items);
+                        this.$showMessage('success', 'Thành công', 'Kiểm tra quy cách thành công');
+                        this.refHeaderOrderProcesses();
+                    }
                 }
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                console.log(error);
             } finally {
                 this.case_is_loading.fetch_api = false;
             }
