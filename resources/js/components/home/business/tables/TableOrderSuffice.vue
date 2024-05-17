@@ -15,7 +15,8 @@
                     </div>
                 </template>
                 <template #head(customer_name)="header">
-                    <div tabindex="0" class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div tabindex="0" class="text-center col-resize d-flex justify-content-between"
+                        :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
@@ -23,8 +24,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -37,8 +38,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -56,8 +57,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -75,8 +76,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -94,8 +95,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -124,8 +125,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -138,8 +139,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -152,8 +153,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -166,8 +167,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -180,8 +181,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -194,8 +195,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -209,8 +210,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -228,7 +229,7 @@
                         @mousedown="startSelection($event, data.item.barcode, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.barcode, $event)"
                         @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.barcode) }">
+                        :class="{ 'change-border': isChangeBorder(data.item.barcode) && isSameField(case_order.field_order,data.field.key)  }">
                         <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.extra_offer == 'X',
             'badge badge-primary': data.item.promotion_category == 'X'
@@ -296,8 +297,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -311,8 +312,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -326,8 +327,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -341,8 +342,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -356,8 +357,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -371,8 +372,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -386,8 +387,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -401,8 +402,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -418,8 +419,8 @@
                         <span class="badge badge-sm badge-secondary badge-pill mt-1 ml-1"><i
                                 class="fas fa-question fa-sm"></i></span>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -447,8 +448,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -462,8 +463,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -477,8 +478,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -492,8 +493,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -507,8 +508,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -522,8 +523,8 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        @showHideDropdown="getShowHideDopdown"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -539,7 +540,7 @@
                         @mousedown="startSelection($event, data.item.sku_sap_code, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) }">
+                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order,data.field.key) }">
                         <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.extra_offer == 'X',
             'badge badge-primary': data.item.promotion_category == 'X'
@@ -631,7 +632,7 @@
                         @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.promotive) }">
+                        :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order,data.field.key) }">
                         <div class="d-flex justify-content-end py-2">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
             data.item.promotive }}</small>
@@ -677,7 +678,7 @@
                         @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                         @mousemove="selectItem(data.item.customer_sku_code, $event)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) }">
+                        :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) && isSameField(case_order.field_order,data.field.key) }">
                         {{ data.item.customer_sku_code }}
                     </div>
                 </template>
@@ -777,6 +778,7 @@ export default {
                 customer_name: '',
                 db_click: false,
                 parses: [],
+                field_order: '',
             },
             field_order_suffices: [
                 {
@@ -1149,6 +1151,9 @@ export default {
             let sort = this.$refs.btable.sortedItems;
             this.$emit('sortingChanged', sort)
         },
+        getPushHeader(item , header){
+            this.case_order.field_order = header;
+        },
         startSelection(e, item, index, header) {
             this.case_order.db_click = false;
             if (e !== undefined) {
@@ -1160,6 +1165,7 @@ export default {
             this.selectedItems.push(item);
             this.case_index.copys.push(item);
             this.case_index.orders.push(index);
+            this.getPushHeader(item, header);
             this.setFocusToKeyListener(item, index, header);
         },
         selectItem(item, event, index) {
@@ -1287,12 +1293,16 @@ export default {
         },
         isChangeBorder(item) {
             let exits = false;
-            this.case_index.copys.forEach((element, index) => {
-                if (element == item) {
+            this.case_index.copys.forEach((item_copy, index) => {
+                if (item_copy == item && item !== null) {
                     exits = true;
                 }
+               
             });
             return exits;
+        },
+        isSameField(item, field) {
+            return item == field;
         },
         renderRefDefault(default_value, name) {
             let ref = default_value + name;
@@ -1372,16 +1382,16 @@ export default {
             this.$emit('filterItems', items, field, boolean)
         },
         handleMouseDownHeader(e, ref_header) {
-            if(!this.case_is_status.show_dropdown){
+            if (!this.case_is_status.show_dropdown) {
                 e.preventDefault();
-            const style = window.getComputedStyle(this.$refs[ref_header]);
-            const width = parseFloat(style.getPropertyValue('width'));
-            this.width = width;
-            this.is_mouse_down = true;
-            this.mouse_hould_timeout = setTimeout(() => {
-            }, 10);
+                const style = window.getComputedStyle(this.$refs[ref_header]);
+                const width = parseFloat(style.getPropertyValue('width'));
+                this.width = width;
+                this.is_mouse_down = true;
+                this.mouse_hould_timeout = setTimeout(() => {
+                }, 10);
             }
-            
+
         },
         handleMouseUpHeader() {
             this.is_mouse_down = false;
@@ -1448,8 +1458,8 @@ export default {
 
 .change-border {
     border: 1px solid #00fc11;
-    background: rgb(227 227 227 / 50%);
 }
+// background: rgb(227 227 227 / 50%);
 
 ::v-deep .highlight-copy {
     background: rgb(178 178 178 / 21%) !important;
