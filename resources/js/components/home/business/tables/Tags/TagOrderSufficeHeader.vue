@@ -49,7 +49,7 @@
             <div class="form-group text-right mb-0 footer-fixed-bottom">
                 <button @click="emitFilter(column)" :disabled="!case_boolean.is_ok" type="button"
                     class="btn btn-sm btn-light">Ok</button>
-                <button @click="changeHide()" type="button" class="btn btn-sm btn-light">Đóng</button>
+                <button @click="changeHide(column)" type="button" class="btn btn-sm btn-light">Đóng</button>
             </div>
         </b-dropdown>
     </div>
@@ -68,6 +68,7 @@ export default {
             },
             case_filter: {
                 search: '',
+                column: '',
             },
             case_boolean: {
                 is_refesh: false,
@@ -99,6 +100,18 @@ export default {
             this.isLengthEqual();
         }
     },
+    // hook kiểm tra b-dropdown đang mở hay đóng
+    // nếu đang mở thì gửi emit là true
+    // nếu đóng thì gửi emit là false
+    mounted() {
+        this.$refs.dropdown.$on('show', () => {
+            this.$emit('showHideDropdown', true);
+        });
+        this.$refs.dropdown.$on('hide', () => {
+            this.$emit('showHideDropdown', false);
+        });
+    },
+
     methods: {
         fieldColumnHeader(column, event) {
             this.$emit('fieldColumnHeader', column, event)
@@ -107,7 +120,7 @@ export default {
             this.case_boolean.is_length_equal = true;
             this.isLengthEqual();
             this.$emit('emitFilter', this.case_checkbox.items, column);
-            this.changeHide();
+            this.changeHide(column);
         },
         filterItems(column) {
             if (this.case_checkbox.items.length > 0) {
@@ -119,9 +132,12 @@ export default {
                 this.case_checkbox.select_all = true;
             }
             this.$emit('filterItems', column);
+            this.$emit('showHideDropdown', true);
         },
-        changeHide() {
-            this.$refs.dropdown.hide(true)
+        changeHide(column) {
+            this.$refs.dropdown.hide(true);
+            this.$emit('showHideDropdown', false);
+
         },
         isLengthItems() {
             if (this.case_checkbox.items.length > 0) {
@@ -154,18 +170,6 @@ export default {
             let combos = ['X'];
             this.$emit('emitFilter', combos, 'promotion_category', false);
         },
-        // filterCaseFilterOrders() {
-        //     return this.orders.filter((order) => {
-        //         if (order === null) {
-        //             return true;
-        //         }
-        //         if (order != '') {
-        //             order = order.toString();
-        //             return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
-        //         }
-        //     })
-        // }
-
 
     },
     computed: {
@@ -174,9 +178,9 @@ export default {
                 if (order === null) {
                     return true;
                 }
-                if(order === false) {
+                if (order === false) {
                     return true;
-                }   
+                }
                 if (order != '') {
                     order = order.toString();
                     return order.toLowerCase().includes(this.case_filter.search.toLowerCase())

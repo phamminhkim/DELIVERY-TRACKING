@@ -17,7 +17,7 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
             foreach ($data as $match) {
                 $output = [];
                 foreach ($structure as $key => $value_item) {
-                    if (isset($value_item['value']) && $value_item['value'] !== null) {
+                    if (isset($value_item['value'])) {
                         if (!isset($match[$value_item['value']])) {
                             // Tìm không thấy index trong mảng data thì bỏ qua
                             $skip_item = true;
@@ -28,7 +28,7 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                         $match[$value_item['value']] :
                         (isset($value_item['default']) ? $value_item['default'] :
                         $match[$value_item['value']]);
-                    } elseif (isset($value_item['default'])) {
+                    } else {
                         $output[$key] = $value_item['default'];
                     }
                     // Thay thế dấu phân cách thập phân và phân cách hàng nghìn

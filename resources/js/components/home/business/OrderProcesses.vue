@@ -86,6 +86,7 @@ export default {
                 delete_row: false,
                 is_inventory: false,
                 fetch_api: false,
+                created_conponent: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -102,6 +103,7 @@ export default {
     },
     created() {
         this.getUrl();
+        this.case_is_loading.created_conponent = true;
     },
     methods: {
         openModalSearchOrderProcesses() {
@@ -137,7 +139,9 @@ export default {
             this.material_saps = [...data];
             this.material_saps.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if (tmp.customer_sku_code === this.orders[i].customer_sku_code && tmp.customer_sku_unit === this.orders[i].customer_sku_unit) {
+                    if ((tmp.customer_sku_code === this.orders[i].customer_sku_code && 
+                    tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
+                    (tmp.bar_code == this.orders[i].customer_sku_code)) {
                         this.orders[i]['sku_sap_code'] = tmp.sap_code;
                         this.orders[i]['sku_sap_name'] = tmp.name;
                         this.orders[i]['sku_sap_unit'] = tmp.unit_code;
@@ -573,6 +577,7 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
+            this.case_is_loading.created_conponent = false;
         },
         getChangeEventCompliance() {
             // console.log('check quy cách');
@@ -646,9 +651,12 @@ export default {
                 this.case_data_temporary.items.forEach(item => {
                     news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item));
                 });
-                if (news.length == 0) {
+                if(this.case_is_loading.created_conponent){
                     news = this.orders;
                 }
+                // if (news.length == 0) {
+                //     news = this.orders;
+                // }
             } else {
                 news = this.orders.filter(order => order.is_inventory == true);
             }
