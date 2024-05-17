@@ -28,6 +28,10 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                         $match[$value_item['value']] :
                         (isset($value_item['default']) ? $value_item['default'] :
                         $match[$value_item['value']]);
+                    } elseif (isset($value_item['merge_value'])) {
+                        // Xử lý merge các value index
+                        $index_array = $value_item['merge_value'];
+                        $output[$key] = OperatorUtility::mergeValue($match, $index_array);
                     } else {
                         $output[$key] = $value_item['default'];
                     }
@@ -43,11 +47,7 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                         $condition = $value_item['condition'];
                         $output[$key] = OperatorUtility::getValueWithCondition($match, $condition);
                     }
-                    // Xử lý merge các value index
-                    if (isset($value_item['merge_value'])) {
-                        $index_array = $value_item['merge_value'];
-                        $output[$key] = OperatorUtility::mergeValue($match, $index_array);
-                    }
+
                 }
                 if ($skip_item) {
                     // Tìm không thấy key trong mảng data thì bỏ qua
