@@ -41,7 +41,7 @@
                         <label class="mb-0 d-flex align-items-center">
                             <input v-model="case_checkbox.items" :value="order" type="checkbox" class="mr-1" />
                             <span class="mb-0 font-weight-normal"> {{ order }}</span>
-                            <span v-if="order === null || order == '' && order !== false">null</span>
+                            <span v-if="order === null || order === '' && order !== false || order === ''" >null</span>
                         </label>
                     </div>
                 </div>
@@ -178,10 +178,13 @@ export default {
                 if (order === null) {
                     return true;
                 }
+                if (order === '') {
+                    return true;
+                }
                 if (order === false) {
                     return true;
                 }
-                if (order != '') {
+                if (order !== '') {
                     order = order.toString();
                     return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
                 }

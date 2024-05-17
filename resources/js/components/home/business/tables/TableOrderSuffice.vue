@@ -1384,6 +1384,8 @@ export default {
         handleMouseDownHeader(e, ref_header) {
             if (!this.case_is_status.show_dropdown) {
                 e.preventDefault();
+                // lấy kho
+                console.log(window);
                 const style = window.getComputedStyle(this.$refs[ref_header]);
                 const width = parseFloat(style.getPropertyValue('width'));
                 this.width = width;
@@ -1403,7 +1405,7 @@ export default {
         },
         handleMouseMoveHeader(e, ref_header) {
             if (this.is_mouse_down) {
-
+                console.log(e);
                 if (e.clientX > this.previous_mouse_position) {
                     this.width = this.width++ + 5;
                 } else if (e.clientX < this.previous_mouse_position) {
