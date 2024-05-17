@@ -7,7 +7,7 @@
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
                 <template #head(index)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :ref="'header_' + header.column" class="col-resize"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
@@ -19,7 +19,7 @@
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
-                        <label class="mb-0 ">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -32,7 +32,7 @@
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
-                        <label class="mb-0 ">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -46,7 +46,7 @@
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
                         class="text-center col-resize d-flex justify-content-between">
-                        <label class="mb-0 " :class="{
+                        <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
                             <span v-if="is_loading_detect_sap_code == true"><i
@@ -64,7 +64,7 @@
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
                         class="text-center d-flex col-resize justify-content-between ">
-                        <label class="mb-0" :class="{
+                        <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
                             <span v-if="is_loading_detect_sap_code == true"><i
@@ -82,7 +82,7 @@
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
                         class="text-center col-resize d-flex justify-content-between">
-                        <label class="mb-0" :class="{
+                        <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
         }">
                             <span v-if="is_loading_detect_sap_code == true"><i
@@ -111,8 +111,11 @@
                         @change="checkBoxAll(data.index)"></b-form-checkbox>
                 </template>
                 <template #head(sku_sap_unit)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -120,7 +123,85 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-
+                <template #head(promotive)="header">
+                    <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(note)="header">
+                    <div class="text-center  col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_code)="header">
+                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_sku_code)="header">
+                    <div class="text-center d-flex col-resize justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(customer_sku_name)="header">
+                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(quantity1_po)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
                 <template #cell(selected)="data">
                     <b-form-checkbox v-model="case_checkbox.selected" @change="emitCheckBox(data.index)"
                         :value="data.item"></b-form-checkbox>
@@ -193,53 +274,13 @@
                         <strong v-else>{{ data.value.toLocaleString(locale_format) }}</strong>
                     </div>
                 </template>
-
-
-
-               
-                <template #head(promotive)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(note)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(customer_code)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(customer_sku_name)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
                 <template #head(customer_sku_unit)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center d-flex col-resize justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -248,18 +289,12 @@
                     </div>
                 </template>
                 <template #head(po)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(quantity1_po)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -268,8 +303,12 @@
                     </div>
                 </template>
                 <template #head(promotive_name)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center d-flex col-resize justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -278,8 +317,54 @@
                     </div>
                 </template>
                 <template #head(inventory_quantity)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(quantity2_po)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(price_po)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(amount_po)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -288,8 +373,12 @@
                     </div>
                 </template>
                 <template #head(compliance)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -298,8 +387,12 @@
                     </div>
                 </template>
                 <template #head(is_compliant)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <span class="badge badge-sm badge-secondary badge-pill mt-1 ml-1"><i
@@ -309,39 +402,13 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-                <template #head(quantity2_po)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(price_po)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-                <template #head(amount_po)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
                 <template #head(note1)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -350,8 +417,12 @@
                     </div>
                 </template>
                 <template #head(company_price)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -360,8 +431,12 @@
                     </div>
                 </template>
                 <template #head(level2)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -370,8 +445,12 @@
                     </div>
                 </template>
                 <template #head(level3)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -380,8 +459,12 @@
                     </div>
                 </template>
                 <template #head(level4)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -390,8 +473,12 @@
                     </div>
                 </template>
                 <template #head(po_number)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -400,21 +487,12 @@
                     </div>
                 </template>
                 <template #head(po_delivery_date)="header">
-                    <div class="text-center d-flex justify-content-between">
-                        <label class="mb-0 ">
-                            {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
-                        </TagOrderSufficeHeader>
-                    </div>
-                </template>
-
-
-
-                <template #head(customer_sku_code)="header">
-                    <div class="text-center d-flex  ">
-                        <label class="mb-0">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
@@ -580,11 +658,10 @@
                     <div v-if="data.item.is_compliant == false && data.item.is_compliant !== null">
                         <span class="text-danger"><i class="fas fa-times"></i></span>
                     </div>
-                    <div  v-if="data.item.is_compliant == true && data.item.is_compliant !== null">
+                    <div v-if="data.item.is_compliant == true && data.item.is_compliant !== null">
                         <span class="text-success"><i class="fas fa-check"></i></span>
                     </div>
                 </template>
-
             </b-table>
             <textarea ref="clipboard" style="position: absolute; left: -9999px"></textarea>
             <DialogMaterialCategoryTypes ref="dialogMaterialCategoryTypes"
@@ -937,10 +1014,10 @@ export default {
             items: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
             isSelecting: false,
             selectedItems: [],
-            mouseHoldTimeout: null,
-            mouseIsDown: false,
+            mouse_hould_timeout: null,
+            is_mouse_down: false,
             width: 100,
-            previousMousePosition: 0,
+            previous_mouse_position: 0,
         }
     },
     created() {
@@ -1197,7 +1274,6 @@ export default {
             return ref;
         },
         setFocusToKeyListener(customer_sku_code, index, header) {
-            // Thiết lập focus vào div để lắng nghe sự kiện keyup theo index
             const ref = 'keyListenerDiv_' + customer_sku_code + index + header;
             this.$refs[ref].focus();
         },
@@ -1263,42 +1339,38 @@ export default {
         },
         filterItems(field) {
             this.case_filter.orders = this.getUnique(field);
-            // this.case_filter.orders = this.orders.map((order) => {
-            //     return order[field]
-            // })
+
         },
         emitFilter(items, field, boolean) {
             this.$emit('filterItems', items, field, boolean)
         },
         handleMouseDownHeader(e, ref_header) {
             e.preventDefault();
-            // lấy giá trị width hiện tại
             const style = window.getComputedStyle(this.$refs[ref_header]);
             const width = parseFloat(style.getPropertyValue('width'));
             this.width = width;
-            this.mouseIsDown = true;
-            this.mouseHoldTimeout = setTimeout(() => {
-                console.log('Mouse has been held down');
-            }, 10); // Thời gian nhấn giữ (ở đây là 1 giây)
+            this.is_mouse_down = true;
+            this.mouse_hould_timeout = setTimeout(() => {
+            }, 10);
         },
         handleMouseUpHeader() {
-            this.mouseIsDown = false;
-            clearTimeout(this.mouseHoldTimeout);
+            this.is_mouse_down = false;
+            clearTimeout(this.mouse_hould_timeout);
         },
         handleMouseLeaveHeader() {
-            this.mouseIsDown = false;
-            clearTimeout(this.mouseHoldTimeout);
+            this.is_mouse_down = false;
+            clearTimeout(this.mouse_hould_timeout);
         },
         handleMouseMoveHeader(e, ref_header) {
-            if (this.mouseIsDown) {
-                // tăng giảm giá trị width theo vị trí chuột
-                if (e.clientX > this.previousMousePosition) {
-                    this.width++; // Tăng giá trị width
-                } else if (e.clientX < this.previousMousePosition) {
-                    this.width--; // Giảm giá trị width
+            if (this.is_mouse_down) {
+
+                if (e.clientX > this.previous_mouse_position) {
+                    this.width = this.width++ + 5;
+                } else if (e.clientX < this.previous_mouse_position) {
+                    this.width = this.width-- - 5;
                 }
                 this.$refs[ref_header].style.width = this.width + 'px';
-                this.previousMousePosition = e.clientX; // Cập nhật vị trí chuột trước đó
+                this.previous_mouse_position = e.clientX;
             }
         },
 
@@ -1319,13 +1391,11 @@ export default {
 }
 
 ::v-deep .voucher-custom {
-    // border: 2px solid lightgray !important;
     cursor: pointer !important;
 
     &:hover {
         border: 2px solid rgb(49, 49, 255) !important;
         transition: 0.1s all !important;
-
     }
 }
 
@@ -1385,15 +1455,6 @@ export default {
     z-index: 3 !important;
     background: white;
     border-right: 1px solid #e9ecef;
-}
-
-.demo {
-    position: absolute;
-    width: 3%;
-    height: 100%;
-    background-color: red;
-    right: 0;
-    top: 0;
 }
 
 .col-resize {

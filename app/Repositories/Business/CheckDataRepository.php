@@ -32,8 +32,8 @@ class CheckDataRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [
                 'customer_group_id' => 'required',
                 'items' => 'required|array',
-                'items.*.customer_sku_code' => 'required',
-                'items.*.customer_sku_unit' => 'required',
+                'items.*.customer_sku_code' => 'nullable',
+                'items.*.customer_sku_unit' => 'nullable',
             ]);
 
             if ($validator->fails()) {
@@ -57,7 +57,12 @@ class CheckDataRepository extends RepositoryAbs
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 $customer_sku_code = $item['customer_sku_code'];
-                $customer_sku_unit = $item['customer_sku_unit'];
+                // Kiểm tra sự tồn tại của trường customer_sku_unit
+                if (isset($item['customer_sku_unit'])) {
+                    $customer_sku_unit = $item['customer_sku_unit'];
+                } else {
+                    $customer_sku_unit = null; // Xử lý khi trường không tồn tại
+                }
 
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();

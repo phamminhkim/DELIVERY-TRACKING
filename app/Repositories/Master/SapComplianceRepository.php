@@ -114,10 +114,11 @@ class SapComplianceRepository extends RepositoryAbs
                 if ($unit) {
                     $check_qc = $row[$template_structure['check_qc']];
                     $sapCode = $row[$template_structure['sap_code']];
-                    $sapCompliance = SapCompliance::updateOrCreate(
+
+                    // Thay đổi để tạo hoặc cập nhật SapCompliance trong mối quan hệ một-nhiều với SapUnit
+                    $sapCompliance = $unit->sapCompliances()->updateOrCreate(
                         ['sap_code' => $sapCode],
                         [
-                            'unit_id' => $unit->id,
                             'name' => $row[$template_structure['name']],
                             'compliance' => $row[$template_structure['compliance']],
                             'check_qc' => $check_qc === null ? 0 : 1,
