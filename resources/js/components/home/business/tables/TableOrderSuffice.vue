@@ -1403,7 +1403,6 @@ export default {
         },
         handleMouseMoveHeader(e, ref_header) {
             if (this.is_mouse_down) {
-
                 if (e.clientX > this.previous_mouse_position) {
                     this.width = this.width++ + 5;
                 } else if (e.clientX < this.previous_mouse_position) {

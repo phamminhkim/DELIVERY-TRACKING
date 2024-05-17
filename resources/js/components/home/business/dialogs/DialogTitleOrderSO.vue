@@ -77,7 +77,6 @@ export default {
             try {
                 this.is_loading = true;
                 this.case_data.order_data = this.orders.concat(this.order_lacks);
-                console.log(this.orders, this.order_lacks,this.case_data.order_data);
                 this.case_data.customer_group_id = this.case_save_so.customer_group_id;
                 if (this.case_save_so.id !== "") {
                     let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
