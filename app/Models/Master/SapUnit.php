@@ -11,4 +11,8 @@ class SapUnit extends Model
     protected $fillable = [
         'unit_code'
     ];
+    public function sapCompliances()
+    {
+        return $this->hasMany(SapCompliance::class, 'unit_id');
+    }
 }
