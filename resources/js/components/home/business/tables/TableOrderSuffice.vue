@@ -15,7 +15,7 @@
                     </div>
                 </template>
                 <template #head(customer_name)="header">
-                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div tabindex="0" class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">

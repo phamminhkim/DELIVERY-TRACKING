@@ -137,7 +137,9 @@ export default {
             this.material_saps = [...data];
             this.material_saps.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if (tmp.customer_sku_code === this.orders[i].customer_sku_code && tmp.customer_sku_unit === this.orders[i].customer_sku_unit) {
+                    if ((tmp.customer_sku_code === this.orders[i].customer_sku_code && 
+                    tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
+                    (tmp.bar_code === this.orders[i].barcode)) {
                         this.orders[i]['sku_sap_code'] = tmp.sap_code;
                         this.orders[i]['sku_sap_name'] = tmp.name;
                         this.orders[i]['sku_sap_unit'] = tmp.unit_code;

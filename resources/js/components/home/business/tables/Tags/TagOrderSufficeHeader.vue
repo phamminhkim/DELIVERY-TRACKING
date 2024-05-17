@@ -154,19 +154,7 @@ export default {
             let combos = ['X'];
             this.$emit('emitFilter', combos, 'promotion_category', false);
         },
-        // filterCaseFilterOrders() {
-        //     return this.orders.filter((order) => {
-        //         if (order === null) {
-        //             return true;
-        //         }
-        //         if (order != '') {
-        //             order = order.toString();
-        //             return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
-        //         }
-        //     })
-        // }
-
-
+       
     },
     computed: {
         filterCaseFilterOrders() {
