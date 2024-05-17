@@ -132,7 +132,6 @@ export default {
             this.material_combos = data;
         },
         getDeleteRow(index, item) {
-
             this.orders.splice(index, 1);
         },
         getListMaterialDetect(data) {
@@ -148,8 +147,8 @@ export default {
                         this.orders[i]['barcode'] = tmp.bar_code;
                     }
                 }
-
             });
+            this.refHeaderOrderProcesses();
         },
         getInventory(data) {
             this.material_inventories = [...data];
@@ -365,6 +364,7 @@ export default {
         refeshOrders() {
             this.orders = [];
             this.case_data_temporary.order_lacks = [];
+            this.case_data_temporary.items = [];    
         },
         getListOrderProcessSO() {
             this.$refs.dialogListOrderProcessSo.showModal();
