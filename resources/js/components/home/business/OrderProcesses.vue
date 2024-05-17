@@ -23,6 +23,7 @@
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
+            :count_reset_filter="case_index.count_reset_filter"
             :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
             :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
             :filterOrders="filterOrders" :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
@@ -30,7 +31,7 @@
             @checkBoxRow="getCheckBoxRow" @sortingChanged="getSortingChanged" @createRow="getCreateRow"
             @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
             @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
-            @filterItems="getFilterItems">
+            @filterItems="getFilterItems" @emitResetFilter="getResetFilter">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -74,6 +75,7 @@ export default {
             material_prices: [],
             case_index: {
                 check_box: [],
+                count_reset_filter: 0,
             },
             case_save_so: {
                 id: '',
@@ -87,6 +89,7 @@ export default {
                 is_inventory: false,
                 fetch_api: false,
                 created_conponent: false,
+                reeset_filter_header: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -121,6 +124,8 @@ export default {
         getOrders(orders) {
             this.orders = orders;
             this.case_data_temporary.order_lacks = [];
+            this.case_index.count_reset_filter++;
+            this.getResetFilter();
         },
         getOnChangeCategoryType(index, item, order) {
             this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
@@ -579,6 +584,10 @@ export default {
             this.case_is_loading.is_inventory = boolean;
             this.case_is_loading.created_conponent = false;
         },
+        getResetFilter() {
+           this.case_data_temporary.field = 'customer_sku_code';
+           this.case_data_temporary.items = this.orders.map(item => item.customer_sku_code);
+        },
         getChangeEventCompliance() {
             // console.log('check quy cách');
             this.CheckComplianceFromOrders();
@@ -654,9 +663,6 @@ export default {
                 if(this.case_is_loading.created_conponent){
                     news = this.orders;
                 }
-                // if (news.length == 0) {
-                //     news = this.orders;
-                // }
             } else {
                 news = this.orders.filter(order => order.is_inventory == true);
             }

@@ -60,6 +60,7 @@ export default {
     props: {
         column: String,
         orders: Array,
+        count_reset_filter: Number,
     },
     data() {
         return {
@@ -99,6 +100,9 @@ export default {
         'case_checkbox.items': function (val) {
             this.isLengthItems();
             this.isLengthEqual();
+        },
+        count_reset_filter() {
+            this.resetCaseCheckbox();
         }
     },
     // hook kiểm tra b-dropdown đang mở hay đóng
@@ -107,10 +111,14 @@ export default {
     mounted() {
         this.$refs.dropdown.$on('show', () => {
             this.$emit('showHideDropdown', true);
+
         });
         this.$refs.dropdown.$on('hide', () => {
             this.$emit('showHideDropdown', false);
         });
+    },
+    created(){
+        console.log(this.is_reset_filter_header, 'is_reset_filter_header');
     },
 
     methods: {
@@ -171,6 +179,13 @@ export default {
             let combos = ['X'];
             this.$emit('emitFilter', combos, 'promotion_category', false);
         },
+      
+        resetCaseCheckbox() {
+            this.case_checkbox.items = [];
+            this.case_checkbox.select_all = false;
+            this.case_boolean.is_length_equal = false;
+            this.$emit('emitResetFilter');
+        }
 
     },
     computed: {

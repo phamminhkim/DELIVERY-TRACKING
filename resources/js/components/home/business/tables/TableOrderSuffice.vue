@@ -24,8 +24,11 @@
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitFilter="emitFilter" @filterItems="filterItems">
+                            @emitResetFilter="getResetFilter"
+                            @emitFilter="emitFilter" @filterItems="filterItems"
+                           >
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
@@ -37,7 +40,7 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
@@ -56,8 +59,9 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -75,8 +79,9 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -94,8 +99,9 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -124,8 +130,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -138,8 +145,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -152,8 +160,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -166,8 +175,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -180,8 +190,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -194,8 +205,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -209,8 +221,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
+                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader" 
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -296,8 +309,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -311,8 +325,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -325,9 +340,10 @@
                         class="text-center d-flex col-resize justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
-                        </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        </label> 
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -341,8 +357,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -356,8 +373,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -371,8 +389,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -386,8 +405,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -401,8 +421,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -418,8 +439,9 @@
                         </label>
                         <span class="badge badge-sm badge-secondary badge-pill mt-1 ml-1"><i
                                 class="fas fa-question fa-sm"></i></span>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -433,7 +455,8 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders"
+                        @emitResetFilter="getResetFilter"
                             @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -447,8 +470,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -462,8 +486,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -477,8 +502,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -492,8 +518,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -507,8 +534,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -522,8 +550,9 @@
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
                             @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
+                            @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -743,7 +772,11 @@ export default {
         },
         filterOrders: {
             type: Array
-        }
+        },
+        count_reset_filter: {
+            type: Number,
+            default: 0
+        },
 
     },
     components: {
@@ -762,6 +795,7 @@ export default {
                 copy: false,
                 click: false,
                 show_dropdown: false,
+                reeset_filter_header: false,
             },
             case_index: {
                 event: -1,
@@ -773,6 +807,7 @@ export default {
             case_filter: {
                 orders: [],
                 search: '',
+
             },
             case_order: {
                 customer_name: '',
@@ -1412,6 +1447,9 @@ export default {
                 this.previous_mouse_position = e.clientX;
             }
         },
+        getResetFilter() {
+            this.$emit('emitResetFilter');
+        }
 
     },
     computed: {
