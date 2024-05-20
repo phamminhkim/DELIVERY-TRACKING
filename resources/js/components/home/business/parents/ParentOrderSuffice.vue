@@ -22,6 +22,7 @@
         <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value"
+            :count_reset_filter="count_reset_filter"
             @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
             @checkBoxRow="getCheckBoxRow"
             @sortingChanged="sortingChanged"
@@ -33,7 +34,8 @@
             @btnParseCreateRow="getBtnParseCreateRow"
             @btnCopy="getBtnCopy"
             :filterOrders="filterOrders"
-            @filterItems="getFilterItems"></TableOrderSuffice>
+            @filterItems="getFilterItems"
+            @emitResetFilter="getResetFilter"></TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -83,7 +85,11 @@ export default {
         },
         filterOrders: {
             type: Array
-        }
+        },
+         count_reset_filter: {
+            type: Number,
+            default: 0
+         }
     },
     components: {
         TableOrderSuffice,
@@ -157,7 +163,11 @@ export default {
         },
         getFilterItems(items, field, boolean) {
             this.$emit('filterItems', items , field, boolean);
+        },
+        getResetFilter() {
+            this.$emit('emitResetFilter');
         }
+
 
     },
     computed: {
