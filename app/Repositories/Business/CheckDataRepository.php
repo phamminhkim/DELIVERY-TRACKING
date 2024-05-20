@@ -73,47 +73,11 @@ class CheckDataRepository extends RepositoryAbs
                 } else {
                     continue;
                 }
-
-                // Kiểm tra ánh xạ trong bảng SapMaterialMapping trước
-                $sapMaterialMapping = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                    $query->where('customer_group_id', $customer_group_id)
-                        ->where('customer_sku_code', $customer_sku_code);
-                })->first();
-
-                if ($sapMaterialMapping) {
-                    $sap_material_id = $sapMaterialMapping->sap_material_id;
-
-                    $sapMaterial = SapMaterial::find($sap_material_id);
-
-                    if ($sapMaterial) {
-                        // Thêm thông tin vào mappingData
-                        $sap_code = $sapMaterial->sap_code;
-                        $unit_code = $sapMaterial->unit_code;
-                        $name = $sapMaterial->name;
-                        $unit_id = $sapMaterial->unit_id;
-
-                        $sapUnit = SapUnit::find($unit_id);
-                        if ($sapUnit) {
-                            $unit_code = $sapUnit->unit_code;
-                        } else {
-                            $unit_code = null; // Xử lý khi đơn vị không tồn tại
-                        }
-
-                        $mappingData[] = [
-                            'customer_sku_code' => $customer_sku_code,
-                            'customer_sku_unit' => $customer_sku_unit,
-                            'sap_code' => $sap_code,
-                            'unit_id' => $unit_id,
-                            'name' => $name,
-                            'unit_code' => $unit_code,
-                        ];
-                        continue; // Ngừng xử lý và chuyển sang mục tiếp theo trong $items
-                    }
-                }
-                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không (nếu cần)
-                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', false)->first();
+                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
+                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
                 if ($sapMaterial && $sapMaterial->is_deleted != 1) {
+
                     // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
@@ -137,6 +101,44 @@ class CheckDataRepository extends RepositoryAbs
                         'name' => $name,
                         'unit_code' => $unit_code,
                     ];
+                } else {
+                    // Kiểm tra ánh xạ trong bảng SapMaterialMapping
+                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                        $query->where('customer_group_id', $customer_group_id)
+                            ->where('customer_sku_code', $customer_sku_code);
+                    })->get();
+
+                    foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                        $sap_material_id = $sapMaterialMapping->sap_material_id;
+
+                        $sapMaterial = SapMaterial::find($sap_material_id);
+
+                        if ($sapMaterial) {
+                            // Thêm thông tin vào mappingData
+                            $sap_code = $sapMaterial->sap_code;
+                            $bar_code = $sapMaterial->bar_code;
+                            $unit_code = $sapMaterial->unit_code;
+                            $name = $sapMaterial->name;
+                            $unit_id = $sapMaterial->unit_id;
+
+                            $sapUnit = SapUnit::find($unit_id);
+                            if ($sapUnit) {
+                                $unit_code = $sapUnit->unit_code;
+                            } else {
+                                $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                            }
+
+                            $mappingData[] = [
+                                'customer_sku_code' => $customer_sku_code,
+                                'customer_sku_unit' => $customer_sku_unit,
+                                'bar_code' => $bar_code,
+                                'sap_code' => $sap_code,
+                                'unit_id' => $unit_id,
+                                'name' => $name,
+                                'unit_code' => $unit_code,
+                            ];
+                        }
+                    }
                 }
             }
 
