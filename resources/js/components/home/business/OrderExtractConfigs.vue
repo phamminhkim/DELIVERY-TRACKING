@@ -1061,14 +1061,20 @@
 			},
 
 			async onClickCreateConfig() {
-                this.create_config_form.restructure_data_config = this.restructure_phase_form;
-                this.create_config_form.extract_data_config = this.extract_phase_form;
-                this.create_config_form.convert_table_config = this.convert_phase_form;
-                this.create_config_form.restructure_header_config = this.restructure_header_phase_form;
-                this.create_config_form.extract_header_config = this.extract_header_phase_form;
-                this.create_config_form.convert_table_header_config = this.convert_header_phase_form;
+                // this.create_config_form.restructure_data_config = this.restructure_phase_form;
+                // this.create_config_form.extract_data_config = this.extract_phase_form;
+                // this.create_config_form.convert_table_config = this.convert_phase_form;
+                // this.create_config_form.restructure_header_config = this.restructure_header_phase_form;
+                // this.create_config_form.extract_header_config = this.extract_header_phase_form;
+                // this.create_config_form.convert_table_header_config = this.convert_header_phase_form;
+                // this.create_config_form.is_convert_header = this.is_convert_header;
+                this.create_config_form.restructure_data_config = this.getFormattedRestructData(this.restructure_phase_form);
+                this.create_config_form.extract_data_config = this.getFormattedExtractData(this.extract_phase_form);
+                this.create_config_form.convert_table_config = this.getFormattedConvertData(this.convert_phase_form);
+                this.create_config_form.restructure_header_config = this.getFormattedRestructData(this.restructure_header_phase_form);
+                this.create_config_form.extract_header_config = this.getFormattedExtractData(this.extract_header_phase_form);
+                this.create_config_form.convert_table_header_config = this.getFormattedConvertData(this.convert_header_phase_form);
                 this.create_config_form.is_convert_header = this.is_convert_header;
-
                 try {
 					const { data } = await this.api_handler.post(
 						'/api/ai/config',
@@ -1204,27 +1210,35 @@
 
 			async onClickUpdateConfig(data_config_type) {
 				try {
+                    let extract_data_form = this.getFormattedExtractData(this.extract_phase_form);
+                    let convert_data_form = this.getFormattedConvertData(this.convert_phase_form);
+                    let restructure_data_form = this.getFormattedRestructData(this.restructure_phase_form);
+
+                    let extract_header_form = this.getFormattedExtractData(this.extract_header_phase_form);
+                    let convert_header_form = this.getFormattedConvertData(this.convert_header_phase_form);
+                    let restructure_header_form = this.getFormattedRestructData(this.restructure_header_phase_form);
+
                     let update_config_form = (data_config_type == this.data_config_type.DATA) ?
                     {
                         customer_group_id: this.load_config_form.customer_group_id,
-                        extract_data_config: this.extract_phase_form,
-                        convert_table_config: this.convert_phase_form,
-                        restructure_data_config: this.restructure_phase_form,
+                        extract_data_config: extract_data_form,
+                        convert_table_config: convert_data_form,
+                        restructure_data_config: restructure_data_form,
                         data_config_type: data_config_type,
                     } :
                     {
                         customer_group_id: this.load_config_form.customer_group_id,
-                        extract_header_config: this.extract_header_phase_form,
-                        convert_table_header_config: this.convert_header_phase_form,
-                        restructure_header_config: this.restructure_header_phase_form,
+                        extract_header_config: extract_header_form,
+                        convert_table_header_config: convert_header_form,
+                        restructure_header_config: restructure_header_form,
                         data_config_type: data_config_type,
                         is_convert_header: this.is_convert_header,
                     };
 
 					const { data } = await this.api_handler.put(
 						`/api/ai/config/${this.load_config_form.extract_order_id}`,
-						{},
-						update_config_form,
+                        {},
+                        update_config_form
 					);
 					this.create_config_form = {
 						customer_group_id: null,
@@ -1246,6 +1260,37 @@
 					this.$showMessage('error', 'Lỗi', error.response.data.message);
 				}
 			},
+            getFormattedExtractData(extract_form) {
+                let formatted_data = extract_form ? {
+                    method: extract_form.method,
+                    camelot_flavor: extract_form.camelot_flavor,
+                    is_merge_pages: extract_form.is_merge_pages,
+                    exclude_head_tables_count: extract_form.exclude_head_tables_count,
+                    exclude_tail_tables_count: extract_form.exclude_tail_tables_count,
+                    specify_table_number: extract_form.specify_table_number,
+                    is_specify_table_area: extract_form.is_specify_table_area,
+                    table_area_info: JSON.stringify(extract_form.table_area_info),
+                    is_specify_advanced_settings: extract_form.is_specify_advanced_settings,
+                    advanced_settings_info: JSON.stringify(extract_form.advanced_settings_info),
+                } : extract_form;
+                return formatted_data;
+            },
+            getFormattedConvertData(convert_form) {
+                let formatted_data = convert_form ? {
+                    method: convert_form.method,
+                    manual_patterns: JSON.stringify(convert_form.manual_patterns),
+                    regex_pattern: convert_form.regex_pattern,
+                    is_without_header: convert_form.is_without_header,
+                } : convert_form;
+                return formatted_data;
+            },
+            getFormattedRestructData(restructure_form) {
+                let formatted_data = restructure_form ? {
+                    method: restructure_form.method,
+                    structure: JSON.stringify(restructure_form.structure),
+                } : restructure_form;
+                return formatted_data;
+            },
             resetDataForm() {
                 this.file =  null;
                 this.extract_phase_form = {
