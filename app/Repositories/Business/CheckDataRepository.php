@@ -73,20 +73,54 @@ class CheckDataRepository extends RepositoryAbs
                 } else {
                     continue;
                 }
-                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
-                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
-                if ($sapMaterial) {
-                    // Kiểm tra name có đuôi _X
-                    $name = $sapMaterial->name;
-                    if (substr($name, -2) === '_X') {
-                        continue; // Bỏ qua nếu name có đuôi _X
+                // Kiểm tra ánh xạ trong bảng SapMaterialMapping trước
+                $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                    $query->where('customer_group_id', $customer_group_id)
+                        ->where('customer_sku_code', $customer_sku_code);
+                })->get();
+
+                foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                    $sap_material_id = $sapMaterialMapping->sap_material_id;
+
+                    $sapMaterial = SapMaterial::find($sap_material_id);
+
+                    if ($sapMaterial) {
+                        // Thêm thông tin vào mappingData
+                        $sap_code = $sapMaterial->sap_code;
+                        $bar_code = $sapMaterial->bar_code;
+                        $unit_code = $sapMaterial->unit_code;
+                        $name = $sapMaterial->name;
+                        $unit_id = $sapMaterial->unit_id;
+
+                        $sapUnit = SapUnit::find($unit_id);
+                        if ($sapUnit) {
+                            $unit_code = $sapUnit->unit_code;
+                        } else {
+                            $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                        }
+
+                        $mappingData[] = [
+                            'customer_sku_code' => $customer_sku_code,
+                            'customer_sku_unit' => $customer_sku_unit,
+                            'bar_code' => $bar_code,
+                            'sap_code' => $sap_code,
+                            'unit_id' => $unit_id,
+                            'name' => $name,
+                            'unit_code' => $unit_code,
+                        ];
                     }
+                }
 
+                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không (nếu cần)
+                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', false)->first();
+
+                if ($sapMaterial && $sapMaterial->is_deleted != 1) {
                     // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
                     $unit_code = $sapMaterial->unit_code;
+                    $name = $sapMaterial->name;
                     $unit_id = $sapMaterial->unit_id;
 
                     $sapUnit = SapUnit::find($unit_id);
@@ -105,44 +139,6 @@ class CheckDataRepository extends RepositoryAbs
                         'name' => $name,
                         'unit_code' => $unit_code,
                     ];
-                } else {
-                    // Kiểm tra ánh xạ trong bảng SapMaterialMapping
-                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                        $query->where('customer_group_id', $customer_group_id)
-                            ->where('customer_sku_code', $customer_sku_code);
-                    })->get();
-
-                    foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                        $sap_material_id = $sapMaterialMapping->sap_material_id;
-
-                        $sapMaterial = SapMaterial::find($sap_material_id);
-
-                        if ($sapMaterial) {
-                            // Thêm thông tin vào mappingData
-                            $sap_code = $sapMaterial->sap_code;
-                            $bar_code = $sapMaterial->bar_code;
-                            $unit_code = $sapMaterial->unit_code;
-                            $name = $sapMaterial->name;
-                            $unit_id = $sapMaterial->unit_id;
-
-                            $sapUnit = SapUnit::find($unit_id);
-                            if ($sapUnit) {
-                                $unit_code = $sapUnit->unit_code;
-                            } else {
-                                $unit_code = null; // Xử lý khi đơn vị không tồn tại
-                            }
-
-                            $mappingData[] = [
-                                'customer_sku_code' => $customer_sku_code,
-                                'customer_sku_unit' => $customer_sku_unit,
-                                'bar_code' => $bar_code,
-                                'sap_code' => $sap_code,
-                                'unit_id' => $unit_id,
-                                'name' => $name,
-                                'unit_code' => $unit_code,
-                            ];
-                        }
-                    }
                 }
             }
 
@@ -153,7 +149,7 @@ class CheckDataRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-            return ['success' => false, 'message' => $this->message, 'errors' => $this->errors];
+            return false;
         }
     }
     public function checkCompliance()
