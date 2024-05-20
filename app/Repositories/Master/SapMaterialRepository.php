@@ -57,7 +57,7 @@ class SapMaterialRepository extends RepositoryAbs
             if ($is_minified) {
                 $query->select('id', 'name', 'sap_code', 'unit_id', 'bar_code');
             }
-
+            $query->where('is_deleted', 0);
             $query->with(['unit' => function ($query) {
                 $query->select(['id', 'unit_code']);
             }]);
