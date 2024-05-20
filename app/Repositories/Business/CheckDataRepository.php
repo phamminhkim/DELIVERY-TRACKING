@@ -77,11 +77,16 @@ class CheckDataRepository extends RepositoryAbs
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
                 if ($sapMaterial) {
+                    // Kiểm tra name có đuôi _X
+                    $name = $sapMaterial->name;
+                    if (substr($name, -2) === '_X') {
+                        continue; // Bỏ qua nếu name có đuôi _X
+                    }
+
                     // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
                     $unit_code = $sapMaterial->unit_code;
-                    $name = $sapMaterial->name;
                     $unit_id = $sapMaterial->unit_id;
 
                     $sapUnit = SapUnit::find($unit_id);
