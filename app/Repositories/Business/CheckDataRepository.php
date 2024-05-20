@@ -75,12 +75,12 @@ class CheckDataRepository extends RepositoryAbs
                 }
 
                 // Kiểm tra ánh xạ trong bảng SapMaterialMapping trước
-                $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
+                $sapMaterialMapping = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
                     $query->where('customer_group_id', $customer_group_id)
                         ->where('customer_sku_code', $customer_sku_code);
-                })->get();
+                })->first();
 
-                foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                if ($sapMaterialMapping) {
                     $sap_material_id = $sapMaterialMapping->sap_material_id;
 
                     $sapMaterial = SapMaterial::find($sap_material_id);
@@ -88,7 +88,6 @@ class CheckDataRepository extends RepositoryAbs
                     if ($sapMaterial) {
                         // Thêm thông tin vào mappingData
                         $sap_code = $sapMaterial->sap_code;
-                        $bar_code = $sapMaterial->bar_code;
                         $unit_code = $sapMaterial->unit_code;
                         $name = $sapMaterial->name;
                         $unit_id = $sapMaterial->unit_id;
@@ -103,15 +102,14 @@ class CheckDataRepository extends RepositoryAbs
                         $mappingData[] = [
                             'customer_sku_code' => $customer_sku_code,
                             'customer_sku_unit' => $customer_sku_unit,
-                            'bar_code' => $bar_code,
                             'sap_code' => $sap_code,
                             'unit_id' => $unit_id,
                             'name' => $name,
                             'unit_code' => $unit_code,
                         ];
+                        continue; // Ngừng xử lý và chuyển sang mục tiếp theo trong $items
                     }
                 }
-
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không (nếu cần)
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', false)->first();
 
