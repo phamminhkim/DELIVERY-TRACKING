@@ -194,7 +194,11 @@
 								<template #cell(sap_code)="data">
 									<span> {{ data.item.sap_code }} </span>
 								</template>
-
+                                <template #cell(is_deleted)="data">
+									<span class="badge bg-success" v-if="data.item.is_deleted == 0"
+										>Hoạt động</span
+									>
+								</template>
 								<template #cell(action)="data">
 									<div class="margin">
 										<button
@@ -331,6 +335,12 @@
 					{
 						key: 'name',
 						label: 'Tên sản phẩm',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+                    {
+						key: 'is_deleted',
+						label: 'Trạng thái',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
