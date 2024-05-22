@@ -46,12 +46,16 @@
                         </div>
                         <div class="d-flex form-group border-bottom p-1">
                             <div class="flex-fill">
-                                <span class="text-success">Items đã chọn ({{ case_data.item_selecteds.length }})</span>
+                                <!-- <span class="text-success">Items đã chọn ({{ case_data.item_selecteds.length }})</span> -->
                             </div>
                             <div class="">
-                                <div v-for="(select, index) in case_data.item_selecteds" :key="index" type="button"
+                                <!-- <div v-for="(select, index) in case_data.item_selecteds" :key="index" type="button"
                                     class="badge badge-sm mr-2 p-2 badge-primary">
-                                    {{ select.barcode }}
+                                    {{ case_data.item_selecteds[0].barcode }}
+                                </div> -->
+                                <div type="button" v-if="case_data.item_selecteds.length !== 0"
+                                    class="badge badge-sm mr-2 p-2 badge-primary">
+                                    {{ case_data.item_selecteds[0].barcode }}
                                 </div>
                             </div>
                         </div>
@@ -104,9 +108,9 @@
                         </div>
                     </div>
                     <div class="modal-footer d-block text-center">
-                        <button @click="emitReplaceItem()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
-                        <!-- <button type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button> -->
+                        <button @click="emitReplaceItemAll()" type="button"
+                            class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button>
+                        <button @click="emitReplaceItem()" type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
                     </div>
                 </div>
             </div>
@@ -284,9 +288,14 @@ export default {
                 this.case_check_box.selected_item = id;
             }
         },
-        emitReplaceItem() {
+        emitReplaceItemAll() {
             this.case_data.barcode = this.case_data.item_selecteds[0].barcode;
-            this.$emit('itemReplace', this.case_check_box.item_materials, this.case_data.barcode);
+            this.$emit('itemReplaceAll', this.case_check_box.item_materials, this.case_data.barcode);
+            this.refeshCase();
+        },
+        emitReplaceItem() {
+            this.$emit('itemReplace', this.case_check_box.item_materials, this.case_data.item_selecteds[0].order);
+            this.refeshCase();
         },
         createMapping() {
             if (this.item_selecteds.length !== 0) {
