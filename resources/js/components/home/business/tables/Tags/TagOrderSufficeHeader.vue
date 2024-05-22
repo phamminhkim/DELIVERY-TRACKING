@@ -41,7 +41,7 @@
                         <label class="mb-0 d-flex align-items-center">
                             <input v-model="case_checkbox.items" :value="order" type="checkbox" class="mr-1" />
                             <span class="mb-0 font-weight-normal"> {{ order }}</span>
-                            <span v-if="order === null" >(Null)</span>
+                            <span v-if="order === null">(Null)</span>
                             <span v-if="order === ''">(Blank)</span>
                         </label>
                     </div>
@@ -84,17 +84,21 @@ export default {
         'case_checkbox.select_all': function (val) {
             if (val) {
                 if (this.case_checkbox.items.length <= 0) {
-                    this.case_checkbox.items = this.orders;
+                    this.case_checkbox.items = this.filterCaseFilterOrders;
                 }
-                this.case_checkbox.items = this.orders;
+                this.case_checkbox.items = this.filterCaseFilterOrders;
+                if(this.case_checkbox.items.length != this.filterCaseFilterOrders.length){
+                  thiss.case_checkbox.select_all = false;
+                }
             }
             else {
                 if (!this.case_boolean.is_refesh) {
                     this.case_checkbox.items = [];
                 }
-                if (this.case_checkbox.items.length == this.orders.length) {
+                if (this.case_checkbox.items.length == this.filterCaseFilterOrders.length) {
                     this.case_checkbox.items = [];
                 }
+                this.case_checkbox.items = [];
             }
         },
         'case_checkbox.items': function (val) {
@@ -117,7 +121,7 @@ export default {
             this.$emit('showHideDropdown', false);
         });
     },
-    created(){
+    created() {
         console.log(this.is_reset_filter_header, 'is_reset_filter_header');
     },
 
@@ -128,16 +132,20 @@ export default {
         emitFilter(column) {
             this.case_boolean.is_length_equal = true;
             this.isLengthEqual();
+            if(this.case_filter.search !== '') {
+                this.case_checkbox.items = this.filterCaseFilterOrders;
+            }
             this.$emit('emitFilter', this.case_checkbox.items, column);
             this.changeHide(column);
         },
         filterItems(column) {
+            this.refeshSerach();
             if (this.case_checkbox.items.length > 0) {
                 this.case_checkbox.select_all = false;
             } else {
                 this.case_checkbox.select_all = true;
             }
-            if (this.case_checkbox.items.length == this.orders.length) {
+            if (this.case_checkbox.items.length == this.filterCaseFilterOrders.length) {
                 this.case_checkbox.select_all = true;
             }
             this.$emit('filterItems', column);
@@ -156,9 +164,11 @@ export default {
             }
         },
         isLengthEqual() {
-            if (this.case_checkbox.items.length == this.orders.length) {
+            console.log('chayj ham isLengthEqual',this.case_checkbox.items.length, this.filterCaseFilterOrders.length);
+            if (this.case_checkbox.items.length == this.filterCaseFilterOrders.length) {
                 this.case_checkbox.select_all = true;
                 this.case_boolean.is_length_equal = false;
+                // this.case_checkbox.items = this.filterCaseFilterOrders;
             }
             else {
                 this.case_boolean.is_refesh = true;
@@ -179,12 +189,14 @@ export default {
             let combos = ['X'];
             this.$emit('emitFilter', combos, 'promotion_category', false);
         },
-      
         resetCaseCheckbox() {
             this.case_checkbox.items = [];
             this.case_checkbox.select_all = false;
             this.case_boolean.is_length_equal = false;
             this.$emit('emitResetFilter');
+        },
+        refeshSerach() {
+            // this.case_filter.search = '';
         }
 
     },

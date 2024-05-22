@@ -159,17 +159,23 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.sap_code' => 'required',
                 'items.*.unit_code' => 'required',
+                'items.*.quantity1_po' => 'required',
                 'items.*.quantity2_po' => 'required',
             ]);
+
             if ($validator->fails()) {
                 $this->message = $validator->errors()->first();
                 return false;
             }
+
             $check_compliance = [];
+
             foreach ($this->data['items'] as $item) {
                 $sap_code = $item['sap_code'];
                 $unit_code = $item['unit_code'];
+                $quantity1_po = $item['quantity1_po'];
                 $quantity2_po = $item['quantity2_po'];
+
                 // Kiểm tra xem có đơn vị tính trong bảng SapCompliance hay không
                 $sapCompliance = SapCompliance::where('sap_code', $sap_code)
                     ->whereHas('unit', function ($query) use ($unit_code) {
@@ -184,28 +190,31 @@ class CheckDataRepository extends RepositoryAbs
                     $itemData = [
                         'sap_code' => $sap_code,
                         'unit_code' => $unit_code,
+                        'quantity1_po' => $quantity1_po,
                         'quantity2_po' => $quantity2_po,
                     ];
+
                     // Kiểm tra dữ liệu quy cách
                     if ($compliance !== null) {
                         $itemData['compliance'] = $compliance;
+
                         // Kiểm tra chia hết cho compliance
-                        if ($compliance !== 0 && $quantity2_po % $compliance !== 0) {
-                            $itemData['is_compliant'] = false;
-                        } else {
-                            $itemData['is_compliant'] = true;
-                        }
+                        $isCompliant = ($compliance !== 0) && (($quantity1_po * $quantity2_po) % $compliance === 0);
+                        $itemData['is_compliant'] = $isCompliant;
                     } else {
                         $itemData['compliance'] = null;
                         $itemData['is_compliant'] = true;
                     }
+
                     $check_compliance[] = $itemData;
                 }
             }
+
             $result = [
                 'success' => true,
                 'items' => $check_compliance
             ];
+
             return $result;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
