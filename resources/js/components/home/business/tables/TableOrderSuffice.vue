@@ -8,49 +8,47 @@
                 :per-page="per_page">
                 <template #head(index)="header">
                     <div :ref="'header_' + header.column" class="col-resize"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'index')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'index')">
                         <span>{{ header.label }}</span>
                     </div>
                 </template>
                 <template #head(customer_name)="header">
                     <div tabindex="0" class="text-center col-resize d-flex justify-content-between"
                         :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_name')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_name')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
-                        :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
-                            @emitFilter="emitFilter" @filterItems="filterItems"
-                           >
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(sap_so_number)="header">
                     <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sap_so_number')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sap_so_number')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitFilter="emitFilter" @filterItems="filterItems">
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(barcode)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'barcode')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'barcode')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
@@ -59,18 +57,18 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(sku_sap_code)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_code')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_code')"
                         class="text-center d-flex col-resize justify-content-between ">
                         <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
@@ -79,18 +77,18 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(sku_sap_name)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_name')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_name')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
             'text-danger': is_loading_detect_sap_code == true
@@ -99,15 +97,15 @@
                                     class="fas fa-spinner fa-spin fa-xs"></i></span>
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #cell(index)="data">
-                    <div class="font-weight-bold">
+                    <div class="font-weight-bold index">
                         {{ data.item.order }}
                         <!-- {{ (data.index + 1) + (current_page * per_page) - per_page }} -->
                     </div>
@@ -124,106 +122,106 @@
                 </template>
                 <template #head(sku_sap_unit)="header">
                     <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_unit')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_unit')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(promotive)="header">
                     <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'promotive')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'promotive')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(note)="header">
                     <div class="text-center  col-resize d-flex justify-content-between" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'note')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'note')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(customer_code)="header">
                     <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_code')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_code')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(customer_sku_code)="header">
                     <div class="text-center d-flex col-resize justify-content-between" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_code')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_code')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader  :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(customer_sku_name)="header">
                     <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_name')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)">
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_name')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(quantity1_po)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity1_po')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity1_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader" 
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -233,30 +231,33 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
-                        @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
-                        @input="handleItem(data.item.barcode, 'barcode', data.index)" />
-                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                        :ref="'keyListenerDiv_' + data.item.barcode + data.item.order + data.field.key"
-                        @keydown="copyItem($event, data.item.barcode, data.field.key)"
-                        @mousedown="startSelection($event, data.item.barcode, data.item.order, data.field.key)"
-                        @mousemove="selectItem(data.item.barcode, $event)"
-                        @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.barcode) && isSameField(case_order.field_order,data.field.key)  }">
-                        <span class="text-center rounded" :class="{
+                    <div class="barcode">
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
+                            @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
+                            @input="handleItem(data.item.barcode, 'barcode', data.index)" />
+                        <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.barcode + data.item.order + data.field.key"
+                            @keydown="copyItem($event, data.item.barcode, data.field.key)"
+                            @mousedown="startSelection($event, data.item.barcode, data.item.order, data.field.key)"
+                            @mousemove="selectItem(data.item.barcode, $event)"
+                            @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.barcode) && isSameField(case_order.field_order, data.field.key) }">
+                            <span class="text-center rounded " :class="{
             'badge badge-warning': data.item.extra_offer == 'X',
             'badge badge-primary': data.item.promotion_category == 'X'
         }">
-                            {{ data.item.barcode }}
-                        </span>
+                                {{ data.item.barcode }}
+                            </span>
+                        </div>
                     </div>
+
                 </template>
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                     </div>
-                    <div v-else>
+                    <div v-else class="customer_name">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
 
@@ -265,13 +266,17 @@
                     </div>
                 </template>
                 <template #cell(sap_so_number)="data">
-                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
-                        @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
-                    <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
-                    <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{ data.item.promotive }}</span>
+                    <div class="sap_so_number">
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
+                            @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
+                        <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
+                        <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{
+            data.item.promotive }}</span>
+                    </div>
+
                 </template>
                 <template #cell(quantity1_po)="data">
-                    <div :class="{
+                    <div class="quantity1_po" :class="{
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.quantity1_po }} -->
@@ -281,7 +286,7 @@
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
-                    <div :class="{
+                    <div class="quantity2_po" :class="{
             'text-danger': isCheckLack(data.item)
         }">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity2_po"
@@ -290,7 +295,7 @@
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
-                    <div :class="{
+                    <div class="inventory_quantity" :class="{
             'text-danger': isCheckLack(data.item),
             'text-danger': data.item.inventory_quantity <= 0
         }">
@@ -302,257 +307,257 @@
                 </template>
                 <template #head(customer_sku_unit)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_unit')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_unit')"
                         class="text-center d-flex col-resize justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(po)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(promotive_name)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'promotive_name')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'promotive_name')"
                         class="text-center d-flex col-resize justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
-                        </label> 
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(inventory_quantity)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'inventory_quantity')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'inventory_quantity')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(quantity2_po)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity2_po')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity2_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(price_po)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'price_po')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'price_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(amount_po)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'amount_po')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'amount_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(compliance)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'compliance')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'compliance')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(is_compliant)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'is_compliant')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'is_compliant')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
                         <span class="badge badge-sm badge-secondary badge-pill mt-1 ml-1"><i
                                 class="fas fa-question fa-sm"></i></span>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(note1)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'note1')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'note1')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders"
-                        @emitResetFilter="getResetFilter"
-                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            @emitResetFilter="getResetFilter" @fieldColumnHeader="fieldColumnHeader"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(company_price)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'company_price')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'company_price')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(level2)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level2')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level2')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(level3)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level3')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level3')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(level4)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level4')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level4')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(po_number)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po_number')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po_number')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
                 <template #head(po_delivery_date)="header">
                     <div :ref="'header_' + header.column"
-                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column)"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po_delivery_date')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
-                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column)"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po_delivery_date')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
-                        <TagOrderSufficeHeader    :column="header.column" :orders="case_filter.orders" :count_reset_filter="count_reset_filter"
-                            @showHideDropdown="getShowHideDopdown" @fieldColumnHeader="fieldColumnHeader"
-                            @emitResetFilter="getResetFilter"
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
                             @emitFilter="emitFilter" @filterItems="filterItems">
                         </TagOrderSufficeHeader>
                     </div>
@@ -561,7 +566,7 @@
                     <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
                         @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
                         @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
-                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                    <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                         :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.item.order + data.field.key"
                         @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
                         @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
@@ -569,7 +574,7 @@
                         @mousedown="startSelection($event, data.item.sku_sap_code, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.sku_sap_code, $event)"
                         @mouseup="endSelection(data.item.sku_sap_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order,data.field.key) }">
+                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order, data.field.key) }">
                         <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.extra_offer == 'X',
             'badge badge-primary': data.item.promotion_category == 'X'
@@ -580,80 +585,103 @@
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <!-- {{ data.item.sku_sap_name }} -->
-                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sku_sap_name"
-                        @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
-                    <span v-else>{{ data.item.sku_sap_name }}</span>
+                    <div class="sku_sap_name">
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sku_sap_name"
+                            @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
+                        <span v-else>{{ data.item.sku_sap_name }}</span>
+                    </div>
+
                 </template>
                 <template #cell(customer_sku_name)="data">
-                    <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_sku_name"
-                        @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
-                    <span v-else>{{ data.item.customer_sku_name }}</span>
+                    <div class="customer_sku_name">
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_sku_name"
+                            @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
+                        <span v-else>{{ data.item.customer_sku_name }}</span>
+                    </div>
+
                 </template>
                 <template #cell(customer_sku_unit)="data">
-                    <input class="px-2" v-model="data.item.customer_sku_unit" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
-                    <span v-else>{{ data.item.customer_sku_unit }}</span>
+                    <div class="customer_sku_unit">
+                        <input class="px-2" v-model="data.item.customer_sku_unit" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
+                        <span v-else>{{ data.item.customer_sku_unit }}</span>
+                    </div>
+
                 </template>
                 <template #cell(po)="data">
-                    <input class="px-2" v-if="case_is_status.edit" v-model="data.item.po"
-                        @input="handleItem(data.item.po, 'po', data.index)" />
-                    <span v-else>{{ data.item.po }}</span>
-
+                    <div class="po">
+                        <input class="px-2" v-if="case_is_status.edit" v-model="data.item.po"
+                            @input="handleItem(data.item.po, 'po', data.index)" />
+                        <span v-else>{{ data.item.po }}</span>
+                    </div>
                 </template>
                 <template #cell(sku_sap_unit)="data">
-                    <input class="px-2" v-model="data.item.sku_sap_unit" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
-                    <span v-else>{{ data.item.sku_sap_unit }}</span>
-
+                    <div class="sku_sap_unit">
+                        <input class="px-2" v-model="data.item.sku_sap_unit" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
+                        <span v-else>{{ data.item.sku_sap_unit }}</span>
+                    </div>
                 </template>
                 <template #cell(customer_code)="data">
-                    <input class="px-2" v-model="data.item.customer_code" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
-                    <span v-else>{{ data.item.customer_code }}</span>
-
+                    <div class="customer_code">
+                        <input class="px-2" v-model="data.item.customer_code" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
+                        <span v-else>{{ data.item.customer_code }}</span>
+                    </div>
                 </template>
                 <template #cell(promotive_name)="data">
-                    {{ data.item.promotive }}
-
+                    <div class="promotive_name">
+                        {{ data.item.promotive }}
+                    </div>
                 </template>
                 <template #cell(note1)="data">
                     <!-- {{ data.item.note1 }}{{ data.item.promotive }} -->
-                    <div v-if="case_is_status.edit">
-                        <input class="px-2" v-model="data.item.note1"
-                            @input="handleItem(data.item.note1, 'note1', data.index)" />
-                        {{ data.item.promotive }}
+                    <div class="note1">
+                        <div v-if="case_is_status.edit">
+                            <input class="px-2" v-model="data.item.note1"
+                                @input="handleItem(data.item.note1, 'note1', data.index)" />
+                            {{ data.item.promotive }}
+                        </div>
+                        <span v-else>{{ data.item.note1 }}{{ data.item.promotive }}</span>
                     </div>
-                    <span v-else>{{ data.item.note1 }}{{ data.item.promotive }}</span>
                 </template>
                 <template #cell(note)="data">
-                    <div v-if="case_is_status.edit">
-                        <input class="px-2" v-model="data.item.note" v-if="case_is_status.edit"
-                            @input="handleItem(data.item.note, 'note', data.index)" />
-                        {{ data.item.promotive }}
+                    <div class="note">
+                        <div v-if="case_is_status.edit">
+                            <input class="px-2" v-model="data.item.note" v-if="case_is_status.edit"
+                                @input="handleItem(data.item.note, 'note', data.index)" />
+                            {{ data.item.promotive }}
+                        </div>
+                        <span v-else>{{ data.item.note }}</span>
                     </div>
-                    <span v-else>{{ data.item.note }}</span>
-
                 </template>
                 <template #cell(level2)="data">
-                    <div v-if="case_is_status.edit">
-                        <input class="px-2" v-model="data.item.level2"
-                            @input="handleItem(data.item.level2, 'level2', data.index)" />
+                    <div class="level2">
+                        <div v-if="case_is_status.edit">
+                            <input class="px-2" v-model="data.item.level2"
+                                @input="handleItem(data.item.level2, 'level2', data.index)" />
+                        </div>
+                        <span v-else>{{ data.item.level2 }}</span>
                     </div>
-                    <span v-else>{{ data.item.level2 }}</span>
-
                 </template>
                 <template #cell(level3)="data">
-                    <div v-if="case_is_status.edit">
-                        <input class="px-2" v-model="data.item.level3"
-                            @input="handleItem(data.item.level3, 'level3', data.index)" />
+                    <div class="level3">
+                        <div v-if="case_is_status.edit">
+                            <input class="px-2" v-model="data.item.level3"
+                                @input="handleItem(data.item.level3, 'level3', data.index)" />
+                        </div>
+                        <span v-else>{{ data.item.level3 }}</span>
                     </div>
-                    <span v-else>{{ data.item.level3 }}</span>
+
 
                 </template>
                 <template #cell(level4)="data">
-                    <input class="px-2" v-model="data.item.level4" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.level4, 'level4', data.index)" />
-                    <span v-else>{{ data.item.level4 }}</span>
+                    <div class="level4">
+                        <input class="px-2" v-model="data.item.level4" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.level4, 'level4', data.index)" />
+                        <span v-else>{{ data.item.level4 }}</span>
+                    </div>
+
                 </template>
                 <template #cell(promotive)="data">
                     <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
@@ -661,8 +689,8 @@
                         @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order,data.field.key) }">
-                        <div class="d-flex justify-content-end py-2">
+                        :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
+                        <div class="d-flex justify-content-end py-2 promotive">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
             data.item.promotive }}</small>
                             <i @click="onChangeShowModal(data.index, data.item)" class="far fa-caret-square-down"></i>
@@ -670,53 +698,80 @@
                     </div>
                 </template>
                 <template #cell(amount_po)="data">
+                    <div class="amount_po">
+                        <input class="px-2" v-model="data.item.amount_po" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
+                        <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
+                            </strong></span>
+                    </div>
 
-                    <input class="px-2" v-model="data.item.amount_po" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
-                    <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
                 </template>
                 <template #cell(price_po)="data">
-                    <input class="px-2" v-model="data.item.price_po" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.price_po, 'price_po', data.index)" />
-                    <span v-else> <strong :class="{
+                    <div class="price_po">
+                        <input class="px-2" v-model="data.item.price_po" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.price_po, 'price_po', data.index)" />
+                        <span v-else> <strong :class="{
             'text-danger': data.item.company_price != data.item.price_po
         }">{{ data.value.toLocaleString(locale_format) }}
-                        </strong></span>
+                            </strong></span>
+                    </div>
+
                 </template>
                 <template #cell(company_price)="data">
-
-                    <input class="px-2" v-model="data.item.company_price" v-if="case_is_status.edit"
-                        @input="handleItem(data.item.company_price, 'company_price', data.index)" />
-                    <span v-else>
-                        <strong :class="{
+                    <div class="company_price">
+                        <input class="px-2" v-model="data.item.company_price" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.company_price, 'company_price', data.index)" />
+                        <span v-else>
+                            <strong :class="{
             'text-danger': data.item.company_price != data.item.price_po
         }">{{ data.value.toLocaleString(locale_format) }}
-                        </strong>
-                    </span>
+                            </strong>
+                        </span>
+                    </div>
+
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
-                        @keydown="copyItem($event, data.item.customer_sku_code)" @dblclick="handleDoubleClick($event)"
-                        @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.item.order)" />
-                    <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                        :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.item.order + data.field.key"
-                        @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
-                        @dblclick="handleDoubleClick($event)"
-                        @mousedown="startSelection($event, data.item.customer_sku_code, data.item.order, data.field.key)"
-                        @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
-                        @mousemove="selectItem(data.item.customer_sku_code, $event)"
-                        @mouseup="endSelection(data.item.customer_sku_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) && isSameField(case_order.field_order,data.field.key) }">
-                        {{ data.item.customer_sku_code }}
+                    <div class="customer_sku_code">
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
+                            @keydown="copyItem($event, data.item.customer_sku_code)"
+                            @dblclick="handleDoubleClick($event)"
+                            @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.item.order)" />
+                        <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.item.order + data.field.key"
+                            @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
+                            @dblclick="handleDoubleClick($event)"
+                            @mousedown="startSelection($event, data.item.customer_sku_code, data.item.order, data.field.key)"
+                            @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
+                            @mousemove="selectItem(data.item.customer_sku_code, $event)"
+                            @mouseup="endSelection(data.item.customer_sku_code, $event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) && isSameField(case_order.field_order, data.field.key) }">
+                            {{ data.item.customer_sku_code }}
+                        </div>
                     </div>
+
                 </template>
                 <template #cell(is_compliant)="data">
-                    <div v-if="data.item.is_compliant == false && data.item.is_compliant !== null">
-                        <span class="text-danger"><i class="fas fa-times"></i></span>
+                    <div class="is_compliant">
+                        <div v-if="data.item.is_compliant == false && data.item.is_compliant !== null">
+                            <span class="text-danger"><i class="fas fa-times"></i></span>
+                        </div>
+                        <div v-if="data.item.is_compliant == true && data.item.is_compliant !== null">
+                            <span class="text-success"><i class="fas fa-check"></i></span>
+                        </div>
                     </div>
-                    <div v-if="data.item.is_compliant == true && data.item.is_compliant !== null">
-                        <span class="text-success"><i class="fas fa-check"></i></span>
+                </template>
+                <template #cell(po_number)="data">
+                    <div class="po_number">
+                        <input class="px-2" v-model="data.item.po_number" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.po_number, 'po_number', data.index)" />
+                        <span v-else>{{ data.item.po_number }}</span>
+                    </div>
+                </template>
+                <template #cell(po_delivery_date)="data">
+                    <div class="po_delivery_date">
+                        <input class="px-2" v-model="data.item.po_delivery_date" v-if="case_is_status.edit"
+                            @input="handleItem(data.item.po_delivery_date, 'po_delivery_date', data.index)" />
+                        <span v-else>{{ data.item.po_delivery_date }}</span>
                     </div>
                 </template>
             </b-table>
@@ -819,21 +874,21 @@ export default {
                 {
                     key: 'selected',
                     label: '',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     tdClass: 'checkbox-sticky-left text-center',
                     thClass: 'checkbox-sticky-left text-center',
                 },
                 {
                     key: 'action',
                     label: '',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     tdClass: 'checkbox-sticky-center text-center',
                     thClass: 'checkbox-sticky-center text-center',
                 },
                 {
                     key: 'index',
                     label: 'Vị trí',
-                    class: 'text-nowrap text-center',
+                    class: 'text-nowrap text-center overflow-hidden',
                     sortable: false,
                     tdClass: 'checkbox-sticky-end text-center border',
                     thClass: 'checkbox-sticky-header-end text-center',
@@ -841,7 +896,7 @@ export default {
                 {
                     key: 'customer_name',
                     label: 'Makh Key',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap overflow-hidden ',
                     sortable: false,
                     thClass: 'border'
 
@@ -849,14 +904,14 @@ export default {
                 {
                     key: 'sap_so_number',
                     label: 'Mã Sap So',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -864,7 +919,7 @@ export default {
                 {
                     key: 'sku_sap_code',
                     label: 'Masap',
-                    class: 'text-nowrap text-center',
+                    class: 'text-nowrap text-center overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -872,7 +927,7 @@ export default {
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -881,7 +936,7 @@ export default {
                 {
                     key: 'sku_sap_unit',
                     label: 'Dvt',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -890,7 +945,7 @@ export default {
                 {
                     key: 'promotive',
                     label: 'Km',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     tdClass: 'voucher-custom border p-0 ',
                     sortable: false,
                     thClass: 'border'
@@ -899,7 +954,7 @@ export default {
                 {
                     key: 'note',
                     label: 'Ghi_chu',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -907,7 +962,7 @@ export default {
                 {
                     key: 'customer_code',
                     label: 'Makh',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -915,7 +970,7 @@ export default {
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
-                    class: 'text-nowrap text-center',
+                    class: 'text-nowrap text-center overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -923,7 +978,7 @@ export default {
                 {
                     key: 'customer_sku_name',
                     label: 'Unit_barcode_description',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -931,7 +986,7 @@ export default {
                 {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -939,7 +994,7 @@ export default {
                 {
                     key: 'po',
                     label: 'Po',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -947,7 +1002,7 @@ export default {
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
-                    class: "text-nowrap",
+                    class: "text-nowrap overflow-hidden",
                     sortable: false,
                     thClass: 'border'
 
@@ -955,7 +1010,7 @@ export default {
                 {
                     key: 'promotive_name',
                     label: 'Combo',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -964,7 +1019,7 @@ export default {
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
-                    class: "text-nowrap ",
+                    class: "text-nowrap overflow-hidden",
                     sortable: false,
                     thClass: 'border'
 
@@ -972,7 +1027,7 @@ export default {
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
-                    class: "text-nowrap",
+                    class: "text-nowrap overflow-hidden",
                     sortable: false,
                     thClass: 'border'
 
@@ -980,7 +1035,7 @@ export default {
                 {
                     key: 'price_po',
                     label: 'Pur_price',
-                    class: "text-nowrap",
+                    class: "text-nowrap overflow-hidden",
                     sortable: false,
                     thClass: 'border'
 
@@ -989,6 +1044,7 @@ export default {
                 {
                     key: 'amount_po',
                     label: 'Amount',
+                    class: "text-nowrap overflow-hidden",
                     sortable: false,
                     thClass: 'border'
 
@@ -996,6 +1052,7 @@ export default {
                 {
                     key: 'compliance',
                     label: 'QC',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
                 },
@@ -1004,12 +1061,12 @@ export default {
                     label: 'Đúng_QC',
                     sortable: false,
                     thClass: 'border',
-                    class: 'text-center'
+                    class: 'text-center overflow-hidden text-nowrap'
                 },
                 {
                     key: 'note1',
                     label: 'Ghi chú 1',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1017,7 +1074,7 @@ export default {
                 {
                     key: 'company_price',
                     label: 'Gia_cty',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1025,7 +1082,7 @@ export default {
                 {
                     key: 'level2',
                     label: 'Level_2',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1033,7 +1090,7 @@ export default {
                 {
                     key: 'level3',
                     label: 'Level_3',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1041,7 +1098,7 @@ export default {
                 {
                     key: 'level4',
                     label: 'Level_4',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1049,7 +1106,7 @@ export default {
                 {
                     key: 'po_number',
                     label: 'po_number',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1057,7 +1114,7 @@ export default {
                 {
                     key: 'po_delivery_date',
                     label: 'po_delivery_date',
-                    class: 'text-nowrap',
+                    class: 'text-nowrap  overflow-hidden',
                     sortable: false,
                     thClass: 'border'
 
@@ -1186,7 +1243,7 @@ export default {
             let sort = this.$refs.btable.sortedItems;
             this.$emit('sortingChanged', sort)
         },
-        getPushHeader(item , header){
+        getPushHeader(item, header) {
             this.case_order.field_order = header;
         },
         startSelection(e, item, index, header) {
@@ -1243,7 +1300,6 @@ export default {
                 this.case_index.copys.push(item);
                 this.selectedItems.push(item);
             }
-            console.log(this.case_index.copys);
 
         },
         copyToClipboard(text) {
@@ -1332,7 +1388,7 @@ export default {
                 if (item_copy == item && item !== null) {
                     exits = true;
                 }
-               
+
             });
             return exits;
         },
@@ -1416,7 +1472,7 @@ export default {
         emitFilter(items, field, boolean) {
             this.$emit('filterItems', items, field, boolean)
         },
-        handleMouseDownHeader(e, ref_header) {
+        handleMouseDownHeader(e, ref_header, class_cell) {
             if (!this.case_is_status.show_dropdown) {
                 e.preventDefault();
                 const style = window.getComputedStyle(this.$refs[ref_header]);
@@ -1436,14 +1492,19 @@ export default {
             this.is_mouse_down = false;
             clearTimeout(this.mouse_hould_timeout);
         },
-        handleMouseMoveHeader(e, ref_header) {
+        handleMouseMoveHeader(e, ref_header, class_cell) {
             if (this.is_mouse_down) {
+                // lấy class customer_name
+                let get_class = document.getElementsByClassName(class_cell);
                 if (e.clientX > this.previous_mouse_position) {
                     this.width = this.width++ + 5;
                 } else if (e.clientX < this.previous_mouse_position) {
                     this.width = this.width-- - 5;
                 }
                 this.$refs[ref_header].style.width = this.width + 'px';
+                for (let index = 0; index < get_class.length; index++) {
+                    get_class[index].style.width = this.width + 'px';
+                }
                 this.previous_mouse_position = e.clientX;
             }
         },
@@ -1496,6 +1557,7 @@ export default {
 .change-border {
     border: 1px solid #00fc11;
 }
+
 // background: rgb(227 227 227 / 50%);
 
 ::v-deep .highlight-copy {
