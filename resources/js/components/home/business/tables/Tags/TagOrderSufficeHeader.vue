@@ -212,7 +212,7 @@ export default {
                 if (order === false) {
                     return true;
                 }
-                if (order !== '') {
+                if (order !== '' && order !== undefined) {
                     order = order.toString();
                     return order.toLowerCase().includes(this.case_filter.search.toLowerCase())
                 }

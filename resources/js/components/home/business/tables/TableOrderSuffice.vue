@@ -105,7 +105,7 @@
                     </div>
                 </template>
                 <template #cell(index)="data">
-                    <div class="font-weight-bold index">
+                    <div class="font-weight-bold index overflow-hidden">
                         {{ data.item.order }}
                         <!-- {{ (data.index + 1) + (current_page * per_page) - per_page }} -->
                     </div>
@@ -231,7 +231,7 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <div class="barcode">
+                    <div class="barcode overflow-hidden">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
                             @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.barcode, 'barcode', data.index)" />
@@ -257,7 +257,7 @@
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                         <small class="text-danger">Hàng thiếu</small>
                     </div>
-                    <div v-else class="customer_name">
+                    <div v-else class="customer_name overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
 
@@ -266,7 +266,7 @@
                     </div>
                 </template>
                 <template #cell(sap_so_number)="data">
-                    <div class="sap_so_number">
+                    <div class="sap_so_number overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
                             @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
                         <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
@@ -276,7 +276,7 @@
 
                 </template>
                 <template #cell(quantity1_po)="data">
-                    <div class="quantity1_po" :class="{
+                    <div class="quantity1_po overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.quantity1_po }} -->
@@ -286,7 +286,7 @@
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
-                    <div class="quantity2_po" :class="{
+                    <div class="quantity2_po overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item)
         }">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity2_po"
@@ -295,7 +295,7 @@
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
-                    <div class="inventory_quantity" :class="{
+                    <div class="inventory_quantity overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item),
             'text-danger': data.item.inventory_quantity <= 0
         }">
@@ -563,7 +563,8 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
-                    <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
+                    <div class="overflow-hidden sku_sap_code">
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
                         @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
                         @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
                     <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -582,10 +583,12 @@
                             {{ data.item.sku_sap_code }}
                         </span>
                     </div>
+                    </div>
+                   
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <!-- {{ data.item.sku_sap_name }} -->
-                    <div class="sku_sap_name">
+                    <div class="sku_sap_name overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sku_sap_name"
                             @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
                         <span v-else>{{ data.item.sku_sap_name }}</span>
@@ -593,7 +596,7 @@
 
                 </template>
                 <template #cell(customer_sku_name)="data">
-                    <div class="customer_sku_name">
+                    <div class="customer_sku_name overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_sku_name"
                             @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
                         <span v-else>{{ data.item.customer_sku_name }}</span>
@@ -601,7 +604,7 @@
 
                 </template>
                 <template #cell(customer_sku_unit)="data">
-                    <div class="customer_sku_unit">
+                    <div class="customer_sku_unit overflow-hidden">
                         <input class="px-2" v-model="data.item.customer_sku_unit" v-if="case_is_status.edit"
                             @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
                         <span v-else>{{ data.item.customer_sku_unit }}</span>
@@ -609,34 +612,34 @@
 
                 </template>
                 <template #cell(po)="data">
-                    <div class="po">
+                    <div class="po overflow-hidden">
                         <input class="px-2" v-if="case_is_status.edit" v-model="data.item.po"
                             @input="handleItem(data.item.po, 'po', data.index)" />
                         <span v-else>{{ data.item.po }}</span>
                     </div>
                 </template>
                 <template #cell(sku_sap_unit)="data">
-                    <div class="sku_sap_unit">
+                    <div class="sku_sap_unit overflow-hidden">
                         <input class="px-2" v-model="data.item.sku_sap_unit" v-if="case_is_status.edit"
                             @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
                         <span v-else>{{ data.item.sku_sap_unit }}</span>
                     </div>
                 </template>
                 <template #cell(customer_code)="data">
-                    <div class="customer_code">
+                    <div class="customer_code overflow-hidden">
                         <input class="px-2" v-model="data.item.customer_code" v-if="case_is_status.edit"
                             @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
                         <span v-else>{{ data.item.customer_code }}</span>
                     </div>
                 </template>
                 <template #cell(promotive_name)="data">
-                    <div class="promotive_name">
+                    <div class="promotive_name overflow-hidden">
                         {{ data.item.promotive }}
                     </div>
                 </template>
                 <template #cell(note1)="data">
                     <!-- {{ data.item.note1 }}{{ data.item.promotive }} -->
-                    <div class="note1">
+                    <div class="note1 overflow-hidden">
                         <div v-if="case_is_status.edit">
                             <input class="px-2" v-model="data.item.note1"
                                 @input="handleItem(data.item.note1, 'note1', data.index)" />
@@ -646,7 +649,7 @@
                     </div>
                 </template>
                 <template #cell(note)="data">
-                    <div class="note">
+                    <div class="note overflow-hidden">
                         <div v-if="case_is_status.edit">
                             <input class="px-2" v-model="data.item.note" v-if="case_is_status.edit"
                                 @input="handleItem(data.item.note, 'note', data.index)" />
@@ -656,7 +659,7 @@
                     </div>
                 </template>
                 <template #cell(level2)="data">
-                    <div class="level2">
+                    <div class="level2 overflow-hidden">
                         <div v-if="case_is_status.edit">
                             <input class="px-2" v-model="data.item.level2"
                                 @input="handleItem(data.item.level2, 'level2', data.index)" />
@@ -665,7 +668,7 @@
                     </div>
                 </template>
                 <template #cell(level3)="data">
-                    <div class="level3">
+                    <div class="level3 overflow-hidden">
                         <div v-if="case_is_status.edit">
                             <input class="px-2" v-model="data.item.level3"
                                 @input="handleItem(data.item.level3, 'level3', data.index)" />
@@ -676,7 +679,7 @@
 
                 </template>
                 <template #cell(level4)="data">
-                    <div class="level4">
+                    <div class="level4 overflow-hidden">
                         <input class="px-2" v-model="data.item.level4" v-if="case_is_status.edit"
                             @input="handleItem(data.item.level4, 'level4', data.index)" />
                         <span v-else>{{ data.item.level4 }}</span>
@@ -684,21 +687,24 @@
 
                 </template>
                 <template #cell(promotive)="data">
-                    <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
+                    <div class="overflow-hidden promotive">
+                        <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
                         @keydown="copyItem($event, data.item.promotive, data.field.key, data.item.order)"
                         @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
                         @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
                         @mouseup="endSelection(data.item.customer_sku_code, $event)"
                         :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
-                        <div class="d-flex justify-content-end py-2 promotive">
+                        <div class="d-flex justify-content-end py-2 ">
                             <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
             data.item.promotive }}</small>
                             <i @click="onChangeShowModal(data.index, data.item)" class="far fa-caret-square-down"></i>
                         </div>
                     </div>
+                    </div>
+                   
                 </template>
                 <template #cell(amount_po)="data">
-                    <div class="amount_po">
+                    <div class="amount_po overflow-hidden">
                         <input class="px-2" v-model="data.item.amount_po" v-if="case_is_status.edit"
                             @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
                         <span v-else><strong>{{ data.value.toLocaleString(locale_format) }}
@@ -707,7 +713,7 @@
 
                 </template>
                 <template #cell(price_po)="data">
-                    <div class="price_po">
+                    <div class="price_po overflow-hidden">
                         <input class="px-2" v-model="data.item.price_po" v-if="case_is_status.edit"
                             @input="handleItem(data.item.price_po, 'price_po', data.index)" />
                         <span v-else> <strong :class="{
@@ -718,7 +724,7 @@
 
                 </template>
                 <template #cell(company_price)="data">
-                    <div class="company_price">
+                    <div class="company_price overflow-hidden">
                         <input class="px-2" v-model="data.item.company_price" v-if="case_is_status.edit"
                             @input="handleItem(data.item.company_price, 'company_price', data.index)" />
                         <span v-else>
@@ -731,7 +737,7 @@
 
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <div class="customer_sku_code">
+                    <div class="customer_sku_code overflow-hidden">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
                             @keydown="copyItem($event, data.item.customer_sku_code)"
                             @dblclick="handleDoubleClick($event)"
@@ -751,7 +757,7 @@
 
                 </template>
                 <template #cell(is_compliant)="data">
-                    <div class="is_compliant">
+                    <div class="is_compliant overflow-hidden">
                         <div v-if="data.item.is_compliant == false && data.item.is_compliant !== null">
                             <span class="text-danger"><i class="fas fa-times"></i></span>
                         </div>
@@ -761,14 +767,14 @@
                     </div>
                 </template>
                 <template #cell(po_number)="data">
-                    <div class="po_number">
+                    <div class="po_number overflow-hidden">
                         <input class="px-2" v-model="data.item.po_number" v-if="case_is_status.edit"
                             @input="handleItem(data.item.po_number, 'po_number', data.index)" />
                         <span v-else>{{ data.item.po_number }}</span>
                     </div>
                 </template>
                 <template #cell(po_delivery_date)="data">
-                    <div class="po_delivery_date">
+                    <div class="po_delivery_date overflow-hidden">
                         <input class="px-2" v-model="data.item.po_delivery_date" v-if="case_is_status.edit"
                             @input="handleItem(data.item.po_delivery_date, 'po_delivery_date', data.index)" />
                         <span v-else>{{ data.item.po_delivery_date }}</span>
@@ -874,7 +880,7 @@ export default {
                 {
                     key: 'selected',
                     label: '',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     tdClass: 'checkbox-sticky-left text-center',
                     thClass: 'checkbox-sticky-left text-center',
                 },
@@ -888,7 +894,7 @@ export default {
                 {
                     key: 'index',
                     label: 'Vị trí',
-                    class: 'text-nowrap text-center overflow-hidden',
+                    class: 'text-nowrap text-center  ',
                     sortable: false,
                     tdClass: 'checkbox-sticky-end text-center border',
                     thClass: 'checkbox-sticky-header-end text-center',
@@ -896,7 +902,7 @@ export default {
                 {
                     key: 'customer_name',
                     label: 'Makh Key',
-                    class: 'text-nowrap overflow-hidden ',
+                    class: 'text-nowrap  ',
                     sortable: false,
                     thClass: 'border'
 
@@ -904,14 +910,14 @@ export default {
                 {
                     key: 'sap_so_number',
                     label: 'Mã Sap So',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -919,7 +925,7 @@ export default {
                 {
                     key: 'sku_sap_code',
                     label: 'Masap',
-                    class: 'text-nowrap text-center overflow-hidden',
+                    class: 'text-nowrap text-center  ',
                     sortable: false,
                     thClass: 'border'
 
@@ -927,7 +933,7 @@ export default {
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -936,7 +942,7 @@ export default {
                 {
                     key: 'sku_sap_unit',
                     label: 'Dvt',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -945,7 +951,7 @@ export default {
                 {
                     key: 'promotive',
                     label: 'Km',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     tdClass: 'voucher-custom border p-0 ',
                     sortable: false,
                     thClass: 'border'
@@ -954,7 +960,7 @@ export default {
                 {
                     key: 'note',
                     label: 'Ghi_chu',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -962,7 +968,7 @@ export default {
                 {
                     key: 'customer_code',
                     label: 'Makh',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -970,7 +976,7 @@ export default {
                 {
                     key: 'customer_sku_code',
                     label: 'Unit_barcode',
-                    class: 'text-nowrap text-center overflow-hidden',
+                    class: 'text-nowrap text-center  ',
                     sortable: false,
                     thClass: 'border'
 
@@ -978,7 +984,7 @@ export default {
                 {
                     key: 'customer_sku_name',
                     label: 'Unit_barcode_description',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -986,7 +992,7 @@ export default {
                 {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -994,7 +1000,7 @@ export default {
                 {
                     key: 'po',
                     label: 'Po',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1002,7 +1008,7 @@ export default {
                 {
                     key: 'quantity1_po',
                     label: 'Qty',
-                    class: "text-nowrap overflow-hidden",
+                    class: "text-nowrap  ",
                     sortable: false,
                     thClass: 'border'
 
@@ -1010,7 +1016,7 @@ export default {
                 {
                     key: 'promotive_name',
                     label: 'Combo',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1019,7 +1025,7 @@ export default {
                 {
                     key: 'inventory_quantity',
                     label: 'Check tồn',
-                    class: "text-nowrap overflow-hidden",
+                    class: "text-nowrap  ",
                     sortable: false,
                     thClass: 'border'
 
@@ -1027,7 +1033,7 @@ export default {
                 {
                     key: 'quantity2_po',
                     label: 'Po_qty',
-                    class: "text-nowrap overflow-hidden",
+                    class: "text-nowrap  ",
                     sortable: false,
                     thClass: 'border'
 
@@ -1035,7 +1041,7 @@ export default {
                 {
                     key: 'price_po',
                     label: 'Pur_price',
-                    class: "text-nowrap overflow-hidden",
+                    class: "text-nowrap  ",
                     sortable: false,
                     thClass: 'border'
 
@@ -1044,7 +1050,7 @@ export default {
                 {
                     key: 'amount_po',
                     label: 'Amount',
-                    class: "text-nowrap overflow-hidden",
+                    class: "text-nowrap  ",
                     sortable: false,
                     thClass: 'border'
 
@@ -1052,7 +1058,7 @@ export default {
                 {
                     key: 'compliance',
                     label: 'QC',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
                 },
@@ -1061,12 +1067,12 @@ export default {
                     label: 'Đúng_QC',
                     sortable: false,
                     thClass: 'border',
-                    class: 'text-center overflow-hidden text-nowrap'
+                    class: 'text-center   text-nowrap'
                 },
                 {
                     key: 'note1',
                     label: 'Ghi chú 1',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1074,7 +1080,7 @@ export default {
                 {
                     key: 'company_price',
                     label: 'Gia_cty',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1082,7 +1088,7 @@ export default {
                 {
                     key: 'level2',
                     label: 'Level_2',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1090,7 +1096,7 @@ export default {
                 {
                     key: 'level3',
                     label: 'Level_3',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1098,7 +1104,7 @@ export default {
                 {
                     key: 'level4',
                     label: 'Level_4',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1106,7 +1112,7 @@ export default {
                 {
                     key: 'po_number',
                     label: 'po_number',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
@@ -1114,7 +1120,7 @@ export default {
                 {
                     key: 'po_delivery_date',
                     label: 'po_delivery_date',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'
 
