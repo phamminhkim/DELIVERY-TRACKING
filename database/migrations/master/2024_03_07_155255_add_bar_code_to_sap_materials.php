@@ -14,7 +14,7 @@ class AddBarCodeToSapMaterials extends Migration
     public function up()
     {
         Schema::table('sap_materials', function (Blueprint $table) {
-            $table->string("bar_code", 50)->after('unit_id')->nullable()->unique();
+            $table->string("bar_code", 50)->after('unit_id')->nullable()->index();
         });
     }
 
