@@ -713,6 +713,8 @@ export default {
             ];
             // tôi có hàm formatDate ở app.js làm sao để sử dụng được ở đây
             const data_news = this.orders.map((item) => {
+                console.log(item);
+                console.log(item.po_delivery_date, '123');
                 return {
                     'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
                     'Mã khách hàng': item.customer_code,
@@ -725,7 +727,7 @@ export default {
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + '_' + ((item.po_delivery_date == null) ? '' : this.$formatDate(item.po_delivery_date)),
+                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_' + this.$formatDate(item.po_delivery_date)),
                     'Barcode': item.barcode,
                 };
             });
