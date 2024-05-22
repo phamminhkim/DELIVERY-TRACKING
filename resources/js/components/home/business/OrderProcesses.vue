@@ -624,6 +624,7 @@ export default {
                     arr.push({
                         sap_code: item.sku_sap_code,
                         unit_code: item.sku_sap_unit,
+                        quantity1_po: item.quantity1_po,
                         quantity2_po: item.quantity2_po,
                     });
                 }
