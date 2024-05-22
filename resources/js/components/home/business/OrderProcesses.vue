@@ -13,8 +13,9 @@
             @changeEventCompliance="getChangeEventCompliance">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
-            @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplace="getReplaceItem"
-            :item_selecteds="case_data_temporary.item_selecteds"></DialogSearchOrderProcesses>
+            @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplaceAll="getReplaceItemAll"
+            @itemReplace="getReplaceItem" :item_selecteds="case_data_temporary.item_selecteds">
+        </DialogSearchOrderProcesses>
         <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders"
             :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO"
             :order_lacks="case_data_temporary.order_lacks" :case_save_so="case_save_so">
@@ -23,15 +24,15 @@
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
-            :count_reset_filter="case_index.count_reset_filter"
-            :orders="orders" :getDeleteRow="getDeleteRow" :material_donateds="material_donateds"
-            :material_combos="material_combos" :order_lacks="case_data_temporary.order_lacks"
-            :filterOrders="filterOrders" :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value"
-            :case_save_so="case_save_so" :is_loading_detect_sap_code="case_is_loading.detect_sap_code"
-            @checkBoxRow="getCheckBoxRow" @sortingChanged="getSortingChanged" @createRow="getCreateRow"
-            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
-            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
-            @filterItems="getFilterItems" @emitResetFilter="getResetFilter">
+            :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
+            :material_donateds="material_donateds" :material_combos="material_combos"
+            :order_lacks="case_data_temporary.order_lacks" :filterOrders="filterOrders"
+            :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
+            :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
+            @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
+            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
+            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
+            @emitResetFilter="getResetFilter">
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
@@ -143,9 +144,9 @@ export default {
             this.material_saps = [...data];
             this.material_saps.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if ((tmp.customer_sku_code === this.orders[i].customer_sku_code && 
-                    tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
-                    (tmp.bar_code == this.orders[i].customer_sku_code)) {
+                    if ((tmp.customer_sku_code === this.orders[i].customer_sku_code &&
+                        tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
+                        (tmp.bar_code == this.orders[i].customer_sku_code)) {
                         this.orders[i]['sku_sap_code'] = tmp.sap_code;
                         this.orders[i]['sku_sap_name'] = tmp.name;
                         this.orders[i]['sku_sap_unit'] = tmp.unit_code;
@@ -252,7 +253,7 @@ export default {
                 item.order = index + 1;
             });
         },
-        getReplaceItem(item_materials, barcode) {
+        getReplaceItemAll(item_materials, barcode) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
                 item_materials.forEach(item_material => {
                     this.orders.forEach((order) => {
@@ -267,6 +268,22 @@ export default {
             });
             this.closeModalSearchOrderProcesses();
             this.refeshCheckBox();
+        },
+        getReplaceItem(item_materials, order_index) {
+            this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
+                item_materials.forEach(item_material => {
+                    this.orders.forEach((order) => {
+                        if (order.order == order_index) {
+                            order.sku_sap_code = item_material.sap_code;
+                            order.sku_sap_name = item_material.name;
+                            order.sku_sap_unit = item_material.unit.unit_code;
+                            order.barcode = item_material.bar_code;
+                        }
+                    })
+                });
+                this.closeModalSearchOrderProcesses();
+                this.refeshCheckBox();
+            });
         },
         getSaveOrderProcesses() {
             this.showDialogTitleOrderSo();
@@ -369,7 +386,7 @@ export default {
         refeshOrders() {
             this.orders = [];
             this.case_data_temporary.order_lacks = [];
-            this.case_data_temporary.items = [];    
+            this.case_data_temporary.items = [];
         },
         getListOrderProcessSO() {
             this.$refs.dialogListOrderProcessSo.showModal();
@@ -585,8 +602,8 @@ export default {
             this.case_is_loading.created_conponent = false;
         },
         getResetFilter() {
-           this.case_data_temporary.field = 'customer_sku_code';
-           this.case_data_temporary.items = this.orders.map(item => item.customer_sku_code);
+            this.case_data_temporary.field = 'customer_sku_code';
+            this.case_data_temporary.items = this.orders.map(item => item.customer_sku_code);
         },
         getChangeEventCompliance() {
             // console.log('check quy cách');
@@ -602,8 +619,8 @@ export default {
                 );
                 if (!success && success !== undefined) {
                     this.$showMessage('error', 'Lỗi', message);
-                } 
-                if(success === undefined){
+                }
+                if (success === undefined) {
                     if (data.success == true) {
                         this.resetCompliance();
                         this.mappingCompliance(data.items);
@@ -661,7 +678,7 @@ export default {
                 this.case_data_temporary.items.forEach(item => {
                     news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item));
                 });
-                if(this.case_is_loading.created_conponent){
+                if (this.case_is_loading.created_conponent) {
                     news = this.orders;
                 }
             } else {
