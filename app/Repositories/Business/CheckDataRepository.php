@@ -76,7 +76,8 @@ class CheckDataRepository extends RepositoryAbs
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->first();
 
-                if ($sapMaterial) {
+                if ($sapMaterial && $sapMaterial->is_deleted != 1) {
+
                     // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
@@ -148,7 +149,7 @@ class CheckDataRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-            return ['success' => false, 'message' => $this->message, 'errors' => $this->errors];
+            return false;
         }
     }
     public function checkCompliance()
