@@ -717,14 +717,14 @@ export default {
                     'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.sku_sap_code,
                     // 'Số lượng': (item.quantity2_po * item.quantity1_po),
-                    'Số lượng': item.quantity2_po,
+                    'Số lượng': this.converToNumber(item.quantity2_po),
                     'Đơn vị tính': item.sku_sap_unit,
                     'Combo': '',
                     'Phiên bản BOM Sale': '',
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_' + this.$formatDate(item.po_delivery_date)),
+                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date)),
                     'Barcode': item.barcode,
                 };
             });
@@ -817,6 +817,10 @@ export default {
         },
         emitCompliance() {
             this.$emit('changeEventCompliance');
+        },
+        converToNumber(value) {
+            console.log(value);
+            return parseFloat(value);
         },
     },
     computed: {
