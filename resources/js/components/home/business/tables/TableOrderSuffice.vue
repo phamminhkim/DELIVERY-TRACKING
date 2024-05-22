@@ -881,7 +881,7 @@ export default {
                 {
                     key: 'action',
                     label: '',
-                    class: 'text-nowrap  overflow-hidden',
+                    class: 'text-nowrap ',
                     tdClass: 'checkbox-sticky-center text-center',
                     thClass: 'checkbox-sticky-center text-center',
                 },
