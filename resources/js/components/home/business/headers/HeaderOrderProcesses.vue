@@ -711,10 +711,7 @@ export default {
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
                 ...convert_array.map(item => [item])
             ];
-            // tôi có hàm formatDate ở app.js làm sao để sử dụng được ở đây
             const data_news = this.orders.map((item) => {
-                console.log(item);
-                console.log(item.po_delivery_date, '123');
                 return {
                     'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
                     'Mã khách hàng': item.customer_code,
