@@ -724,7 +724,7 @@ export default {
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date)),
+                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) +  ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date)),
                     'Barcode': item.barcode,
                 };
             });
@@ -819,7 +819,6 @@ export default {
             this.$emit('changeEventCompliance');
         },
         converToNumber(value) {
-            console.log(value);
             return parseFloat(value);
         },
     },
