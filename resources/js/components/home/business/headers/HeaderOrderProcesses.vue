@@ -711,6 +711,7 @@ export default {
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
                 ...convert_array.map(item => [item])
             ];
+            // tôi có hàm formatDate ở app.js làm sao để sử dụng được ở đây
             const data_news = this.orders.map((item) => {
                 return {
                     'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
@@ -724,7 +725,7 @@ export default {
                     'level2': item.level2,
                     'level3': item.level3,
                     'level4': item.level4,
-                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + ((item.po_delivery_date == null) ? '' : item.po_delivery_date),
+                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + '_' + ((item.po_delivery_date == null) ? '' : this.$formatDate(item.po_delivery_date)),
                     'Barcode': item.barcode,
                 };
             });
