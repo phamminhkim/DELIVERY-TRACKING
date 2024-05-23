@@ -42,10 +42,10 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     'customer_group_name' => 0,
                     'customer_material_sku_code' => 1,
                     'customer_material_name' => 2,
-                    'customer_material_unit' => 4,
+                    'customer_material_unit' => 3,
+                    'customer_number' => 4,
                     'sap_material_code' => 5,
                     'sap_material_unit' => 8,
-                    'customer_number' => 3,
                     'conversion_rate_sap' => 7,
                     'percentage' => 9
                 ];
