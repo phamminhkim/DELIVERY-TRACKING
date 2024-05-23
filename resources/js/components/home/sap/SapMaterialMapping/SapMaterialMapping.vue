@@ -392,7 +392,7 @@
 					},
 					{
 						key: 'customer_number',
-						label: 'Số lượng - SKU KH',
+						label: 'SL - Quy cách SKU KH',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -419,7 +419,7 @@
 					},
 					{
 						key: 'conversion_rate_sap',
-						label: 'Số lượng -SAP',
+						label: 'SL - Quy cách SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
