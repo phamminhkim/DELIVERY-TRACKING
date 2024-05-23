@@ -384,18 +384,19 @@
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
+                    {
+						key: 'customer_material.customer_sku_unit',
+						label: 'Đơn vị SKU khách hàng',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
 					{
 						key: 'customer_number',
 						label: 'Số lượng - SKU KH',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-					{
-						key: 'customer_material.customer_sku_unit',
-						label: 'Đơn vị SKU khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
+
 
 					{
 						key: 'sap_material.sap_code',
