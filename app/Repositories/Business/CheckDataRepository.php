@@ -34,6 +34,7 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.customer_sku_code' => 'nullable',
                 'items.*.customer_sku_unit' => 'nullable',
+                'items.*.quantity2_po' => 'required|numeric',
             ]);
 
             if ($validator->fails()) {
@@ -84,6 +85,7 @@ class CheckDataRepository extends RepositoryAbs
                     $unit_code = $sapMaterial->unit_code;
                     $name = $sapMaterial->name;
                     $unit_id = $sapMaterial->unit_id;
+                    $quantity2_po = $item['quantity2_po'];
 
                     $sapUnit = SapUnit::find($unit_id);
                     if ($sapUnit) {
@@ -100,6 +102,7 @@ class CheckDataRepository extends RepositoryAbs
                         'unit_id' => $unit_id,
                         'name' => $name,
                         'unit_code' => $unit_code,
+                        'quantity3_sap' => $quantity2_po,
                     ];
                 } else {
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
@@ -110,33 +113,40 @@ class CheckDataRepository extends RepositoryAbs
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
+                        $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
+                        $customer_number = $sapMaterialMapping->customer_number;
+                        $percentage = $sapMaterialMapping->percentage;
 
-                        $sapMaterial = SapMaterial::find($sap_material_id);
+                        if ($customer_number != 0) {
+                            $sapMaterial = SapMaterial::find($sap_material_id);
 
-                        if ($sapMaterial) {
-                            // Thêm thông tin vào mappingData
-                            $sap_code = $sapMaterial->sap_code;
-                            $bar_code = $sapMaterial->bar_code;
-                            $unit_code = $sapMaterial->unit_code;
-                            $name = $sapMaterial->name;
-                            $unit_id = $sapMaterial->unit_id;
+                            if ($sapMaterial) {
+                                // Thêm thông tin vào mappingData
+                                $sap_code = $sapMaterial->sap_code;
+                                $bar_code = $sapMaterial->bar_code;
+                                $unit_code = $sapMaterial->unit_code;
+                                $name = $sapMaterial->name;
+                                $unit_id = $sapMaterial->unit_id;
 
-                            $sapUnit = SapUnit::find($unit_id);
-                            if ($sapUnit) {
-                                $unit_code = $sapUnit->unit_code;
-                            } else {
-                                $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                                $sapUnit = SapUnit::find($unit_id);
+                                if ($sapUnit) {
+                                    $unit_code = $sapUnit->unit_code;
+                                } else {
+                                    $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                                }
+                                $quantity2_po = $item['quantity2_po'];
+                                $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
+                                $mappingData[] = [
+                                    'customer_sku_code' => $customer_sku_code,
+                                    'customer_sku_unit' => $customer_sku_unit,
+                                    'bar_code' => $bar_code,
+                                    'sap_code' => $sap_code,
+                                    'unit_id' => $unit_id,
+                                    'name' => $name,
+                                    'unit_code' => $unit_code,
+                                    'quantity3_sap' => $quantity3_sap,
+                                ];
                             }
-
-                            $mappingData[] = [
-                                'customer_sku_code' => $customer_sku_code,
-                                'customer_sku_unit' => $customer_sku_unit,
-                                'bar_code' => $bar_code,
-                                'sap_code' => $sap_code,
-                                'unit_id' => $unit_id,
-                                'name' => $name,
-                                'unit_code' => $unit_code,
-                            ];
                         }
                     }
                 }

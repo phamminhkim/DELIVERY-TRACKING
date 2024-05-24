@@ -384,18 +384,19 @@
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-					{
-						key: 'customer_number',
-						label: 'Số lượng - SKU KH',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
-					{
+                    {
 						key: 'customer_material.customer_sku_unit',
 						label: 'Đơn vị SKU khách hàng',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+					{
+						key: 'customer_number',
+						label: 'SL - Quy cách SKU KH',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+
 
 					{
 						key: 'sap_material.sap_code',
@@ -418,7 +419,7 @@
 					},
 					{
 						key: 'conversion_rate_sap',
-						label: 'Số lượng -SAP',
+						label: 'SL - Quy cách SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
