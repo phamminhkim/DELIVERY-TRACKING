@@ -194,7 +194,7 @@ class BusinessRepository
                 $table_converter = new RegexMatchConverter();
         }
 
-        $method = $data_restruct_config->restructure_method; // Có thể là regex, leaguecsv
+        $method = $data_restruct_config->method; // Có thể là regex, leaguecsv
         switch ($method) {
             case RestructureMethod::INDEXARRAYMAPPING:
                 $data_restructure = new IndexArrayMappingRestructure();
