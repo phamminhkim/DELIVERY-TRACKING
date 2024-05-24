@@ -1,10 +1,11 @@
 <template>
     <div>
-        <div class="modal fade" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
+        <div class="modal fade"  @mousemove="handleMouseMoveModal($event)" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
             tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div ref="form_search_order_processes" class="modal-content modal-content-cursor" @mousedown="handleMouseDownModal($event)"
-                    @mousemove="handleMouseMoveModal($event)" @mouseup="handleMouseUpModal($event)">
+            <div class="modal-dialog modal-lg" @mousedown="handleMouseDownModal($event)"
+                 @mouseup="handleMouseUpModal($event)">
+                
+                <div ref="form_search_order_processes" class="modal-content modal-content-cursor">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">tìm kiếm tên hàng</h5>
                         <button type="button" class="close" @click="closeModalSearchOrderProcesses()"
@@ -72,7 +73,7 @@
                                 </template>
                                 <template #cell(index)="data">
                                     {{ (data.index + 1) + (case_pagination.page * case_pagination.per_page) -
-                    case_pagination.per_page }}
+                case_pagination.per_page }}
                                 </template>
                                 <template #cell(action)="data">
                                     <div class="form-group">
@@ -206,13 +207,14 @@ export default {
             case_api: {
                 api_sap_materials: 'api/master/sap-materials',
             },
-            case_mouse : {
+            case_mouse: {
                 is_mouse_down: false,
-            initial_mouse_position: { x: 0, y: 0 },
-            modal_position: { x: 0, y: 0 },
+                initial_mouse_position: { x: 0, y: 0 },
+                modal_position: { x: 0, y: 0 },
+                offset: { x: 0, y: 0 },
             },
             debounce_timeout: null,
-           
+
 
 
         }
@@ -223,7 +225,9 @@ export default {
                 this.fetchSapMaterial();
                 this.createMapping();
                 this.refeshCase();
+                this.resetCaseMouse();
                 $('#form_search_order_processes').modal('show');
+
             } else {
                 $('#form_search_order_processes').modal('hide');
             }
@@ -337,6 +341,16 @@ export default {
         refeshCase() {
             this.case_check_box.selected_item = null;
             this.case_check_box.item_materials = [];
+        },
+        resetCaseMouse() {
+            this.case_mouse = {
+                is_mouse_down: false,
+                initial_mouse_position: { x: 0, y: 0 },
+                modal_position: { x: 0, y: 0 },
+                offset: { x: 0, y: 0 },
+            };
+            const form_search_order_processes = this.$refs.form_search_order_processes;
+            form_search_order_processes.style.transform = `translate(0px, 0px)`;
         }
     }
 }
@@ -364,6 +378,7 @@ export default {
     z-index: 1000;
     display: none;
 }
+
 .modal-content-cursor {
     cursor: move;
 }
