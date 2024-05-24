@@ -433,7 +433,7 @@ class CheckDataRepository extends RepositoryAbs
             // Đọc file Excel
             $spreadsheet = IOFactory::load($fullPath);
             $worksheet = $spreadsheet->getActiveSheet();
-            $column_titles = ['Ma SP', 'Barcode (Mã BH)', 'Tên Sản Phẩm', 'ĐVT', 'Đơn giá']; // Các tiêu đề cột cần tìm
+            $column_titles = ['Ma SP', 'Barcode (Mã BH)', 'Tên Sản Phẩm', 'ĐVT', 'ĐƠN GIÁ SAU CK']; // Các tiêu đề cột cần tìm
             $column_indexes = [];
             foreach ($worksheet->getRowIterator() as $row) {
                 $row_index = $row->getRowIndex();
@@ -472,7 +472,7 @@ class CheckDataRepository extends RepositoryAbs
                             $new_column_title = 'sap_name';
                         } elseif ($column_title === 'ĐVT') {
                             $new_column_title = 'unit';
-                        } elseif ($column_title === 'Đơn giá') {
+                        } elseif ($column_title === 'ĐƠN GIÁ SAU CK') {
                             $new_column_title = 'price';
                         } else {
                             // Không thực hiện thay đổi tên biến cho các trường khác
