@@ -102,7 +102,7 @@ class CheckDataRepository extends RepositoryAbs
                         'unit_id' => $unit_id,
                         'name' => $name,
                         'unit_code' => $unit_code,
-                        'quantity3' => $quantity2_po,
+                        'quantity3_sap' => $quantity2_po,
                     ];
                 } else {
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
@@ -135,7 +135,7 @@ class CheckDataRepository extends RepositoryAbs
                                     $unit_code = null; // Xử lý khi đơn vị không tồn tại
                                 }
                                 $quantity2_po = $item['quantity2_po'];
-                                $quantity3 = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
+                                $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
                                 $mappingData[] = [
                                     'customer_sku_code' => $customer_sku_code,
                                     'customer_sku_unit' => $customer_sku_unit,
@@ -144,7 +144,7 @@ class CheckDataRepository extends RepositoryAbs
                                     'unit_id' => $unit_id,
                                     'name' => $name,
                                     'unit_code' => $unit_code,
-                                    'quantity3' => $quantity3,
+                                    'quantity3_sap' => $quantity3_sap,
                                 ];
                             }
                         }
