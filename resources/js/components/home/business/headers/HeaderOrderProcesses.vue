@@ -521,7 +521,8 @@ export default {
                 this.orders.forEach(element => {
                     this.case_data_temporary.sap_codes.push({
                         customer_sku_code: element.customer_sku_code,
-                        customer_sku_unit: element.customer_sku_unit
+                        customer_sku_unit: element.customer_sku_unit,
+                        quantity2_po: element.quantity2_po,
                     });
                 });
                 await this.fetchSapCodeFromSkuCustomer();
@@ -639,6 +640,7 @@ export default {
                         po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
                         compliance: '',
                         is_compliant: null,
+                        quantity3_sap: '',
 
                     });
                     item_index++;
@@ -717,7 +719,8 @@ export default {
                     'Mã khách hàng': item.customer_code,
                     'Mã sản phẩm': item.sku_sap_code,
                     // 'Số lượng': (item.quantity2_po * item.quantity1_po),
-                    'Số lượng': this.converToNumber(item.quantity2_po),
+                    // 'Số lượng': this.converToNumber(item.quantity2_po),
+                    'Số lượng': this.converToNumber(item.quantity3_sap),
                     'Đơn vị tính': item.sku_sap_unit,
                     'Combo': '',
                     'Phiên bản BOM Sale': '',

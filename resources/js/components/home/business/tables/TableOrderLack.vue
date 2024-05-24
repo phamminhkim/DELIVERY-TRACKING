@@ -152,6 +152,13 @@ export default {
 
                 },
                 {
+                    key: 'quantity3_sap',
+                    label: 'SL_sap',
+                    class: 'text-nowrap   ',
+                    sortable: true,
+
+                },
+                {
                     key: 'customer_sku_unit',
                     label: 'Dvt_po',
                     class: 'text-nowrap',
