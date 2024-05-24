@@ -447,8 +447,8 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
-				this.clearErrors();
+				// this.clearForm();
+				// this.clearErrors();
 				$('#DialogAddUpdateSapMapping').modal('hide');
 			},
 			resetDialog() {

@@ -25,6 +25,7 @@ class SoDataItem extends Model
         'customer_sku_unit',
         'quantity1_po',
         'quantity2_po',
+        'quantity3_sap',
         'is_inventory',
         'inventory_quantity',
         'price_po',

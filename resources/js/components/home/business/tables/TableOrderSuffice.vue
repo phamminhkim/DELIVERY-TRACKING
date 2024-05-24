@@ -104,6 +104,26 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
+                <template #head(quantity3_sap)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity3_sap')"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity3_sap')"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize" :class="{
+            'text-danger': is_loading_detect_sap_code == true
+        }">
+                            <span v-if="is_loading_detect_sap_code == true"><i
+                                    class="fas fa-spinner fa-spin fa-xs"></i></span>
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
                 <template #cell(index)="data">
                     <div class="font-weight-bold index overflow-hidden">
                         {{ data.item.order }}
@@ -595,6 +615,15 @@
                     </div>
 
                 </template>
+                <template #cell(quantity3_sap)="data">
+                    <!-- {{ data.item.sku_sap_name }} -->
+                    <div class="quantity3_sap overflow-hidden">
+                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.quantity3_sap"
+                            @input="handleItem(data.item.quantity3_sap, 'quantity3_sap', data.index)" />
+                        <span v-else>{{ data.item.quantity3_sap }}</span>
+                    </div>
+
+                </template>
                 <template #cell(customer_sku_name)="data">
                     <div class="customer_sku_name overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_sku_name"
@@ -933,6 +962,15 @@ export default {
                 {
                     key: 'sku_sap_name',
                     label: 'Tensp',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+
+                },
+                {
+                    key: 'quantity3_sap',
+                    label: 'SL_sap',
                     class: 'text-nowrap   ',
                     sortable: false,
                     thClass: 'border'

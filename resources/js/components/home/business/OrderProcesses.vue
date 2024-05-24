@@ -151,6 +151,7 @@ export default {
                         this.orders[i]['sku_sap_name'] = tmp.name;
                         this.orders[i]['sku_sap_unit'] = tmp.unit_code;
                         this.orders[i]['barcode'] = tmp.bar_code;
+                        this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
                     }
                 }
             });
@@ -338,6 +339,7 @@ export default {
                         sap_so_number: data_item.so_header.sap_so_number,
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
+                        quantity3_sap: data_item.quantity3_sap,
                     });
                 } else {
                     this.orders.push({
@@ -376,6 +378,7 @@ export default {
                         sap_so_number: data_item.so_header.sap_so_number,
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
+                        quantity3_sap: data_item.quantity3_sap,
                     });
                 }
 
@@ -492,6 +495,7 @@ export default {
                 po_delivery_date: '',
                 compliance: '',
                 is_compliant: false,
+                quantity3_sap: '',
             });
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
@@ -560,6 +564,7 @@ export default {
                 promotion_category: item.promotion_category,
                 compliance: '',
                 is_compliant: false,
+                quantity3_sap: item.quantity3_sap,
             }
             return new_order;
         },
