@@ -220,6 +220,7 @@ export default {
                 customer_codes: [],
                 sap_codes: [],
                 type_file: 'Excel',
+                item_notes: [],
             },
             form_filter: {
                 customer_sku_unit: null,
@@ -713,23 +714,60 @@ export default {
                 ['Số lượng phiếu: ' + Object.keys(group_by_so_num).length],
                 ...convert_array.map(item => [item])
             ];
+            let seenNotes = new Set();
             const data_news = this.orders.map((item) => {
-                return {
-                    'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
-                    'Mã khách hàng': item.customer_code,
-                    'Mã sản phẩm': item.sku_sap_code,
-                    // 'Số lượng': (item.quantity2_po * item.quantity1_po),
-                    // 'Số lượng': this.converToNumber(item.quantity2_po),
-                    'Số lượng': this.converToNumber(item.quantity3_sap),
-                    'Đơn vị tính': item.sku_sap_unit,
-                    'Combo': '',
-                    'Phiên bản BOM Sale': '',
-                    'level2': item.level2,
-                    'level3': item.level3,
-                    'level4': item.level4,
-                    'Ghi_chú': (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) +  ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date)),
-                    'Barcode': item.barcode,
-                };
+                if (seenNotes.has(this.itemNote(item))) {
+                    return {
+                        'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
+                        'Mã khách hàng': item.customer_code,
+                        'Mã sản phẩm': item.sku_sap_code,
+                        // 'Số lượng': (item.quantity2_po * item.quantity1_po),
+                        // 'Số lượng': this.converToNumber(item.quantity2_po),
+                        'Số lượng': this.converToNumber(item.quantity3_sap),
+                        'Đơn vị tính': item.sku_sap_unit,
+                        'Combo': '',
+                        'Phiên bản BOM Sale': '',
+                        'level2': item.level2,
+                        'level3': item.level3,
+                        'level4': item.level4,
+                        'Ghi_chú': '',
+                        'Barcode': item.barcode,
+                    };
+                } else {
+                    seenNotes.add(this.itemNote(item));
+                    return {
+                        'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
+                        'Mã khách hàng': item.customer_code,
+                        'Mã sản phẩm': item.sku_sap_code,
+                        // 'Số lượng': (item.quantity2_po * item.quantity1_po),
+                        // 'Số lượng': this.converToNumber(item.quantity2_po),
+                        'Số lượng': this.converToNumber(item.quantity3_sap),
+                        'Đơn vị tính': item.sku_sap_unit,
+                        'Combo': '',
+                        'Phiên bản BOM Sale': '',
+                        'level2': item.level2,
+                        'level3': item.level3,
+                        'level4': item.level4,
+                        'Ghi_chú': this.itemNote(item),
+                        'Barcode': item.barcode,
+                    };
+                }
+                // return {
+                //     'Số SO': item.sap_so_number + (item.promotive_name == null ? '' : item.promotive_name),
+                //     'Mã khách hàng': item.customer_code,
+                //     'Mã sản phẩm': item.sku_sap_code,
+                //     // 'Số lượng': (item.quantity2_po * item.quantity1_po),
+                //     // 'Số lượng': this.converToNumber(item.quantity2_po),
+                //     'Số lượng': this.converToNumber(item.quantity3_sap),
+                //     'Đơn vị tính': item.sku_sap_unit,
+                //     'Combo': '',
+                //     'Phiên bản BOM Sale': '',
+                //     'level2': item.level2,
+                //     'level3': item.level3,
+                //     'level4': item.level4,
+                //     'Ghi_chú': this.itemNote(item),
+                //     'Barcode': item.barcode,
+                // };
             });
             var ws = XLSX.utils.json_to_sheet(data_news);
             XLSX.utils.sheet_add_aoa(ws, data_header, { origin: 'N1' });
@@ -744,6 +782,11 @@ export default {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        },
+        itemNote(item){
+            let  note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) +  ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
+            return note;
+           
         },
         emitExportExcel() {
             this.$emit('exportExcel');
