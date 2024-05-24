@@ -29,7 +29,7 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     } else if (isset($value_item['value_1'])
                         && isset($value_item['value_2'])
                         && isset($value_item['operator'])) {
-                        if (!isset($match[$value_item['value1']]) || !isset($match[$value_item['value2']])) {
+                        if (!isset($match[$value_item['value_1']]) || !isset($match[$value_item['value_2']])) {
                             // Tìm không thấy key trong mảng data thì bỏ qua
                             $skip_item = true;
                             continue;
