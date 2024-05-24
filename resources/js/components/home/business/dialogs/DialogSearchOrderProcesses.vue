@@ -3,7 +3,8 @@
         <div class="modal fade" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
             tabindex="-1">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+                <div ref="form_search_order_processes" class="modal-content modal-content-cursor" @mousedown="handleMouseDownModal($event)"
+                    @mousemove="handleMouseMoveModal($event)" @mouseup="handleMouseUpModal($event)">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">tìm kiếm tên hàng</h5>
                         <button type="button" class="close" @click="closeModalSearchOrderProcesses()"
@@ -71,7 +72,7 @@
                                 </template>
                                 <template #cell(index)="data">
                                     {{ (data.index + 1) + (case_pagination.page * case_pagination.per_page) -
-                            case_pagination.per_page }}
+                    case_pagination.per_page }}
                                 </template>
                                 <template #cell(action)="data">
                                     <div class="form-group">
@@ -109,8 +110,10 @@
                     </div>
                     <div class="modal-footer d-block text-center">
                         <button @click="emitReplaceItemAll()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn">Replace All</button>
-                        <button @click="emitReplaceItem()" type="button" class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
+                            class="btn btn-sm px-4 btn-light shadow-btn">Replace
+                            All</button>
+                        <button @click="emitReplaceItem()" type="button"
+                            class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
                     </div>
                 </div>
             </div>
@@ -203,7 +206,14 @@ export default {
             case_api: {
                 api_sap_materials: 'api/master/sap-materials',
             },
+            case_mouse : {
+                is_mouse_down: false,
+            initial_mouse_position: { x: 0, y: 0 },
+            modal_position: { x: 0, y: 0 },
+            },
             debounce_timeout: null,
+           
+
 
         }
     },
@@ -233,6 +243,26 @@ export default {
         // this.fetchSapMaterial();
     },
     methods: {
+        handleMouseDownModal(e) {
+            e.preventDefault();
+            this.case_mouse.is_mouse_down = true;
+            this.case_mouse.initial_mouse_position = { x: e.clientX, y: e.clientY };
+        },
+        handleMouseMoveModal(e) {
+            if (this.case_mouse.is_mouse_down) {
+                e.preventDefault();
+                const dx = e.clientX - this.case_mouse.initial_mouse_position.x;
+                const dy = e.clientY - this.case_mouse.initial_mouse_position.y;
+                this.case_mouse.modal_position = { x: this.case_mouse.modal_position.x + dx, y: this.case_mouse.modal_position.y + dy };
+                const form_search_order_processes = this.$refs.form_search_order_processes;
+                form_search_order_processes.style.transform = `translate(${this.case_mouse.modal_position.x}px, ${this.case_mouse.modal_position.y}px)`;
+                this.case_mouse.initial_mouse_position = { x: e.clientX, y: e.clientY };
+            }
+        },
+        handleMouseUpModal(e) {
+            e.preventDefault();
+            this.case_mouse.is_mouse_down = false;
+        },
         async fetchSapMaterial() {
             try {
                 this.case_is_loading.fetch_api = true;
@@ -304,7 +334,7 @@ export default {
             }
 
         },
-        refeshCase(){
+        refeshCase() {
             this.case_check_box.selected_item = null;
             this.case_check_box.item_materials = [];
         }
@@ -333,5 +363,8 @@ export default {
     left: 20px;
     z-index: 1000;
     display: none;
+}
+.modal-content-cursor {
+    cursor: move;
 }
 </style>
