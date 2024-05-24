@@ -822,6 +822,9 @@ export default {
             this.$emit('changeEventCompliance');
         },
         converToNumber(value) {
+            if (value == null || value == '' || value == undefined) {
+                return '';
+            }
             return parseFloat(value);
         },
     },
