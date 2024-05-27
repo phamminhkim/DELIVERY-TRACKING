@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="modal fade"  @mousemove="handleMouseMoveModal($event)" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
+        <div class="modal fade" id="form_search_order_processes" data-backdrop="static" data-keyboard="false"
             tabindex="-1">
-            <div class="modal-dialog modal-lg" @mousedown="handleMouseDownModal($event)"
-                 @mouseup="handleMouseUpModal($event)">
-                
+            <div class="modal-dialog modal-lg" @mousedown="handleMouseDownModal($event)">
+                <!-- @mousemove="handleMouseMoveModal($event)" -->
+                <!-- @mouseup="handleMouseUpModal($event)" -->
                 <div ref="form_search_order_processes" class="modal-content modal-content-cursor">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">tìm kiếm tên hàng</h5>
@@ -29,9 +29,9 @@
                                                     Tìm kiếm</span>
 
                                             </div>
-                                            <input v-model="case_filter.search" @keyup.enter="fetchSapMaterial"
-                                                type="text" class="form-control input__focus"
-                                                placeholder="Nhập ký tự cần tìm">
+                                            <input ref="input_search" v-model="case_filter.search"
+                                                @keyup.enter="fetchSapMaterial" type="text"
+                                                class="form-control input__focus" placeholder="Nhập ký tự cần tìm">
                                         </div>
                                     </div>
                                 </div>
@@ -227,6 +227,10 @@ export default {
                 this.refeshCase();
                 this.resetCaseMouse();
                 $('#form_search_order_processes').modal('show');
+                this.$refs.input_search.focus();
+                if (this.item_selecteds.length == 0) {
+                    this.refeshFilter();
+                }
 
             } else {
                 $('#form_search_order_processes').modal('hide');
@@ -243,14 +247,34 @@ export default {
         },
 
     },
+    mounted() {
+        window.addEventListener('mousemove', this.handleMouseMoveModal);
+        window.addEventListener('mouseup', this.handleMouseUpModal);
+    },
+    beforeDestroy() {
+        window.removeEventListener('mousemove', this.handleMouseMoveModal);
+        window.removeEventListener('mouseup', this.handleMouseUpModal);
+    },
     created() {
         // this.fetchSapMaterial();
     },
     methods: {
+        showModalSearchOrderProcesses() {
+            $('#form_search_order_processes').modal('show');
+        },
+        closeModalSearchOrderProcesses() {
+            $('#form_search_order_processes').modal('hide');
+        },
         handleMouseDownModal(e) {
-            e.preventDefault();
-            this.case_mouse.is_mouse_down = true;
-            this.case_mouse.initial_mouse_position = { x: e.clientX, y: e.clientY };
+            // e.preventDefault();
+            if (e.target.tagName.toLowerCase() === 'input') {
+                e.stopPropagation();
+            } else {
+                e.preventDefault();
+                this.case_mouse.is_mouse_down = true;
+                this.case_mouse.initial_mouse_position = { x: e.clientX, y: e.clientY };
+            }
+
         },
         handleMouseMoveModal(e) {
             if (this.case_mouse.is_mouse_down) {
@@ -261,6 +285,11 @@ export default {
                 const form_search_order_processes = this.$refs.form_search_order_processes;
                 form_search_order_processes.style.transform = `translate(${this.case_mouse.modal_position.x}px, ${this.case_mouse.modal_position.y}px)`;
                 this.case_mouse.initial_mouse_position = { x: e.clientX, y: e.clientY };
+                if (e.target !== this.$refs.form_search_order_processes) {
+                    // ngăn sự kiện lan truyền vào input
+                    e.stopPropagation();
+
+                }
             }
         },
         handleMouseUpModal(e) {
@@ -305,7 +334,7 @@ export default {
             this.case_filter = {
                 search: '',
             }
-            this.fetchSapMaterial();
+            // this.fetchSapMaterial();
         },
         showDropdown(index) {
             const dropdown = document.getElementById('dropdown_' + index);
