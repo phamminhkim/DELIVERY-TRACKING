@@ -17,6 +17,9 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
                 $output[$structure_key] = array();
                 if (isset($array['index'])) {
                     foreach ($array['index'] as $array_key => $array_value) {
+                        if (!isset($data[$array_value['parent_index']][$array_value['child_index']])) {
+                            continue;
+                        }
                         $child_value = $data[$array_value['parent_index']][$array_value['child_index']];
                         if ($child_value) {
                             array_push($output[$structure_key], $child_value);
