@@ -47,6 +47,10 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                         $condition = $value_item['condition'];
                         $output[$key] = OperatorUtility::getValueWithCondition($match, $condition);
                     }
+                    // Xử lý replace
+                    if (isset($value_item['replace_value'])) {
+                        $output[$key] = OperatorUtility::replaceValue($output[$key], $value_item['replace_value']);
+                    }
 
                 }
                 if ($skip_item) {

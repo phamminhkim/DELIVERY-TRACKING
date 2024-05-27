@@ -71,6 +71,14 @@ class OperatorUtility
         }
         return $result;
     }
+    // Hàm replace value
+    public static function replaceValue($value, $replace_value) {
+        $result = $value;
+        foreach ($replace_value as $replace) {
+            $result = str_replace($replace['old_value'], $replace['new_value'], $result);
+        }
+        return $result;
+    }
 
 
 }

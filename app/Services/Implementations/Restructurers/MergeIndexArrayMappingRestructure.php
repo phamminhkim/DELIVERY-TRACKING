@@ -4,6 +4,7 @@ namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Utilities\FormatDateUtility;
+use App\Utilities\OperatorUtility;
 
 class MergeIndexArrayMappingRestructure implements DataRestructureInterface
 {
@@ -23,6 +24,10 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
                     }
                 }
                 $output[$structure_key] = $output[$structure_key] ? implode(" ", $output[$structure_key]) : "";
+                // Xử lý replace
+                if (isset($array['replace_value'])) {
+                    $output[$structure_key] = OperatorUtility::replaceValue($output[$structure_key], $array['replace_value']);
+                }
                 if (isset($array['date_format']) && $output[$structure_key]) {
                     $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
                 }
