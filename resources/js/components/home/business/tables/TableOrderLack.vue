@@ -50,7 +50,7 @@ export default {
         order_lacks: {
             type: Array,
             default: () => []
-        }
+        },
 
     },
     components: {
