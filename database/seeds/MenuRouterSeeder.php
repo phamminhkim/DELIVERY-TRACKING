@@ -288,7 +288,6 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản trị hệ thống',
             ],
-
             // [
             //     'title' => "Danh sách file",
             //     'icon' => "fas fa-pencil-square-o",
@@ -360,7 +359,14 @@ class MenuRouterSeeder extends Seeder
                 'link' => "sap-compliances",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
-            ]
+            ],
+            [
+                'title' => "Profile",
+                'icon' => "fas fa-file-pdf",
+                'link' => "Profile",
+                'query_string' => "",
+                'parent' => 'Quản trị hệ thống',
+            ],
         ];
     }
 }
