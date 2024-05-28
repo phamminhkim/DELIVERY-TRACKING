@@ -18,9 +18,9 @@
                     <span class="font-weight-bold"><i class="fas fa-columns mr-1"></i>Chọn Header</span>
                 </template>
                 <div class="form-group" style="overflow-y: scroll; height: 300px;">
-                    <div v-for="(field, index) in field_order_suffices" :key="index" >
+                    <div v-for="(field, index) in field_order_suffices" :key="index">
                         <label class="text-nowrap px-2 w-100" v-if="field.label !== ''">
-                            <input v-model="case_data_temporary.field_selecteds" type="checkbox" :value="field" /> {{ field.label }}
+                            <input v-model="field.isShow" type="checkbox" /> {{ field.label }}
                         </label>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
             @filterItems="getFilterItems" @emitResetFilter="getResetFilter"
-            :field_order_suffices="case_data_temporary.field_selecteds">
+            :field_order_suffices="filterIsShowFields">
         </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -132,6 +132,7 @@ export default {
                     class: 'text-nowrap   ',
                     tdClass: 'checkbox-sticky-left text-center',
                     thClass: 'checkbox-sticky-left text-center',
+                    isShow: true,
                 },
                 {
                     key: 'action',
@@ -139,6 +140,8 @@ export default {
                     class: 'text-nowrap ',
                     tdClass: 'checkbox-sticky-center text-center',
                     thClass: 'checkbox-sticky-center text-center',
+                    isShow: true,
+
                 },
                 {
                     key: 'index',
@@ -147,13 +150,17 @@ export default {
                     sortable: false,
                     tdClass: 'checkbox-sticky-end text-center border',
                     thClass: 'checkbox-sticky-header-end text-center',
+                    isShow: true,
+
                 },
                 {
                     key: 'customer_name',
                     label: 'Makh Key',
                     class: 'text-nowrap  ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -161,14 +168,18 @@ export default {
                     label: 'Mã Sap So',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
                 },
                 {
                     key: 'barcode',
                     label: 'Barcode_cty',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -176,7 +187,9 @@ export default {
                     label: 'Masap',
                     class: 'text-nowrap text-center  ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -184,7 +197,9 @@ export default {
                     label: 'Tensp',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
 
                 },
@@ -193,7 +208,9 @@ export default {
                     label: 'SL_sap',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
 
                 },
@@ -202,7 +219,9 @@ export default {
                     label: 'Dvt',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
 
@@ -212,7 +231,9 @@ export default {
                     class: 'text-nowrap   ',
                     tdClass: 'voucher-custom border p-0 ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -220,7 +241,9 @@ export default {
                     label: 'Ghi_chu',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -228,7 +251,9 @@ export default {
                     label: 'Makh',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -236,7 +261,9 @@ export default {
                     label: 'Unit_barcode',
                     class: 'text-nowrap text-center  ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -244,7 +271,9 @@ export default {
                     label: 'Unit_barcode_description',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -252,7 +281,9 @@ export default {
                     label: 'Dvt_po',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -260,7 +291,9 @@ export default {
                     label: 'Po',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -268,7 +301,9 @@ export default {
                     label: 'Qty',
                     class: "text-nowrap  ",
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -276,7 +311,9 @@ export default {
                     label: 'Combo',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
 
                 },
@@ -285,7 +322,9 @@ export default {
                     label: 'Check tồn',
                     class: "text-nowrap  ",
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -293,7 +332,9 @@ export default {
                     label: 'Po_qty',
                     class: "text-nowrap  ",
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -301,7 +342,9 @@ export default {
                     label: 'Pur_price',
                     class: "text-nowrap  ",
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
 
@@ -310,7 +353,9 @@ export default {
                     label: 'Amount',
                     class: "text-nowrap  ",
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -318,21 +363,27 @@ export default {
                     label: 'QC',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
                 },
                 {
                     key: 'is_compliant',
                     label: 'Đúng_QC',
                     sortable: false,
                     thClass: 'border',
-                    class: 'text-center   text-nowrap'
+                    class: 'text-center   text-nowrap',
+                    isShow: true,
+
                 },
                 {
                     key: 'note1',
                     label: 'Ghi chú 1',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -340,7 +391,9 @@ export default {
                     label: 'Gia_cty',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -348,7 +401,9 @@ export default {
                     label: 'Level_2',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -356,7 +411,9 @@ export default {
                     label: 'Level_3',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -364,7 +421,9 @@ export default {
                     label: 'Level_4',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -372,7 +431,9 @@ export default {
                     label: 'po_number',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
+
 
                 },
                 {
@@ -380,11 +441,19 @@ export default {
                     label: 'po_delivery_date',
                     class: 'text-nowrap   ',
                     sortable: false,
-                    thClass: 'border'
+                    thClass: 'border',
+                    isShow: true,
 
                 },
             ],
-
+        }
+    },
+    watch: {
+        'field_order_suffices': {
+            handler: function (val) {
+                this.case_data_temporary.field_selecteds = val;
+            },
+            deep: true
         }
     },
     created() {
@@ -443,7 +512,7 @@ export default {
         getResetFilter() {
             this.$emit('emitResetFilter');
         },
-      
+
 
     },
     computed: {
@@ -451,7 +520,11 @@ export default {
             const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
             return Object.keys(group_by_so_num).length
         },
-       
+        filterIsShowFields() {
+            this.case_data_temporary.field_selecteds = this.field_order_suffices.filter((field) => field.isShow);
+            return this.case_data_temporary.field_selecteds;
+        }
+
     }
 }
 </script>
