@@ -585,26 +585,26 @@
                 <template #cell(sku_sap_code)="data">
                     <div class="overflow-hidden sku_sap_code">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
-                        @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
-                        @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
-                    <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                        :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.item.order + data.field.key"
-                        @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
-                        @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
-                        @dblclick="handleDoubleClick($event)"
-                        @mousedown="startSelection($event, data.item.sku_sap_code, data.item.order, data.field.key)"
-                        @mousemove="selectItem(data.item.sku_sap_code, $event)"
-                        @mouseup="endSelection(data.item.sku_sap_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order, data.field.key) }">
-                        <span class="text-center rounded" :class="{
+                            @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
+                            @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
+                        <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.item.order + data.field.key"
+                            @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
+                            @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
+                            @dblclick="handleDoubleClick($event)"
+                            @mousedown="startSelection($event, data.item.sku_sap_code, data.item.order, data.field.key)"
+                            @mousemove="selectItem(data.item.sku_sap_code, $event)"
+                            @mouseup="endSelection(data.item.sku_sap_code, $event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order, data.field.key) }">
+                            <span class="text-center rounded" :class="{
             'badge badge-warning': data.item.extra_offer == 'X',
             'badge badge-primary': data.item.promotion_category == 'X'
         }">
-                            {{ data.item.sku_sap_code }}
-                        </span>
+                                {{ data.item.sku_sap_code }}
+                            </span>
+                        </div>
                     </div>
-                    </div>
-                   
+
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <!-- {{ data.item.sku_sap_name }} -->
@@ -717,20 +717,22 @@
                 </template>
                 <template #cell(promotive)="data">
                     <div class="overflow-hidden promotive">
-                        <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
-                        @keydown="copyItem($event, data.item.promotive, data.field.key, data.item.order)"
-                        @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
-                        @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
-                        @mouseup="endSelection(data.item.customer_sku_code, $event)"
-                        :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
-                        <div class="d-flex justify-content-end py-2 ">
-                            <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
+                        <div tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
+                            @keydown="copyItem($event, data.item.promotive, data.field.key, data.item.order)"
+                            @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
+                            @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
+                            @mouseup="endSelection(data.item.customer_sku_code, $event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
+                            <div class="d-flex justify-content-end py-2 ">
+                                <small v-if="data.item.promotive !== ''" class="font-weight-bold mr-2 p-0">{{
             data.item.promotive }}</small>
-                            <i @click="onChangeShowModal(data.index, data.item)" class="far fa-caret-square-down"></i>
+                                <i @click="onChangeShowModal(data.index, data.item)"
+                                    class="far fa-caret-square-down"></i>
+                            </div>
                         </div>
                     </div>
-                    </div>
-                   
+
                 </template>
                 <template #cell(amount_po)="data">
                     <div class="amount_po overflow-hidden">
@@ -867,6 +869,10 @@ export default {
             type: Number,
             default: 0
         },
+        field_order_suffices: {
+            type: Array,
+            default: () => []
+        },
 
     },
     components: {
@@ -905,265 +911,7 @@ export default {
                 parses: [],
                 field_order: '',
             },
-            field_order_suffices: [
-                {
-                    key: 'selected',
-                    label: '',
-                    class: 'text-nowrap   ',
-                    tdClass: 'checkbox-sticky-left text-center',
-                    thClass: 'checkbox-sticky-left text-center',
-                },
-                {
-                    key: 'action',
-                    label: '',
-                    class: 'text-nowrap ',
-                    tdClass: 'checkbox-sticky-center text-center',
-                    thClass: 'checkbox-sticky-center text-center',
-                },
-                {
-                    key: 'index',
-                    label: 'Vị trí',
-                    class: 'text-nowrap text-center  ',
-                    sortable: false,
-                    tdClass: 'checkbox-sticky-end text-center border',
-                    thClass: 'checkbox-sticky-header-end text-center',
-                },
-                {
-                    key: 'customer_name',
-                    label: 'Makh Key',
-                    class: 'text-nowrap  ',
-                    sortable: false,
-                    thClass: 'border'
 
-                },
-                {
-                    key: 'sap_so_number',
-                    label: 'Mã Sap So',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-                },
-                {
-                    key: 'barcode',
-                    label: 'Barcode_cty',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'sku_sap_code',
-                    label: 'Masap',
-                    class: 'text-nowrap text-center  ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'sku_sap_name',
-                    label: 'Tensp',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-
-                },
-                {
-                    key: 'quantity3_sap',
-                    label: 'SL_sap',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-
-                },
-                {
-                    key: 'sku_sap_unit',
-                    label: 'Dvt',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-
-                {
-                    key: 'promotive',
-                    label: 'Km',
-                    class: 'text-nowrap   ',
-                    tdClass: 'voucher-custom border p-0 ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'note',
-                    label: 'Ghi_chu',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'customer_code',
-                    label: 'Makh',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'customer_sku_code',
-                    label: 'Unit_barcode',
-                    class: 'text-nowrap text-center  ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'customer_sku_name',
-                    label: 'Unit_barcode_description',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'customer_sku_unit',
-                    label: 'Dvt_po',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'po',
-                    label: 'Po',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'quantity1_po',
-                    label: 'Qty',
-                    class: "text-nowrap  ",
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'promotive_name',
-                    label: 'Combo',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-
-                },
-                {
-                    key: 'inventory_quantity',
-                    label: 'Check tồn',
-                    class: "text-nowrap  ",
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'quantity2_po',
-                    label: 'Po_qty',
-                    class: "text-nowrap  ",
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'price_po',
-                    label: 'Pur_price',
-                    class: "text-nowrap  ",
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-
-                {
-                    key: 'amount_po',
-                    label: 'Amount',
-                    class: "text-nowrap  ",
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'compliance',
-                    label: 'QC',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-                },
-                {
-                    key: 'is_compliant',
-                    label: 'Đúng_QC',
-                    sortable: false,
-                    thClass: 'border',
-                    class: 'text-center   text-nowrap'
-                },
-                {
-                    key: 'note1',
-                    label: 'Ghi chú 1',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'company_price',
-                    label: 'Gia_cty',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'level2',
-                    label: 'Level_2',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'level3',
-                    label: 'Level_3',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'level4',
-                    label: 'Level_4',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'po_number',
-                    label: 'po_number',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-                {
-                    key: 'po_delivery_date',
-                    label: 'po_delivery_date',
-                    class: 'text-nowrap   ',
-                    sortable: false,
-                    thClass: 'border'
-
-                },
-            ],
             case_checkbox: {
                 selected: [],
                 selected_all: false,

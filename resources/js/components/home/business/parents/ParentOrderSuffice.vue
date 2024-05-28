@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="form-group d-inline-block mr-4">
-            <span >Số đơn hàng: <b class="text-info">{{ CountGrpSoNumber }}</b></span>
+            <span>Số đơn hàng: <b class="text-info">{{ CountGrpSoNumber }}</b></span>
         </div>
         <button @click="createRow()" type="button" class="btn btn-sm btn-info">
             <i class="fas fa-plus mr-1"></i>
@@ -12,6 +12,21 @@
             <span v-if="!case_boolean.is_show_hide" class="font-weight-bold ">Bật chỉnh sửa</span>
             <span v-else class="font-weight-bold text-danger">Tắt chỉnh sửa</span>
         </button>
+        <div class="form-group d-inline-block">
+            <b-dropdown id="dropdown-buttons" size="sm" offset="25">
+                <template #button-content>
+                    <span class="font-weight-bold"><i class="fas fa-columns mr-1"></i>Chọn Header</span>
+                </template>
+                <div class="form-group" style="overflow-y: scroll; height: 300px;">
+                    <div v-for="(field, index) in field_order_suffices" :key="index" >
+                        <label class="text-nowrap px-2 w-100" v-if="field.label !== ''">
+                            <input v-model="case_data_temporary.field_selecteds" type="checkbox" :value="field" /> {{ field.label }}
+                        </label>
+                    </div>
+                </div>
+
+            </b-dropdown>
+        </div>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
             <span clsas="font-weight-normal">Tiêu đề: </span>
@@ -22,15 +37,17 @@
                 <small class="font-weight-italic"><i>(Bản nháp)</i></small>
             </span>
         </div>
-       
+
         <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value" :count_reset_filter="count_reset_filter"
             @onChangeCategoryType="getOnChangeCategoryType" :iscode="is_loading_detect_sap_code"
-            @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged" @i_loading_detect_sap_sHandleDbClick="getIsHandleDbClick"
-            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
-            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
-            :filterOrders="filterOrders" @filterItems="getFilterItems" @emitResetFilter="getResetFilter">
+            @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged"
+            @i_loading_detect_sap_sHandleDbClick="getIsHandleDbClick" @handleItem="getHandleItem"
+            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
+            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
+            @filterItems="getFilterItems" @emitResetFilter="getResetFilter"
+            :field_order_suffices="case_data_temporary.field_selecteds">
         </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -102,14 +119,276 @@ export default {
                 orders: [],
                 material_donateds: [],
                 material_combos: [],
+                field_selecteds: [],
             },
             case_boolean: {
                 is_show_hide: false,
                 is_hide: true
             },
-          
+            field_order_suffices: [
+                {
+                    key: 'selected',
+                    label: '',
+                    class: 'text-nowrap   ',
+                    tdClass: 'checkbox-sticky-left text-center',
+                    thClass: 'checkbox-sticky-left text-center',
+                },
+                {
+                    key: 'action',
+                    label: '',
+                    class: 'text-nowrap ',
+                    tdClass: 'checkbox-sticky-center text-center',
+                    thClass: 'checkbox-sticky-center text-center',
+                },
+                {
+                    key: 'index',
+                    label: 'Vị trí',
+                    class: 'text-nowrap text-center  ',
+                    sortable: false,
+                    tdClass: 'checkbox-sticky-end text-center border',
+                    thClass: 'checkbox-sticky-header-end text-center',
+                },
+                {
+                    key: 'customer_name',
+                    label: 'Makh Key',
+                    class: 'text-nowrap  ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'sap_so_number',
+                    label: 'Mã Sap So',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
+                    key: 'barcode',
+                    label: 'Barcode_cty',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'sku_sap_code',
+                    label: 'Masap',
+                    class: 'text-nowrap text-center  ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'sku_sap_name',
+                    label: 'Tensp',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+
+                },
+                {
+                    key: 'quantity3_sap',
+                    label: 'SL_sap',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+
+                },
+                {
+                    key: 'sku_sap_unit',
+                    label: 'Dvt',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+
+                {
+                    key: 'promotive',
+                    label: 'Km',
+                    class: 'text-nowrap   ',
+                    tdClass: 'voucher-custom border p-0 ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'note',
+                    label: 'Ghi_chu',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'customer_code',
+                    label: 'Makh',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'customer_sku_code',
+                    label: 'Unit_barcode',
+                    class: 'text-nowrap text-center  ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'customer_sku_name',
+                    label: 'Unit_barcode_description',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'customer_sku_unit',
+                    label: 'Dvt_po',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'po',
+                    label: 'Po',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'quantity1_po',
+                    label: 'Qty',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'promotive_name',
+                    label: 'Combo',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+
+                },
+                {
+                    key: 'inventory_quantity',
+                    label: 'Check tồn',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'quantity2_po',
+                    label: 'Po_qty',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'price_po',
+                    label: 'Pur_price',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+
+                {
+                    key: 'amount_po',
+                    label: 'Amount',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'compliance',
+                    label: 'QC',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+                },
+                {
+                    key: 'is_compliant',
+                    label: 'Đúng_QC',
+                    sortable: false,
+                    thClass: 'border',
+                    class: 'text-center   text-nowrap'
+                },
+                {
+                    key: 'note1',
+                    label: 'Ghi chú 1',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'company_price',
+                    label: 'Gia_cty',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'level2',
+                    label: 'Level_2',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'level3',
+                    label: 'Level_3',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'level4',
+                    label: 'Level_4',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'po_number',
+                    label: 'po_number',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+                {
+                    key: 'po_delivery_date',
+                    label: 'po_delivery_date',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border'
+
+                },
+            ],
 
         }
+    },
+    created() {
+        this.case_data_temporary.field_selecteds = this.field_order_suffices;
     },
     methods: {
         getPerPageChange(per_page) {
@@ -165,12 +444,14 @@ export default {
             this.$emit('emitResetFilter');
         },
       
+
     },
     computed: {
         CountGrpSoNumber() {
             const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
             return Object.keys(group_by_so_num).length
-        }
+        },
+       
     }
 }
 </script>
