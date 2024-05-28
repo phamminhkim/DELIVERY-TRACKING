@@ -1,41 +1,37 @@
 <template>
     <div>
+        <div class="form-group d-inline-block mr-4">
+            <span >Số đơn hàng: <b class="text-info">{{ CountGrpSoNumber }}</b></span>
+        </div>
         <button @click="createRow()" type="button" class="btn btn-sm btn-info">
             <i class="fas fa-plus mr-1"></i>
             <span class="font-weight-bold">Thêm dòng</span>
         </button>
         <button @click="editRow()" type="button" class="btn btn-sm btn-light">
             <i class="fas fa-edit mr-1"></i>
-            <span v-if="!case_boolean.is_show_hide " class="font-weight-bold ">Bật chỉnh sửa</span>
+            <span v-if="!case_boolean.is_show_hide" class="font-weight-bold ">Bật chỉnh sửa</span>
             <span v-else class="font-weight-bold text-danger">Tắt chỉnh sửa</span>
         </button>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
             <span clsas="font-weight-normal">Tiêu đề: </span>
             <span v-if="case_save_so.title !== ''">
-                <span  class="font-weight-bold mr-2 text-danger"> {{ case_save_so.title }} </span>
+                <span class="font-weight-bold mr-2 text-danger"> {{ case_save_so.title }} </span>
             </span>
             <span v-else>
                 <small class="font-weight-italic"><i>(Bản nháp)</i></small>
             </span>
         </div>
+       
         <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
-            :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value"
-            :count_reset_filter="count_reset_filter"
-            @onChangeCategoryType="getOnChangeCategoryType" :is_loading_detect_sap_code="is_loading_detect_sap_code"
-            @checkBoxRow="getCheckBoxRow"
-            @sortingChanged="sortingChanged"
-            @isHandleDbClick="getIsHandleDbClick"
-            @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow"
-            @pasteItem="getPasteItem"
-            @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow"
-            @btnCopy="getBtnCopy"
-            :filterOrders="filterOrders"
-            @filterItems="getFilterItems"
-            @emitResetFilter="getResetFilter"></TableOrderSuffice>
+            :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value" :count_reset_filter="count_reset_filter"
+            @onChangeCategoryType="getOnChangeCategoryType" :iscode="is_loading_detect_sap_code"
+            @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged" @i_loading_detect_sap_sHandleDbClick="getIsHandleDbClick"
+            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
+            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
+            :filterOrders="filterOrders" @filterItems="getFilterItems" @emitResetFilter="getResetFilter">
+        </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
@@ -86,10 +82,10 @@ export default {
         filterOrders: {
             type: Array
         },
-         count_reset_filter: {
+        count_reset_filter: {
             type: Number,
             default: 0
-         }
+        }
     },
     components: {
         TableOrderSuffice,
@@ -98,7 +94,7 @@ export default {
     },
     data() {
         return {
-            per_page: 10,
+            per_page: 100,
             page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
             case_data_temporary: {
@@ -110,7 +106,8 @@ export default {
             case_boolean: {
                 is_show_hide: false,
                 is_hide: true
-            }
+            },
+          
 
         }
     },
@@ -162,16 +159,18 @@ export default {
             this.$emit('btnCopy', index, item);
         },
         getFilterItems(items, field, boolean) {
-            this.$emit('filterItems', items , field, boolean);
+            this.$emit('filterItems', items, field, boolean);
         },
         getResetFilter() {
             this.$emit('emitResetFilter');
-        }
-
-
+        },
+      
     },
     computed: {
-
+        CountGrpSoNumber() {
+            const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
+            return Object.keys(group_by_so_num).length
+        }
     }
 }
 </script>
