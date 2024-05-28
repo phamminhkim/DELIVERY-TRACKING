@@ -275,7 +275,7 @@
                 <template #cell(customer_name)="data">
                     <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
-                        <small class="text-danger">Hàng thiếu</small>
+                        <!-- <small class="text-danger">Hàng thiếu</small> -->
                     </div>
                     <div v-else class="customer_name overflow-hidden">
                         <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
@@ -850,7 +850,7 @@ export default {
         },
         per_page: {
             type: Number,
-            default: 10
+            default: 100
         },
         is_loading_detect_sap_code: {
             type: Boolean,
