@@ -448,14 +448,6 @@ export default {
             ],
         }
     },
-    watch: {
-        'field_order_suffices': {
-            handler: function (val) {
-                this.case_data_temporary.field_selecteds = val;
-            },
-            deep: true
-        }
-    },
     created() {
         this.case_data_temporary.field_selecteds = this.field_order_suffices;
     },
