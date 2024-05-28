@@ -122,7 +122,6 @@ export default {
         });
     },
     created() {
-        console.log(this.is_reset_filter_header, 'is_reset_filter_header');
     },
 
     methods: {
