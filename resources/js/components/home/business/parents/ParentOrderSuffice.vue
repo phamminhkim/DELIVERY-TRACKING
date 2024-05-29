@@ -15,24 +15,6 @@
         <div class="form-group d-inline-block">
             <TableHelper :columns="field_order_suffices" eventname="updateColumnHeader"
                 v-on:updateColumnHeader="updateColumnHeader"></TableHelper>
-            <!-- <b-dropdown id="dropdown-buttons" size="sm" offset="25">
-                <template #button-content>
-                    <span class="font-weight-bold"><i class="fas fa-columns mr-1"></i>Chọn Header</span>
-                </template>
-<div class="form-group list-field-order" style="overflow-y: scroll; height: 300px;">
-    <div class="hover-field-order" v-for="(field, index) in field_order_suffices" :key="index">
-        <div class="text-nowrap d-flex px-2" v-if="field.label !== ''">
-            <div class="mr-2"> <input v-model="field.isShow" type="checkbox" /></div>
-            <div class="flex-fill"
-                :style="dragging === index ? `position: fixed; pointer-events: none; z-index: 1046; left: 30px; top: ${mouseY}px;` : ''"
-                @mousedown="dragStart($event, index)" @mousemove="drag($event, index)" @mouseup="dragEnd"
-                @dragover.prevent> {{
-                field.label }}</div>
-        </div>
-    </div>
-</div>
-
-</b-dropdown> -->
         </div>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
@@ -455,11 +437,7 @@ export default {
 
                 },
             ],
-            dragging: null,
-            dragOver: null,
-            start_mouse_y: 0,
-            mouseY: 0,
-            debounce_timeout: 0,
+           
         }
     },
     created() {
@@ -521,34 +499,6 @@ export default {
         getResetFilter() {
             this.$emit('emitResetFilter');
         },
-        dragStart(e, index) {
-            e.preventDefault();
-            this.case_boolean.is_mousedown = true;
-            this.dragging = index;
-            const element = document.querySelector('.list-field-order');
-            if (element) {
-                this.offsetTop = element.getBoundingClientRect().top;
-                this.mouseY = e.clientY - this.offsetTop;
-            }
-        },
-        drag(e, index) {
-            e.preventDefault();
-            this.dragOver = index;
-            if (this.case_boolean.is_mousedown) {
-                this.mouseY = e.clientY - this.offsetTop;
-            }
-        },
-        dragEnd() {
-            this.case_boolean.is_mousedown = false;
-            if (this.dragging !== null) {
-                const draggedItem = this.field_order_suffices[this.dragging];
-                this.field_order_suffices.splice(this.dragging, 1);
-                this.field_order_suffices.splice(this.dragOver, 0, draggedItem);
-                this.dragging = null;
-                this.dragOver = null;
-            }
-        }
-
 
     },
     computed: {
