@@ -128,12 +128,19 @@ class BusinessRepository
             // throw new \Exception('Restructure method is not specified');
             $data_restructure = new IndexArrayMappingRestructure();
         }
+
+        if ($request->filled('customer_group_id')) {
+            $customer_group_id = $request->customer_group_id;
+        } else {
+            $customer_group_id = null;
+        }
         $header_extractor = new CamelotExtractorService();
         $header_table_converter = new LeagueCsvConverter();
         $header_restructure = new MergeIndexArrayMappingRestructure();
         return new AiRepository($file_service,
             $data_extractor, $table_converter, $data_restructure,
             $header_extractor, $header_table_converter, $header_restructure,
+            $customer_group_id,
             $request);
     }
 
@@ -150,6 +157,8 @@ class BusinessRepository
             $extract_header_config = $extract_config->extract_header_config;
             $table_convert_header_config =  $extract_config->convert_table_header_config;
             $restruct_header_config = $extract_config->restructure_header_config;
+            // Customer group
+            $customer_group_id = $extract_config->customer_group_id;
         }
         $file_service = new LocalFileService();
         // Data
@@ -251,6 +260,7 @@ class BusinessRepository
         return new AiRepository($file_service,
             $data_extractor, $table_converter, $data_restructure,
             $header_extractor, $header_table_converter, $header_restructure,
+            $customer_group_id,
             $request);
     }
 
