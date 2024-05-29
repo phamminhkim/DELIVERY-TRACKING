@@ -520,15 +520,12 @@ export default {
                 this.offsetTop = element.getBoundingClientRect().top;
                 this.mouseY = e.clientY - this.offsetTop;
             }
-            // this.mouseY = this.start_mouse_y - 300;
-
         },
         drag(event, index) {
             event.preventDefault();
             this.dragOver = index;
             if (this.dragging !== null) {
                 this.mouseY = event.clientY - this.offsetTop;
-                // console.log(this.mouseY, 'dy');
             }
         },
         dragEnd() {
@@ -537,7 +534,6 @@ export default {
             this.field_order_suffices.splice(this.dragOver, 0, draggedItem);
             this.dragging = null;
             this.dragOver = null;
-            // this.mouseY = 0;
         }
 
 
