@@ -193,6 +193,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
+            Route::post('/password', [UserController::class, 'changePassword']);
 
         });
         Route::prefix('/order-review-options')->group(function () {

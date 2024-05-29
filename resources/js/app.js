@@ -76,6 +76,10 @@ Vue.component(
     "admin-container",
     require("./components/AdminContainer.vue").default
 );
+Vue.component(
+    "profile",
+    require("./components/profile/UserProfile.vue").default
+);
 
 
 // Vue.component(
