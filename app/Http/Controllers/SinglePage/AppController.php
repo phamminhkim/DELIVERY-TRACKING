@@ -21,4 +21,7 @@ class AppController extends WebBaseController
     public function delivery_customer(){
         return view("app.delivery_customer");
     }
+    public function profile(){
+        return view("app.profile");
+    }
 }

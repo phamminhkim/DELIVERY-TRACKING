@@ -42,6 +42,65 @@ class UserRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    public function changePassword()
+    {
+        try {
+            $validator = Validator::make($this->request->all(), [
+                'email' => 'required|string',
+                'current_password' => 'required|string',
+                'new_password' => 'required|string',
+                'password_confirm' => 'required|string',
+            ], [
+                'email.required' => 'Email là bắt buộc.',
+                'email.string' => 'Email phải là chuỗi.',
+                'current_password.required' => 'Mật khẩu hiện tại là bắt buộc',
+                'new_password.required' => 'Mật khẩu mới là bắt buộc',
+                'password_confirm.required' => 'Nhập lại mật khẩu mới là bắt buộc',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->toArray();
+                return false;
+            }
+
+            // Lấy thông tin người dùng đang đăng nhập
+            $user = User::where('email', $this->request->input('email'))->first();
+
+            if (!$user) {
+                $this->errors['email'] = 'Người dùng không tồn tại.';
+                return false;
+            }
+
+            // Kiểm tra mật khẩu hiện tại
+            $currentPassword = $this->request->input('current_password');
+
+            if (!Hash::check($currentPassword, $user->password)) {
+                $this->errors['current_password'] = 'Mật khẩu hiện tại không chính xác.';
+                return false;
+            }
+
+            // Kiểm tra mật khẩu mới và nhập lại mật khẩu mới
+            $newPassword = $this->request->input('new_password');
+            $passwordConfirm = $this->request->input('password_confirm');
+
+            if ($newPassword !== $passwordConfirm) {
+                $this->errors['password_confirm'] = 'Mật khẩu mới không khớp.';
+                $this->errors['new_password'] = 'Mật khẩu mới không khớp.';
+                return false;
+            }
+
+            // Cập nhật mật khẩu mới cho người dùng
+            $user->password = Hash::make($newPassword);
+            $user->save();
+
+            // Trả về thông báo thành công
+            return $user;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
     public function createNewUser()
     {
         try {
@@ -137,45 +196,45 @@ class UserRepository extends RepositoryAbs
     }
     public function expandLeftMenu()
     {
-      
- 
-      $validator = Validator::make($this->request->all(), [
-        'code' => 'required',
-        'value' => 'required',
-      ]);
-      $failed = $validator->fails();
-      if ($failed) {
-        $this->errors =  $validator->errors();
-        // $result['data']['errors']  = $validator->errors();
-      } else {
-        $code = $this->request->code;
-        switch ($code) {
-          case MenuUtility::$EXPAND_LEFT_MENU:
-  
-            $expand = ConfigUser::where('user_id', auth()->user()->id)
-              ->where('code', 'expand_menu')->first();
-  
-            if ($expand == null) {
-              $expand = new ConfigUser;
-              //dd("test");
-              $expand->code = MenuUtility::$EXPAND_LEFT_MENU;
-              $expand->value =  $this->request->value;
-              $expand->user_id = auth()->user()->id;
-  
-              $expand->save();
-            } else {
-  
-              $expand->value = $this->request->value;
-              $expand->save();
+
+
+        $validator = Validator::make($this->request->all(), [
+            'code' => 'required',
+            'value' => 'required',
+        ]);
+        $failed = $validator->fails();
+        if ($failed) {
+            $this->errors =  $validator->errors();
+            // $result['data']['errors']  = $validator->errors();
+        } else {
+            $code = $this->request->code;
+            switch ($code) {
+                case MenuUtility::$EXPAND_LEFT_MENU:
+
+                    $expand = ConfigUser::where('user_id', auth()->user()->id)
+                        ->where('code', 'expand_menu')->first();
+
+                    if ($expand == null) {
+                        $expand = new ConfigUser;
+                        //dd("test");
+                        $expand->code = MenuUtility::$EXPAND_LEFT_MENU;
+                        $expand->value =  $this->request->value;
+                        $expand->user_id = auth()->user()->id;
+
+                        $expand->save();
+                    } else {
+
+                        $expand->value = $this->request->value;
+                        $expand->save();
+                    }
+                    break;
             }
-            break;
+            return $expand;
+            // $result['data']['success']  = 1;
+            // $result['data']['config']  = $expand;
         }
-        return $expand;
-        // $result['data']['success']  = 1;
-        // $result['data']['config']  = $expand;
-      }
-      return null;
-  
-    //  return json_encode($result, JSON_UNESCAPED_UNICODE); //Response($result);
+        return null;
+
+        //  return json_encode($result, JSON_UNESCAPED_UNICODE); //Response($result);
     }
 }

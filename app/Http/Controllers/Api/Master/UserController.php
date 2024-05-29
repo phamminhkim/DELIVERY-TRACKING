@@ -59,7 +59,7 @@ class UserController extends ResponseController
     }
     public function expandLeftMenuUser(Request $request)
     {
-        
+
         $handler = MasterRepository::UserRequest($request);
         $is_success = $handler->expandLeftMenu();
 
@@ -67,6 +67,18 @@ class UserController extends ResponseController
             return $this->responseOk('success');
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function changePassword(Request $request)
+    {
+
+        $handler = MasterRepository::userRequest($request);
+        $users = $handler->changePassword();
+
+        if ($users) {
+            return $this->responseSuccess($users);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 }
