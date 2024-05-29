@@ -13,24 +13,8 @@
             <span v-else class="font-weight-bold text-danger">Tắt chỉnh sửa</span>
         </button>
         <div class="form-group d-inline-block">
-            <b-dropdown id="dropdown-buttons" size="sm" offset="25">
-                <template #button-content>
-                    <span class="font-weight-bold"><i class="fas fa-columns mr-1"></i>Chọn Header</span>
-                </template>
-                <div class="form-group list-field-order" style="overflow-y: scroll; height: 300px;">
-                    <div class="hover-field-order" v-for="(field, index) in field_order_suffices" :key="index">
-                        <div class="text-nowrap d-flex px-2" v-if="field.label !== ''">
-                            <div class="mr-2"> <input v-model="field.isShow" type="checkbox" /></div>
-                            <div class="flex-fill"
-                                :style="dragging === index ? `position: fixed; pointer-events: none; z-index: 1046; left: 30px; top: ${mouseY}px;` : ''"
-                                @mousedown="dragStart($event, index)" @mousemove="drag($event, index)"
-                                @mouseup="dragEnd"> {{
-                field.label }}</div>
-                        </div>
-                    </div>
-                </div>
-
-            </b-dropdown>
+            <TableHelper :columns="field_order_suffices" eventname="updateColumnHeader"
+                v-on:updateColumnHeader="updateColumnHeader"></TableHelper>
         </div>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
             style="background: rgb(234 234 234 / 50%);">
@@ -64,6 +48,7 @@
 import TableOrderSuffice from '../tables/TableOrderSuffice.vue';
 import PaginationTable from '../paginations/PaginationTable.vue';
 import HeaderOrderColorNote from '../headers/HeaderOrderColorNote.vue';
+import TableHelper from '../tables/TableHelper.vue';
 export default {
     props: {
         tab_value: {
@@ -111,7 +96,8 @@ export default {
     components: {
         TableOrderSuffice,
         PaginationTable,
-        HeaderOrderColorNote
+        HeaderOrderColorNote,
+        TableHelper
     },
     data() {
         return {
@@ -127,7 +113,8 @@ export default {
             },
             case_boolean: {
                 is_show_hide: false,
-                is_hide: true
+                is_hide: true,
+                is_mousedown: false,
             },
             field_order_suffices: [
                 {
@@ -450,16 +437,16 @@ export default {
 
                 },
             ],
-            dragging: null,
-            dragOver: null,
-            start_mouse_y: 0,
-            mouseY: 0,
+           
         }
     },
     created() {
         this.case_data_temporary.field_selecteds = this.field_order_suffices;
     },
     methods: {
+        updateColumnHeader(data) {
+            this.field_order_suffices = data;
+        },
         getPerPageChange(per_page) {
             this.per_page = per_page;
         },
@@ -512,30 +499,6 @@ export default {
         getResetFilter() {
             this.$emit('emitResetFilter');
         },
-        dragStart(e, index) {
-            e.preventDefault();
-            this.dragging = index;
-            const element = document.querySelector('.list-field-order');
-            if (element) {
-                this.offsetTop = element.getBoundingClientRect().top;
-                this.mouseY = e.clientY - this.offsetTop;
-            }
-        },
-        drag(event, index) {
-            event.preventDefault();
-            this.dragOver = index;
-            if (this.dragging !== null) {
-                this.mouseY = event.clientY - this.offsetTop;
-            }
-        },
-        dragEnd() {
-            const draggedItem = this.field_order_suffices[this.dragging];
-            this.field_order_suffices.splice(this.dragging, 1);
-            this.field_order_suffices.splice(this.dragOver, 0, draggedItem);
-            this.dragging = null;
-            this.dragOver = null;
-        }
-
 
     },
     computed: {
