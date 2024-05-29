@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
+use App\Http\Controllers\SinglePage\AppController;
 use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
@@ -90,6 +91,7 @@ Route::get('/excel/{filename}', [SapMaterialController::class,'download']);
 Route::get('/excel/{filename}', [CustomerPartnerController::class,'download']);
 Route::get('/excel/{filename}', [MaterialDonatedController::class,'download']);
 Route::get('/excel/{filename}', [MaterialComboController::class,'download']);
+Route::get('/profile', [AppController::class,'profile']);
 
 Route::get('access-token', function () {
     $auth_user = Auth()->user();
