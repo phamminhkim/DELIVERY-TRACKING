@@ -17,11 +17,16 @@
                 <template #button-content>
                     <span class="font-weight-bold"><i class="fas fa-columns mr-1"></i>Chọn Header</span>
                 </template>
-                <div class="form-group" style="overflow-y: scroll; height: 300px;">
-                    <div v-for="(field, index) in field_order_suffices" :key="index">
-                        <label class="text-nowrap px-2 w-100" v-if="field.label !== ''">
-                            <input v-model="field.isShow" type="checkbox" /> {{ field.label }}
-                        </label>
+                <div class="form-group list-field-order" style="overflow-y: scroll; height: 300px;">
+                    <div class="hover-field-order" v-for="(field, index) in field_order_suffices" :key="index">
+                        <div class="text-nowrap d-flex px-2" v-if="field.label !== ''">
+                            <div class="mr-2"> <input v-model="field.isShow" type="checkbox" /></div>
+                            <div class="flex-fill"
+                                :style="dragging === index ? `position: fixed; pointer-events: none; z-index: 1046; left: 30px; top: ${mouseY}px;` : ''"
+                                @mousedown="dragStart($event, index)" @mousemove="drag($event, index)"
+                                @mouseup="dragEnd"> {{
+                field.label }}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -46,8 +51,7 @@
             @i_loading_detect_sap_sHandleDbClick="getIsHandleDbClick" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
-            @filterItems="getFilterItems" @emitResetFilter="getResetFilter"
-            :field_order_suffices="filterIsShowFields">
+            @filterItems="getFilterItems" @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
         </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -446,6 +450,10 @@ export default {
 
                 },
             ],
+            dragging: null,
+            dragOver: null,
+            start_mouse_y: 0,
+            mouseY: 0,
         }
     },
     created() {
@@ -504,6 +512,33 @@ export default {
         getResetFilter() {
             this.$emit('emitResetFilter');
         },
+        dragStart(e, index) {
+            e.preventDefault();
+            this.dragging = index;
+            const element = document.querySelector('.list-field-order');
+            if (element) {
+                this.offsetTop = element.getBoundingClientRect().top;
+                this.mouseY = e.clientY - this.offsetTop;
+            }
+            // this.mouseY = this.start_mouse_y - 300;
+
+        },
+        drag(event, index) {
+            event.preventDefault();
+            this.dragOver = index;
+            if (this.dragging !== null) {
+                this.mouseY = event.clientY - this.offsetTop;
+                // console.log(this.mouseY, 'dy');
+            }
+        },
+        dragEnd() {
+            const draggedItem = this.field_order_suffices[this.dragging];
+            this.field_order_suffices.splice(this.dragging, 1);
+            this.field_order_suffices.splice(this.dragOver, 0, draggedItem);
+            this.dragging = null;
+            this.dragOver = null;
+            // this.mouseY = 0;
+        }
 
 
     },
@@ -520,4 +555,13 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.hover-field-order {
+    cursor: pointer;
+
+    &:hover {
+        background: #f8f9fa;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+}
+</style>
