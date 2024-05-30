@@ -218,7 +218,8 @@ class AiRepository extends RepositoryAbs
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'item-headers':
-                            # code...
+                            $array_data = $this->restructureItemHeaders($order_data, $header_key_names, $split_header_key);
+                            $final_data = array_merge($final_data, $array_data);
                             break;
 
                         default:
@@ -940,8 +941,8 @@ class AiRepository extends RepositoryAbs
         $array_data = array();
         $row_count = count($order_data);
         foreach ($order_data as $index=>$data) {
-            // Lưu data nếu gặp dòng header tiếp theo hoặc đến dòng cuối
-            if ($data[$split_header_key]|| $index == ($row_count - 1)) {
+            // Lưu data nếu gặp dòng header tiếp theo
+            if ($data[$split_header_key]) {
                 // Lưu lại data theo header trước đó
                 if ($items) {
                     $array_data = [
@@ -959,8 +960,24 @@ class AiRepository extends RepositoryAbs
                 continue;
             } else {
                 $items[] = array_diff_key($data, array_flip($header_key_names));
+                // Xử lý data cuối
+                if ($index == ($row_count - 1)) {
+                    if ($items) {
+                        $array_data = [
+                            'headers' => $header,
+                            'items' => $items,
+                        ];
+                        array_push($result, $array_data);
+                        $items = [];
+                    }
+                }
             }
         }
+        return $result;
+    }
+    // Xử lý mẫu 1 item có nhiều header
+    private function restructureItemHeaders($order_data, $header_key_names, $split_header_key) {
+        $result = array();
         return $result;
     }
 
