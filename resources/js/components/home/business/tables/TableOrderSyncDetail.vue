@@ -1,16 +1,58 @@
 <template>
-    <div class="container-fluid bg-white p-2">
-        <div v-if="!case_component.view_detail">
-            <HeaderOrderSyncSAP></HeaderOrderSyncSAP>
-            <div class="row mb-1">
-                <div class="col-lg-6">
-                    <div>
-                        <button class="btn btn-sm btn-light text-info  btn-group__border">Đồng bộ
-                            SAP</button>
-                    </div>
+    <div>
+        <div class="mb-1 row">
+            <div class="col-lg-6">
+                <h5 class="text-black font-weight-bold mb-0">Chi tiết đơn hàng nhóm CoopMax</h5>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-right">
+                    <button class="btn btn-light text-info px-2">Đồng bộ SAP</button>
+                    <button @click="rollBackUrl()" type="button" class="btn btn-light text-black px-2">Đóng</button>
                 </div>
-                <div class="col-lg-6">
-                    <div class="input-group ">
+            </div>
+        </div>
+        <div class="form-group border border-info p-3 bg-white">
+            <div class="row align-items-baseline">
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Mã KH
+                    SAP</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>123</b>
+                </div>
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Tên
+                    KH</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>Siêu thị Bình CHán</b>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số SO
+                    SAP</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>5000</b>
+                </div>
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
+                    tạo</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>20/11/2024</b>
+                </div>
+            </div>
+            <div class="row align-items-baseline">
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số
+                    PO</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>PO12345</b>
+                </div>
+                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
+                    giao</label>
+                <div class="col-lg-3 mt-1 mb-1">
+                    <b>30/05/2024</b>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row mb-1">
+                <div class="col-lg-6 ml-auto">
+                    <div class="input-group input-group-sm">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
@@ -20,32 +62,17 @@
                 </div>
             </div>
             <TableOrderSync :fields="fields" :items="items" :query="case_filter.query"></TableOrderSync>
-            <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
-                :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
-            </PaginationTable>
-        </div>
-        <div v-else>
-            <TableOrderSyncDetail @rollBackUrl="getRollBackUrl"></TableOrderSyncDetail>
         </div>
     </div>
 </template>
 <script>
-import HeaderOrderSyncSAP from './headers/HeaderOrderSyncSAP.vue';
-import TableOrderSync from './tables/TableOrderSync.vue';
-import PaginationTable from './paginations/PaginationTable.vue';
-import TableOrderSyncDetail from './tables/TableOrderSyncDetail.vue';
+import TableOrderSync from './TableOrderSync.vue';
 export default {
     components: {
-        HeaderOrderSyncSAP,
-        TableOrderSync,
-        PaginationTable,
-        TableOrderSyncDetail
+        TableOrderSync
     },
     data() {
         return {
-            case_component: {
-                view_detail: false,
-            },
             case_filter: {
                 query: '',
             },
@@ -118,46 +145,16 @@ export default {
                     noti_sync: 'Đã đồng bộ'
                 },
             ],
-            per_page: 100,
-            page_options: [10, 20, 50, 100, 200, 300, 500],
-            current_page: 1,
         }
-    },
-    created() {
-        this.getUrl();
     },
     methods: {
-        getPerPageChange(per_page) {
-            this.per_page = per_page;
-        },
-        getPageChange(page) {
-            this.current_page = page;
-        },
-        getUrl() {
-            const url = window.location.href;
-            const id = url.split('#')[1];
-            if (id) {
-                // this.fetchOrderProcessSODetail(id);
-                this.case_component.view_detail = true;
-            }
-
-        },
-        getRollBackUrl(is_roolback) {
-            this.case_component.view_detail = is_roolback;
+        rollBackUrl() {
+            // chuyển về url sap-syncs
+            this.$router.push('/sap-syncs');
+            this.$emit('rollBackUrl', false);
+           
         }
-    },
-    computed: {
-        row_items() {
-            return this.items.length;
-        }
-    },
-}
-</script>
-<style lang="scss" scoped>
-.btn-group {
-    &__border {
-        font-weight: 500;
-        border: 1px solid #f0f0f0;
     }
 }
-</style>
+</script>
+<style lang="scss" scoped></style>
