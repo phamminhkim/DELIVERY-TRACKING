@@ -1026,6 +1026,7 @@
                                     name: this.create_config_form.name,
                                     table_data: JSON.stringify(this.restructure_phase_input),
                                     restructure_method: this.restructure_phase_form.method,
+                                    customer_group_id: this.load_config_form.customer_group_id,
                                     structure: JSON.stringify(this.restructure_phase_form.structure),
                                 },
                             )
@@ -1043,6 +1044,7 @@
                                     name: this.create_config_form.name,
                                     table_data: JSON.stringify(this.restructure_header_phase_input),
                                     restructure_method: this.restructure_header_phase_form.method,
+                                    customer_group_id: this.load_config_form.customer_group_id,
                                     structure: JSON.stringify(this.restructure_header_phase_form.structure),
                                 },
                             )
