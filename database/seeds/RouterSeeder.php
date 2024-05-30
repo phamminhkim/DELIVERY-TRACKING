@@ -160,7 +160,11 @@ class RouterSeeder extends Seeder
                 'path' => '/sap-compliances',
                 'component' => 'home/sap/SapCompliance/SapCompliances'
             ],
-
+            [
+                'name' => 'Đồng bộ SAP',
+                'path' => '/sap-syncs',
+                'component' => 'home/business/OrderSyncSAP'
+            ],
         ];
 
         foreach ($routes as $routeData) {

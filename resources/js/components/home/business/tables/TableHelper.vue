@@ -106,11 +106,12 @@ export default {
     cursor: pointer;
 }
 
-::v-deep .custom-b-form-checkbox > .custom-control-label {
+::v-deep .custom-b-form-checkbox>.custom-control-label {
     display: flex;
-        align-items: baseline;
-        & > i {
-            margin-right: 5px;
-        }
+    align-items: baseline;
+
+    &>i {
+        margin-right: 5px;
+    }
 }
 </style>

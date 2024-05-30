@@ -10,7 +10,8 @@
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
             @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds"
-            @changeEventCompliance="getChangeEventCompliance">
+            @changeEventCompliance="getChangeEventCompliance" @changeEventOrderSyncSAP="showModalSyncSAP"
+            @listCustomerGroup="getListCustomerGroup">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplaceAll="getReplaceItemAll"
@@ -36,6 +37,9 @@
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
+        <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP"
+            :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
+            :orders="case_data_temporary.order_syncs"></ParentOrderSynchronized>
 
 
     </div>
@@ -50,6 +54,7 @@ import HeaderTabOrderProcesses from './headers/HeaderTabOrderProcesses.vue';
 import TableOrderLack from './tables/TableOrderLack.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
 import ParentOrderLack from './parents/ParentOrderLack.vue';
+import ParentOrderSynchronized from './parents/ParentOrderSynchronized.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
 export default {
     components: {
@@ -60,7 +65,8 @@ export default {
         ParentOrderSuffice,
         ParentOrderLack,
         DialogTitleOrderSO,
-        DialogListOrderProcessSO
+        DialogListOrderProcessSO,
+        ParentOrderSynchronized
     },
     data() {
         return {
@@ -98,6 +104,8 @@ export default {
                 copy: {},
                 items: [],
                 field: '',
+                customer_groups: [],
+                order_syncs: [],
             },
             api_order_process_so: '/api/sales-order',
             api_order_process_check_compliance: '/api/check-data/check-compliance',
@@ -110,6 +118,24 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getListCustomerGroup(data) {
+            this.case_data_temporary.customer_groups = data;
+        },
+        showModalSyncSAP() {
+            $('#modalOrderSync').modal('show');
+            const result  = this.orders.map(order => {
+                return {
+                    sap_so_number:'',
+                    so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                    customer_key: order.customer_code,
+                    customer_name: order.customer_name,
+                    po_delivery_date: order.po_delivery_date,
+                    status_sync: false,
+                    noti_sync: ''
+                }
+            });
+            this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
+        },
         openModalSearchOrderProcesses() {
             this.is_open_modal_search_order_processes = true;
         },
@@ -671,7 +697,8 @@ export default {
                 order.compliance = '';
                 order.is_compliant = null;
             });
-        }
+        },
+
     },
     computed: {
         row_orders() {
