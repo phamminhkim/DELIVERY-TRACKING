@@ -213,7 +213,9 @@ class AiRepository extends RepositoryAbs
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'header-items':
-                            # code...
+                            $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
+                            $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
+                            $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'item-headers':
                             # code...
@@ -908,6 +910,7 @@ class AiRepository extends RepositoryAbs
         }
         return $table_data;
     }
+    // Xử lý mẫu 1 header có 1 item
     private function restructureHeaderItem($order_data, $header_key_names) {
         $result = array();
         foreach ($order_data as $data) {
@@ -926,6 +929,37 @@ class AiRepository extends RepositoryAbs
                 'items' => $items,
             ];
             array_push($result, $array_data);
+        }
+        return $result;
+    }
+    // Xử lý mẫu 1 header có nhiều item
+    private function restructureHeaderItems($order_data, $header_key_names, $split_header_key) {
+        $result = array();
+        $header = array();
+        $items = array();
+        $array_data = array();
+        $row_count = count($order_data);
+        foreach ($order_data as $index=>$data) {
+            // Lưu data nếu gặp dòng header tiếp theo hoặc đến dòng cuối
+            if ($data[$split_header_key]|| $index == ($row_count - 1)) {
+                // Lưu lại data theo header trước đó
+                if ($items) {
+                    $array_data = [
+                        'headers' => $header,
+                        'items' => $items,
+                    ];
+                    array_push($result, $array_data);
+                    $items = [];
+                }
+                $header = [];
+                foreach ($header_key_names as $header_key) {
+                    $header[$header_key] = $data[$header_key];
+                }
+                $header = $this->addCustomInfo($header);
+                continue;
+            } else {
+                $items[] = array_diff_key($data, array_flip($header_key_names));
+            }
         }
         return $result;
     }
