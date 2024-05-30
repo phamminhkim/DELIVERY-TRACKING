@@ -77,6 +77,8 @@ class AiRepository extends RepositoryAbs
     protected $header_table_converter_instances;
     protected $header_restructure_instances;
 
+    protected $customer_group_id;
+
     public function __construct(
         FileServiceInterface $file_service,
         DataExtractorInterface $data_extractor,
@@ -85,6 +87,7 @@ class AiRepository extends RepositoryAbs
         DataExtractorInterface $header_extractor,
         TableConverterInterface $header_table_converter,
         DataRestructureInterface $header_restructure,
+        $customer_group_id,
         $request
     ) {
         parent::__construct($request);
@@ -97,6 +100,9 @@ class AiRepository extends RepositoryAbs
         $this->header_extractor = $header_extractor;
         $this->header_table_converter = $header_table_converter;
         $this->header_restructure = $header_restructure;
+
+        // Customer group
+        $this->customer_group_id = $customer_group_id;
 
         $this->data_extractor_instances = [
             'camelot' => new CamelotExtractorService(),
@@ -187,20 +193,47 @@ class AiRepository extends RepositoryAbs
                     $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
                     $order_header = $this->addCustomInfo($restruct_header);
 
+                    $array_data = [
+                        'headers' => $order_header,
+                        'items' => $order_data,
+                    ];
+                    array_push($final_data, $array_data);
+
                 } else if ($convert_file_type == 'excel') {
                     // Data
                     $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-                    // Header
-                    $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
-                    $order_header = $this->addCustomInfo($restruct_header);
-                }
-                $array_data = [
-                    // 'file_name' => '',
-                    'headers' => $order_header,
-                    'items' => $order_data,
-                ];
 
-                array_push($final_data, $array_data);
+                    $table_area_info = json_decode($extract_data_config->table_area_info);
+                    $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
+                    $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
+
+                    switch ($header_item_type) {
+                        case 'header-item':
+                            $array_data = $this->restructureHeaderItem($order_data, $header_key_names);
+                            $final_data = array_merge($final_data, $array_data);
+                            break;
+                        case 'header-items':
+                            $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
+                            $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
+                            $final_data = array_merge($final_data, $array_data);
+                            break;
+                        case 'item-headers':
+                            # code...
+                            break;
+
+                        default:
+                            // Header
+                            $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
+                            $order_header = $this->addCustomInfo($restruct_header);
+
+                            $array_data = [
+                                'headers' => $order_header,
+                                'items' => $order_data,
+                            ];
+                            array_push($final_data, $array_data);
+                            break;
+                    }
+                }
             }
             return $final_data;
         } catch (\Throwable $exception) {
@@ -853,7 +886,7 @@ class AiRepository extends RepositoryAbs
         // Thêm thông tin customer partner
         if (isset( $table_data['CustomerKey'])) {
             $customer_key = trim($table_data['CustomerKey']);
-            $customer_partner = CustomerPartner::query()->where('name', $customer_key)->first();
+            $customer_partner = CustomerPartner::query()->where('customer_group_id', $this->customer_group_id)->where('name', $customer_key)->first();
             if ($customer_partner) {
                 $table_data['CustomerCode'] = $customer_partner->code;
                 $table_data['CustomerNote'] = $customer_partner->note;
@@ -876,6 +909,59 @@ class AiRepository extends RepositoryAbs
                 : $table_data['PoNumber'];
         }
         return $table_data;
+    }
+    // Xử lý mẫu 1 header có 1 item
+    private function restructureHeaderItem($order_data, $header_key_names) {
+        $result = array();
+        foreach ($order_data as $data) {
+            $items = array();
+            $header = array();
+            // Data
+            $items[] = array_diff_key($data, array_flip($header_key_names));
+            // Header
+            foreach ($header_key_names as $header_key) {
+                $header[$header_key] = $data[$header_key];
+            }
+            $header = $this->addCustomInfo($header);
+
+            $array_data = [
+                'headers' => $header,
+                'items' => $items,
+            ];
+            array_push($result, $array_data);
+        }
+        return $result;
+    }
+    // Xử lý mẫu 1 header có nhiều item
+    private function restructureHeaderItems($order_data, $header_key_names, $split_header_key) {
+        $result = array();
+        $header = array();
+        $items = array();
+        $array_data = array();
+        $row_count = count($order_data);
+        foreach ($order_data as $index=>$data) {
+            // Lưu data nếu gặp dòng header tiếp theo hoặc đến dòng cuối
+            if ($data[$split_header_key]|| $index == ($row_count - 1)) {
+                // Lưu lại data theo header trước đó
+                if ($items) {
+                    $array_data = [
+                        'headers' => $header,
+                        'items' => $items,
+                    ];
+                    array_push($result, $array_data);
+                    $items = [];
+                }
+                $header = [];
+                foreach ($header_key_names as $header_key) {
+                    $header[$header_key] = $data[$header_key];
+                }
+                $header = $this->addCustomInfo($header);
+                continue;
+            } else {
+                $items[] = array_diff_key($data, array_flip($header_key_names));
+            }
+        }
+        return $result;
     }
 
     public function extractDataForConfig()

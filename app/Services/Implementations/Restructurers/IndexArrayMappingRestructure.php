@@ -4,6 +4,7 @@ namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Utilities\OperatorUtility;
+use App\Utilities\FormatDateUtility;
 
 class IndexArrayMappingRestructure implements DataRestructureInterface
 {
@@ -50,6 +51,9 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                     // Xử lý replace
                     if (isset($value_item['replace_value'])) {
                         $output[$key] = OperatorUtility::replaceValue($output[$key], $value_item['replace_value']);
+                    }
+                    if (isset($value_item['date_format']) && $output[$key]) {
+                        $output[$key] = FormatDateUtility::formatDate2Date($value_item['date_format'], 'Y-m-d', $output[$key]);
                     }
 
                 }
