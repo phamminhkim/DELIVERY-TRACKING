@@ -78,6 +78,11 @@ export default {
             },
             fields: [
                 {
+                    key: 'select',
+                    label: '',
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'index',
                     label: 'Stt',
                     sortable: true,
@@ -144,15 +149,36 @@ export default {
                     status_sync: 'Đã đồng bộ',
                     noti_sync: 'Đã đồng bộ'
                 },
+                {
+                    id: 2,
+                    index: 2,
+                    sap_so: '123456',
+                    so_key: 'SO123456',
+                    customer_key: 'KH123456',
+                    customer_name: 'Khách hàng 123456',
+                    po_delivery_date: '2021-01-01',
+                    status_sync: 'Đã đồng bộ',
+                    noti_sync: 'Đã đồng bộ'
+                },
+                {
+                    id: 3,
+                    index: 3,
+                    sap_so: '123456',
+                    so_key: 'SO123456',
+                    customer_key: 'KH123456',
+                    customer_name: 'Khách hàng 123456',
+                    po_delivery_date: '2021-01-01',
+                    status_sync: 'Đã đồng bộ',
+                    noti_sync: 'Đã đồng bộ'
+                },
             ],
         }
     },
     methods: {
         rollBackUrl() {
-            // chuyển về url sap-syncs
             this.$router.push('/sap-syncs');
             this.$emit('rollBackUrl', false);
-           
+
         }
     }
 }
