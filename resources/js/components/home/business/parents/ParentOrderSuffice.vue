@@ -36,10 +36,10 @@
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
             @filterItems="getFilterItems" @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
-        </TableOrderSuffice>
-        <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
+        </TableOrderSuffice><PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
+        
         <HeaderOrderColorNote></HeaderOrderColorNote>
 
     </div>
