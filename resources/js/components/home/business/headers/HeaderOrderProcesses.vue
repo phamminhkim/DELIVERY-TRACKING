@@ -67,7 +67,7 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div v-if="case_data_temporary.type_file == 'Excel'" class="form-group">
-                                <input @change="extractFilePDF" type="file"
+                                <input @change="extractFilePDF" type="file" multiple
                                     class="custom-file-inputs w-100 shadow-sm mb-2">
                             </div>
                             <div v-else class="form-group">
@@ -113,9 +113,12 @@
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
                         class="fas fa-search mr-2"></i>Tìm
                     mã...</button>
+                    <button @click="emitOrderSyncSAP()" type="button"
+                    class="btn-sm font-smaller btn btn-light text-info rounded  btn-group__border shadow-btn"><i
+                        class="fas fa-file-upload mr-2"></i>Đồng bộ SAP</button>
                 <button @click="downloadExcel()"
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
-                        class="fas fa-file-upload mr-2"></i>Tạo
+                        class="fas fa-download mr-2"></i>Tạo
                     upload</button>
                 <button @click="emitExportExcel()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
@@ -279,6 +282,12 @@ export default {
                 const { data } = await this.api_handler.get(this.api_customer_groups);
                 if (Array.isArray(data)) {
                     this.customer_groups = data;
+                    this.$emit('listCustomerGroup', data.map(item => {
+                        return {
+                            id: item.id,
+                            name: item.name,
+                        };
+                    }));
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -423,9 +432,7 @@ export default {
             };
             reader.readAsArrayBuffer(file);
         },
-
         handleCheckInventory() {
-
             if (this.warehouse_code === '') {
                 alert("Vui lòng nhập mã kho");
                 return;
@@ -578,7 +585,6 @@ export default {
         },
         updateMaterialCategoryTypeInOrder(index, item, order) {
             this.orders.forEach((item_order, index) => {
-
                 if (item_order.customer_sku_code == order.customer_sku_code) {
                     if (item) {
                         if (item_order.promotive != item.name) {
@@ -785,8 +791,7 @@ export default {
         },
         itemNote(item){
             let  note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) +  ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
-            return note;
-           
+            return note;     
         },
         emitExportExcel() {
             this.$emit('exportExcel');
@@ -869,6 +874,9 @@ export default {
                 return '';
             }
             return parseFloat(value);
+        },
+        emitOrderSyncSAP() {
+            this.$emit('changeEventOrderSyncSAP');
         },
     },
     computed: {
