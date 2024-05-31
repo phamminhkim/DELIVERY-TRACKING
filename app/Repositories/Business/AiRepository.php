@@ -980,7 +980,7 @@ class AiRepository extends RepositoryAbs
         return $result;
     }
     // Xử lý mẫu 1 item có nhiều header
-    private function restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header) {
+    private function restructureItemHeaders($raw_data, $restructure_data_config = null, $header_key_names, $start_index_header) {
         $result = array();
         $convert_data = array();
 
@@ -1092,8 +1092,37 @@ class AiRepository extends RepositoryAbs
     {
         try {
             $table_data = json_decode($this->data['table_data'], true);
-            $restruct_data = $this->restructureData($table_data);
-            return $this->addCustomInfo($restruct_data);
+            $result = array();
+            if ($this->request->convert_file_type == 'excel') {
+                $table_area_info = json_decode($this->request->table_area_info);
+                $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
+                $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
+
+                switch ($header_item_type) {
+                    case 'header-item':
+                        $restruct_data = $this->restructureData($table_data);
+                        $result = $this->restructureHeaderItem($restruct_data, $header_key_names);
+                        break;
+                    case 'header-items':
+                        $restruct_data = $this->restructureData($table_data);
+                        $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
+                        $result = $this->restructureHeaderItems($restruct_data, $header_key_names, $split_header_key);
+                        break;
+                    case 'item-headers':
+                        $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
+                        $result = $this->restructureItemHeaders($table_data, null, $header_key_names, $start_index_header);
+                        break;
+
+                    default:
+                        $restruct_data = $this->restructureData($table_data);
+                        $result =  $this->addCustomInfo($restruct_data);
+                        break;
+                }
+            } else {
+                $restruct_data = $this->restructureData($table_data);
+                $result =  $this->addCustomInfo($restruct_data);
+            }
+            return $result;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
