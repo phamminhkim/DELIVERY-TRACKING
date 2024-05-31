@@ -200,29 +200,33 @@ class AiRepository extends RepositoryAbs
                     array_push($final_data, $array_data);
 
                 } else if ($convert_file_type == 'excel') {
-                    // Data
-                    $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-
                     $table_area_info = json_decode($extract_data_config->table_area_info);
                     $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
                     $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
 
                     switch ($header_item_type) {
                         case 'header-item':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
                             $array_data = $this->restructureHeaderItem($order_data, $header_key_names);
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'header-items':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
                             $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
                             $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'item-headers':
-                            $array_data = $this->restructureItemHeaders($order_data, $header_key_names, $split_header_key);
+                            $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
+                            $array_data = $this->restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header);
                             $final_data = array_merge($final_data, $array_data);
                             break;
 
                         default:
+                            // Data
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
                             // Header
                             $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
                             $order_header = $this->addCustomInfo($restruct_header);
@@ -976,8 +980,37 @@ class AiRepository extends RepositoryAbs
         return $result;
     }
     // Xử lý mẫu 1 item có nhiều header
-    private function restructureItemHeaders($order_data, $header_key_names, $split_header_key) {
+    private function restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header) {
         $result = array();
+        $convert_data = array();
+
+        // Tìm các index cột có header hợp lệ
+        $header_row = $raw_data[0];
+        $header_indexes = array_keys($header_row, !null);
+        $header_indexes = array_filter($header_indexes, function($index) use ($start_index_header) {
+            return $index >= $start_index_header;
+        });
+        // Duyệt theo từng key header
+        foreach ($header_indexes as $header_index) {
+            // Duyệt theo từng data theo số lượng
+            for ($index = 1; $index < count($raw_data); $index++) {
+                if ($raw_data[$index][$header_index] > 0) {
+                    $items = [];
+                    // Lấy data item
+                    $items = array_slice($raw_data[$index], 0, $start_index_header);
+                    // Đưa số lượng vào item
+                    array_push($items, $raw_data[$index][$header_index]);
+                    // Đưa key của header vào item
+                    array_push($items, $header_row[$header_index]);
+                    // Lưu data hoàn chỉnh
+                    array_push($convert_data, $items);
+                }
+            }
+        }
+        // Xử lý format data đã convert
+        $restruct_data = $this->restructureDataDirect($convert_data, $restructure_data_config);
+        $result = $this->restructureHeaderItem($restruct_data, $header_key_names);
+
         return $result;
     }
 
