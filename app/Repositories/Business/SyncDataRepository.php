@@ -17,6 +17,7 @@ class SyncDataRepository extends RepositoryAbs
 {
     public function syncSoHeaderFromSap()
     {
+        $result = [];
         try {
             DB::beginTransaction();
             $validator = Validator::make($this->request->all(), [
@@ -101,6 +102,7 @@ class SyncDataRepository extends RepositoryAbs
                         $result[] = [
                             "id" => $soHeader->id,
                             "so_number" => $soNumber,
+                            "is_sync_sap" => $soHeader->is_sync_sap,
                             "message" => $json_value['MESSAGE']
                         ];
                     }
