@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Business\CheckDataController;
 use App\Http\Controllers\Api\Business\SoDataController;
+use App\Http\Controllers\Api\Business\SyncDataController;
 
 use App\Http\Controllers\Api\Master\CustomerGroupController;
 use App\Http\Controllers\Api\System\RouteController;
@@ -247,7 +248,6 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/sync-category/{category}', [MasterDataController::class, 'syncFromSAP']);
         Route::post('/sync-order', [OrderController::class, 'syncFromSAP']);
     });
-
     Route::prefix('shipment')->group(function () {
         Route::get('/scan-qr/{qr_code}', [DeliveryController::class, 'getDeliveryByQrScan']);
         Route::get('/delivery/{delivery_id}', [DeliveryController::class, 'getDeliveryById']);
@@ -336,6 +336,12 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
         Route::get('/', [SoDataController::class, 'getOrderProcessList']);
+
+
+    });
+    Route::prefix('so-header')->group(function () {
+        Route::post('/sync-sale-order', [SyncDataController::class, 'syncSoHeaderFromSap']);
+        Route::get('/', [SyncDataController::class, 'getSoHeader']);
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);
