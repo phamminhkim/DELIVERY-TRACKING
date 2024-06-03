@@ -120,6 +120,9 @@
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-download mr-2"></i>Tạo
                     upload</button>
+                    <button @click="emitImportExcel()" type="button"
+                    class="btn-sm font-smaller btn btn-info px-4 rounded btn-group__border shadow-btn">
+                    <i class="fas fa-file-import mr-2"></i>Import Excel</button>
                 <button @click="emitExportExcel()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-file-excel mr-2"></i>Xuất Excel</button>
@@ -795,6 +798,9 @@ export default {
         },
         emitExportExcel() {
             this.$emit('exportExcel');
+        },
+        emitImportExcel() {
+            this.$emit('importExcel');
         },
         s2ab(s) {
             const buf = new ArrayBuffer(s.length);
