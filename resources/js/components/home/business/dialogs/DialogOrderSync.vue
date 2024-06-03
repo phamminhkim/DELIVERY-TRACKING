@@ -17,9 +17,9 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div>
-                                    <button class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
+                                    <button @click="emitProcessOrderSync()" type="button" class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
-                                    <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button>
+                                    <!-- <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button> -->
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -33,7 +33,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <TableOrderSync :fields="fields" :items="orders" :query="case_filter.query">
+                            <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query">
                             </TableOrderSync>
                             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                                 :current_page="current_page" @pageChange="getPageChange"
@@ -57,7 +57,8 @@ export default {
         showModalSyncSAP: Function,
         customer_group_id: Number,
         customer_groups: Array,
-        orders: Array
+        order_syncs: Array,
+        case_save_so: Object,
 
     },
     components: {
@@ -145,11 +146,14 @@ export default {
         findIdName() {
             let customer = this.customer_groups.find(item => item.id === this.customer_group_id);
             return customer ? customer.name : '';
+        },
+        emitProcessOrderSync() {
+            this.$emit('processOrderSync');
         }
     },
     computed: {
         row_items() {
-            return this.orders.length;
+            return this.order_syncs.length;
         }
     }
 }

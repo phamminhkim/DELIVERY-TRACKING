@@ -39,9 +39,10 @@
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
-        <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP"
+        <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
-            :orders="case_data_temporary.order_syncs"></ParentOrderSynchronized>
+            :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync">
+        </ParentOrderSynchronized>
 
 
     </div>
@@ -120,6 +121,7 @@ export default {
                 'po_number', 'po_delivery_date'],
             api_order_process_so: '/api/sales-order',
             api_order_process_check_compliance: '/api/check-data/check-compliance',
+            api_order_sync: '/api/so-header/sync-sale-order',
 
 
         }
@@ -129,8 +131,29 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        async getProcessOrderSync() {
+            try {
+                this.case_is_loading.fetch_api = true;
+                let body = {
+                    'order_process_id': this.case_save_so.id,
+                    'data': this.case_data_temporary.order_syncs.map(item => {
+                        return {
+                            'id': item.id,
+                            'warehouse_code': '3101',
+                        }
+                    })
+                };
+                console.log(body);
+                const { data } = await this.api_handler.post(this.api_order_sync, {},body);
+                this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
         isCheckUndefined(value) {
-            if(isUndefined(value)) {
+            if (isUndefined(value)) {
                 return ''
             } else {
                 return value;
@@ -204,7 +227,28 @@ export default {
             this.case_data_temporary.customer_groups = data;
         },
         showModalSyncSAP() {
-            $('#modalOrderSync').modal('show');
+            if (this.case_save_so.id == '') {
+                $('#dialogTitleOrderSo').modal('show');
+            } else {
+                $('#modalOrderSync').modal('show');
+                const result = this.orders.map(order => {
+                    return {
+                        id: order.id,  
+                        sap_so_number: '',
+                        so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                        customer_key: order.customer_code,
+                        customer_name: order.customer_name,
+                        po_delivery_date: order.po_delivery_date,
+                        status_sync: false,
+                        noti_sync: '',
+                        sloc_code: '',
+                    }
+                });
+                this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
+            }
+
+        },
+        mappingOrderSync() {
             const result = this.orders.map(order => {
                 return {
                     sap_so_number: '',
@@ -493,7 +537,7 @@ export default {
 
             });
             this.refHeaderOrderProcesses();
-
+            this.mappingOrderSync();
         },
         refeshOrders() {
             this.orders = [];
