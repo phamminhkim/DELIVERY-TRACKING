@@ -166,17 +166,47 @@ class AiRepository extends RepositoryAbs
                 $restructure_data_config = null;
                 $config_id = $this->request->config_id;
                 $extract_config = ExtractOrderConfig::find(intval($config_id));
+                $mapping_config = null;
+                // Xét extract_config thuộc dạng nhóm config hay config đơn lẻ
                 if ($extract_config) {
-                    $convert_file_type = $extract_config->convert_file_type;
-                    $extract_data_config = $extract_config->extract_data_config;
-                    $convert_table_config =  $extract_config->convert_table_config;
-                    $restructure_data_config = $extract_config->restructure_data_config;
-                    $header_extractor_config = $extract_config->extract_header_config;
-                    $header_convert_table_config =  $extract_config->convert_table_header_config;
-                    $header_restructure_config = $extract_config->restructure_header_config;
+                    if ($extract_config->is_config_group) {
+                        $is_mapping_config = false;
+                        // Kiểm tra config chính
+                        $is_mapping_config = $this->checkMappingConfig($extract_config, $file);
+                        if (!$is_mapping_config) {
+                            // Kiểm tra config phụ
+                            $slave_configs = $extract_config->slave_extract_order_configs;
+                            foreach ($slave_configs as $slave_config) {
+                                $is_mapping_config = $this->checkMappingConfig($slave_config, $file);
+                                if ($is_mapping_config) {
+                                    $mapping_config = $slave_config;
+                                    break;
+                                }
+                            }
+                            if (!$is_mapping_config) {
+                                $this->errors[] = "File chưa có cấu hình phù hợp";
+                                return null;
+                            }
+                        } else {
+                            $mapping_config = $extract_config;
+                        }
+                    } else {
+                        $mapping_config = $extract_config;
+                    }
+                    if ($mapping_config) {
+                        $convert_file_type = $mapping_config->convert_file_type;
+                        $extract_data_config = $mapping_config->extract_data_config;
+                        $convert_table_config =  $mapping_config->convert_table_config;
+                        $restructure_data_config = $mapping_config->restructure_data_config;
+                        $header_extractor_config = $mapping_config->extract_header_config;
+                        $header_convert_table_config =  $mapping_config->convert_table_header_config;
+                        $header_restructure_config = $mapping_config->restructure_header_config;
+                    }
                 } else {
+                    $this->errors[] = "Cấu hình không tồn tại";
                     return null;
                 }
+
                 // Raw data
                 $raw_data = $this->extractDataForDirect($file, $extract_data_config);
                 $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
@@ -1365,5 +1395,34 @@ class AiRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    // Hàm kiểm tra config có mapping với file không
+    private function checkMappingConfig($extract_order_config, $file)
+    {
+        try {
+            $extract_order_config->load(['extract_data_config']);
+            $extract_data_config = $extract_order_config->extract_data_config;
+            $advanced_settings_info = json_decode($extract_data_config->advanced_settings_info);
+
+            $check_table_areas = $advanced_settings_info->check_mapping_config->check_table_areas;
+            $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
+            $data_extractor = new CamelotExtractorService();
+
+            $file_path = $this->file_service->saveTemporaryFile($file);
+
+            $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas);
+            $this->file_service->deleteTemporaryFile($file_path);
+            $check_value = isset($value_table_area[0]) ? $value_table_area[0] : "";
+            // Remove tất cả space trong check_value
+            $check_value = preg_replace('/\s+/', '', $check_value);
+            // Check chuỗi $value_table_area[0] có chứa chuỗi $check_condition
+            if (strpos($check_value, $check_condition) !== false) {
+                return true;
+            }
+        } catch (\Throwable $th) {
+            return false;
+        }
+
+        return false;
     }
 }

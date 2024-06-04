@@ -260,4 +260,36 @@ class CamelotExtractorService implements DataExtractorInterface
         $table = $instance->extract();
         return $table;
     }
+
+    public function getValueTableAreas($file_path, $table_area_info) {
+        $file_path = "\"" . $file_path . "\"";
+        $instance = new Camelot($file_path, 'stream');
+
+        // Xử lý vùng bảng
+        if ($table_area_info) {
+            $areas_count = count($table_area_info);
+            if ($areas_count > 0) {
+                // Vùng đầu tiên
+                $x_top_left = $table_area_info[0]->x_top_left ? $table_area_info[0]->x_top_left : 0;
+                $y_top_left = $table_area_info[0]->y_top_left ? $table_area_info[0]->y_top_left : 0;
+                $x_bottom_right = $table_area_info[0]->x_bottom_right ? $table_area_info[0]->x_bottom_right : 0;
+                $y_bottom_right = $table_area_info[0]->y_bottom_right ? $table_area_info[0]->y_bottom_right : 0;
+
+                $areas = Areas::from($x_top_left, $y_top_left, $x_bottom_right, $y_bottom_right);
+                // Add thêm vùng nếu có
+                for ($area_index = 1; $area_index < $areas_count; $area_index++) {
+                    $x_top_left = $table_area_info[$area_index]->x_top_left ? $table_area_info[$area_index]->x_top_left : 0;
+                    $y_top_left = $table_area_info[$area_index]->y_top_left ? $table_area_info[$area_index]->y_top_left : 0;
+                    $x_bottom_right = $table_area_info[$area_index]->x_bottom_right ? $table_area_info[$area_index]->x_bottom_right : 0;
+                    $y_bottom_right = $table_area_info[$area_index]->y_bottom_right ? $table_area_info[$area_index]->y_bottom_right : 0;
+                    $areas->add($x_top_left, $y_top_left, $x_bottom_right, $y_bottom_right);
+                }
+                $instance->inAreas($areas);
+            }
+
+        }
+
+        $table = $instance->extract();
+        return $table;
+    }
 }

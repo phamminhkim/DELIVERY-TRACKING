@@ -9,47 +9,42 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
 {
     public function restructure($data, $options)
     {
-        try {
-            $structure = $options['structure'];
-            $data_str = "";
-            $output = array();
-            foreach ($data as $data_arr) {
-                $data_str .= implode(' ', $data_arr);
-            }
-            foreach ($structure as $structure_key => $array) {
-                $output[$structure_key] = array();
-                $start_str = $array['start_str'] ? $array['start_str'] : "";
-                $start_offset = $array['start_offset'] ? $array['start_offset'] : 0;
-                $end_str = $array['end_str'] ? $array['end_str'] : "";
-                $end_offset = $array['end_offset'] ? $array['end_offset'] : 0;
-                // Theo độ dài, tham số tùy chọn
-                $str_length = isset($array['str_length']) ? $array['str_length'] : 0;
-
-                // Lấy string theo vị trí start, end
-                if ($start_str && $end_str) {
-                    $output[$structure_key] = $this->getBetweenTwoStr($data_str, $start_str, $start_offset, $end_str, $end_offset);
-                } elseif ($start_str) {
-                    $output[$structure_key] = $this->getFromStrToEnd($data_str, $start_str, $start_offset);
-                } elseif ($end_str) {
-                    $output[$structure_key] = $this->getFromBeginToStr($data_str, $end_str, $end_offset);
-                } else {
-                    $output[$structure_key] = "";
-                }
-                // Lấy string theo độ dài
-                if ($str_length) {
-                    $output[$structure_key] = $this->getStrWithLength($output[$structure_key], $str_length);
-                }
-
-                if ($output[$structure_key] && isset($array['date_format'])) {
-                    $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
-                }
-
-            }
-            return $output;
-        } catch (\Throwable $th) {
-            dd($th);
-            return null;
+        $structure = $options['structure'];
+        $data_str = "";
+        $output = array();
+        foreach ($data as $data_arr) {
+            $data_str .= implode(' ', $data_arr);
         }
+        foreach ($structure as $structure_key => $array) {
+            $output[$structure_key] = array();
+            $start_str = $array['start_str'] ? $array['start_str'] : "";
+            $start_offset = $array['start_offset'] ? $array['start_offset'] : 0;
+            $end_str = $array['end_str'] ? $array['end_str'] : "";
+            $end_offset = $array['end_offset'] ? $array['end_offset'] : 0;
+            // Theo độ dài, tham số tùy chọn
+            $str_length = isset($array['str_length']) ? $array['str_length'] : 0;
+
+            // Lấy string theo vị trí start, end
+            if ($start_str && $end_str) {
+                $output[$structure_key] = $this->getBetweenTwoStr($data_str, $start_str, $start_offset, $end_str, $end_offset);
+            } elseif ($start_str) {
+                $output[$structure_key] = $this->getFromStrToEnd($data_str, $start_str, $start_offset);
+            } elseif ($end_str) {
+                $output[$structure_key] = $this->getFromBeginToStr($data_str, $end_str, $end_offset);
+            } else {
+                $output[$structure_key] = "";
+            }
+            // Lấy string theo độ dài
+            if ($str_length) {
+                $output[$structure_key] = $this->getStrWithLength($output[$structure_key], $str_length);
+            }
+
+            if ($output[$structure_key] && isset($array['date_format'])) {
+                $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+            }
+
+        }
+        return $output;
     }
     public function getBetweenTwoStr($str, $start_str, $start_offset, $end_str, $end_offset)
     {

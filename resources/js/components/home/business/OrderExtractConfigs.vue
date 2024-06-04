@@ -1497,7 +1497,7 @@
                     (customer_group) => {
                         return customer_group.id == this.load_customer_group_id;
                     },
-                )?.extract_order_configs;
+                )?.admin_extract_order_configs;
 
                 let load_extract_order_config_options = extract_order_configs.filter(
                     (extract_order_config) => {
