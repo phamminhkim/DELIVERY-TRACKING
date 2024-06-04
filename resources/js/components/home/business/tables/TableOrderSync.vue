@@ -13,8 +13,8 @@
             <template #cell(sap_so)="data">
                 <a class="link-item" @click="getUrl(data.item)">{{ data.item.sap_so }}</a>
             </template>
-            <template #cell(sloc_code)="data">
-                <input class="form-control form-control-sm border" v-model="data.item.sloc_code" placeholder="Nhập mã kho" />
+            <template #cell(warehouse_code)="data">
+                <input class="form-control form-control-sm border" v-model="data.item.warehouse_code" placeholder="Nhập mã kho" />
             </template>
         </b-table>
     </div>
@@ -22,6 +22,7 @@
 <script>
 export default {
     props: {
+        use_component: 'DialogOrderSync',
         fields: Array,
         items: Array,
         query: String

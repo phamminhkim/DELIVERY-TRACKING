@@ -83,7 +83,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sap_so',
+                    key: 'sap_so_number',
                     label: 'SAP SO num',
                     sortable: true,
                     class: 'text-nowrap'
@@ -95,7 +95,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sloc_code',
+                    key: 'warehouse_code',
                     label: 'Mã Kho',
                     sortable: true,
                     class: 'text-nowrap'
@@ -119,7 +119,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'status_sync',
+                    key: 'is_sync_sap',
                     label: 'TT Đồng bộ',
                     sortable: true,
                     class: 'text-nowrap'

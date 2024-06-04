@@ -139,13 +139,26 @@ export default {
                     'data': this.case_data_temporary.order_syncs.map(item => {
                         return {
                             'id': item.so_header_id,
-                            'warehouse_code': '3101',
+                            'warehouse_code': item.warehouse_code,
                         }
                     })
                 };
                 console.log(body);
-                const { data } = await this.api_handler.post(this.api_order_sync, {},body);
-                this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
+                if (success) {
+                    data.forEach(item => {
+                        this.case_data_temporary.order_syncs.forEach(order_sync => {
+                            if (item.id == order_sync.so_header_id) {
+                                order_sync.sap_so_number = item.so_number;
+                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.noti_sync = item.message;
+                            }
+                        });
+                    });
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
+                }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -233,16 +246,15 @@ export default {
                 $('#modalOrderSync').modal('show');
                 const result = this.orders.map(order => {
                     return {
-                        id: order.id,  
                         sap_so_number: '',
                         so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
                         customer_key: order.customer_code,
                         customer_name: order.customer_name,
                         po_delivery_date: order.po_delivery_date,
-                        status_sync: false,
+                        is_sync_sap: false,
                         noti_sync: '',
-                        sloc_code: '',
-                        so_header_id: order.so_header_id,
+                        warehouse_code: '',
+                        so_header_id: order.so_header_id
                     }
                 });
                 this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
@@ -259,7 +271,8 @@ export default {
                     po_delivery_date: order.po_delivery_date,
                     status_sync: false,
                     noti_sync: '',
-                    sloc_code: '',
+                    warehouse_code: '',
+
                 }
             });
             this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
@@ -540,7 +553,7 @@ export default {
 
             });
             this.refHeaderOrderProcesses();
-            this.mappingOrderSync();
+            // this.mappingOrderSync();
         },
         refeshOrders() {
             this.orders = [];
