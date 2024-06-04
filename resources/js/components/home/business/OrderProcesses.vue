@@ -723,7 +723,7 @@ export default {
         },
         getPasteItem(items, indexs, field, e) {
             if (indexs.length !== 0) {
-                e.preventDefault();
+                // e.preventDefault();
                 indexs.forEach(index => {
                     items.forEach(item => {
                         this.orders[index - 1][field] = item.promotive;

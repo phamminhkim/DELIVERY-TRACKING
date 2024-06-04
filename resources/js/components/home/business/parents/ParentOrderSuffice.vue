@@ -26,13 +26,13 @@
                 <small class="font-weight-italic"><i>(Bản nháp)</i></small>
             </span>
         </div>
-
+        <!-- @i_loading_detect_sap_sisHandleDbClick="getIsHandleDbClick -->
         <TableOrderSuffice ref="tableOrderSuffice" @deleteRow="getDeleteRow" :current_page="current_page"
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value" :count_reset_filter="count_reset_filter"
             @onChangeCategoryType="getOnChangeCategoryType" :iscode="is_loading_detect_sap_code"
             @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged"
-            @i_loading_detect_sap_sHandleDbClick="getIsHandleDbClick" @handleItem="getHandleItem"
+            @isHandleDbClick="getIsHandleDbClick" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
             @filterItems="getFilterItems" @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
@@ -476,6 +476,7 @@ export default {
             this.$emit('handleItem', item, field, index, orders);
         },
         getIsHandleDbClick(is_dbclick) {
+            console.log(is_dbclick, 'dbclick_kim');
             this.case_boolean.is_show_hide = is_dbclick;
         },
         getBtnDuplicateRow(index, item) {
