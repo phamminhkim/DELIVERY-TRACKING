@@ -138,7 +138,7 @@ export default {
                     'order_process_id': this.case_save_so.id,
                     'data': this.case_data_temporary.order_syncs.map(item => {
                         return {
-                            'id': item.id,
+                            'id': item.so_header_id,
                             'warehouse_code': '3101',
                         }
                     })
@@ -242,6 +242,7 @@ export default {
                         status_sync: false,
                         noti_sync: '',
                         sloc_code: '',
+                        so_header_id: order.so_header_id,
                     }
                 });
                 this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
@@ -493,6 +494,7 @@ export default {
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
+                        so_header_id: data_item.so_header_id,
                     });
                 } else {
                     this.orders.push({
@@ -532,6 +534,7 @@ export default {
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
+                        so_header_id: data_item.so_header_id,
                     });
                 }
 
