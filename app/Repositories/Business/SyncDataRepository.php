@@ -85,38 +85,35 @@ class SyncDataRepository extends RepositoryAbs
                         }
                     }
                 }
-            
+
                 $json = SapApiHelper::postData(json_encode($sapData));
-            
-                
+
+
                 $jsonString = json_encode($json); // Convert the array to a JSON string
                 $jsonData = json_decode($jsonString, true);
-                if($jsonData['data'] != '') {
-                    foreach ($jsonData['data'] as $json_value) {   
-                   
+                if ($jsonData['data'] != '') {
+                    foreach ($jsonData['data'] as $json_value) {
+
 
                         $soNumber = $json_value['SO_NUMBER'];
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
 
                         if ($json_value['SO_NUMBER'] != '') {
                             $soHeader->so_uid = $soNumber;
-                            $soHeader->is_sync_sap =   1;
+                            $soHeader->is_sync_sap =  true;
                             $soHeader->save();
                         }
-               
 
                         $result[] = [
                             "id" => $soHeader->id,
                             "so_number" => $soNumber,
-                            "is_sync_sap" => $soHeader->is_sync_sap,
+                            "is_sync_sap" => boolval($soHeader->is_sync_sap),
                             "message" => $json_value['MESSAGE']
                         ];
-                     
+                    }
                 }
-                }
-               
             }
-            DB::commit();  
+            DB::commit();
             return  $result;
         } catch (\Throwable $exception) {
             DB::rollBack();
