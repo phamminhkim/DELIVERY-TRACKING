@@ -207,20 +207,17 @@ class SyncDataRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 DB::beginTransaction();
-                $so_headers = collect([]);
+                $so_headers = [];
                 foreach ($this->data['items'] as $item) {
                     $ids = [$item['id']];
                     $so_header = SoHeader::whereIn('id', $ids)
                         ->with(['so_data_items', 'order_process.customer_group:id,name'])
-                        ->get();
-                    $so_headers->push($so_header);
+                        ->first();
 
-                    $so_header_ids = $so_header->pluck('id');
-                    $so_data_items = SoDataItem::whereIn('so_header_id', $so_header_ids)->get();
-
-                    $so_header->each(function ($so_header_item) use ($so_data_items) {
-                        $so_header_item->so_data_items = $so_data_items->where('so_header_id', $so_header_item->id);
-                    });
+                    if ($so_header) {
+                        $so_header->so_data_items = SoDataItem::where('so_header_id', $so_header->id)->get();
+                        $so_headers[] = $so_header;
+                    }
                 }
                 DB::commit();
                 return $so_headers;
