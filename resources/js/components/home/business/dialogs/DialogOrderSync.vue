@@ -11,17 +11,19 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="title" class="font-weigh-bold">Nhóm khách hàng: <b class="text-danger">{{ findIdName() }}</b> </label>
+                            <label for="title" class="font-weigh-bold">Nhóm khách hàng: <b class="text-danger">{{
+                                findIdName() }}</b> </label>
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div>
-                                    <button class="btn btn-sm btn-light text-info  btn-group__border shadow-btn">Đồng bộ
+                                    <button @click="emitProcessOrderSync()" type="button" class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
+                                    <!-- <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button> -->
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="input-group ">
+                                <div class="input-group ">  
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-search"></i></span>
                                     </div>
@@ -29,11 +31,10 @@
                                         placeholder="Tìm kiếm...">
                                 </div>
                             </div>
-
-
                         </div>
                         <div class="form-group">
-                            <TableOrderSync :fields="fields" :items="orders" :query="case_filter.query"></TableOrderSync>
+                            <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query">
+                            </TableOrderSync>
                             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                                 :current_page="current_page" @pageChange="getPageChange"
                                 @perPageChange="getPerPageChange">
@@ -56,7 +57,8 @@ export default {
         showModalSyncSAP: Function,
         customer_group_id: Number,
         customer_groups: Array,
-        orders: Array
+        order_syncs: Array,
+        case_save_so: Object,
 
     },
     components: {
@@ -70,13 +72,18 @@ export default {
             },
             fields: [
                 {
+                    key: 'select',
+                    label: '',
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'index',
                     label: 'Stt',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sap_so',
+                    key: 'sap_so_number',
                     label: 'SAP SO num',
                     sortable: true,
                     class: 'text-nowrap'
@@ -84,6 +91,12 @@ export default {
                 {
                     key: 'so_key',
                     label: 'SO Key',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
+                    key: 'warehouse_code',
+                    label: 'Mã Kho',
                     sortable: true,
                     class: 'text-nowrap'
                 },
@@ -106,7 +119,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'status_sync',
+                    key: 'is_sync_sap',
                     label: 'TT Đồng bộ',
                     sortable: true,
                     class: 'text-nowrap'
@@ -118,7 +131,6 @@ export default {
                     class: 'text-nowrap'
                 },
             ],
-           
             per_page: 100,
             page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
@@ -134,11 +146,14 @@ export default {
         findIdName() {
             let customer = this.customer_groups.find(item => item.id === this.customer_group_id);
             return customer ? customer.name : '';
+        },
+        emitProcessOrderSync() {
+            this.$emit('processOrderSync');
         }
     },
     computed: {
         row_items() {
-            return this.orders.length;
+            return this.order_syncs.length;
         }
     }
 }

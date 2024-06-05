@@ -23,12 +23,19 @@ class ExtractOrderConfig extends Model
         'is_official',
         'is_convert_header',
         'convert_file_type',
+        'is_config_group',
+        'is_master_config_group',
+        'is_slave_config_group',
+        'master_config_group_id',
         'active'
     ];
 
     protected $casts = [
         'is_official' => 'boolean',
         'is_convert_header' => 'boolean',
+        'is_config_group' => 'boolean',
+        'is_master_config_group' => 'boolean',
+        'is_slave_config_group' => 'boolean',
         'active' => 'boolean',
     ];
 
@@ -70,5 +77,13 @@ class ExtractOrderConfig extends Model
     public function reference_extract_order_config()
     {
         return $this->belongsTo(ExtractOrderConfig::class, 'reference_id');
+    }
+
+    public function slave_extract_order_configs()
+    {
+        return $this->hasMany(ExtractOrderConfig::class, 'master_config_group_id', 'id')
+            ->where('is_official', true)->where('active', true)
+            ->where('is_config_group', true)
+            ->where('is_slave_config_group', true);
     }
 }

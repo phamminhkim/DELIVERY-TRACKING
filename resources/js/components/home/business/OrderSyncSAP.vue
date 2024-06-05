@@ -74,6 +74,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'sloc_code',
+                    label: 'Mã Kho',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'customer_key',
                     label: 'Mã KH',
                     sortable: true,

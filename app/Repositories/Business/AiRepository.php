@@ -166,17 +166,47 @@ class AiRepository extends RepositoryAbs
                 $restructure_data_config = null;
                 $config_id = $this->request->config_id;
                 $extract_config = ExtractOrderConfig::find(intval($config_id));
+                $mapping_config = null;
+                // Xét extract_config thuộc dạng nhóm config hay config đơn lẻ
                 if ($extract_config) {
-                    $convert_file_type = $extract_config->convert_file_type;
-                    $extract_data_config = $extract_config->extract_data_config;
-                    $convert_table_config =  $extract_config->convert_table_config;
-                    $restructure_data_config = $extract_config->restructure_data_config;
-                    $header_extractor_config = $extract_config->extract_header_config;
-                    $header_convert_table_config =  $extract_config->convert_table_header_config;
-                    $header_restructure_config = $extract_config->restructure_header_config;
+                    if ($extract_config->is_config_group) {
+                        $is_mapping_config = false;
+                        // Kiểm tra config chính
+                        $is_mapping_config = $this->checkMappingConfig($extract_config, $file);
+                        if (!$is_mapping_config) {
+                            // Kiểm tra config phụ
+                            $slave_configs = $extract_config->slave_extract_order_configs;
+                            foreach ($slave_configs as $slave_config) {
+                                $is_mapping_config = $this->checkMappingConfig($slave_config, $file);
+                                if ($is_mapping_config) {
+                                    $mapping_config = $slave_config;
+                                    break;
+                                }
+                            }
+                            if (!$is_mapping_config) {
+                                $this->errors[] = "File chưa có cấu hình phù hợp";
+                                return null;
+                            }
+                        } else {
+                            $mapping_config = $extract_config;
+                        }
+                    } else {
+                        $mapping_config = $extract_config;
+                    }
+                    if ($mapping_config) {
+                        $convert_file_type = $mapping_config->convert_file_type;
+                        $extract_data_config = $mapping_config->extract_data_config;
+                        $convert_table_config =  $mapping_config->convert_table_config;
+                        $restructure_data_config = $mapping_config->restructure_data_config;
+                        $header_extractor_config = $mapping_config->extract_header_config;
+                        $header_convert_table_config =  $mapping_config->convert_table_header_config;
+                        $header_restructure_config = $mapping_config->restructure_header_config;
+                    }
                 } else {
+                    $this->errors[] = "Cấu hình không tồn tại";
                     return null;
                 }
+
                 // Raw data
                 $raw_data = $this->extractDataForDirect($file, $extract_data_config);
                 $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
@@ -200,29 +230,33 @@ class AiRepository extends RepositoryAbs
                     array_push($final_data, $array_data);
 
                 } else if ($convert_file_type == 'excel') {
-                    // Data
-                    $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-
                     $table_area_info = json_decode($extract_data_config->table_area_info);
                     $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
                     $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
 
                     switch ($header_item_type) {
                         case 'header-item':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
                             $array_data = $this->restructureHeaderItem($order_data, $header_key_names);
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'header-items':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
                             $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
                             $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
                             $final_data = array_merge($final_data, $array_data);
                             break;
                         case 'item-headers':
-                            $array_data = $this->restructureItemHeaders($order_data, $header_key_names, $split_header_key);
+                            $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
+                            $array_data = $this->restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header);
                             $final_data = array_merge($final_data, $array_data);
                             break;
 
                         default:
+                            // Data
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
                             // Header
                             $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
                             $order_header = $this->addCustomInfo($restruct_header);
@@ -976,8 +1010,37 @@ class AiRepository extends RepositoryAbs
         return $result;
     }
     // Xử lý mẫu 1 item có nhiều header
-    private function restructureItemHeaders($order_data, $header_key_names, $split_header_key) {
+    private function restructureItemHeaders($raw_data, $restructure_data_config = null, $header_key_names, $start_index_header) {
         $result = array();
+        $convert_data = array();
+
+        // Tìm các index cột có header hợp lệ
+        $header_row = $raw_data[0];
+        $header_indexes = array_keys($header_row, !null);
+        $header_indexes = array_filter($header_indexes, function($index) use ($start_index_header) {
+            return $index >= $start_index_header;
+        });
+        // Duyệt theo từng key header
+        foreach ($header_indexes as $header_index) {
+            // Duyệt theo từng data theo số lượng
+            for ($index = 1; $index < count($raw_data); $index++) {
+                if ($raw_data[$index][$header_index] > 0) {
+                    $items = [];
+                    // Lấy data item
+                    $items = array_slice($raw_data[$index], 0, $start_index_header);
+                    // Đưa số lượng vào item
+                    array_push($items, $raw_data[$index][$header_index]);
+                    // Đưa key của header vào item
+                    array_push($items, $header_row[$header_index]);
+                    // Lưu data hoàn chỉnh
+                    array_push($convert_data, $items);
+                }
+            }
+        }
+        // Xử lý format data đã convert
+        $restruct_data = $this->restructureDataDirect($convert_data, $restructure_data_config);
+        $result = $this->restructureHeaderItem($restruct_data, $header_key_names);
+
         return $result;
     }
 
@@ -1059,8 +1122,37 @@ class AiRepository extends RepositoryAbs
     {
         try {
             $table_data = json_decode($this->data['table_data'], true);
-            $restruct_data = $this->restructureData($table_data);
-            return $this->addCustomInfo($restruct_data);
+            $result = array();
+            if ($this->request->convert_file_type == 'excel') {
+                $table_area_info = json_decode($this->request->table_area_info);
+                $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
+                $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
+
+                switch ($header_item_type) {
+                    case 'header-item':
+                        $restruct_data = $this->restructureData($table_data);
+                        $result = $this->restructureHeaderItem($restruct_data, $header_key_names);
+                        break;
+                    case 'header-items':
+                        $restruct_data = $this->restructureData($table_data);
+                        $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
+                        $result = $this->restructureHeaderItems($restruct_data, $header_key_names, $split_header_key);
+                        break;
+                    case 'item-headers':
+                        $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
+                        $result = $this->restructureItemHeaders($table_data, null, $header_key_names, $start_index_header);
+                        break;
+
+                    default:
+                        $restruct_data = $this->restructureData($table_data);
+                        $result =  $this->addCustomInfo($restruct_data);
+                        break;
+                }
+            } else {
+                $restruct_data = $this->restructureData($table_data);
+                $result =  $this->addCustomInfo($restruct_data);
+            }
+            return $result;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -1303,5 +1395,34 @@ class AiRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    // Hàm kiểm tra config có mapping với file không
+    private function checkMappingConfig($extract_order_config, $file)
+    {
+        try {
+            $extract_order_config->load(['extract_data_config']);
+            $extract_data_config = $extract_order_config->extract_data_config;
+            $advanced_settings_info = json_decode($extract_data_config->advanced_settings_info);
+
+            $check_table_areas = $advanced_settings_info->check_mapping_config->check_table_areas;
+            $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
+            $data_extractor = new CamelotExtractorService();
+
+            $file_path = $this->file_service->saveTemporaryFile($file);
+
+            $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas);
+            $this->file_service->deleteTemporaryFile($file_path);
+            $check_value = isset($value_table_area[0]) ? $value_table_area[0] : "";
+            // Remove tất cả space trong check_value
+            $check_value = preg_replace('/\s+/', '', $check_value);
+            // Check chuỗi $value_table_area[0] có chứa chuỗi $check_condition
+            if (strpos($check_value, $check_condition) !== false) {
+                return true;
+            }
+        } catch (\Throwable $th) {
+            return false;
+        }
+
+        return false;
     }
 }

@@ -1027,6 +1027,8 @@
                                     table_data: JSON.stringify(this.restructure_phase_input),
                                     restructure_method: this.restructure_phase_form.method,
                                     customer_group_id: this.load_config_form.customer_group_id,
+                                    table_area_info: JSON.stringify(this.extract_phase_form.table_area_info),
+                                    convert_file_type: this.load_convert_file_type_id,
                                     structure: JSON.stringify(this.restructure_phase_form.structure),
                                 },
                             )
@@ -1045,6 +1047,8 @@
                                     table_data: JSON.stringify(this.restructure_header_phase_input),
                                     restructure_method: this.restructure_header_phase_form.method,
                                     customer_group_id: this.load_config_form.customer_group_id,
+                                    table_area_info: JSON.stringify(this.extract_phase_form.table_area_info),
+                                    convert_file_type: this.load_convert_file_type_id,
                                     structure: JSON.stringify(this.restructure_header_phase_form.structure),
                                 },
                             )
@@ -1493,7 +1497,7 @@
                     (customer_group) => {
                         return customer_group.id == this.load_customer_group_id;
                     },
-                )?.extract_order_configs;
+                )?.admin_extract_order_configs;
 
                 let load_extract_order_config_options = extract_order_configs.filter(
                     (extract_order_config) => {
