@@ -16,6 +16,10 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
             $data_str .= implode(' ', $data_arr);
         }
         foreach ($structure as $structure_key => $array) {
+            if (isset($array['key_array'])) {
+                // Bỏ qua loại cấu hình theo các key
+                continue;
+            }
             $output[$structure_key] = array();
             $start_str = $array['start_str'] ? $array['start_str'] : "";
             $start_offset = $array['start_offset'] ? $array['start_offset'] : 0;
@@ -38,11 +42,28 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
             if ($str_length) {
                 $output[$structure_key] = $this->getStrWithLength($output[$structure_key], $str_length);
             }
+            // Lấy string theo vị trí bắt đầu
+            if (isset($array['start_pos'])) {
+                $output[$structure_key] = mb_substr($output[$structure_key], $array['start_pos']);
+            }
 
             if ($output[$structure_key] && isset($array['date_format'])) {
                 $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
             }
 
+        }
+
+        // Xử lý loại cấu hình theo các key
+        foreach ($structure as $structure_key => $array) {
+            if (isset($array['key_array'])) {
+                $key_array = $array['key_array'];
+                $separator = $array['separator'];
+                $value_array = [];
+                foreach ($key_array as $key) {
+                    $value_array[] = $output[$key];
+                }
+                $output[$structure_key] = implode($separator, $value_array);
+            }
         }
         return $output;
     }
