@@ -7,12 +7,14 @@ use RandomState\Camelot\Areas;
 use RandomState\Camelot\Camelot;
 use setasign\Fpdi\Fpdi;
 use Illuminate\Support\Facades\Log;
+use App\Utilities\OperatorUtility;
 
 class CamelotExtractorService implements DataExtractorInterface
 {
     public function extract($file_path, $options)
     {
         $table = [];
+        $is_convert_tcvn3 = false;
         if ($options['is_specify_advanced_settings']) {
             $advanced_settings_info = $options['advanced_settings_info'];
             if (isset($advanced_settings_info->split_page)) {
@@ -20,8 +22,16 @@ class CamelotExtractorService implements DataExtractorInterface
             } else {
                 $table = $this->extractNoSplitPages($file_path, $options);
             }
+            if (isset($advanced_settings_info->convert_tcvn3)) {
+                $is_convert_tcvn3 = $advanced_settings_info->convert_tcvn3;
+            }
         } else {
             $table = $this->extractNoSplitPages($file_path, $options);
+        }
+        if ($is_convert_tcvn3) {
+            foreach ($table as $key=>$item) {
+                $table[$key] = OperatorUtility::convertTCVN3ToUnicode($item);
+            }
         }
         return $table;
     }
