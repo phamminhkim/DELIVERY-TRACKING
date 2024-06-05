@@ -253,7 +253,7 @@
                 <template #cell(barcode)="data">
                     <div class="barcode overflow-hidden">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
-                            @keydown="copyItem($event, data.item.barcode)" @dblclick="handleDoubleClick($event)"
+                            @keydown="copyItem($event, data.item.barcode, data.field.key)" @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.barcode, 'barcode', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.barcode + data.item.order + data.field.key"
@@ -585,7 +585,7 @@
                 <template #cell(sku_sap_code)="data">
                     <div class="overflow-hidden sku_sap_code">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
-                            @keydown="copyItem($event, data.item.sku_sap_code)" @dblclick="handleDoubleClick($event)"
+                            @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)" @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
                         <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.item.order + data.field.key"
@@ -770,7 +770,7 @@
                 <template #cell(customer_sku_code)="data">
                     <div class="customer_sku_code overflow-hidden">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
-                            @keydown="copyItem($event, data.item.customer_sku_code)"
+                            @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.item.order)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"

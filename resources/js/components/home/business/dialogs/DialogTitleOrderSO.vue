@@ -55,6 +55,9 @@ export default {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
             errors: [],
+            case_loading: {
+                save: false,
+            },
             case_data: {
                 title: '',
                 customer_group_id: -1,

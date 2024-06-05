@@ -23,11 +23,40 @@ class CustomerGroup extends Model
 
     public function extract_order_configs()
     {
-        return $this->hasMany(ExtractOrderConfig::class, 'customer_group_id', 'id');
+        // Config dành cho user
+        return $this->hasMany(ExtractOrderConfig::class, 'customer_group_id', 'id')
+            ->where('is_official', true)->where('active', true)
+            ->where(function ($q) {
+                // Không phải nhóm config
+                $q->where('is_config_group', false)
+                // Là nhóm master config
+                ->orWhere(function ($q1) {
+                    $q1->where('is_config_group', true)->where('is_master_config_group', true);
+                });
+            });
     }
 
     public function customer_materials()
     {
         return $this->hasMany(CustomerMaterial::class, 'customer_group_id', 'id');
+    }
+
+    public function admin_extract_order_configs()
+    {
+        // Config dành cho admin
+        return $this->hasMany(ExtractOrderConfig::class, 'customer_group_id', 'id')
+            ->where('is_official', true)->where('active', true)
+            ->where(function ($q) {
+                // Không phải nhóm config
+                $q->where('is_config_group', false)
+                // Là nhóm master config
+                ->orWhere(function ($q1) {
+                    $q1->where('is_config_group', true)->where('is_master_config_group', true);
+                })
+                // Là nhóm slave config
+                ->orWhere(function ($q2) {
+                    $q2->where('is_config_group', true)->where('is_slave_config_group', true);
+                });
+            });
     }
 }

@@ -13,9 +13,7 @@ class CustomerGroupRepository extends RepositoryAbs
         $query = CustomerGroup::query();
 
         $query
-            ->with(['extract_order_configs' => function ($query) {
-                $query->where('is_official', true)->where('active', true);
-            }])
+            ->with(['extract_order_configs', 'admin_extract_order_configs'])
             ->with(['customers' => function ($query) {
                 $query->pluck('customer_id');
             }]);

@@ -9,9 +9,9 @@
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            @exportExcel="getExportExcel" :item_selecteds="case_data_temporary.item_selecteds"
-            @changeEventCompliance="getChangeEventCompliance" @changeEventOrderSyncSAP="showModalSyncSAP"
-            @listCustomerGroup="getListCustomerGroup">
+            @exportExcel="getExportExcel" @importExcel="getImportExcel"
+            :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
+            @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup">
         </HeaderOrderProcesses>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplaceAll="getReplaceItemAll"
@@ -23,6 +23,8 @@
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
+        <TempExcelImport :is_show_hide="case_is_loading.show_hide_excel" :header_fields="header_fields"
+            :title="title_excel" @convertFileExcel="getConvertFileExel"></TempExcelImport>
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
@@ -37,9 +39,10 @@
         </ParentOrderSuffice>
         <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
-        <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP"
+        <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
-            :orders="case_data_temporary.order_syncs"></ParentOrderSynchronized>
+            :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync">
+        </ParentOrderSynchronized>
 
 
     </div>
@@ -55,7 +58,9 @@ import TableOrderLack from './tables/TableOrderLack.vue';
 import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
 import ParentOrderLack from './parents/ParentOrderLack.vue';
 import ParentOrderSynchronized from './parents/ParentOrderSynchronized.vue';
+import TempExcelImport from '../../Templates/Excels/TempExcelImport.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
+import { isUndefined } from 'axios/lib/utils';
 export default {
     components: {
         HeaderOrderProcesses,
@@ -66,13 +71,15 @@ export default {
         ParentOrderLack,
         DialogTitleOrderSO,
         DialogListOrderProcessSO,
-        ParentOrderSynchronized
+        ParentOrderSynchronized,
+        TempExcelImport
     },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_open_modal_search_order_processes: false,
             tab_value: 'order',
+            title_excel: 'Template Import dữ liệu đơn hàng',
             count_order_lack: 0,
             orders: [],
             material_donateds: [],
@@ -97,6 +104,7 @@ export default {
                 fetch_api: false,
                 created_conponent: false,
                 reeset_filter_header: false,
+                show_hide_excel: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -107,8 +115,13 @@ export default {
                 customer_groups: [],
                 order_syncs: [],
             },
+            header_fields: ['Vị trí', 'Makh Key', 'Mã Sap So', 'Barcode_cty', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
+                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
+                'Pur_price', 'Amount', 'QC', 'Đúng_QC', 'Ghi chú 1', 'Gia_cty', 'Level 2', 'Level 3', 'Level 4',
+                'po_number', 'po_delivery_date'],
             api_order_process_so: '/api/sales-order',
             api_order_process_check_compliance: '/api/check-data/check-compliance',
+            api_order_sync: '/api/so-header/sync-sale-order',
 
 
         }
@@ -118,20 +131,148 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        async getProcessOrderSync() {
+            try {
+                this.case_is_loading.fetch_api = true;
+                let body = {
+                    'order_process_id': this.case_save_so.id,
+                    'data': this.case_data_temporary.order_syncs.map(item => {
+                        return {
+                            'id': item.so_header_id,
+                            'warehouse_code': item.warehouse_code,
+                        }
+                    })
+                };
+                console.log(body);
+                const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
+                if (success) {
+                    data.forEach(item => {
+                        this.case_data_temporary.order_syncs.forEach(order_sync => {
+                            if (item.id == order_sync.so_header_id) {
+                                order_sync.sap_so_number = item.so_number;
+                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.noti_sync = item.message;
+                            }
+                        });
+                    });
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
+        isCheckUndefined(value) {
+            if (isUndefined(value)) {
+                return ''
+            } else {
+                return value;
+            }
+        },
+        convertExcelSuccess() {
+            this.$showMessage('success', 'Thành công', 'Import dữ liệu thành công');
+            $('#template_excel').modal('hide');
+            $("#data_excel").modal("hide");
+        },
+        sliceConvertHeader(data) {
+            if (data.length > 0) {
+                const index_header_fields = this.header_fields;
+                const header_fields = data[0];
+                const result = data.slice(1).map(item => {
+                    let obj = {};
+                    index_header_fields.forEach((field, index) => {
+                        obj[field] = item[header_fields.indexOf(field)];
+                    });
+                    return obj;
+                });
+                console.log(result);
+                return result;
+            }
+        },
+        getConvertFileExel(data) {
+            const result = this.sliceConvertHeader(data);
+            this.orders = result.map((item, index) => {
+                return {
+                    order: this.isCheckUndefined(item['Vị trí']),
+                    id: '',
+                    customer_sku_code: this.isCheckUndefined(item['Unit_barcode']),
+                    customer_sku_name: this.isCheckUndefined(item['Unit_barcode_description']),
+                    customer_sku_unit: this.isCheckUndefined(item['Dvt_po']),
+                    company_price: this.isCheckUndefined(item['Gia_cty']),
+                    customer_code: this.isCheckUndefined(item['Makh']),
+                    level2: this.isCheckUndefined(item['Level_2']),
+                    level3: this.isCheckUndefined(item['Level_3']),
+                    level4: this.isCheckUndefined(item['Level_4']),
+                    note1: this.isCheckUndefined(item['Ghi chú 1']),
+                    note: this.isCheckUndefined(item['Ghi_chu']),
+                    barcode: this.isCheckUndefined(item['Barcode_cty']),
+                    sap_so_number: this.isCheckUndefined(item['Mã Sap So']),
+                    sku_sap_code: this.isCheckUndefined(item['Masap']),
+                    sku_sap_name: this.isCheckUndefined(item['Tensp']),
+                    sku_sap_unit: this.isCheckUndefined(item['Dvt']),
+                    inventory_quantity: this.isCheckUndefined(item['Check tồn']),
+                    amount_po: this.isCheckUndefined(item['Amount']),
+                    is_inventory: false,
+                    is_promotive: false,
+                    price_po: this.isCheckUndefined(item['Pur_price']),
+                    promotive: this.isCheckUndefined(item['Km']),
+                    promotive_name: this.isCheckUndefined(item['Combo']),
+                    quantity1_po: this.isCheckUndefined(item['Qty']),
+                    quantity2_po: this.isCheckUndefined(item['Po_qty']),
+                    customer_name: this.isCheckUndefined(item['Makh Key']),
+                    // variant_quantity: '',
+                    // extra_offer: '',
+                    // promotion_category: this.isCheckUndefined(item['Combo']),
+                    compliance: this.isCheckUndefined(item['QC']),
+                    is_compliant: this.isCheckUndefined(item['Đúng_QC']) === '' ? null : this.isCheckUndefined(item['Đúng_QC']),
+                    quantity3_sap: this.isCheckUndefined(item['SL_sap']),
+                    po_number: this.isCheckUndefined(item['po_number']),
+                    po_delivery_date: this.isCheckUndefined(item['po_delivery_date']),
+                }
+            });
+            this.refHeaderOrderProcesses();
+            this.convertExcelSuccess();
+        },
         getListCustomerGroup(data) {
             this.case_data_temporary.customer_groups = data;
         },
         showModalSyncSAP() {
-            $('#modalOrderSync').modal('show');
-            const result  = this.orders.map(order => {
+            if (this.case_save_so.id == '') {
+                $('#dialogTitleOrderSo').modal('show');
+            } else {
+                $('#modalOrderSync').modal('show');
+                const result = this.orders.map(order => {
+                    return {
+                        sap_so_number: '',
+                        so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                        customer_key: order.customer_code,
+                        customer_name: order.customer_name,
+                        po_delivery_date: order.po_delivery_date,
+                        is_sync_sap: false,
+                        noti_sync: '',
+                        warehouse_code: '',
+                        so_header_id: order.so_header_id
+                    }
+                });
+                this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
+            }
+
+        },
+        mappingOrderSync() {
+            const result = this.orders.map(order => {
                 return {
-                    sap_so_number:'',
+                    sap_so_number: '',
                     so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
                     customer_key: order.customer_code,
                     customer_name: order.customer_name,
                     po_delivery_date: order.po_delivery_date,
                     status_sync: false,
-                    noti_sync: ''
+                    noti_sync: '',
+                    warehouse_code: '',
+
                 }
             });
             this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
@@ -366,6 +507,7 @@ export default {
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
+                        so_header_id: data_item.so_header_id,
                     });
                 } else {
                     this.orders.push({
@@ -405,12 +547,13 @@ export default {
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
+                        so_header_id: data_item.so_header_id,
                     });
                 }
 
             });
             this.refHeaderOrderProcesses();
-
+            // this.mappingOrderSync();
         },
         refeshOrders() {
             this.orders = [];
@@ -465,7 +608,40 @@ export default {
         },
         getExportExcel() {
             let data = this.orders.concat(this.case_data_temporary.order_lacks);
-            var ws = XLSX.utils.json_to_sheet(data);
+            let data_news = data.map(item => {
+                return {
+                    'Vị trí': item.order,
+                    'Makh Key': item.customer_code,
+                    'Mã Sap So': item.sap_so_number,
+                    'Barcode_cty': item.barcode,
+                    'Masap': item.sku_sap_code,
+                    'Tensp': item.customer_sku_name,
+                    'SL_sap': item.quantity3_sap,
+                    'Dvt': item.customer_sku_unit,
+                    'Km': item.promotive,
+                    'Ghi_chu': item.note1,
+                    'Makh': item.customer_code,
+                    'Unit_barcode_description': item.sku_sap_name,
+                    'Dvt_po': item.sku_sap_unit,
+                    'Po': item.po_number,
+                    'Qty': item.quantity,
+                    'Combo': item.promotion_category,
+                    'Check tồn': item.inventory_quantity,
+                    'Po_qty': item.quantity1_po,
+                    'Pur_price': item.price_po,
+                    'Amount': item.amount_po,
+                    'QC': item.compliance,
+                    'Đúng_QC': item.is_compliant,
+                    'Ghi chú 1': item.note,
+                    'Gia_cty': item.company_price,
+                    'Level 2': item.level2,
+                    'Level 3': item.level3,
+                    'Level 4': item.level4,
+                    'po_number': item.po_number,
+                    'po_delivery_date': item.po_delivery_date,
+                }
+            })
+            var ws = XLSX.utils.json_to_sheet(data_news);
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
@@ -477,6 +653,9 @@ export default {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        },
+        getImportExcel() {
+            this.case_is_loading.show_hide_excel = !this.case_is_loading.show_hide_excel;
         },
         s2ab(s) {
             const buf = new ArrayBuffer(s.length);
@@ -544,7 +723,7 @@ export default {
         },
         getPasteItem(items, indexs, field, e) {
             if (indexs.length !== 0) {
-                e.preventDefault();
+                // e.preventDefault();
                 indexs.forEach(index => {
                     items.forEach(item => {
                         this.orders[index - 1][field] = item.promotive;

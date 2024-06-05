@@ -13,12 +13,16 @@
             <template #cell(sap_so)="data">
                 <a class="link-item" @click="getUrl(data.item)">{{ data.item.sap_so }}</a>
             </template>
+            <template #cell(warehouse_code)="data">
+                <input class="form-control form-control-sm border" v-model="data.item.warehouse_code" placeholder="Nhập mã kho" />
+            </template>
         </b-table>
     </div>
 </template>
 <script>
 export default {
     props: {
+        use_component: 'DialogOrderSync',
         fields: Array,
         items: Array,
         query: String

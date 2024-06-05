@@ -1,7 +1,9 @@
 <template>
     <div>
         <DialogOrderSync :showModalSyncSAP="showModalSyncSAP" :customer_group_id="customer_group_id"
-            :customer_groups="customer_groups" :orders="orders"></DialogOrderSync>
+            :customer_groups="customer_groups" :order_syncs="order_syncs" :case_save_so="case_save_so"
+             @processOrderSync="processOrderSync">
+        </DialogOrderSync>
     </div>
 </template>
 <script>
@@ -12,18 +14,22 @@ export default {
         showModalSyncSAP: Function,
         customer_group_id: Number,
         customer_groups: Array,
-        orders: Array
+        order_syncs: Array,
+        case_save_so: Object,
     },
     components: {
         DialogOrderSync
     },
     data() {
         return {
-
+           
+            
         }
     },
     methods: {
-        
+        processOrderSync() {
+           this.$emit('processOrderSync');
+        }
     },
     computed: {
        
