@@ -1,8 +1,10 @@
 <template>
     <div>
-        <div class="modal fade" id="modalOrderSync" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
+        <div class="modal fade" id="modalOrderSync" data-backdrop="static" data-keyboard="false" tabindex="-1">
+            <div class="modal-dialog " :class="{
+                'modal-xl': !is_sap_sync,
+            }">
+                <div class="modal-content" v-show="!is_sap_sync">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">Đồng bộ đơn hàng</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -12,18 +14,19 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="title" class="font-weigh-bold">Nhóm khách hàng: <b class="text-danger">{{
-                                findIdName() }}</b> </label>
+                findIdName() }}</b> </label>
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
-                                <div>
-                                    <button @click="emitProcessOrderSync()" type="button" class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
+                                <div v-if="!is_sap_sync">
+                                    <button @click="emitProcessOrderSync()" type="button"
+                                        class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
                                     <!-- <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button> -->
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="input-group ">  
+                                <div class="input-group ">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-search"></i></span>
                                     </div>
@@ -33,7 +36,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query">
+                            <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query"
+                                @emitSelectedOrderSync="emitSelectedOrderSync">
                             </TableOrderSync>
                             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                                 :current_page="current_page" @pageChange="getPageChange"
@@ -43,6 +47,13 @@
                     </div>
                     <div class="modal-footer justify-content-center">
                         <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+                <div v-show="is_sap_sync" class="modal-content text-center">
+                    <div class="modal-body">
+                        <div class="form-group text-center">
+                            <p class="text-primary"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tiến hành đồng bộ Sap</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -59,6 +70,7 @@ export default {
         customer_groups: Array,
         order_syncs: Array,
         case_save_so: Object,
+        is_sap_sync: Boolean,
 
     },
     components: {
@@ -83,13 +95,13 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sap_so_number',
+                    key: 'so_uid',
                     label: 'SAP SO num',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'so_key',
+                    key: 'sap_so_number',
                     label: 'SO Key',
                     sortable: true,
                     class: 'text-nowrap'
@@ -128,7 +140,8 @@ export default {
                     key: 'noti_sync',
                     label: 'Thông báo',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap text-danger',
+                    tdClass: 'text-danger'
                 },
             ],
             per_page: 100,
@@ -149,6 +162,9 @@ export default {
         },
         emitProcessOrderSync() {
             this.$emit('processOrderSync');
+        },
+        emitSelectedOrderSync(selected) {
+            this.$emit('emitSelectedOrderSync', selected);
         }
     },
     computed: {

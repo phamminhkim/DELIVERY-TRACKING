@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b-table responsive small hover :fields="fields" :items="items" head-variant="light" :filter="query">
+        <b-table responsive small hover :fields="fields" :items="items" head-variant="light"
+            :current-page="current_page" :per-page="per_page" :filter="query">
             <template #head(select)="data">
                 <input type="checkbox" v-model="case_checkbox.select_all" @change="changeSelectAll()" />
             </template>
@@ -10,11 +11,12 @@
             <template #cell(index)="data">
                 {{ data.index + 1 }}
             </template>
-            <template #cell(sap_so)="data">
-                <a class="link-item" @click="getUrl(data.item)">{{ data.item.sap_so }}</a>
+            <template #cell(sap_so_number)="data">
+                <a class="link-item" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
             </template>
             <template #cell(warehouse_code)="data">
-                <input class="form-control form-control-sm border" v-model="data.item.warehouse_code" placeholder="Nhập mã kho" />
+                <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
+                    placeholder="Nhập mã kho" />
             </template>
         </b-table>
     </div>
@@ -25,7 +27,9 @@ export default {
         use_component: 'DialogOrderSync',
         fields: Array,
         items: Array,
-        query: String
+        query: String,
+        current_page: Number,
+        per_page: Number,
     },
     data() {
         return {
@@ -37,6 +41,7 @@ export default {
     },
     watch: {
         'case_checkbox.selected': function (val) {
+            this.$emit('emitSelectedOrderSync', val);
             if (val.length === this.items.length) {
                 this.case_checkbox.select_all = true;
             } else {
@@ -48,8 +53,11 @@ export default {
         changeSelectAll() {
             if (this.case_checkbox.select_all) {
                 this.case_checkbox.selected = this.items;
+                this.$emit('emitSelectedOrderSync', this.case_checkbox.selected);
+
             } else {
                 this.case_checkbox.selected = [];
+                this.$emit('emitSelectedOrderSync', this.case_checkbox.selected);
             }
         },
         getUrl(item) {

@@ -32,5 +32,16 @@ class SyncDataController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function getSoHeaderByIds(Request $request)
+    {
+        $handler = BusinessRepository::syncDataRequest($request);
+        $data = $handler->getSoHeaderByIds();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
 }

@@ -41,7 +41,9 @@
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
         <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
-            :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync">
+            :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
+            @emitSelectedOrderSync="getSelectedOrderSync"
+            :is_sap_sync="case_is_loading.sap_sync">
         </ParentOrderSynchronized>
 
 
@@ -105,6 +107,7 @@ export default {
                 created_conponent: false,
                 reeset_filter_header: false,
                 show_hide_excel: false,
+                sap_sync: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -114,8 +117,9 @@ export default {
                 field: '',
                 customer_groups: [],
                 order_syncs: [],
+                order_syncs_selected: [],
             },
-            header_fields: ['Vị trí', 'Makh Key', 'Mã Sap So', 'Barcode_cty', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
+            header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
                 'Pur_price', 'Amount', 'QC', 'Đúng_QC', 'Ghi chú 1', 'Gia_cty', 'Level 2', 'Level 3', 'Level 4',
                 'po_number', 'po_delivery_date'],
@@ -131,39 +135,63 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getSelectedOrderSync(selected) {
+            // Chức năng đồng bộ SAP
+            this.case_data_temporary.order_syncs_selected = selected;
+        },
         async getProcessOrderSync() {
             try {
-                this.case_is_loading.fetch_api = true;
+                this.case_is_loading.sap_sync = true;
                 let body = {
                     'order_process_id': this.case_save_so.id,
-                    'data': this.case_data_temporary.order_syncs.map(item => {
+                    'data': this.case_data_temporary.order_syncs_selected.map(item => {
                         return {
                             'id': item.so_header_id,
-                            'warehouse_code': item.warehouse_code,
+                            'warehouse_code': item.warehouse_id,
                         }
                     })
                 };
-                console.log(body);
                 const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
                 if (success) {
                     data.forEach(item => {
                         this.case_data_temporary.order_syncs.forEach(order_sync => {
                             if (item.id == order_sync.so_header_id) {
-                                order_sync.sap_so_number = item.so_number;
+                                order_sync.id = item.id;
+                                order_sync.so_uid = item.so_number;
                                 order_sync.is_sync_sap = item.is_sync_sap;
                                 order_sync.noti_sync = item.message;
                             }
                         });
                     });
                     this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    this.checkOrderSyncWithOrderProcess();
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
-                this.case_is_loading.fetch_api = false;
+                this.case_is_loading.sap_sync = false;
             }
+        },
+        checkOrderSyncWithOrderProcess() {
+            let new_orders = [];
+        
+            this.orders.forEach((order_prcess) => {
+                let should_keep = true;
+        
+                this.case_data_temporary.order_syncs.forEach((order_sync) => {
+                    if (order_prcess.so_header_id == order_sync.id && order_sync.so_uid !== '') {
+                        should_keep = false;
+                    }
+                });
+        
+                if (should_keep) {
+                    new_orders.push(order_prcess);
+                }
+            });
+            this.orders = new_orders;
+            this.refHeaderOrderProcesses();
         },
         isCheckUndefined(value) {
             if (isUndefined(value)) {
@@ -188,12 +216,12 @@ export default {
                     });
                     return obj;
                 });
-                console.log(result);
                 return result;
             }
         },
         getConvertFileExel(data) {
             const result = this.sliceConvertHeader(data);
+            console.log(result);
             this.orders = result.map((item, index) => {
                 return {
                     order: this.isCheckUndefined(item['Vị trí']),
@@ -246,36 +274,21 @@ export default {
                 $('#modalOrderSync').modal('show');
                 const result = this.orders.map(order => {
                     return {
-                        sap_so_number: '',
-                        so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                        id: '',
+                        so_uid: '',
+                        sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
                         customer_key: order.customer_code,
                         customer_name: order.customer_name,
                         po_delivery_date: order.po_delivery_date,
                         is_sync_sap: false,
                         noti_sync: '',
-                        warehouse_code: '',
+                        warehouse_id: '',
                         so_header_id: order.so_header_id
                     }
                 });
                 this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
             }
 
-        },
-        mappingOrderSync() {
-            const result = this.orders.map(order => {
-                return {
-                    sap_so_number: '',
-                    so_key: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                    customer_key: order.customer_code,
-                    customer_name: order.customer_name,
-                    po_delivery_date: order.po_delivery_date,
-                    status_sync: false,
-                    noti_sync: '',
-                    warehouse_code: '',
-
-                }
-            });
-            this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
         },
         openModalSearchOrderProcesses() {
             this.is_open_modal_search_order_processes = true;
@@ -553,7 +566,6 @@ export default {
 
             });
             this.refHeaderOrderProcesses();
-            // this.mappingOrderSync();
         },
         refeshOrders() {
             this.orders = [];
@@ -608,9 +620,9 @@ export default {
         },
         getExportExcel() {
             let data = this.orders.concat(this.case_data_temporary.order_lacks);
-            let data_news = data.map(item => {
+            let data_news = data.map((item, index) => {
                 return {
-                    'Vị trí': item.order,
+                    'STT': index + 1,
                     'Makh Key': item.customer_code,
                     'Mã Sap So': item.sap_so_number,
                     'Barcode_cty': item.barcode,
@@ -701,6 +713,7 @@ export default {
                 compliance: '',
                 is_compliant: false,
                 quantity3_sap: '',
+                so_header_id: '',
             });
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
@@ -716,6 +729,7 @@ export default {
         getBtnDuplicateRow(index, item) {
             // Thêm item vào sau vị trí index và order của item sau đó thì tăng index lên 1
             let new_order = this.convertNewOrder(item);
+            new_order.so_header_id = ''; // reset so_header_id
             this.orders.splice(index + 1, 0, JSON.parse(JSON.stringify(new_order)));
             let start_index = this.startIndex(new_order.order);
             this.changeIndexOrder(start_index);
@@ -770,6 +784,7 @@ export default {
                 compliance: '',
                 is_compliant: false,
                 quantity3_sap: item.quantity3_sap,
+                so_header_id: item.so_header_id,
             }
             return new_order;
         },
@@ -784,6 +799,7 @@ export default {
             }
         },
         getBtnCopyDeleteRow(index, item) {
+            item.so_header_id = '';
             this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
             this.case_is_loading.delete_row = true;
         },
@@ -795,6 +811,7 @@ export default {
                 }
             }
             let new_order = this.convertNewOrder(this.case_data_temporary.copy);
+            new_order.so_header_id = ''; // reset so_header_id
             this.orders.splice(index, 0, JSON.parse(JSON.stringify(new_order)));
             this.orders.forEach((item, index_order) => {
                 item.order = index_order + 1;

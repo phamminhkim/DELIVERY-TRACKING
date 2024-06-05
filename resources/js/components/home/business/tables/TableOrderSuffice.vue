@@ -126,8 +126,8 @@
                 </template>
                 <template #cell(index)="data">
                     <div class="font-weight-bold index overflow-hidden">
-                        {{ data.item.order }}
-                        <!-- {{ (data.index + 1) + (current_page * per_page) - per_page }} -->
+                        <!-- {{ data.item.order }} -->
+                        {{ (data.index + 1) + (current_page * per_page) - per_page }}
                     </div>
                 </template>
                 <template #cell(action)="data">
@@ -932,6 +932,15 @@ export default {
             is_mouse_down: false,
             width: 100,
             previous_mouse_position: 0,
+        }
+    },
+    watch: {
+        'case_checkbox.selected': function (val) {
+            if (val.length === this.orders.length) {
+                this.case_checkbox.selected_all = true;
+            } else {
+                this.case_checkbox.selected_all = false;
+            }
         }
     },
     created() {
