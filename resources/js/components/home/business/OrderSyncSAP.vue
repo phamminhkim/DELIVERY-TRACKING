@@ -19,7 +19,8 @@
                     </div>
                 </div>
             </div>
-            <TableOrderSync :fields="fields" :items="items" :query="case_filter.query"></TableOrderSync>
+            <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query" :current_page="current_page"
+            :per_page="per_page"></TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                 :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
             </PaginationTable>
@@ -34,6 +35,8 @@ import HeaderOrderSyncSAP from './headers/HeaderOrderSyncSAP.vue';
 import TableOrderSync from './tables/TableOrderSync.vue';
 import PaginationTable from './paginations/PaginationTable.vue';
 import TableOrderSyncDetail from './tables/TableOrderSyncDetail.vue';
+import ApiHandler, { APIRequest } from '../ApiHandler';
+
 export default {
     components: {
         HeaderOrderSyncSAP,
@@ -43,6 +46,7 @@ export default {
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             case_component: {
                 view_detail: false,
             },
@@ -62,19 +66,19 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sap_so',
+                    key: 'so_uid',
                     label: 'SAP SO num',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'so_key',
+                    key: 'sap_so_number',
                     label: 'SO Key',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sloc_code',
+                    key: 'warehouse_code',
                     label: 'Mã Kho',
                     sortable: true,
                     class: 'text-nowrap'
@@ -92,19 +96,13 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'status',
-                    label: 'Trạng thái',
-                    sortable: true,
-                    class: 'text-nowrap'
-                },
-                {
                     key: 'po_delivery_date',
                     label: 'Ngày giao',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'status_sync',
+                    key: 'is_sync_sap',
                     label: 'TT Đồng bộ',
                     sortable: true,
                     class: 'text-nowrap'
@@ -113,50 +111,23 @@ export default {
                     key: 'noti_sync',
                     label: 'Thông báo',
                     sortable: true,
-                    class: 'text-nowrap'
-                },
-            ],
-            items: [
-                {
-                    id: 1,
-                    index: 1,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
-                },
-                {
-                    id: 2,
-                    index: 2,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
-                },
-                {
-                    id: 3,
-                    index: 3,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
+                    class: 'text-nowrap text-danger',
+                    tdClass: 'text-danger'
                 },
             ],
             per_page: 100,
             page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
+            case_data: {
+                order_syncs: [],
+            },
+            case_api: {
+                get_order_sync: '/api/so-header',
+            }
         }
     },
     created() {
+        this.getProcessOrderSync();
         this.getUrl();
     },
     methods: {
@@ -177,11 +148,23 @@ export default {
         },
         getRollBackUrl(is_roolback) {
             this.case_component.view_detail = is_roolback;
-        }
+        },
+        async getProcessOrderSync() {
+            try {
+                const { data } = await this.api_handler.get(this.case_api.get_order_sync, {});
+                if (Array.isArray(data)) {
+                    this.case_data.order_syncs = data;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
     },
     computed: {
         row_items() {
-            return this.items.length;
+            return this.case_data.order_syncs.length;
         }
     },
 }
