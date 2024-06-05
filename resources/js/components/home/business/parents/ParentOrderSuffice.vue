@@ -136,7 +136,7 @@ export default {
                 },
                 {
                     key: 'index',
-                    label: 'Vị trí',
+                    label: 'STT',
                     class: 'text-nowrap text-center  ',
                     sortable: false,
                     tdClass: 'checkbox-sticky-end text-center border',

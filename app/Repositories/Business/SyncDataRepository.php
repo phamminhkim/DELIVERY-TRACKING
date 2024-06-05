@@ -12,6 +12,7 @@ use App\Enums\File\FileStatuses;
 use App\Models\Business\FileStatus;
 use App\Services\Sap\SapApiHelper;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
 
 class SyncDataRepository extends RepositoryAbs
 {
@@ -32,9 +33,6 @@ class SyncDataRepository extends RepositoryAbs
             if ($validator->fails()) {
                 $this->errors = $validator->errors();
             } else {
-
-
-
                 $fields = $this->request->all();
                 $order_process_id = $this->request->input('order_process_id'); // Retrieve order_process_id
                 $order_process = OrderProcess::find($order_process_id);
@@ -177,6 +175,7 @@ class SyncDataRepository extends RepositoryAbs
                     $query->whereIn('customer_group_id', $customer_group_ids);
                 });
             }
+            // Hiển thị danh sách nhóm khách hàng từ bảng order_process
             $query->with([
                 'order_process' => function ($query) {
                     $query->with(['customer_group' => function ($query) {
@@ -187,6 +186,42 @@ class SyncDataRepository extends RepositoryAbs
             $soHeader = $query->get();
 
             return $soHeader;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function getSoHeaderByIds()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'items' => 'required|array',
+                'items.*.id' => 'required',
+            ], [
+                'items.required' => 'items là bắt buộc',
+                'items.array' => 'items phải là mảng',
+                'items.*.id.required' => 'id là bắt buộc',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $so_headers = [];
+                foreach ($this->data['items'] as $item) {
+                    $ids = [$item['id']];
+                    $so_header = SoHeader::whereIn('id', $ids)
+                        ->with(['so_data_items', 'order_process.customer_group:id,name'])
+                        ->first();
+
+                    if ($so_header) {
+                        $so_header->so_data_items = SoDataItem::where('so_header_id', $so_header->id)->get();
+                        $so_headers[] = $so_header;
+                    }
+                }
+                DB::commit();
+                return $so_headers;
+            }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
