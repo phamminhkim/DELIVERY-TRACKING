@@ -13,6 +13,10 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
         $structure = $options['structure'];
         $output = array();
         foreach ($structure as $structure_key => $array) {
+            if (isset($array['key_array'])) {
+                // Bỏ qua loại cấu hình theo các key
+                continue;
+            }
             $output[$structure_key] = array();
             if (isset($array['index'])) {
                 foreach ($array['index'] as $array_key => $array_value) {
@@ -32,6 +36,18 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
             }
             if (isset($array['date_format']) && $output[$structure_key]) {
                 $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+            }
+        }
+        // Xử lý loại cấu hình theo các key
+        foreach ($structure as $structure_key => $array) {
+            if (isset($array['key_array'])) {
+                $key_array = $array['key_array'];
+                $separator = $array['separator'];
+                $value_array = [];
+                foreach ($key_array as $key) {
+                    $value_array[] = $output[$key];
+                }
+                $output[$structure_key] = implode($separator, $value_array);
             }
         }
         return $output;
