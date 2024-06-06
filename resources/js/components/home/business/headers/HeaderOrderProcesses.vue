@@ -528,6 +528,7 @@ export default {
         },
         async detectSapCode() {
             this.updateLoadingState(true);
+            this.case_data_temporary.sap_codes = [];
             try {
                 this.orders.forEach(element => {
                     this.case_data_temporary.sap_codes.push({

@@ -663,6 +663,87 @@
                     </div>
                 </b-form>
             </b-card>
+            <b-card>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h5 class="text-dark font-weight-bold">
+                            <i class="fa fa-list"></i> Danh sách cấu hình
+                            <button
+                            @click="reloadConfigList()"
+                            class="btn btn-secondary  btn-xs ml-1">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="col-lg-6">
+                        <InputFilter @inputFilter="inputFilter"></InputFilter>
+                        <!-- Thanh tìm kiếm-->
+                    </div>
+                    <b-table
+                        :items="convert_config_list"
+                        :fields="fields"
+                        small
+                        responsive
+                        hover
+                        striped
+                        head-variant="light"
+                        :sticky-header="false"
+                        :bordered="true"
+                        :current-page="paginate.current_page"
+                        :per-page="paginate.per_page"
+                        :filter="filter"
+                        :busy="loading"
+                    >
+                        <template #table-busy>
+                            <div class="text-center text-secondary my-2">
+                            <b-spinner class="align-middle"></b-spinner>
+                            <strong>Loading...</strong>
+                            </div>
+                        </template>
+                        <template #cell(index)="data">
+                            {{ (paginate.current_page - 1) * paginate.per_page + data.index + 1 }}
+                        </template>
+                        <template #cell(customer_group_id)="data">
+                            <span>{{ data.item.customer_group.name }}</span>
+                        </template>
+                        <!-- <template #cell(name)="data">
+                            <span>{{ getConfigNameById(data.value) }}</span>
+                        </template> -->
+                        <template #cell(master_config_group_id)="data">
+                            <span>{{ data.item.master_extract_order_config? data.item.master_extract_order_config.name : "" }}</span>
+                        </template>
+                        <template #cell(is_config_group)="data">
+                            <span class="badge bg-success" v-if="data.value == true"><i class="fa fa-check"></i></span>
+                        </template>
+                        <template #cell(is_master_config_group)="data">
+                            <span class="badge bg-success" v-if="data.value == true"><i class="fa fa-check"></i></span>
+                        </template>
+                        <template #cell(is_slave_config_group)="data">
+                            <span class="badge bg-success" v-if="data.value == true"><i class="fa fa-check"></i></span>
+                        </template>
+                        <template #cell(active)="data">
+                            <span class="badge bg-success" v-if="data.value == true">Hoạt động</span>
+                            <span class="badge bg-warning" v-if="data.value == false">Ngưng hoạt động</span>
+                        </template>
+                        <template #cell(action)="data">
+                            <div class="text-center">
+                            <button @click="showConfigEdit(data.item)" class="btn btn-xs btn-warning">
+                                <i class="fas fa-pen mr-1"></i>Sửa
+                            </button>
+                            <button @click="deleteConfig(data.item.id)" class="btn btn-xs btn-danger">
+                                <i class="fas fa-trash-alt mr-1"></i>Xóa
+                            </button>
+                            </div>
+                        </template>
+                    </b-table>
+                    <PaginateBottom
+                        :rows="rows"
+                        :paginate="paginate"
+                        :pageOptions="pageOptions"
+                    ></PaginateBottom>
+                    <!-- Thanh phân trang-->
+                </div>
+            </b-card>
         </div>
 
         <div class="modal fade" id="importConfigDialog" tabindex="-1" role="dialog">
@@ -699,6 +780,153 @@
                 </div>
             </div>
         </div>
+        <!-- Edit config dialog -->
+        <div class="modal fade" id="convert_config_dialog" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form @submit.prevent="editConvertConfig">
+                        <div class="modal-header">
+                            <h5 class="modal-title font-weight-bold">
+                                <span>Cập nhật cấu hình</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Nhóm khách hàng</label><small class="text-danger">*</small>
+                                <select v-model="convert_config.customer_group_id"
+                                class="form-control"
+                                id="customer_group_id"
+                                name="customer_group_id"
+                                v-bind:class="hasError('customer_group_id') ? 'is-invalid' : ''">
+                                    <option v-for="customer in customer_group_options" :key="customer.id" :value="customer.id"> {{
+                                    customer.name
+                                    }} </option>
+                                </select>
+                                <span v-if="hasError('customer_group_id')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("customer_group_id") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Tên cấu hình</label
+                                ><small class="text-danger font-italic"> (nhập tối đa 255 kí tự)*</small>
+                                <input
+                                v-model="convert_config.name"
+                                type="text"
+                                class="form-control form-control-sm"
+                                placeholder="Nhập tên cấu hình"
+                                id="convert_name"
+                                name="convert_name"
+                                v-bind:class="hasError('convert_name') ? 'is-invalid' : ''"
+                                />
+                                <span v-if="hasError('convert_name')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("convert_name") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Loại file</label><small class="text-danger">*</small>
+                                <select v-model="convert_config.convert_file_type"
+                                class="form-control"
+                                id="convert_file_type"
+                                name="convert_file_type"
+                                v-bind:class="hasError('convert_file_type') ? 'is-invalid' : ''">
+                                    <option v-for="file_type in convert_file_type_options" :key="file_type.id" :value="file_type.id"> {{
+                                    file_type.label
+                                    }} </option>
+                                </select>
+                                <span v-if="hasError('convert_file_type')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("convert_file_type") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Nhóm cấu hình?</label>
+                                <select v-model="convert_config.is_config_group"
+                                class="form-control"
+                                id="is_config_group"
+                                name="is_config_group"
+                                v-bind:class="hasError('is_config_group') ? 'is-invalid' : ''">
+                                    <option value="true">Có</option>
+                                    <option value="false">Không</option>
+                                </select>
+                                <span v-if="hasError('is_config_group')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("is_config_group") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Nhóm chính?</label>
+                                <select v-model="convert_config.is_master_config_group"
+                                class="form-control"
+                                id="is_master_config_group"
+                                name="is_master_config_group"
+                                v-bind:class="hasError('is_master_config_group') ? 'is-invalid' : ''">
+                                    <option value="true">Có</option>
+                                    <option value="false">Không</option>
+                                </select>
+                                <span v-if="hasError('is_master_config_group')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("is_master_config_group") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Nhóm phụ?</label>
+                                <select v-model="convert_config.is_slave_config_group"
+                                class="form-control"
+                                id="is_slave_config_group"
+                                name="is_slave_config_group"
+                                v-bind:class="hasError('is_slave_config_group') ? 'is-invalid' : ''">
+                                    <option value="true">Có</option>
+                                    <option value="false">Không</option>
+                                </select>
+                                <span v-if="hasError('is_slave_config_group')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("is_slave_config_group") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Thuộc nhóm chính nào?</label>
+                                <select v-model="convert_config.master_config_group_id"
+                                class="form-control"
+                                id="master_config_group_id"
+                                name="master_config_group_id"
+                                v-bind:class="hasError('master_config_group_id') ? 'is-invalid' : ''">
+                                    <option v-for="config in convert_config_list.filter(item => item.is_master_config_group && item.customer_group_id == convert_config.customer_group_id)"
+                                    :key="config.id" :value="config.id">
+                                        {{config.id}} - {{config.name}}
+                                    </option>
+                                </select>
+                                <span v-if="hasError('master_config_group_id')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("master_config_group_id") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label>Trạng thái</label><small class="text-danger">*</small>
+                                <select v-model="convert_config.active"
+                                class="form-control"
+                                id="config_active"
+                                name="config_active"
+                                v-bind:class="hasError('config_active') ? 'is-invalid' : ''">
+                                    <option value=true>Hoạt động</option>
+                                    <option value=false>Ngưng hoạt động</option>
+                                </select>
+                                <span v-if="hasError('config_active')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("config_active") }}</strong>
+                                </span>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary mr-auto" data-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="btn btn-primary">
+                                OK
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 	</div>
 </template>
 
@@ -707,10 +935,14 @@
 	import APIHandler, { APIRequest } from '../ApiHandler';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 	import VueJsonEditor from 'vue-json-editor';
+    import InputFilter from "../general/filters/InputFilter.vue";
+    import PaginateBottom from "../general/paginations/PaginateBottom.vue";
 	export default {
 		components: {
 			Treeselect,
 			VueJsonEditor,
+            InputFilter,
+            PaginateBottom,
 		},
 		data() {
 			return {
@@ -838,12 +1070,187 @@
                     { id: true, label: 'Hoạt động' },
                     { id: false, label: 'Không hoạt động' },
                 ],
+                loading: false,
+                token: "",
+                fields: [
+                    { key: "index", label: "STT", sortable: true, class: "text-center" },
+                    { key: "customer_group_id", label: "Nhóm khách hàng", sortable: true },
+                    { key: "name", label: "Tên cấu hình", sortable: true },
+                    { key: "convert_file_type", label: "Loại file", sortable: true },
+                    { key: "is_config_group", label: "Nhóm cấu hình?", sortable: true, class: "text-center" },
+                    { key: "is_master_config_group", label: "Nhóm chính?", sortable: true, class: "text-center" },
+                    { key: "is_slave_config_group", label: "Nhóm phụ?", sortable: true, class: "text-center" },
+                    { key: "master_config_group_id", label: "Thuộc nhóm chính", sortable: true },
+                    { key: "active", label: "Hoạt động", class: "text-center" },
+                    { key: "action", label: "Hành động", class: "text-center" },
+                ],
+                filter: "",
+                paginate: {
+                    total: 0,
+                    per_page: 10,
+                    from: 1,
+                    to: 0,
+                    current_page: 1,
+                },
+                pageOptions: [10, 50, 100, 500, { value: this.rows, text: "All" }],
+                convert_config_list: [],
+                convert_config: {
+                    id: "",
+                    customer_group_id: "",
+                    name: "",
+                    convert_file_type: "pdf",
+                    is_config_group: false,
+                    is_master_config_group: false,
+                    is_slave_config_group: false,
+                    master_config_group_id: "",
+                    active: false,
+                },
+                errors: {},
+                page_url_convert_config_list: "/api/ai/config/config-list",
+                page_url_convert_config_destroy: "/api/ai/config/config-destroy",
+                page_url_convert_config_update: "/api/ai/config/config-update",
 			};
 		},
 		created() {
+            this.token = "Bearer " + window.Laravel.access_token;
 			this.fetchOptionsData();
+            this.fetchConvertConfigList();
 		},
 		methods: {
+            showConfigEdit(config) {
+                this.convert_config = {
+                    id: config.id,
+                    customer_group_id: config.customer_group_id,
+                    name: config.name,
+                    convert_file_type: config.convert_file_type,
+                    is_config_group: config.is_config_group,
+                    is_master_config_group: config.is_master_config_group,
+                    is_slave_config_group: config.is_slave_config_group,
+                    master_config_group_id: config.master_config_group_id,
+                    active: config.active,
+                    };
+                this.convert_file_type_options = [
+                    { id: 'pdf', label: 'PDF' },
+                    { id: 'excel', label: 'EXCEL' },
+                ];
+                $("#convert_config_dialog").modal("show");
+            },
+            async editConvertConfig() {
+                try {
+                    let page_url = this.page_url_convert_config_update + "/" + this.convert_config.id;
+                    const { data } = await this.api_handler.put(
+                        page_url,
+                        {},
+                        JSON.stringify(this.convert_config)
+                    );
+                    if (!data.errors) {
+                        $("#convert_config_dialog").modal("hide");
+                        this.resetConvertConfigList();
+                        this.reloadConfigList();
+                        toastr.success("Thông báo", "Lưu thành công");
+                    } else {
+                        this.errors = data.errors;
+                        toastr.error(this.errors, "Lưu thất bại");
+                    }
+                } catch (error) {
+                    console.log(error);
+                    toastr.error(error, "Lỗi");
+                }
+            },
+            deleteConfig(id) {
+                this.$bvModal
+                    .msgBoxConfirm("Xác nhận xóa?", {
+                    title: "",
+                    size: "sm",
+                    buttonSize: "sm",
+                    okVariant: "danger",
+                    okTitle: "OK",
+                    cancelTitle: "Cancel",
+                    footerClass: "p-2",
+                    hideHeaderClose: false,
+                    centered: true,
+                    })
+                    .then((value) => {
+                        if (value) {
+                            let page_url = this.page_url_convert_config_destroy + "/" + id;
+                            fetch(page_url, {
+                                method: "DELETE",
+                                headers: {
+                                    Authorization: this.token,
+                                    "content-type": "application/json",
+                                },
+                            })
+                            .then((res) => res.json())
+                            .then((res) => {
+                                if (!res.errors) {
+                                    toastr.success("Xóa thành công", "Thông báo");
+                                    this.reloadConfigList();
+                                } else {
+                                    this.errors = res.data.errors;
+                                    toastr.error(this.errors, "Xóa thất bại");
+                                }
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                                toastr.error(err, "Lỗi");
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                     console.log(err);
+                    });
+            },
+            resetConvertConfigList() {
+                this.convert_config = {
+                    id: "",
+                    customer_group_id: "",
+                    name: "",
+                    convert_file_type: "pdf",
+                    is_config_group: false,
+                    is_master_config_group: false,
+                    is_slave_config_group: false,
+                    master_config_group_id: "",
+                    active: false,
+                };
+            },
+            inputFilter(value) {
+                this.filter = value;
+            },
+            reloadConfigList() {
+                this.fetchConvertConfigList();
+            },
+            hasError(fieldName) {
+             return fieldName in this.errors;
+            },
+            getError(fieldName) {
+                return this.errors[fieldName][0];
+            },
+            clearError(event) {
+                Vue.delete(this.errors, event.target.name);
+            },
+
+            fetchConvertConfigList() {
+                this.loading = true;
+                var page_url = this.page_url_convert_config_list;
+                fetch(page_url, {
+                    method: "GET",
+                    headers: {
+                    Authorization: this.token,
+                    "content-type": "application/json",
+                    },
+                })
+                    .then((res) => res.json())
+                    .then((res) => {
+
+                    this.convert_config_list = res.data;
+                    // console.log("list", this.convert_config_list);
+                    this.loading = false;
+                    })
+                    .catch((err) => {
+                    console.log(err);
+                    this.loading = false;
+                    });
+            },
 			async fetchOptionsData() {
 				const [customer_group_options] = await this.api_handler.handleMultipleRequest([
 					new APIRequest('get', '/api/master/customer-groups'),
@@ -1520,6 +1927,9 @@
             },
             load_convert_file_type_id() {
                 return this.load_config_form.convert_file_type_id;
+            },
+            rows() {
+                return this.convert_config_list.length;
             },
         },
     };

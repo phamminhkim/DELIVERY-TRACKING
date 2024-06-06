@@ -317,6 +317,9 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [AiController::class, 'createExtractOrderConfigs']);
             Route::post('/restructure', [AiController::class, 'restructureDataForConfig']);
             Route::put('/{id}', [AiController::class, 'updateExtractOrderConfig']);
+            Route::get('/config-list', [AiController::class, 'getConvertConfigList']);
+            Route::put('/config-update/{id}', [AiController::class, 'updateConvertConfig']);
+            Route::delete('/config-destroy/{id}', [AiController::class, 'deleteConvertConfig']);
         });
         Route::prefix('file')->group(function () {
             Route::post('/batch', [UploadedFileController::class, 'prepareUploadFile']);

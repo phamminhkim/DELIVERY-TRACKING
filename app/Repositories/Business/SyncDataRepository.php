@@ -75,7 +75,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "LV2" => $order->level2,
                                 "LV3" => $order->level3,
                                 "LV4" =>  $order->level4,
-                                "NOTE" => $order->note,
+                                "NOTE" => $value["so_sap_note"],
                                 "USER"  => auth()->user()->name,
                                 "ITEMS" => $ITEM_DATA
                             ];
@@ -94,11 +94,14 @@ class SyncDataRepository extends RepositoryAbs
 
 
                         $soNumber = $json_value['SO_NUMBER'];
+
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
 
-                        if ($json_value['SO_NUMBER'] != '') {
+                        if ($json_value['SO_NUMBER']!= '') {
                             $soHeader->so_uid = $soNumber;
                             $soHeader->is_sync_sap =  true;
+                            $soHeader->so_sap_note = $value["so_sap_note"];
+                            $soHeader->warehouse_id = $value["warehouse_code"];
                             $soHeader->save();
                         }
 
@@ -106,6 +109,8 @@ class SyncDataRepository extends RepositoryAbs
                             "id" => $soHeader->id,
                             "so_number" => $soNumber,
                             "is_sync_sap" => boolval($soHeader->is_sync_sap),
+                            "so_sap_note" => $soHeader->so_sap_note,
+                            "warehouse_code" => $soHeader->warehouse_id,
                             "message" => $json_value['MESSAGE']
                         ];
                     }
