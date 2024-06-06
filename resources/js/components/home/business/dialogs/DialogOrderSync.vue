@@ -22,6 +22,8 @@
                                     <button @click="emitProcessOrderSync()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
+                                        <button @click="emitViewDetailOrderSyncs()" type="button"
+                                        class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
                                     <!-- <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button> -->
                                 </div>
                             </div>
@@ -113,6 +115,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'so_sap_note',
+                    label: 'Ghi chú',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'customer_key',
                     label: 'Mã KH',
                     sortable: true,
@@ -165,7 +173,10 @@ export default {
         },
         emitSelectedOrderSync(selected) {
             this.$emit('emitSelectedOrderSync', selected);
-        }
+        },
+        emitViewDetailOrderSyncs() {
+            this.$emit('viewDetailOrderSyncs');
+        },
     },
     computed: {
         row_items() {
