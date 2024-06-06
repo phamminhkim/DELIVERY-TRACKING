@@ -86,4 +86,9 @@ class ExtractOrderConfig extends Model
             ->where('is_config_group', true)
             ->where('is_slave_config_group', true);
     }
+
+    public function master_extract_order_config()
+    {
+        return $this->belongsTo(ExtractOrderConfig::class, 'master_config_group_id', 'id');
+    }
 }

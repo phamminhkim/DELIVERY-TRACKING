@@ -165,4 +165,40 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
+    public function getConvertConfigList(Request $request)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->getConvertConfigList();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function updateConvertConfig(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->updateConvertConfig($id);
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
+    public function deleteConvertConfig(Request $request, $id)
+    {
+        $handler = BusinessRepository::aiRequest($request);
+        $data = $handler->deleteConvertConfig($id);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
 }
