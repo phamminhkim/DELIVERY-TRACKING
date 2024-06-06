@@ -231,7 +231,7 @@ export default {
             console.log(result);
             this.orders = result.map((item, index) => {
                 return {
-                    order: this.isCheckUndefined(item['Vị trí']),
+                    order: index + 1,
                     id: '',
                     customer_sku_code: this.isCheckUndefined(item['Unit_barcode']),
                     customer_sku_name: this.isCheckUndefined(item['Unit_barcode_description']),
