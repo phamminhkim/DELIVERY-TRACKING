@@ -1425,4 +1425,72 @@ class AiRepository extends RepositoryAbs
 
         return false;
     }
+
+    public function getConvertConfigList()
+    {
+        $query = ExtractOrderConfig::where('is_official', true)->orderBy('customer_group_id');
+        $query->with([
+            'customer_group', 'master_extract_order_config'
+        ]);
+        $convert_config_list = $query->get();
+        return $convert_config_list;
+    }
+
+    public function updateConvertConfig($config_id)
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'required',
+                'name' => 'required',
+                'convert_file_type' => 'required',
+                'active' => 'required',
+            ], [
+                'customer_group_id.required' => 'Nhóm khách hàng là bắt buộc',
+                'name.required' => 'Tên cấu hình là bắt buộc',
+                'convert_file_type.required' => 'Loại file convert là bắt buộc',
+                'active.required' => 'Trạng thái là bắt buộc',
+            ]);
+
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+                $result['errors'] = $this->errors;
+                return $result;
+            } else {
+                DB::beginTransaction();
+                $extract_order_config = ExtractOrderConfig::find($config_id);
+                if (!$extract_order_config) {
+                    $this->message = 'Config không tồn tại';
+                    return;
+                }
+                $extract_order_config->customer_group_id = $this->data['customer_group_id'];
+                $extract_order_config->name = $this->data['name'];
+                $extract_order_config->convert_file_type = $this->data['convert_file_type'];
+                $extract_order_config->is_config_group = $this->data['is_config_group'] == "true" ? true: false;
+                $extract_order_config->is_master_config_group = $this->data['is_master_config_group'] == "true" ? true: false;
+                $extract_order_config->is_slave_config_group = $this->data['is_slave_config_group'] == "true" ? true: false;
+                $extract_order_config->master_config_group_id = $this->data['master_config_group_id'];
+                $extract_order_config->active = $this->data['active'] == "true" ? true: false;
+
+                $extract_order_config->save();
+
+                DB::commit();
+                return $extract_order_config;
+            }
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function deleteConvertConfig($id)
+    {
+        try {
+            $extract_order_config = ExtractOrderConfig::findOrFail($id);
+            $extract_order_config->delete();
+            return $extract_order_config;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 }
