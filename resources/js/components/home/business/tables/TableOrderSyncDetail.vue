@@ -1,6 +1,6 @@
 <template>
     <div>
-        <HeaderOrderSyncSAPDetail :rollBackUrl="rollBackUrl" ></HeaderOrderSyncSAPDetail>
+        <HeaderOrderSyncSAPDetail :rollBackUrl="rollBackUrl"></HeaderOrderSyncSAPDetail>
         <div class="form-group">
             <div class="row mb-1">
                 <div class="col-lg-6 ml-auto">
@@ -20,6 +20,7 @@
 <script>
 import HeaderOrderSyncSAPDetail from '../headers/HeaderOrderSyncSAPDetail.vue';
 import TableOrderSync from './TableOrderSync.vue';
+import ApiHandler, { APIRequest } from '../../ApiHandler';
 export default {
     components: {
         TableOrderSync,
@@ -27,8 +28,12 @@ export default {
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             case_filter: {
                 query: '',
+            },
+            case_api: {
+                order_sync_detail: 'api/so-header/so-header-details'
             },
             fields: [
                 {
@@ -91,48 +96,48 @@ export default {
                     class: 'text-nowrap'
                 },
             ],
-            items: [
-                {
-                    id: 1,
-                    index: 1,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
-                },
-                {
-                    id: 2,
-                    index: 2,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
-                },
-                {
-                    id: 3,
-                    index: 3,
-                    sap_so: '123456',
-                    so_key: 'SO123456',
-                    customer_key: 'KH123456',
-                    customer_name: 'Khách hàng 123456',
-                    po_delivery_date: '2021-01-01',
-                    status_sync: 'Đã đồng bộ',
-                    noti_sync: 'Đã đồng bộ'
-                },
-            ],
+            items: [],
         }
     },
+    created() {
+        this.getUrl();
+    },
     methods: {
+        async fetchOrderSyncDetail(ids) {
+            try {
+                let items = [];
+                if (ids.length > 0) {
+                    ids.forEach(id => {
+                        items.push({
+                            id: id
+                        });
+                    });
+                }
+                let body = {
+                    items: items
+                }
+                console.log(body, 'body');
+                // this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.post(this.case_api.order_sync_detail, {}, body);
+                this.items = data;
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                // this.case_is_loading.fetch_api = false;
+            }
+        },
         rollBackUrl() {
-            this.$router.push('/sap-syncs');
-            this.$emit('rollBackUrl', false);
-        }
+            // this.$router.push('/sap-syncs');
+            // this.$emit('rollBackUrl', false);
+        },
+        getUrl() {
+            const url = window.location.href;
+            const id_string = url.split('#')[1];
+            const ids = id_string.split('?')[0].split(',');
+            if (ids) {
+                this.fetchOrderSyncDetail(ids);
+            }
+        },
     }
 }
 </script>

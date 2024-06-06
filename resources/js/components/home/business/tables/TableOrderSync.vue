@@ -61,7 +61,8 @@ export default {
             }
         },
         getUrl(item) {
-            const url = window.location.origin + this.$route.path + '#' + item.id + '?so_key=' + item.so_key;
+            // console.log(window.location.origin + '/sap-syncs-detail');
+            const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
             window.open(url, '_blank');
         },
     }

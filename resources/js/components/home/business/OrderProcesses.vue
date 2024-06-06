@@ -42,8 +42,8 @@
         <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
-            @emitSelectedOrderSync="getSelectedOrderSync"
-            :is_sap_sync="case_is_loading.sap_sync">
+            @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
+            @viewDetailOrderSyncs="getviewDetailOrderSyncs">
         </ParentOrderSynchronized>
 
 
@@ -135,6 +135,12 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getviewDetailOrderSyncs() {
+            this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
+                const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+                window.open(url, '_blank');
+            })
+        },
         getSelectedOrderSync(selected) {
             // Chức năng đồng bộ SAP
             this.case_data_temporary.order_syncs_selected = selected;
@@ -148,6 +154,7 @@ export default {
                         return {
                             'id': item.so_header_id,
                             'warehouse_code': item.warehouse_id,
+                            'so_sap_note': item.so_sap_note
                         }
                     })
                 };
@@ -176,16 +183,16 @@ export default {
         },
         checkOrderSyncWithOrderProcess() {
             let new_orders = [];
-        
+
             this.orders.forEach((order_prcess) => {
                 let should_keep = true;
-        
+
                 this.case_data_temporary.order_syncs.forEach((order_sync) => {
                     if (order_prcess.so_header_id == order_sync.id && order_sync.so_uid !== '') {
                         should_keep = false;
                     }
                 });
-        
+
                 if (should_keep) {
                     new_orders.push(order_prcess);
                 }
@@ -283,7 +290,8 @@ export default {
                         is_sync_sap: false,
                         noti_sync: '',
                         warehouse_id: '',
-                        so_header_id: order.so_header_id
+                        so_header_id: order.so_header_id,
+                        so_sap_note: order.note
                     }
                 });
                 this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));

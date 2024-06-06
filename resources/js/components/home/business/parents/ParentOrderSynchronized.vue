@@ -3,7 +3,8 @@
         <DialogOrderSync :showModalSyncSAP="showModalSyncSAP" :customer_group_id="customer_group_id"
             :customer_groups="customer_groups" :order_syncs="order_syncs" :case_save_so="case_save_so"
             @emitSelectedOrderSync="emitSelectedOrderSync" @processOrderSync="processOrderSync"
-            :is_sap_sync="is_sap_sync">
+            :is_sap_sync="is_sap_sync" 
+            @viewDetailOrderSyncs="viewDetailOrderSyncs">
         </DialogOrderSync>
     </div>
 </template>
@@ -35,6 +36,9 @@ export default {
         emitSelectedOrderSync(selected) {
             this.$emit('emitSelectedOrderSync', selected);
         },
+        viewDetailOrderSyncs(){
+            this.$emit('viewDetailOrderSyncs');
+        }
     },
     computed: {
 
