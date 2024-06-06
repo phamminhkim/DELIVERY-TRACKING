@@ -1,62 +1,73 @@
 <template>
     <div>
-        <div class="mb-1 row">
-            <div class="col-lg-6">
-                <h5 class="text-black font-weight-bold mb-0">Chi tiết đơn hàng nhóm CoopMax</h5>
+        <div class="px-5">
+            <div class="mb-1 row">
+                <div class="col-lg-6">
+                    <p class="text-black font-weight-bold mb-0 w-100 py-2"><b class="mr-2"><u>{{ index }}.</u></b>Chi tiết đơn hàng nhóm <b>{{
+                        order_sync.order_process.customer_group.name }}</b></p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-right py-2">
+                        <!-- <button class="btn btn-light text-success btn-sm px-2"><i class="fas fa-file-excel mr-2"></i>Xuất phiếu</button> -->
+                        <!-- <button @click="rollBackUrl()" type="button" class="btn btn-light text-black px-2">Đóng</button> -->
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-6">
-                <div class="text-right">
-                    <button class="btn btn-light text-info px-2">Đồng bộ SAP</button>
-                    <button @click="rollBackUrl()" type="button" class="btn btn-light text-black px-2">Đóng</button>
+            <div class="form-group border rounded p-3 bg-white text-left">
+                <div class="row align-items-baseline">
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Mã KH
+                        SAP</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b> {{ order_sync.customer_code }}</b>
+                    </div>
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Tên
+                        KH</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b>{{ order_sync.customer_name }}</b>
+                    </div>
+                </div>
+                <div class="row align-items-baseline">
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số SO
+                        SAP</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b> {{ order_sync.so_uid }}</b>
+                    </div>
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
+                        tạo</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b> {{ order_sync.created_at }}</b>
+                    </div>
+                </div>
+                <div class="row align-items-baseline">
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số
+                        PO</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b> {{ order_sync.po_number }}</b>
+                    </div>
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
+                        giao</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b>{{ order_sync.po_delivery_date }}</b>
+                    </div>
+                </div>
+                <div class="row align-items-baseline">
+                    <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ghi
+                        chú</label>
+                    <div class="col-lg-3 mt-1 mb-1">
+                        <b> {{ order_sync.so_sap_note }}</b>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="form-group border border-info p-3 bg-white">
-            <div class="row align-items-baseline">
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Mã KH
-                    SAP</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>123</b>
-                </div>
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Tên
-                    KH</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>Siêu thị Bình CHán</b>
-                </div>
-            </div>
-            <div class="row align-items-baseline">
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số SO
-                    SAP</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>5000</b>
-                </div>
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
-                    tạo</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>20/11/2024</b>
-                </div>
-            </div>
-            <div class="row align-items-baseline">
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Số
-                    PO</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>PO12345</b>
-                </div>
-                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
-                    giao</label>
-                <div class="col-lg-3 mt-1 mb-1">
-                    <b>30/05/2024</b>
-                </div>
-            </div>
-        </div>
-       
     </div>
 </template>
 <script>
 export default {
     props: {
         rollBackUrl: Function,
-        query: String
+        query: String,
+        order_sync: Object,
+        index: Number
     },
     data() {
         return {

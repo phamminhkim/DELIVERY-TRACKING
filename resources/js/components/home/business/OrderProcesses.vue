@@ -600,7 +600,6 @@ export default {
             if (id) {
                 this.fetchOrderProcessSODetail(id);
             }
-
         },
         async fetchOrderProcessSODetail(id) {
             try {
