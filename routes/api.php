@@ -346,7 +346,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/sync-sale-order', [SyncDataController::class, 'syncSoHeaderFromSap']);
         Route::get('/', [SyncDataController::class, 'getSoHeader']);
         Route::get('/', [SyncDataController::class, 'getSoHeader']);
-        Route::get('/so-header-details', [SyncDataController::class, 'getSoHeaderByIds']);
+        Route::post('/so-header-details', [SyncDataController::class, 'getSoHeaderByIds']);
     });
     Route::prefix('check-data')->group(function () {
         Route::post('check-material-sap', [CheckDataController::class, 'checkMaterialSAP']);
