@@ -165,6 +165,11 @@ class RouterSeeder extends Seeder
                 'path' => '/sap-syncs',
                 'component' => 'home/business/OrderSyncSAP'
             ],
+            [
+                'name' => 'Chi tiết đơn hàng đồng bộ SAP',
+                'path' => '/sap-syncs-detail',
+                'component' => 'home/business/tables/TableOrderSyncDetail'
+            ],
         ];
 
         foreach ($routes as $routeData) {

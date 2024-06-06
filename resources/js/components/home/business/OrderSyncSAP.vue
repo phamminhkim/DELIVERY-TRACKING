@@ -5,8 +5,10 @@
             <div class="row mb-1">
                 <div class="col-lg-6">
                     <div>
-                        <button class="btn btn-sm btn-light text-info  btn-group__border">Đồng bộ
+                        <button type="button" class="btn btn-sm btn-light text-info  btn-group__border">Đồng bộ
                             SAP</button>
+                        <button @click="viewDetailOrderSyncs()" type="button"
+                            class="btn btn-sm btn-primary  btn-group__border">Xem chi tiết</button>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -19,8 +21,9 @@
                     </div>
                 </div>
             </div>
-            <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query" :current_page="current_page"
-            :per_page="per_page"></TableOrderSync>
+            <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
+                :current_page="current_page" :per_page="per_page" @emitSelectedOrderSync="getSelectedOrderSync">
+            </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                 :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
             </PaginationTable>
@@ -52,6 +55,15 @@ export default {
             },
             case_filter: {
                 query: '',
+            },
+            case_data: {
+                order_syncs: [],
+            },
+            case_data_temporary: {
+                order_syncs_selected: []
+            },
+            case_api: {
+                get_order_sync: '/api/so-header',
             },
             fields: [
                 {
@@ -118,12 +130,7 @@ export default {
             per_page: 100,
             page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
-            case_data: {
-                order_syncs: [],
-            },
-            case_api: {
-                get_order_sync: '/api/so-header',
-            }
+
         }
     },
     created() {
@@ -160,6 +167,22 @@ export default {
             } finally {
                 this.case_is_loading.fetch_api = false;
             }
+        },
+        getSelectedOrderSync(selected) {
+            // Chức năng đồng bộ SAP
+            this.case_data_temporary.order_syncs_selected = selected;
+        },
+        viewDetailOrderSyncs() {
+            let ids = '';
+            let url = '';
+            // this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
+            //     url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+            //     console.log({ url })
+            // })
+            ids =  this.case_data_temporary.order_syncs_selected.map(item => item.id).join(',');
+            url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
+            console.log({ url })
+            window.open(url, '_blank');
         },
     },
     computed: {
