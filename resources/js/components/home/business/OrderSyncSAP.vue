@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid bg-white p-2">
         <div v-if="!case_component.view_detail">
-            <HeaderOrderSyncSAP></HeaderOrderSyncSAP>
+            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync"></HeaderOrderSyncSAP>
             <div class="row mb-1">
                 <div class="col-lg-6">
                     <div>
@@ -61,6 +61,13 @@ export default {
             },
             case_filter: {
                 query: '',
+                from_date: '',
+                to_date: '',
+                sap_so_number: '',
+                po_number: '',
+                customer_name: '',
+                customer_code: '',
+                customer_group_ids: [],
             },
             case_data: {
                 order_syncs: [],
@@ -166,7 +173,16 @@ export default {
         },
         async getProcessOrderSync() {
             try {
-                const { data } = await this.api_handler.get(this.case_api.get_order_sync, {});
+                this.case_is_loading.fetch_api = true;
+                const { data } = await this.api_handler.get(this.case_api.get_order_sync, {
+                    'from_date': this.case_filter.from_date,
+                    'to_date': this.case_filter.to_date,
+                    'sap_so_number': this.case_filter.sap_so_number,
+                    'po_number': this.case_filter.po_number,
+                    'customer_name': this.case_filter.customer_name,
+                    'customer_code': this.case_filter.customer_code,
+                    'customer_group_ids': this.case_filter.customer_group_ids,
+                });
                 if (Array.isArray(data)) {
                     this.case_data.order_syncs = data;
                 }
@@ -226,6 +242,16 @@ export default {
                 this.case_is_loading.sap_sync = false;
             }
         },
+        getFormFilterOrderSync(data) {
+            this.case_filter.from_date = data.from_date;
+            this.case_filter.to_date = data.to_date;
+            this.case_filter.sap_so_number = data.sap_so_number;
+            this.case_filter.po_number = data.po_number;
+            this.case_filter.customer_name = data.customer_name;
+            this.case_filter.customer_code = data.customer_code;
+            this.case_filter.customer_group_ids = data.customer_group_ids;
+            this.getProcessOrderSync();
+        }
     },
     computed: {
         row_items() {

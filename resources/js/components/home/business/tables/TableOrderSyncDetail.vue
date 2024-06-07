@@ -10,6 +10,12 @@
                     <template #cell(index)="data">
                         <span>{{ data.index + 1 }}</span>
                     </template>
+                    <template #cell(price_po)="data">
+                        <span>{{ data.value.toLocaleString(locale_format) }}</span>
+                    </template>
+                    <template #cell(amount_po)="data">
+                        <span class="font-weight-bold">{{ data.value.toLocaleString(locale_format) }}</span>
+                    </template>
                 </b-table>
             </div>
         </div>
@@ -26,6 +32,7 @@ export default {
     },
     data() {
         return {
+            locale_format: "de-DE",
             api_handler: new ApiHandler(window.Laravel.access_token),
             case_filter: {
                 query: '',
@@ -53,28 +60,34 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'quantity3_sap',
-                    label: 'Số lượng',
-                    sortable: true,
-                    class: 'text-nowrap'
-                },
-                {
                     key: 'sku_sap_unit',
                     label: 'ĐVT',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'company_price',
+                    key: 'quantity3_sap',
+                    label: 'Số lượng',
+                    sortable: true,
+                    class: 'text-nowrap',
+                    thClass: 'text-center',
+                    tdClass: 'text-right' 
+                },
+                {
+                    key: 'price_po',
                     label: 'Đơn giá',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    thClass: 'text-center',
+                    tdClass: 'text-right' 
                 },
                 {
                     key: 'amount_po',
                     label: 'Thành tiền',
                     sortable: true,
-                    class: 'text-nowrap text-right'
+                    class: 'text-nowrap',
+                    thClass: 'text-center',
+                    tdClass: 'text-right' 
                 },
             ],
             items: [],
