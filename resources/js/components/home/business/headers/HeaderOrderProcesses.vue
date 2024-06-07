@@ -373,7 +373,8 @@ export default {
             }
         },
         handleCheckPrice() {
-            this.$refs.file_check_price.click();
+            this.$emit('emitCheckPrice');
+            // this.$refs.file_check_price.click();
         },
         async chooseFileEventCheckPrice(event) {
             await this.fetchCheckPrice(event.target.files[0]);
@@ -436,11 +437,12 @@ export default {
             reader.readAsArrayBuffer(file);
         },
         handleCheckInventory() {
-            if (this.warehouse_code === '') {
-                alert("Vui lòng nhập mã kho");
-                return;
-            }
-            this.$refs.file_check_ton.click();
+            this.$emit('emitCheckInventory');
+          //  if (this.warehouse_code === '') {
+               // alert("Vui lòng nhập mã kho");
+             //   return;
+           // }
+           // this.$refs.file_check_ton.click();
         },
         mappingCheckInventory(data) {
             var list = [...data];

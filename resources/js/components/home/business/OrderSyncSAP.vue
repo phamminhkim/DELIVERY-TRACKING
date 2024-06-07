@@ -22,6 +22,7 @@
                 </div>
             </div>
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
+            :use_component="'OrderSyncSAP'"
                 :current_page="current_page" :per_page="per_page" @emitSelectedOrderSync="getSelectedOrderSync">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"

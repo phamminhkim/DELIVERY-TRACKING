@@ -61,9 +61,18 @@ export default {
             }
         },
         getUrl(item) {
-            // console.log(window.location.origin + '/sap-syncs-detail');
-            const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+            let url = '';
+            switch (this.use_component) {
+                case 'OrderSyncSAP':
+                    url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+                    break;
+                default:
+                    url = window.location.origin + '/sap-syncs-detail' + '#' + item.so_header_id + '?sap_so_number=' + item.sap_so_number;
+                    break;
+            }
             window.open(url, '_blank');
+
+            // console.log(window.location.origin + '/sap-syncs-detail');
         },
     }
 }
