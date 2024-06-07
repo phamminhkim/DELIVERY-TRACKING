@@ -58,7 +58,7 @@ class SyncDataRepository extends RepositoryAbs
 
                             $sapData['BODY'][] = [
                                 "sales_org" => "3000",
-                                "distr_chan" => "10",
+                                "distr_chan" => "20",
                                 "doc_type" => "ZOR",
                                 "lgort" => $value["warehouse_code"],
                                 "Ship_cond" => "",
