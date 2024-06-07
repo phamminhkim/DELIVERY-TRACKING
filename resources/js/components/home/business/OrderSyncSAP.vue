@@ -63,7 +63,7 @@ export default {
                 query: '',
                 from_date: '',
                 to_date: '',
-                sap_so_number: '',
+                so_uid: '',
                 po_number: '',
                 customer_name: '',
                 customer_code: '',
@@ -177,7 +177,7 @@ export default {
                 const { data } = await this.api_handler.get(this.case_api.get_order_sync, {
                     'from_date': this.case_filter.from_date,
                     'to_date': this.case_filter.to_date,
-                    'sap_so_number': this.case_filter.sap_so_number,
+                    'so_uid': this.case_filter.so_uid,
                     'po_number': this.case_filter.po_number,
                     'customer_name': this.case_filter.customer_name,
                     'customer_code': this.case_filter.customer_code,
@@ -245,7 +245,7 @@ export default {
         getFormFilterOrderSync(data) {
             this.case_filter.from_date = data.from_date;
             this.case_filter.to_date = data.to_date;
-            this.case_filter.sap_so_number = data.sap_so_number;
+            this.case_filter.so_uid = data.so_uid;
             this.case_filter.po_number = data.po_number;
             this.case_filter.customer_name = data.customer_name;
             this.case_filter.customer_code = data.customer_code;

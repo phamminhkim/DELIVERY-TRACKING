@@ -30,7 +30,7 @@
                                 <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
                                     for="">Số SO SAP</label>
                                 <div class="col-lg-3 mt-1 mb-1">
-                                    <input v-model="case_filter.sap_so_number" class="form-control form-control-sm"
+                                    <input v-model="case_filter.so_uid" class="form-control form-control-sm"
                                         name="" id="" />
                                 </div>
                                 <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
@@ -125,7 +125,7 @@ export default {
             case_filter: {
                 from_date: '',
                 to_date: '',
-                sap_so_number: '',
+                so_uid: '',
                 po_number: '',
                 customer_name: '',
                 customer_code: '',
@@ -168,7 +168,7 @@ export default {
             this.case_filter = {
                 from_date: '',
                 to_date: '',
-                sap_so_number: '',
+                so_uid: '',
                 po_number: '',
                 customer_name: '',
                 customer_code: '',
