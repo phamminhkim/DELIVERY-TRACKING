@@ -212,10 +212,15 @@ export default {
             $('#modalCheckPrice').modal('show'); // component DialogOrderCheckPrice
         },
         getviewDetailOrderSyncs() {
-            this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
-                const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
-                window.open(url, '_blank');
-            })
+            // this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
+            //     const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+            //     window.open(url, '_blank');
+            // })
+            let ids = '';
+            let url = '';
+            ids = this.case_data_temporary.order_syncs_selected.map(item => item.so_header_id).join(',');
+            url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
+            window.open(url, '_blank');
         },
         getSelectedOrderSync(selected) {
             // Chức năng đồng bộ SAP
