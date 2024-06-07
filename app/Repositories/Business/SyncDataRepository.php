@@ -142,9 +142,9 @@ class SyncDataRepository extends RepositoryAbs
             }
 
             // Lọc theo số SAP SO
-            if ($this->request->filled('sap_so_number')) {
-                $sap_so_number = $this->request->sap_so_number;
-                $query->where('sap_so_number', 'LIKE', '%' . $sap_so_number . '%');
+            if ($this->request->filled('so_uid')) {
+                $so_uid = $this->request->so_uid;
+                $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
             }
 
             // Lọc theo số PO

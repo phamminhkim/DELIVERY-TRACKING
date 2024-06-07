@@ -24,7 +24,10 @@
 <script>
 export default {
     props: {
-        use_component: 'DialogOrderSync',
+        use_component: {
+            type: String,
+            default: 'DialogOrderSync'
+        },
         fields: Array,
         items: Array,
         query: String,
