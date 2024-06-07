@@ -182,8 +182,8 @@ class SyncDataRepository extends RepositoryAbs
                 });
             }
 
-            // Sắp xếp theo so_uid trước, sau đó là các mục không có so_uid
-            $query->orderByRaw("so_uid IS NULL, so_uid");
+            // Sắp xếp theo ID, ID cuối cùng được hiển thị trước
+            $query->orderByDesc('id');
 
             // Hiển thị danh sách nhóm khách hàng từ bảng order_process
             $query->with([
