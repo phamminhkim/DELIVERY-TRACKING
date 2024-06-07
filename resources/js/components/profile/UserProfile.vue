@@ -189,7 +189,7 @@
 		font-weight: bold;
 	}
 
-	button[type='submit'] {
-		width: 100%;
-	}
+	// button[type='submit'] {
+	// 	width: 100%;
+	// }
 </style>
