@@ -199,10 +199,7 @@ export default {
         viewDetailOrderSyncs() {
             let ids = '';
             let url = '';
-            // this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
-            //     url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
-            //     console.log({ url })
-            // })
+           
             ids = this.case_data_temporary.order_syncs_selected.map(item => item.id).join(',');
             url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
             window.open(url, '_blank');
