@@ -5,10 +5,12 @@
             <div class="row mb-1">
                 <div class="col-lg-6">
                     <div>
-                        <button @click="checkProcessOrderSync()" type="button" class="btn btn-sm btn-light text-info  btn-group__border">Đồng bộ
+                        <button @click="checkProcessOrderSync()" type="button" class="btn btn-sm btn-light text-info  btn-group__border">
+                            <span class="badge badge-info badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
                             SAP</button>
                         <button @click="viewDetailOrderSyncs()" type="button"
-                            class="btn btn-sm btn-primary  btn-group__border">Xem chi tiết</button>
+                            class="btn btn-sm btn-light text-primary btn-group__border">
+                            <span class="badge badge-primary badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
                     </div>
                 </div>
                 <div class="col-lg-6">

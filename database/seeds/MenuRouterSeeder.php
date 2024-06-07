@@ -361,8 +361,8 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Trích xuất đơn hàng',
             ],
             [
-                'title' => "Đồng bộ SAP",
-                'icon' => "fas fa-times-circle",
+                'title' => "Danh sách đơn hàng",
+                'icon' => "fas fa-bars",
                 'link' => "sap-syncs",
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
