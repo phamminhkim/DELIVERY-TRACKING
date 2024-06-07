@@ -161,7 +161,7 @@ class RouterSeeder extends Seeder
                 'component' => 'home/sap/SapCompliance/SapCompliances'
             ],
             [
-                'name' => 'Đồng bộ SAP',
+                'name' => 'Danh sách đơn hàng',
                 'path' => '/sap-syncs',
                 'component' => 'home/business/OrderSyncSAP'
             ],

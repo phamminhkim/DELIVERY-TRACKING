@@ -81,28 +81,46 @@ export default {
                 this.is_loading = true;
                 this.case_data.order_data = this.orders.concat(this.order_lacks);
                 this.case_data.customer_group_id = this.case_save_so.customer_group_id;
-                if (this.case_save_so.id !== "") {
-                    let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
-                        .finally(() => {
-                            this.is_loading = false;
-                        });
-                    this.$showMessage('success', 'Cập nhật thành công');
-                    this.$emit('saveOrderSO', data);
-                    this.hideDialogTitleOrderSo();
-                } else {
-                    let { data } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
-                        .finally(() => {
-                            this.is_loading = false;
-                        });
-                    this.$showMessage('success', 'Thêm thành công');
-                    this.$emit('saveOrderSO', data);
-                    this.hideDialogTitleOrderSo();
+                if (!this.checkCustomerGroup()) {
+                    this.is_loading = false;
+                    return;
                 }
-               
+                if (this.case_save_so.id !== "") {
+                    try {
+                        let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
+                        this.$showMessage('success', 'Cập nhật thành công');
+                        this.$emit('saveOrderSO', data);
+                        this.hideDialogTitleOrderSo();
+                    } catch (error) {
+                        this.$showMessage('error', 'Cập nhật thất bại', error);
+                    } finally {
+                        this.is_loading = false;
+                    }
+                } else {
+                    try {
+                        let { data, success } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
+                        this.$showMessage('success', 'Thêm thành công');
+                        this.$emit('saveOrderSO', data);
+                        this.hideDialogTitleOrderSo();
+                        console.log(success, data, '123')
+                    } catch (error) {
+                        this.$showMessage('error', 'Thêm thất bại', error);
+                    } finally {
+                        this.is_loading = false;
+                    }
+                }
+
             } catch (error) {
-                // handle error
+                console.log(error);
             }
         },
+        checkCustomerGroup() {
+            if (this.case_data.customer_group_id === -1) {
+                this.$showMessage('error', 'Vui lòng chọn nhóm khách hàng');
+                return false;
+            }
+            return true;
+        }
     }
 }
 </script>
