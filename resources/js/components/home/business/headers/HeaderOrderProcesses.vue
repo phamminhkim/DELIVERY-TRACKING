@@ -101,7 +101,8 @@
                 <button @click="handleCheckPrice()" type="button"
                     class="shadow btn-sm btn-light rounded text-orange btn-group__border">Check
                     giá</button>
-                <button @click="emitCompliance()" type="button" class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
+                <button @click="emitCompliance()" type="button"
+                    class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     quy cách</button>
                 <button @click="emitOrderLack()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">Lưu
@@ -113,14 +114,14 @@
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
                         class="fas fa-search mr-2"></i>Tìm
                     mã...</button>
-                    <button @click="emitOrderSyncSAP()" type="button"
+                <button @click="emitOrderSyncSAP()" type="button"
                     class="btn-sm font-smaller btn btn-light text-info rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Đồng bộ SAP</button>
                 <button @click="downloadExcel()"
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-download mr-2"></i>Tạo
                     upload</button>
-                    <button @click="emitImportExcel()" type="button"
+                <button @click="emitImportExcel()" type="button"
                     class="btn-sm font-smaller btn btn-info px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-file-import mr-2"></i>Import Excel</button>
                 <button @click="emitExportExcel()" type="button"
@@ -373,7 +374,8 @@ export default {
             }
         },
         handleCheckPrice() {
-            this.$refs.file_check_price.click();
+            this.$emit('emitCheckPrice');
+            // this.$refs.file_check_price.click();
         },
         async chooseFileEventCheckPrice(event) {
             await this.fetchCheckPrice(event.target.files[0]);
@@ -436,11 +438,12 @@ export default {
             reader.readAsArrayBuffer(file);
         },
         handleCheckInventory() {
-            if (this.warehouse_code === '') {
-                alert("Vui lòng nhập mã kho");
-                return;
-            }
-            this.$refs.file_check_ton.click();
+            this.$emit('emitCheckInventory');
+            //  if (this.warehouse_code === '') {
+            // alert("Vui lòng nhập mã kho");
+            //   return;
+            // }
+            // this.$refs.file_check_ton.click();
         },
         mappingCheckInventory(data) {
             var list = [...data];
@@ -587,27 +590,30 @@ export default {
             this.case_data_temporary.type_file = change_file.type;
             this.extract_order_configs = [];
         },
-        updateMaterialCategoryTypeInOrder(index, item, order) {
-            this.orders.forEach((item_order, index) => {
-                if (item_order.customer_sku_code == order.customer_sku_code) {
-                    if (item) {
-                        if (item_order.promotive != item.name) {
-                            item_order.promotive = item.name;
-                            item_order.promotive_name = item.name;
-                        }
-                    } else {
-                        item_order.promotive = '';
-                        item_order.promotive_name = '';
-
-                    }
-
+        updateMaterialCategoryTypeInOrder(index_order, item, order) {
+            // this.orders.forEach((item_order, index_item) => {
+            //     if (item_order.customer_sku_code == order.customer_sku_code) {
+            //         if (item) {
+            //             if (item_order.promotive != item.name) {
+            //                 item_order.promotive = item.name;
+            //                 item_order.promotive_name = item.name;
+            //             }
+            //         } else {
+            //             item_order.promotive = '';
+            //             item_order.promotive_name = '';
+            //         }
+            //     }
+            // });
+            if (item !== null) {
+                if (this.orders[index_order].promotive != item.name) {
+                    this.orders[index_order].promotive = item.name;
+                    this.orders[index_order].promotive_name = item.name;
                 }
+            } else {
+                this.orders[index_order].promotive = '';
+                this.orders[index_order].promotive_name = '';
+            }
 
-            });
-            // if (this.orders[index].promotive != item.name) {
-            //     this.orders[index].promotive = item.name;
-            //     this.orders[index].promotive_name = item.name;
-            // }
         },
         async getConvertFilePDF(file_response) {
             let item_index = 1;
@@ -793,9 +799,9 @@ export default {
             link.click();
             document.body.removeChild(link);
         },
-        itemNote(item){
-            let  note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) +  ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
-            return note;     
+        itemNote(item) {
+            let note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
+            return note;
         },
         emitExportExcel() {
             this.$emit('exportExcel');

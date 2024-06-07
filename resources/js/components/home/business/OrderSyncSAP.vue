@@ -5,10 +5,12 @@
             <div class="row mb-1">
                 <div class="col-lg-6">
                     <div>
-                        <button type="button" class="btn btn-sm btn-light text-info  btn-group__border">Đồng bộ
+                        <button @click="checkProcessOrderSync()" type="button" class="btn btn-sm btn-light text-info  btn-group__border">
+                            <span class="badge badge-info badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
                             SAP</button>
                         <button @click="viewDetailOrderSyncs()" type="button"
-                            class="btn btn-sm btn-primary  btn-group__border">Xem chi tiết</button>
+                            class="btn btn-sm btn-light text-primary btn-group__border">
+                            <span class="badge badge-primary badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -22,6 +24,7 @@
                 </div>
             </div>
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
+            :use_component="'OrderSyncSAP'"
                 :current_page="current_page" :per_page="per_page" @emitSelectedOrderSync="getSelectedOrderSync">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
@@ -50,6 +53,9 @@ export default {
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
+            case_is_loading: {
+                sap_sync: false,
+            },
             case_component: {
                 view_detail: false,
             },
@@ -64,6 +70,8 @@ export default {
             },
             case_api: {
                 get_order_sync: '/api/so-header',
+            api_order_sync: '/api/so-header/sync-sale-order',
+
             },
             fields: [
                 {
@@ -179,10 +187,44 @@ export default {
             //     url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
             //     console.log({ url })
             // })
-            ids =  this.case_data_temporary.order_syncs_selected.map(item => item.id).join(',');
+            ids = this.case_data_temporary.order_syncs_selected.map(item => item.id).join(',');
             url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
-            console.log({ url })
             window.open(url, '_blank');
+        },
+        async checkProcessOrderSync() {
+            try {
+                this.case_is_loading.sap_sync = true;
+                let body = {
+                    // 'order_process_id': 107,
+                    'data': this.case_data_temporary.order_syncs_selected.map(item => {
+                        return {
+                            'id': item.id,
+                            'warehouse_code': item.warehouse_id,
+                            'so_sap_note': item.so_sap_note
+                        }
+                    })
+                };
+                const { data, success } = await this.api_handler.post(this.case_api.api_order_sync, {}, body);
+                if (success) {
+                    data.forEach(item => {
+                        this.case_data.order_syncs.forEach(order_sync => {
+                            if (item.id == order_sync.id) {
+                                // order_sync.id = item.id;
+                                order_sync.so_uid = item.so_number;
+                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.noti_sync = item.message;
+                            }
+                        });
+                    });
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.sap_sync = false;
+            }
         },
     },
     computed: {

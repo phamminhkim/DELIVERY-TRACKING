@@ -11,8 +11,11 @@
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
             @exportExcel="getExportExcel" @importExcel="getImportExcel"
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
-            @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup">
+            @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
+            @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal">
         </HeaderOrderProcesses>
+        <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
+        <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplaceAll="getReplaceItemAll"
             @itemReplace="getReplaceItem" :item_selecteds="case_data_temporary.item_selecteds">
@@ -61,6 +64,8 @@ import ParentOrderSuffice from './parents/ParentOrderSuffice.vue';
 import ParentOrderLack from './parents/ParentOrderLack.vue';
 import ParentOrderSynchronized from './parents/ParentOrderSynchronized.vue';
 import TempExcelImport from '../../Templates/Excels/TempExcelImport.vue';
+import DialogOrderCheckInventory from './dialogs/DialogOrderCheckInventory.vue';
+import DialogOrderCheckPrice from './dialogs/DialogOrderCheckPrice.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
 import { isUndefined } from 'axios/lib/utils';
 export default {
@@ -74,7 +79,9 @@ export default {
         DialogTitleOrderSO,
         DialogListOrderProcessSO,
         ParentOrderSynchronized,
-        TempExcelImport
+        TempExcelImport,
+        DialogOrderCheckInventory,
+        DialogOrderCheckPrice
     },
     data() {
         return {
@@ -118,6 +125,7 @@ export default {
                 customer_groups: [],
                 order_syncs: [],
                 order_syncs_selected: [],
+                warehouse_id: '',
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
@@ -126,6 +134,9 @@ export default {
             api_order_process_so: '/api/sales-order',
             api_order_process_check_compliance: '/api/check-data/check-compliance',
             api_order_sync: '/api/so-header/sync-sale-order',
+            api_check_inventory: '/api/check-data/check-inventory',
+            api_check_price: '/api/check-data/check-price',
+
 
 
         }
@@ -135,6 +146,72 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        async fetchCheckPrice(so_numbers, is_promotion) {
+            try {
+                this.case_is_loading.fetch_api = true;
+                let body = {
+                    'data': [
+                        {
+                            'so_numbers': so_numbers,
+                            'is_promotion': is_promotion
+                        }
+                    ]
+                };
+                const { data, success } = await this.api_handler.post(this.api_check_price, {}, body);
+                if (data) {
+                    this.getCheckPrice(data);
+                    this.$showMessage('success', 'Thành công', 'Check giá thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Check giá không thành công');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
+        },
+        async fetchCheckInventory() {
+            try {
+                this.case_is_loading.is_inventory = true;
+                let body = {
+
+                    'data': this.orders.map(item => {
+                        return {
+                            'materials': item.sku_sap_code,
+                            'warehouse_id': this.case_data_temporary.warehouse_id,
+                        }
+                    })
+                };
+                const { data, success } = await this.api_handler.post(this.api_check_inventory, {}, body);
+                if (data) {
+                    this.getInventory(data);
+                    this.$showMessage('success', 'Thành công', 'Check tồn thành công');
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.case_is_loading.is_inventory = false;
+            }
+        },
+        getModelSoNumbers(so_numbers, is_promotion) {
+            let promotion = is_promotion ? 'X' : '';
+            $('#modalCheckPrice').modal('hide');
+            this.fetchCheckPrice(so_numbers, promotion);
+            // this.getCheckPrice();
+
+        },
+        getModelWarehouseId(warehouse_id) {
+            this.case_data_temporary.warehouse_id = warehouse_id;
+            $('#modalCheckInventory').modal('hide');
+            this.fetchCheckInventory();
+        },
+        getCheckInventory() {
+            $('#modalCheckInventory').modal('show'); // component DialogOrderCheckInventory
+        },
+
+        getCheckPriceModal() {
+            $('#modalCheckPrice').modal('show'); // component DialogOrderCheckPrice
+        },
         getviewDetailOrderSyncs() {
             this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
                 const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
@@ -231,7 +308,7 @@ export default {
             console.log(result);
             this.orders = result.map((item, index) => {
                 return {
-                    order: this.isCheckUndefined(item['Vị trí']),
+                    order: index + 1,
                     id: '',
                     customer_sku_code: this.isCheckUndefined(item['Unit_barcode']),
                     customer_sku_name: this.isCheckUndefined(item['Unit_barcode_description']),
@@ -350,8 +427,8 @@ export default {
             var orders = [...this.orders];
             this.material_inventories.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if (tmp['Material'] == this.orders[i]['sku_sap_code']) {
-                        orders[i]['inventory_quantity'] = tmp['ATP_Quantity'];
+                    if (tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
+                        orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                     }
                 }
@@ -363,8 +440,8 @@ export default {
             var orders = [...this.orders];
             this.material_prices.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if (tmp['bar_code'] !== "" && tmp['bar_code'] == this.orders[i]['barcode']) {
-                        orders[i]['company_price'] = tmp['price'];
+                    if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
+                        orders[i]['company_price'] = tmp['PRICE'];
                     }
                 }
             });
@@ -600,7 +677,6 @@ export default {
             if (id) {
                 this.fetchOrderProcessSODetail(id);
             }
-
         },
         async fetchOrderProcessSODetail(id) {
             try {
