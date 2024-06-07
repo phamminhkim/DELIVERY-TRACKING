@@ -208,15 +208,19 @@ export default {
         getCheckInventory() {
             $('#modalCheckInventory').modal('show'); // component DialogOrderCheckInventory
         },
-
         getCheckPriceModal() {
             $('#modalCheckPrice').modal('show'); // component DialogOrderCheckPrice
         },
         getviewDetailOrderSyncs() {
-            this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
-                const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
-                window.open(url, '_blank');
-            })
+            // this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
+            //     const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
+            //     window.open(url, '_blank');
+            // })
+            let ids = '';
+            let url = '';
+            ids = this.case_data_temporary.order_syncs_selected.map(item => item.so_header_id).join(',');
+            url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
+            window.open(url, '_blank');
         },
         getSelectedOrderSync(selected) {
             // Chức năng đồng bộ SAP
@@ -356,7 +360,15 @@ export default {
                 $('#dialogTitleOrderSo').modal('show');
             } else {
                 $('#modalOrderSync').modal('show');
-                const result = this.orders.map(order => {
+                const unique = {};
+                const result = this.orders.filter(order => {
+                    const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
+                    if (!unique[key]) {
+                        unique[key] = true;
+                        return true;
+                    }
+                    return false;
+                }).map(order => {
                     return {
                         id: '',
                         so_uid: '',
@@ -371,7 +383,23 @@ export default {
                         so_sap_note: order.note
                     }
                 });
-                this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
+                this.case_data_temporary.order_syncs = result;
+                // const result = this.orders.map(order => {
+                //     return {
+                //         id: '',
+                //         so_uid: '',
+                //         sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                //         customer_key: order.customer_code,
+                //         customer_name: order.customer_name,
+                //         po_delivery_date: order.po_delivery_date,
+                //         is_sync_sap: false,
+                //         noti_sync: '',
+                //         warehouse_id: '',
+                //         so_header_id: order.so_header_id,
+                //         so_sap_note: order.note
+                //     }
+                // });
+                // this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
             }
 
         },
