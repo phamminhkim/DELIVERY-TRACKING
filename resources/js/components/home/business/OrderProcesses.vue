@@ -161,6 +161,8 @@ export default {
                 if (data) {
                     this.getCheckPrice(data);
                     this.$showMessage('success', 'Thành công', 'Check giá thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Check giá không thành công');
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -438,8 +440,8 @@ export default {
             var orders = [...this.orders];
             this.material_prices.forEach(tmp => {
                 for (var i = 0; i < this.orders.length; i++) {
-                    if (tmp['bar_code'] !== "" && tmp['bar_code'] == this.orders[i]['barcode']) {
-                        orders[i]['company_price'] = tmp['price'];
+                    if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
+                        orders[i]['company_price'] = tmp['PRICE'];
                     }
                 }
             });
