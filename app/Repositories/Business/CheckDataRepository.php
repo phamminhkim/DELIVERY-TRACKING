@@ -445,6 +445,7 @@ class CheckDataRepository extends RepositoryAbs
                         "materials" => $value['materials'],
                         "warehouse_code" => "3101",
                     ];
+                    // dd($sapData);
                 }
 
                 $json = SapApiHelper::postData(json_encode($sapData));
@@ -452,18 +453,22 @@ class CheckDataRepository extends RepositoryAbs
                 $jsonString = json_encode($json); // Convert the array to a JSON string
                 $jsonData = json_decode($jsonString, true);
 
+
                 if (!empty($jsonData['data'])) {
+                // dd($jsonData['data']);
+
                     foreach ($jsonData['data'] as $json_value) {
                         $quantity = $json_value['ATP_QUANTITY'];
 
                         if ($json_value['ATP_QUANTITY'] != '') {
                             $result[] = [
-                                "materials" => $json_value['MATERIAL'],
-                                "atp_quantity" => $json_value['ATP_QUANTITY'],
+                                "MATERIAL" => $json_value['MATERIAL'],
+                                "ATP_QUANTITY" => $json_value['ATP_QUANTITY'],
                             ];
                         }
                     }
                 }
+
             }
 
             DB::commit();
