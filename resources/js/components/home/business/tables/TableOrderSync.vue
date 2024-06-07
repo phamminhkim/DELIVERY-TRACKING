@@ -12,7 +12,7 @@
                 {{ data.index + 1 }}
             </template>
             <template #cell(sap_so_number)="data">
-                <a class="link-item" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
+                <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
             </template>
             <template #cell(warehouse_code)="data">
                 <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
@@ -77,4 +77,7 @@ export default {
     }
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.cursor-poiner{
+    cursor: pointer;
+}</style>

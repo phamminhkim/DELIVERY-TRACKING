@@ -589,27 +589,24 @@ export default {
             this.case_data_temporary.type_file = change_file.type;
             this.extract_order_configs = [];
         },
-        updateMaterialCategoryTypeInOrder(index, item, order) {
-            this.orders.forEach((item_order, index) => {
-                if (item_order.customer_sku_code == order.customer_sku_code) {
-                    if (item) {
-                        if (item_order.promotive != item.name) {
-                            item_order.promotive = item.name;
-                            item_order.promotive_name = item.name;
-                        }
-                    } else {
-                        item_order.promotive = '';
-                        item_order.promotive_name = '';
-
-                    }
-
-                }
-
-            });
-            // if (this.orders[index].promotive != item.name) {
-            //     this.orders[index].promotive = item.name;
-            //     this.orders[index].promotive_name = item.name;
-            // }
+        updateMaterialCategoryTypeInOrder(index_order, item, order) {
+            // this.orders.forEach((item_order, index_item) => {
+            //     if (item_order.customer_sku_code == order.customer_sku_code) {
+            //         if (item) {
+            //             if (item_order.promotive != item.name) {
+            //                 item_order.promotive = item.name;
+            //                 item_order.promotive_name = item.name;
+            //             }
+            //         } else {
+            //             item_order.promotive = '';
+            //             item_order.promotive_name = '';
+            //         }
+            //     }
+            // });
+            if (this.orders[index_order].promotive != item.name) {
+                this.orders[index_order].promotive = item.name;
+                this.orders[index_order].promotive_name = item.name;
+            }
         },
         async getConvertFilePDF(file_response) {
             let item_index = 1;

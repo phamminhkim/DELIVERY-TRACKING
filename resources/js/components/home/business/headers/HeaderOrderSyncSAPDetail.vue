@@ -35,7 +35,7 @@
                     <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
                         tạo</label>
                     <div class="col-lg-3 mt-1 mb-1">
-                        <b> {{ order_sync.created_at }}</b>
+                        <b> {{ order_sync.created_at | formatDateStyleApart }}</b>
                     </div>
                 </div>
                 <div class="row align-items-baseline">
@@ -47,7 +47,7 @@
                     <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
                         giao</label>
                     <div class="col-lg-3 mt-1 mb-1">
-                        <b>{{ order_sync.po_delivery_date }}</b>
+                        <b>{{ order_sync.po_delivery_date   }}</b>
                     </div>
                 </div>
                 <div class="row align-items-baseline">

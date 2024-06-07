@@ -74,7 +74,7 @@ export default {
                     key: 'amount_po',
                     label: 'Thành tiền',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap text-right'
                 },
             ],
             items: [],
