@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\UserMorph;
 use App\Models\Master\Warehouse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,5 +37,9 @@ class SoHeader extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+    public function user_morphs()
+    {
+        return $this->morphMany(UserMorph::class, 'morphable');
     }
 }
