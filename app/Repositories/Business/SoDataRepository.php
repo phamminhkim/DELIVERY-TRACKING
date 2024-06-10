@@ -51,13 +51,14 @@ class SoDataRepository extends RepositoryAbs
                                 'order_process_id' => $order_process->id,
                                 'sap_so_number' => $key,
                                 'po_number' => $so_items[0]['po_number'],
-                                'po_delivery_date' => $so_items[0]['po_delivery_date'],
-                                'customer_name' => $so_items[0]['customer_name'],
-                                'customer_code' => $so_items[0]['customer_code'],
-                                'note' => $so_items[0]['note1'],
-                                'level2' => $so_items[0]['level2'],
-                                'level3' => $so_items[0]['level3'],
-                                'level4' => $so_items[0]['level4'],
+                                'so_sap_note' => isset($so_items[0]['so_sap_note']) ? $so_items[0]['so_sap_note'] : null,
+                                'po_delivery_date' => isset($so_items[0]['po_delivery_date']) ? $so_items[0]['po_delivery_date'] : null,
+                                'customer_name' => isset($so_items[0]['customer_name']) ? $so_items[0]['customer_name'] : null,
+                                'customer_code' => isset($so_items[0]['customer_code']) ? $so_items[0]['customer_code'] : null,
+                                'note' => isset($so_items[0]['note1']) ? $so_items[0]['note1'] : null,
+                                'level2' => isset($so_items[0]['level2']) ? $so_items[0]['level2'] : null,
+                                'level3' => isset($so_items[0]['level3']) ? $so_items[0]['level3'] : null,
+                                'level4' => isset($so_items[0]['level4']) ? $so_items[0]['level4'] : null,
                             ]);
                             $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
                             $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
@@ -138,13 +139,14 @@ class SoDataRepository extends RepositoryAbs
                             'order_process_id' => $order_process->id,
                             'sap_so_number' => $key,
                             'po_number' => $so_items[0]['po_number'],
-                            'po_delivery_date' => $so_items[0]['po_delivery_date'],
-                            'customer_name' => $so_items[0]['customer_name'],
-                            'customer_code' => $so_items[0]['customer_code'],
-                            'note' => $so_items[0]['note1'],
-                            'level2' => $so_items[0]['level2'],
-                            'level3' => $so_items[0]['level3'],
-                            'level4' => $so_items[0]['level4'],
+                            'so_sap_note' => isset($so_items[0]['so_sap_note']) ? $so_items[0]['so_sap_note'] : null,
+                            'po_delivery_date' => isset($so_items[0]['po_delivery_date']) ? $so_items[0]['po_delivery_date'] : null,
+                            'customer_name' => isset($so_items[0]['customer_name']) ? $so_items[0]['customer_name'] : null,
+                            'customer_code' => isset($so_items[0]['customer_code']) ? $so_items[0]['customer_code'] : null,
+                            'note' => isset($so_items[0]['note1']) ? $so_items[0]['note1'] : null,
+                            'level2' => isset($so_items[0]['level2']) ? $so_items[0]['level2'] : null,
+                            'level3' => isset($so_items[0]['level3']) ? $so_items[0]['level3'] : null,
+                            'level4' => isset($so_items[0]['level4']) ? $so_items[0]['level4'] : null,
                         ]);
                         $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
                         $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {

@@ -653,6 +653,7 @@ export default {
                         is_inventory: false,
                         inventory_quantity: '',
                         sap_so_number: file_response.data[index].headers.SapSoNumber,
+                        so_sap_note: file_response.data[index].headers.SoSapNote,
                         po_number: file_response.data[index].headers.PoNumber,
                         po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
                         compliance: '',

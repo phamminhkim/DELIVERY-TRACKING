@@ -369,6 +369,9 @@ export default {
                     }
                     return false;
                 }).map(order => {
+                    // alert("map");
+                    // console.log("map");
+                    // console.log(order);
                     return {
                         id: '',
                         so_uid: '',
@@ -380,7 +383,7 @@ export default {
                         noti_sync: '',
                         warehouse_id: '',
                         so_header_id: order.so_header_id,
-                        so_sap_note: order.note
+                        so_sap_note: (order.so_sap_note != "" && order.so_sap_note != null) ? order.so_sap_note:order.note,
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
@@ -587,6 +590,7 @@ export default {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
         getSaveOrderSO(item) {
+            
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
@@ -634,8 +638,11 @@ export default {
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
                         so_header_id: data_item.so_header_id,
+                        so_sap_note: data_item.so_header.so_sap_note,
                     });
                 } else {
+                    // console.log(item);
+                    // alert(data_item.so_header.customer_code);return;
                     this.orders.push({
                         order: data_item.order,
                         id: data_item.id,
@@ -674,6 +681,7 @@ export default {
                         is_compliant: data_item.is_compliant,
                         quantity3_sap: data_item.quantity3_sap,
                         so_header_id: data_item.so_header_id,
+                        so_sap_note: data_item.so_header.so_sap_note,
                     });
                 }
 
@@ -735,7 +743,7 @@ export default {
             let data_news = data.map((item, index) => {
                 return {
                     'STT': index + 1,
-                    'Makh Key': item.customer_code,
+                    'Makh Key': item.customer_name,
                     'Mã Sap So': item.sap_so_number,
                     'Barcode_cty': item.barcode,
                     'Masap': item.sku_sap_code,
@@ -748,10 +756,10 @@ export default {
                     'Unit_barcode_description': item.sku_sap_name,
                     'Dvt_po': item.sku_sap_unit,
                     'Po': item.po_number,
-                    'Qty': item.quantity,
+                    'Qty': item.quantity1_po,
                     'Combo': item.promotion_category,
                     'Check tồn': item.inventory_quantity,
-                    'Po_qty': item.quantity1_po,
+                    'Po_qty': item.quantity2_po,
                     'Pur_price': item.price_po,
                     'Amount': item.amount_po,
                     'QC': item.compliance,
@@ -876,6 +884,7 @@ export default {
                 note: item.note,
                 barcode: item.barcode,
                 sap_so_number: item.sap_so_number,
+                so_sap_note: item.so_sap_note,
                 sku_sap_code: item.sku_sap_code,
                 sku_sap_name: item.sku_sap_name,
                 sku_sap_unit: item.sku_sap_unit,
