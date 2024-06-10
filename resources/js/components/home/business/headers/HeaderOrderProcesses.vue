@@ -117,10 +117,10 @@
                 <button @click="emitOrderSyncSAP()" type="button"
                     class="btn-sm font-smaller btn btn-light text-info rounded  btn-group__border shadow-btn"><i
                         class="fas fa-file-upload mr-2"></i>Đồng bộ SAP</button>
-                <button @click="downloadExcel()"
+                <!-- <button @click="downloadExcel()"
                     class="btn-sm font-smaller btn btn-light text-success rounded  btn-group__border shadow-btn"><i
                         class="fas fa-download mr-2"></i>Tạo
-                    upload</button>
+                    upload</button> -->
                 <button @click="emitImportExcel()" type="button"
                     class="btn-sm font-smaller btn btn-info px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-file-import mr-2"></i>Import Excel</button>
@@ -133,7 +133,7 @@
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-save mr-2"></i>Lưu</button>
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div class="col-3">
                     <div class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
@@ -143,7 +143,7 @@
                             aria-label="..." aria-describedby="basic-addon1">
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
