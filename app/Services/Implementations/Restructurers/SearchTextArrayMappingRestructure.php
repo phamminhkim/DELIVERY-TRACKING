@@ -4,6 +4,7 @@ namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Utilities\FormatDateUtility;
+use App\Utilities\OperatorUtility;
 
 class SearchTextArrayMappingRestructure implements DataRestructureInterface
 {
@@ -45,6 +46,11 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
             // Lấy string theo vị trí bắt đầu
             if (isset($array['start_pos'])) {
                 $output[$structure_key] = mb_substr($output[$structure_key], $array['start_pos']);
+            }
+
+            // Xử lý replace
+            if (isset($array['replace_value'])) {
+                $output[$structure_key] = OperatorUtility::replaceValue($output[$structure_key], $array['replace_value']);
             }
 
             if ($output[$structure_key] && isset($array['date_format'])) {
