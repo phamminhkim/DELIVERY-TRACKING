@@ -120,8 +120,17 @@ class SyncDataRepository extends RepositoryAbs
     public function getSoHeader()
     {
         try {
+            $user_id = $this->current_user->id;
 
             $query = SoHeader::query();
+            if ($this->current_user->hasRole('admin-system')) {
+                // Không cần lọc theo user_id cho admin-system, hiển thị tất cả các tệp
+            } else {
+                // Lọc các tệp theo user_id của người dùng hiện tại
+                $query->whereHas('user_morphs', function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                });
+            }
 
             // Lọc theo danh sách các ID
             if ($this->request->filled('ids')) {
@@ -172,6 +181,10 @@ class SyncDataRepository extends RepositoryAbs
                     $query->whereIn('customer_group_id', $customer_group_ids);
                 });
             }
+
+            // Sắp xếp theo ID, ID cuối cùng được hiển thị trước
+            $query->orderByDesc('id');
+
             // Hiển thị danh sách nhóm khách hàng từ bảng order_process
             $query->with([
                 'order_process' => function ($query) {
