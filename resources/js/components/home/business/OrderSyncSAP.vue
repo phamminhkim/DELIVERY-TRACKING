@@ -99,6 +99,18 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'po_number',
+                    label: 'PO num',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
+                    key: 'po_delivery_date',
+                    label: 'Ngày YC giao',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'sap_so_number',
                     label: 'SO Key',
                     sortable: true,
