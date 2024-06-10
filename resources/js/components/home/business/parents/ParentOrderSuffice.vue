@@ -164,6 +164,15 @@ export default {
 
                 },
                 {
+                    key: 'so_sap_note',
+                    label: 'Sap note',
+                    class: 'text-nowrap   ',
+                    sortable: false,
+                    thClass: 'border',
+                    isShow: true,
+
+                },
+                {
                     key: 'barcode',
                     label: 'Barcode_cty',
                     class: 'text-nowrap   ',

@@ -78,6 +78,7 @@ export default {
         },
         async saveOrderSO() {
             try {
+                
                 this.is_loading = true;
                 this.case_data.order_data = this.orders.concat(this.order_lacks);
                 this.case_data.customer_group_id = this.case_save_so.customer_group_id;
