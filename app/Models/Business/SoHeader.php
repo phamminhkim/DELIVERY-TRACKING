@@ -15,6 +15,7 @@ class SoHeader extends Model
         'warehouse_id',
         'so_uid',
         'sap_so_number',
+        'so_sap_note',
         'po_number',
         'po_delivery_date',
         'customer_name',
