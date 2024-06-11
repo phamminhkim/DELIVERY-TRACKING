@@ -30,11 +30,25 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-                <template #head(sap_so_number)="header">
+                <template #head(sap_so_number)="header"> 
                     <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sap_so_number')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sap_so_number')">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
+                <template #head(so_sap_note)="header">
+                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'so_sap_note')"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'so_sap_note')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
                         </label>
@@ -292,16 +306,12 @@
                             :class="{ 'change-border': isChangeBorder(data.item.customer_name) && isSameField(case_order.field_order, data.field.key) }">
                             <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span>
                         </div>
-                        <!-- <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span> -->
-
                     </div>
-
 
                 </template>
                 <template #cell(sap_so_number)="data">
                     <div class="sap_so_number overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sap_so_number, data.field.key)" -->
-
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sap_so_number"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
@@ -317,9 +327,7 @@
                             <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{
             data.item.promotive }}</span>
                         </div>
-
                     </div>
-
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div class="quantity1_po overflow-hidden" :class="{
@@ -684,6 +692,25 @@
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sku_sap_name) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.sku_sap_name }}</span>
+                        </div>
+                    </div>
+
+                </template>
+                <template #cell(so_sap_note)="data">
+                    <div class="so_sap_note overflow-hidden">
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.so_sap_note"
+                            @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
+                            @dblclick="handleDoubleClick($event)"
+                            @input="handleItem(data.item.so_sap_note, 'so_sap_note', data.index)" />
+                        <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.so_sap_note + data.index + data.field.key"
+                            @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
+                            @mousedown="startSelection($event, data.item.so_sap_note, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.so_sap_note, $event, data.index)"
+                            @mouseup="endSelection(data.item.so_sap_note, $event)"
+                            @dblclick="handleDoubleClick($event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.so_sap_note) && isSameField(case_order.field_order, data.field.key) }">
+                            <span>{{ data.item.so_sap_note }}</span>
                         </div>
                     </div>
 
