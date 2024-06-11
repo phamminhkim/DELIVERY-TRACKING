@@ -252,14 +252,15 @@
                 </template>
                 <template #cell(barcode)="data">
                     <div class="barcode overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.barcode, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
-                            @keydown="copyItem($event, data.item.barcode, data.field.key)" @dblclick="handleDoubleClick($event)"
+                            @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.barcode, 'barcode', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                            :ref="'keyListenerDiv_' + data.item.barcode + data.item.order + data.field.key"
+                            :ref="'keyListenerDiv_' + data.item.barcode + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.barcode, data.field.key)"
-                            @mousedown="startSelection($event, data.item.barcode, data.item.order, data.field.key)"
-                            @mousemove="selectItem(data.item.barcode, $event)"
+                            @mousedown="startSelection($event, data.item.barcode, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.barcode, $event, data.index)"
                             @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.barcode) && isSameField(case_order.field_order, data.field.key) }">
                             <span class="text-center rounded " :class="{
@@ -273,25 +274,50 @@
 
                 </template>
                 <template #cell(customer_name)="data">
-                    <div v-if="isCheckLack(data.item)">
+                    <!-- <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
-                        <!-- <small class="text-danger">Hàng thiếu</small> -->
-                    </div>
-                    <div v-else class="customer_name overflow-hidden">
-                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.customer_name"
+                    </div> -->
+                    <div class="customer_name overflow-hidden">
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_name"
+                            @keydown="copyItem($event, data.item.customer_name, data.field.key)"
+                            @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
-
-                        <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span>
+                        <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.customer_name + data.index + data.field.key"
+                            @keydown="copyItem($event, data.item.customer_name, data.field.key)"
+                            @mousedown="startSelection($event, data.item.customer_name, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.customer_name, $event, data.index)"
+                            @mouseup="endSelection(data.item.customer_name, $event)"
+                            @dblclick="handleDoubleClick($event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.customer_name) && isSameField(case_order.field_order, data.field.key) }">
+                            <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span>
+                        </div>
+                        <!-- <span v-if="!case_is_status.edit"> {{ data.item.customer_name }} </span> -->
 
                     </div>
+
+
                 </template>
                 <template #cell(sap_so_number)="data">
                     <div class="sap_so_number overflow-hidden">
-                        <input v-if="case_is_status.edit" class="px-2" v-model="data.item.sap_so_number"
+                        <!-- @keydown="copyItem($event, data.item.sap_so_number, data.field.key)" -->
+
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sap_so_number"
+                            @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" />
-                        <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
-                        <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{
+                        <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.sap_so_number + data.index + data.field.key"
+                            @keydown="copyItem($event, data.item.sap_so_number, data.field.key)"
+                            @mousedown="startSelection($event, data.item.sap_so_number, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.sap_so_number, $event, data.index)"
+                            @mouseup="endSelection(data.item.sap_so_number, $event)"
+                            @dblclick="handleDoubleClick($event)"
+                            :class="{ 'change-border': isChangeBorder(data.item.sap_so_number) && isSameField(case_order.field_order, data.field.key) }">
+                            <span v-if="case_is_status.edit"> {{ data.item.promotive }}</span>
+                            <span v-if="!case_is_status.edit"> {{ data.item.sap_so_number }}{{
             data.item.promotive }}</span>
+                        </div>
+
                     </div>
 
                 </template>
@@ -585,15 +611,15 @@
                 <template #cell(sku_sap_code)="data">
                     <div class="overflow-hidden sku_sap_code">
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
-                            @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)" @dblclick="handleDoubleClick($event)"
-                            @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
-                        <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                            :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.item.order + data.field.key"
-                            @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
                             @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
-                            @mousedown="startSelection($event, data.item.sku_sap_code, data.item.order, data.field.key)"
-                            @mousemove="selectItem(data.item.sku_sap_code, $event)"
+                            @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
+                        <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                            :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.index + data.field.key"
+                            @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
+                            @dblclick="handleDoubleClick($event)"
+                            @mousedown="startSelection($event, data.item.sku_sap_code, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.sku_sap_code, $event, data.index)"
                             @mouseup="endSelection(data.item.sku_sap_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order, data.field.key) }">
                             <span class="text-center rounded" :class="{
@@ -717,11 +743,10 @@
                 </template>
                 <template #cell(promotive)="data">
                     <div class="overflow-hidden promotive">
-                        <div tabindex="0"
-                            :ref="'keyListenerDiv_' + data.item.promotive + data.item.order + data.field.key"
-                            @keydown="copyItem($event, data.item.promotive, data.field.key, data.item.order)"
-                            @mousedown="startSelection($event, data.item.promotive, data.item.order, data.field.key)"
-                            @mousemove="selectItem(data.item.promotive, $event, data.item.order)"
+                        <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.index + data.field.key"
+                            @keydown="copyItem($event, data.item.promotive, data.field.key)"
+                            @mousedown="startSelection($event, data.item.promotive, data.index, data.field.key)"
+                            @mousemove="selectItem(data.item.promotive, $event, data.index)"
                             @mouseup="endSelection(data.item.customer_sku_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
                             <div class="d-flex justify-content-end py-2 ">
@@ -772,14 +797,13 @@
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
                             @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
-                            @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.item.order)" />
+                            @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
-                            :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.item.order + data.field.key"
-                            @click.ctrl.exact="changeCtrl($event, data.item.customer_sku_code)"
+                            :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.index + data.field.key"
                             @dblclick="handleDoubleClick($event)"
-                            @mousedown="startSelection($event, data.item.customer_sku_code, data.item.order, data.field.key)"
+                            @mousedown="startSelection($event, data.item.customer_sku_code, data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_sku_code, $event)"
+                            @mousemove="selectItem(data.item.customer_sku_code, $event, data.index)"
                             @mouseup="endSelection(data.item.customer_sku_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) && isSameField(case_order.field_order, data.field.key) }">
                             {{ data.item.customer_sku_code }}
@@ -1048,6 +1072,7 @@ export default {
             this.case_order.field_order = header;
         },
         startSelection(e, item, index, header) {
+            console.log(e, item, index, header, '123');
             this.case_order.db_click = false;
             if (e !== undefined) {
                 e.preventDefault();
@@ -1135,6 +1160,7 @@ export default {
                     break;
                 case 86: // ctrl + v
                     if (event.ctrlKey) {
+                        console.log(this.case_order.parses, this.case_index.orders, field, event);
                         this.pasteItem(this.case_order.parses, this.case_index.orders, field, event);
                     }
                     break;
