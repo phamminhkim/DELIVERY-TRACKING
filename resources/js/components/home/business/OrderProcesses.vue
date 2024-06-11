@@ -874,8 +874,8 @@ export default {
                 // e.preventDefault();
                 indexs.forEach(index => {
                     items.forEach(item => {
-                        this.orders[index - 1][field] = item.promotive;
-                        this.orders[index - 1].promotive_name = item.promotive;
+                        this.orders[index][field] = item.promotive;
+                        this.orders[index].promotive_name = item.promotive;
                     });
                 });
             }
