@@ -156,17 +156,21 @@ class MaterialDonatedRepository extends RepositoryAbs
             // Đặt tiêu đề cho các cột
             $sheet->setCellValue('A1', 'Mã sản phẩm');
             $sheet->setCellValue('B1', 'Tên sản phẩm');
+            $sheet->setCellValue('C1', 'Trạng thái');
 
             // Ghi dữ liệu vào file Excel
             $row = 2;
             foreach ($material_donated as $donated) {
                 $sheet->setCellValue('A' . $row, $donated->sap_code);
                 $sheet->setCellValue('B' . $row, $donated->name);
+                if ($donated->is_active == 1) {
+                    $sheet->setCellValue('C' . $row, 'x');
+                }
                 $row++;
             }
 
             // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-            $columns = ['A', 'B'];
+            $columns = ['A', 'B', 'C'];
             foreach ($columns as $column) {
                 $columnDimension = $sheet->getColumnDimension($column);
                 $columnWidth = $columnDimension->getWidth();
@@ -201,7 +205,7 @@ class MaterialDonatedRepository extends RepositoryAbs
                 ],
             ];
 
-            $sheet->getStyle('A1:B1')->applyFromArray($headerStyle);
+            $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);
