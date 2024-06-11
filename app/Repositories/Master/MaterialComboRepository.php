@@ -120,7 +120,7 @@ class MaterialComboRepository extends RepositoryAbs
                             // Bộ mã đã tồn tại, cập nhật thông tin
                             $existing_combo->name = $name;
                             $existing_combo->bar_code = $bar_code;
-                            $existing_combo->is_active = ($is_active === null) ? 1 : 0;
+                            $existing_combo->is_active = ($is_active !== null) ? 1 : 0; // Cập nhật trường is_active
                             $existing_combo->save();
 
                             $result[] = $existing_combo;
@@ -131,7 +131,7 @@ class MaterialComboRepository extends RepositoryAbs
                                 'sap_code' => $sap_code,
                                 'name' => $name,
                                 'bar_code' => $bar_code,
-                                'is_active' => ($is_active === null) ? 1 : 0,
+                                'is_active' => ($is_active !== null) ? 1 : 0, // Cập nhật trường is_active
                             ]);
 
                             $result[] = $new_material_combo;
