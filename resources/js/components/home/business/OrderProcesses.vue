@@ -383,7 +383,7 @@ export default {
                         noti_sync: '',
                         warehouse_id: '',
                         so_header_id: order.so_header_id,
-                        so_sap_note: (order.so_sap_note != "" && order.so_sap_note != null) ? order.so_sap_note : order.note,
+                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note : this.itemNote(order) ,
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
@@ -405,6 +405,10 @@ export default {
                 // this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
             }
 
+        },
+        itemNote(item) {
+            let note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
+            return note;
         },
         openModalSearchOrderProcesses() {
             this.is_open_modal_search_order_processes = true;
