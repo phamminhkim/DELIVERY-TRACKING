@@ -383,7 +383,7 @@ export default {
                         noti_sync: '',
                         warehouse_id: '',
                         so_header_id: order.so_header_id,
-                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note : this.itemNote(order) ,
+                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order) ,
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
