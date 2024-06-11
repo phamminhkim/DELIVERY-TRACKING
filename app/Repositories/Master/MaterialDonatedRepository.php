@@ -100,7 +100,7 @@ class MaterialDonatedRepository extends RepositoryAbs
                     $is_active = strtolower($row[$template_structure['is_active']]);
 
                     // Chuyển đổi giá trị 'is_active' thành 1 nếu chuỗi là null, ngược lại thành 0
-                    $is_active = ($is_active != null) ? 0 : 1;
+                    $is_active = ($is_active != null) ? 1 : 0;
                     $material_donated = MaterialDonated::updateOrCreate(
                         [
                             'sap_code' => $row[$template_structure['sap_code']],
