@@ -52,7 +52,7 @@ class SyncDataRepository extends RepositoryAbs
                                     "productId" => $item->sku_sap_code,
                                     "quantity" => $item->quantity3_sap,
                                     "unit" => $item->sku_sap_unit,
-                                    "combo" => $item->is_promotive == true ? 'X' : ''
+                                    "combo" => ""
                                 ];
                             }
 
@@ -120,82 +120,84 @@ class SyncDataRepository extends RepositoryAbs
     public function getSoHeader()
     {
         try {
-            $user_id = $this->current_user->id;
 
-            $query = SoHeader::query();
-            if ($this->current_user->hasRole('admin-system')) {
-                // Không cần lọc theo user_id cho admin-system, hiển thị tất cả các tệp
-            } else {
-                // Lọc các tệp theo user_id của người dùng hiện tại
-                $query->whereHas('user_morphs', function ($query) use ($user_id) {
-                    $query->where('user_id', $user_id);
+            $user = auth()->user();
+            if ($user) {
+                $user_id = $user->id; // Assuming the user ID is stored in the 'id' column
+                $query = SoHeader::query();
+
+                // Lọc các tệp theo user_id của người dùng hiện tại trong bảng order_process
+                $query->whereHas('order_process', function ($query) use ($user_id) {
+                    $query->where('created_by', $user_id);
                 });
+                // dd($user_id);
+
+                // Lọc theo danh sách các ID
+                if ($this->request->filled('ids')) {
+                    $ids = $this->request->ids;
+                    $query->whereIn('id', $ids);
+                }
+
+                // Lọc theo ngày bắt đầu
+                if ($this->request->filled('from_date')) {
+                    $from_date = $this->request->from_date;
+                    $query->whereDate('po_delivery_date', '>=', $from_date);
+                }
+
+                // Lọc theo ngày kết thúc
+                if ($this->request->filled('to_date')) {
+                    $to_date = $this->request->to_date;
+                    $query->whereDate('po_delivery_date', '<=', $to_date);
+                }
+
+                // Lọc theo số SAP SO
+                if ($this->request->filled('so_uid')) {
+                    $so_uid = $this->request->so_uid;
+                    $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
+                }
+
+                // Lọc theo số PO
+                if ($this->request->filled('po_number')) {
+                    $po_number = $this->request->po_number;
+                    $query->where('po_number', 'LIKE', '%' . $po_number . '%');
+                }
+
+                // Lọc theo tên khách hàng
+                if ($this->request->filled('customer_name')) {
+                    $customer_name = $this->request->customer_name;
+                    $query->where('customer_name', 'LIKE', '%' . $customer_name . '%');
+                }
+
+                // Lọc theo mã khách hàng
+                if ($this->request->filled('customer_code')) {
+                    $customer_code = $this->request->customer_code;
+                    $query->where('customer_code', 'LIKE', '%' . $customer_code . '%');
+                }
+
+                // Lọc theo danh sách customer_group_ids
+                if ($this->request->filled('customer_group_ids')) {
+                    $customer_group_ids = $this->request->customer_group_ids;
+                    $query->whereHas('order_process', function ($query) use ($customer_group_ids) {
+                        $query->whereIn('customer_group_id', $customer_group_ids);
+                    });
+                }
+
+                // Sắp xếp theo ID, ID cuối cùng được hiển thị trước
+                $query->orderByDesc('id');
+
+                // Hiển thị danh sách nhóm khách hàng từ bảng order_process
+                $query->with([
+                    'order_process' => function ($query) {
+                        $query->with(['customer_group' => function ($query) {
+                            $query->select(['id', 'name']);
+                        }]);
+                    },
+                ]);
+
+                $soHeader = $query->get();
+
+                return $soHeader;
             }
-
-            // Lọc theo danh sách các ID
-            if ($this->request->filled('ids')) {
-                $ids = $this->request->ids;
-                $query->whereIn('id', $ids);
-            }
-
-            // Lọc theo ngày bắt đầu
-            if ($this->request->filled('from_date')) {
-                $from_date = $this->request->from_date;
-                $query->whereDate('po_delivery_date', '>=', $from_date);
-            }
-
-            // Lọc theo ngày kết thúc
-            if ($this->request->filled('to_date')) {
-                $to_date = $this->request->to_date;
-                $query->whereDate('po_delivery_date', '<=', $to_date);
-            }
-
-            // Lọc theo số SAP SO
-            if ($this->request->filled('so_uid')) {
-                $so_uid = $this->request->so_uid;
-                $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
-            }
-
-            // Lọc theo số PO
-            if ($this->request->filled('po_number')) {
-                $po_number = $this->request->po_number;
-                $query->where('po_number', 'LIKE', '%' . $po_number . '%');
-            }
-
-            // Lọc theo tên khách hàng
-            if ($this->request->filled('customer_name')) {
-                $customer_name = $this->request->customer_name;
-                $query->where('customer_name', 'LIKE', '%' . $customer_name . '%');
-            }
-
-            // Lọc theo mã khách hàng
-            if ($this->request->filled('customer_code')) {
-                $customer_code = $this->request->customer_code;
-                $query->where('customer_code', 'LIKE', '%' . $customer_code . '%');
-            }
-
-            // Lọc theo danh sách customer_group_ids
-            if ($this->request->filled('customer_group_ids')) {
-                $customer_group_ids = $this->request->customer_group_ids;
-                $query->whereHas('order_process', function ($query) use ($customer_group_ids) {
-                    $query->whereIn('customer_group_id', $customer_group_ids);
-                });
-            }
-
-            // Sắp xếp theo ID, ID cuối cùng được hiển thị trước
-            $query->orderByDesc('id');
-
-            // Hiển thị danh sách nhóm khách hàng từ bảng order_process
-            $query->with([
-                'order_process' => function ($query) {
-                    $query->with(['customer_group' => function ($query) {
-                        $query->select(['id', 'name']);
-                    }]);
-                },
-            ]);
-            $soHeader = $query->get();
-
-            return $soHeader;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
