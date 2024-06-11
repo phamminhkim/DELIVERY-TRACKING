@@ -190,6 +190,7 @@ class MaterialComboRepository extends RepositoryAbs
             $sheet->setCellValue('B1', 'Mã sản phẩm');
             $sheet->setCellValue('C1', 'Tên sản phẩm');
             $sheet->setCellValue('D1', 'Mã Barcode');
+            $sheet->setCellValue('E1', 'Trạng thái');
 
             // Ghi dữ liệu vào file Excel
             $row = 2;
@@ -198,11 +199,14 @@ class MaterialComboRepository extends RepositoryAbs
                 $sheet->setCellValue('B' . $row, $combo->sap_code);
                 $sheet->setCellValue('C' . $row, $combo->name);
                 $sheet->setCellValue('D' . $row, $combo->bar_code);
+                if ($combo->is_active == 1) {
+                    $sheet->setCellValue('E' . $row, 'x');
+                }
                 $row++;
             }
 
             // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-            $columns = ['A', 'B', 'C', 'D'];
+            $columns = ['A', 'B', 'C', 'D', 'E'];
             foreach ($columns as $column) {
                 $columnDimension = $sheet->getColumnDimension($column);
                 $columnWidth = $columnDimension->getWidth();
@@ -237,7 +241,7 @@ class MaterialComboRepository extends RepositoryAbs
                 ],
             ];
 
-            $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
+            $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);
