@@ -69,10 +69,10 @@ class SyncDataRepository extends RepositoryAbs
                                 "LV3" => $order->level3,
                                 "LV4" => $order->level4,
                                 "NOTE" => $value["so_sap_note"],
-                                "USER" => auth()->user()->name,
+                                "USER" => auth()->user()->email,
                                 "ITEMS" => $ITEM_DATA
                             ];
-                            // dd($sapData);
+                            dd($sapData);
                         }
                     }
                 }
