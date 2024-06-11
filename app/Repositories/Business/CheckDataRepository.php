@@ -358,7 +358,7 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($fields['data'] as $value) {
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
-                        "warehouse_code" => "3101",
+                        "warehouse_code" =>  $value['warehouse_id'],
                     ];
                     // dd($sapData);
                 }
