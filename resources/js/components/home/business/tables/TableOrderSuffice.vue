@@ -936,7 +936,7 @@ export default {
     },
     watch: {
         'case_checkbox.selected': function (val) {
-            if (val.length === this.orders.length) {
+            if (val.length === this.filterOrders.length) {
                 this.case_checkbox.selected_all = true;
             } else {
                 this.case_checkbox.selected_all = false;
@@ -1003,7 +1003,7 @@ export default {
         },
         checkBoxAll(index) {
             if (this.case_checkbox.selected_all) {
-                this.case_checkbox.selected = this.orders;
+                this.case_checkbox.selected = this.filterOrders;
             } else {
                 this.case_checkbox.selected = [];
             }
@@ -1012,7 +1012,7 @@ export default {
         },
         emitCheckBox(index) {
             if (this.case_checkbox.selected_all) {
-                this.case_checkbox.selected = this.orders;
+                this.case_checkbox.selected = this.filterOrders;
             }
             this.$emit('checkBoxRow', this.case_checkbox.selected, index)
 

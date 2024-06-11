@@ -383,7 +383,7 @@ export default {
                         noti_sync: '',
                         warehouse_id: '',
                         so_header_id: order.so_header_id,
-                        so_sap_note: (order.so_sap_note != "" && order.so_sap_note != null) ? order.so_sap_note:order.note,
+                        so_sap_note: (order.so_sap_note != "" && order.so_sap_note != null) ? order.so_sap_note : order.note,
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
@@ -543,12 +543,22 @@ export default {
         },
         getEventOrderDelete() {
             this.case_data_temporary.item_selecteds.forEach(item_selected => {
-                this.orders.splice(this.orders.indexOf(item_selected), 1);
+                this.orders = this.orders.filter(item => item != item_selected);
             });
             this.refeshCheckBox();
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
             });
+            this.refHeaderOrderProcesses();
+            // this.getResetFilter();
+
+            // this.case_data_temporary.item_selecteds.forEach(item_selected => {
+            //     this.orders.splice(this.orders.indexOf(item_selected), 1);
+            // });
+            // this.refeshCheckBox();
+            // this.orders.forEach((item, index) => {
+            //     item.order = index + 1;
+            // });
         },
         getReplaceItemAll(item_materials, barcode) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
@@ -590,7 +600,7 @@ export default {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
         getSaveOrderSO(item) {
-            
+
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
@@ -691,7 +701,7 @@ export default {
         refeshOrders() {
             this.orders = [];
             this.case_data_temporary.order_lacks = [];
-            this.case_data_temporary.items = [];
+            // this.case_data_temporary.items = [];
         },
         getListOrderProcessSO() {
             this.$refs.dialogListOrderProcessSo.showModal();
