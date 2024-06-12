@@ -12,19 +12,15 @@
                     <div class="modal-body">
                         <div>
                             <label>Mã đơn hàng</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="fas fa-warehouse"></i></span>
-                                </div>
-                                <input v-model="case_model.so_numbers" type="text" class="form-control input-warehouse"
-                                    placeholder="Nhập đơn hàng..." :class="{
-                                    'border-danger': case_model.so_numbers == '',
-                                    'border-success': case_model.so_numbers != ''
-                                }">
-                            </div>
+                            <textarea v-model="case_model.so_numbers" type="text" class="form-control input-warehouse" rows="6"
+                                placeholder="Nhập đơn hàng..." :class="{
+                                'border-danger': case_model.so_numbers == '',
+                                'border-success': case_model.so_numbers != ''
+                            }">
+                                </textarea>
                             <div class="form-group text-right">
-                                <label>Khuyến mãi <input class="ml-2" type="checkbox" v-model="case_model.is_promotion" /></label>
+                                <label>Khuyến mãi <input class="ml-2" type="checkbox"
+                                        v-model="case_model.is_promotion" /></label>
                             </div>
                         </div>
                         <div class="text-center">

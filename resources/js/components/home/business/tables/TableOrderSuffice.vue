@@ -30,7 +30,7 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
-                <template #head(sap_so_number)="header"> 
+                <template #head(sap_so_number)="header">
                     <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sap_so_number')"
                         @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
@@ -292,8 +292,8 @@
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                     </div> -->
                     <div class="customer_name overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.customer_name, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_name"
-                            @keydown="copyItem($event, data.item.customer_name, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -334,8 +334,8 @@
             'text-danger': isCheckLack(data.item)
         }">
                         <!-- {{ data.item.quantity1_po }} -->
+                        <!-- @keydown="copyItem($event, data.item.quantity1_po, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity1_po"
-                            @keydown="copyItem($event, data.item.quantity1_po, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -355,8 +355,8 @@
                     <div class="quantity2_po overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item)
         }">
+                        <!-- @keydown="copyItem($event, data.item.quantity2_po, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity2_po"
-                            @keydown="copyItem($event, data.item.quantity2_po, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.quantity2_po, 'quantity2_po', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -378,8 +378,8 @@
             'text-danger': data.item.inventory_quantity <= 0
         }">
                         <!-- {{ data.item.inventory_quantity }} -->
+                        <!-- @keydown="copyItem($event, data.item.inventory_quantity, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.inventory_quantity"
-                            @keydown="copyItem($event, data.item.inventory_quantity, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.inventory_quantity, 'inventory_quantity', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -655,8 +655,8 @@
                 </template>
                 <template #cell(sku_sap_code)="data">
                     <div class="overflow-hidden sku_sap_code">
+                        <!-- @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
-                            @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" />
                         <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -679,8 +679,8 @@
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <div class="sku_sap_name overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_name"
-                            @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -698,8 +698,8 @@
                 </template>
                 <template #cell(so_sap_note)="data">
                     <div class="so_sap_note overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.so_sap_note, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.so_sap_note"
-                            @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.so_sap_note, 'so_sap_note', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -707,8 +707,7 @@
                             @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
                             @mousedown="startSelection($event, data.item.so_sap_note, data.index, data.field.key)"
                             @mousemove="selectItem(data.item.so_sap_note, $event, data.index)"
-                            @mouseup="endSelection(data.item.so_sap_note, $event)"
-                            @dblclick="handleDoubleClick($event)"
+                            @mouseup="endSelection(data.item.so_sap_note, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.so_sap_note) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.so_sap_note }}</span>
                         </div>
@@ -717,8 +716,8 @@
                 </template>
                 <template #cell(quantity3_sap)="data">
                     <div class="quantity3_sap overflow-hidden">
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity3_sap"
-                            @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)"
+                        <!-- @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)" -->
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity3_sap" 
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.quantity3_sap, 'quantity3_sap', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -736,8 +735,8 @@
                 </template>
                 <template #cell(customer_sku_name)="data">
                     <div class="customer_sku_name overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_name"
-                            @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -755,8 +754,8 @@
                 </template>
                 <template #cell(customer_sku_unit)="data">
                     <div class="customer_sku_unit overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_unit"
-                            @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -774,8 +773,8 @@
                 </template>
                 <template #cell(po)="data">
                     <div class="po overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.po, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po"
-                            @keydown="copyItem($event, data.item.po, data.field.key)"
                             @dblclick="handleDoubleClick($event)" @input="handleItem(data.item.po, 'po', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po + data.index + data.field.key"
@@ -790,8 +789,8 @@
                 </template>
                 <template #cell(sku_sap_unit)="data">
                     <div class="sku_sap_unit overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_unit"
-                            @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -808,8 +807,8 @@
                 </template>
                 <template #cell(customer_code)="data">
                     <div class="customer_code overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.customer_code, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_code"
-                            @keydown="copyItem($event, data.item.customer_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_code, 'customer_code', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -827,8 +826,8 @@
                 </template>
                 <template #cell(promotive_name)="data">
                     <div class="promotive_name overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.promotive_name, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.promotive_name"
-                            @keydown="copyItem($event, data.item.promotive_name, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.promotive_name, 'promotive_name', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -845,8 +844,8 @@
                 </template>
                 <template #cell(note1)="data">
                     <div class="note1 overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.note1, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.note1"
-                            @keydown="copyItem($event, data.item.note1, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.note1, 'note1', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -862,8 +861,8 @@
                 </template>
                 <template #cell(note)="data">
                     <div class="note overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.note, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.note"
-                            @keydown="copyItem($event, data.item.note, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.note, 'note', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -879,8 +878,8 @@
                 </template>
                 <template #cell(compliance)="data">
                     <div class="compliance overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.compliance, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.compliance"
-                            @keydown="copyItem($event, data.item.compliance, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.compliance, 'compliance', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -896,8 +895,8 @@
                 </template>
                 <template #cell(level2)="data">
                     <div class="level2 overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.level2, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level2"
-                            @keydown="copyItem($event, data.item.level2, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.level2, 'level2', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -905,8 +904,7 @@
                             @keydown="copyItem($event, data.item.level2, data.field.key)"
                             @mousedown="startSelection($event, data.item.level2, data.index, data.field.key)"
                             @mousemove="selectItem(data.item.level2, $event, data.index)"
-                            @mouseup="endSelection(data.item.level2, $event)"
-                            @dblclick="handleDoubleClick($event)"
+                            @mouseup="endSelection(data.item.level2, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level2) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level2 }}</span>
                         </div>
@@ -914,8 +912,8 @@
                 </template>
                 <template #cell(level3)="data">
                     <div class="level3 overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.level3, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level3"
-                            @keydown="copyItem($event, data.item.level3, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.level3, 'level3', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -923,8 +921,7 @@
                             @keydown="copyItem($event, data.item.level3, data.field.key)"
                             @mousedown="startSelection($event, data.item.level3, data.index, data.field.key)"
                             @mousemove="selectItem(data.item.level3, $event, data.index)"
-                            @mouseup="endSelection(data.item.level3, $event)"
-                            @dblclick="handleDoubleClick($event)"
+                            @mouseup="endSelection(data.item.level3, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level3) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level3 }}</span>
                         </div>
@@ -934,8 +931,8 @@
                 </template>
                 <template #cell(level4)="data">
                     <div class="level4 overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.level4, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level4"
-                            @keydown="copyItem($event, data.item.level4, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.level4, 'level4', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -943,8 +940,7 @@
                             @keydown="copyItem($event, data.item.level4, data.field.key)"
                             @mousedown="startSelection($event, data.item.level4, data.index, data.field.key)"
                             @mousemove="selectItem(data.item.level4, $event, data.index)"
-                            @mouseup="endSelection(data.item.level4, $event)"
-                            @dblclick="handleDoubleClick($event)"
+                            @mouseup="endSelection(data.item.level4, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level4) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level4 }}</span>
                         </div>
@@ -971,8 +967,8 @@
                 </template>
                 <template #cell(amount_po)="data">
                     <div class="amount_po overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.amount_po, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.amount_po"
-                            @keydown="copyItem($event, data.item.amount_po, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.amount_po, 'amount_po', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -990,8 +986,8 @@
                 </template>
                 <template #cell(price_po)="data">
                     <div class="price_po overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.price_po, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.price_po"
-                            @keydown="copyItem($event, data.item.price_po, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.price_po, 'price_po', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -1011,8 +1007,8 @@
                 </template>
                 <template #cell(company_price)="data">
                     <div class="company_price overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.company_price, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.company_price"
-                            @keydown="copyItem($event, data.item.company_price, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.company_price, 'company_price', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -1035,8 +1031,8 @@
                 </template>
                 <template #cell(customer_sku_code)="data">
                     <div class="customer_sku_code overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
-                            @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -1075,8 +1071,8 @@
                 </template>
                 <template #cell(po_number)="data">
                     <div class="po_number overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.po_number, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po_number"
-                            @keydown="copyItem($event, data.item.po_number, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.po_number, 'po_number', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -1084,8 +1080,7 @@
                             @keydown="copyItem($event, data.item.po_number, data.field.key)"
                             @mousedown="startSelection($event, data.item.po_number, data.index, data.field.key)"
                             @mousemove="selectItem(data.item.po_number, $event, data.index)"
-                            @mouseup="endSelection(data.item.po_number, $event)"
-                            @dblclick="handleDoubleClick($event)"
+                            @mouseup="endSelection(data.item.po_number, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.po_number) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.po_number }}</span>
                         </div>
@@ -1093,8 +1088,8 @@
                 </template>
                 <template #cell(po_delivery_date)="data">
                     <div class="po_delivery_date overflow-hidden">
+                        <!-- @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po_delivery_date"
-                            @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @input="handleItem(data.item.po_delivery_date, 'po_delivery_date', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
