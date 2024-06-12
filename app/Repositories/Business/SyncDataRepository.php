@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\File\FileStatuses;
 use App\Models\Business\FileStatus;
+use App\Models\Master\Warehouse;
 use App\Services\Sap\SapApiHelper;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\TryCatch;
@@ -197,11 +198,13 @@ class SyncDataRepository extends RepositoryAbs
                         $query->with(['customer_group' => function ($query) {
                             $query->select(['id', 'name']);
                         }]);
-                    },
-                    'warehouse' => function ($query) {
-                            $query->select(['id', 'code', 'name']);
+                        $query->select(['id', 'created_by', DB::raw("'" . auth()->user()->name . "' as created_by")]);
                     },
                 ]);
+
+                $query->with(['warehouse' => function ($query) {
+                    $query->select('id', 'code');
+                }]);
 
                 $soHeader = $query->get();
 

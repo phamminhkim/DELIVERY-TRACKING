@@ -37,7 +37,7 @@ class SoHeader extends Model
     }
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Warehouse::class, 'warehouse_id', 'id');
     }
     public function user_morphs()
     {

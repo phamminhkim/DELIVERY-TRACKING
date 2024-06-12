@@ -123,7 +123,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'customer_key',
+                    key: 'customer_code',
                     label: 'Mã KH',
                     sortable: true,
                     class: 'text-nowrap'
@@ -131,6 +131,12 @@ export default {
                 {
                     key: 'customer_name',
                     label: 'Tên KH',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
+                    key: 'order_process.created_by',
+                    label: 'Người tạo',
                     sortable: true,
                     class: 'text-nowrap'
                 },
@@ -211,7 +217,7 @@ export default {
         viewDetailOrderSyncs() {
             let ids = '';
             let url = '';
-           
+
             ids = this.case_data_temporary.order_syncs_selected.map(item => item.id).join(',');
             url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
             window.open(url, '_blank');
