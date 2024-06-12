@@ -767,6 +767,7 @@ export default {
                     'Km': item.promotive,
                     'Ghi_chu': item.note1,
                     'Makh': item.customer_code,
+                    'Unit_barcode': item.customer_sku_code,
                     'Unit_barcode_description': item.sku_sap_name,
                     'Dvt_po': item.sku_sap_unit,
                     'Po': item.po_number,

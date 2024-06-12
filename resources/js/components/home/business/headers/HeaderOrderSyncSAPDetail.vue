@@ -3,7 +3,7 @@
         <div class="px-5">
             <div class="mb-1 row">
                 <div class="col-lg-6">
-                    <p class="text-black font-weight-bold mb-0 w-100 py-2"><b class="mr-2"><u>{{ index }}.</u></b>Chi tiết đơn hàng nhóm <b>{{
+                    <p class="text-black font-weight-bold mb-0 w-100 py-2"><b class="mr-2"><u>{{ index }}.</u></b>Chi tiết đơn hàng nhóm <b v-if="order_sync.order_process.customer_group_id !== -1">{{
                         order_sync.order_process.customer_group.name }}</b></p>
                 </div>
                 <div class="col-lg-6">
