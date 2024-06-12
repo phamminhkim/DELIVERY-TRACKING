@@ -50,12 +50,14 @@ class SyncDataRepository extends RepositoryAbs
                         if ($value['id'] == $order->id) {
                             $ITEM_DATA = [];
                             foreach ($order->so_data_items as $item) {
-                                $ITEM_DATA[] = [
-                                    "productId" => $item->sku_sap_code,
-                                    "quantity" => $item->quantity3_sap,
-                                    "unit" => $item->sku_sap_unit,
-                                    "combo" => ""
-                                ];
+                                if ($item->is_inventory == 0) {
+                                    $ITEM_DATA[] = [
+                                        "productId" => $item->sku_sap_code,
+                                        "quantity" => $item->quantity3_sap,
+                                        "unit" => $item->sku_sap_unit,
+                                        "combo" => ""
+                                    ];
+                                }
                             }
 
                             $sapData['BODY'][] = [
@@ -74,13 +76,12 @@ class SyncDataRepository extends RepositoryAbs
                                 "USER" => auth()->user()->email,
                                 "ITEMS" => $ITEM_DATA
                             ];
-                            // dd($sapData);
+                            dd($sapData);
                         }
                     }
                 }
 
                 $json = SapApiHelper::postData(json_encode($sapData));
-
 
                 $jsonString = json_encode($json); // Convert the array to a JSON string
                 $jsonData = json_decode($jsonString, true);
@@ -89,11 +90,10 @@ class SyncDataRepository extends RepositoryAbs
                     foreach ($jsonData['data'] as $json_value) {
                         $soNumber = $json_value['SO_NUMBER'];
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
-                        // dd($json_value);
+
                         if ($json_value['SO_NUMBER'] != '') {
                             $soHeader->so_uid = $soNumber;
                             $soHeader->is_sync_sap = true;
-                            // $soHeader->so_sap_note = $value["so_sap_note"];
                             $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                             $soHeader->warehouse_id = $value["warehouse_code"];
                             $soHeader->save();
