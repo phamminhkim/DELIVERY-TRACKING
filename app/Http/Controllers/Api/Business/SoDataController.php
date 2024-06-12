@@ -38,7 +38,7 @@ class SoDataController extends ResponseController
         $data = $handler->updateSoData($id);
 
         if ($data) {
-            return $this->responseSuccess($data);
+            return $this->responseSuccess($data, $handler->getMessage());
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
