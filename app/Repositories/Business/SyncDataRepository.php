@@ -68,7 +68,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "LV2" => $order->level2,
                                 "LV3" => $order->level3,
                                 "LV4" => $order->level4,
-                                "NOTE" => $value["so_sap_note"],
+                                "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
                                 "USER" => auth()->user()->email,
                                 "ITEMS" => $ITEM_DATA
                             ];
@@ -91,7 +91,8 @@ class SyncDataRepository extends RepositoryAbs
                         if ($json_value['SO_NUMBER'] != '') {
                             $soHeader->so_uid = $soNumber;
                             $soHeader->is_sync_sap = true;
-                            $soHeader->so_sap_note = $value["so_sap_note"];
+                            // $soHeader->so_sap_note = $value["so_sap_note"];
+                            $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                             $soHeader->warehouse_id = $value["warehouse_code"];
                             $soHeader->save();
                         }
