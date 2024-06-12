@@ -13,6 +13,7 @@ use App\Models\Business\FileStatus;
 use App\Services\Sap\SapApiHelper;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\TryCatch;
+use Spatie\Permission\Models\Role;
 
 class SyncDataRepository extends RepositoryAbs
 {
@@ -87,7 +88,7 @@ class SyncDataRepository extends RepositoryAbs
                     foreach ($jsonData['data'] as $json_value) {
                         $soNumber = $json_value['SO_NUMBER'];
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
-
+                        // dd($json_value);
                         if ($json_value['SO_NUMBER'] != '') {
                             $soHeader->so_uid = $soNumber;
                             $soHeader->is_sync_sap = true;
@@ -121,16 +122,20 @@ class SyncDataRepository extends RepositoryAbs
     public function getSoHeader()
     {
         try {
-
             $user = auth()->user();
             if ($user) {
-                $user_id = $user->id; // Assuming the user ID is stored in the 'id' column
                 $query = SoHeader::query();
 
-                // Lọc các tệp theo user_id của người dùng hiện tại trong bảng order_process
-                $query->whereHas('order_process', function ($query) use ($user_id) {
-                    $query->where('created_by', $user_id);
-                });
+                // Kiểm tra xem người dùng có vai trò "admin-system" hay không
+                if ($this->current_user->hasRole(['admin-system'])) {
+                    // Không cần lọc dữ liệu cho vai trò "admin-system"
+                } else {
+                    $user_id = $user->id;
+                    // Lọc các bản ghi theo user_id của người dùng hiện tại trong bảng order_process
+                    $query->whereHas('order_process', function ($query) use ($user_id) {
+                        $query->where('created_by', $user_id);
+                    });
+                }
                 // dd($user_id);
 
                 // Lọc theo danh sách các ID
@@ -192,6 +197,9 @@ class SyncDataRepository extends RepositoryAbs
                         $query->with(['customer_group' => function ($query) {
                             $query->select(['id', 'name']);
                         }]);
+                    },
+                    'warehouse' => function ($query) {
+                            $query->select(['id', 'code', 'name']);
                     },
                 ]);
 
