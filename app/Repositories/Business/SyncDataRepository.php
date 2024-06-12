@@ -195,10 +195,14 @@ class SyncDataRepository extends RepositoryAbs
                 // Hiển thị danh sách nhóm khách hàng từ bảng order_process
                 $query->with([
                     'order_process' => function ($query) {
-                        $query->with(['customer_group' => function ($query) {
-                            $query->select(['id', 'name']);
-                        }]);
-                        $query->select(['id', 'created_by', DB::raw("'" . auth()->user()->name . "' as created_by")]);
+                        $query->with([
+                            'customer_group' => function ($query) {
+                                $query->select(['id', 'name']);
+                            },
+                            'created_by' => function ($query) {
+                                $query->select(['id', 'name']);
+                            }
+                        ]);
                     },
                 ]);
 
