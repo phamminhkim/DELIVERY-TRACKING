@@ -67,6 +67,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "lgort" => $value["warehouse_code"],
                                 "Ship_cond" => "",
                                 "SO_KEY" => $order->id,
+                                "GROUP_NAME" => $order->sap_so_number,
                                 "CUST_NO" => $order->customer_code,
                                 "VER_BOM_SALE" => "",
                                 "LV2" => $order->level2,
@@ -76,7 +77,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "USER" => auth()->user()->email,
                                 "ITEMS" => $ITEM_DATA
                             ];
-                            //dd($sapData);
+                            // dd($sapData);
                         }
                     }
                 }
@@ -96,6 +97,7 @@ class SyncDataRepository extends RepositoryAbs
                             $soHeader->is_sync_sap = true;
                             $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                             $soHeader->warehouse_id = $value["warehouse_code"];
+                            $soHeader->so_header_id = $order["SO_KEY"];
                             $soHeader->save();
                         }
 
@@ -105,6 +107,7 @@ class SyncDataRepository extends RepositoryAbs
                             "is_sync_sap" => boolval($soHeader->is_sync_sap),
                             "so_sap_note" => $soHeader->so_sap_note,
                             "warehouse_code" => $soHeader->warehouse_id,
+                            "so_key" => $soHeader->so_header_id,
                             "message" => $json_value['MESSAGE']
                         ];
                     }
