@@ -39,8 +39,8 @@
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
             @emitResetFilter="getResetFilter">
-        </ParentOrderSuffice>
-        <ParentOrderLack :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
+        </ParentOrderSuffice> 
+        <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
             @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
         <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
@@ -174,7 +174,6 @@ export default {
             try {
                 this.case_is_loading.is_inventory = true;
                 let body = {
-
                     'data': this.orders.map(item => {
                         return {
                             'materials': item.sku_sap_code,
@@ -212,10 +211,6 @@ export default {
             $('#modalCheckPrice').modal('show'); // component DialogOrderCheckPrice
         },
         getviewDetailOrderSyncs() {
-            // this.case_data_temporary.order_syncs_selected.forEach((item, index) => {
-            //     const url = window.location.origin + '/sap-syncs-detail' + '#' + item.id + '?sap_so_number=' + item.sap_so_number;
-            //     window.open(url, '_blank');
-            // })
             let ids = '';
             let url = '';
             ids = this.case_data_temporary.order_syncs_selected.map(item => item.so_header_id).join(',');
@@ -369,9 +364,7 @@ export default {
                     }
                     return false;
                 }).map(order => {
-                    // alert("map");
-                    // console.log("map");
-                    // console.log(order);
+                  
                     return {
                         id: '',
                         so_uid: '',
@@ -387,22 +380,6 @@ export default {
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
-                // const result = this.orders.map(order => {
-                //     return {
-                //         id: '',
-                //         so_uid: '',
-                //         sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                //         customer_key: order.customer_code,
-                //         customer_name: order.customer_name,
-                //         po_delivery_date: order.po_delivery_date,
-                //         is_sync_sap: false,
-                //         noti_sync: '',
-                //         warehouse_id: '',
-                //         so_header_id: order.so_header_id,
-                //         so_sap_note: order.note
-                //     }
-                // });
-                // this.case_data_temporary.order_syncs = [...new Set(result.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
             }
 
         },
@@ -503,10 +480,8 @@ export default {
         isCheckLack(item) {
             let result = this.convertToNumber(item.quantity1_po) * this.convertToNumber(item.quantity2_po);
             if (result > this.convertToNumber(item.inventory_quantity) && this.convertToNumber(item.inventory_quantity) > 0) {
-                // item.is_inventory = true;
                 return true;
             }
-            // return item.is_inventory;
             return false;
         },
         convertToNumber(value) {
@@ -543,9 +518,7 @@ export default {
                         this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
                     }
                 });
-                // this.case_data_temporary.order_lacks = this.case_data_temporary.order_lacks.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
-                // this.case_data_temporary.order_lacks.push(...this.case_data_temporary.item_selecteds);
-                // this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
+               
 
             }
             this.refeshCheckBox();
@@ -566,15 +539,7 @@ export default {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
-            // this.getResetFilter();
-
-            // this.case_data_temporary.item_selecteds.forEach(item_selected => {
-            //     this.orders.splice(this.orders.indexOf(item_selected), 1);
-            // });
-            // this.refeshCheckBox();
-            // this.orders.forEach((item, index) => {
-            //     item.order = index + 1;
-            // });
+          
         },
         getReplaceItemAll(item_materials, barcode) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
@@ -610,7 +575,6 @@ export default {
         },
         getSaveOrderProcesses() {
             this.showDialogTitleOrderSo();
-            // this.$refs.parentOrderSuffice.saveOrderProcesses();
         },
         showDialogTitleOrderSo() {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
@@ -667,8 +631,6 @@ export default {
                         so_sap_note: data_item.so_header.so_sap_note,
                     });
                 } else {
-                    // console.log(item);
-                    // alert(data_item.so_header.customer_code);return;
                     this.orders.push({
                         order: data_item.order,
                         id: data_item.id,
@@ -731,7 +693,6 @@ export default {
         },
         getCustomerGroupId(customer_group_id) {
             this.case_save_so.customer_group_id = customer_group_id;
-            // this.$refs.headerOrderProcesses.getCustomerGroupId(customer_group_id);
         },
         getUrl() {
             const url = window.location.href;
@@ -753,7 +714,8 @@ export default {
         },
         getConvertOrderLack(index, data) {
             data.is_inventory = false;
-            this.orders.unshift(data);
+            // this.orders.unshift(data);
+            this.orders.splice(data.order - 1, 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
@@ -983,7 +945,6 @@ export default {
             this.case_data_temporary.items = this.orders.map(item => item.customer_sku_code);
         },
         getChangeEventCompliance() {
-            // console.log('check quy cách');
             this.CheckComplianceFromOrders();
         },
         async CheckComplianceFromOrders() {
