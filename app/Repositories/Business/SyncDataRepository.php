@@ -198,6 +198,9 @@ class SyncDataRepository extends RepositoryAbs
                             $query->select(['id', 'name']);
                         }]);
                     },
+                    'warehouse' => function ($query) {
+                            $query->select(['id', 'code', 'name']);
+                    },
                 ]);
 
                 $soHeader = $query->get();
