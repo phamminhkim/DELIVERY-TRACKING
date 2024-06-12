@@ -124,16 +124,34 @@ class SoDataRepository extends RepositoryAbs
                 $current_user_id = $this->current_user->id;
                 $order_process = OrderProcess::findOrFail($id);
 
+                $order_proccess_data = $this->data['order_data'];
+                $sync_so_data_items = array();
+                // Loại bỏ những item đầu vào đã hoặc đang đồng bộ SAP
+                foreach ($order_proccess_data as $key => $item) {
+                    $is_sync = $order_process->is_sync_so_data($item['sap_so_number'], $item['promotive_name']);
+                    if ($is_sync) {
+                        // Lưu $order_proccess_data[$key] vào mảng sync_so_data_items
+                        $sync_so_data_items[] = $item;
+                        unset($order_proccess_data[$key]);
+                    }
+                }
+                // Kiểm tra tất cả đơn đã hoặc đang đồng bộ SAP
+                if (!$order_proccess_data) {
+                    $this->errors["sync_all_data"] = "Tất cả đơn hàng đã hoặc đang được đồng bộ SAP";
+                    return false;
+                }
+
                 // Xóa tất cả so_data_items và so_headers của order_process
-                $order_process->so_data_items()->delete();
-                $order_process->so_headers()->delete();
+                $order_process->not_sync_so_data_items()->delete();
+                $order_process->not_sync_so_headers()->delete();
                 $order_process->updated_by = $current_user_id;
                 $order_process->title = $this->data['title'];
                 $order_process->customer_group_id = $this->data['customer_group_id'];
                 $order_process->updated_at = now();
                 $order_process->save();
+
                 // Tạo lại so_data_items và so_headers
-                $order_data = collect($this->data['order_data'])->groupBy(['sap_so_number', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
+                $order_data = collect($order_proccess_data)->groupBy(['sap_so_number', 'promotive_name'])->map(function ($order_items, $key) use ($order_process) {
                     $order_data_items = collect($order_items)->map(function ($so_items) use ($key, $order_process) {
                         $so_header = SoHeader::create([
                             'order_process_id' => $order_process->id,
@@ -184,6 +202,21 @@ class SoDataRepository extends RepositoryAbs
                     });
                 });
                 DB::commit();
+                $so_data =  $order_process->so_headers();
+                $not_sync_so_data =  $order_process->not_sync_so_headers();
+                $sync_so_data =  $order_process->sync_so_headers();
+                $this->message['so_count'] = $so_data->count();
+                $this->message['not_sync_so_count'] = $not_sync_so_data->count();
+                $this->message['sync_so_count'] = $sync_so_data->count();
+                if (count($sync_so_data_items) > 0) {
+                    $this->message['skip_save_items'] = collect($sync_so_data_items)->map(function ($item) {
+                        return [
+                            'order' => $item['order'],
+                            'sap_so_number' => $item['sap_so_number'],
+                            'promotive_name' => $item['promotive_name'],
+                        ];
+                    });
+                }
                 $order_process->load(['so_data_items', 'so_data_items.so_header']);
                 return $order_process;
             }
