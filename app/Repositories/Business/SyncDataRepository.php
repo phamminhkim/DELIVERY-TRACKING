@@ -76,7 +76,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "USER" => auth()->user()->email,
                                 "ITEMS" => $ITEM_DATA
                             ];
-                            dd($sapData);
+                            //dd($sapData);
                         }
                     }
                 }
