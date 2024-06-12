@@ -383,7 +383,7 @@ export default {
                         noti_sync: '',
                         warehouse_id: '',
                         so_header_id: order.so_header_id,
-                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order) ,
+                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
                     }
                 });
                 this.case_data_temporary.order_syncs = result;
@@ -429,7 +429,19 @@ export default {
             this.getResetFilter();
         },
         getOnChangeCategoryType(index, item, order) {
-            this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
+            // this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
+            if (item !== null) {
+                if (this.filterOrders[index].promotive != item.name) {
+                    this.filterOrders[index].promotive = item.name;
+                    this.filterOrders[index].promotive_name = item.name;
+                }
+            } else {
+                this.filterOrders[index].promotive = '';
+                this.filterOrders[index].promotive_name = '';
+            }
+            requestAnimationFrame(() => {
+                this.refHeaderOrderProcesses();
+            }); // chờ render xong
         },
         getListMaterialDonated(data) {
             this.material_donateds = data;
@@ -875,8 +887,10 @@ export default {
                 // e.preventDefault();
                 indexs.forEach(index => {
                     items.forEach(item => {
-                        this.orders[index][field] = item.promotive;
-                        this.orders[index].promotive_name = item.promotive;
+                        // this.orders[index][field] = item.promotive;
+                        // this.orders[index].promotive_name = item.promotive;filterOrders
+                        this.filterOrders[index][field] = item.promotive;
+                        this.filterOrders[index].promotive_name = item.promotive;
                     });
                 });
             }
