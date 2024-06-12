@@ -107,7 +107,7 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Ghi chú</label>
-							<small class="text-danger">*</small>
+							<!-- <small class="text-danger">*</small> -->
 							<input
 								v-model="customer_partner.note"
 								class="form-control"
@@ -116,7 +116,6 @@
 								placeholder="Nhập ghi chú..."
 								v-bind:class="hasError('note') ? 'is-invalid' : ''"
 								type="text"
-								required
 							/>
 
 							<span v-if="hasError('note')" class="invalid-feedback" role="alert">
