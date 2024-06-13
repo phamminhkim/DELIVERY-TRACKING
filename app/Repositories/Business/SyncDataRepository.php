@@ -23,10 +23,10 @@ class SyncDataRepository extends RepositoryAbs
         $result = [];
         $validator = Validator::make($this->request->all(), [
             'data' => 'required|array',
-            ], [
-                'data.array' => 'ids phải là mảng',
-                'data.required' => 'ids là bắt buộc',
-            ]);
+        ], [
+            'data.array' => 'ids phải là mảng',
+            'data.required' => 'ids là bắt buộc',
+        ]);
         if ($validator->fails()) {
             $this->errors = $validator->errors();
             return null;
@@ -43,10 +43,16 @@ class SyncDataRepository extends RepositoryAbs
                 "action_name" => "CREATE_SALESORDERS",
                 "BODY" => []
             ];
-
+            //chi lay nhung so_header chua dong bo
+            $not_sync_so_headers = [] ;
             foreach ($so_headers as $so_header) {
+                if(!$so_header->is_sync_sap){
+                    $not_sync_so_headers[] = $so_header;
+                }
+            }
+            // dd($not_sync_so_headers);
+            foreach ($not_sync_so_headers as $so_header) {
                 $order = $so_header;
-
                 $items = [];
                 foreach ($fields['data'] as $value) {
                     if ($value['id'] == $order->id) {
@@ -66,7 +72,7 @@ class SyncDataRepository extends RepositoryAbs
                             "sales_org" => "3000",
                             "distr_chan" => "20",
                             "doc_type" => "ZOR",
-                            "lgort" => $value["warehouse_code"],
+                            "lgort" => $value["warehouse_id"],
                             "Ship_cond" => "",
                             "SO_KEY" => $order->id,
                             "GROUP_NAME" => $order->sap_so_number,
@@ -79,7 +85,6 @@ class SyncDataRepository extends RepositoryAbs
                             "USER" => auth()->user()->email,
                             "ITEMS" => $ITEM_DATA
                         ];
-                        // dd($sapData);
                     }
                 }
             }
@@ -88,18 +93,19 @@ class SyncDataRepository extends RepositoryAbs
 
             $jsonString = json_encode($json); // Convert the array to a JSON string
             $jsonData = json_decode($jsonString, true);
+            // dd($jsonData);
 
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
                     $soHeader = SoHeader::find($json_value['SO_KEY']);
-
+                    dd($json_value);
                     if ($json_value['SO_NUMBER'] != '') {
                         $soHeader->so_uid = $soNumber;
                         $soHeader->is_sync_sap = true;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-                        $soHeader->so_header_id = $order["SO_KEY"];
+                        // $soHeader->id = $order["SO_KEY"];
                         $soHeader->save();
                     }
 
@@ -109,7 +115,7 @@ class SyncDataRepository extends RepositoryAbs
                         "is_sync_sap" => boolval($soHeader->is_sync_sap),
                         "so_sap_note" => $soHeader->so_sap_note,
                         "warehouse_code" => $soHeader->warehouse_id,
-                        "so_key" => $soHeader->so_header_id,
+                        // "so_key" => $soHeader->id,
                         "message" => $json_value['MESSAGE']
                     ];
                 }
