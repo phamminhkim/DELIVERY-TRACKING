@@ -271,7 +271,7 @@ class CamelotExtractorService implements DataExtractorInterface
         return $table;
     }
 
-    public function getValueTableAreas($file_path, $table_area_info) {
+    public function getValueTableAreas($file_path, $table_area_info, $x_coordinates) {
         $file_path = "\"" . $file_path . "\"";
         $instance = new Camelot($file_path, 'stream');
 
@@ -298,7 +298,9 @@ class CamelotExtractorService implements DataExtractorInterface
             }
 
         }
-
+        if ($x_coordinates) {
+            $instance->setColumnSeparators($x_coordinates, true);
+        }
         $table = $instance->extract();
         return $table;
     }
