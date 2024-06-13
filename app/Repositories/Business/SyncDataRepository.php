@@ -134,6 +134,8 @@ class SyncDataRepository extends RepositoryAbs
                         "message" => $json_value['MESSAGE']
                     ];
                 }
+            } else {
+                $this->errors['synchronized_error'] = "Các đơn hàng đã được đồng bộ trước đó";
             }
             DB::commit();
             $this->changeIsSyncingSapSoHeader($so_headers, false);
