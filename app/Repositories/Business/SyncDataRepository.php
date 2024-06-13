@@ -21,103 +21,108 @@ class SyncDataRepository extends RepositoryAbs
     public function syncSoHeaderFromSap()
     {
         $result = [];
-        try {
-            DB::beginTransaction();
-            $validator = Validator::make($this->request->all(), [
-                'data' => 'required|array',
+        $validator = Validator::make($this->request->all(), [
+            'data' => 'required|array',
             ], [
                 'data.array' => 'ids phải là mảng',
                 'data.required' => 'ids là bắt buộc',
             ]);
+        if ($validator->fails()) {
+            $this->errors = $validator->errors();
+            return null;
+        }
 
-            if ($validator->fails()) {
-                $this->errors = $validator->errors();
-            } else {
-                $fields = $this->request->all();
-                $so_headers = SoHeader::whereIn('id', array_column($fields['data'], 'id'))->get();
+        $fields = $this->request->all();
+        $so_headers = SoHeader::whereIn('id', array_column($fields['data'], 'id'))->get();
+        // Bật trạng thái đang sync data
+        $this->changeIsSyncingSapSoHeader($so_headers, true);
+        try {
+            DB::beginTransaction();
+            $sapData = [
+                "ID" => "1001",
+                "action_name" => "CREATE_SALESORDERS",
+                "BODY" => []
+            ];
 
-                $sapData = [
-                    "ID" => "1001",
-                    "action_name" => "CREATE_SALESORDERS",
-                    "BODY" => []
-                ];
+            foreach ($so_headers as $so_header) {
+                $order = $so_header;
 
-                foreach ($so_headers as $so_header) {
-                    $order = $so_header;
-
-                    $items = [];
-                    foreach ($fields['data'] as $value) {
-                        if ($value['id'] == $order->id) {
-                            $ITEM_DATA = [];
-                            foreach ($order->so_data_items as $item) {
-                                if ($item->is_inventory == 0) {
-                                    $ITEM_DATA[] = [
-                                        "productId" => $item->sku_sap_code,
-                                        "quantity" => $item->quantity3_sap,
-                                        "unit" => $item->sku_sap_unit,
-                                        "combo" => ""
-                                    ];
-                                }
+                $items = [];
+                foreach ($fields['data'] as $value) {
+                    if ($value['id'] == $order->id) {
+                        $ITEM_DATA = [];
+                        foreach ($order->so_data_items as $item) {
+                            if ($item->is_inventory == 0) {
+                                $ITEM_DATA[] = [
+                                    "productId" => $item->sku_sap_code,
+                                    "quantity" => $item->quantity3_sap,
+                                    "unit" => $item->sku_sap_unit,
+                                    "combo" => ""
+                                ];
                             }
-
-                            $sapData['BODY'][] = [
-                                "sales_org" => "3000",
-                                "distr_chan" => "20",
-                                "doc_type" => "ZOR",
-                                "lgort" => $value["warehouse_code"],
-                                "Ship_cond" => "",
-                                "SO_KEY" => $order->id,
-                                "CUST_NO" => $order->customer_code,
-                                "VER_BOM_SALE" => "",
-                                "LV2" => $order->level2,
-                                "LV3" => $order->level3,
-                                "LV4" => $order->level4,
-                                "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
-                                "USER" => auth()->user()->email,
-                                "ITEMS" => $ITEM_DATA
-                            ];
-                            //dd($sapData);
-                        }
-                    }
-                }
-
-                $json = SapApiHelper::postData(json_encode($sapData));
-
-                $jsonString = json_encode($json); // Convert the array to a JSON string
-                $jsonData = json_decode($jsonString, true);
-
-                if (!empty($jsonData['data'])) {
-                    foreach ($jsonData['data'] as $json_value) {
-                        $soNumber = $json_value['SO_NUMBER'];
-                        $soHeader = SoHeader::find($json_value['SO_KEY']);
-
-                        if ($json_value['SO_NUMBER'] != '') {
-                            $soHeader->so_uid = $soNumber;
-                            $soHeader->is_sync_sap = true;
-                            $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
-                            $soHeader->warehouse_id = $value["warehouse_code"];
-                            $soHeader->save();
                         }
 
-                        $result[] = [
-                            "id" => $soHeader->id,
-                            "so_number" => $soNumber,
-                            "is_sync_sap" => boolval($soHeader->is_sync_sap),
-                            "so_sap_note" => $soHeader->so_sap_note,
-                            "warehouse_code" => $soHeader->warehouse_id,
-                            "message" => $json_value['MESSAGE']
+                        $sapData['BODY'][] = [
+                            "sales_org" => "3000",
+                            "distr_chan" => "20",
+                            "doc_type" => "ZOR",
+                            "lgort" => $value["warehouse_code"],
+                            "Ship_cond" => "",
+                            "SO_KEY" => $order->id,
+                            "GROUP_NAME" => $order->sap_so_number,
+                            "CUST_NO" => $order->customer_code,
+                            "VER_BOM_SALE" => "",
+                            "LV2" => $order->level2,
+                            "LV3" => $order->level3,
+                            "LV4" => $order->level4,
+                            "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                            "USER" => auth()->user()->email,
+                            "ITEMS" => $ITEM_DATA
                         ];
+                        // dd($sapData);
                     }
                 }
             }
 
+            $json = SapApiHelper::postData(json_encode($sapData));
+
+            $jsonString = json_encode($json); // Convert the array to a JSON string
+            $jsonData = json_decode($jsonString, true);
+
+            if (!empty($jsonData['data'])) {
+                foreach ($jsonData['data'] as $json_value) {
+                    $soNumber = $json_value['SO_NUMBER'];
+                    $soHeader = SoHeader::find($json_value['SO_KEY']);
+
+                    if ($json_value['SO_NUMBER'] != '') {
+                        $soHeader->so_uid = $soNumber;
+                        $soHeader->is_sync_sap = true;
+                        $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
+                        $soHeader->warehouse_id = $value["warehouse_code"];
+                        $soHeader->so_header_id = $order["SO_KEY"];
+                        $soHeader->save();
+                    }
+
+                    $result[] = [
+                        "id" => $soHeader->id,
+                        "so_number" => $soNumber,
+                        "is_sync_sap" => boolval($soHeader->is_sync_sap),
+                        "so_sap_note" => $soHeader->so_sap_note,
+                        "warehouse_code" => $soHeader->warehouse_id,
+                        "so_key" => $soHeader->so_header_id,
+                        "message" => $json_value['MESSAGE']
+                    ];
+                }
+            }
             DB::commit();
+            $this->changeIsSyncingSapSoHeader($so_headers, false);
             return $result;
         } catch (\Throwable $exception) {
             DB::rollBack();
             Log::error($exception->getMessage());
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            $this->changeIsSyncingSapSoHeader($so_headers, false);
         }
     }
     public function getSoHeader()
@@ -253,6 +258,27 @@ class SyncDataRepository extends RepositoryAbs
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+        }
+    }
+
+    // Hàm change trạng thái is_syncing_sap của so_header
+    public function changeIsSyncingSapSoHeader($so_headers, $is_syncing_sap = false)
+    {
+        try {
+            DB::beginTransaction();
+            foreach ($so_headers as $item) {
+                $so_header = SoHeader::find($item->id);
+                if ($so_header) {
+                    $so_header->is_syncing_sap = $is_syncing_sap;
+                    $so_header->save();
+                }
+            }
+            DB::commit();
+            return true;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
         }
     }
 }
