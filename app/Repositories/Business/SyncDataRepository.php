@@ -72,7 +72,7 @@ class SyncDataRepository extends RepositoryAbs
                             "sales_org" => "3000",
                             "distr_chan" => "20",
                             "doc_type" => "ZOR",
-                            "lgort" => $value["warehouse_id"],
+                            "lgort" => $value["warehouse_code"],
                             "Ship_cond" => "",
                             "SO_KEY" => $order->id,
                             "GROUP_NAME" => $order->sap_so_number,
@@ -98,24 +98,32 @@ class SyncDataRepository extends RepositoryAbs
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
-                    $soHeader = SoHeader::find($json_value['SO_KEY']);
-                    dd($json_value);
-                    if ($json_value['SO_NUMBER'] != '') {
+                    $is_sync_sap = false;
+                    $so_sap_note = '';
+                    $warehouse_id = 0;
+                    if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
+                        $soHeader = SoHeader::find($json_value['SO_KEY']);
                         $soHeader->so_uid = $soNumber;
                         $soHeader->is_sync_sap = true;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-                        // $soHeader->id = $order["SO_KEY"];
+                        $is_sync_sap = boolval($soHeader->is_sync_sap);
+                        $so_sap_note = $soHeader->so_sap_note;
+                        $warehouse_id = $soHeader->warehouse_id;
                         $soHeader->save();
+
+                    } else if ($json_value['SO_KEY'] == '') {
+                        $this->errors['not_config_user'] = $json_value['MESSAGE'];
+                        $this->changeIsSyncingSapSoHeader($so_headers, false);
+                        return null;
                     }
 
                     $result[] = [
-                        "id" => $soHeader->id,
+                        "id" => $json_value['SO_KEY'],
                         "so_number" => $soNumber,
-                        "is_sync_sap" => boolval($soHeader->is_sync_sap),
-                        "so_sap_note" => $soHeader->so_sap_note,
-                        "warehouse_code" => $soHeader->warehouse_id,
-                        // "so_key" => $soHeader->id,
+                        "is_sync_sap" => $is_sync_sap,
+                        "so_sap_note" => $so_sap_note,
+                        "warehouse_code" => $warehouse_id,
                         "message" => $json_value['MESSAGE']
                     ];
                 }
