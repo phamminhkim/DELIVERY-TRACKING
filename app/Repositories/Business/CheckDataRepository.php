@@ -394,6 +394,7 @@ class CheckDataRepository extends RepositoryAbs
     public function checkPrice()
     {
         $result = [];
+        $hasError = false;
         try {
             DB::beginTransaction();
 
@@ -430,6 +431,8 @@ class CheckDataRepository extends RepositoryAbs
 
                         if ($json['error'] != "") {
                             $result["error"] = $json['error'];
+                            $hasError = true;
+                            break; // Thoát khỏi vòng lặp nếu có lỗi
                         }
 
                         $jsonString = json_encode($json); // Convert the array to a JSON string
@@ -457,8 +460,8 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
             }
-
             DB::commit();
+
             return $result;
         } catch (\Throwable $exception) {
             DB::rollBack();
