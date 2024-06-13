@@ -95,6 +95,13 @@ class SyncDataRepository extends RepositoryAbs
             $jsonData = json_decode($jsonString, true);
             // dd($jsonData);
 
+            // Kiểm tra lỗi kết nối đồng bộ
+            if (!$jsonData['success']) {
+                $this->errors['sap_error'] = $jsonData['error'];
+                $this->changeIsSyncingSapSoHeader($so_headers, false);
+                return null;
+            }
+
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
