@@ -358,13 +358,13 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($fields['data'] as $value) {
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
-                        "warehouse_code" =>  $value['warehouse_code'],
                     ];
                 }
                 $json = SapApiHelper::postData(json_encode($sapData));
                 // dd($json);
-                if ($json['error'] != "") {
-                    $result["error"] = $json['error'];
+                if (!$json['success']) {
+                    $this->errors['sap_error'] = $json['error'];
+                    return null;
                 }
                 $jsonString = json_encode($json); // Convert the array to a JSON string
                 $jsonData = json_decode($jsonString, true);
@@ -429,10 +429,9 @@ class CheckDataRepository extends RepositoryAbs
 
                         $json = SapApiHelper::postData(json_encode($sapData));
 
-                        if ($json['error'] != "") {
-                            $result["error"] = $json['error'];
-                            $hasError = true;
-                            break; // Thoát khỏi vòng lặp nếu có lỗi
+                        if (!$json['success']) {
+                            $this->errors['sap_error'] = $json['error'];
+                            return null;
                         }
 
                         $jsonString = json_encode($json); // Convert the array to a JSON string
