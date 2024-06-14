@@ -408,13 +408,18 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_partners, customer_group_options] =
+                    const response = await this.api_handler.get(this.api_url, {
+						customer_group_ids: this.form_filter.customer_group,
+						ids: this.form_filter.customer_partner,
+					});
+					const data = response.data;
+
+					this.customer_partners = data;
+					const [customer_group_options] =
 						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/customer-partners'),
 							new APIRequest('get', '/api/master/customer-groups'),
 						]);
 					this.customer_group_options = customer_group_options;
-					this.customer_partners = customer_partners;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -475,6 +480,7 @@
 
 					this.form_filter.customer_group = null;
 					this.form_filter.customer_partner = [];
+                    await this.fetchOptionsData();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {

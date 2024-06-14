@@ -399,15 +399,15 @@ class CustomerPartnerRepository extends RepositoryAbs
                 }
 
                 // Kiểm tra xem đã tồn tại mã code nào được gắn với tên này trong nhóm khách hàng hay chưa
-                $existingCustomerPartner = CustomerPartner::where('customer_group_id', $this->data['customer_group_id'])
-                    ->where('name', $this->data['name'])
-                    ->where('id', '!=', $id) // Loại trừ bản ghi hiện tại để tránh xung đột
-                    ->first();
+                // $existingCustomerPartner = CustomerPartner::where('customer_group_id', $this->data['customer_group_id'])
+                //     ->where('name', $this->data['name'])
+                //     ->where('id', '!=', $id) // Loại trừ bản ghi hiện tại để tránh xung đột
+                //     ->first();
 
-                if ($existingCustomerPartner) {
-                    $this->errors['name'] = 'Tên khách hàng đã được gắn với một mã code khác trong nhóm này.';
-                    return false;
-                }
+                // if ($existingCustomerPartner) {
+                //     $this->errors['name'] = 'Tên khách hàng đã được gắn với một mã code khác trong nhóm này.';
+                //     return false;
+                // }
 
                 $customer_partner->update($this->data);
                 return $customer_partner;

@@ -408,13 +408,17 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [unit_options, sap_compliances] =
+                    const response = await this.api_handler.get(this.api_url, {
+						unit_ids: this.form_filter.unit,
+						ids: this.form_filter.sap_compliance,
+					});
+					const data = response.data;
+
+					this.sap_compliances = data;
+					const [unit_options] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/sap-units'),
-							new APIRequest('get', '/api/master/sap-compliances'),
 						]);
-
-					this.sap_compliances = sap_compliances;
 
 					this.unit_options = unit_options.map((unit) => ({
 						id: unit.id,

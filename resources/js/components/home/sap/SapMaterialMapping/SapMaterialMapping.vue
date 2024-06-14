@@ -160,15 +160,15 @@
 									</strong>
 								</button>
 
-								<!-- <button
+								<button
 									type="button"
 									class="btn btn-danger btn-sm ml-1 mt-1"
-									@click="deleteMultipleSapMappings(data.id)"
+									@click="deleteMultipleSapMappings"
 								>
 									<strong>
 										<i class="fas fa-trash-alt mr-1 text-bold"></i>Xóa
 									</strong>
-								</button> -->
+								</button>
 							</div>
 						</div>
 						<!-- <div class="col-md-3">
@@ -273,24 +273,23 @@
 						</label>
 						<div class="col-md-2">
 							<b-form-select
-									size="sm"
-									v-model="pagination.item_per_page"
-									:options="
-										pagination.page_options.map((option) => option.toString())
-									"
-								></b-form-select>
+								size="sm"
+								v-model="pagination.item_per_page"
+								:options="
+									pagination.page_options.map((option) => option.toString())
+								"
+							></b-form-select>
 						</div>
 						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
 						<div class="col-md-3">
 							<b-pagination
-									v-model="pagination.current_page"
-									:total-rows="sap_material_mappings.data.length"
-									:per-page="pagination.item_per_page"
-									:limit="3"
-									:size="pagination.page_options.length.toString()"
-
-									class="ml-1"
-								></b-pagination>
+								v-model="pagination.current_page"
+								:total-rows="sap_material_mappings.data.length"
+								:per-page="pagination.item_per_page"
+								:limit="3"
+								:size="pagination.page_options.length.toString()"
+								class="ml-1"
+							></b-pagination>
 						</div>
 					</div>
 					<!-- end phân trang -->
@@ -342,6 +341,10 @@
 				customer_group_options: [],
 				is_select_all: false,
 				selected_ids: [],
+				sap_material_mappings: {
+					data: [], // Mảng dữ liệu
+					paginate: [], // Mảng thông tin phân trang
+				},
 
 				is_editing: false,
 				editing_item: {},
@@ -384,29 +387,21 @@
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-                    {
-						key: 'customer_material.customer_sku_unit',
-						label: 'Đơn vị SKU khách hàng',
-						sortable: true,
-						class: 'text-nowrap text-center',
-					},
 					{
 						key: 'customer_number',
 						label: 'SL - Quy cách SKU KH',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-
-
 					{
-						key: 'sap_material.sap_code',
-						label: 'Mã SAP',
+						key: 'customer_material.customer_sku_unit',
+						label: 'Đơn vị SKU khách hàng',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
 					{
-						key: 'sap_material.unit.unit_code',
-						label: 'Đơn vị tính SAP',
+						key: 'sap_material.sap_code',
+						label: 'Mã SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -420,6 +415,12 @@
 					{
 						key: 'conversion_rate_sap',
 						label: 'SL - Quy cách SAP',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
+					{
+						key: 'sap_material.unit.unit_code',
+						label: 'Đơn vị tính SAP',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
@@ -439,36 +440,16 @@
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
-				sap_material_mappings: {
-					data: [], // Mảng dữ liệu
-					paginate: [], // Mảng thông tin phân trang
-				},
+
 				customer_options: [],
 				api_url: 'api/master/sap-material-mappings',
 			};
 		},
 		created() {
 			this.fetchOptionsData();
+			// this.fetchData();
 		},
 		methods: {
-			// async fetchData() {
-			// 	try {
-			// 		this.is_loading = true;
-			// 		const { data } = await this.api_handler.get(this.api_url, {
-			// 			customer_group_ids: this.form_filter.customer_group,
-			// 			customer_material_ids: this.form_filter.customer_material,
-			// 			sap_material_ids: this.form_filter.sap_material,
-			// 		});
-
-			// 		if (Array.isArray(data)) {
-			// 			this.sap_material_mappings = data;
-			// 		}
-			// 	} catch (error) {
-			// 		this.$showMessage('error', 'Lỗi', error);
-			// 	} finally {
-			// 		this.is_loading = false;
-			// 	}
-			// },
 			async fetchData() {
 				try {
 					this.is_loading = true;
@@ -486,7 +467,6 @@
 						this.sap_material_mappings.data = data.map();
 					}
 
-					// Gán thông tin phân trang
 					this.pagination.current_page = paginate.current_page;
 					this.pagination.last_page = paginate.last_page;
 					this.pagination.total_items = paginate.total;
@@ -499,14 +479,18 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [customer_group_options, customer_options, sap_material_mappings] =
+					const { data } = await this.api_handler.get(this.api_url, {
+						customer_group_ids: this.form_filter.customer_group,
+						customer_material_ids: this.form_filter.customer_material,
+						sap_material_ids: this.form_filter.sap_material,
+					});
+					this.sap_material_mappings = data;
+					const [customer_group_options, customer_options] =
 						await this.api_handler.handleMultipleRequest([
 							new APIRequest('get', '/api/master/customer-groups'),
 							new APIRequest('get', '/api/master/customer-materials'),
-							new APIRequest('get', '/api/master/sap-material-mappings'),
 						]);
 					this.customer_group_options = customer_group_options;
-					this.sap_material_mappings = sap_material_mappings;
 					this.customer_options = customer_options.map((customer_material) => {
 						return {
 							id: customer_material.id,
@@ -519,6 +503,7 @@
 					this.is_loading = false;
 				}
 			},
+
 			normalizerOption(node) {
 				return {
 					id: node.id,
@@ -608,12 +593,64 @@
 			selectAll() {
 				this.selected_ids = [];
 				if (this.is_select_all) {
-					for (let i in this.sap_material_mappings) {
-						this.selected_ids.push(this.sap_material_mappings[i].id);
+					for (let i in this.sap_material_mappings.data) {
+						this.selected_ids.push(this.sap_material_mappings.data[i].id);
 					}
 				}
 			},
 
+			async deleteMultipleSapMappings() {
+				try {
+					if (this.is_loading) return;
+					this.is_loading = true;
+					if (this.selected_ids.length === 0) {
+						toastr.error('Vui lòng chọn ít nhất 1 file');
+						return;
+					}
+					let confirmed = false;
+					let messageShown = false;
+					for (const id of this.selected_ids) {
+						if (!confirmed && confirm('Bạn muốn xoá?')) {
+							confirmed = true;
+						}
+						if (confirmed) {
+							try {
+								const result = await this.api_handler.delete(
+									`${this.api_url}/${id}`,
+								);
+								if (!messageShown) {
+									if (result.success) {
+										this.showMessage(
+											'success',
+											'Xóa thành công',
+											result.message,
+										);
+									} else {
+										this.showMessage('error', 'Lỗi', result.message);
+									}
+									messageShown = true;
+								}
+								if (result.success && Array.isArray(result.data)) {
+									this.sap_material_mappings.data = result.data;
+								}
+							} catch (error) {
+								if (!messageShown) {
+									this.showMessage('error', 'Lỗi', error);
+									messageShown = true;
+								}
+							}
+						}
+					}
+					if (confirmed) {
+						this.selected_ids = [];
+						await this.fetchOptionsData();
+					}
+				} catch (error) {
+					this.showMessage('error', error.response.data.message);
+				} finally {
+					this.is_loading = false;
+				}
+			},
 			async deleteSapMapping(id) {
 				if (confirm('Bạn muốn xoá?')) {
 					try {
