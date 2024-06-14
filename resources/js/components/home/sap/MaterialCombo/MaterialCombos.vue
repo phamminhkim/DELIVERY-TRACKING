@@ -199,7 +199,7 @@
 									1
 								}}
 							</template>
-                            <template #cell(is_active)="data">
+							<template #cell(is_active)="data">
 								<span class="badge bg-success" v-if="data.item.is_active == 1"
 									>Đang hoạt động</span
 								>
@@ -238,13 +238,12 @@
 						>
 						<div class="col-md-2">
 							<b-form-select
-									size="sm"
-									v-model="pagination.item_per_page"
-									:options="
-										pagination.page_options.map((option) => option.toString())
-									"
-
-								></b-form-select>
+								size="sm"
+								v-model="pagination.item_per_page"
+								:options="
+									pagination.page_options.map((option) => option.toString())
+								"
+							></b-form-select>
 						</div>
 						<label class="col-form-label-sm col-md-1" style="text-align: left"></label>
 						<div class="col-md-3">
@@ -254,7 +253,6 @@
 								:per-page="pagination.item_per_page"
 								:limit="3"
 								:size="pagination.page_options.length.toString()"
-
 								class="ml-1"
 							></b-pagination>
 						</div>
@@ -304,7 +302,7 @@
 					customer_group: null,
 					material_combo: null,
 				},
-                customer_group_options: [],
+				customer_group_options: [],
 				is_editing: false,
 				editing_item: {},
 				is_loading: false,
@@ -333,19 +331,19 @@
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-                    {
+					{
 						key: 'name',
 						label: 'Tên sản phẩm',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-                    {
+					{
 						key: 'bar_code',
 						label: 'Mã BarCode',
 						sortable: true,
 						class: 'text-nowrap text-left',
 					},
-                    {
+					{
 						key: 'is_active',
 						label: 'Trạng thái',
 						sortable: true,
@@ -358,7 +356,7 @@
 						class: 'text-nowrap',
 					},
 				],
-				material_combos:  {
+				material_combos: {
 					data: [], // Mảng dữ liệu
 					paginate: [], // Mảng thông tin phân trang
 				},
@@ -373,7 +371,7 @@
 			async fetchData() {
 				try {
 					this.is_loading = true;
-                    const params = {
+					const params = {
 						page: this.pagination.current_page,
 						per_page: this.pagination.item_per_page,
 						ids: this.form_filter.material_combo,
@@ -385,7 +383,7 @@
 					if (Array.isArray(data)) {
 						this.material_combos.data = data.map();
 					}
-                    this.pagination.current_page = paginate.current_page;
+					this.pagination.current_page = paginate.current_page;
 					this.pagination.last_page = paginate.last_page;
 					this.pagination.total_items = paginate.total;
 				} catch (error) {
@@ -397,12 +395,16 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [material_combos, customer_group_options] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/material-combos'),
+					const { data } = await this.api_handler.get(this.api_url, {
+						customer_group_ids: this.form_filter.customer_group,
+						ids: this.form_filter.material_combo,
+					});
+
+					this.material_combos = data;
+					const [customer_group_options] = await this.api_handler.handleMultipleRequest([
 						new APIRequest('get', '/api/master/customer-groups'),
 					]);
 					this.customer_group_options = customer_group_options;
-					this.material_combos = material_combos;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -415,7 +417,7 @@
 					label: node.name,
 				};
 			},
-            async loadOptions({ action, searchQuery, callback }) {
+			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
 						search: searchQuery,
@@ -441,9 +443,9 @@
 					this.is_loading = true;
 
 					const { data } = await this.api_handler.get(this.api_url, {
-                        customer_group_ids: this.form_filter.customer_group,
+						customer_group_ids: this.form_filter.customer_group,
 
-                        ids: this.form_filter.material_combo,
+						ids: this.form_filter.material_combo,
 					});
 					// console.log(this.page_structure.api_url);
 					// console.log(data,'u');
@@ -463,6 +465,8 @@
 					this.is_loading = true;
 
 					this.form_filter.material_combo = [];
+					this.form_filter.customer_group = null;
+                    await this.fetchOptionsData();
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
