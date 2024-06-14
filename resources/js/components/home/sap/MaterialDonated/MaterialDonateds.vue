@@ -365,10 +365,15 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-					const [material_donateds] = await this.api_handler.handleMultipleRequest([
-						new APIRequest('get', '/api/master/material-donateds'),
-					]);
-					this.material_donateds = material_donateds;
+                    const { data } = await this.api_handler.get(this.api_url, {
+						ids: this.form_filter.material_donated,
+					});
+
+					this.material_donateds = data;
+					// const [material_donateds] = await this.api_handler.handleMultipleRequest([
+					// 	new APIRequest('get', '/api/master/material-donateds'),
+					// ]);
+					// this.material_donateds = material_donateds;
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {
@@ -427,6 +432,8 @@
 					this.is_loading = true;
 
 					this.form_filter.material_donated = [];
+					await this.fetchOptionsData();
+
 				} catch (error) {
 					this.$showMessage('error', 'Lỗi', error);
 				} finally {

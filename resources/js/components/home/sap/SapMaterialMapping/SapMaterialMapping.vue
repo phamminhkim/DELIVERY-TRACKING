@@ -479,7 +479,7 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-                    const { data } = await this.api_handler.get(this.api_url, {
+					const { data } = await this.api_handler.get(this.api_url, {
 						customer_group_ids: this.form_filter.customer_group,
 						customer_material_ids: this.form_filter.customer_material,
 						sap_material_ids: this.form_filter.sap_material,
@@ -609,7 +609,6 @@
 					}
 					let confirmed = false;
 					let messageShown = false;
-
 					for (const id of this.selected_ids) {
 						if (!confirmed && confirm('Bạn muốn xoá?')) {
 							confirmed = true;
@@ -642,7 +641,6 @@
 							}
 						}
 					}
-
 					if (confirmed) {
 						this.selected_ids = [];
 						await this.fetchOptionsData();
@@ -654,27 +652,22 @@
 				}
 			},
 			async deleteSapMapping(id) {
-				// if (this.selected_ids.includes(id) || this.selected_ids.length === 0) {
-					if (confirm('Bạn muốn xoá?')) {
-						try {
-							const result = await this.api_handler.delete(`${this.api_url}/${id}`);
-
-							if (result.success) {
-								if (Array.isArray(result.data)) {
-									this.sap_material_mappings.data = result.data;
-								}
-
-								this.showMessage('success', 'Xóa thành công', result.message);
-
-								await this.fetchOptionsData(); // Load the data again after successful deletion
-							} else {
-								this.showMessage('error', 'Lỗi', result.message);
+				if (confirm('Bạn muốn xoá?')) {
+					try {
+						const result = await this.api_handler.delete(`${this.api_url}/${id}`);
+						if (result.success) {
+							if (Array.isArray(result.data)) {
+								this.sap_material_mappings.data = result.data;
 							}
-						} catch (error) {
-							this.showMessage('error', 'Lỗi', error);
+							this.showMessage('success', 'Xóa thành công', result.message);
+							await this.fetchOptionsData(); // Load the data again after successful deletion
+						} else {
+							this.showMessage('error', 'Lỗi', result.message);
 						}
+					} catch (error) {
+						this.showMessage('error', 'Lỗi', error);
 					}
-				// }
+				}
 			},
 			showCreateDialog() {
 				this.is_editing = false;
