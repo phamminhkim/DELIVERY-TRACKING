@@ -454,6 +454,7 @@ export default {
                     if (tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
+                        orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false;
                     }
                 }
             });
@@ -715,11 +716,19 @@ export default {
         getConvertOrderLack(index, data) {
             data.is_inventory = false;
             // this.orders.unshift(data);
-            this.orders.splice(data.order - 1, 0, data);
+            console.log(data.order, (data.order - 1), 'vị trí')
+            let index_stt = 0;
+            if(this.orders[(data.order - 1)] < (data.order - 1)){
+                index_stt = data.order - 3;
+            } else {
+                index_stt = data.order - 1;
+            }
+            this.filterOrders.splice(this.orders[index_stt], 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
-            this.orders.forEach((item, index) => {
+            this.filterOrders.forEach((item, index) => {
                 item.order = index + 1;
             });
+            this.refHeaderOrderProcesses();
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
