@@ -1410,12 +1410,16 @@ class AiRepository extends RepositoryAbs
             $advanced_settings_info = json_decode($extract_data_config->advanced_settings_info);
 
             $check_table_areas = $advanced_settings_info->check_mapping_config->check_table_areas;
+            $x_coordinates = [];
+            if (isset($advanced_settings_info->check_mapping_config->columns)) {
+                $x_coordinates = $advanced_settings_info->columns->x_coordinates;
+            }
             $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
             $data_extractor = new CamelotExtractorService();
 
             $file_path = $this->file_service->saveTemporaryFile($file);
 
-            $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas);
+            $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas, $x_coordinates);
             $this->file_service->deleteTemporaryFile($file_path);
             $check_value = isset($value_table_area[0]) ? $value_table_area[0] : "";
             // Remove tất cả space trong check_value

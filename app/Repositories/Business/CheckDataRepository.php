@@ -77,7 +77,7 @@ class CheckDataRepository extends RepositoryAbs
                     continue;
                 }
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
-                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted',0)->first();
+                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', 0)->first();
 
                 if ($sapMaterial && $sapMaterial->is_deleted != 1) {
 
@@ -358,33 +358,29 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($fields['data'] as $value) {
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
-                        "warehouse_code" =>  $value['warehouse_id'],
                     ];
-                    // dd($sapData);
                 }
-
                 $json = SapApiHelper::postData(json_encode($sapData));
-
+                // dd($json);
+                if (!$json['success']) {
+                    $this->errors['sap_error'] = $json['error'];
+                    return null;
+                }
                 $jsonString = json_encode($json); // Convert the array to a JSON string
                 $jsonData = json_decode($jsonString, true);
-
 
                 if (!empty($jsonData['data'])) {
                     // dd($jsonData['data']);
 
                     foreach ($jsonData['data'] as $json_value) {
                         $quantity = $json_value['ATP_QUANTITY'];
-
-                        if ($json_value['ATP_QUANTITY'] != '') {
-                            $result[] = [
-                                "MATERIAL" => $json_value['MATERIAL'],
-                                "ATP_QUANTITY" => $quantity,
-                            ];
-                        }
+                        $result[] = [
+                            "MATERIAL" => $json_value['MATERIAL'],
+                            "ATP_QUANTITY" => $quantity,
+                        ];
                     }
                 }
             }
-
             DB::commit();
             return $result;
         } catch (\Throwable $exception) {
@@ -398,8 +394,10 @@ class CheckDataRepository extends RepositoryAbs
     public function checkPrice()
     {
         $result = [];
+        $hasError = false;
         try {
             DB::beginTransaction();
+
             $validator = Validator::make($this->request->all(), [
                 'data' => 'required|array',
             ], [
@@ -412,40 +410,57 @@ class CheckDataRepository extends RepositoryAbs
             } else {
                 $fields = $this->request->all();
 
-                $sapData = [
-                    "ID" => "1001",
-                    "action_name" => "FETCH_MATERIAL_PRICE",
-                    "BODY" => []
-                ];
-
                 foreach ($fields['data'] as $value) {
-                    $sapData['BODY'][] = [
-                        "so_numbers" => $value['so_numbers'],
-                        "is_promotion" => "",
-                    ];
-                    // dd($sapData);
-                }
-                $json = SapApiHelper::postData(json_encode($sapData));
+                    $soNumbers = preg_split('/[\s,]+/', $value['so_numbers']); // Tách chuỗi thành mảng các số
 
-                $jsonString = json_encode($json); // Convert the array to a JSON string
-                $jsonData = json_decode($jsonString, true);
+                    foreach ($soNumbers as $soNumber) {
+                        $soNumber = trim($soNumber); // Loại bỏ các khoảng trắng thừa
 
-                if (!empty($jsonData['data'])) {
-                    // dd($jsonData['data']);
+                        $sapData = [
+                            "ID" => "1001",
+                            "action_name" => "FETCH_MATERIAL_PRICE",
+                            "BODY" => [
+                                [
+                                    "so_numbers" => $soNumber,
+                                    "is_promotion" => $value['is_promotion'],
+                                ]
+                            ]
+                        ];
 
-                    foreach ($jsonData['data'] as $json_value) {
-                        $check_price = $json_value['PRICE'];
+                        $json = SapApiHelper::postData(json_encode($sapData));
 
-                        if ($json_value['PRICE'] != '') {
+                        if (!$json['success']) {
+                            $this->errors['sap_error'] = $json['error'];
+                            return null;
+                        }
+
+                        $jsonString = json_encode($json); // Convert the array to a JSON string
+                        $jsonData = json_decode($jsonString, true);
+
+                        if (!empty($jsonData['data'])) {
+                            foreach ($jsonData['data'] as $index => $json_value) {
+                                $material = $json_value['MATERIAL'] ?? null;
+                                $price = $json_value['PRICE'] ?? null;
+
+                                $result[] = [
+                                    "so_numbers" => $soNumber,
+                                    "MATERIAL" => $material,
+                                    "PRICE" => $price,
+                                ];
+                            }
+                        } else {
+                            // Không tìm thấy thông tin vật liệu và giá
                             $result[] = [
-                                "MATERIAL" => $json_value['MATERIAL'],
-                                "PRICE" => $check_price,
+                                "so_numbers" => $soNumber,
+                                "MATERIAL" => null,
+                                "PRICE" => null,
                             ];
                         }
                     }
                 }
             }
             DB::commit();
+
             return $result;
         } catch (\Throwable $exception) {
             DB::rollBack();
@@ -454,5 +469,4 @@ class CheckDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-
 }

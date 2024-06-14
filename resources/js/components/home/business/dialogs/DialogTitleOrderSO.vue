@@ -88,8 +88,11 @@ export default {
                 }
                 if (this.case_save_so.id !== "") {
                     try {
-                        let { data } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
-                        this.$showMessage('success', 'Cập nhật thành công');
+                        let { data, message } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
+                        this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>' 
+                        + 'Số đơn hàng lưu thành công: ' + message.sync_so_count + '<br>'
+                        + 'Số đơn hàng lưu thất bại: ' + message.not_sync_so_count + '<br>'
+                        + 'Lý do: Các dòng data đã hoặc đang đồng bộ SAP trước đó.');
                         this.$emit('saveOrderSO', data);
                         this.hideDialogTitleOrderSo();
                     } catch (error) {
