@@ -39,12 +39,15 @@
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
             @emitResetFilter="getResetFilter">
-        </ParentOrderSuffice> 
-        <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value" :order_lacks="case_data_temporary.order_lacks"
-            @convertOrderLack="getConvertOrderLack" @countOrderLack="getCountOrderLack"></ParentOrderLack>
+        </ParentOrderSuffice>
+        <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value"
+            :order_lacks="case_data_temporary.order_lacks" @convertOrderLack="getConvertOrderLack"
+            @countOrderLack="getCountOrderLack"></ParentOrderLack>
         <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
+            :order_syncs_selected="case_data_temporary.order_syncs_selected"
+            @emitOrderSyncs="getEmitOrderSyncs"
             @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
             @viewDetailOrderSyncs="getviewDetailOrderSyncs">
         </ParentOrderSynchronized>
@@ -143,6 +146,7 @@ export default {
     },
     created() {
         this.getUrl();
+        // this.filterOrders = [...this.orders];
         this.case_is_loading.created_conponent = true;
     },
     methods: {
@@ -218,12 +222,15 @@ export default {
             window.open(url, '_blank');
         },
         getSelectedOrderSync(selected) {
-            // Chức năng đồng bộ SAP
             this.case_data_temporary.order_syncs_selected = selected;
+        },
+        getEmitOrderSyncs(item_selecteds) {
+          this.getProcessOrderSyncSelected(item_selecteds);
         },
         async getProcessOrderSync() {
             try {
                 this.case_is_loading.sap_sync = true;
+                $('#modalOptionOrderSync').modal('hide');
                 let body = {
                     'order_process_id': this.case_save_so.id,
                     'data': this.case_data_temporary.order_syncs_selected.map(item => {
@@ -249,10 +256,57 @@ export default {
                     this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
                     this.checkOrderSyncWithOrderProcess();
                 } else {
-                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
                 }
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                if (error.response.data.errors.sap_error) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.synchronized_error) {
+                    this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
+                }
+            } finally {
+                this.case_is_loading.sap_sync = false;
+                $('#modalOptionOrderSync').modal('show');
+            }
+        },
+        async getProcessOrderSyncSelected(item_selecteds) {
+            try {
+                this.case_is_loading.sap_sync = true;
+                let body = {
+                    'order_process_id': this.case_save_so.id,
+                    'data': item_selecteds.map(item => {
+                        return {
+                            'id': item.so_header_id,
+                            'warehouse_code': item.warehouse_id,
+                            'so_sap_note': item.so_sap_note
+                        }
+                    })
+                };
+                const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
+                if (success) {
+                    data.forEach(item => {
+                        this.case_data_temporary.order_syncs.forEach(order_sync => {
+                            if (item.id == order_sync.so_header_id) {
+                                order_sync.id = item.id;
+                                order_sync.so_uid = item.so_number;
+                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.noti_sync = item.message;
+                            }
+                        });
+                    });
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    this.checkOrderSyncWithOrderProcess();
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
+                }
+            } catch (error) {
+                if (error.response.data.errors.sap_error) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.synchronized_error) {
+                    this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
+                }
             } finally {
                 this.case_is_loading.sap_sync = false;
             }
@@ -364,12 +418,12 @@ export default {
                     }
                     return false;
                 }).map(order => {
-                  
+
                     return {
                         id: '',
                         so_uid: '',
                         sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                        customer_key: order.customer_code,
+                        customer_code: order.customer_code,
                         customer_name: order.customer_name,
                         po_delivery_date: order.po_delivery_date,
                         is_sync_sap: false,
@@ -519,7 +573,7 @@ export default {
                         this.orders = this.orders.filter(item => !this.case_data_temporary.item_selecteds.includes(item));
                     }
                 });
-               
+
 
             }
             this.refeshCheckBox();
@@ -540,7 +594,7 @@ export default {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
-          
+
         },
         getReplaceItemAll(item_materials, barcode) {
             this.case_data_temporary.item_selecteds.forEach((item_selected, index) => {
@@ -718,7 +772,7 @@ export default {
             // this.orders.unshift(data);
             console.log(data.order, (data.order - 1), 'vị trí')
             let index_stt = 0;
-            if(this.orders[(data.order - 1)] < (data.order - 1)){
+            if (this.orders[(data.order - 1)] < (data.order - 1)) {
                 index_stt = data.order - 3;
             } else {
                 index_stt = data.order - 1;
@@ -947,7 +1001,7 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
-            this.case_is_loading.created_conponent = false;
+            // this.case_is_loading.created_conponent = false;
         },
         getResetFilter() {
             this.case_data_temporary.field = 'customer_sku_code';

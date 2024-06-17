@@ -92,7 +92,7 @@ export default {
                         this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>' 
                         + 'Số đơn hàng lưu thành công: ' + message.sync_so_count + '<br>'
                         + 'Số đơn hàng lưu thất bại: ' + message.not_sync_so_count + '<br>'
-                        + 'Lý do: Các dòng data đã hoặc đang đồng bộ SAP trước đó.');
+                        + 'Lý do: Các đơn hàng đã hoặc đang đồng bộ SAP trước đó.');
                         this.$emit('saveOrderSO', data);
                         this.hideDialogTitleOrderSo();
                     } catch (error) {

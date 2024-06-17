@@ -4,6 +4,9 @@
             :customer_groups="customer_groups" :order_syncs="order_syncs" :case_save_so="case_save_so"
             @emitSelectedOrderSync="emitSelectedOrderSync" @processOrderSync="processOrderSync"
             :is_sap_sync="is_sap_sync" 
+            :order_syncs_selected="order_syncs_selected"
+            @emitOrderSyncs="getEmitOrderSyncs"
+            :use_component_syncs_sap="use_component_syncs_sap"
             @viewDetailOrderSyncs="viewDetailOrderSyncs">
         </DialogOrderSync>
     </div>
@@ -19,6 +22,11 @@ export default {
         order_syncs: Array,
         case_save_so: Object,
         is_sap_sync: Boolean,
+        order_syncs_selected: Array,
+        use_component_syncs_sap: {
+            type: String,
+            default: 'OrderProcess'
+        }
     },
     components: {
         DialogOrderSync
@@ -38,6 +46,10 @@ export default {
         },
         viewDetailOrderSyncs(){
             this.$emit('viewDetailOrderSyncs');
+        },
+        getEmitOrderSyncs(item_selecteds){
+            this.$emit('emitOrderSyncs', item_selecteds)
+
         }
     },
     computed: {
