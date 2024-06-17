@@ -4,13 +4,15 @@
             <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync"></HeaderOrderSyncSAP>
             <div class="row mb-1">
                 <div class="col-lg-6">
-                    <div>
-                        <button @click="checkProcessOrderSync()" type="button" class="btn btn-sm btn-light text-info  btn-group__border">
-                            <span class="badge badge-info badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
-                            SAP</button>
-                        <button @click="viewDetailOrderSyncs()" type="button"
+                    <div style="position: relative;">
+                        <button @click="showModalOptionOrderSync()" type="button"
+                            class="btn btn-sm btn-primary  btn-group__border">
+                            <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
+                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ case_data_temporary.order_syncs_selected.length }}</span>
+                        <!-- <button @click="viewDetailOrderSyncs()" type="button"
                             class="btn btn-sm btn-light text-primary btn-group__border">
-                            <span class="badge badge-primary badge-sm mr-2">{{ this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
+                            <span class="badge badge-primary badge-sm mr-2">{{
+            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button> -->
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -24,8 +26,8 @@
                 </div>
             </div>
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
-            :use_component="'OrderSyncSAP'"
-                :current_page="current_page" :per_page="per_page" @emitSelectedOrderSync="getSelectedOrderSync">
+                :use_component="'OrderSyncSAP'" :current_page="current_page" :per_page="per_page"
+                @emitSelectedOrderSync="getSelectedOrderSync">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                 :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -34,6 +36,13 @@
         <div v-else>
             <TableOrderSyncDetail @rollBackUrl="getRollBackUrl"></TableOrderSyncDetail>
         </div>
+        <DialogOptionOrderSync :viewDetailOrderSyncs="viewDetailOrderSyncs" :length_item="case_data_temporary.order_syncs_selected.length"
+            @emitSetWarehouse="getEmitSetWarehouse" @emitOrderSyncsOption="getEmitOrderSyncsOption">
+        </DialogOptionOrderSync>
+        <DialogOptionSetWarehouse :length_item="case_data_temporary.order_syncs_selected.length"
+            :is_sap_sync="case_is_loading.sap_sync" :item_selecteds="case_data_temporary.order_syncs_selected"
+            :use_component_syncs_sap="case_component.order_sync_sap"
+            @emitSetWarehouse="getSetWarehouse" @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
     </div>
 </template>
 <script>
@@ -42,13 +51,16 @@ import TableOrderSync from './tables/TableOrderSync.vue';
 import PaginationTable from './paginations/PaginationTable.vue';
 import TableOrderSyncDetail from './tables/TableOrderSyncDetail.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
-
+import DialogOptionOrderSync from './dialogs/DialogOptionOrderSync.vue';
+import DialogOptionSetWarehouse from './dialogs/DialogOptionSetWarehouse.vue';
 export default {
     components: {
         HeaderOrderSyncSAP,
         TableOrderSync,
         PaginationTable,
-        TableOrderSyncDetail
+        TableOrderSyncDetail,
+        DialogOptionOrderSync,
+        DialogOptionSetWarehouse
     },
     data() {
         return {
@@ -58,6 +70,7 @@ export default {
             },
             case_component: {
                 view_detail: false,
+                order_sync_sap: 'OrderSyncSAP',
             },
             case_filter: {
                 query: '',
@@ -77,7 +90,7 @@ export default {
             },
             case_api: {
                 get_order_sync: '/api/so-header',
-            api_order_sync: '/api/so-header/sync-sale-order',
+                api_order_sync: '/api/so-header/sync-sale-order',
 
             },
             fields: [
@@ -120,7 +133,7 @@ export default {
                     key: 'warehouse_code',
                     label: 'Mã Kho',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap text-center'
                 },
                 {
                     key: 'customer_code',
@@ -171,6 +184,17 @@ export default {
         this.getUrl();
     },
     methods: {
+        getEmitOrderSyncsOption() {
+            this.checkProcessOrderSync();
+        },
+        getEmitOrderSyncs(item_selecteds) {
+            // this.case_data_temporary.order_syncs_selected = selecteds;
+            this.checkProcessOrderSyncSetWarehouse(item_selecteds);
+        },
+        getEmitSetWarehouse() {
+            $('#modalOptionOrderSync').modal('hide');
+            $('#modalOptionSetWarehouse').modal('show');
+        },
         getPerPageChange(per_page) {
             this.per_page = per_page;
         },
@@ -222,6 +246,9 @@ export default {
             url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
             window.open(url, '_blank');
         },
+        showModalOptionOrderSync() {
+            $('#modalOptionOrderSync').modal('show');
+        },
         async checkProcessOrderSync() {
             try {
                 this.case_is_loading.sap_sync = true;
@@ -235,7 +262,7 @@ export default {
                         }
                     })
                 };
-                const { data, success } = await this.api_handler.post(this.case_api.api_order_sync, {}, body);
+                const { data, success, errors } = await this.api_handler.post(this.case_api.api_order_sync, {}, body);
                 if (success) {
                     data.forEach(item => {
                         this.case_data.order_syncs.forEach(order_sync => {
@@ -249,10 +276,55 @@ export default {
                     });
                     this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
                 } else {
-                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại');
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
                 }
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                if (error.response.data.errors.sap_error) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.synchronized_error) {
+                    this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
+                }
+            } finally {
+                this.case_is_loading.sap_sync = false;
+            }
+        },
+        async checkProcessOrderSyncSetWarehouse(item_selecteds) {
+            try {
+                this.case_is_loading.sap_sync = true;
+                let body = {
+                    // 'order_process_id': 107,
+                    'data': item_selecteds.map(item => {
+                        return {
+                            'id': item.id,
+                            'warehouse_code': item.warehouse_id,
+                            'so_sap_note': item.so_sap_note
+                        }
+                    })
+                };
+                const { data, success, errors } = await this.api_handler.post(this.case_api.api_order_sync, {}, body);
+                if (success) {
+                    data.forEach(item => {
+                        this.case_data.order_syncs.forEach(order_sync => {
+                            if (item.id == order_sync.id) {
+                                // order_sync.id = item.id;
+                                order_sync.so_uid = item.so_number;
+                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.noti_sync = item.message;
+                            }
+                        });
+                    });
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
+                }
+            } catch (error) {
+                if (error.response.data.errors.sap_error) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.synchronized_error) {
+                    this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
+                }
             } finally {
                 this.case_is_loading.sap_sync = false;
             }
@@ -266,7 +338,17 @@ export default {
             this.case_filter.customer_code = data.customer_code;
             this.case_filter.customer_group_ids = data.customer_group_ids;
             this.getProcessOrderSync();
-        }
+        },
+        getSetWarehouse(warehouse_code, order_syncs_selected) {
+            // tìm cách set warehouse_code cho order_syncs_selected
+            order_syncs_selected.forEach(item => {
+                this.case_data.order_syncs.forEach(order_sync => {
+                    if (item.id == order_sync.id) {
+                        order_sync.warehouse_id = warehouse_code;
+                    }
+                });
+            });
+        },
     },
     computed: {
         row_items() {
