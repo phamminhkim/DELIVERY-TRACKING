@@ -81,7 +81,7 @@
                                             </div>
                                         </div>
                                         <TableOrderSync :items="item_selecteds" :fields="fields"
-                                            :use_component="'OrderSyncSAP'" :query="case_filter.query"
+                                            :use_component="use_component_syncs_sap" :query="case_filter.query"
                                             @emitSelectedOrderSync="getSelectedOrderSync" />
                                     </div>
                                 </div>
@@ -110,7 +110,8 @@ export default {
         is_sap_sync: {
             type: Boolean,
             default: false
-        }
+        },
+        use_component_syncs_sap: String,
     },
     components: {
         TableOrderSync

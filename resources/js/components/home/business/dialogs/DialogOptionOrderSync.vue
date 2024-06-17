@@ -16,7 +16,7 @@
                                 class="btn btn-sm btn-light text-info font-weight-bold mr-2">
                                 <span class="badge badge-sm badge-info mr-2">{{ length_item }}</span>Đồng bộ
                                 ngay</button>
-                            <button @click="viewDetailOrderSyncs()" type="button" class="btn btn-sm btn-light text-primary btn-group__border">
+                            <button @click="emitViewDetailOrderSyncs()" type="button" class="btn btn-sm btn-light text-primary btn-group__border">
                                 <span class="badge badge-primary badge-sm mr-2">{{ length_item }}</span>Xem chi
                                 tiết</button>
                             <!-- <button @click="emitSetWarehouse()" type="button"
@@ -79,6 +79,14 @@ export default {
         }
     },
     methods: {
+        emitViewDetailOrderSyncs() {
+            if (this.length_item === 0) {
+                alert('Vui lòng chọn ít nhất 1 đơn hàng');
+                return;
+            } else {
+                this.viewDetailOrderSyncs();
+            }
+        },
         emitSetWarehouse() {
             if (this.length_item === 0) {
                 alert('Vui lòng chọn ít nhất 1 đơn hàng');

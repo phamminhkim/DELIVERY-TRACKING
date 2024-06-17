@@ -18,14 +18,21 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
-                                <div v-if="!is_sap_sync">
+                                <div v-if="!is_sap_sync" style="position: relative;">
+                                    <button @click="showModalOptionOrderSync()" type="button"
+                                        class="btn btn-sm btn-primary  btn-group__border">
+                                        <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
+                                    <span class="badge badge-danger badge-sm mr-2"
+                                        style="position: absolute;left: 90px;top: -7px;">{{
+                order_syncs_selected.length }}</span>
+                                </div>
+                                <!-- <div v-if="!is_sap_sync">
                                     <button @click="emitProcessOrderSync()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
-                                        <button @click="emitViewDetailOrderSyncs()" type="button"
+                                    <button @click="emitViewDetailOrderSyncs()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
-                                    <!-- <button class="btn btn-sm btn-success btn-group__border shadow-btn">Đồng bộ SAP & Lưu</button> -->
-                                </div>
+                                </div> -->
                             </div>
                             <div class="col-lg-6">
                                 <div class="input-group ">
@@ -54,17 +61,27 @@
                 <div v-show="is_sap_sync" class="modal-content text-center modal-dialog-centered">
                     <div class="modal-body">
                         <div class="form-group text-center">
-                            <p class="text-primary"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tiến hành đồng bộ Sap</p>
+                            <p class="text-primary"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tiến hành đồng bộ
+                                Sap</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <DialogOptionOrderSync :viewDetailOrderSyncs="emitViewDetailOrderSyncs" :length_item="order_syncs_selected.length"
+            @emitSetWarehouse="getEmitSetWarehouse" @emitOrderSyncsOption="getEmitOrderSyncsOption">
+        </DialogOptionOrderSync>
+        <DialogOptionSetWarehouse :length_item="order_syncs_selected.length"
+            :is_sap_sync="is_sap_sync" :item_selecteds="order_syncs_selected"
+            :use_component_syncs_sap="use_component_syncs_sap"
+            @emitSetWarehouse="getSetWarehouse" @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
     </div>
 </template>
 <script>
 import TableOrderSync from '../tables/TableOrderSync.vue';
 import PaginationTable from '../paginations/PaginationTable.vue';
+import DialogOptionOrderSync from './DialogOptionOrderSync.vue';
+import DialogOptionSetWarehouse from './DialogOptionSetWarehouse.vue';
 export default {
     props: {
         showModalSyncSAP: Function,
@@ -73,14 +90,22 @@ export default {
         order_syncs: Array,
         case_save_so: Object,
         is_sap_sync: Boolean,
+        order_syncs_selected: Array,
+        use_component_syncs_sap: String
 
     },
     components: {
         TableOrderSync,
-        PaginationTable
+        PaginationTable,
+        DialogOptionOrderSync,
+        DialogOptionSetWarehouse
     },
     data() {
         return {
+            case_data_temporary: {
+                order_syncs_selected: [],
+                
+            },
             case_filter: {
                 query: '',
             },
@@ -121,7 +146,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'customer_key',
+                    key: 'customer_code',
                     label: 'Mã KH',
                     sortable: true,
                     class: 'text-nowrap'
@@ -158,6 +183,23 @@ export default {
         }
     },
     methods: {
+        getEmitOrderSyncsOption() {
+            // console.log('emit order syncs option')
+            // this.$emit('getEmitOrderSyncsOption');
+            this.emitProcessOrderSync();
+        },
+        getEmitOrderSyncs(item_selecteds) {
+            // this.case_data_temporary.order_syncs_selected = selecteds;
+            // this.checkProcessOrderSyncSetWarehouse(item_selecteds);
+            this.$emit('emitOrderSyncs', item_selecteds)
+        },
+        getEmitSetWarehouse() {
+            $('#modalOptionOrderSync').modal('hide');
+            $('#modalOptionSetWarehouse').modal('show');
+        },
+        showModalOptionOrderSync() {
+            $('#modalOptionOrderSync').modal('show');
+        },
         getPerPageChange(per_page) {
             this.per_page = per_page;
         },
@@ -176,6 +218,15 @@ export default {
         },
         emitViewDetailOrderSyncs() {
             this.$emit('viewDetailOrderSyncs');
+        },
+        getSetWarehouse(warehouse_code, order_syncs_selected) {
+            // order_syncs_selected.forEach(item => {
+            //     this.case_data.order_syncs.forEach(order_sync => {
+            //         if (item.id == order_sync.id) {
+            //             order_sync.warehouse_id = warehouse_code;
+            //         }
+            //     });
+            // });
         },
     },
     computed: {

@@ -8,7 +8,7 @@
                         <button @click="showModalOptionOrderSync()" type="button"
                             class="btn btn-sm btn-primary  btn-group__border">
                             <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
-                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ this.case_data_temporary.order_syncs_selected.length }}</span>
+                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ case_data_temporary.order_syncs_selected.length }}</span>
                         <!-- <button @click="viewDetailOrderSyncs()" type="button"
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
@@ -41,6 +41,7 @@
         </DialogOptionOrderSync>
         <DialogOptionSetWarehouse :length_item="case_data_temporary.order_syncs_selected.length"
             :is_sap_sync="case_is_loading.sap_sync" :item_selecteds="case_data_temporary.order_syncs_selected"
+            :use_component_syncs_sap="case_component.order_sync_sap"
             @emitSetWarehouse="getSetWarehouse" @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
     </div>
 </template>
@@ -69,6 +70,7 @@ export default {
             },
             case_component: {
                 view_detail: false,
+                order_sync_sap: 'OrderSyncSAP',
             },
             case_filter: {
                 query: '',
