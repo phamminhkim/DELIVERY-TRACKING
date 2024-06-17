@@ -12,7 +12,7 @@ class SoHeader extends Model
     // use SoftDeletes;
     protected $fillable = [
         'order_process_id',
-        'warehouse_code',
+        'warehouse_id',
         'so_uid',
         'sap_so_number',
         'so_sap_note',
