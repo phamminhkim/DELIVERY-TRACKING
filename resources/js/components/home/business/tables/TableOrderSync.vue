@@ -15,8 +15,9 @@
                 <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
             </template>
             <template #cell(warehouse_code)="data">
-                <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
-                    placeholder="Nhập mã kho" />
+                <span class="badge badge-sm badge-info px-2">{{ data.item.warehouse_id }}</span>
+                <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
+                    placeholder="Nhập mã kho" /> -->
             </template>
         </b-table>
     </div>
@@ -33,6 +34,7 @@ export default {
         query: String,
         current_page: Number,
         per_page: Number,
+        un_selecteds: Array
     },
     data() {
         return {
@@ -50,7 +52,7 @@ export default {
             } else {
                 this.case_checkbox.select_all = false;
             }
-        }
+        },
     },
     methods: {
         changeSelectAll() {

@@ -113,7 +113,7 @@ import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 import ApiHandler, { APIRequest } from '../../ApiHandler';
 export default {
     components: {
-        Treeselect
+        Treeselect,
     },
     data() {
         return {

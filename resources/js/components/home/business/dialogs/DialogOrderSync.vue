@@ -51,7 +51,7 @@
                         <button type="button" class="btn btn-secondary btn-sm px-4" data-dismiss="modal">Đóng</button>
                     </div>
                 </div>
-                <div v-show="is_sap_sync" class="modal-content text-center">
+                <div v-show="is_sap_sync" class="modal-content text-center modal-dialog-centered">
                     <div class="modal-body">
                         <div class="form-group text-center">
                             <p class="text-primary"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tiến hành đồng bộ Sap</p>

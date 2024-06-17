@@ -143,6 +143,7 @@ export default {
     },
     created() {
         this.getUrl();
+        // this.filterOrders = [...this.orders];
         this.case_is_loading.created_conponent = true;
     },
     methods: {
@@ -947,7 +948,7 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
-            this.case_is_loading.created_conponent = false;
+            // this.case_is_loading.created_conponent = false;
         },
         getResetFilter() {
             this.case_data_temporary.field = 'customer_sku_code';
