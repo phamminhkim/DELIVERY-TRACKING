@@ -16,7 +16,7 @@
                                 class="btn btn-sm btn-light text-info font-weight-bold mr-2">
                                 <span class="badge badge-sm badge-info mr-2">{{ length_item }}</span>Đồng bộ
                                 ngay</button>
-                            <button type="button" class="btn btn-sm btn-light text-primary btn-group__border">
+                            <button @click="viewDetailOrderSyncs()" type="button" class="btn btn-sm btn-light text-primary btn-group__border">
                                 <span class="badge badge-primary badge-sm mr-2">{{ length_item }}</span>Xem chi
                                 tiết</button>
                             <!-- <button @click="emitSetWarehouse()" type="button"
@@ -71,6 +71,7 @@
 export default {
     props: {
         length_item: Number,
+        viewDetailOrderSyncs: Function,
     },
     data() {
         return {

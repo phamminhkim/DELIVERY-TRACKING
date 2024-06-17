@@ -8,11 +8,11 @@
                         <button @click="showModalOptionOrderSync()" type="button"
                             class="btn btn-sm btn-primary  btn-group__border">
                             <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
-                        <span class="badge badge-info badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ this.case_data_temporary.order_syncs_selected.length }}</span>
-                        <button @click="viewDetailOrderSyncs()" type="button"
+                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ this.case_data_temporary.order_syncs_selected.length }}</span>
+                        <!-- <button @click="viewDetailOrderSyncs()" type="button"
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
-            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
+            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button> -->
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -36,7 +36,7 @@
         <div v-else>
             <TableOrderSyncDetail @rollBackUrl="getRollBackUrl"></TableOrderSyncDetail>
         </div>
-        <DialogOptionOrderSync :length_item="case_data_temporary.order_syncs_selected.length"
+        <DialogOptionOrderSync :viewDetailOrderSyncs="viewDetailOrderSyncs" :length_item="case_data_temporary.order_syncs_selected.length"
             @emitSetWarehouse="getEmitSetWarehouse" @emitOrderSyncsOption="getEmitOrderSyncsOption">
         </DialogOptionOrderSync>
         <DialogOptionSetWarehouse :length_item="case_data_temporary.order_syncs_selected.length"
