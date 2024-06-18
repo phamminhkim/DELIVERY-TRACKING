@@ -99,6 +99,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/minified', [WarehouseController::class, 'getAvailableWarehousesMinified']);
             Route::get('/active', [WarehouseController::class, 'getAvailableWarehousesActive']);
             Route::get('/', [WarehouseController::class, 'getAvailableWarehouses']);
+            Route::get('/company-3000', [WarehouseController::class, 'getAvailableWarehousesCompany']);
             Route::post('/', [WarehouseController::class, 'createNewWarehouse']);
             Route::put('/{id}', [WarehouseController::class, 'updateExistingWarehouse']);
             Route::delete('/{id}', [WarehouseController::class, 'deleteExistingWarehouse']);
@@ -344,7 +345,6 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::prefix('so-header')->group(function () {
         Route::post('/sync-sale-order', [SyncDataController::class, 'syncSoHeaderFromSap']);
-        Route::get('/', [SyncDataController::class, 'getSoHeader']);
         Route::get('/', [SyncDataController::class, 'getSoHeader']);
         Route::post('/so-header-details', [SyncDataController::class, 'getSoHeaderByIds']);
     });

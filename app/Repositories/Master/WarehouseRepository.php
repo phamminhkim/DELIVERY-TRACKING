@@ -9,16 +9,20 @@ use App\Models\Master\Company;
 
 class WarehouseRepository extends RepositoryAbs
 {
-    public function getAvailableWarehouses($is_minified, $is_active)
+    public function getAvailableWarehouses($is_minified, $is_active, $company_code)
     {
         try {
             $query = Warehouse::query();
-            if($is_minified){
+            if ($is_minified) {
                 $query->select('id', 'name');
             }
-            if($is_active){
+            if ($is_active) {
                 $query->where('is_active', true);
             }
+            if ($company_code) {
+                $query->where('company_code', '3000'); // Thêm điều kiện where('company_code', '3000')
+            }
+
             $warehouses = $query->get();
             return $warehouses;
         } catch (\Exception $exception) {
@@ -148,7 +152,6 @@ class WarehouseRepository extends RepositoryAbs
                         return false;
                     }
                 }
-
             } else {
                 $company = Company::where('code', $this->data['company_code'])->first();
                 if (!$company) {
