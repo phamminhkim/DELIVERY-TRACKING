@@ -231,7 +231,7 @@ export default {
         async getProcessOrderSync() {
             try {
                 this.case_is_loading.sap_sync = true;
-                $('#modalOptionOrderSync').modal('hide');
+                // $('#modalOptionOrderSync').modal('hide'); // nghiệp vụ
                 let body = {
                     'order_process_id': this.case_save_so.id,
                     'data': this.case_data_temporary.order_syncs_selected.map(item => {
@@ -268,7 +268,7 @@ export default {
                 }
             } finally {
                 this.case_is_loading.sap_sync = false;
-                $('#modalOptionOrderSync').modal('show');
+                // $('#modalOptionOrderSync').modal('show');  // Nghiệp vụ
             }
         },
         async getProcessOrderSyncSelected(item_selecteds) {

@@ -2,17 +2,24 @@
     <div class="container-fluid bg-white p-2">
         <div v-if="!case_component.view_detail">
             <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync"></HeaderOrderSyncSAP>
-            <div class="row mb-1">
+            <div class="row mb-1 align-items-end">
                 <div class="col-lg-6">
                     <div style="position: relative;">
-                        <button @click="showModalOptionOrderSync()" type="button"
+                        <!-- <button @click="showModalOptionOrderSync()" type="button"
                             class="btn btn-sm btn-primary  btn-group__border">
                             <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
-                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ case_data_temporary.order_syncs_selected.length }}</span>
-                        <!-- <button @click="viewDetailOrderSyncs()" type="button"
+                        <span class="badge badge-danger badge-sm mr-2" style="position: absolute;left: 90px;top: -7px;">{{ case_data_temporary.order_syncs_selected.length }}</span> -->
+                        <button @click="checkProcessOrderSync()" type="button"
+                            class="btn btn-sm btn-light text-info  btn-group__border">
+                            <span class="badge badge-info badge-sm mr-2">{{
+            this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
+                            SAP</button>
+                        <button @click="viewDetailOrderSyncs()" type="button"
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
-            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button> -->
+            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
+                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="false"
+                            v-model="case_model.warehouse_id" :options="warehouses" />
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -36,13 +43,14 @@
         <div v-else>
             <TableOrderSyncDetail @rollBackUrl="getRollBackUrl"></TableOrderSyncDetail>
         </div>
-        <DialogOptionOrderSync :viewDetailOrderSyncs="viewDetailOrderSyncs" :length_item="case_data_temporary.order_syncs_selected.length"
-            @emitSetWarehouse="getEmitSetWarehouse" @emitOrderSyncsOption="getEmitOrderSyncsOption">
+        <DialogOptionOrderSync :viewDetailOrderSyncs="viewDetailOrderSyncs"
+            :length_item="case_data_temporary.order_syncs_selected.length" @emitSetWarehouse="getEmitSetWarehouse"
+            @emitOrderSyncsOption="getEmitOrderSyncsOption">
         </DialogOptionOrderSync>
         <DialogOptionSetWarehouse :length_item="case_data_temporary.order_syncs_selected.length"
             :is_sap_sync="case_is_loading.sap_sync" :item_selecteds="case_data_temporary.order_syncs_selected"
-            :use_component_syncs_sap="case_component.order_sync_sap"
-            @emitSetWarehouse="getSetWarehouse" @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
+            :use_component_syncs_sap="case_component.order_sync_sap" @emitSetWarehouse="getSetWarehouse"
+            @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
     </div>
 </template>
 <script>
@@ -53,6 +61,8 @@ import TableOrderSyncDetail from './tables/TableOrderSyncDetail.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
 import DialogOptionOrderSync from './dialogs/DialogOptionOrderSync.vue';
 import DialogOptionSetWarehouse from './dialogs/DialogOptionSetWarehouse.vue';
+import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 export default {
     components: {
         HeaderOrderSyncSAP,
@@ -60,7 +70,8 @@ export default {
         PaginationTable,
         TableOrderSyncDetail,
         DialogOptionOrderSync,
-        DialogOptionSetWarehouse
+        DialogOptionSetWarehouse,
+        Treeselect
     },
     data() {
         return {
@@ -93,6 +104,27 @@ export default {
                 api_order_sync: '/api/so-header/sync-sale-order',
 
             },
+            case_model: {
+                warehouse_id: '',
+            },
+            warehouses: [
+                {
+                    id: 1,
+                    label: 'Kho 1',
+                    children: [
+                        { id: 2, label: 'Kho 1.1' },
+                        { id: 3, label: 'Kho 1.2' }
+                    ]
+                },
+                {
+                    id: 4,
+                    label: 'Kho 2',
+                    children: [
+                        { id: 5, label: 'Kho 2.1' },
+                        { id: 6, label: 'Kho 2.2' }
+                    ]
+                }
+            ],
             fields: [
                 {
                     key: 'select',

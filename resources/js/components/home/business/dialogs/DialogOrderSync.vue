@@ -18,21 +18,28 @@
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
-                                <div v-if="!is_sap_sync" style="position: relative;">
+                                <!-- <div v-if="!is_sap_sync" style="position: relative;">
                                     <button @click="showModalOptionOrderSync()" type="button"
                                         class="btn btn-sm btn-primary  btn-group__border">
                                         <i class="fas fa-project-diagram mr-2"></i>Tùy chọn</button>
                                     <span class="badge badge-danger badge-sm mr-2"
                                         style="position: absolute;left: 90px;top: -7px;">{{
                 order_syncs_selected.length }}</span>
-                                </div>
-                                <!-- <div v-if="!is_sap_sync">
+                                </div> -->
+                                <div v-if="!is_sap_sync">
                                     <button @click="emitProcessOrderSync()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
                                         SAP</button>
                                     <button @click="emitViewDetailOrderSyncs()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
-                                </div> -->
+                                        <treeselect
+										placeholder="Chọn kho.."
+										:multiple="false"
+										:disable-branch-nodes="false"
+										v-model="case_model.warehouse_id"
+										:options="warehouses"
+									/>
+                                </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="input-group ">
@@ -82,6 +89,8 @@ import TableOrderSync from '../tables/TableOrderSync.vue';
 import PaginationTable from '../paginations/PaginationTable.vue';
 import DialogOptionOrderSync from './DialogOptionOrderSync.vue';
 import DialogOptionSetWarehouse from './DialogOptionSetWarehouse.vue';
+import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 export default {
     props: {
         showModalSyncSAP: Function,
@@ -98,7 +107,8 @@ export default {
         TableOrderSync,
         PaginationTable,
         DialogOptionOrderSync,
-        DialogOptionSetWarehouse
+        DialogOptionSetWarehouse,
+        Treeselect
     },
     data() {
         return {
@@ -106,6 +116,27 @@ export default {
                 order_syncs_selected: [],
                 
             },
+            case_model: {
+                warehouse_id: '',
+            },
+            warehouses: [
+                {
+                    id: 1,
+                    label: 'Kho 1',
+                    children: [
+                        { id: 2, label: 'Kho 1.1' },
+                        { id: 3, label: 'Kho 1.2' }
+                    ]
+                },
+                {
+                    id: 4,
+                    label: 'Kho 2',
+                    children: [
+                        { id: 5, label: 'Kho 2.1' },
+                        { id: 6, label: 'Kho 2.2' }
+                    ]
+                }
+            ],
             case_filter: {
                 query: '',
             },
