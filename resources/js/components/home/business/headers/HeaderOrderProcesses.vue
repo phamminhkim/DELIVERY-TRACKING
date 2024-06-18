@@ -680,16 +680,22 @@ export default {
             return formData;
         },
         async apiConvertPDF(formData) {
-            let file_response = await this.api_handler
-                .setHeaders({
-                    'Content-Type': 'multipart/form-data',
-                })
-                .post(
-                    '/api/sales-order/convert-orders',
-                    {},
-                    formData,
-                );
-            return file_response;
+            try {
+                let file_response = await this.api_handler
+                    .setHeaders({
+                        'Content-Type': 'multipart/form-data',
+                    })
+                    .post(
+                        '/api/sales-order/convert-orders',
+                        {},
+                        formData,
+                    );
+                return file_response;
+            } catch (error) {
+                console.error(error.response);
+                throw error;
+            }
+
         },
         async extractFilePDF(event) {
             try {
@@ -704,8 +710,8 @@ export default {
                 this.$showMessage('success', 'Thành công', 'Giải nén file thành công');
             } catch (error) {
                 this.hideModalExtractPDF();
-                this.case_error.extract_pdf = error;
-                this.$showMessage('error', 'Lỗi', error);
+                this.case_error.extract_pdf = error.response.data.message;
+                this.$showMessage('error', 'Lỗi', error.response.data.message);
             } finally {
                 this.hideModalExtractPDF();
                 this.is_case_loading.extract_pdf = false;
