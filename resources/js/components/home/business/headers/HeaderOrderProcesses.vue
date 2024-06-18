@@ -665,7 +665,7 @@ export default {
                     this.bar_codes.push(item.ProductID);
                 }
             }
-            await this.fetchSapMaterial();
+            // await this.fetchSapMaterial();
             this.$emit('listOrders', this.orders);
         },
         appendFormData(pdf_files, config_id) {

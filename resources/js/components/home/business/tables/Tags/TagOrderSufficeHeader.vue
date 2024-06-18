@@ -108,9 +108,9 @@ export default {
             this.isLengthItems();
             this.isLengthEqual();
         },
-        count_reset_filter() {
-            this.resetCaseCheckbox();
-        }
+        // count_reset_filter() {
+        //     this.resetCaseCheckbox();
+        // }
     },
     // hook kiểm tra b-dropdown đang mở hay đóng
     // nếu đang mở thì gửi emit là true

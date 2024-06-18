@@ -16,7 +16,7 @@
                             <label for="title" class="font-weigh-bold">Nhóm khách hàng: <b class="text-danger">{{
                 findIdName() }}</b> </label>
                         </div>
-                        <div class="row">
+                        <div class="row align-items-end">
                             <div class="col-lg-6">
                                 <!-- <div v-if="!is_sap_sync" style="position: relative;">
                                     <button @click="showModalOptionOrderSync()" type="button"
@@ -32,13 +32,9 @@
                                         SAP</button>
                                     <button @click="emitViewDetailOrderSyncs()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
-                                        <treeselect
-										placeholder="Chọn kho.."
-										:multiple="false"
-										:disable-branch-nodes="false"
-										v-model="case_model.warehouse_id"
-										:options="warehouses"
-									/>
+                                    <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true" :show-count="true"
+                                        @input="emitDataWarehouse()" :clearable="false" :searchable="true"
+                                        v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -75,16 +71,17 @@
                 </div>
             </div>
         </div>
-        <DialogOptionOrderSync :viewDetailOrderSyncs="emitViewDetailOrderSyncs" :length_item="order_syncs_selected.length"
-            @emitSetWarehouse="getEmitSetWarehouse" @emitOrderSyncsOption="getEmitOrderSyncsOption">
+        <DialogOptionOrderSync :viewDetailOrderSyncs="emitViewDetailOrderSyncs"
+            :length_item="order_syncs_selected.length" @emitSetWarehouse="getEmitSetWarehouse"
+            @emitOrderSyncsOption="getEmitOrderSyncsOption">
         </DialogOptionOrderSync>
-        <DialogOptionSetWarehouse :length_item="order_syncs_selected.length"
-            :is_sap_sync="is_sap_sync" :item_selecteds="order_syncs_selected"
-            :use_component_syncs_sap="use_component_syncs_sap"
+        <DialogOptionSetWarehouse :length_item="order_syncs_selected.length" :is_sap_sync="is_sap_sync"
+            :item_selecteds="order_syncs_selected" :use_component_syncs_sap="use_component_syncs_sap"
             @emitSetWarehouse="getSetWarehouse" @emitOrderSyncs="getEmitOrderSyncs"></DialogOptionSetWarehouse>
     </div>
 </template>
 <script>
+import ApiHandler, { APIRequest } from '../../ApiHandler';
 import TableOrderSync from '../tables/TableOrderSync.vue';
 import PaginationTable from '../paginations/PaginationTable.vue';
 import DialogOptionOrderSync from './DialogOptionOrderSync.vue';
@@ -112,31 +109,16 @@ export default {
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             case_data_temporary: {
                 order_syncs_selected: [],
-                
+                warehouses: [],
+
             },
             case_model: {
-                warehouse_id: '',
+                warehouse_id: null,
             },
-            warehouses: [
-                {
-                    id: 1,
-                    label: 'Kho 1',
-                    children: [
-                        { id: 2, label: 'Kho 1.1' },
-                        { id: 3, label: 'Kho 1.2' }
-                    ]
-                },
-                {
-                    id: 4,
-                    label: 'Kho 2',
-                    children: [
-                        { id: 5, label: 'Kho 2.1' },
-                        { id: 6, label: 'Kho 2.2' }
-                    ]
-                }
-            ],
+
             case_filter: {
                 query: '',
             },
@@ -208,12 +190,44 @@ export default {
                     tdClass: 'text-danger'
                 },
             ],
+            case_api: {
+                warehouse: 'api/master/warehouses/company-3000',
+            },
             per_page: 100,
             page_options: [10, 20, 50, 100, 200, 300, 500],
             current_page: 1,
         }
     },
+    created() {
+        this.fetchWarehouses();
+    },
     methods: {
+        emitDataWarehouse() {
+            this.$emit('emitDataWarehouse', this.case_model.warehouse_id);
+        },
+        async fetchWarehouses() {
+            let { data, success } = await this.api_handler.get(this.case_api.warehouse);
+            if (success) {
+                this.$emit('emitDataFetchWarehouse', data);
+                var options = [];
+                let group_company_code = Object.groupBy(data, ({ company_code }) => company_code);
+                for (const [key, value] of Object.entries(group_company_code)) {
+                    var children = [];
+                    for (let i = 0; i < value.length; i++) {
+                        children.push({
+                            id: value[i].id,
+                            label: value[i].code + ' - ' + value[i].name,
+                        });
+                    }
+                    options.push({
+                        id: key,
+                        label: key,
+                        children: children,
+                    });
+                }
+                this.case_data_temporary.warehouses = options;
+            }
+        },
         getEmitOrderSyncsOption() {
             // console.log('emit order syncs option')
             // this.$emit('getEmitOrderSyncsOption');

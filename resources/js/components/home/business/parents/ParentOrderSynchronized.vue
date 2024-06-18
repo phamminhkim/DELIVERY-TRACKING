@@ -7,7 +7,9 @@
             :order_syncs_selected="order_syncs_selected"
             @emitOrderSyncs="getEmitOrderSyncs"
             :use_component_syncs_sap="use_component_syncs_sap"
-            @viewDetailOrderSyncs="viewDetailOrderSyncs">
+            @emitDataFetchWarehouse="emitDataFetchWarehouse"
+            @viewDetailOrderSyncs="viewDetailOrderSyncs"
+            @emitDataWarehouse="emitDataWarehouse">
         </DialogOrderSync>
     </div>
 </template>
@@ -50,6 +52,12 @@ export default {
         getEmitOrderSyncs(item_selecteds){
             this.$emit('emitOrderSyncs', item_selecteds)
 
+        },
+        emitDataFetchWarehouse(warehouses){
+            this.$emit('emitDataFetchWarehouse', warehouses);
+        },
+        emitDataWarehouse(warehouse_id){
+            this.$emit('emitDataWarehouse', warehouse_id);
         }
     },
     computed: {

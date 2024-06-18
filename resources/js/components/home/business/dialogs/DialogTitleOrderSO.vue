@@ -95,6 +95,7 @@ export default {
                         this.$emit('saveOrderSO', data);
                         this.hideDialogTitleOrderSo();
                     } catch (error) {
+                        console.log(error.response);
                         this.$showMessage('error', 'Cập nhật thất bại', error);
                     } finally {
                         this.is_loading = false;

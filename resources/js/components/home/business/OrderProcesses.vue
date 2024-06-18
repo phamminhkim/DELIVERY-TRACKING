@@ -48,7 +48,8 @@
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
             @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
-            @viewDetailOrderSyncs="getviewDetailOrderSyncs">
+            @viewDetailOrderSyncs="getviewDetailOrderSyncs" @emitDataFetchWarehouse="getEmitDataFetchWarehouse"
+            @emitDataWarehouse="getEmitDataWarehouse" >
         </ParentOrderSynchronized>
 
 
@@ -128,6 +129,7 @@ export default {
                 order_syncs: [],
                 order_syncs_selected: [],
                 warehouse_id: '',
+                warehouses: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
@@ -149,6 +151,17 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getEmitDataWarehouse(warehouse_id){
+            // this.case_data_temporary.warehouse_id = warehouse_id;
+            console.log(warehouse_id);
+
+            this.case_data_temporary.order_syncs_selected.forEach(item => {
+                item.warehouse_id = warehouse_id;
+            });
+        },
+        getEmitDataFetchWarehouse(warehouses){
+            this.case_data_temporary.warehouses = warehouses;
+        },
         async fetchCheckPrice(so_numbers, is_promotion) {
             try {
                 this.case_is_loading.fetch_api = true;
@@ -455,10 +468,11 @@ export default {
             this.count_order_lack = count;
         },
         getOrders(orders) {
+            console.log(orders);
             this.orders = orders;
             this.case_data_temporary.order_lacks = [];
             this.case_index.count_reset_filter++;
-            this.getResetFilter();
+            // this.getResetFilter();
         },
         getOnChangeCategoryType(index, item, order) {
             // this.$refs.headerOrderProcesses.updateMaterialCategoryTypeInOrder(index, item, order);
