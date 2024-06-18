@@ -46,8 +46,7 @@
         <ParentOrderSynchronized :showModalSyncSAP="showModalSyncSAP" :case_save_so="case_save_so"
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
-            :order_syncs_selected="case_data_temporary.order_syncs_selected"
-            @emitOrderSyncs="getEmitOrderSyncs"
+            :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
             @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
             @viewDetailOrderSyncs="getviewDetailOrderSyncs">
         </ParentOrderSynchronized>
@@ -161,12 +160,12 @@ export default {
                         }
                     ]
                 };
-                const { data, success } = await this.api_handler.post(this.api_check_price, {}, body);
-                if (data) {
+                const { data, success, errors } = await this.api_handler.post(this.api_check_price, {}, body);
+                if (success) {
                     this.getCheckPrice(data);
                     this.$showMessage('success', 'Thành công', 'Check giá thành công');
                 } else {
-                    this.$showMessage('error', 'Lỗi', 'Check giá không thành công');
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -185,10 +184,12 @@ export default {
                         }
                     })
                 };
-                const { data, success } = await this.api_handler.post(this.api_check_inventory, {}, body);
-                if (data) {
+                const { data, success, errors } = await this.api_handler.post(this.api_check_inventory, {}, body);
+                if (success) {
                     this.getInventory(data);
                     this.$showMessage('success', 'Thành công', 'Check tồn thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -225,7 +226,7 @@ export default {
             this.case_data_temporary.order_syncs_selected = selected;
         },
         getEmitOrderSyncs(item_selecteds) {
-          this.getProcessOrderSyncSelected(item_selecteds);
+            this.getProcessOrderSyncSelected(item_selecteds);
         },
         async getProcessOrderSync() {
             try {
@@ -768,18 +769,17 @@ export default {
             }
         },
         getConvertOrderLack(index, data) {
-            data.is_inventory = false;
+            // data.is_inventory = false;
             // this.orders.unshift(data);
-            console.log(data.order, (data.order - 1), 'vị trí')
             let index_stt = 0;
-            if (this.orders[(data.order - 1)] < (data.order - 1)) {
+            if (this.filterOrders[(data.order - 1)] < (data.order - 1)) {
                 index_stt = data.order - 3;
             } else {
                 index_stt = data.order - 1;
             }
-            this.filterOrders.splice(this.orders[index_stt], 0, data);
+            this.orders.splice(this.filterOrders[index_stt], 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
-            this.filterOrders.forEach((item, index) => {
+            this.orders.forEach((item, index) => {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
@@ -1001,7 +1001,7 @@ export default {
             this.case_data_temporary.items = items;
             this.case_data_temporary.field = field;
             this.case_is_loading.is_inventory = boolean;
-            // this.case_is_loading.created_conponent = false;
+            this.case_is_loading.created_conponent = false;
         },
         getResetFilter() {
             this.case_data_temporary.field = 'customer_sku_code';
@@ -1076,16 +1076,14 @@ export default {
         },
         filterOrders() {
             var news = [];
-            if (!this.case_is_loading.is_inventory) {
-                this.case_data_temporary.items.forEach(item => {
-                    news.push(...this.orders.filter(order => order[this.case_data_temporary.field] == item));
-                });
-                if (this.case_is_loading.created_conponent) {
-                    news = this.orders;
-                }
-            } else {
-                news = this.orders.filter(order => order.is_inventory == true);
+            if (this.case_is_loading.created_conponent) {
+                news = this.orders;
             }
+            this.case_data_temporary.items.forEach(item => {
+                news.push(...this.orders.filter(order => {
+                    return order[this.case_data_temporary.field] == item;
+                }));
+            });
             news.sort((a, b) => a.order - b.order);
             return news;
         }

@@ -12,9 +12,9 @@
                 <b-dropdown-item-button @click="filterInventory()" button-class="px-5"><u
                         class="font-weigh-bold">H</u>àng
                     thiếu</b-dropdown-item-button>
-                    <b-dropdown-item-button @click="filterCancleInventory()" button-class="px-5">Reset <u
+                    <!-- <b-dropdown-item-button @click="filterCancleInventory()" button-class="px-5">Reset <u
                         class="font-weigh-bold">H</u>àng
-                    thiếu</b-dropdown-item-button>
+                    thiếu</b-dropdown-item-button> -->
                 <b-dropdown-group id="dropdown-group-1" header="Color" header-classes="text-left px-5">
                     <b-dropdown-item-button @click="filterPromotionCategoryExtraOffer()" button-class="px-5 ml-3">
                         <div class="mr-2 rounded" style="background: rgb(255, 193, 7); height: 20px; width: 3rem;">
@@ -179,7 +179,7 @@ export default {
         },
         filterInventory() {
             this.case_boolean.is_length_equal = true;
-            this.$emit('emitFilter', ['true'], 'is_inventory', false);
+            this.$emit('emitFilter', [true], 'is_inventory', false);
         },
         filterCancleInventory() {
             this.case_boolean.is_length_equal = true;
