@@ -12,7 +12,7 @@ class WarehouseController extends ResponseController
     public function getAvailableWarehouses(Request $request)
     {
         $handler = MasterRepository::warehouseRequest($request);
-        $warehouses = $handler->getAvailableWarehouses(false, false);
+        $warehouses = $handler->getAvailableWarehouses(false, false, false);
 
         if ($warehouses) {
             return $this->responseSuccess($warehouses);
@@ -23,7 +23,7 @@ class WarehouseController extends ResponseController
     public function getAvailableWarehousesMinified(Request $request)
     {
         $handler = MasterRepository::warehouseRequest($request);
-        $warehouses = $handler->getAvailableWarehouses(true, false); // Set is_minified = true, is_active = false
+        $warehouses = $handler->getAvailableWarehouses(true, false, false); // Set is_minified = true, is_active = false
 
         if ($warehouses) {
             return $this->responseSuccess($warehouses);
@@ -35,7 +35,18 @@ class WarehouseController extends ResponseController
     public function getAvailableWarehousesActive(Request $request)
     {
         $handler = MasterRepository::warehouseRequest($request);
-        $warehouses = $handler->getAvailableWarehouses(false, true); // Set is_minified = false, is_active = true
+        $warehouses = $handler->getAvailableWarehouses(false, true, false); // Set is_minified = false, is_active = true
+
+        if ($warehouses) {
+            return $this->responseSuccess($warehouses);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function getAvailableWarehousesCompany(Request $request)
+    {
+        $handler = MasterRepository::warehouseRequest($request);
+        $warehouses = $handler->getAvailableWarehouses(false, false, 3000); // Set is_minified = false, is_active = false, company_code = 3000
 
         if ($warehouses) {
             return $this->responseSuccess($warehouses);
