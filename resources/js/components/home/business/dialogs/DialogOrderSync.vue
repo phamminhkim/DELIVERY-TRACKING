@@ -32,9 +32,10 @@
                                         SAP</button>
                                     <button @click="emitViewDetailOrderSyncs()" type="button"
                                         class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
-                                    <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true" :show-count="true"
-                                        @input="emitDataWarehouse()" :clearable="false" :searchable="true"
-                                        v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
+                                    <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                                        :show-count="true" @input="emitDataWarehouse()" 
+                                        :searchable="true" v-model="case_model.warehouse_id"
+                                        :options="case_data_temporary.warehouses" />
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -49,7 +50,7 @@
                         </div>
                         <div class="form-group">
                             <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query"
-                                @emitSelectedOrderSync="emitSelectedOrderSync">
+                                :warehouses="warehouses" @emitSelectedOrderSync="emitSelectedOrderSync">
                             </TableOrderSync>
                             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                                 :current_page="current_page" @pageChange="getPageChange"
@@ -97,7 +98,8 @@ export default {
         case_save_so: Object,
         is_sap_sync: Boolean,
         order_syncs_selected: Array,
-        use_component_syncs_sap: String
+        use_component_syncs_sap: String,
+        warehouses: Array
 
     },
     components: {
@@ -148,7 +150,7 @@ export default {
                 },
                 {
                     key: 'warehouse_code',
-                    label: 'Mã Kho',
+                    label: 'Kho',
                     sortable: true,
                     class: 'text-nowrap'
                 },

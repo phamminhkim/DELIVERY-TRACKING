@@ -47,6 +47,7 @@
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
+            :warehouses="case_data_temporary.warehouses"
             @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
             @viewDetailOrderSyncs="getviewDetailOrderSyncs" @emitDataFetchWarehouse="getEmitDataFetchWarehouse"
             @emitDataWarehouse="getEmitDataWarehouse" >
@@ -152,9 +153,6 @@ export default {
     },
     methods: {
         getEmitDataWarehouse(warehouse_id){
-            // this.case_data_temporary.warehouse_id = warehouse_id;
-            console.log(warehouse_id);
-
             this.case_data_temporary.order_syncs_selected.forEach(item => {
                 item.warehouse_id = warehouse_id;
             });

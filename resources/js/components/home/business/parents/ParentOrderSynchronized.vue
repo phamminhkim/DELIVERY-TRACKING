@@ -5,6 +5,7 @@
             @emitSelectedOrderSync="emitSelectedOrderSync" @processOrderSync="processOrderSync"
             :is_sap_sync="is_sap_sync" 
             :order_syncs_selected="order_syncs_selected"
+            :warehouses="warehouses"
             @emitOrderSyncs="getEmitOrderSyncs"
             :use_component_syncs_sap="use_component_syncs_sap"
             @emitDataFetchWarehouse="emitDataFetchWarehouse"
@@ -28,7 +29,8 @@ export default {
         use_component_syncs_sap: {
             type: String,
             default: 'OrderProcess'
-        }
+        },
+        warehouses: Array
     },
     components: {
         DialogOrderSync

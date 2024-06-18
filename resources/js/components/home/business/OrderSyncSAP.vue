@@ -18,8 +18,9 @@
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
             this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
-                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="false"
-                            v-model="case_model.warehouse_id" :options="warehouses" />
+                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true" :show-count="true"
+                        @input="changeInputSetWarehouse()"
+                            v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -97,34 +98,17 @@ export default {
                 order_syncs: [],
             },
             case_data_temporary: {
-                order_syncs_selected: []
+                order_syncs_selected: [],
+                warehouses: [],
             },
             case_api: {
                 get_order_sync: '/api/so-header',
                 api_order_sync: '/api/so-header/sync-sale-order',
-
+                warehouse: 'api/master/warehouses/company-3000',
             },
             case_model: {
-                warehouse_id: '',
+                warehouse_id: null,
             },
-            warehouses: [
-                {
-                    id: 1,
-                    label: 'Kho 1',
-                    children: [
-                        { id: 2, label: 'Kho 1.1' },
-                        { id: 3, label: 'Kho 1.2' }
-                    ]
-                },
-                {
-                    id: 4,
-                    label: 'Kho 2',
-                    children: [
-                        { id: 5, label: 'Kho 2.1' },
-                        { id: 6, label: 'Kho 2.2' }
-                    ]
-                }
-            ],
             fields: [
                 {
                     key: 'select',
@@ -163,7 +147,7 @@ export default {
                 },
                 {
                     key: 'warehouse_code',
-                    label: 'Mã Kho',
+                    label: 'Kho',
                     sortable: true,
                     class: 'text-nowrap text-center'
                 },
@@ -214,8 +198,34 @@ export default {
     created() {
         this.getProcessOrderSync();
         this.getUrl();
+        this.fetchWarehouses();
     },
     methods: {
+        changeInputSetWarehouse() {
+            this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected);
+        },
+        async fetchWarehouses() {
+            let { data, success } = await this.api_handler.get(this.case_api.warehouse);
+            if (success) {
+                var options = [];
+                let group_company_code = Object.groupBy(data, ({ company_code }) => company_code);
+                for (const [key, value] of Object.entries(group_company_code)) {
+                    var children = [];
+                    for (let i = 0; i < value.length; i++) {
+                        children.push({
+                            id: value[i].id,
+                            label: value[i].code + ' - ' + value[i].name,
+                        });
+                    }
+                    options.push({
+                        id: key,
+                        label: key,
+                        children: children,
+                    });
+                }
+                this.case_data_temporary.warehouses = options;
+            }
+        },
         getEmitOrderSyncsOption() {
             this.checkProcessOrderSync();
         },
