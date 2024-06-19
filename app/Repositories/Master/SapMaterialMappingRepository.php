@@ -187,8 +187,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $sheet->setCellValue('E1', 'Đơn vị SKU KH');
             $sheet->setCellValue('F1', 'Mã SAP');
             $sheet->setCellValue('G1', 'Tên SAP');
-            $sheet->setCellValue('H1', 'Đơn vị tính SAP');
-            $sheet->setCellValue('I1', 'Số lượng SAP');
+            $sheet->setCellValue('H1', 'Số lượng SAP');
+            $sheet->setCellValue('I1', 'Đơn vị tính SAP');
             $sheet->setCellValue('J1', 'Tỉ lệ');
 
             // Ghi dữ liệu vào file Excel
@@ -201,8 +201,8 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 $sheet->setCellValue('E' . $row, $mapping->customer_material->customer_sku_unit);
                 $sheet->setCellValue('F' . $row, $mapping->sap_material->sap_code);
                 $sheet->setCellValue('G' . $row, $mapping->sap_material->name);
-                $sheet->setCellValue('H' . $row, $mapping->sap_material->unit->unit_code);
-                $sheet->setCellValue('I' . $row, $mapping->conversion_rate_sap); // Thêm cột số lượng SAP
+                $sheet->setCellValue('H' . $row, $mapping->conversion_rate_sap); // Thêm cột số lượng SAP
+                $sheet->setCellValue('I' . $row, $mapping->sap_material->unit->unit_code);
                 $sheet->setCellValue('J' . $row, $mapping->percentage);
                 $row++;
             }
@@ -243,7 +243,7 @@ class SapMaterialMappingRepository extends RepositoryAbs
                 ],
             ];
 
-            $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+            $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);
