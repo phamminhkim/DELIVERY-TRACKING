@@ -181,7 +181,7 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'is_sync_sap',
+                    key: 'sync_sap_status',
                     label: 'TT Đồng bộ',
                     sortable: true,
                     class: 'text-nowrap'
