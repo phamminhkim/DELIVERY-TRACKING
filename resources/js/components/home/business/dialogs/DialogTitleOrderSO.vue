@@ -104,6 +104,7 @@ export default {
                         if (errors) {
                             this.$showMessage('error', 'Cập nhật thất bại', errors.sync_all_data);
                         }
+                        console.log(error);
                     } finally {
                         this.is_loading = false;
                     }
@@ -126,6 +127,7 @@ export default {
                         if (errors) {
                             this.$showMessage('error', 'Thêm thất bại', errors.sync_all_data);
                         }
+                        console.log(error);
                     } finally {
                         this.is_loading = false;
                     }
