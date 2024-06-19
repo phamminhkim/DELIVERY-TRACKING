@@ -24,7 +24,7 @@ class SoHeader extends Model
         'level2',
         'level3',
         'level4',
-        'is_sync_sap',
+        'sync_sap_status',
         'is_syncing_sap',
     ];
 
