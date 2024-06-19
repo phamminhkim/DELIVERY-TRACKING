@@ -4,7 +4,7 @@
             aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-gradient-info">
                         <h5 class="modal-title text-uppercase font-weight-bold" id="exampleModalLabel"> {{ title }}
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -36,7 +36,6 @@
                         <div class="text-center mt-1">
                             <button v-if="load !== ''" type="button" class="btn btn-success"
                                 @click="convertFileExcel()"><i class="fas fa-upload"></i> Upload</button>
-
                         </div>
                         <div class="form-group table-responsive">
                             <label>Trường mẫu File Excel: </label>
@@ -69,8 +68,8 @@
         <div class="modal bounce-in" tabindex="-1" role="dialog" id="data_excel">
             <div class="modal-dialog fullscreen" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ title }} <small>(xem chi tiết)</small></h5>
+                    <div class="modal-header bg-cyan">
+                        <h5 class="modal-title text-uppercase font-weight-bold">{{ title }} <small>(xem chi tiết)</small></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -123,7 +122,6 @@
         </div>
     </div>
     <!-- Modal -->
-
 </template>
 
 <script>

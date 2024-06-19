@@ -3,13 +3,13 @@
         <div class="modal fade" id="modalCheckInventory" tabindex="-1">
             <div class="modal-dialog ">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-gradient-warning">
                         <h5 class="modal-title font-weight-bold text-uppercase">Form check tồn</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body bg-gray-light">
                         <div>
                             <label>Mã kho</label>
                             <div class="input-group mb-3">

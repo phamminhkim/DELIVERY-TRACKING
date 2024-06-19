@@ -5,18 +5,18 @@
                 'modal-xl': !is_sap_sync,
             }">
                 <div class="modal-content" v-show="!is_sap_sync">
-                    <div class="modal-header">
+                    <div class="modal-header bg-gradient-cyan">
                         <h5 class="modal-title font-weight-bold text-uppercase">Đồng bộ đơn hàng</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
+                    <div class="modal-body bg-gray-light">
+                        <div class="form-group mb-0">
                             <label for="title" class="font-weigh-bold">Nhóm khách hàng: <b class="text-danger">{{
                 findIdName() }}</b> </label>
                         </div>
-                        <div class="row align-items-end">
+                        <div class="row align-items-end mb-2">
                             <div class="col-lg-6">
                                 <!-- <div v-if="!is_sap_sync" style="position: relative;">
                                     <button @click="showModalOptionOrderSync()" type="button"

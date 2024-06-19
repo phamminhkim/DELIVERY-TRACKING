@@ -3,13 +3,13 @@
         <div class="modal fade" id="listOrderProcessSO" tabindex="-1">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-gradient-blue">
                         <h5 class="modal-title font-weight-bold text-uppercase">Danh sách xử lý đơn hàng</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body bg-gray-light">
                         <div class="form-group">
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
                                 @handleDoubleClick="getHandleDoubleClick" @dltOrderProcessSO="getDltOrderProcessSO"
@@ -19,7 +19,7 @@
                                 :page_options="page_options" :current_page="current_page" @pageChange="getPageChange"
                                 @perPageChange="getPerPageChange">
                             </PaginationTable>
-                        </div>>
+                        </div>
                     </div>
 
                 </div>
