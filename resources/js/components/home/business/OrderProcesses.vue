@@ -22,7 +22,8 @@
         </DialogSearchOrderProcesses>
         <DialogTitleOrderSO ref="dialogTitleOrderSo" :orders="orders"
             :customer_group_id="case_save_so.customer_group_id" @saveOrderSO="getSaveOrderSO"
-            :order_lacks="case_data_temporary.order_lacks" :case_save_so="case_save_so">
+            :order_lacks="case_data_temporary.order_lacks" :case_save_so="case_save_so"
+            :is_show_modal_sync_sap="case_is_loading.show_modal_sync_sap">
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
@@ -119,6 +120,7 @@ export default {
                 reeset_filter_header: false,
                 show_hide_excel: false,
                 sap_sync: false,
+                show_modal_sync_sap: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -416,7 +418,8 @@ export default {
         getListCustomerGroup(data) {
             this.case_data_temporary.customer_groups = data;
         },
-        showModalSyncSAP() {
+        showModalSyncSAP(is_show_modal_sync_sap) {
+            this.case_is_loading.show_modal_sync_sap = is_show_modal_sync_sap;
             if (this.case_save_so.id == '') {
                 $('#dialogTitleOrderSo').modal('show');
                 // $('#modalOrderSync').modal('show');
@@ -642,14 +645,14 @@ export default {
                 this.refeshCheckBox();
             });
         },
-        getSaveOrderProcesses() {
+        getSaveOrderProcesses(is_show_modal_sync_sap) {
+            this.case_is_loading.show_modal_sync_sap = is_show_modal_sync_sap;
             this.showDialogTitleOrderSo();
         },
         showDialogTitleOrderSo() {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
         getSaveOrderSO(item) {
-
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;

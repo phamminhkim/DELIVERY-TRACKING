@@ -48,6 +48,10 @@ export default {
         order_lacks: {
             type: Array,
             default: () => []
+        },
+        is_show_modal_sync_sap: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -94,6 +98,7 @@ export default {
                         + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>');
                         this.$emit('saveOrderSO', data);
                         this.hideDialogTitleOrderSo();
+                        this.showModalSyncSap();
                     } catch (error) {
                         console.log(error.response);
                         this.$showMessage('error', 'Cập nhật thất bại', error);
@@ -123,6 +128,11 @@ export default {
                 return false;
             }
             return true;
+        },
+        showModalSyncSap(){
+            if(this.is_show_modal_sync_sap) {
+                $('#modalOrderSync').modal('show');
+            }
         }
     }
 }

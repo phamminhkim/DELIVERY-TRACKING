@@ -829,7 +829,8 @@ export default {
             this.$emit('changeEventOrderDelete');
         },
         emitSaveOrderProcess() {
-            this.$emit('saveOrderProcess');
+            let is_show_modal_sync_sap = false; // Lưu
+            this.$emit('saveOrderProcess', is_show_modal_sync_sap);
         },
         emitListOrderProcessSO() {
             this.$emit('listOrderProcessSO');
@@ -896,7 +897,8 @@ export default {
             return parseFloat(value);
         },
         emitOrderSyncSAP() {
-            this.$emit('changeEventOrderSyncSAP');
+            let is_sync_sap = true; // Đồng bộ SAP
+            this.$emit('changeEventOrderSyncSAP', is_sync_sap);
         },
     },
     computed: {
