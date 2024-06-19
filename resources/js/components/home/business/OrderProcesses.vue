@@ -1010,10 +1010,10 @@ export default {
                 this.case_data_temporary.field = field;
                 this.case_is_loading.is_inventory = boolean;
                 this.case_is_loading.created_conponent = false;
-
-                this.case_data_temporary.filter_orders = this.orders.filter(order => {
+                let items_filter = this.orders.filter(order => {
                     return items.includes(order[field]);
                 });
+                this.case_data_temporary.filter_orders = items_filter;
             }
 
         },
@@ -1089,6 +1089,7 @@ export default {
             return this.orders.length;
         },
         filterOrders() {
+            let items = [...this.orders];
             var news = [];
             if (this.case_is_loading.created_conponent) {
                 news = this.orders;
@@ -1098,9 +1099,8 @@ export default {
             } else {
                 if (!this.case_is_loading.edit_row) {
                     this.case_data_temporary.items.forEach(item => {
-                        news.push(...this.orders.filter(order => {
+                        news.push(...items.filter(order => {
                             return order[this.case_data_temporary.field] == item;
-
                         }));
                     });
                     news.sort((a, b) => a.order - b.order);

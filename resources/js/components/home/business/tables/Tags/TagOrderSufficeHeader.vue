@@ -167,7 +167,6 @@ export default {
             }
         },
         isLengthEqual() {
-            console.log('chayj ham isLengthEqual',this.case_checkbox.items.length, this.filterCaseFilterOrders.length);
             if (this.case_checkbox.items.length == this.filterCaseFilterOrders.length) {
                 this.case_checkbox.select_all = true;
                 this.case_boolean.is_length_equal = false;
@@ -213,7 +212,8 @@ export default {
     },
     computed: {
         filterCaseFilterOrders() {
-            return this.orders.filter((order) => {
+            let news = [...this.orders];
+            return news.filter((order) => {
                 if (order === null) {
                     return true;
                 }
