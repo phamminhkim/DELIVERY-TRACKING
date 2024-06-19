@@ -162,6 +162,7 @@ class AiRepository extends RepositoryAbs
             $files = $this->request->file('file');
             $final_data = array();
             foreach ($files as $file) {
+                // $file_name = $file->getClientOriginalName();
                 $array_data = array();
                 $convert_file_type = null;
                 $extract_data_config = null;
@@ -1421,9 +1422,22 @@ class AiRepository extends RepositoryAbs
 
             $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas, $x_coordinates);
             $this->file_service->deleteTemporaryFile($file_path);
-            $check_value = isset($value_table_area[0]) ? $value_table_area[0] : "";
-            // Remove tất cả space trong check_value
-            $check_value = preg_replace('/\s+/', '', $check_value);
+            $table_0 = isset($value_table_area[0]) ? $value_table_area[0] : null;
+            $check_value = "";
+            if ($table_0) {
+                $csv = Reader::createFromString($table_0);
+                $records = $csv->getRecords();
+
+                $collection = collect([]);
+                foreach ($records as $record) {
+                    $collection->push($record);
+                }
+                $table_0_array = $collection->toArray();
+                $check_value = $table_0_array[0][0];
+                // Remove tất cả space trong check_value
+                $check_value = preg_replace('/\s+/', '', $check_value);
+
+            }
             // Check chuỗi $value_table_area[0] có chứa chuỗi $check_condition
             if (strpos($check_value, $check_condition) !== false) {
                 return true;
