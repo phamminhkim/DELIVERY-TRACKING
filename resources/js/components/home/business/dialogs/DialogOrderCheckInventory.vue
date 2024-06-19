@@ -17,13 +17,9 @@
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="fas fa-warehouse"></i></span>
                                 </div> -->
-                                <treeselect
-										placeholder="Chọn kho.."
-										:multiple="false"
-										:disable-branch-nodes="false"
-										v-model="case_model.warehouse_id"
-										:options="warehouses"
-									/>
+                                <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                                :show-count="true"
+                                    v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                                 <!-- <input v-model="case_model.warehouse_id" type="text"
                                     class="form-control input-warehouse" placeholder="Nhập mã kho..." :class="{
                                     'border-danger': case_model.warehouse_id == '',
@@ -44,36 +40,52 @@
 <script>
 import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import ApiHandler, { APIRequest } from '../../ApiHandler';
 export default {
     components: {
         Treeselect
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             case_model: {
-                warehouse_id: '',
+                warehouse_id: null,
             },
-            warehouses: [
-                {
-                    id: 1,
-                    label: 'Kho 1',
-                    children: [
-                        { id: 2, label: 'Kho 1.1' },
-                        { id: 3, label: 'Kho 1.2' }
-                    ]
-                },
-                {
-                    id: 4,
-                    label: 'Kho 2',
-                    children: [
-                        { id: 5, label: 'Kho 2.1' },
-                        { id: 6, label: 'Kho 2.2' }
-                    ]
-                }
-            ]
+            case_data_temporary: {
+                warehouses: [],
+
+            },
+            case_api: {
+                warehouse: 'api/master/warehouses/company-3000',
+            },
         }
     },
+    created() {
+        this.fetchWarehouses();
+    },
     methods: {
+        async fetchWarehouses() {
+            let { data, success } = await this.api_handler.get(this.case_api.warehouse);
+            if (success) {
+                var options = [];
+                let group_company_code = Object.groupBy(data, ({ company_code }) => company_code);
+                for (const [key, value] of Object.entries(group_company_code)) {
+                    var children = [];
+                    for (let i = 0; i < value.length; i++) {
+                        children.push({
+                            id: value[i].id,
+                            label: value[i].code + ' - ' + value[i].name,
+                        });
+                    }
+                    options.push({
+                        id: key,
+                        label: key,
+                        children: children,
+                    });
+                }
+                this.case_data_temporary.warehouses = options;
+            }
+        },
         emitModelWarehouseId() {
             if (this.case_model.warehouse_id == '') {
                 this.$showMessage('warning', 'Cảnh báo', 'Vui lòng nhập mã kho');

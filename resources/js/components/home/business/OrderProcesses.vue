@@ -419,8 +419,10 @@ export default {
         showModalSyncSAP() {
             if (this.case_save_so.id == '') {
                 $('#dialogTitleOrderSo').modal('show');
+                // $('#modalOrderSync').modal('show');
             } else {
-                $('#modalOrderSync').modal('show');
+                $('#dialogTitleOrderSo').modal('show');
+                // $('#modalOrderSync').modal('show');
                 const unique = {};
                 const result = this.orders.filter(order => {
                     const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
@@ -429,8 +431,7 @@ export default {
                         return true;
                     }
                     return false;
-                }).map(order => {
-
+                }).map(order => {   
                     return {
                         id: '',
                         so_uid: '',
