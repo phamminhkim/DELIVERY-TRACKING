@@ -7,6 +7,7 @@
             @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
+            :count_selected="case_data_temporary.item_selecteds.length"
             @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
             @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
             @exportExcel="getExportExcel" @importExcel="getImportExcel"

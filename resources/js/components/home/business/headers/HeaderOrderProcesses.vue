@@ -105,10 +105,12 @@
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     quy cách</button>
                 <button @click="emitOrderLack()" type="button"
-                    class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">Lưu
+                    class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">
+                    <span class="badge badge-sm badge-success px-2 mr-1">{{ count_selected }}</span>Lưu
                     hàng thiếu</button>
                 <button @click="emitOrderDelete()"
-                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">Xóa
+                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">
+                    <span class="badge badge-sm badge-danger px-2 mr-1">{{ count_selected }}</span>Xóa
                     dữ liệu</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
@@ -191,7 +193,11 @@ export default {
         item_selecteds: {
             type: Array,
             default: () => []
-        }
+        },
+        count_selected: {
+            type: Number,
+            default: 0
+        },
 
 
     },
