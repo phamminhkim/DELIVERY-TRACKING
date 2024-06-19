@@ -12,9 +12,10 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="title" class="font-weigh-bold">Tiêu đề</label>
-                            <textarea  @keyup.enter="saveOrderSO()" v-model="case_data.title" type="text" class="form-control" id="title"
-                                aria-describedby="titleHelp" placeholder="Nhập tiêu đề...." rows="6">
-                               
+                            <textarea @keyup.enter="saveOrderSO()" v-model="case_data.title" type="text"
+                                class="form-control" id="title" aria-describedby="titleHelp"
+                                placeholder="Nhập tiêu đề...." rows="6">
+
                             </textarea>
                             <input>
 
@@ -82,7 +83,6 @@ export default {
         },
         async saveOrderSO() {
             try {
-                
                 this.is_loading = true;
                 this.case_data.order_data = this.orders.concat(this.order_lacks);
                 this.case_data.customer_group_id = this.case_save_so.customer_group_id;
@@ -93,26 +93,39 @@ export default {
                 if (this.case_save_so.id !== "") {
                     try {
                         let { data, message } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
-                        this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>' 
-                        + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
-                        + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>');
+                        this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
+                            + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
+                            + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>');
                         this.$emit('saveOrderSO', data);
                         this.hideDialogTitleOrderSo();
                         this.showModalSyncSap();
                     } catch (error) {
-                        console.log(error.response);
-                        this.$showMessage('error', 'Cập nhật thất bại', error);
+                        let errors = error.response.data.errors;
+                        if (errors) {
+                            this.$showMessage('error', 'Cập nhật thất bại', errors.sync_all_data);
+                        }
                     } finally {
                         this.is_loading = false;
                     }
                 } else {
                     try {
                         let { data, success } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
-                        this.$showMessage('success', 'Thêm thành công');
-                        this.$emit('saveOrderSO', data);
-                        this.hideDialogTitleOrderSo();
+                        if (success) {
+                            this.$showMessage('success', 'Thêm thành công', 'Tổng số đơn hàng: ' + data.so_count + '<br>'
+                                + 'Số đơn hàng lưu thành công: ' + data.not_sync_so_count + '<br>'
+                                + 'Số đơn hàng lưu thất bại: ' + data.sync_so_count + '<br>');
+                            this.$emit('saveOrderSO', data);
+                            this.hideDialogTitleOrderSo();
+                            //     this.showModalSyncSap();
+                            //     this.$showMessage('success', 'Thêm thành công');
+                            // this.$emit('saveOrderSO', data);
+                            // this.hideDialogTitleOrderSo();
+                        }
                     } catch (error) {
-                        this.$showMessage('error', 'Thêm thất bại', error);
+                        let errors = error.response.data.errors;
+                        if (errors) {
+                            this.$showMessage('error', 'Thêm thất bại', errors.sync_all_data);
+                        }
                     } finally {
                         this.is_loading = false;
                     }
@@ -129,8 +142,8 @@ export default {
             }
             return true;
         },
-        showModalSyncSap(){
-            if(this.is_show_modal_sync_sap) {
+        showModalSyncSap() {
+            if (this.is_show_modal_sync_sap) {
                 $('#modalOrderSync').modal('show');
             }
         }

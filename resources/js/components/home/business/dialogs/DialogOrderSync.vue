@@ -28,14 +28,16 @@
                                 </div> -->
                                 <div v-if="!is_sap_sync">
                                     <button @click="emitProcessOrderSync()" type="button"
-                                        class="btn btn-sm btn-info  btn-group__border shadow-btn">Đồng bộ
-                                        SAP</button>
+                                        class="btn btn-sm btn-light text-info  btn-group__border shadow-btn">
+                                        <span class="badge badge-info badge-sm mr-2">
+                                            {{ order_syncs_selected.length }}</span>Đồng bộ SAP</button>
                                     <button @click="emitViewDetailOrderSyncs()" type="button"
-                                        class="btn btn-sm btn-info  btn-group__border shadow-btn">Xem chi tiết</button>
+                                        class="btn btn-sm btn-light text-primary  btn-group__border shadow-btn">
+                                        <span class="badge badge-primary badge-sm mr-2">
+                                            {{ order_syncs_selected.length }}</span>Xem chi tiết</button>
                                     <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
-                                        :show-count="true" @input="emitDataWarehouse()" 
-                                        :searchable="true" v-model="case_model.warehouse_id"
-                                        :options="case_data_temporary.warehouses" />
+                                        :show-count="true" @input="emitDataWarehouse()" :searchable="true"
+                                        v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                                 </div>
                             </div>
                             <div class="col-lg-6">
