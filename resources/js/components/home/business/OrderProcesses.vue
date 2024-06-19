@@ -48,10 +48,9 @@
             :customer_group_id="case_save_so.customer_group_id" :customer_groups="case_data_temporary.customer_groups"
             :order_syncs="case_data_temporary.order_syncs" @processOrderSync="getProcessOrderSync"
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
-            :warehouses="case_data_temporary.warehouses"
-            @emitSelectedOrderSync="getSelectedOrderSync" :is_sap_sync="case_is_loading.sap_sync"
-            @viewDetailOrderSyncs="getviewDetailOrderSyncs" @emitDataFetchWarehouse="getEmitDataFetchWarehouse"
-            @emitDataWarehouse="getEmitDataWarehouse" >
+            :warehouses="case_data_temporary.warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
+            :is_sap_sync="case_is_loading.sap_sync" @viewDetailOrderSyncs="getviewDetailOrderSyncs"
+            @emitDataFetchWarehouse="getEmitDataFetchWarehouse" @emitDataWarehouse="getEmitDataWarehouse">
         </ParentOrderSynchronized>
 
 
@@ -154,12 +153,12 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
-        getEmitDataWarehouse(warehouse_id){
+        getEmitDataWarehouse(warehouse_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
                 item.warehouse_id = warehouse_id;
             });
         },
-        getEmitDataFetchWarehouse(warehouses){
+        getEmitDataFetchWarehouse(warehouses) {
             this.case_data_temporary.warehouses = warehouses;
         },
         async fetchCheckPrice(so_numbers, is_promotion) {
@@ -420,38 +419,33 @@ export default {
         },
         showModalSyncSAP(is_show_modal_sync_sap) {
             this.case_is_loading.show_modal_sync_sap = is_show_modal_sync_sap;
-            if (this.case_save_so.id == '') {
-                $('#dialogTitleOrderSo').modal('show');
-                // $('#modalOrderSync').modal('show');
-            } else {
-                $('#dialogTitleOrderSo').modal('show');
-                // $('#modalOrderSync').modal('show');
-                const unique = {};
-                const result = this.orders.filter(order => {
-                    const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
-                    if (!unique[key]) {
-                        unique[key] = true;
-                        return true;
-                    }
-                    return false;
-                }).map(order => {   
-                    return {
-                        id: '',
-                        so_uid: '',
-                        sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                        customer_code: order.customer_code,
-                        customer_name: order.customer_name,
-                        po_delivery_date: order.po_delivery_date,
-                        is_sync_sap: false,
-                        noti_sync: '',
-                        warehouse_id: '',
-                        so_header_id: order.so_header_id,
-                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
-                    }
-                });
-                this.case_data_temporary.order_syncs = result;
-            }
-
+            this.showDialogTitleOrderSo();
+            // $('#dialogTitleOrderSo').modal('show');
+            // $('#modalOrderSync').modal('show');
+            const unique = {};
+            const result = this.orders.filter(order => {
+                const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
+                if (!unique[key]) {
+                    unique[key] = true;
+                    return true;
+                }
+                return false;
+            }).map(order => {
+                return {
+                    id: '',
+                    so_uid: '',
+                    sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                    customer_code: order.customer_code,
+                    customer_name: order.customer_name,
+                    po_delivery_date: order.po_delivery_date,
+                    is_sync_sap: false,
+                    noti_sync: '',
+                    warehouse_id: '',
+                    so_header_id: order.so_header_id,
+                    so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
+                }
+            });
+            this.case_data_temporary.order_syncs = result;
         },
         itemNote(item) {
             let note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));

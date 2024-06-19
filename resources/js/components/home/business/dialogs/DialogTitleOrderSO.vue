@@ -12,9 +12,9 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="title" class="font-weigh-bold">Tiêu đề</label>
-                            <textarea v-model="case_data.title" type="text" class="form-control" id="title"
-                                aria-describedby="titleHelp" placeholder="Nhập tiêu đề....">
-
+                            <textarea  @keyup.enter="saveOrderSO()" v-model="case_data.title" type="text" class="form-control" id="title"
+                                aria-describedby="titleHelp" placeholder="Nhập tiêu đề...." rows="6">
+                               
                             </textarea>
                             <input>
 
