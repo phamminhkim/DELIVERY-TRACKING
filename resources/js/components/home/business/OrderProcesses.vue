@@ -376,7 +376,6 @@ export default {
         },
         getConvertFileExel(data) {
             const result = this.sliceConvertHeader(data);
-            console.log(result);
             this.orders = result.map((item, index) => {
                 return {
                     order: index + 1,
@@ -469,7 +468,6 @@ export default {
             this.count_order_lack = count;
         },
         getOrders(orders) {
-            console.log(orders);
             this.orders = orders;
             this.case_data_temporary.order_lacks = [];
             this.case_index.count_reset_filter++;
@@ -784,17 +782,9 @@ export default {
             }
         },
         getConvertOrderLack(index, data) {
-            // data.is_inventory = false;
-            // this.orders.unshift(data);
-            let index_stt = 0;
-            if (this.filterOrders[(data.order - 1)] < (data.order - 1)) {
-                index_stt = data.order - 3;
-            } else {
-                index_stt = data.order - 1;
-            }
-            this.orders.splice(this.filterOrders[index_stt], 0, data);
+            this.filterOrders.splice(data.order - 1, 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
-            this.orders.forEach((item, index) => {
+            this.filterOrders.forEach((item, index) => {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
@@ -1023,7 +1013,6 @@ export default {
                 this.case_data_temporary.filter_orders = this.orders.filter(order => {
                     return items.includes(order[field]);
                 });
-                console.log(this.case_data_temporary.filter_orders,'filter_orders');
             }
 
         },
