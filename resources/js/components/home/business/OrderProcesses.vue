@@ -39,7 +39,7 @@
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
-            @emitResetFilter="getResetFilter">
+            @emitResetFilter="getResetFilter" @editRow="getEditRow">
         </ParentOrderSuffice>
         <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value"
             :order_lacks="case_data_temporary.order_lacks" @convertOrderLack="getConvertOrderLack"
@@ -120,6 +120,7 @@ export default {
                 show_hide_excel: false,
                 sap_sync: false,
                 show_modal_sync_sap: false,
+                edit_row: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -132,6 +133,7 @@ export default {
                 order_syncs_selected: [],
                 warehouse_id: '',
                 warehouses: [],
+                filter_orders: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
@@ -149,10 +151,13 @@ export default {
     },
     created() {
         this.getUrl();
-        // this.filterOrders = [...this.orders];
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getEditRow(is_edit_row) {
+            this.case_is_loading.edit_row = is_edit_row;
+
+        },
         getEmitDataWarehouse(warehouse_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
                 item.warehouse_id = warehouse_id;
@@ -796,7 +801,6 @@ export default {
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
-            console.log(this.orders);
             this.refHeaderOrderProcesses();
         },
         getExportExcel() {
@@ -1008,10 +1012,20 @@ export default {
             this.case_is_loading.delete_row = false;
         },
         getFilterItems(items, field, boolean) {
-            this.case_data_temporary.items = items;
-            this.case_data_temporary.field = field;
-            this.case_is_loading.is_inventory = boolean;
-            this.case_is_loading.created_conponent = false;
+            if (field == 'reset') {
+                this.case_data_temporary.items = [];
+            } else {
+                this.case_data_temporary.items = items;
+                this.case_data_temporary.field = field;
+                this.case_is_loading.is_inventory = boolean;
+                this.case_is_loading.created_conponent = false;
+
+                this.case_data_temporary.filter_orders = this.orders.filter(order => {
+                    return items.includes(order[field]);
+                });
+                console.log(this.case_data_temporary.filter_orders,'filter_orders');
+            }
+
         },
         getResetFilter() {
             this.case_data_temporary.field = 'customer_sku_code';
@@ -1089,13 +1103,23 @@ export default {
             if (this.case_is_loading.created_conponent) {
                 news = this.orders;
             }
-            this.case_data_temporary.items.forEach(item => {
-                news.push(...this.orders.filter(order => {
-                    return order[this.case_data_temporary.field] == item;
-                }));
-            });
-            news.sort((a, b) => a.order - b.order);
+            if (this.case_data_temporary.items.length == 0) {
+                news = this.orders;
+            } else {
+                if (!this.case_is_loading.edit_row) {
+                    this.case_data_temporary.items.forEach(item => {
+                        news.push(...this.orders.filter(order => {
+                            return order[this.case_data_temporary.field] == item;
+
+                        }));
+                    });
+                    news.sort((a, b) => a.order - b.order);
+                } else {
+                    news = this.case_data_temporary.filter_orders;
+                }
+            }
             return news;
+
         }
     },
 }

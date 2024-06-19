@@ -293,9 +293,10 @@
                     </div> -->
                     <div class="customer_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_name, data.field.key)" -->
+                        <!-- @input="handleItem(data.item.customer_name, 'customer_name', data.index)" -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_name"
                             @dblclick="handleDoubleClick($event)"
-                            @input="handleItem(data.item.customer_name, 'customer_name', data.index)" />
+                            />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_name + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.customer_name, data.field.key)"

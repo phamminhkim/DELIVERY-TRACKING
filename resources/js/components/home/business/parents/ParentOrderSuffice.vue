@@ -480,13 +480,14 @@ export default {
         editRow() {
             this.case_boolean.is_show_hide = !this.case_boolean.is_show_hide;
             this.$refs.tableOrderSuffice.editRow(this.case_boolean.is_show_hide);
+            this.$emit('editRow', this.case_boolean.is_show_hide);
         },
         getHandleItem(item, field, index, orders) {
             this.$emit('handleItem', item, field, index, orders);
         },
         getIsHandleDbClick(is_dbclick) {
-            console.log(is_dbclick, 'dbclick_kim');
             this.case_boolean.is_show_hide = is_dbclick;
+            this.$emit('editRow', this.case_boolean.is_show_hide);
         },
         getBtnDuplicateRow(index, item) {
             this.$emit('btnDuplicateRow', index, item);
