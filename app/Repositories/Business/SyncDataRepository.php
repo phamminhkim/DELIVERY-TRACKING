@@ -44,9 +44,9 @@ class SyncDataRepository extends RepositoryAbs
                 "BODY" => []
             ];
             //chi lay nhung so_header chua dong bo
-            $not_sync_so_headers = [] ;
+            $not_sync_so_headers = [];
             foreach ($so_headers as $so_header) {
-                if(!$so_header->is_sync_sap){
+                if (!$so_header->sync_sap_status) {
                     $not_sync_so_headers[] = $so_header;
                 }
             }
@@ -105,30 +105,29 @@ class SyncDataRepository extends RepositoryAbs
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
-                    $is_sync_sap = false;
+                    $sync_sap_status = "Chưa đồng bộ";
                     $so_sap_note = '';
                     $warehouse_id = 0;
                     if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
                         $soHeader->so_uid = $soNumber;
-                        $soHeader->is_sync_sap = true;
+                        $soHeader->sync_sap_status = 1;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-                        $is_sync_sap = boolval($soHeader->is_sync_sap);
+
+                        $sync_sap_status = $soHeader->sync_sap_status == 1 ? "Đã đồng bộ" : "Chưa đồng bộ";
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
                         $soHeader->save();
-
                     } else if ($json_value['SO_KEY'] == '') {
                         $this->errors['not_config_user'] = $json_value['MESSAGE'];
                         $this->changeIsSyncingSapSoHeader($so_headers, false);
                         return null;
                     }
-
                     $result[] = [
                         "id" => $json_value['SO_KEY'],
                         "so_number" => $soNumber,
-                        "is_sync_sap" => $is_sync_sap,
+                        "sync_sap_status" => $sync_sap_status,
                         "so_sap_note" => $so_sap_note,
                         "warehouse_code" => $warehouse_id,
                         "message" => $json_value['MESSAGE']
@@ -216,7 +215,6 @@ class SyncDataRepository extends RepositoryAbs
                         $query->whereIn('customer_group_id', $customer_group_ids);
                     });
                 }
-
                 // Sắp xếp theo ID, ID cuối cùng được hiển thị trước
                 $query->orderByDesc('id');
 

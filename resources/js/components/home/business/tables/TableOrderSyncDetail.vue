@@ -1,8 +1,12 @@
 <template>
     <div>
+        <div class="form-group text-right border-bottom bg-gradient-light border-danger">
+            <label>Tổng tiền: <span class="text-danger font-weight-bold">{{ sumAmountPOAll() }}</span></label>
+        </div>
         <div v-for="(order_sync, index) in case_data.order_syncs" :key="index"
             class="bg-white  mb-5 border-left-order-sync">
-            <HeaderOrderSyncSAPDetail :rollBackUrl="rollBackUrl" :order_sync="order_sync" :index="index + 1">
+            <HeaderOrderSyncSAPDetail :rollBackUrl="rollBackUrl" :order_sync="order_sync" :index="index + 1"
+            :sumAmountPO="sumAmountPO">
             </HeaderOrderSyncSAPDetail>
             <div class="form-group px-3">
                 <b-table-simple hover small responsive>
@@ -170,6 +174,13 @@ export default {
         },
         isToRight(field) {
             return field === 'quantity3_sap' || field === 'price_po' || field === 'amount_po';
+        },
+        sumAmountPOAll() {
+            let sum = 0;
+            this.case_data.order_syncs.forEach(order_sync => {
+                sum += order_sync.so_data_items.reduce((total, item) => total + item.amount_po, 0);
+            });
+            return sum.toLocaleString(this.locale_format);
         }
     }
 }

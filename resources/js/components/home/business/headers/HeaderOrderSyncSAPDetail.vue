@@ -67,7 +67,7 @@ export default {
         rollBackUrl: Function,
         query: String,
         order_sync: Object,
-        index: Number
+        index: Number,
     },
     data() {
         return {

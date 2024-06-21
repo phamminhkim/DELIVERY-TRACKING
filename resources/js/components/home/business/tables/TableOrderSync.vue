@@ -15,7 +15,8 @@
                 <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
             </template>
             <template #cell(warehouse_code)="data">
-                <span class="badge badge-sm badge-info px-2">{{ data.item.warehouse_id }}</span>
+                <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
+                    }}</span>
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
                     placeholder="Nhập mã kho" /> -->
             </template>
@@ -23,6 +24,7 @@
     </div>
 </template>
 <script>
+import ApiHandler, { APIRequest } from '../../ApiHandler';
 export default {
     props: {
         use_component: {
@@ -34,14 +36,24 @@ export default {
         query: String,
         current_page: Number,
         per_page: Number,
-        un_selecteds: Array
+        un_selecteds: Array,
+        warehouses: Array
     },
+    
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
             case_checkbox: {
                 selected: [],
                 select_all: false
-            }
+            },
+            case_data_temporary: {
+                warehouses: [],
+
+            },
+            case_api: {
+                warehouse: 'api/master/warehouses/company-3000',
+            },
         }
     },
     watch: {
@@ -54,7 +66,16 @@ export default {
             }
         },
     },
+    created() {
+        this.fetchWarehouses();
+    },
     methods: {
+        async fetchWarehouses() {
+            let { data, success } = await this.api_handler.get(this.case_api.warehouse);
+            if (success) {
+                this.case_data_temporary.warehouses = data;
+            }
+        },
         changeSelectAll() {
             if (this.case_checkbox.select_all) {
                 this.case_checkbox.selected = this.items;
@@ -79,10 +100,24 @@ export default {
 
             // console.log(window.location.origin + '/sap-syncs-detail');
         },
+        findWarehouse(warehouse_id) {
+            if (!warehouse_id) {
+                return '';
+            } else {
+                if (this.case_data_temporary.warehouses.length !== 0) { 
+                    let warehouse = this.case_data_temporary.warehouses.find(warehouse => warehouse.id == warehouse_id);
+                    return warehouse ? warehouse.name : '';
+
+                } else {
+                    return '';
+                }
+            }
+        }
     }
 }
 </script>
 <style lang="scss" scoped>
-.cursor-poiner{
+.cursor-poiner {
     cursor: pointer;
-}</style>
+}
+</style>

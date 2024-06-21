@@ -604,7 +604,7 @@
 					if (this.is_loading) return;
 					this.is_loading = true;
 					if (this.selected_ids.length === 0) {
-						toastr.error('Vui lòng chọn ít nhất 1 file');
+						toastr.error('Vui lòng chọn ít nhất 1 dòng');
 						return;
 					}
 					let confirmed = false;

@@ -31,15 +31,16 @@
             :per_page="per_page" :material_combos="material_combos" :material_donateds="material_donateds"
             :orders="orders" :order_lacks="order_lacks" :tab_value="tab_value" :count_reset_filter="count_reset_filter"
             @onChangeCategoryType="getOnChangeCategoryType" :iscode="is_loading_detect_sap_code"
-            @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged"
-            @isHandleDbClick="getIsHandleDbClick" @handleItem="getHandleItem"
-            @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
-            @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" :filterOrders="filterOrders"
-            @filterItems="getFilterItems" @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
-        </TableOrderSuffice><PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
+            @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged" @isHandleDbClick="getIsHandleDbClick"
+            @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
+            @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
+            :filterOrders="filterOrders" @filterItems="getFilterItems" @emitResetFilter="getResetFilter"
+            :field_order_suffices="filterIsShowFields">
+        </TableOrderSuffice>
+        <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
         </PaginationTable>
-        
+
         <HeaderOrderColorNote></HeaderOrderColorNote>
 
     </div>
@@ -110,6 +111,8 @@ export default {
                 material_donateds: [],
                 material_combos: [],
                 field_selecteds: [],
+                duppliacte_orders: [],
+                count_dupplicate: 0,
             },
             case_boolean: {
                 is_show_hide: false,
@@ -263,8 +266,13 @@ export default {
                     sortable: false,
                     thClass: 'border',
                     isShow: true,
-
-
+                    tdClass: (key, index, order) => {
+                        const arr_duplicate = this.duplicateFilterOrder(key, index);
+                        if (this.checkDuplicateOrder(arr_duplicate, key)) {
+                            return 'hover-field-order bg-duplicate';
+                        }
+                        return 'hover-field-order';
+                    },
                 },
                 {
                     key: 'customer_sku_name',
@@ -446,7 +454,7 @@ export default {
 
                 },
             ],
-           
+
         }
     },
     created() {
@@ -480,13 +488,14 @@ export default {
         editRow() {
             this.case_boolean.is_show_hide = !this.case_boolean.is_show_hide;
             this.$refs.tableOrderSuffice.editRow(this.case_boolean.is_show_hide);
+            this.$emit('editRow', this.case_boolean.is_show_hide);
         },
         getHandleItem(item, field, index, orders) {
             this.$emit('handleItem', item, field, index, orders);
         },
         getIsHandleDbClick(is_dbclick) {
-            console.log(is_dbclick, 'dbclick_kim');
             this.case_boolean.is_show_hide = is_dbclick;
+            this.$emit('editRow', this.case_boolean.is_show_hide);
         },
         getBtnDuplicateRow(index, item) {
             this.$emit('btnDuplicateRow', index, item);
@@ -509,6 +518,26 @@ export default {
         getResetFilter() {
             this.$emit('emitResetFilter');
         },
+        getDuplicates(arr) {
+            const seen = new Set();
+            const duplicates = new Set();
+
+            for (const value of arr) {
+                if (seen.has(value)) {
+                    duplicates.add(value);
+                } else {
+                    seen.add(value);
+                }
+            }
+            return Array.from(duplicates);
+        },
+        duplicateFilterOrder(value, key) {
+            const duplicate = this.getDuplicates(this.filterOrders.map(item => item[key]));
+            return duplicate;
+        },
+        checkDuplicateOrder(arr_duplicate, value) {
+            return arr_duplicate.includes(value);
+        }
 
     },
     computed: {
@@ -519,8 +548,7 @@ export default {
         filterIsShowFields() {
             this.case_data_temporary.field_selecteds = this.field_order_suffices.filter((field) => field.isShow);
             return this.case_data_temporary.field_selecteds;
-        }
-
+        },
     }
 }
 </script>
@@ -532,5 +560,11 @@ export default {
         background: #f8f9fa;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
+}
+
+::v-deep  .bg-duplicate {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: bold;
 }
 </style>

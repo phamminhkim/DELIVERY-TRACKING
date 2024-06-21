@@ -12,9 +12,10 @@
                 <b-dropdown-item-button @click="filterInventory()" button-class="px-5"><u
                         class="font-weigh-bold">H</u>àng
                     thiếu</b-dropdown-item-button>
-                    <b-dropdown-item-button @click="filterCancleInventory()" button-class="px-5">Reset <u
+                    <!-- <b-dropdown-item-button @click="filterCancleInventory()" button-class="px-5">Reset <u
                         class="font-weigh-bold">H</u>àng
-                    thiếu</b-dropdown-item-button>
+                    thiếu</b-dropdown-item-button> -->
+                    <b-dropdown-item-button @click="resetfilter()" button-class="px-5"><u class="font-weight-bold">Reset</u></b-dropdown-item-button>
                 <b-dropdown-group id="dropdown-group-1" header="Color" header-classes="text-left px-5">
                     <b-dropdown-item-button @click="filterPromotionCategoryExtraOffer()" button-class="px-5 ml-3">
                         <div class="mr-2 rounded" style="background: rgb(255, 193, 7); height: 20px; width: 3rem;">
@@ -108,9 +109,9 @@ export default {
             this.isLengthItems();
             this.isLengthEqual();
         },
-        count_reset_filter() {
-            this.resetCaseCheckbox();
-        }
+        // count_reset_filter() {
+        //     this.resetCaseCheckbox();
+        // }
     },
     // hook kiểm tra b-dropdown đang mở hay đóng
     // nếu đang mở thì gửi emit là true
@@ -166,7 +167,6 @@ export default {
             }
         },
         isLengthEqual() {
-            console.log('chayj ham isLengthEqual',this.case_checkbox.items.length, this.filterCaseFilterOrders.length);
             if (this.case_checkbox.items.length == this.filterCaseFilterOrders.length) {
                 this.case_checkbox.select_all = true;
                 this.case_boolean.is_length_equal = false;
@@ -179,11 +179,15 @@ export default {
         },
         filterInventory() {
             this.case_boolean.is_length_equal = true;
-            this.$emit('emitFilter', ['true'], 'is_inventory', false);
+            this.$emit('emitFilter', [true], 'is_inventory', false);
         },
         filterCancleInventory() {
             this.case_boolean.is_length_equal = true;
             this.$emit('emitFilter', ['false'], 'is_inventory', false);
+        },
+        resetfilter() {
+            this.case_boolean.is_length_equal = false;
+            this.$emit('emitFilter', ['X'], 'reset', false);
         },
         filterPromotionCategoryExtraOffer() {
             this.case_boolean.is_length_equal = true;
@@ -208,7 +212,8 @@ export default {
     },
     computed: {
         filterCaseFilterOrders() {
-            return this.orders.filter((order) => {
+            let news = [...this.orders];
+            return news.filter((order) => {
                 if (order === null) {
                     return true;
                 }
