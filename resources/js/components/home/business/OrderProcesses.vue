@@ -202,12 +202,13 @@ export default {
                     })
                 };
                 const { data, success, errors } = await this.api_handler.post(this.api_check_inventory, {}, body);
-                if (success) {
+                if (data) {
                     this.getInventory(data);
                     this.$showMessage('success', 'Thành công', 'Check tồn thành công');
-                } else {
-                    this.$showMessage('error', 'Lỗi', errors.sap_error);
-                }
+                } 
+                // else {
+                //     this.$showMessage('error', 'Lỗi', errors.sap_error);
+                // }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -540,11 +541,11 @@ export default {
                                         level4: order.level4,
                                         note1: order.note1,
                                         note: order.note,
-                                        barcode: order.barcode,
+                                        barcode: item.bar_code,
                                         sku_sap_code: item.sap_code,
                                         sku_sap_name: item.name,
                                         sku_sap_unit: item.unit_code,
-                                        inventory_quantity: item.quantity3_sap,
+                                        inventory_quantity: order.inventory_quantity,
                                         amount_po: order.amount_po,
                                         is_inventory: false,
                                         is_promotive: false,
