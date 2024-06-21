@@ -304,4 +304,13 @@ class CamelotExtractorService implements DataExtractorInterface
         $table = $instance->extract();
         return $table;
     }
+
+    // Hàm lấy nội dung file pdf
+    public function getFileContent($file_path) {
+        $pdf_file_path = "\"" . $file_path . "\"";
+        $instance = new Camelot($pdf_file_path, 'stream');
+        $instance->pages('all');
+        $tables = $instance->extract();
+        return $tables;
+    }
 }
