@@ -12,6 +12,7 @@ use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
+use App\Models\Master\Warehouse;
 use App\Services\Excel\ExcelExtractor;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
@@ -354,11 +355,15 @@ class CheckDataRepository extends RepositoryAbs
                     "action_name" => "FETCH_MATERIAL_INVENTORY",
                     "BODY" => []
                 ];
-
+                $warehouse = null;
                 foreach ($fields['data'] as $value) {
+                    if ($warehouse == null) {
+                        $warehouse_id = $value['warehouse_id'];
+                        $warehouse = Warehouse::where('id',  $warehouse_id)->first();
+                    }
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
-                        "warehouse_code" => $value['warehouse_code'],
+                        "warehouse_code" => $warehouse->code,
                     ];
                 }
                 $json = SapApiHelper::postData(json_encode($sapData));

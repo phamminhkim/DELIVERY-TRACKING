@@ -121,9 +121,9 @@ export default {
                         this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
                             + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
                             + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>');
-                        this.$emit('saveOrderSO', data);
+                        this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                         this.hideDialogTitleOrderSo();
-                        this.showModalSyncSap();
+                        // this.showModalSyncSap();
                     } catch (error) {
                         let errors = error.response.data.errors;
                         if (errors) {
@@ -140,7 +140,7 @@ export default {
                             this.$showMessage('success', 'Thêm thành công', 'Tổng số đơn hàng: ' + data.so_count + '<br>'
                                 + 'Số đơn hàng lưu thành công: ' + data.not_sync_so_count + '<br>'
                                 + 'Số đơn hàng lưu thất bại: ' + data.sync_so_count + '<br>');
-                            this.$emit('saveOrderSO', data);
+                            this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                             this.hideDialogTitleOrderSo();
                             //     this.showModalSyncSap();
                             //     this.$showMessage('success', 'Thêm thành công');
