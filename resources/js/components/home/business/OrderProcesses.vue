@@ -12,7 +12,8 @@
             @getCustomerGroupId="getCustomerGroupId" @exportExcel="getExportExcel" @importExcel="getImportExcel"
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
-            @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal">
+            @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
+            @emitErrorConvertFile="getEmitErrorConvertFile">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -27,6 +28,7 @@
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
+        <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile>
         <TempExcelImport :is_show_hide="case_is_loading.show_hide_excel" :header_fields="header_fields"
             :title="title_excel" @convertFileExcel="getConvertFileExel"></TempExcelImport>
         <!-- Parent -->
@@ -70,6 +72,7 @@ import ParentOrderSynchronized from './parents/ParentOrderSynchronized.vue';
 import TempExcelImport from '../../Templates/Excels/TempExcelImport.vue';
 import DialogOrderCheckInventory from './dialogs/DialogOrderCheckInventory.vue';
 import DialogOrderCheckPrice from './dialogs/DialogOrderCheckPrice.vue';
+import DialogGetDataConvertFile from './dialogs/DialogGetDataConvertFile.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
 import { isUndefined } from 'axios/lib/utils';
 export default {
@@ -85,7 +88,8 @@ export default {
         ParentOrderSynchronized,
         TempExcelImport,
         DialogOrderCheckInventory,
-        DialogOrderCheckPrice
+        DialogOrderCheckPrice,
+        DialogGetDataConvertFile
     },
     data() {
         return {
@@ -134,6 +138,7 @@ export default {
                 warehouse_id: '',
                 warehouses: [],
                 filter_orders: [],
+                error_csv_data: {},
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
@@ -154,9 +159,12 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getEmitErrorConvertFile(errors) {
+            this.case_data_temporary.error_csv_data = errors.csv_data;
+            $('#modalGetConvertFile').modal('show');
+        },
         getEditRow(is_edit_row) {
             this.case_is_loading.edit_row = is_edit_row;
-
         },
         getEmitDataWarehouse(warehouse_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
@@ -178,13 +186,13 @@ export default {
                     ]
                 };
                 const { data, success, errors } = await this.api_handler.post(this.api_check_price, {}, body);
-                if (data) {
+                if (success) {
                     this.getCheckPrice(data);
                     this.$showMessage('success', 'Thành công', 'Check giá thành công');
                 }
-                //  else {
-                //     this.$showMessage('error', 'Lỗi', errors.sap_error);
-                // }
+                else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
+                }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -203,13 +211,13 @@ export default {
                     })
                 };
                 const { data, success, errors } = await this.api_handler.post(this.api_check_inventory, {}, body);
-                if (data) {
+                if (success) {
                     this.getInventory(data);
                     this.$showMessage('success', 'Thành công', 'Check tồn thành công');
-                } 
-                // else {
-                //     this.$showMessage('error', 'Lỗi', errors.sap_error);
-                // }
+                }
+                else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
+                }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {

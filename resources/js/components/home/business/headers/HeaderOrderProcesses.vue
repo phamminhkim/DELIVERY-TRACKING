@@ -699,6 +699,7 @@ export default {
                 return file_response;
             } catch (error) {
                 console.error(error.response);
+                !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';     
                 throw error;
             }
 
