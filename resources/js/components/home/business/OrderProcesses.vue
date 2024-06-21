@@ -856,6 +856,7 @@ export default {
             this.refHeaderOrderProcesses(); 
             if (this.case_is_loading.is_save_with_sync_sap) {
                 this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
+                this.case_is_loading.is_save_with_sync_sap = false ;
             }
         },
         refeshOrders() {
