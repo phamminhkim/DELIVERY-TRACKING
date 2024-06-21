@@ -1682,7 +1682,6 @@ class AiRepository extends RepositoryAbs
             return $result;
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
-            dd("test");
             return $result;
         }
     }
