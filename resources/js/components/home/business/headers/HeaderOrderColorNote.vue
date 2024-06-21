@@ -32,6 +32,10 @@ export default {
                     name: 'Combo',
                     background: '#007bff'
                 },
+                {
+                    name: 'Trùng mã (Unit_barcode)',
+                    background: '#f8d7da'
+                }
 
             ]
         }
