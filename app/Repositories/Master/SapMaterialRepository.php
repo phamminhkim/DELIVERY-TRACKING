@@ -62,7 +62,7 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->select(['id', 'unit_code']);
             }]);
 
-            $perPage = $request->filled('per_page') ? $request->per_page : 500;
+            $perPage = $request->filled('per_page')? $this->request->per_page : 1000;
             $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
 
             if ($request->filled('search') && $sap_materials->isEmpty()) {
@@ -371,7 +371,7 @@ class SapMaterialRepository extends RepositoryAbs
 
                 'sap_code' => 'string:sap_materials,sap_code',
                 'unit_id' => 'integer|exists:sap_units,id',
-                'bar_code' => 'string',
+                // 'bar_code' => 'string',
                 'name' => 'required|string',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã SAP.',
@@ -379,7 +379,7 @@ class SapMaterialRepository extends RepositoryAbs
                 //'sap_code.unique' => 'Mã material đã tồn tại.',
                 'unit_id.integer' => 'Mã unit phải là chuỗi.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
-                'bar_code.string' => 'Mã Barcode phải là chuỗi.',
+                // 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên SAP.',
                 'name.string' => 'Tên SAP phải là chuỗi.',
             ]);

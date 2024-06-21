@@ -358,6 +358,7 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($fields['data'] as $value) {
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
+                        "warehouse_code" => $value['warehouse_code'],
                     ];
                 }
                 $json = SapApiHelper::postData(json_encode($sapData));
