@@ -29,10 +29,13 @@
                                     <tr v-for="(value, key) in csv_data" :key="key">
                                         <td>{{ key }}</td>
                                         <td>
-                                            <button @click="downloadCsvItem(value, key)"
+                                            <button v-if="value.length !== 0" @click="downloadCsvItem(value, key)"
                                                 class="btn btn-sm btn-light text-primary font-weight-bold shadow-btn border border-primary">
                                                 <i class="fas fa-file-download mr-2"></i>Download
                                             </button>
+                                            <p v-else>
+                                                <span class="text-danger font-italic font-weight-bold">Không hỗ trợ</span>
+                                            </p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -65,7 +68,9 @@ export default {
         },
         downloadCsvAll() {
             for (const [key, value] of Object.entries(this.csv_data)) {
-                this.downloadCsvItem(value, key);
+                if (value.length !== 0) {
+                    this.downloadCsvItem(value, key);
+                }
             }
         },
         downloadCsvItem(item, key) {
