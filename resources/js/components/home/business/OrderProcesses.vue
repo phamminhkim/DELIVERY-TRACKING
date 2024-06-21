@@ -178,12 +178,13 @@ export default {
                     ]
                 };
                 const { data, success, errors } = await this.api_handler.post(this.api_check_price, {}, body);
-                if (success) {
+                if (data) {
                     this.getCheckPrice(data);
                     this.$showMessage('success', 'Thành công', 'Check giá thành công');
-                } else {
-                    this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
+                //  else {
+                //     this.$showMessage('error', 'Lỗi', errors.sap_error);
+                // }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
