@@ -125,6 +125,7 @@ export default {
                 sap_sync: false,
                 show_modal_sync_sap: false,
                 edit_row: false,
+                is_save_with_sync_sap: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -434,32 +435,34 @@ export default {
         showModalSyncSAP(is_show_modal_sync_sap) {
             this.case_is_loading.show_modal_sync_sap = is_show_modal_sync_sap;
             this.showDialogTitleOrderSo();
-            // $('#dialogTitleOrderSo').modal('show');
-            // $('#modalOrderSync').modal('show');
-            const unique = {};
-            const result = this.orders.filter(order => {
-                const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
-                if (!unique[key]) {
-                    unique[key] = true;
-                    return true;
-                }
-                return false;
-            }).map(order => {
-                return {
-                    id: '',
-                    so_uid: '',
-                    sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                    customer_code: order.customer_code,
-                    customer_name: order.customer_name,
-                    po_delivery_date: order.po_delivery_date,
-                    is_sync_sap: false,
-                    noti_sync: '',
-                    warehouse_id: '',
-                    so_header_id: order.so_header_id,
-                    so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
-                }
-            });
-            this.case_data_temporary.order_syncs = result;
+            if (this.case_is_loading.is_save_with_sync_sap) {
+                $('#modalOrderSync').modal('show');
+                const unique = {};
+                const result = this.filterOrders.filter(order => {
+                    const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
+                    if (!unique[key]) {
+                        unique[key] = true;
+                        return true;
+                    }
+                    return false;
+                }).map(order => {
+                    return {
+                        id: '',
+                        so_uid: '',
+                        sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                        customer_code: order.customer_code,
+                        customer_name: order.customer_name,
+                        po_delivery_date: order.po_delivery_date,
+                        sync_sap_status: '',
+                        noti_sync: '',
+                        warehouse_id: '',
+                        so_header_id: order.so_header_id,
+                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
+                    }
+                });
+                this.case_data_temporary.order_syncs = result;
+            }
+
         },
         itemNote(item) {
             let note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
@@ -754,7 +757,9 @@ export default {
         showDialogTitleOrderSo() {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
-        getSaveOrderSO(item) {
+        getSaveOrderSO(item, is_modal_sync_sap) {
+            this.case_is_loading.is_save_with_sync_sap = is_modal_sync_sap;
+           
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
@@ -848,7 +853,10 @@ export default {
                 }
 
             });
-            this.refHeaderOrderProcesses();
+            this.refHeaderOrderProcesses(); 
+            if (this.case_is_loading.is_save_with_sync_sap) {
+                this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
+            }
         },
         refeshOrders() {
             this.orders = [];
