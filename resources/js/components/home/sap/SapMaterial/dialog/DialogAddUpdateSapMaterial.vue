@@ -70,7 +70,7 @@
 						</div>
 						<div class="form-group">
 							<label>Mã Barcode</label>
-							<small class="text-danger">*</small>
+							<!-- <small class="text-danger">*</small> -->
 							<input
 								v-model="sap_material.bar_code"
 								class="form-control"
