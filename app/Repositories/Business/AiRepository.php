@@ -302,7 +302,7 @@ class AiRepository extends RepositoryAbs
                 }
             }
             // Nếu có bất kỳ file nào convert lỗi thì gửi thông báo và không trả về data
-            if ($this->errors) {
+            if ($csv_data) {
                 $this->errors["csv_data"] = $csv_data;
                 $final_data = [];
             }
@@ -1682,6 +1682,7 @@ class AiRepository extends RepositoryAbs
             return $result;
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
+            dd("test");
             return $result;
         }
     }
