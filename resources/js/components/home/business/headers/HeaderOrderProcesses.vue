@@ -105,10 +105,12 @@
                     class="shadow btn-sm btn-light rounded  text-orange btn-group__border">Check
                     quy cách</button>
                 <button @click="emitOrderLack()" type="button"
-                    class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">Lưu
+                    class="btn-sm font-smaller btn font-weight-bold text-success rounded btn-light  text-center btn-group__border shadow-btn">
+                    <span class="badge badge-sm badge-success px-2 mr-1">{{ count_selected }}</span>Lưu
                     hàng thiếu</button>
                 <button @click="emitOrderDelete()"
-                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">Xóa
+                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">
+                    <span class="badge badge-sm badge-danger px-2 mr-1">{{ count_selected }}</span>Xóa
                     dữ liệu</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
@@ -191,7 +193,11 @@ export default {
         item_selecteds: {
             type: Array,
             default: () => []
-        }
+        },
+        count_selected: {
+            type: Number,
+            default: 0
+        },
 
 
     },
@@ -680,16 +686,23 @@ export default {
             return formData;
         },
         async apiConvertPDF(formData) {
-            let file_response = await this.api_handler
-                .setHeaders({
-                    'Content-Type': 'multipart/form-data',
-                })
-                .post(
-                    '/api/sales-order/convert-orders',
-                    {},
-                    formData,
-                );
-            return file_response;
+            try {
+                let file_response = await this.api_handler
+                    .setHeaders({
+                        'Content-Type': 'multipart/form-data',
+                    })
+                    .post(
+                        '/api/sales-order/convert-orders',
+                        {},
+                        formData,
+                    );
+                return file_response;
+            } catch (error) {
+                console.error(error.response);
+                !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';     
+                throw error;
+            }
+
         },
         async extractFilePDF(event) {
             try {
@@ -704,8 +717,8 @@ export default {
                 this.$showMessage('success', 'Thành công', 'Giải nén file thành công');
             } catch (error) {
                 this.hideModalExtractPDF();
-                this.case_error.extract_pdf = error;
-                this.$showMessage('error', 'Lỗi', error);
+                this.case_error.extract_pdf = error.response.data.message;
+                this.$showMessage('error', 'Lỗi', error.response.data.message);
             } finally {
                 this.hideModalExtractPDF();
                 this.is_case_loading.extract_pdf = false;
@@ -823,7 +836,8 @@ export default {
             this.$emit('changeEventOrderDelete');
         },
         emitSaveOrderProcess() {
-            this.$emit('saveOrderProcess');
+            let is_show_modal_sync_sap = false; // Lưu
+            this.$emit('saveOrderProcess', is_show_modal_sync_sap);
         },
         emitListOrderProcessSO() {
             this.$emit('listOrderProcessSO');
@@ -890,7 +904,8 @@ export default {
             return parseFloat(value);
         },
         emitOrderSyncSAP() {
-            this.$emit('changeEventOrderSyncSAP');
+            let is_sync_sap = true; // Đồng bộ SAP
+            this.$emit('changeEventOrderSyncSAP', is_sync_sap);
         },
     },
     computed: {

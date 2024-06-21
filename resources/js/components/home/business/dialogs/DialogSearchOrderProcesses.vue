@@ -6,14 +6,14 @@
                 <!-- @mousemove="handleMouseMoveModal($event)" -->
                 <!-- @mouseup="handleMouseUpModal($event)" -->
                 <div ref="form_search_order_processes" class="modal-content modal-content-cursor">
-                    <div class="modal-header">
+                    <div class="modal-header bg-gradient-blue">
                         <h5 class="modal-title font-weight-bold text-uppercase">tìm kiếm tên hàng</h5>
                         <button type="button" class="close" @click="closeModalSearchOrderProcesses()"
                             aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body bg-gray-light">
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-lg-9">
