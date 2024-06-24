@@ -107,6 +107,7 @@ export default {
             case_index: {
                 check_box: [],
                 count_reset_filter: 0,
+                detect_material: 0,
             },
             case_save_so: {
                 id: '',
@@ -140,6 +141,7 @@ export default {
                 warehouses: [],
                 filter_orders: [],
                 error_csv_data: {},
+                detect_materials: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
@@ -512,115 +514,134 @@ export default {
         },
         getListMaterialDetect(data) {
             this.material_saps = [...data];
-            // this.material_saps.forEach(tmp => {
-            //     for (var i = 0; i < this.orders.length; i++) {
-            //         if ((tmp.customer_sku_code === this.orders[i].customer_sku_code &&
-            //         this.orders[i]['sku_sap_code'] !== '' &&
-            //             tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
-            //             (tmp.bar_code == this.orders[i].customer_sku_code 
-
-            //             )) {
-            //             this.orders[i]['sku_sap_code'] = tmp.sap_code;
-            //             this.orders[i]['sku_sap_name'] = tmp.name;
-            //             this.orders[i]['sku_sap_unit'] = tmp.unit_code;
-            //             this.orders[i]['barcode'] = tmp.bar_code;
-            //             this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
-            //         }
-            //     }
-            // });
-            var dupplicates = [];
             let group = Object.groupBy(this.material_saps, ({ customer_sku_code }) => customer_sku_code);
             let group_entries = Object.entries(group);
-            group_entries.map(([key, value]) => {
-                // value.pop();
-                this.orders.forEach((order, index) => {
-                    if (order.customer_sku_code == key) {
-                        value.forEach(item => {
-                            if (order.customer_sku_code == key &&
-                                order.customer_sku_unit == item.customer_sku_unit
-                                || order.customer_sku_code == item.bar_code) {
-                                if (item.sap_code != order.sku_sap_code) {
-                                    dupplicates.push({
-                                        order: order.order,
-                                        customer_sku_code: order.customer_sku_code,
-                                        customer_sku_name: order.customer_sku_name,
-                                        customer_sku_unit: order.customer_sku_unit,
-                                        quantity: order.quantity,
-                                        company_price: order.company_price,
-                                        customer_code: order.customer_code,
-                                        level2: order.level2,
-                                        level3: order.level3,
-                                        level4: order.level4,
-                                        note1: order.note1,
-                                        note: order.note,
-                                        barcode: item.bar_code,
-                                        sku_sap_code: item.sap_code,
-                                        sku_sap_name: item.name,
-                                        sku_sap_unit: item.unit_code,
-                                        inventory_quantity: order.inventory_quantity,
-                                        amount_po: order.amount_po,
-                                        is_inventory: false,
-                                        is_promotive: false,
-                                        price_po: order.price_po,
-                                        promotive: order.promotive_name,
-                                        promotive_name: order.promotive_name,
-                                        quantity1_po: order.quantity1_po,
-                                        quantity2_po: order.quantity2_po,
-                                        customer_name: order.customer_name,
-                                        variant_quantity: order.variant_quantity,
-                                        extra_offer: '',
-                                        promotion_category: '',
-                                        po_delivery_date: order.po_delivery_date,
-                                        po_number: order.po_number,
-                                        sap_so_number: order.sap_so_number,
-                                        compliance: order.compliance,
-                                        is_compliant: order.is_compliant,
-                                        quantity3_sap: item.quantity3_sap,
-                                        so_header_id: order.so_header_id,
-                                        so_sap_note: order.so_sap_note,
-                                    });
-                                }
+            let exist = false;
+            group_entries.forEach((group_entrie, index) => {
+                if (group_entrie[1].length > 1) {
+                    let first_group_entri = group_entrie[1][0];
+                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);
+                    if ((first_group_entri.customer_sku_code === this.orders[index_order_group]['customer_sku_code'] &&
+                        this.orders[index_order_group]['sku_sap_code'] !== '' &&
+                        first_group_entri.customer_sku_unit === this.orders[index_order_group]['customer_sku_unit']) ||
+                        (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
+
+                        )) {
+                        this.orders[index_order_group]['sku_sap_code'] = first_group_entri.sap_code;
+                        this.orders[index_order_group]['sku_sap_name'] = first_group_entri.name;
+                        this.orders[index_order_group]['sku_sap_unit'] = first_group_entri.unit_code;
+                        this.orders[index_order_group]['barcode'] = first_group_entri.bar_code;
+                        this.orders[index_order_group]['quantity3_sap'] = first_group_entri.quantity3_sap;
+                    }
+                    this.case_index.detect_material = group_entrie[1].length;
+                    this.case_data_temporary.detect_materials.forEach(item => {
+                        group_entrie[1].forEach(item_material => {
+                            if (item.customer_sku_code == item_material.customer_sku_code &&
+                                item.customer_sku_unit == item_material.customer_sku_unit &&
+                                item.sap_code == item_material.sap_code &&
+                                item.bar_code == item_material.bar_code) {
+                                exist = true;
                             }
                         });
+                    });
+                    if (!exist) {
+                        this.case_data_temporary.detect_materials.push(...group_entrie[1]);
                     }
-                });
-            });
-            let exist = false;
-            dupplicates.forEach(dupplicate => {
-                this.orders.forEach((order, index) => {
-                    if (dupplicate.customer_sku_code == order.customer_sku_code &&
-                        dupplicate.sku_sap_code == order.sku_sap_code &&
-                        dupplicate.sku_sap_unit == order.sku_sap_unit &&
-                        dupplicate.barcode == order.barcode
-                    ) {
-                        exist = true;
-                    }
-                });
-                if (!exist) {
-                    this.orders.push(dupplicate);
-                }
-            });
-            let new_orders = [...this.orders];
-            let group_orders = Object.groupBy(new_orders, ({ customer_sku_code }) => customer_sku_code);
-            let group_orders_entries = Object.entries(group_orders);
-            group_orders_entries.map(([key, value]) => {
-                if (value.length > 1) {
-                    value.forEach((item, index) => {
-                        if (item.sku_sap_code == '' || item.sku_sap_code == null) {
-                            let find_index = this.orders.findIndex(order => order.customer_sku_code == item.customer_sku_code
-                                && (item.sku_sap_code == '' || item.sku_sap_code == null));
-                            if (find_index != -1) {
-                                this.orders.splice(find_index, 1);
+                } else {
+                    group_entrie[1].forEach(tmp => {
+                        for (var i = 0; i < this.orders.length; i++) {
+                            if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
+                                this.orders[i]['sku_sap_code'] !== '' &&
+                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
+                                (tmp.bar_code == this.orders[i].customer_sku_code
+
+                                )) {
+                                this.orders[i]['sku_sap_code'] = tmp.sap_code;
+                                this.orders[i]['sku_sap_name'] = tmp.name;
+                                this.orders[i]['sku_sap_unit'] = tmp.unit_code;
+                                this.orders[i]['barcode'] = tmp.bar_code;
+                                this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
                             }
                         }
                     });
                 }
             });
+            for (let index = 0; index < this.case_data_temporary.detect_materials.length; index++) {
+                const material = this.case_data_temporary.detect_materials[index];
+                const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code
+                );
+                switch (index) {
+                    default:
+                        if (index_order !== -1) {
+                            let exist = false;
+                            this.orders.forEach((order, index) => {
+                                if (order.customer_sku_code == material.customer_sku_code &&
+                                    order.customer_sku_unit == material.customer_sku_unit &&
+                                    order.sku_sap_code == material.sap_code &&
+                                    order.barcode == material.bar_code) {
+                                    exist = true;
+                                }
+                            })
+                            if (!exist) {
+                                this.orders.push({
+                                    order: this.orders.length + 1,
+                                    id: '',
+                                    customer_sku_code: material.customer_sku_code == undefined ? '' : material.customer_sku_code,
+                                    customer_sku_name: this.orders[index_order]['customer_sku_name'],
+                                    customer_sku_unit: material.customer_sku_unit == undefined ? '' : material.customer_sku_unit,
+                                    company_price: this.orders[index_order]['company_price'],
+                                    customer_code: this.orders[index_order]['customer_code'],
+                                    level2: this.orders[index_order]['level2'],
+                                    level3: this.orders[index_order]['level3'],
+                                    level4: this.orders[index_order]['level4'],
+                                    note1: this.orders[index_order]['note1'],
+                                    note: this.orders[index_order]['note'],
+                                    barcode: material.bar_code == undefined ? '' : material.bar_code,
+                                    sap_so_number: this.orders[index_order]['sap_so_number'],
+                                    sku_sap_code: material.sap_code == undefined ? '' : material.sap_code,
+                                    sku_sap_name: material.name == undefined ? '' : material.name,
+                                    sku_sap_unit: material.unit_code == undefined ? '' : material.unit_code,
+                                    inventory_quantity: this.orders[index_order]['inventory_quantity'],
+                                    amount_po: this.orders[index_order]['amount_po'],
+                                    is_inventory: this.orders[index_order]['is_inventory'],
+                                    is_promotive: this.orders[index_order]['is_promotive'],
+                                    price_po: this.orders[index_order]['price_po'],
+                                    promotive: this.orders[index_order]['promotive'],
+                                    promotive_name: this.orders[index_order]['promotive_name'],
+                                    quantity: this.orders[index_order]['quantity'],
+                                    quantity1_po: this.orders[index_order]['quantity1_po'],
+                                    quantity2_po: this.orders[index_order]['quantity2_po'],
+                                    customer_name: this.orders[index_order]['customer_name'],
+                                    variant_quantity: this.orders[index_order]['variant_quantity'],
+                                    extra_offer: this.orders[index_order]['extra_offer'],
+                                    promotion_category: this.orders[index_order]['promotion_category'],
+                                    compliance: this.orders[index_order]['compliance'],
+                                    is_compliant: this.orders[index_order]['is_compliant'],
+                                    quantity3_sap: material.quantity3_sap == undefined ? '' : material.quantity3_sap,
+                                    po_number: this.orders[index_order]['po_number'],
+                                    po_delivery_date: this.orders[index_order]['po_delivery_date'],
+                                    so_header_id: this.orders[index_order]['so_header_id'],
+                                });
+                                this.moveElement(this.orders, this.orders.length - 1, index_order + 1);
+                            }
+                        }
+
+                        break;
+                }
+            }
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
             this.refHeaderOrderProcesses();
 
+        },
+        moveElement(array, fromIndex, toIndex) {
+            if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
+                console.error("Index không hợp lệ");
+                return;
+            }
+            const element = array.splice(fromIndex, 1)[0];
+            array.splice(toIndex, 0, element);
         },
         getInventory(data) {
             this.material_inventories = [...data];
@@ -759,7 +780,7 @@ export default {
         },
         getSaveOrderSO(item, is_modal_sync_sap) {
             this.case_is_loading.is_save_with_sync_sap = is_modal_sync_sap;
-           
+
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
@@ -853,10 +874,10 @@ export default {
                 }
 
             });
-            this.refHeaderOrderProcesses(); 
+            this.refHeaderOrderProcesses();
             if (this.case_is_loading.is_save_with_sync_sap) {
                 this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
-                this.case_is_loading.is_save_with_sync_sap = false ;
+                this.case_is_loading.is_save_with_sync_sap = false;
             }
         },
         refeshOrders() {
