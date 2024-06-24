@@ -522,7 +522,7 @@ export default {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);
                     if ((first_group_entri.customer_sku_code === this.orders[index_order_group]['customer_sku_code'] &&
-                        this.orders[index_order_group]['sku_sap_code'] !== '' &&
+                        this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null &&
                         first_group_entri.customer_sku_unit === this.orders[index_order_group]['customer_sku_unit']) ||
                         (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
 
@@ -551,7 +551,7 @@ export default {
                     group_entrie[1].forEach(tmp => {
                         for (var i = 0; i < this.orders.length; i++) {
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
-                                this.orders[i]['sku_sap_code'] !== '' &&
+                                this.orders[i]['sku_sap_code'] != '' ||  this.orders[i]['sku_sap_code'] != null &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
                                 (tmp.bar_code == this.orders[i].customer_sku_code
 
@@ -625,7 +625,6 @@ export default {
                                 this.moveElement(this.orders, this.orders.length - 1, index_order + 1);
                             }
                         }
-
                         break;
                 }
             }
