@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="modal fade  " id="modalGetConvertFile" tabindex="-1">
+        <div class="modal fade  " id="modalGetConvertFile" data-backdrop="static" data-keyboard="false" tabindex="-1">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header bg-danger">

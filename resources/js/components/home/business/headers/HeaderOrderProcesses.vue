@@ -147,7 +147,7 @@
                 </div>
             </div> -->
 
-            <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
+            <div class="modal fade" id="modalNotificationExtractPDF" data-backdrop="static" data-keyboard="false" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-0 notification-header">
@@ -326,7 +326,7 @@ export default {
                         customer_group_id: this.form_filter.customer_group,
                         items: this.case_data_temporary.sap_codes,
                     }
-                );
+                );  
                 //this.sap_codes =  data.original.mappingData;
                 if (data.success == true) {
                     this.$emit('getListMaterialDetect', data.items);
