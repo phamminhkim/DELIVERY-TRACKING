@@ -216,6 +216,11 @@ class SoDataRepository extends RepositoryAbs
                             'promotive_name' => $item['promotive_name'],
                         ];
                     });
+                    // Lấy các so  key không lưu
+                    $skip_save_so_keys = collect($sync_so_data_items)->map(function ($item) {
+                        return $item['sap_so_number'] . $item['promotive_name'];
+                    })->toArray();
+                    $this->message['skip_save_so_keys'] = array_unique($skip_save_so_keys);
                 }
                 $order_process->load(['so_data_items', 'so_data_items.so_header']);
                 return $order_process;
