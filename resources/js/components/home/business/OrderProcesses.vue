@@ -512,6 +512,9 @@ export default {
         getDeleteRow(index, item) {
             this.orders.splice(index, 1);
         },
+        connectStringSapWithPromotion(sap_so_number, promotion) {
+            return sap_so_number + promotion;
+        },
         getListMaterialDetect(data) {
             this.material_saps = [...data];
             let group = Object.groupBy(this.material_saps, ({ customer_sku_code }) => customer_sku_code);
@@ -522,6 +525,7 @@ export default {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);
                     if ((first_group_entri.customer_sku_code === this.orders[index_order_group]['customer_sku_code'] &&
+                        first_group_entri.sap_so_number === this.orders[index_order_group]['sap_so_number'] &&
                         this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null &&
                         first_group_entri.customer_sku_unit === this.orders[index_order_group]['customer_sku_unit']) ||
                         (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
@@ -538,6 +542,7 @@ export default {
                         group_entrie[1].forEach(item_material => {
                             if (item.customer_sku_code == item_material.customer_sku_code &&
                                 item.customer_sku_unit == item_material.customer_sku_unit &&
+                                item.sap_so_number == item_material.sap_so_number &&
                                 item.sap_code == item_material.sap_code &&
                                 item.bar_code == item_material.bar_code) {
                                 exist = true;
@@ -552,6 +557,7 @@ export default {
                         for (var i = 0; i < this.orders.length; i++) {
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
                                 // this.orders[i]['sku_sap_code'] != '' &&
+                                tmp.sap_so_number === this.orders[i]['sap_so_number'] &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
                                 (tmp.bar_code == this.orders[i].customer_sku_code)) {
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
@@ -566,8 +572,7 @@ export default {
             });
             for (let index = 0; index < this.case_data_temporary.detect_materials.length; index++) {
                 const material = this.case_data_temporary.detect_materials[index];
-                const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code
-                );
+                const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code && order.sap_so_number == material.sap_so_number);
                 switch (index) {
                     default:
                         if (index_order !== -1) {
@@ -575,6 +580,7 @@ export default {
                             this.orders.forEach((order, index) => {
                                 if (order.customer_sku_code == material.customer_sku_code &&
                                     order.customer_sku_unit == material.customer_sku_unit &&
+                                    order.sap_so_number == material.sap_so_number &&
                                     order.sku_sap_code == material.sap_code &&
                                     order.barcode == material.bar_code) {
                                     exist = true;

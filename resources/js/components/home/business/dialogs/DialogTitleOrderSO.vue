@@ -119,13 +119,22 @@ export default {
                 if (this.case_save_so.id !== "") {
                     try {
                         let { data, message } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data);
-                        this.$showMessage(message.sync_so_count == 0 ? 'success' : 'warning', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
-                            + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
-                            + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>'
-                            + 'Lý do: Có đơn đã hoặc đang đồng bộ trước đó.' + '<br>'
-                            + message.skip_save_so_keys.join('<br>') + '<br>');
+                        
+                        if (Object.hasOwn(message, 'skip_save_so_keys')) {
+                            this.$showMessage(message.sync_so_count == 0 ? 'success' : 'warning', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
+                                + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
+                                + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>'
+                                + 'Lý do: Có đơn đã hoặc đang đồng bộ trước đó.' + '<br>'
+                                + message.skip_save_so_keys.join('<br>') + '<br>');
+                        } else {
+                            this.$showMessage( 'success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
+                                + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
+                                + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count);
+                        }
                         this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                         this.hideDialogTitleOrderSo();
+
+
                         // this.showModalSyncSap();
                     } catch (error) {
                         let errors = error.response.data.errors;
