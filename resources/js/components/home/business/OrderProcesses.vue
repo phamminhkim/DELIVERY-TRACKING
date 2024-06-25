@@ -550,9 +550,8 @@ export default {
                 } else {
                     group_entrie[1].forEach(tmp => {
                         for (var i = 0; i < this.orders.length; i++) {
-                                console.log(tmp.customer_sku_code == this.orders[i].customer_sku_code);
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
-                                this.orders[i]['sku_sap_code'] != '' &&
+                                // this.orders[i]['sku_sap_code'] != '' &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
                                 (tmp.bar_code == this.orders[i].customer_sku_code)) {
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
