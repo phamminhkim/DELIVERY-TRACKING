@@ -37,7 +37,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="title" class="font-weigh-bold mb-0 mt-3">Tiêu đề<small class="text-danger">(*)</small></label>
+                            <label for="title" class="font-weigh-bold mb-0 mt-3">Tiêu đề<small
+                                    class="text-danger">(*)</small></label>
                             <textarea @keyup.enter="saveOrderSO()" v-model="case_data.title" type="text"
                                 class="form-control" id="title" aria-describedby="titleHelp"
                                 placeholder="Nhập tiêu đề...." rows="6">
@@ -117,10 +118,12 @@ export default {
                 }
                 if (this.case_save_so.id !== "") {
                     try {
-                        let { data, message } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data)
-                        this.$showMessage('success', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
+                        let { data, message } = await this.api_handler.put(this.api_order_update_so + '/' + this.case_save_so.id, {}, this.case_data);
+                        this.$showMessage(message.sync_so_count == 0 ? 'success' : 'warning', 'Cập nhật thành công', 'Tổng số đơn hàng: ' + message.so_count + '<br>'
                             + 'Số đơn hàng lưu thành công: ' + message.not_sync_so_count + '<br>'
-                            + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>');
+                            + 'Số đơn hàng lưu thất bại: ' + message.sync_so_count + '<br>'
+                            + 'Lý do: Có đơn đã hoặc đang đồng bộ trước đó.' + '<br>'
+                            + message.skip_save_so_keys.join('<br>') + '<br>');
                         this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                         this.hideDialogTitleOrderSo();
                         // this.showModalSyncSap();
@@ -135,11 +138,9 @@ export default {
                     }
                 } else {
                     try {
-                        let { data, success } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
+                        let { data, success, message } = await this.api_handler.post(this.api_order_save_so, {}, this.case_data)
                         if (success) {
-                            this.$showMessage('success', 'Thêm thành công', 'Tổng số đơn hàng: ' + data.so_count + '<br>'
-                                + 'Số đơn hàng lưu thành công: ' + data.not_sync_so_count + '<br>'
-                                + 'Số đơn hàng lưu thất bại: ' + data.sync_so_count + '<br>');
+                            this.$showMessage('success', 'Lưu đơn hàng thành công');
                             this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                             this.hideDialogTitleOrderSo();
                             //     this.showModalSyncSap();
