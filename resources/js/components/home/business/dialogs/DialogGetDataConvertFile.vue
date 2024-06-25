@@ -11,7 +11,8 @@
                     </div>
                     <div class="modal-body bg-gradient-light">
                         <div class="form-group">
-                            <span class="text-info font-italic font-weight-bold">Có tồn tại file chưa hỗ trợ chuyển đổi. Có thể
+                            <span class="text-info font-italic font-weight-bold">Có tồn tại file chưa hỗ trợ chuyển đổi.
+                                Có thể
                                 tải các file dưới dạng Excel.</span>
                         </div>
                         <button @click="downloadCsvAll()"
@@ -34,7 +35,8 @@
                                                 <i class="fas fa-file-download mr-2"></i>Download
                                             </button>
                                             <p v-else>
-                                                <span class="text-danger font-italic font-weight-bold">Không hỗ trợ</span>
+                                                <span class="text-danger font-italic font-weight-bold">Không hỗ
+                                                    trợ</span>
                                             </p>
                                         </td>
                                     </tr>
@@ -74,8 +76,8 @@ export default {
             }
         },
         downloadCsvItem(item, key) {
-            const csvString = item.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv' });
+            const csvString = new Blob([`\uFEFF${item.join('\n')}`], { type: 'text/csv;charset=utf-8' });
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
