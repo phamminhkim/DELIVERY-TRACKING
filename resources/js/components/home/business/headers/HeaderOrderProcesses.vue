@@ -544,6 +544,8 @@ export default {
                         customer_sku_code: element.customer_sku_code,
                         customer_sku_unit: element.customer_sku_unit,
                         quantity2_po: element.quantity2_po,
+                        promotion: element.promotive_name,
+                        sap_so_number: element.sap_so_number,
                     });
                 });
                 await this.fetchSapCodeFromSkuCustomer();
