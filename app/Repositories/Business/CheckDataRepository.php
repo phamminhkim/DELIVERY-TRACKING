@@ -37,8 +37,8 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.customer_sku_code' => 'nullable',
                 'items.*.customer_sku_unit' => 'nullable',
-                'items.*.sap_so_number' => 'required',
-                'items.*.promotion' => 'nullable',
+                // 'items.*.sap_so_number' => 'required',
+                // 'items.*.promotion' => 'nullable',
                 'items.*.quantity2_po' => 'required|numeric',
             ]);
 
@@ -76,18 +76,18 @@ class CheckDataRepository extends RepositoryAbs
                     } else {
                         $customer_sku_unit = null; // Xử lý khi trường không tồn tại
                     }
-                    // Kiểm tra sự tồn tại của trường 'sap_so_number'
-                    if (isset($item['sap_so_number'])) {
-                        $sap_so_number = $item['sap_so_number'];
-                    } else {
-                        $sap_so_number = null; // Xử lý khi trường không tồn tại
-                    }
-                    // Kiểm tra sự tồn tại của trường 'compliance'
-                    if (isset($item['promotion'])) {
-                        $promotion = $item['promotion'];
-                    } else {
-                        $promotion = null; // Xử lý khi trường không tồn tại
-                    }
+                    // // Kiểm tra sự tồn tại của trường 'sap_so_number'
+                    // if (isset($item['sap_so_number'])) {
+                    //     $sap_so_number = $item['sap_so_number'];
+                    // } else {
+                    //     $sap_so_number = null; // Xử lý khi trường không tồn tại
+                    // }
+                    // // Kiểm tra sự tồn tại của trường 'compliance'
+                    // if (isset($item['promotion'])) {
+                    //     $promotion = $item['promotion'];
+                    // } else {
+                    //     $promotion = null; // Xử lý khi trường không tồn tại
+                    // }
                 } else {
                     continue;
                 }
@@ -114,8 +114,8 @@ class CheckDataRepository extends RepositoryAbs
                     $mappingData[] = [
                         'customer_sku_code' => $customer_sku_code,
                         'customer_sku_unit' => $customer_sku_unit,
-                        'sap_so_number' => $sap_so_number,
-                        'promotion' => $promotion,
+                        // 'sap_so_number' => $sap_so_number,
+                        // 'promotion' => $promotion,
                         'bar_code' => $bar_code,
                         'sap_code' => $sap_code,
                         'unit_id' => $unit_id,
@@ -158,8 +158,8 @@ class CheckDataRepository extends RepositoryAbs
                                 $mappingData[] = [
                                     'customer_sku_code' => $customer_sku_code,
                                     'customer_sku_unit' => $customer_sku_unit,
-                                    'sap_so_number' => $sap_so_number,
-                                    'promotion' => $promotion,
+                                    // 'sap_so_number' => $sap_so_number,
+                                    // 'promotion' => $promotion,
                                     'bar_code' => $bar_code,
                                     'sap_code' => $sap_code,
                                     'unit_id' => $unit_id,
