@@ -51,6 +51,7 @@ class SyncDataRepository extends RepositoryAbs
                 }
             }
             // dd($not_sync_so_headers);
+
             foreach ($not_sync_so_headers as $so_header) {
                 $order = $so_header;
                 $items = [];
@@ -67,24 +68,31 @@ class SyncDataRepository extends RepositoryAbs
                                 ];
                             }
                         }
-
-                        $sapData['BODY'][] = [
-                            "sales_org" => "3000",
-                            "distr_chan" => "20",
-                            "doc_type" => "ZOR",
-                            "lgort" => $value["warehouse_code"],
-                            "Ship_cond" => "",
-                            "SO_KEY" => $order->id,
-                            "GROUP_NAME" => $order->sap_so_number,
-                            "CUST_NO" => $order->customer_code,
-                            "VER_BOM_SALE" => "",
-                            "LV2" => $order->level2,
-                            "LV3" => $order->level3,
-                            "LV4" => $order->level4,
-                            "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
-                            "USER" => auth()->user()->email,
-                            "ITEMS" => $ITEM_DATA
-                        ];
+                        $warehouse = null;
+                        foreach ($fields['data'] as $value) {
+                            if ($warehouse == null) {
+                                $warehouse_id = $value['warehouse_code'];
+                                $warehouse = Warehouse::where('id',  $warehouse_id)->first();
+                            }
+                            $sapData['BODY'][] = [
+                                "sales_org" => "3000",
+                                "distr_chan" => "20",
+                                "doc_type" => "ZOR",
+                                "lgort" =>  $warehouse->code,
+                                "Ship_cond" => "",
+                                "SO_KEY" => $order->id,
+                                "GROUP_NAME" => $order->sap_so_number,
+                                "CUST_NO" => $order->customer_code,
+                                "VER_BOM_SALE" => "",
+                                "LV2" => $order->level2,
+                                "LV3" => $order->level3,
+                                "LV4" => $order->level4,
+                                "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                                "USER" => auth()->user()->email,
+                                "ITEMS" => $ITEM_DATA
+                            ];
+                        }
+                        // dd($sapData);
                     }
                 }
             }
