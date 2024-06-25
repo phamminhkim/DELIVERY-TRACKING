@@ -550,12 +550,11 @@ export default {
                 } else {
                     group_entrie[1].forEach(tmp => {
                         for (var i = 0; i < this.orders.length; i++) {
+                                console.log(tmp.customer_sku_code == this.orders[i].customer_sku_code);
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
-                                this.orders[i]['sku_sap_code'] != '' ||  this.orders[i]['sku_sap_code'] != null &&
+                                this.orders[i]['sku_sap_code'] != '' &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
-                                (tmp.bar_code == this.orders[i].customer_sku_code
-
-                                )) {
+                                (tmp.bar_code == this.orders[i].customer_sku_code)) {
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
                                 this.orders[i]['sku_sap_name'] = tmp.name;
                                 this.orders[i]['sku_sap_unit'] = tmp.unit_code;
@@ -622,7 +621,7 @@ export default {
                                     po_delivery_date: this.orders[index_order]['po_delivery_date'],
                                     so_header_id: this.orders[index_order]['so_header_id'],
                                 });
-                                this.moveElement(this.orders, this.orders.length - 1, index_order + 1);
+                                this.moveIndexOrder(this.orders, this.orders.length - 1, index_order + 1);
                             }
                         }
                         break;
@@ -634,7 +633,7 @@ export default {
             this.refHeaderOrderProcesses();
 
         },
-        moveElement(array, fromIndex, toIndex) {
+        moveIndexOrder(array, fromIndex, toIndex) {
             if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
                 console.error("Index không hợp lệ");
                 return;
