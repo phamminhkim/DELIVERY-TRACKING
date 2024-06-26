@@ -235,10 +235,10 @@ class SyncDataRepository extends RepositoryAbs
                             },
                             'created_by' => function ($query) {
                                 $query->select(['id', 'name']);
-                            }
+                            },
                         ]);
                     },
-                ]);
+                ])->select(['*', DB::raw("DATE(created_at) as create_at"), DB::raw("DATE(updated_at) as update_at")]);
 
                 $query->with(['warehouse' => function ($query) {
                     $query->select('id', 'code');
