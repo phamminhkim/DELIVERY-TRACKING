@@ -176,6 +176,18 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'create_at',
+                    label: 'Ngày tạo',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
+                    key: 'update_at',
+                    label: 'Ngày cập nhật',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'sync_sap_status',
                     label: 'TT Đồng bộ',
                     sortable: true,
