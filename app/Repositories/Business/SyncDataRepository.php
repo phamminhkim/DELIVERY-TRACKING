@@ -71,14 +71,18 @@ class SyncDataRepository extends RepositoryAbs
                             }
                         }
                         foreach ($fields['data'] as $field) {
+                            $warehouse_id = $field['warehouse_code'];
+                            $warehouse = Warehouse::where('id', $warehouse_id)->first();
                             if ($warehouse == null) {
-                                $warehouse_id = $field['warehouse_code'];
+                                $warehouse_code = "3101";
+                            } else {
+                                $warehouse_code = $warehouse->code;
                             }
                             $sapData['BODY'][] = [
                                 "sales_org" => "3000",
                                 "distr_chan" => "20",
                                 "doc_type" => "ZOR",
-                                "lgort" => $warehouse->code,
+                                "lgort" => $warehouse_code,
                                 "Ship_cond" => "",
                                 "SO_KEY" => $order->id,
                                 "GROUP_NAME" => $order->sap_so_number,
@@ -93,8 +97,8 @@ class SyncDataRepository extends RepositoryAbs
                             ];
                         }
                     }
-                    // dd($sapData);
                 }
+                // dd($sapData);
             }
 
             $json = SapApiHelper::postData(json_encode($sapData));
