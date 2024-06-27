@@ -7,6 +7,7 @@ use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
 use App\Models\Master\SapCompliance;
 use App\Models\Master\CustomerGroup;
+use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
@@ -176,6 +177,71 @@ class CheckDataRepository extends RepositoryAbs
             return [
                 'success' => true,
                 'items' => $mappingData
+            ];
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
+    public function checkCustomer()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'required',
+                'items' => 'required|array',
+                'items.*.customer_key' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+
+            $customer_group_id = $this->data['customer_group_id'];
+            $items = $this->data['items'];
+
+            $customer_data = [];
+
+            foreach ($items as $item) {
+                $customer_key = $item['customer_key'];
+
+                $customer_partner = CustomerPartner::query()
+                    ->where('customer_group_id', $customer_group_id)
+                    ->where('name', $customer_key)
+                    ->first();
+
+                if ($customer_partner) {
+                    $name = $customer_partner->name;
+                    $code = $customer_partner->code;
+                    $note = $customer_partner->note;
+                    $name = $customer_partner->name;
+                    $LV2 = $customer_partner->LV2;
+                    $LV3 = $customer_partner->LV3;
+                    $LV4 = $customer_partner->LV4;
+                    $customer_data[] = [
+                        'customer_key' => $name,
+                        'customer_code' => $code,
+                        'note' => $note,
+                        'LV2' => $LV2,
+                        'LV3' => $LV3,
+                        'LV4' => $LV4,
+                    ];
+                } else {
+                    // Kiểm tra xem key khách hàng đã tồn tại trong nhóm khách hàng hay chưa
+                    $existingPartner = CustomerPartner::where('customer_group_id', $customer_group_id)
+                        ->whereIn('name', array_column($items, 'customer_key'))
+                        ->first();
+                    if (!$existingPartner) {
+                        $this->errors = ['customer_group_id' => $customer_key, 'message' => 'Key khách hàng không có trong nhóm khách hàng này.'];
+                        return false;
+                    }
+                }
+            }
+
+            return [
+                'success' => true,
+                'items' => $customer_data
             ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
