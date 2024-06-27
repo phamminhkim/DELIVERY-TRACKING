@@ -34,6 +34,8 @@ class SyncDataRepository extends RepositoryAbs
 
         $fields = $this->request->all();
         $so_headers = SoHeader::whereIn('id', array_column($fields['data'], 'id'))->get();
+        $warehouse = Warehouse::where('id', array_column($fields['data'], 'id'))->first();
+
         // Bật trạng thái đang sync data
         $this->changeIsSyncingSapSoHeader($so_headers, true);
         try {
@@ -68,17 +70,15 @@ class SyncDataRepository extends RepositoryAbs
                                 ];
                             }
                         }
-                        $warehouse = null;
-                        foreach ($fields['data'] as $value) {
+                        foreach ($fields['data'] as $field) {
                             if ($warehouse == null) {
-                                $warehouse_id = $value['warehouse_code'];
-                                $warehouse = Warehouse::where('id',  $warehouse_id)->first();
+                                $warehouse_id = $field['warehouse_code'];
                             }
                             $sapData['BODY'][] = [
                                 "sales_org" => "3000",
                                 "distr_chan" => "20",
                                 "doc_type" => "ZOR",
-                                "lgort" =>  $warehouse->code,
+                                "lgort" => $warehouse->code,
                                 "Ship_cond" => "",
                                 "SO_KEY" => $order->id,
                                 "GROUP_NAME" => $order->sap_so_number,
@@ -92,8 +92,8 @@ class SyncDataRepository extends RepositoryAbs
                                 "ITEMS" => $ITEM_DATA
                             ];
                         }
-                        // dd($sapData);
                     }
+                    // dd($sapData);
                 }
             }
 
@@ -101,7 +101,7 @@ class SyncDataRepository extends RepositoryAbs
 
             $jsonString = json_encode($json); // Convert the array to a JSON string
             $jsonData = json_decode($jsonString, true);
-            // dd($jsonData);
+            // dd($json);
 
             // Kiểm tra lỗi kết nối đồng bộ
             if (!$jsonData['success']) {
@@ -122,7 +122,6 @@ class SyncDataRepository extends RepositoryAbs
                         $soHeader->sync_sap_status = 1;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-
                         $sync_sap_status = $soHeader->sync_sap_status == 1 ? "Đã đồng bộ" : "Chưa đồng bộ";
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
