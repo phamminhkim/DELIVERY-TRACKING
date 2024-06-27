@@ -274,6 +274,8 @@ export default {
                 };
                 const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
                 if (success) {
+                    let count_not_sync = 0;
+                    let count_sync = 0;
                     data.forEach(item => {
                         this.case_data_temporary.order_syncs.forEach(order_sync => {
                             if (item.id == order_sync.so_header_id) {
@@ -283,8 +285,22 @@ export default {
                                 order_sync.noti_sync = item.message;
                             }
                         });
+                        switch (item.sync_sap_status) {
+                            case 0:
+                                count_not_sync++;
+                                break;
+                            default:
+                                count_sync++;
+                                break;
+                        }
                     });
-                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    // this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    if(count_not_sync > 0){
+                        this.$showMessage('warning', 'Cảnh báo', 'Có ' + count_not_sync + ' đơn hàng chưa đồng bộ');
+                    }
+                    if(count_sync > 0){
+                        this.$showMessage('success', 'Thành công', 'Có ' + count_sync + ' đơn hàng đã đồng bộ');
+                    }
                     this.checkOrderSyncWithOrderProcess();
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
@@ -321,7 +337,7 @@ export default {
                             if (item.id == order_sync.so_header_id) {
                                 order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
@@ -516,11 +532,13 @@ export default {
             return sap_so_number + promotion;
         },
         getListMaterialDetect(data) {
+            console.table(data);
             this.material_saps = [...data];
             let group = Object.groupBy(this.material_saps, ({ customer_sku_code }) => customer_sku_code);
             let group_entries = Object.entries(group);
             let exist = false;
             group_entries.forEach((group_entrie, index) => {
+                console.table(group_entrie[1])
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);

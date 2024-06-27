@@ -20,6 +20,10 @@
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
                     placeholder="Nhập mã kho" /> -->
             </template>
+            <template #cell(sync_sap_status)="data">
+                <span v-if="!data.sync_sap_status" class="badge badge-sm badge-warning">Chưa đồng bộ</span>
+                <span v-else class="badge badge-sm badge-success">Đã đồng bộ</span>
+            </template>
         </b-table>
     </div>
 </template>
