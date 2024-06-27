@@ -186,6 +186,7 @@ class AiRepository extends RepositoryAbs
                                     $is_mapping_config = $this->checkMappingConfig($slave_config, $file);
                                     if ($is_mapping_config) {
                                         $mapping_config = $slave_config;
+                                        Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
                                         // Khởi tạo lại các thông số của config mới
                                         $this->reconstructDataConfig($mapping_config->id);
                                         break;
