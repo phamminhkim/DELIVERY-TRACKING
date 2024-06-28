@@ -197,12 +197,10 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = $validator->errors()->first();
                 return false;
             }
-
             $customer_group_id = $this->data['customer_group_id'];
             $items = $this->data['items'];
 
             $customer_data = [];
-
             foreach ($items as $item) {
                 $customer_key = $item['customer_key'];
 
@@ -210,37 +208,46 @@ class CheckDataRepository extends RepositoryAbs
                     ->where('customer_group_id', $customer_group_id)
                     ->where('name', $customer_key)
                     ->first();
+                $customer_code = null;
+                $customer_note = null;
+                $customer_LV2 = null;
+                $customer_LV3 = null;
+                $customer_LV4 = null;
 
                 if ($customer_partner) {
-                    $name = $customer_partner->name;
-                    $code = $customer_partner->code;
-                    $note = $customer_partner->note;
-                    $name = $customer_partner->name;
-                    $LV2 = $customer_partner->LV2;
-                    $LV3 = $customer_partner->LV3;
-                    $LV4 = $customer_partner->LV4;
-                    $customer_data[] = [
-                        'customer_key' => $name,
-                        'customer_code' => $code,
-                        'note' => $note,
-                        'LV2' => $LV2,
-                        'LV3' => $LV3,
-                        'LV4' => $LV4,
+                    $customer_code = $customer_partner->code;
+                    $customer_note = $customer_partner->note;
+                    $customer_LV2 = $customer_partner->LV2;
+                    $customer_LV3 = $customer_partner->LV3;
+                    $customer_LV4 = $customer_partner->LV4;
+                }
+
+                $customer_data[] = [
+                    'customer_key' => $customer_key,
+                    'customer_code' => $customer_code,
+                    'customer_note' => $customer_note,
+                    'customer_LV2' => $customer_LV2,
+                    'customer_LV3' => $customer_LV3,
+                    'customer_LV4' => $customer_LV4,
+                ];
+                // Kiểm tra xem key khách hàng đã tồn tại trong nhóm khách hàng hay chưa
+                $existingPartner = CustomerPartner::where('customer_group_id', $customer_group_id)
+                    ->whereIn('name', array_column($items, 'customer_key'))
+                    ->first();
+                if (!$existingPartner) {
+                    // $this->errors = ['customer_group_id' => $customer_key, 'message' => 'Key khách hàng không có trong nhóm khách hàng này.'];
+                    $this->errors = [
+                        'customer_group_id' => $customer_group_id,
+                        'items' => $items,
+                        'message' => 'Các Key khách hàng không có trong nhóm khách hàng này.',
                     ];
-                } else {
-                    // Kiểm tra xem key khách hàng đã tồn tại trong nhóm khách hàng hay chưa
-                    $existingPartner = CustomerPartner::where('customer_group_id', $customer_group_id)
-                        ->whereIn('name', array_column($items, 'customer_key'))
-                        ->first();
-                    if (!$existingPartner) {
-                        $this->errors = ['customer_group_id' => $customer_key, 'message' => 'Key khách hàng không có trong nhóm khách hàng này.'];
-                        return false;
-                    }
+                    return false;
                 }
             }
 
             return [
                 'success' => true,
+                'customer_group_id' => $customer_group_id,
                 'items' => $customer_data
             ];
         } catch (\Exception $exception) {
