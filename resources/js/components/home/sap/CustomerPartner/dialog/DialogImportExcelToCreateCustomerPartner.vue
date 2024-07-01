@@ -52,6 +52,9 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
 						<button
 							type="submit"
 							title="Submit"
@@ -60,9 +63,7 @@
 						>
 							Tạo mới
 						</button>
-						<button type="button" class="btn btn-secondary" @click="resetDialog">
-							Reset
-						</button>
+
 					</div>
 				</form>
 			</div>

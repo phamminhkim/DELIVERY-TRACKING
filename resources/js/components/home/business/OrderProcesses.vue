@@ -13,7 +13,7 @@
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
-            @emitErrorConvertFile="getEmitErrorConvertFile">
+            @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -152,6 +152,7 @@ export default {
             api_order_sync: '/api/so-header/sync-sale-order',
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
+            api_check_customer_key: '/api/check-data/check-customer-partner',
 
 
 
@@ -162,6 +163,45 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        async getEmitDetectCustomerKey() {
+            let unique_customer_name = [...new Set(this.orders.map(item => item.customer_name))];
+            await this.checkCustomerKey(unique_customer_name);
+        },
+        async checkCustomerKey(unique_customer_name) {
+            try {
+                let body = {
+                    'customer_group_id': this.case_save_so.customer_group_id,
+                    'items': unique_customer_name.map(key => ({ customer_key: key }))
+
+                };
+                const { data, success, errors } = await this.api_handler.post(this.api_check_customer_key, {}, body);
+                if (success) {
+                    this.orders = this.orders.map(item => {
+                        data.items.forEach(item_data => {
+                            if (item.customer_name == item_data.customer_key) {
+                                item.customer_code = item_data.customer_code;
+                                item.level2 = item_data.customer_LV2;
+                                item.level3 = item_data.customer_LV3;
+                                item.level4 = item_data.customer_LV4;
+                                item.note1 = item_data.customer_note;
+                            }
+                        });
+                        return item;
+                    });
+                    this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
+                    this.refHeaderOrderProcesses();
+                } else { 
+                    errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                        + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
+                        + errors.items.map(item => item.customer_key).join('<br>'));
+                    // this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                    //     + errors.items.map(item => item.customer_key).join('<br>'));
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
         getEmitErrorConvertFile(errors) {
             this.case_data_temporary.error_csv_data = errors.csv_data;
             $('#modalGetConvertFile').modal('show');
@@ -274,6 +314,8 @@ export default {
                 };
                 const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
                 if (success) {
+                    let count_not_sync = 0;
+                    let count_sync = 0;
                     data.forEach(item => {
                         this.case_data_temporary.order_syncs.forEach(order_sync => {
                             if (item.id == order_sync.so_header_id) {
@@ -283,8 +325,22 @@ export default {
                                 order_sync.noti_sync = item.message;
                             }
                         });
+                        switch (item.sync_sap_status) {
+                            case 0:
+                                count_not_sync++;
+                                break;
+                            default:
+                                count_sync++;
+                                break;
+                        }
                     });
-                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    // this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    if (count_not_sync > 0) {
+                        this.$showMessage('warning', 'Cảnh báo', 'Có ' + count_not_sync + ' đơn hàng chưa đồng bộ');
+                    }
+                    if (count_sync > 0) {
+                        this.$showMessage('success', 'Thành công', 'Có ' + count_sync + ' đơn hàng đã đồng bộ');
+                    }
                     this.checkOrderSyncWithOrderProcess();
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
@@ -321,7 +377,7 @@ export default {
                             if (item.id == order_sync.so_header_id) {
                                 order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
@@ -516,11 +572,13 @@ export default {
             return sap_so_number + promotion;
         },
         getListMaterialDetect(data) {
+            console.table(data);
             this.material_saps = [...data];
             let group = Object.groupBy(this.material_saps, ({ customer_sku_code }) => customer_sku_code);
             let group_entries = Object.entries(group);
             let exist = false;
             group_entries.forEach((group_entrie, index) => {
+                console.table(group_entrie[1])
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);
