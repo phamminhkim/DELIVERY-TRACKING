@@ -24,7 +24,7 @@ class CheckDataController extends ResponseController
         $handler = BusinessRepository::checkDataRequest($request);
         $data = $handler->checkCustomer($request);
         if ($data) {
-            return $this->response($data);
+            return $this->responseSuccess($data);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }

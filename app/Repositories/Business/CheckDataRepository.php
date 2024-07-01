@@ -246,7 +246,7 @@ class CheckDataRepository extends RepositoryAbs
             }
 
             return [
-                'success' => true,
+                // 'success' => true,
                 'customer_group_id' => $customer_group_id,
                 'items' => $customer_data
             ];
