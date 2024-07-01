@@ -13,7 +13,7 @@
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
-            @emitErrorConvertFile="getEmitErrorConvertFile">
+            @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -152,6 +152,7 @@ export default {
             api_order_sync: '/api/so-header/sync-sale-order',
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
+            api_check_customer_key: '/api/check-data/check-customer-partner',
 
 
 
@@ -162,6 +163,42 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        async getEmitDetectCustomerKey() {
+            let unique_customer_name = [...new Set(this.orders.map(item => item.customer_name))];
+            await this.checkCustomerKey(unique_customer_name);
+        },
+        async checkCustomerKey(unique_customer_name) {
+            try {
+                let body = {
+                    'customer_group_id': this.case_save_so.customer_group_id,
+                    'items': unique_customer_name.map(key => ({ customer_key: key }))
+
+                };
+                const { data, success, errors } = await this.api_handler.post(this.api_check_customer_key, {}, body);
+                if (success) {
+                    this.orders = this.orders.map(item => {
+                        data.items.forEach(item_data => {
+                            if (item.customer_name == item_data.customer_key) {
+                                item.customer_code = item_data.customer_code;
+                                item.level2 = item_data.customer_LV2;
+                                item.level3 = item_data.customer_LV3;
+                                item.level4 = item_data.customer_LV4;
+                                item.note1 = item_data.customer_note;
+                            }
+                        });
+                        return item;
+                    });
+                    this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
+                    this.refHeaderOrderProcesses();
+                } else {
+                    this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                        + errors.items.map(item => item.customer_key).join('<br>'));
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
         getEmitErrorConvertFile(errors) {
             this.case_data_temporary.error_csv_data = errors.csv_data;
             $('#modalGetConvertFile').modal('show');
@@ -295,10 +332,10 @@ export default {
                         }
                     });
                     // this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
-                    if(count_not_sync > 0){
+                    if (count_not_sync > 0) {
                         this.$showMessage('warning', 'Cảnh báo', 'Có ' + count_not_sync + ' đơn hàng chưa đồng bộ');
                     }
-                    if(count_sync > 0){
+                    if (count_sync > 0) {
                         this.$showMessage('success', 'Thành công', 'Có ' + count_sync + ' đơn hàng đã đồng bộ');
                     }
                     this.checkOrderSyncWithOrderProcess();
