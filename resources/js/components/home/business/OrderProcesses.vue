@@ -190,9 +190,12 @@ export default {
                     });
                     this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
                     this.refHeaderOrderProcesses();
-                } else {
-                    this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                } else { 
+                    errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                        + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
                         + errors.items.map(item => item.customer_key).join('<br>'));
+                    // this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                    //     + errors.items.map(item => item.customer_key).join('<br>'));
                 }
             } catch (error) {
                 console.log(error);
