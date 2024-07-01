@@ -87,6 +87,9 @@
                 <button @click="detectSapCode()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
+                <button @click="emitDetectCustomerKey()" type="button"
+                    class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
+                    KH</button>
                 <button @click="fetchApiCheckPromotion()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
                     khuyến mãi</button>
@@ -147,7 +150,8 @@
                 </div>
             </div> -->
 
-            <div class="modal fade" id="modalNotificationExtractPDF" data-backdrop="static" data-keyboard="false" tabindex="-1">
+            <div class="modal fade" id="modalNotificationExtractPDF" data-backdrop="static" data-keyboard="false"
+                tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-0 notification-header">
@@ -326,7 +330,7 @@ export default {
                         customer_group_id: this.form_filter.customer_group,
                         items: this.case_data_temporary.sap_codes,
                     }
-                );  
+                );
                 //this.sap_codes =  data.original.mappingData;
                 if (data.success == true) {
                     this.$emit('getListMaterialDetect', data.items);
@@ -555,6 +559,9 @@ export default {
                 this.updateLoadingState(false, error, 'error', 'Lỗi');
             }
         },
+        emitDetectCustomerKey() {
+            this.$emit('emitDetectCustomerKey');
+        },
         isDisabledFile() {
             if (this.form_filter.config_id == null) {
                 return true;
@@ -701,7 +708,7 @@ export default {
                 return file_response;
             } catch (error) {
                 console.error(error.response);
-                !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';     
+                !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';
                 throw error;
             }
 

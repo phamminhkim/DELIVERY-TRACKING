@@ -262,11 +262,11 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
 						<button type="submit" title="Submit" class="btn btn-primary">
 							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
-						</button>
-						<button type="button" class="btn btn-secondary" @click="resetDialog">
-							Reset
 						</button>
 					</div>
 				</form>

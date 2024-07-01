@@ -117,7 +117,7 @@ class SyncDataRepository extends RepositoryAbs
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
-                    $sync_sap_status = "Chưa đồng bộ";
+                    $sync_sap_status = 0;
                     $so_sap_note = '';
                     $warehouse_id = 0;
                     if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
@@ -126,7 +126,7 @@ class SyncDataRepository extends RepositoryAbs
                         $soHeader->sync_sap_status = 1;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-                        $sync_sap_status = $soHeader->sync_sap_status == 1 ? "Đã đồng bộ" : "Chưa đồng bộ";
+                        $sync_sap_status = $soHeader->sync_sap_status = 1 ;
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
                         $soHeader->save();
