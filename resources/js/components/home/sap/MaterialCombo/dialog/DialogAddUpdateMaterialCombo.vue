@@ -248,6 +248,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
+						this.clearForm();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
 						this.errors = data.errors;
@@ -311,7 +312,7 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
+				// this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateMaterialCombo').modal('hide');
 			},

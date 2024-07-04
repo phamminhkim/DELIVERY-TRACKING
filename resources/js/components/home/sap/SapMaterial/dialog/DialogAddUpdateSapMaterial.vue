@@ -190,6 +190,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
+						this.clearForm();
 						await this.refetchData();
 					} else {
 						this.errors = result.errors;
@@ -272,7 +273,7 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
+				// this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateSapMaterial').modal('hide');
 			},
