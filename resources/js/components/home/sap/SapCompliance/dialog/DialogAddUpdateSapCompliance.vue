@@ -240,6 +240,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
+						this.clearForm();
 						await this.refetchData();
 					} else {
 						this.errors = result.errors;
@@ -328,7 +329,7 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
+				// this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateSapCompliance').modal('hide');
 			},
