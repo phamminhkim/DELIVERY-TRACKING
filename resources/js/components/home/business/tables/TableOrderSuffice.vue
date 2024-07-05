@@ -482,6 +482,22 @@
                         </TagOrderSufficeHeader>
                     </div>
                 </template>
+                <template #head(variant_quantity)="header">
+                    <div :ref="'header_' + header.column"
+                        @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'variant_quantitys')"
+                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'variant_quantitys')"
+                        class="text-center col-resize d-flex justify-content-between">
+                        <label class="mb-0 col-resize">
+                            {{ header.label }}
+                        </label>
+                        <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
+                            :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
+                            @fieldColumnHeader="fieldColumnHeader" @emitResetFilter="getResetFilter"
+                            @emitFilter="emitFilter" @filterItems="filterItems">
+                        </TagOrderSufficeHeader>
+                    </div>
+                </template>
                 <template #head(price_po)="header">
                     <div :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'price_po')"
@@ -727,7 +743,7 @@
                     <div class="quantity3_sap overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)" -->
                         <!-- @input="handleItem(data.item.quantity3_sap, 'quantity3_sap', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity3_sap" 
+                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity3_sap"
                             @dblclick="handleDoubleClick($event)"
                              />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
@@ -788,7 +804,7 @@
                         <!-- @keydown="copyItem($event, data.item.po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po, 'po', data.index)"  -->
                         <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po"
-                            @dblclick="handleDoubleClick($event)" 
+                            @dblclick="handleDoubleClick($event)"
                             />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po + data.index + data.field.key"

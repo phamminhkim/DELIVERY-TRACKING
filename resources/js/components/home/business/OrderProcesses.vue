@@ -144,7 +144,7 @@ export default {
                 detect_materials: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
-                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
+                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty','SL chênh lệch',
                 'Pur_price', 'Amount', 'QC', 'Đúng_QC', 'Ghi chú 1', 'Gia_cty', 'Level 2', 'Level 3', 'Level 4',
                 'po_number', 'po_delivery_date'],
             api_order_process_so: '/api/sales-order',
@@ -190,7 +190,7 @@ export default {
                     });
                     this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
                     this.refHeaderOrderProcesses();
-                } else { 
+                } else {
                     errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
                         + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
                         + errors.items.map(item => item.customer_key).join('<br>'));
@@ -349,6 +349,9 @@ export default {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
                 }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
+                }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
                 }
@@ -390,6 +393,9 @@ export default {
             } catch (error) {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
                 }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
@@ -1014,6 +1020,7 @@ export default {
                     'Combo': item.promotion_category,
                     'Check tồn': item.inventory_quantity,
                     'Po_qty': item.quantity2_po,
+                    'SL chênh lệch': item.variant_quantity,
                     'Pur_price': item.price_po,
                     'Amount': item.amount_po,
                     'QC': item.compliance,
