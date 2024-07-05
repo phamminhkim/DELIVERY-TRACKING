@@ -337,9 +337,13 @@ export default {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
                 }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
+                }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
                 }
+
             } finally {
                 this.case_is_loading.sap_sync = false;
             }
@@ -376,6 +380,9 @@ export default {
             } catch (error) {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
                 }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
