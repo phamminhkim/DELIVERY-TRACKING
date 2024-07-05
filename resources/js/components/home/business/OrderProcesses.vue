@@ -712,7 +712,7 @@ export default {
                     if (tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
-                        orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false;
+                        // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
                     }
                 }
             });
@@ -978,12 +978,14 @@ export default {
             }
         },
         getConvertOrderLack(index, data) {
+            data.is_inventory = false;
             this.filterOrders.splice(data.order - 1, 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
             this.filterOrders.forEach((item, index) => {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
+            console.log(data);
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
