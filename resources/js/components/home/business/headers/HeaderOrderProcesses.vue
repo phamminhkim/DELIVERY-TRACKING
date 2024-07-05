@@ -6,6 +6,11 @@
             <button @click="emitListOrderProcessSO()" type="button"
                 class="btn btn-sm btn-primary px-3 mt-1 mb-2 ml-2"><i class="fas fa-list-ol mr-2"></i>Danh sách xử lý
                 đơn hàng</button>
+
+            <a class="float-right" style="cursor:pointer" :href="getGeneralExcelTemplateUrl()">
+                <i class="fas fa-download"></i>
+                <u>Tải mẫu excel chung (Khi convert PDF lỗi)</u>
+            </a>
             <b-collapse id="collapse-1" class="mt-2">
                 <b-card class="border-0 shadow-sm">
                     <div class="row">
@@ -275,6 +280,10 @@ export default {
 
     },
     methods: {
+        getGeneralExcelTemplateUrl() {
+            let url = "template/excel/Template excel chung (Khi convert PDF lỗi).xlsx";
+            return url;
+        },
         async fetchSapMaterial() {
             try {
                 this.is_loading = true;
