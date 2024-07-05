@@ -346,6 +346,14 @@ export default {
 
                 },
                 {
+                    key: 'variant_quantity',
+                    label: 'SL Chênh lệch',
+                    class: "text-nowrap  ",
+                    sortable: false,
+                    thClass: 'border',
+                    isShow: true,
+                },
+                {
                     key: 'price_po',
                     label: 'Pur_price',
                     class: "text-nowrap  ",
