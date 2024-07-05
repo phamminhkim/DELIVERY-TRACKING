@@ -975,7 +975,7 @@ class AiRepository extends RepositoryAbs
             }
         }
         // Thêm trường SapSoNumber
-        if (isset( $table_data['PoNumber']) && isset( $table_data['PoDeliveryDate'])) {
+        if (array_key_exists('PoNumber', $table_data) && array_key_exists('PoDeliveryDate', $table_data)) {
             $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
             $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
                 : $table_data['PoNumber'];
