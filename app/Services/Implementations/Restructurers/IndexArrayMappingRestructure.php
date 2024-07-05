@@ -18,7 +18,7 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
             $output = [];
             foreach ($structure as $key => $value_item) {
                 if (isset($value_item['value'])) {
-                    if (!isset($match[$value_item['value']])) {
+                    if (!array_key_exists($value_item['value'], $match)) {
                         // Tìm không thấy index trong mảng data thì bỏ qua
                         $skip_item = true;
                         continue;

@@ -16,7 +16,7 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
             $output = [];
             foreach ($structure as $key => $value_item) {
                 if (isset($value_item['value'])) {
-                    if (!isset($match[$value_item['value']])) {
+                    if (!array_key_exists($value_item['value'], $match)) {
                         // Tìm không thấy key trong mảng data thì bỏ qua
                         $skip_item = true;
                         continue;
@@ -28,7 +28,7 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                 } else if (isset($value_item['value_1'])
                     && isset($value_item['value_2'])
                     && isset($value_item['operator'])) {
-                    if (!isset($match[$value_item['value_1']]) || !isset($match[$value_item['value_2']])) {
+                    if (!array_key_exists($value_item['value_1'], $match) || !array_key_exists($value_item['value_2'], $match)) {
                         // Tìm không thấy key trong mảng data thì bỏ qua
                         $skip_item = true;
                         continue;
