@@ -15,6 +15,10 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
         foreach ($data as $match) {
             $output = [];
             foreach ($structure as $key => $value_item) {
+                if (isset($value_item['key_array'])) {
+                    // Bỏ qua loại cấu hình theo các key
+                    continue;
+                }
                 if (isset($value_item['value'])) {
                     if (!array_key_exists($value_item['value'], $match)) {
                         // Tìm không thấy key trong mảng data thì bỏ qua
@@ -62,6 +66,26 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                 $skip_item = false;
                 continue;
             }
+
+            // Xử lý loại cấu hình theo các key
+            foreach ($structure as $structure_key => $array) {
+                if (isset($array['key_array'])) {
+                    if (isset($array['join_after_add_customer']) && $array['join_after_add_customer'] == true) {
+                        // Lưu lại cấu trúc key để xử lý sau khi add thông tin khách hàng
+                        $output[$structure_key] = $array;
+                    } else {
+                        // Thực hiện join các key
+                        $key_array = $array['key_array'];
+                        $separator = $array['separator'];
+                        $value_array = [];
+                        foreach ($key_array as $key) {
+                            $value_array[] = $output[$key];
+                        }
+                        $output[$structure_key] = implode($separator, $value_array);
+                    }
+                }
+            }
+
             // Check trường bắt buộc mà không có giá trị thì skip row
             if ($this->isValidArrayValue($output, $structure)) {
                 $collection->push($output);
