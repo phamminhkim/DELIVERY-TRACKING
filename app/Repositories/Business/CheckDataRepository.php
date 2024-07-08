@@ -244,11 +244,14 @@ class CheckDataRepository extends RepositoryAbs
                     return false;
                 }
             }
+            // Kiểm tra và lấy SoSapNote của KH nếu có
+            $so_sap_note_syntax = $this->getSoSapNoteSyntax($customer_group_id);
 
             return [
                 // 'success' => true,
                 'customer_group_id' => $customer_group_id,
-                'items' => $customer_data
+                'items' => $customer_data,
+                'so_sap_note_syntax' => $so_sap_note_syntax
             ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
@@ -565,5 +568,30 @@ class CheckDataRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    public function getSoSapNoteSyntax($customer_group_id) {
+        $so_sap_note_syntax = null;
+        $customer_group = CustomerGroup::find($customer_group_id);
+        if ($customer_group) {
+            // Lấy extract_order_configs đầu tiên
+            $extract_order_config = $customer_group->extract_order_configs->first();
+            // Nếu convert_file_type là pdf thì lấy restruct_header_config
+            $restructure_config_structure = null;
+            if ($extract_order_config->convert_file_type == 'pdf') {
+                // Nếu convert_file_type là pdf thì lấy restruct_header_config
+                $restructure_config_structure = json_decode($extract_order_config->restructure_header_config->structure, true);
+            } else if ($extract_order_config->convert_file_type == 'excel') {
+                // Nếu convert_file_type là excel thì lấy restruct_data_config
+                $restructure_config_structure = json_decode($extract_order_config->restructure_data_config->structure, true);
+            }
+            if ($restructure_config_structure) {
+                if (isset($restructure_config_structure['SoSapNote'])) {
+                    $so_sap_note_info = $restructure_config_structure['SoSapNote'];
+                    $so_sap_note_syntax['key_array'] = isset($so_sap_note_info['key_array']) ? $so_sap_note_info['key_array'] : [];
+                    $so_sap_note_syntax['separator'] = isset($so_sap_note_info['separator']) ? $so_sap_note_info['separator'] : "";
+                }
+            }
+        }
+        return $so_sap_note_syntax;
     }
 }
