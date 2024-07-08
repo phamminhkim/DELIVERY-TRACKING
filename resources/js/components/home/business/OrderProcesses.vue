@@ -163,6 +163,66 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getSoSapNoteFromSyntax(data_item, key_array, separator) {
+            let so_sap_note = "";
+            key_array.forEach((key, index) => {
+                let data_key = this.getDataKeyFromSyntaxKey(key);
+                if (index == key_array.length - 1) {
+                    so_sap_note += data_item[data_key];
+                } else {
+                    so_sap_note += data_item[data_key] + separator;
+                }
+            });
+            return so_sap_note;
+        },
+        getDataKeyFromSyntaxKey(syntax_key) {
+            let data_key = syntax_key;
+            switch (syntax_key) {
+                case 'CustomerNote':
+                    data_key = 'note1';
+                    break;
+                case 'PoNumber':
+                    data_key = 'po_number';
+                    break;
+                case 'CustomerKey':
+                    data_key = 'customer_name';
+                    break;
+                case 'OrdUnit':
+                    data_key = 'customer_sku_unit';
+                    break;
+                case 'ProductID':
+                    data_key = 'customer_sku_code';
+                    break;
+                case 'Quantity1':
+                    data_key = 'quantity1_po';
+                    break;
+                case 'Quantity2':
+                    data_key = 'quantity2_po';
+                    break;
+                case 'ProductName':
+                    data_key = 'customer_sku_name';
+                    break;
+                    case 'ProductPrice':
+                    data_key = 'price_po';
+                    break;
+                case 'ProductAmount':
+                    data_key = 'amount_po';
+                    break;
+                case 'PoDeliveryDate':
+                    data_key = 'po_delivery_date';
+                    break;
+                case 'SoSapNote':
+                    data_key = 'so_sap_note';
+                    break;
+                case 'SapSoNumber':
+                    data_key = 'sap_so_number';
+                    break;
+
+                default:
+                    break;
+            }
+            return data_key;
+        },
         async getEmitDetectCustomerKey() {
             let unique_customer_name = [...new Set(this.orders.map(item => item.customer_name))];
             await this.checkCustomerKey(unique_customer_name);
@@ -186,6 +246,12 @@ export default {
                                 item.note1 = item_data.customer_note;
                             }
                         });
+                        if (data.so_sap_note_syntax) {
+                            let key_array = data.so_sap_note_syntax.key_array;
+                            let separator = data.so_sap_note_syntax.separator;
+                            item.so_sap_note = this.getSoSapNoteFromSyntax(item, key_array, separator);
+                            // console.log(item.so_sap_note);
+                        }
                         return item;
                     });
                     this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
