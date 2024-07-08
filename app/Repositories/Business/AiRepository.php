@@ -980,6 +980,21 @@ class AiRepository extends RepositoryAbs
             $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
                 : $table_data['PoNumber'];
         }
+        // Thêm trường SoSapNote (nếu có) sau khi có đầy đủ thông tin
+        if (array_key_exists('SoSapNote', $table_data)) {
+            $so_sap_note_info = $table_data['SoSapNote'];
+            if (isset($so_sap_note_info['join_after_add_customer']) && $so_sap_note_info['join_after_add_customer'] == true) {
+                if (isset($so_sap_note_info['key_array'])) {
+                    $key_array = $so_sap_note_info['key_array'];
+                    $separator = $so_sap_note_info['separator'];
+                    $value_array = [];
+                    foreach ($key_array as $key) {
+                        $value_array[] = $table_data[$key];
+                    }
+                    $table_data['SoSapNote'] = implode($separator, $value_array);
+                }
+            }
+        }
         return $table_data;
     }
     // Xử lý mẫu 1 header có 1 item
