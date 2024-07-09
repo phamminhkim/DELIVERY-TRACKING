@@ -352,27 +352,11 @@ export default {
             }
         },
         emitReplaceItemAll() {
-            if (this.case_data.item_selecteds.length === 0) {
-                this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn ít nhất 1 dòng dữ liệu');
-                return;
-            }
-            if (this.case_check_box.item_materials.length === 0) {
-                this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn ít nhất 1 dòng dữ liệu mã SAP cần thay thế');
-                return;
-            }
             this.case_data.barcode = this.case_data.item_selecteds[0].barcode;
             this.$emit('itemReplaceAll', this.case_check_box.item_materials, this.case_data.barcode);
             this.refeshCase();
         },
         emitReplaceItem() {
-            if (this.case_data.item_selecteds.length === 0) {
-                this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn ít nhất 1 dòng dữ liệu');
-                return;
-            }
-            if (this.case_check_box.item_materials.length === 0) {
-                this.$showMessage('warning', 'Cảnh báo', 'Vui lòng chọn ít nhất 1 dòng dữ liệu mã SAP cần thay thế');
-                return;
-            }
             this.$emit('itemReplace', this.case_check_box.item_materials, this.case_data.item_selecteds[0].order);
             this.refeshCase();
         },
