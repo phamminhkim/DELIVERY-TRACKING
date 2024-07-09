@@ -53,6 +53,12 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
                 $output[$structure_key] = OperatorUtility::replaceValue($output[$structure_key], $array['replace_value']);
             }
 
+            // Xử lý convert string sang price
+            if (isset($array['is_convert_to_price']) && $array['is_convert_to_price'] == true) {
+                $output[$structure_key] = floatval($output[$structure_key]);
+            }
+
+            // Xử lý format ngày
             if ($output[$structure_key] && isset($array['date_format'])) {
                 $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
             }

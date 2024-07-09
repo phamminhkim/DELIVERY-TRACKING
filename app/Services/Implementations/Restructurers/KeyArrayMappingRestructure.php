@@ -4,6 +4,7 @@ namespace App\Services\Implementations\Restructurers;
 
 use App\Services\Interfaces\DataRestructureInterface;
 use App\Utilities\OperatorUtility;
+use App\Utilities\FormatDateUtility;
 
 class KeyArrayMappingRestructure implements DataRestructureInterface
 {
@@ -59,6 +60,18 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                 }
                 if (isset($value_item['regex_match'])) {
                     $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
+                }
+                // Xử lý replace
+                if (isset($value_item['replace_value'])) {
+                    $output[$key] = OperatorUtility::replaceValue($output[$key], $value_item['replace_value']);
+                }
+                // Xử lý convert string sang price
+                if (isset($value_item['is_convert_to_price']) && $value_item['is_convert_to_price'] == true) {
+                    $output[$key] = floatval($output[$key]);
+                }
+                // Xử lý format ngày
+                if (isset($value_item['date_format']) && $output[$key]) {
+                    $output[$key] = FormatDateUtility::formatDate2Date($value_item['date_format'], 'Y-m-d', $output[$key]);
                 }
             }
             if ($skip_item) {
