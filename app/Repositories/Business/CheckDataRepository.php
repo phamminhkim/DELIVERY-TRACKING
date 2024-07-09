@@ -587,8 +587,11 @@ class CheckDataRepository extends RepositoryAbs
             if ($restructure_config_structure) {
                 if (isset($restructure_config_structure['SoSapNote'])) {
                     $so_sap_note_info = $restructure_config_structure['SoSapNote'];
-                    $so_sap_note_syntax['key_array'] = isset($so_sap_note_info['key_array']) ? $so_sap_note_info['key_array'] : [];
-                    $so_sap_note_syntax['separator'] = isset($so_sap_note_info['separator']) ? $so_sap_note_info['separator'] : "";
+                    // Chỉ trả về syntax khi có dùng CustomerNote
+                    if (isset($so_sap_note_info['key_array']) && in_array('CustomerNote', $so_sap_note_info['key_array'])) {
+                        $so_sap_note_syntax['key_array'] = isset($so_sap_note_info['key_array']) ? $so_sap_note_info['key_array'] : [];
+                        $so_sap_note_syntax['separator'] = isset($so_sap_note_info['separator']) ? $so_sap_note_info['separator'] : "";
+                    }
                 }
             }
         }
