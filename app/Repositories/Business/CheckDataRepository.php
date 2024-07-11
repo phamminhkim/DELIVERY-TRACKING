@@ -67,16 +67,19 @@ class CheckDataRepository extends RepositoryAbs
 
             $mappingData = [];
             $existingCodes = [];
+            $existingSapSoNumber = [];
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 if (!empty($item['customer_sku_code'])) {
                     // Tiếp tục xử lý thông tin khi 'customer_sku_code' không trống
                     $customer_sku_code = $item['customer_sku_code'];
-                    if (in_array($customer_sku_code, $existingCodes)) {
+                    $sap_so_number = $item['sap_so_number'];
+                    $checkCode = $customer_sku_code . $sap_so_number;
+                    if (in_array($checkCode, $existingCodes)) {
                         continue;
                     }
-                    $existingCodes[] = $customer_sku_code;
+                    $existingCodes[] = $checkCode;
                     // Kiểm tra sự tồn tại của trường 'customer_sku_unit'
                     if (isset($item['customer_sku_unit'])) {
                         $customer_sku_unit = $item['customer_sku_unit'];

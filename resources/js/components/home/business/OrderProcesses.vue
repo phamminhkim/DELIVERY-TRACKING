@@ -646,14 +646,15 @@ export default {
         getListMaterialDetect(data) {
             console.table(data);
             this.material_saps = [...data];
-            let group = Object.groupBy(this.material_saps, ({ customer_sku_code }) => customer_sku_code);
+            // group by theo sap_so_number và customer_sku_code
+            let group = Object.groupBy(this.material_saps, ({ sap_so_number, customer_sku_code }) => sap_so_number + customer_sku_code);
             let group_entries = Object.entries(group);
             let exist = false;
             group_entries.forEach((group_entrie, index) => {
                 console.table(group_entrie[1])
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
-                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code);
+                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code && order.sap_so_number == first_group_entri.sap_so_number);
                     if ((first_group_entri.customer_sku_code === this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number === this.orders[index_order_group]['sap_so_number'] &&
                         this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null &&
@@ -687,9 +688,10 @@ export default {
                         for (var i = 0; i < this.orders.length; i++) {
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
                                 // this.orders[i]['sku_sap_code'] != '' &&
-                                tmp.sap_so_number === this.orders[i]['sap_so_number'] &&
+                                tmp.sap_so_number == this.orders[i].sap_so_number &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
-                                (tmp.bar_code == this.orders[i].customer_sku_code)) {
+                                (tmp.bar_code == this.orders[i].customer_sku_code) &&
+                                tmp.sap_so_number == this.orders[i].sap_so_number) {
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
                                 this.orders[i]['sku_sap_name'] = tmp.name;
                                 this.orders[i]['sku_sap_unit'] = tmp.unit_code;
