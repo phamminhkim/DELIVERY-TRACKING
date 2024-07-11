@@ -201,6 +201,7 @@ class AiRepository extends RepositoryAbs
                                 }
                             } else {
                                 $mapping_config = $extract_config;
+                                Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
                             }
                         } else {
                             $mapping_config = $extract_config;

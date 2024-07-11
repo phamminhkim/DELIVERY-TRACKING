@@ -41,6 +41,12 @@ class CheckDataRepository extends RepositoryAbs
                 'items.*.sap_so_number' => 'required',
                 'items.*.promotion' => 'nullable',
                 'items.*.quantity2_po' => 'required|numeric',
+            ], [
+                'items.array' => 'items phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_group_id.required' => 'Nhóm khách hàng là bắt buộc',
+                'sap_so_number.required' => 'Sap so number là bắt buộc',
+                'quantity2_po.required' => 'Số lượng po là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -191,6 +197,10 @@ class CheckDataRepository extends RepositoryAbs
                 'customer_group_id' => 'required',
                 'items' => 'required|array',
                 'items.*.customer_key' => 'required',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_key.required' => 'Customer key là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -268,6 +278,13 @@ class CheckDataRepository extends RepositoryAbs
                 'items.*.unit_code' => 'required',
                 'items.*.quantity1_po' => 'required',
                 'items.*.quantity2_po' => 'required',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'sap_code.required' => 'Mã SP là bắt buộc',
+                'unit_code.required' => 'Đơn vị tính là bắt buộc',
+                'quantity1_po.required' => 'Qty là bắt buộc',
+                'quantity2_po.required' => 'PO_qty là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -337,6 +354,12 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.sap_code' => '',
                 'items.*.bar_code' => '',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_group_id.required' => 'Nhóm khách hàng là bắt buộc',
+                'sap_code.required' => 'Mã SP là bắt buộc',
+                'bar_code.required' => 'Barcode là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -569,7 +592,8 @@ class CheckDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getSoSapNoteSyntax($customer_group_id) {
+    public function getSoSapNoteSyntax($customer_group_id)
+    {
         $so_sap_note_syntax = null;
         $customer_group = CustomerGroup::find($customer_group_id);
         if ($customer_group) {
