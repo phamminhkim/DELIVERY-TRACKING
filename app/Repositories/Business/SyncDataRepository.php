@@ -85,7 +85,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "lgort" => $warehouse_code,
                                 "Ship_cond" => "",
                                 "SO_KEY" => $order->id,
-                                "GROUP_NAME" => $order->sap_so_number,
+                                "GROUP_NAME" =>isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,// $order->sap_so_number,
                                 "CUST_NO" => $order->customer_code,
                                 "VER_BOM_SALE" => "",
                                 "LV2" => $order->level2,
