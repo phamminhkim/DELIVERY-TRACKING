@@ -128,6 +128,19 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'sync_sap_status',
+                    label: 'TT Đồng bộ',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
+                    key: 'noti_sync',
+                    label: 'Thông báo',
+                    sortable: true,
+                    class: 'text-nowrap text-danger',
+                    tdClass: 'text-danger'
+                },
+                {
                     key: 'po_number',
                     label: 'PO num',
                     sortable: true,
@@ -176,21 +189,21 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'sync_sap_status',
-                    label: 'TT Đồng bộ',
+                    key: 'create_at',
+                    label: 'Ngày tạo',
                     sortable: true,
                     class: 'text-nowrap'
                 },
                 {
-                    key: 'noti_sync',
-                    label: 'Thông báo',
+                    key: 'update_at',
+                    label: 'Ngày cập nhật',
                     sortable: true,
-                    class: 'text-nowrap text-danger',
-                    tdClass: 'text-danger'
+                    class: 'text-nowrap'
                 },
+
             ],
-            per_page: 100,
-            page_options: [10, 20, 50, 100, 200, 300, 500],
+            per_page: 15,
+            page_options: [15, 30, 50, 100, 200, 300, 500],
             current_page: 1,
 
         }
@@ -311,7 +324,7 @@ export default {
                             if (item.id == order_sync.id) {
                                 // order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
@@ -324,9 +337,13 @@ export default {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
                 }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
+                }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
                 }
+
             } finally {
                 this.case_is_loading.sap_sync = false;
             }
@@ -351,7 +368,7 @@ export default {
                             if (item.id == order_sync.id) {
                                 // order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
@@ -363,6 +380,9 @@ export default {
             } catch (error) {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
                 }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);

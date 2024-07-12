@@ -6,6 +6,11 @@
             <button @click="emitListOrderProcessSO()" type="button"
                 class="btn btn-sm btn-primary px-3 mt-1 mb-2 ml-2"><i class="fas fa-list-ol mr-2"></i>Danh sách xử lý
                 đơn hàng</button>
+
+            <a class="float-right" style="cursor:pointer" :href="getGeneralExcelTemplateUrl()">
+                <i class="fas fa-download"></i>
+                <u>Tải mẫu excel chung (Khi convert PDF lỗi)</u>
+            </a>
             <b-collapse id="collapse-1" class="mt-2">
                 <b-card class="border-0 shadow-sm">
                     <div class="row">
@@ -87,6 +92,9 @@
                 <button @click="detectSapCode()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
                     SAP</button>
+                <button @click="emitDetectCustomerKey()" type="button"
+                    class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Dò mã
+                    KH</button>
                 <button @click="fetchApiCheckPromotion()" type="button"
                     class="shadow btn-sm btn-light  rounded text-orange btn-group__border">Check
                     khuyến mãi</button>
@@ -147,7 +155,8 @@
                 </div>
             </div> -->
 
-            <div class="modal fade" id="modalNotificationExtractPDF" tabindex="-1">
+            <div class="modal fade" id="modalNotificationExtractPDF" data-backdrop="static" data-keyboard="false"
+                tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-0 notification-header">
@@ -271,6 +280,10 @@ export default {
 
     },
     methods: {
+        getGeneralExcelTemplateUrl() {
+            let url = "template/excel/Template excel chung (Khi convert PDF lỗi).xlsx";
+            return url;
+        },
         async fetchSapMaterial() {
             try {
                 this.is_loading = true;
@@ -321,17 +334,18 @@ export default {
         async fetchSapCodeFromSkuCustomer() {
             try {
                 this.is_loading = true;
-                const { data } = await this.api_handler.post(this.api_detect_sap_code, {},
+                const { data, message } = await this.api_handler.post(this.api_detect_sap_code, {},
                     {
                         customer_group_id: this.form_filter.customer_group,
                         items: this.case_data_temporary.sap_codes,
                     }
                 );
                 //this.sap_codes =  data.original.mappingData;
-                if (data.success == true) {
+                if (data) {
                     this.$emit('getListMaterialDetect', data.items);
+                    this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
                 } else {
-                    this.$showMessage('error', 'Lỗi');
+                    this.$showMessage('error', 'Lỗi', message);
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -544,14 +558,20 @@ export default {
                         customer_sku_code: element.customer_sku_code,
                         customer_sku_unit: element.customer_sku_unit,
                         quantity2_po: element.quantity2_po,
+                        promotion: element.promotive_name,
+                        sap_so_number: element.sap_so_number,
                     });
                 });
                 await this.fetchSapCodeFromSkuCustomer();
-                this.updateLoadingState(false, 'Dò mã SAP thành công', 'success', 'Thành công');
+                // this.updateLoadingState(false, 'Dò mã SAP thành công', 'success', 'Thành công');
+                this.updateLoadingState(false);
             } catch (error) {
                 console.error(error);
                 this.updateLoadingState(false, error, 'error', 'Lỗi');
             }
+        },
+        emitDetectCustomerKey() {
+            this.$emit('emitDetectCustomerKey');
         },
         isDisabledFile() {
             if (this.form_filter.config_id == null) {
@@ -699,6 +719,7 @@ export default {
                 return file_response;
             } catch (error) {
                 console.error(error.response);
+                !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';
                 throw error;
             }
 
@@ -871,10 +892,14 @@ export default {
             }
             try {
                 // this.case_is_loading.fetch_api = true;
-                const { data } = await this.api_handler.post(this.api_check_promotion, {}, filter);
-                if (data.success) {
+                const { data, success, message } = await this.api_handler.post(this.api_check_promotion, {}, filter);
+                if (data) {
                     this.getValuePromotionCategory(data.items);
+                    this.$showMessage('success', 'Thành công', 'Check khuyến mãi thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', message);
                 }
+               
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -891,7 +916,7 @@ export default {
                     }
                 });
             });
-            this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
+            // this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
         },
         emitCompliance() {
             this.$emit('changeEventCompliance');

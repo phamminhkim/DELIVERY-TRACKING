@@ -34,6 +34,8 @@ class SyncDataRepository extends RepositoryAbs
 
         $fields = $this->request->all();
         $so_headers = SoHeader::whereIn('id', array_column($fields['data'], 'id'))->get();
+        $warehouse = Warehouse::where('id', array_column($fields['data'], 'id'))->first();
+
         // Bật trạng thái đang sync data
         $this->changeIsSyncingSapSoHeader($so_headers, true);
         try {
@@ -51,6 +53,7 @@ class SyncDataRepository extends RepositoryAbs
                 }
             }
             // dd($not_sync_so_headers);
+
             foreach ($not_sync_so_headers as $so_header) {
                 $order = $so_header;
                 $items = [];
@@ -67,33 +70,42 @@ class SyncDataRepository extends RepositoryAbs
                                 ];
                             }
                         }
-
-                        $sapData['BODY'][] = [
-                            "sales_org" => "3000",
-                            "distr_chan" => "20",
-                            "doc_type" => "ZOR",
-                            "lgort" => $value["warehouse_code"],
-                            "Ship_cond" => "",
-                            "SO_KEY" => $order->id,
-                            "GROUP_NAME" => $order->sap_so_number,
-                            "CUST_NO" => $order->customer_code,
-                            "VER_BOM_SALE" => "",
-                            "LV2" => $order->level2,
-                            "LV3" => $order->level3,
-                            "LV4" => $order->level4,
-                            "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
-                            "USER" => auth()->user()->email,
-                            "ITEMS" => $ITEM_DATA
-                        ];
+                        foreach ($fields['data'] as $field) {
+                            $warehouse_id = $field['warehouse_code'];
+                            $warehouse = Warehouse::where('id', $warehouse_id)->first();
+                            if ($warehouse == null) {
+                                $warehouse_code = "3101";
+                            } else {
+                                $warehouse_code = $warehouse->code;
+                            }
+                            $sapData['BODY'][] = [
+                                "sales_org" => "3000",
+                                "distr_chan" => "20",
+                                "doc_type" => "ZOR",
+                                "lgort" => $warehouse_code,
+                                "Ship_cond" => "",
+                                "SO_KEY" => $order->id,
+                                "GROUP_NAME" =>isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,// $order->sap_so_number,
+                                "CUST_NO" => $order->customer_code,
+                                "VER_BOM_SALE" => "",
+                                "LV2" => $order->level2,
+                                "LV3" => $order->level3,
+                                "LV4" => $order->level4,
+                                "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                                "USER" => auth()->user()->email,
+                                "ITEMS" => $ITEM_DATA
+                            ];
+                        }
                     }
                 }
+                // dd($sapData);
             }
 
             $json = SapApiHelper::postData(json_encode($sapData));
 
             $jsonString = json_encode($json); // Convert the array to a JSON string
             $jsonData = json_decode($jsonString, true);
-            // dd($jsonData);
+            // dd($json);
 
             // Kiểm tra lỗi kết nối đồng bộ
             if (!$jsonData['success']) {
@@ -105,7 +117,7 @@ class SyncDataRepository extends RepositoryAbs
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
-                    $sync_sap_status = "Chưa đồng bộ";
+                    $sync_sap_status = 0;
                     $so_sap_note = '';
                     $warehouse_id = 0;
                     if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
@@ -114,8 +126,7 @@ class SyncDataRepository extends RepositoryAbs
                         $soHeader->sync_sap_status = 1;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
-
-                        $sync_sap_status = $soHeader->sync_sap_status == 1 ? "Đã đồng bộ" : "Chưa đồng bộ";
+                        $sync_sap_status = $soHeader->sync_sap_status = 1 ;
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
                         $soHeader->save();
@@ -227,10 +238,10 @@ class SyncDataRepository extends RepositoryAbs
                             },
                             'created_by' => function ($query) {
                                 $query->select(['id', 'name']);
-                            }
+                            },
                         ]);
                     },
-                ]);
+                ])->select(['*', DB::raw("DATE(created_at) as create_at"), DB::raw("DATE(updated_at) as update_at")]);
 
                 $query->with(['warehouse' => function ($query) {
                     $query->select('id', 'code');

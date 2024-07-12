@@ -118,6 +118,30 @@
 								<strong>{{ getError('customer_sku_name') }}</strong>
 							</span>
 						</div>
+                        <div class="form-group">
+							<label for="customer_number">Số lượng - KH</label>
+							<small class="text-danger">*</small>
+							<input
+								value="1"
+								class="form-control"
+								v-model="sap_material_mapping.customer_number"
+								id="customer_number"
+								name="customer_number"
+								placeholder="Nhập số lượng khách hàng..."
+								v-bind:class="hasError('customer_number') ? 'is-invalid' : ''"
+								type="number"
+								min="1"
+								required
+
+							/>
+							<span
+								v-if="hasError('customer_number')"
+								class="invalid-feedback"
+								role="alert"
+							>
+								<strong>{{ getError('customer_number') }}</strong>
+							</span>
+						</div>
 						<div class="form-group">
 							<label>Đơn vị tính SKU khách hàng</label>
 							<small class="text-danger">*</small>
@@ -147,30 +171,7 @@
 								<strong>{{ getError('customer_sku_unit') }}</strong>
 							</span>
 						</div>
-						<div class="form-group">
-							<label for="customer_number">Số lượng - KH</label>
-							<small class="text-danger">*</small>
-							<input
-								value="1"
-								class="form-control"
-								v-model="sap_material_mapping.customer_number"
-								id="customer_number"
-								name="customer_number"
-								placeholder="Nhập số lượng khách hàng..."
-								v-bind:class="hasError('customer_number') ? 'is-invalid' : ''"
-								type="number"
-								min="1"
-								required
 
-							/>
-							<span
-								v-if="hasError('customer_number')"
-								class="invalid-feedback"
-								role="alert"
-							>
-								<strong>{{ getError('customer_number') }}</strong>
-							</span>
-						</div>
 						<div class="form-group" v-if="!editing_item || !editing_item.id">
 							<label>SKU SAP</label>
 							<small class="text-danger">*</small>
@@ -262,11 +263,11 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
 						<button type="submit" title="Submit" class="btn btn-primary">
 							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
-						</button>
-						<button type="button" class="btn btn-secondary" @click="resetDialog">
-							Reset
 						</button>
 					</div>
 				</form>

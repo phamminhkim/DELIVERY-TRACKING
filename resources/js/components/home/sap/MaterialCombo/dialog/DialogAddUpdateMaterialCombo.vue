@@ -154,11 +154,11 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
 						<button type="submit" title="Submit" class="btn btn-primary">
 							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
-						</button>
-						<button type="button" class="btn btn-secondary" @click="resetDialog">
-							Reset
 						</button>
 					</div>
 				</form>
@@ -248,6 +248,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công');
 						this.closeDialog();
+						this.clearForm();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
 						this.errors = data.errors;
@@ -311,7 +312,7 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
+				// this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateMaterialCombo').modal('hide');
 			},

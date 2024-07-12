@@ -141,11 +141,11 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+							Reset
+						</button>
 						<button type="submit" title="Submit" class="btn btn-primary">
 							{{ is_editing ? 'Cập nhật' : 'Tạo mới' }}
-						</button>
-						<button type="button" class="btn btn-secondary" @click="resetDialog">
-							Reset
 						</button>
 					</div>
 				</form>
@@ -240,6 +240,7 @@
 						}
 						this.showMessage('success', 'Thêm thành công', result.message);
 						this.closeDialog();
+						this.clearForm();
 						await this.refetchData();
 					} else {
 						this.errors = result.errors;
@@ -328,7 +329,7 @@
 				};
 			},
 			closeDialog() {
-				this.clearForm();
+				// this.clearForm();
 				this.clearErrors();
 				$('#DialogAddUpdateSapCompliance').modal('hide');
 			},

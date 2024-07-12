@@ -66,7 +66,9 @@
 										:load-options="loadOptions"
 										:async="true"
 										v-model="form_filter.sap_material"
+										@input="handleSelectAll"
 									/>
+
 								</div>
 							</div>
 
@@ -129,14 +131,15 @@
 										>
 									</button>
 									<button
-									type="button"
-									class="btn btn-info btn-sm ml-1 mt-1"
-									@click="exportToExcel"
-								>
-									<strong>
-										<i class="fas fa-download mr-1 text-bold"></i>Download Excel
-									</strong>
-								</button>
+										type="button"
+										class="btn btn-info btn-sm ml-1 mt-1"
+										@click="exportToExcel"
+									>
+										<strong>
+											<i class="fas fa-download mr-1 text-bold"></i>Download
+											Excel
+										</strong>
+									</button>
 								</div>
 							</div>
 							<!-- <div class="col-md-3">
@@ -194,7 +197,7 @@
 								<template #cell(sap_code)="data">
 									<span> {{ data.item.sap_code }} </span>
 								</template>
-                                <template #cell(is_deleted)="data">
+								<template #cell(is_deleted)="data">
 									<span class="badge bg-success" v-if="data.item.is_deleted == 0"
 										>Hoạt động</span
 									>
@@ -251,7 +254,6 @@
 									:per-page="pagination.item_per_page"
 									:limit="3"
 									:size="pagination.page_options.length.toString()"
-
 									class="ml-1"
 								></b-pagination>
 							</div>
@@ -298,6 +300,8 @@
 				form_title: window.Laravel.form_title,
 				search_placeholder: 'Tìm kiếm..',
 				search_pattern: '',
+				selectAllOptions: [], // Lưu trữ tùy chọn "Chọn tất cả"
+				selectAll: false, // Trạng thái của tùy chọn "Chọn tất cả"
 				is_editing: false,
 				editing_item: {},
 				is_loading: false,
@@ -338,7 +342,7 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-                    {
+					{
 						key: 'is_deleted',
 						label: 'Trạng thái',
 						sortable: true,
@@ -364,6 +368,22 @@
 		},
 
 		methods: {
+			handleSelectAll(value) {
+				// Kiểm tra xem người dùng đã chọn hoặc bỏ chọn tùy chọn "Chọn tất cả"
+				if (value.includes('all')) {
+					// Kiểm tra xem tùy chọn "Chọn tất cả" đã được chọn hay bị bỏ chọn
+					this.selectAll = !this.selectAll;
+
+					if (this.selectAll) {
+						// Nếu chọn tùy chọn "Chọn tất cả", gán giá trị của selectAllOptions vào form_filter.sap_material
+						this.form_filter.sap_material = [...this.selectAllOptions];
+					} else {
+						// Nếu bỏ chọn tùy chọn "Chọn tất cả", xóa giá trị của form_filter.sap_material
+						this.form_filter.sap_material = [];
+					}
+				}
+			},
+
 			async fetchData() {
 				try {
 					this.is_loading = true;
@@ -399,17 +419,16 @@
 			async fetchOptionsData() {
 				try {
 					this.is_loading = true;
-                    const response = await this.api_handler.get(this.api_url, {
+					const response = await this.api_handler.get(this.api_url, {
 						unit_ids: this.form_filter.unit,
 						ids: this.form_filter.sap_material,
 					});
 					const data = response.data;
 
 					this.sap_materials = data;
-					const [unit_options] =
-						await this.api_handler.handleMultipleRequest([
-							new APIRequest('get', '/api/master/sap-units'),
-						]);
+					const [unit_options] = await this.api_handler.handleMultipleRequest([
+						new APIRequest('get', '/api/master/sap-units'),
+					]);
 
 					this.unit_options = unit_options.map((unit) => ({
 						id: unit.id,
@@ -428,6 +447,24 @@
 				};
 			},
 
+			// async loadOptions({ action, searchQuery, callback }) {
+			// 	if (action === ASYNC_SEARCH) {
+			// 		const params = {
+			// 			search: searchQuery,
+			// 		};
+			// 		const { data } = await this.api_handler.get(
+			// 			'api/master/sap-materials/minified',
+			// 			params,
+			// 		);
+			// 		let options = data.data.map((item) => ({
+			// 			id: item.id,
+			// 			label: `(${item.sap_code}) (${item.bar_code}) (${item.unit.unit_code})  ${item.name}`,
+			// 		}));
+			// 		// console.log(data);
+			// 		//const options = data;
+			// 		callback(null, options);
+			// 	}
+			// },
 			async loadOptions({ action, searchQuery, callback }) {
 				if (action === ASYNC_SEARCH) {
 					const params = {
@@ -437,16 +474,25 @@
 						'api/master/sap-materials/minified',
 						params,
 					);
-					let options = data.data.map((item) => ({
-						id: item.id,
-						label: `(${item.sap_code}) (${item.bar_code}) (${item.unit.unit_code})  ${item.name}`,
-					}));
-					// console.log(data);
-					//const options = data;
+
+					// Gán giá trị cho biến selectAllOptions
+					this.selectAllOptions = data.data.map((item) => item.id);
+
+					// Thêm tùy chọn "Chọn tất cả" vào danh sách tùy chọn
+					const options = [
+						{
+							id: 'all',
+							label: 'Chọn tất cả',
+						},
+						...data.data.map((item) => ({
+							id: item.id,
+							label: `(${item.sap_code}) (${item.bar_code}) (${item.unit.unit_code})  ${item.name}`,
+						})),
+					];
+
 					callback(null, options);
 				}
 			},
-
 			async filterData() {
 				try {
 					if (this.is_loading) return;
@@ -515,7 +561,7 @@
 				this.editing_item = item;
 				$('#DialogAddUpdateSapMaterial').modal('show');
 			},
-            async exportToExcel() {
+			async exportToExcel() {
 				try {
 					const params = {
 						search: this.search,

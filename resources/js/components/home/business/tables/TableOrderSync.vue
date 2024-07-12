@@ -20,6 +20,14 @@
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
                     placeholder="Nhập mã kho" /> -->
             </template>
+            <!-- <template #cell(sync_sap_status)="data">
+                <span v-if="!data.sync_sap_status" class="badge badge-sm badge-warning">Chưa đồng bộ</span>
+                <span v-else class="badge badge-sm badge-success">Đã đồng bộ</span>
+            </template> -->
+            <template #cell(sync_sap_status)="data">
+                <span class="badge bg-success" v-if="data.item.sync_sap_status == 1">Đã đồng bộ</span>
+                <span class="badge bg-warning" v-if="data.item.sync_sap_status == 0">Chưa đồng bộ</span>
+            </template>
         </b-table>
     </div>
 </template>
@@ -39,7 +47,7 @@ export default {
         un_selecteds: Array,
         warehouses: Array
     },
-    
+
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -104,7 +112,7 @@ export default {
             if (!warehouse_id) {
                 return '';
             } else {
-                if (this.case_data_temporary.warehouses.length !== 0) { 
+                if (this.case_data_temporary.warehouses.length !== 0) {
                     let warehouse = this.case_data_temporary.warehouses.find(warehouse => warehouse.id == warehouse_id);
                     return warehouse ? warehouse.name : '';
 

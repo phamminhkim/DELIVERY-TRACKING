@@ -7,11 +7,13 @@ use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
 use App\Models\Master\SapCompliance;
 use App\Models\Master\CustomerGroup;
+use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
+use App\Models\Master\Warehouse;
 use App\Services\Excel\ExcelExtractor;
 use App\Repositories\Abstracts\RepositoryAbs;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +38,15 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.customer_sku_code' => 'nullable',
                 'items.*.customer_sku_unit' => 'nullable',
+                'items.*.sap_so_number' => 'required',
+                'items.*.promotion' => 'nullable',
                 'items.*.quantity2_po' => 'required|numeric',
+            ], [
+                'items.array' => 'items phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_group_id.required' => 'Nhóm khách hàng là bắt buộc',
+                'sap_so_number.required' => 'Sap so number là bắt buộc',
+                'quantity2_po.required' => 'Số lượng po là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -57,21 +67,36 @@ class CheckDataRepository extends RepositoryAbs
 
             $mappingData = [];
             $existingCodes = [];
+            $existingSapSoNumber = [];
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 if (!empty($item['customer_sku_code'])) {
                     // Tiếp tục xử lý thông tin khi 'customer_sku_code' không trống
                     $customer_sku_code = $item['customer_sku_code'];
-                    if (in_array($customer_sku_code, $existingCodes)) {
+                    $sap_so_number = $item['sap_so_number'];
+                    $checkCode = $customer_sku_code . $sap_so_number;
+                    if (in_array($checkCode, $existingCodes)) {
                         continue;
                     }
-                    $existingCodes[] = $customer_sku_code;
+                    $existingCodes[] = $checkCode;
                     // Kiểm tra sự tồn tại của trường 'customer_sku_unit'
                     if (isset($item['customer_sku_unit'])) {
                         $customer_sku_unit = $item['customer_sku_unit'];
                     } else {
                         $customer_sku_unit = null; // Xử lý khi trường không tồn tại
+                    }
+                    // Kiểm tra sự tồn tại của trường 'sap_so_number'
+                    if (isset($item['sap_so_number'])) {
+                        $sap_so_number = $item['sap_so_number'];
+                    } else {
+                        $sap_so_number = null; // Xử lý khi trường không tồn tại
+                    }
+                    // Kiểm tra sự tồn tại của trường 'compliance'
+                    if (isset($item['promotion'])) {
+                        $promotion = $item['promotion'];
+                    } else {
+                        $promotion = null; // Xử lý khi trường không tồn tại
                     }
                 } else {
                     continue;
@@ -99,6 +124,8 @@ class CheckDataRepository extends RepositoryAbs
                     $mappingData[] = [
                         'customer_sku_code' => $customer_sku_code,
                         'customer_sku_unit' => $customer_sku_unit,
+                        'sap_so_number' => $sap_so_number,
+                        'promotion' => $promotion,
                         'bar_code' => $bar_code,
                         'sap_code' => $sap_code,
                         'unit_id' => $unit_id,
@@ -141,6 +168,8 @@ class CheckDataRepository extends RepositoryAbs
                                 $mappingData[] = [
                                     'customer_sku_code' => $customer_sku_code,
                                     'customer_sku_unit' => $customer_sku_unit,
+                                    'sap_so_number' => $sap_so_number,
+                                    'promotion' => $promotion,
                                     'bar_code' => $bar_code,
                                     'sap_code' => $sap_code,
                                     'unit_id' => $unit_id,
@@ -164,6 +193,85 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
+    public function checkCustomer()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'customer_group_id' => 'required',
+                'items' => 'required|array',
+                'items.*.customer_key' => 'required',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_key.required' => 'Customer key là bắt buộc',
+            ]);
+
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+            $customer_group_id = $this->data['customer_group_id'];
+            $items = $this->data['items'];
+
+            $customer_data = [];
+            foreach ($items as $item) {
+                $customer_key = $item['customer_key'];
+
+                $customer_partner = CustomerPartner::query()
+                    ->where('customer_group_id', $customer_group_id)
+                    ->where('name', $customer_key)
+                    ->first();
+                $customer_code = null;
+                $customer_note = null;
+                $customer_LV2 = null;
+                $customer_LV3 = null;
+                $customer_LV4 = null;
+
+                if ($customer_partner) {
+                    $customer_code = $customer_partner->code;
+                    $customer_note = $customer_partner->note;
+                    $customer_LV2 = $customer_partner->LV2;
+                    $customer_LV3 = $customer_partner->LV3;
+                    $customer_LV4 = $customer_partner->LV4;
+                }
+
+                $customer_data[] = [
+                    'customer_key' => $customer_key,
+                    'customer_code' => $customer_code,
+                    'customer_note' => $customer_note,
+                    'customer_LV2' => $customer_LV2,
+                    'customer_LV3' => $customer_LV3,
+                    'customer_LV4' => $customer_LV4,
+                ];
+                // Kiểm tra xem key khách hàng đã tồn tại trong nhóm khách hàng hay chưa
+                $existingPartner = CustomerPartner::where('customer_group_id', $customer_group_id)
+                    ->whereIn('name', array_column($items, 'customer_key'))
+                    ->first();
+                if (!$existingPartner) {
+                    // $this->errors = ['customer_group_id' => $customer_key, 'message' => 'Key khách hàng không có trong nhóm khách hàng này.'];
+                    $this->errors = [
+                        'customer_group_id' => $customer_group_id,
+                        'items' => $items,
+                        'message' => 'Các Key khách hàng không có trong nhóm khách hàng này.',
+                    ];
+                    return false;
+                }
+            }
+            // Kiểm tra và lấy SoSapNote của KH nếu có
+            $so_sap_note_syntax = $this->getSoSapNoteSyntax($customer_group_id);
+
+            return [
+                // 'success' => true,
+                'customer_group_id' => $customer_group_id,
+                'items' => $customer_data,
+                'so_sap_note_syntax' => $so_sap_note_syntax
+            ];
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
     public function checkCompliance()
     {
         try {
@@ -173,6 +281,13 @@ class CheckDataRepository extends RepositoryAbs
                 'items.*.unit_code' => 'required',
                 'items.*.quantity1_po' => 'required',
                 'items.*.quantity2_po' => 'required',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'sap_code.required' => 'Mã SP là bắt buộc',
+                'unit_code.required' => 'Đơn vị tính là bắt buộc',
+                'quantity1_po.required' => 'Qty là bắt buộc',
+                'quantity2_po.required' => 'PO_qty là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -242,6 +357,12 @@ class CheckDataRepository extends RepositoryAbs
                 'items' => 'required|array',
                 'items.*.sap_code' => '',
                 'items.*.bar_code' => '',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+                'customer_group_id.required' => 'Nhóm khách hàng là bắt buộc',
+                'sap_code.required' => 'Mã SP là bắt buộc',
+                'bar_code.required' => 'Barcode là bắt buộc',
             ]);
 
             if ($validator->fails()) {
@@ -354,10 +475,15 @@ class CheckDataRepository extends RepositoryAbs
                     "action_name" => "FETCH_MATERIAL_INVENTORY",
                     "BODY" => []
                 ];
-
+                $warehouse = null;
                 foreach ($fields['data'] as $value) {
+                    if ($warehouse == null) {
+                        $warehouse_id = $value['warehouse_id'];
+                        $warehouse = Warehouse::where('id',  $warehouse_id)->first();
+                    }
                     $sapData['BODY'][] = [
                         "materials" => $value['materials'],
+                        "warehouse_code" => $warehouse->code,
                     ];
                 }
                 $json = SapApiHelper::postData(json_encode($sapData));
@@ -468,5 +594,34 @@ class CheckDataRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    public function getSoSapNoteSyntax($customer_group_id)
+    {
+        $so_sap_note_syntax = null;
+        $customer_group = CustomerGroup::find($customer_group_id);
+        if ($customer_group) {
+            // Lấy extract_order_configs đầu tiên
+            $extract_order_config = $customer_group->extract_order_configs->first();
+            // Nếu convert_file_type là pdf thì lấy restruct_header_config
+            $restructure_config_structure = null;
+            if ($extract_order_config->convert_file_type == 'pdf') {
+                // Nếu convert_file_type là pdf thì lấy restruct_header_config
+                $restructure_config_structure = json_decode($extract_order_config->restructure_header_config->structure, true);
+            } else if ($extract_order_config->convert_file_type == 'excel') {
+                // Nếu convert_file_type là excel thì lấy restruct_data_config
+                $restructure_config_structure = json_decode($extract_order_config->restructure_data_config->structure, true);
+            }
+            if ($restructure_config_structure) {
+                if (isset($restructure_config_structure['SoSapNote'])) {
+                    $so_sap_note_info = $restructure_config_structure['SoSapNote'];
+                    // Chỉ trả về syntax khi có dùng CustomerNote
+                    if (isset($so_sap_note_info['key_array']) && in_array('CustomerNote', $so_sap_note_info['key_array'])) {
+                        $so_sap_note_syntax['key_array'] = isset($so_sap_note_info['key_array']) ? $so_sap_note_info['key_array'] : [];
+                        $so_sap_note_syntax['separator'] = isset($so_sap_note_info['separator']) ? $so_sap_note_info['separator'] : "";
+                    }
+                }
+            }
+        }
+        return $so_sap_note_syntax;
     }
 }

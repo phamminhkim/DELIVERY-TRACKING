@@ -7,13 +7,13 @@
             @checkPrice="getCheckPrice" @getListMaterialDetect="getListMaterialDetect" :tab_value="tab_value"
             @openModalSearchOrderProcesses="openModalSearchOrderProcesses"
             @isLoadingDetectSapCode="getIsLoadingDetectSapCode" @changeEventOrderLack="getEventOrderLack"
-            :count_selected="case_data_temporary.item_selecteds.length"
-            @saveOrderProcess="getSaveOrderProcesses" @changeEventOrderDelete="getEventOrderDelete"
-            @listOrderProcessSO="getListOrderProcessSO" @getCustomerGroupId="getCustomerGroupId"
-            @exportExcel="getExportExcel" @importExcel="getImportExcel"
+            :count_selected="case_data_temporary.item_selecteds.length" @saveOrderProcess="getSaveOrderProcesses"
+            @changeEventOrderDelete="getEventOrderDelete" @listOrderProcessSO="getListOrderProcessSO"
+            @getCustomerGroupId="getCustomerGroupId" @exportExcel="getExportExcel" @importExcel="getImportExcel"
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
-            @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal">
+            @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
+            @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -28,6 +28,7 @@
         </DialogTitleOrderSO>
         <DialogListOrderProcessSO ref="dialogListOrderProcessSo"
             @fetchOrderProcessSODetail="getFetchOrderProcessSODetail"></DialogListOrderProcessSO>
+        <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile>
         <TempExcelImport :is_show_hide="case_is_loading.show_hide_excel" :header_fields="header_fields"
             :title="title_excel" @convertFileExcel="getConvertFileExel"></TempExcelImport>
         <!-- Parent -->
@@ -71,6 +72,7 @@ import ParentOrderSynchronized from './parents/ParentOrderSynchronized.vue';
 import TempExcelImport from '../../Templates/Excels/TempExcelImport.vue';
 import DialogOrderCheckInventory from './dialogs/DialogOrderCheckInventory.vue';
 import DialogOrderCheckPrice from './dialogs/DialogOrderCheckPrice.vue';
+import DialogGetDataConvertFile from './dialogs/DialogGetDataConvertFile.vue';
 import ApiHandler, { APIRequest } from '../ApiHandler';
 import { isUndefined } from 'axios/lib/utils';
 export default {
@@ -86,7 +88,8 @@ export default {
         ParentOrderSynchronized,
         TempExcelImport,
         DialogOrderCheckInventory,
-        DialogOrderCheckPrice
+        DialogOrderCheckPrice,
+        DialogGetDataConvertFile
     },
     data() {
         return {
@@ -104,6 +107,7 @@ export default {
             case_index: {
                 check_box: [],
                 count_reset_filter: 0,
+                detect_material: 0,
             },
             case_save_so: {
                 id: '',
@@ -122,6 +126,7 @@ export default {
                 sap_sync: false,
                 show_modal_sync_sap: false,
                 edit_row: false,
+                is_save_with_sync_sap: false,
             },
             case_data_temporary: {
                 item_selecteds: [],
@@ -135,9 +140,11 @@ export default {
                 warehouse_id: '',
                 warehouses: [],
                 filter_orders: [],
+                error_csv_data: {},
+                detect_materials: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
-                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty',
+                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty', 'SL chênh lệch',
                 'Pur_price', 'Amount', 'QC', 'Đúng_QC', 'Ghi chú 1', 'Gia_cty', 'Level 2', 'Level 3', 'Level 4',
                 'po_number', 'po_delivery_date'],
             api_order_process_so: '/api/sales-order',
@@ -145,6 +152,7 @@ export default {
             api_order_sync: '/api/so-header/sync-sale-order',
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
+            api_check_customer_key: '/api/check-data/check-customer-partner',
 
 
 
@@ -155,9 +163,135 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+        getSoSapNoteFromSyntax(data_item, key_array, separator) {
+            let so_sap_note = "";
+            key_array.forEach((key, index) => {
+                let data_key = this.getDataKeyFromSyntaxKey(key);
+                if (index == key_array.length - 1) {
+                    so_sap_note += data_item[data_key];
+                } else {
+                    so_sap_note += data_item[data_key] + separator;
+                }
+            });
+            return so_sap_note;
+        },
+        getDataKeyFromSyntaxKey(syntax_key) {
+            let data_key = syntax_key;
+            switch (syntax_key) {
+                case 'CustomerNote':
+                    data_key = 'note1';
+                    break;
+                case 'PoNumber':
+                    data_key = 'po_number';
+                    break;
+                case 'CustomerKey':
+                    data_key = 'customer_name';
+                    break;
+                case 'OrdUnit':
+                    data_key = 'customer_sku_unit';
+                    break;
+                case 'ProductID':
+                    data_key = 'customer_sku_code';
+                    break;
+                case 'Quantity1':
+                    data_key = 'quantity1_po';
+                    break;
+                case 'Quantity2':
+                    data_key = 'quantity2_po';
+                    break;
+                case 'ProductName':
+                    data_key = 'customer_sku_name';
+                    break;
+                case 'ProductPrice':
+                    data_key = 'price_po';
+                    break;
+                case 'ProductAmount':
+                    data_key = 'amount_po';
+                    break;
+                case 'PoDeliveryDate':
+                    data_key = 'po_delivery_date';
+                    break;
+                case 'SoSapNote':
+                    data_key = 'so_sap_note';
+                    break;
+                case 'SapSoNumber':
+                    data_key = 'sap_so_number';
+                    break;
+
+                default:
+                    break;
+            }
+            return data_key;
+        },
+        async getEmitDetectCustomerKey() {
+            let unique_customer_name = [...new Set(this.orders.map(item => item.customer_name))];
+            await this.checkCustomerKey(unique_customer_name);
+        },
+        async checkCustomerKey(unique_customer_name) {
+            try {
+                let customer_keys = [];
+                let is_customer_code_null = false;
+                let body = {
+                    'customer_group_id': this.case_save_so.customer_group_id,
+                    'items': unique_customer_name.map(key => ({ customer_key: key }))
+
+                };
+                const { data, success, errors, message } = await this.api_handler.post(this.api_check_customer_key, {}, body);
+                if (success) {
+                    this.orders = this.orders.map(item => {
+                        data.items.forEach(item_data => {
+                            if (item.customer_name == item_data.customer_key) {
+                                item.customer_code = item_data.customer_code;
+                                item.level2 = item_data.customer_LV2;
+                                item.level3 = item_data.customer_LV3;
+                                item.level4 = item_data.customer_LV4;
+                                item.note1 = item_data.customer_note;
+                            }
+                        });
+                        if (data.so_sap_note_syntax) {
+                            let key_array = data.so_sap_note_syntax.key_array;
+                            let separator = data.so_sap_note_syntax.separator;
+                            item.so_sap_note = this.getSoSapNoteFromSyntax(item, key_array, separator);
+                            // console.log(item.so_sap_note);
+                        }
+                        return item;
+                    });
+                    data.items.map(item => {
+                        if (item.customer_code == '' || item.customer_code == null) {
+                            is_customer_code_null = true;
+                            customer_keys.push(item.customer_key);
+                        }
+                    });
+                    if (is_customer_code_null) {
+                        this.$showMessage('warning', 'Cảnh báo', 'Không tìm thấy mã khách hàng cho khách hàng '
+                         + customer_keys.map(item => item).join(', '));
+                    } else {
+                        this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
+                    }
+                    this.refHeaderOrderProcesses();
+                } else {
+                    if (errors) {
+                        errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                            + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
+                                + errors.items.map(item => item.customer_key).join('<br>'));
+                    }
+                    // this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                    //     + errors.items.map(item => item.customer_key).join('<br>'));
+                    if (message != '') {
+                        this.$showMessage('error', 'Lỗi', message);
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
+        getEmitErrorConvertFile(errors) {
+            this.case_data_temporary.error_csv_data = errors.csv_data;
+            $('#modalGetConvertFile').modal('show');
+        },
         getEditRow(is_edit_row) {
             this.case_is_loading.edit_row = is_edit_row;
-
         },
         getEmitDataWarehouse(warehouse_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
@@ -182,7 +316,8 @@ export default {
                 if (success) {
                     this.getCheckPrice(data);
                     this.$showMessage('success', 'Thành công', 'Check giá thành công');
-                } else {
+                }
+                else {
                     this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
@@ -206,7 +341,8 @@ export default {
                 if (success) {
                     this.getInventory(data);
                     this.$showMessage('success', 'Thành công', 'Check tồn thành công');
-                } else {
+                }
+                else {
                     this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
@@ -262,17 +398,33 @@ export default {
                 };
                 const { data, success } = await this.api_handler.post(this.api_order_sync, {}, body);
                 if (success) {
+                    let count_not_sync = 0;
+                    let count_sync = 0;
                     data.forEach(item => {
                         this.case_data_temporary.order_syncs.forEach(order_sync => {
                             if (item.id == order_sync.so_header_id) {
                                 order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.sync_sap_status  = item.sync_sap_status;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
+                        switch (item.sync_sap_status) {
+                            case 0:
+                                count_not_sync++;
+                                break;
+                            default:
+                                count_sync++;
+                                break;
+                        }
                     });
-                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    // this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    if (count_not_sync > 0) {
+                        this.$showMessage('warning', 'Cảnh báo', 'Có ' + count_not_sync + ' đơn hàng chưa đồng bộ');
+                    }
+                    if (count_sync > 0) {
+                        this.$showMessage('success', 'Thành công', 'Có ' + count_sync + ' đơn hàng đã đồng bộ');
+                    }
                     this.checkOrderSyncWithOrderProcess();
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
@@ -280,6 +432,9 @@ export default {
             } catch (error) {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
                 }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
@@ -309,7 +464,7 @@ export default {
                             if (item.id == order_sync.so_header_id) {
                                 order_sync.id = item.id;
                                 order_sync.so_uid = item.so_number;
-                                order_sync.is_sync_sap = item.is_sync_sap;
+                                order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
                             }
                         });
@@ -322,6 +477,9 @@ export default {
             } catch (error) {
                 if (error.response.data.errors.sap_error) {
                     this.$showMessage('error', 'Lỗi', error.response.data.errors.sap_error);
+                }
+                if (error.response.data.errors.not_config_user) {
+                    this.$showMessage('error', 'Lỗi', error.response.data.errors.not_config_user);
                 }
                 if (error.response.data.errors.synchronized_error) {
                     this.$showMessage('warning', 'Cảnh báo', error.response.data.errors.synchronized_error);
@@ -425,32 +583,34 @@ export default {
         showModalSyncSAP(is_show_modal_sync_sap) {
             this.case_is_loading.show_modal_sync_sap = is_show_modal_sync_sap;
             this.showDialogTitleOrderSo();
-            // $('#dialogTitleOrderSo').modal('show');
-            // $('#modalOrderSync').modal('show');
-            const unique = {};
-            const result = this.orders.filter(order => {
-                const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
-                if (!unique[key]) {
-                    unique[key] = true;
-                    return true;
-                }
-                return false;
-            }).map(order => {
-                return {
-                    id: '',
-                    so_uid: '',
-                    sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
-                    customer_code: order.customer_code,
-                    customer_name: order.customer_name,
-                    po_delivery_date: order.po_delivery_date,
-                    is_sync_sap: false,
-                    noti_sync: '',
-                    warehouse_id: '',
-                    so_header_id: order.so_header_id,
-                    so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
-                }
-            });
-            this.case_data_temporary.order_syncs = result;
+            if (this.case_is_loading.is_save_with_sync_sap) {
+                $('#modalOrderSync').modal('show');
+                const unique = {};
+                const result = this.filterOrders.filter(order => {
+                    const key = order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name);
+                    if (!unique[key]) {
+                        unique[key] = true;
+                        return true;
+                    }
+                    return false;
+                }).map(order => {
+                    return {
+                        id: '',
+                        so_uid: '',
+                        sap_so_number: order.sap_so_number + (order.promotive_name == null ? '' : order.promotive_name),
+                        customer_code: order.customer_code,
+                        customer_name: order.customer_name,
+                        po_delivery_date: order.po_delivery_date,
+                        sync_sap_status: '',
+                        noti_sync: '',
+                        warehouse_id: '',
+                        so_header_id: order.so_header_id,
+                        so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
+                    }
+                });
+                this.case_data_temporary.order_syncs = result;
+            }
+
         },
         itemNote(item) {
             let note = (item.note1 == null ? '' : item.note1 + "_") + item.po_number + (item.promotive_name == null ? '' : item.promotive_name) + ((item.po_delivery_date == null || item.po_delivery_date == '' || item.po_delivery_date == undefined) ? '' : '_Ngày giao ' + this.$formatDate(item.po_delivery_date));
@@ -498,22 +658,143 @@ export default {
         getDeleteRow(index, item) {
             this.orders.splice(index, 1);
         },
+        connectStringSapWithPromotion(sap_so_number, promotion) {
+            return sap_so_number + promotion;
+        },
         getListMaterialDetect(data) {
+            console.table(data);
             this.material_saps = [...data];
-            this.material_saps.forEach(tmp => {
-                for (var i = 0; i < this.orders.length; i++) {
-                    if ((tmp.customer_sku_code === this.orders[i].customer_sku_code &&
-                        tmp.customer_sku_unit === this.orders[i].customer_sku_unit) ||
-                        (tmp.bar_code == this.orders[i].customer_sku_code)) {
-                        this.orders[i]['sku_sap_code'] = tmp.sap_code;
-                        this.orders[i]['sku_sap_name'] = tmp.name;
-                        this.orders[i]['sku_sap_unit'] = tmp.unit_code;
-                        this.orders[i]['barcode'] = tmp.bar_code;
-                        this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
+            // group by theo sap_so_number và customer_sku_code
+            let group = Object.groupBy(this.material_saps, ({ sap_so_number, customer_sku_code }) => sap_so_number + customer_sku_code);
+            let group_entries = Object.entries(group);
+            let exist = false;
+            group_entries.forEach((group_entrie, index) => {
+                console.table(group_entrie[1])
+                if (group_entrie[1].length > 1) {
+                    let first_group_entri = group_entrie[1][0];
+                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code && order.sap_so_number == first_group_entri.sap_so_number);
+                    if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
+                        first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
+                        (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
+                        first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit']) ||
+                        (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code'] &&
+                            first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number']
+                        )) {
+                        this.orders[index_order_group]['sku_sap_code'] = first_group_entri.sap_code;
+                        this.orders[index_order_group]['sku_sap_name'] = first_group_entri.name;
+                        this.orders[index_order_group]['sku_sap_unit'] = first_group_entri.unit_code;
+                        this.orders[index_order_group]['barcode'] = first_group_entri.bar_code;
+                        this.orders[index_order_group]['quantity3_sap'] = first_group_entri.quantity3_sap;
                     }
+                    this.case_index.detect_material = group_entrie[1].length;
+                    this.case_data_temporary.detect_materials.forEach(item => {
+                        group_entrie[1].forEach(item_material => {
+                            if (item.customer_sku_code == item_material.customer_sku_code &&
+                                item.customer_sku_unit == item_material.customer_sku_unit &&
+                                item.sap_so_number == item_material.sap_so_number &&
+                                item.sap_code == item_material.sap_code &&
+                                item.bar_code == item_material.bar_code) {
+                                exist = true;
+                            }
+                        });
+                    });
+                    if (!exist) {
+                        this.case_data_temporary.detect_materials.push(...group_entrie[1]);
+                    }
+                } else {
+                    group_entrie[1].forEach(tmp => {
+                        for (var i = 0; i < this.orders.length; i++) {
+                            if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
+                                // this.orders[i]['sku_sap_code'] != '' &&
+                                tmp.sap_so_number == this.orders[i].sap_so_number &&
+                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
+                                (tmp.bar_code == this.orders[i].customer_sku_code) &&
+                                tmp.sap_so_number == this.orders[i].sap_so_number) {
+                                this.orders[i]['sku_sap_code'] = tmp.sap_code;
+                                this.orders[i]['sku_sap_name'] = tmp.name;
+                                this.orders[i]['sku_sap_unit'] = tmp.unit_code;
+                                this.orders[i]['barcode'] = tmp.bar_code;
+                                this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
+                            }
+                        }
+                    });
                 }
             });
+            for (let index = 0; index < this.case_data_temporary.detect_materials.length; index++) {
+                const material = this.case_data_temporary.detect_materials[index];
+                const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code && order.sap_so_number == material.sap_so_number);
+                switch (index) {
+                    default:
+                        if (index_order !== -1) {
+                            let exist = false;
+                            this.orders.forEach((order, index) => {
+                                if (order.customer_sku_code == material.customer_sku_code &&
+                                    order.customer_sku_unit == material.customer_sku_unit &&
+                                    order.sap_so_number == material.sap_so_number &&
+                                    order.sku_sap_code == material.sap_code &&
+                                    order.barcode == material.bar_code) {
+                                    exist = true;
+                                }
+                            })
+                            if (!exist) {
+                                this.orders.push({
+                                    order: this.orders.length + 1,
+                                    id: '',
+                                    customer_sku_code: material.customer_sku_code == undefined ? '' : material.customer_sku_code,
+                                    customer_sku_name: this.orders[index_order]['customer_sku_name'],
+                                    customer_sku_unit: material.customer_sku_unit == undefined ? '' : material.customer_sku_unit,
+                                    company_price: this.orders[index_order]['company_price'],
+                                    customer_code: this.orders[index_order]['customer_code'],
+                                    level2: this.orders[index_order]['level2'],
+                                    level3: this.orders[index_order]['level3'],
+                                    level4: this.orders[index_order]['level4'],
+                                    note1: this.orders[index_order]['note1'],
+                                    note: this.orders[index_order]['note'],
+                                    barcode: material.bar_code == undefined ? '' : material.bar_code,
+                                    sap_so_number: this.orders[index_order]['sap_so_number'],
+                                    sku_sap_code: material.sap_code == undefined ? '' : material.sap_code,
+                                    sku_sap_name: material.name == undefined ? '' : material.name,
+                                    sku_sap_unit: material.unit_code == undefined ? '' : material.unit_code,
+                                    inventory_quantity: this.orders[index_order]['inventory_quantity'],
+                                    amount_po: this.orders[index_order]['amount_po'],
+                                    is_inventory: this.orders[index_order]['is_inventory'],
+                                    is_promotive: this.orders[index_order]['is_promotive'],
+                                    price_po: this.orders[index_order]['price_po'],
+                                    promotive: this.orders[index_order]['promotive'],
+                                    promotive_name: this.orders[index_order]['promotive_name'],
+                                    quantity: this.orders[index_order]['quantity'],
+                                    quantity1_po: this.orders[index_order]['quantity1_po'],
+                                    quantity2_po: this.orders[index_order]['quantity2_po'],
+                                    customer_name: this.orders[index_order]['customer_name'],
+                                    variant_quantity: this.orders[index_order]['variant_quantity'],
+                                    extra_offer: this.orders[index_order]['extra_offer'],
+                                    promotion_category: this.orders[index_order]['promotion_category'],
+                                    compliance: this.orders[index_order]['compliance'],
+                                    is_compliant: this.orders[index_order]['is_compliant'],
+                                    quantity3_sap: material.quantity3_sap == undefined ? '' : material.quantity3_sap,
+                                    po_number: this.orders[index_order]['po_number'],
+                                    po_delivery_date: this.orders[index_order]['po_delivery_date'],
+                                    so_header_id: this.orders[index_order]['so_header_id'],
+                                });
+                                this.moveIndexOrder(this.orders, this.orders.length - 1, index_order + 1);
+                            }
+                        }
+                        break;
+                }
+            }
+            this.orders.forEach((order, index) => {
+                order.order = index + 1;
+            });
             this.refHeaderOrderProcesses();
+
+        },
+        moveIndexOrder(array, fromIndex, toIndex) {
+            if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
+                console.error("Index không hợp lệ");
+                return;
+            }
+            const element = array.splice(fromIndex, 1)[0];
+            array.splice(toIndex, 0, element);
         },
         getInventory(data) {
             this.material_inventories = [...data];
@@ -523,7 +804,7 @@ export default {
                     if (tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
-                        orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false;
+                        // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
                     }
                 }
             });
@@ -650,7 +931,9 @@ export default {
         showDialogTitleOrderSo() {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
-        getSaveOrderSO(item) {
+        getSaveOrderSO(item, is_modal_sync_sap) {
+            this.case_is_loading.is_save_with_sync_sap = is_modal_sync_sap;
+
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
@@ -745,6 +1028,10 @@ export default {
 
             });
             this.refHeaderOrderProcesses();
+            if (this.case_is_loading.is_save_with_sync_sap) {
+                this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
+                this.case_is_loading.is_save_with_sync_sap = false;
+            }
         },
         refeshOrders() {
             this.orders = [];
@@ -783,12 +1070,14 @@ export default {
             }
         },
         getConvertOrderLack(index, data) {
+            data.is_inventory = false;
             this.filterOrders.splice(data.order - 1, 0, data);
             this.case_data_temporary.order_lacks.splice(index, 1);
             this.filterOrders.forEach((item, index) => {
                 item.order = index + 1;
             });
             this.refHeaderOrderProcesses();
+            console.log(data);
         },
         getSortingChanged(sort) {
             this.orders = [...sort];
@@ -817,6 +1106,7 @@ export default {
                     'Combo': item.promotion_category,
                     'Check tồn': item.inventory_quantity,
                     'Po_qty': item.quantity2_po,
+                    'SL chênh lệch': item.variant_quantity,
                     'Pur_price': item.price_po,
                     'Amount': item.amount_po,
                     'QC': item.compliance,
