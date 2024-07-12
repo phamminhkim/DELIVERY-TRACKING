@@ -144,7 +144,7 @@ export default {
                 detect_materials: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
-                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty','SL chênh lệch',
+                'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty', 'SL chênh lệch',
                 'Pur_price', 'Amount', 'QC', 'Đúng_QC', 'Ghi chú 1', 'Gia_cty', 'Level 2', 'Level 3', 'Level 4',
                 'po_number', 'po_delivery_date'],
             api_order_process_so: '/api/sales-order',
@@ -202,7 +202,7 @@ export default {
                 case 'ProductName':
                     data_key = 'customer_sku_name';
                     break;
-                    case 'ProductPrice':
+                case 'ProductPrice':
                     data_key = 'price_po';
                     break;
                 case 'ProductAmount':
@@ -229,12 +229,14 @@ export default {
         },
         async checkCustomerKey(unique_customer_name) {
             try {
+                let customer_keys = [];
+                let is_customer_code_null = false;
                 let body = {
                     'customer_group_id': this.case_save_so.customer_group_id,
                     'items': unique_customer_name.map(key => ({ customer_key: key }))
 
                 };
-                const { data, success, errors } = await this.api_handler.post(this.api_check_customer_key, {}, body);
+                const { data, success, errors, message } = await this.api_handler.post(this.api_check_customer_key, {}, body);
                 if (success) {
                     this.orders = this.orders.map(item => {
                         data.items.forEach(item_data => {
@@ -254,14 +256,30 @@ export default {
                         }
                         return item;
                     });
-                    this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
+                    data.items.map(item => {
+                        if (item.customer_code == '' || item.customer_code == null) {
+                            is_customer_code_null = true;
+                            customer_keys.push(item.customer_key);
+                        }
+                    });
+                    if (is_customer_code_null) {
+                        this.$showMessage('warning', 'Cảnh báo', 'Không tìm thấy mã khách hàng cho khách hàng '
+                         + customer_keys.map(item => item).join(', '));
+                    } else {
+                        this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
+                    }
                     this.refHeaderOrderProcesses();
                 } else {
-                    errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
-                        + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
-                        + errors.items.map(item => item.customer_key).join('<br>'));
+                    if (errors) {
+                        errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
+                            + errors.items.map(item => item.customer_key).join('<br>')) : this.$showMessage('warning', 'Cảnh báo', errors.message + '<br>'
+                                + errors.items.map(item => item.customer_key).join('<br>'));
+                    }
                     // this.$showMessage('error', 'Lỗi', errors.message + '<br>'
                     //     + errors.items.map(item => item.customer_key).join('<br>'));
+                    if (message != '') {
+                        this.$showMessage('error', 'Lỗi', message);
+                    }
                 }
             } catch (error) {
                 console.log(error);
