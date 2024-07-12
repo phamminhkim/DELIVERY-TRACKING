@@ -334,17 +334,18 @@ export default {
         async fetchSapCodeFromSkuCustomer() {
             try {
                 this.is_loading = true;
-                const { data } = await this.api_handler.post(this.api_detect_sap_code, {},
+                const { data, message } = await this.api_handler.post(this.api_detect_sap_code, {},
                     {
                         customer_group_id: this.form_filter.customer_group,
                         items: this.case_data_temporary.sap_codes,
                     }
                 );
                 //this.sap_codes =  data.original.mappingData;
-                if (data.success == true) {
+                if (data) {
                     this.$emit('getListMaterialDetect', data.items);
+                    this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
                 } else {
-                    this.$showMessage('error', 'Lỗi');
+                    this.$showMessage('error', 'Lỗi', message);
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -562,7 +563,8 @@ export default {
                     });
                 });
                 await this.fetchSapCodeFromSkuCustomer();
-                this.updateLoadingState(false, 'Dò mã SAP thành công', 'success', 'Thành công');
+                // this.updateLoadingState(false, 'Dò mã SAP thành công', 'success', 'Thành công');
+                this.updateLoadingState(false);
             } catch (error) {
                 console.error(error);
                 this.updateLoadingState(false, error, 'error', 'Lỗi');
@@ -890,10 +892,14 @@ export default {
             }
             try {
                 // this.case_is_loading.fetch_api = true;
-                const { data } = await this.api_handler.post(this.api_check_promotion, {}, filter);
-                if (data.success) {
+                const { data, success, message } = await this.api_handler.post(this.api_check_promotion, {}, filter);
+                if (data) {
                     this.getValuePromotionCategory(data.items);
+                    this.$showMessage('success', 'Thành công', 'Check khuyến mãi thành công');
+                } else {
+                    this.$showMessage('error', 'Lỗi', message);
                 }
+               
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -910,7 +916,7 @@ export default {
                     }
                 });
             });
-            this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
+            // this.updateLoadingState(false, 'Check khuyến mãi thành công', 'success', 'Thành công');
         },
         emitCompliance() {
             this.$emit('changeEventCompliance');
