@@ -87,6 +87,7 @@ class SaleDistrictRepository extends RepositoryAbs
                 }
             }
         }
+        return $result;
     }
     public function updateExistingSaleDistrict($id)
     {

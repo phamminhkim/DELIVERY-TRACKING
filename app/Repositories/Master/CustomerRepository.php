@@ -87,6 +87,13 @@ class CustomerRepository extends RepositoryAbs
     }
     public function updateOrInsert()
     {
+        $result = array(
+            'insert_count' => 0,
+            'update_count' => 0,
+            'skip_count' => 0,
+            'delete_count' => 0,
+            'error_count' => 0,
+        );
         foreach ($this->data as $customer) {
             $validator = Validator::make($customer, [
                 'code' => 'required|string',
@@ -105,6 +112,7 @@ class CustomerRepository extends RepositoryAbs
                         'phone_number' => $customer['phone_number'] ?? '',
                         'address' => $customer['address'] ?? '',
                     ]);
+                    $result['update_count']++;
                 } else {
                     Customer::create([
                         'code' => $customer['code'],
@@ -113,9 +121,11 @@ class CustomerRepository extends RepositoryAbs
                         'phone_number' => $customer['phone_number'] ?? '',
                         'address' => $customer['address'] ?? '',
                     ]);
+                    $result['insert_count']++;
                 }
             }
         }
+        return  $result;
     }
     public function updateExistingCustomer($id)
     {
