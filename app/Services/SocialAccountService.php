@@ -54,6 +54,7 @@ class SocialAccountService
     public function createOrGetUserFromZalo($data)
     {
         
+        
         if ( $data) {
             $providerId = $data['id']; 
             $avatar = "img\avata-default.png";
