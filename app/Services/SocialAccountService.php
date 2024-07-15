@@ -54,34 +54,43 @@ class SocialAccountService
     public function createOrGetUserFromZalo($data)
     {
         
-        $providerId = $data['id']; 
-        $avatar =  $data['picture']['data']['url']; 
-        $providerName = 'ZaloProvider';
-        $name = $data['name']; 
-       
-        $account = SocialAccount::whereProvider($providerName)
-            ->whereProviderUserId($providerId)
-            ->first();
-        
-        if ($account) {
-            return $account->user;
-        } else {
-            $account = new SocialAccount([
-                'provider_user_id' => $providerId,
-                'provider' => $providerName
-            ]);
+        if ( $data) {
+            $providerId = $data['id']; 
+            $avatar = "img\avata-default.png";
             
-            $user = User::create([
-                'name' => $name,
-                'avatar' =>$avatar
-                 
-            ]);
+            if (isset($data['picture'])) {
+                $avatar =  $data['picture']['data']['url']; 
+                $name = $data['name']; 
+            }
+            
+            $providerName = 'ZaloProvider';
+          
            
-            $account->user()->associate($user);
-            $account->save();
-
-            return $user;
+            $account = SocialAccount::whereProvider($providerName)
+                ->whereProviderUserId($providerId)
+                ->first();
+            
+            if ($account) {
+                return $account->user;
+            } else {
+                $account = new SocialAccount([
+                    'provider_user_id' => $providerId,
+                    'provider' => $providerName
+                ]);
+                
+                $user = User::create([
+                    'name' => $name,
+                    'avatar' =>$avatar
+                     
+                ]);
+               
+                $account->user()->associate($user);
+                $account->save();
+    
+                return $user;
+            }
         }
+        return null;
     }
 
     public function createOrGetUserFromOnetl($data)
