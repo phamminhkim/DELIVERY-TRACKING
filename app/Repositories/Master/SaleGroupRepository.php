@@ -88,6 +88,7 @@ class SaleGroupRepository extends RepositoryAbs
                 }
             }
         }
+        return $result;
     }
     public function updateExistingSaleGroup($id)
     {

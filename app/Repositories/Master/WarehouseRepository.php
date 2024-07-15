@@ -126,6 +126,7 @@ class WarehouseRepository extends RepositoryAbs
                 }
             }
         }
+        return  $result;
     }
     public function updateExistingWarehouse($id)
     {

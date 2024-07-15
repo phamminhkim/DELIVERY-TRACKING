@@ -111,6 +111,7 @@ class DistributionChannelRepository extends RepositoryAbs
                 }
             }
         }
+        return $result;
     }
     public function updateExistingDistributionChannel($id)
     {
