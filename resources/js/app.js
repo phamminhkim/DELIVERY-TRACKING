@@ -28,6 +28,16 @@ Vue.prototype.$formatDate = function (value) {
         return moment(String(value)).format("DD/MM/YYYY");
     }
 };
+Vue.prototype.$formatDateStyleApart = function (value) {
+    if (value) {
+        return moment(String(value)).format("DD-MM-YYYY");
+    }
+};
+Vue.prototype.$formatDateStyleApartYMD = function (value) {
+    if (value) {
+        return moment(String(value)).format("YYYY-MM-DD");
+    }
+};
 Vue.use(VueRouter);
 
 Vue.use(BootstrapVue);
@@ -84,6 +94,10 @@ Vue.component(
 Vue.component(
     "profile",
     require("./components/profile/UserProfile.vue").default
+);
+Vue.component(
+    "config-table",
+    require("./components/home/master/ConfigTable.vue").default
 );
 
 

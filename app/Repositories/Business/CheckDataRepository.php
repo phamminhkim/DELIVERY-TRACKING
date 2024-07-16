@@ -180,6 +180,21 @@ class CheckDataRepository extends RepositoryAbs
                             }
                         }
                     }
+                    if (!empty($mappingData)) {
+                        // Handle the case where no mapping data is found
+                        $mappingData[] = [
+                            'customer_sku_code' => $customer_sku_code,
+                            'customer_sku_unit' => $customer_sku_unit,
+                            'sap_so_number' => $sap_so_number,
+                            'promotion' => null,
+                            'bar_code' => null,
+                            'sap_code' => null,
+                            'unit_id' => null,
+                            'name' => null,
+                            'unit_code' => null,
+                            'quantity3_sap' => $item['quantity2_po'],
+                        ];
+                    }
                 }
             }
 
