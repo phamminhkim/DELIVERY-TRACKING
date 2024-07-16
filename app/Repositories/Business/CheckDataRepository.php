@@ -120,6 +120,7 @@ class CheckDataRepository extends RepositoryAbs
                     } else {
                         $unit_code = null; // Xử lý khi đơn vị không tồn tại
                     }
+                    $foundMapping = false;
 
                     $mappingData[] = [
                         'customer_sku_code' => $customer_sku_code,
@@ -177,11 +178,13 @@ class CheckDataRepository extends RepositoryAbs
                                     'unit_code' => $unit_code,
                                     'quantity3_sap' => $quantity3_sap,
                                 ];
+                                $foundMapping = true;
                             }
+
                         }
                     }
-                    if (!empty($mappingData)) {
-                        // Handle the case where no mapping data is found
+                    if (!$foundMapping) {
+                         // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
                         $mappingData[] = [
                             'customer_sku_code' => $customer_sku_code,
                             'customer_sku_unit' => $customer_sku_unit,
@@ -197,7 +200,6 @@ class CheckDataRepository extends RepositoryAbs
                     }
                 }
             }
-
             return [
                 'success' => true,
                 'items' => $mappingData
