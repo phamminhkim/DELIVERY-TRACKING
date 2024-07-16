@@ -68,6 +68,7 @@ class CheckDataRepository extends RepositoryAbs
             $mappingData = [];
             $existingCodes = [];
             $existingSapSoNumber = [];
+            $foundMapping =[];
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
