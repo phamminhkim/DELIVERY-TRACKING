@@ -18,9 +18,13 @@
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
             this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
-                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true" :show-count="true"
-                        @input="changeInputSetWarehouse()"
-                            v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
+                        <button @click="exportExcelOrderSyncs()" type="button"
+                            class="btn btn-sm btn-success btn-group__border">
+                            <span class="badge badge-light badge-sm mr-2">{{
+            this.case_data_temporary.order_syncs_selected.length }}</span>Xuất Excel</button>
+                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                            :show-count="true" @input="changeInputSetWarehouse()" v-model="case_model.warehouse_id"
+                            :options="case_data_temporary.warehouses" />
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -55,6 +59,7 @@
     </div>
 </template>
 <script>
+import * as XLSX from 'xlsx';
 import HeaderOrderSyncSAP from './headers/HeaderOrderSyncSAP.vue';
 import TableOrderSync from './tables/TableOrderSync.vue';
 import PaginationTable from './paginations/PaginationTable.vue';
@@ -96,6 +101,7 @@ export default {
             },
             case_data: {
                 order_syncs: [],
+                wareshouses_default: [],
             },
             case_data_temporary: {
                 order_syncs_selected: [],
@@ -217,9 +223,23 @@ export default {
         changeInputSetWarehouse() {
             this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected);
         },
+        findWarehouse(warehouse_id) {
+            if (!warehouse_id) {
+                return '';
+            } else {
+                if (this.case_data.wareshouses_default.length !== 0) {
+                    let warehouse = this.case_data.wareshouses_default.find(warehouse => warehouse.id == warehouse_id);
+                    return warehouse ? warehouse.name : '';
+
+                } else {
+                    return '';
+                }
+            }
+        },
         async fetchWarehouses() {
             let { data, success } = await this.api_handler.get(this.case_api.warehouse);
             if (success) {
+                this.case_data.wareshouses_default = data;
                 var options = [];
                 let group_company_code = Object.groupBy(data, ({ company_code }) => company_code);
                 for (const [key, value] of Object.entries(group_company_code)) {
@@ -410,6 +430,44 @@ export default {
                     }
                 });
             });
+        },
+        exportExcelOrderSyncs() {
+            let data = this.case_data_temporary.order_syncs_selected;
+            let data_news = data.map((item, index) => {
+                return {
+                    'STT': index + 1,
+                    'SAP SO num': item.so_uid,
+                    'TT Đồng bộ': item.sync_sap_status == 0 ? 'Chưa đồng bộ' : 'Đã đồng bộ',
+                    // 'Thông báo': 'chưa có',
+                    'PO num': item.po_number,
+                    'Ngày YC giao': item.po_delivery_date,
+                    'SO Key': item.sap_so_number,
+                    'Kho': this.findWarehouse(item.warehouse_id),
+                    'Makh': item.customer_code,
+                    'Tên KH': item.customer_name,
+                    'Người tạo': item.order_process.created_by.name,
+                    'Ngày tạo': this.$formatDateStyleApartYMD(item.create_at),
+                    'Ngày cập nhật': this.$formatDateStyleApartYMD(item.update_at),
+                }
+            })
+            var ws = XLSX.utils.json_to_sheet(data_news);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            const blob = new Blob([this.s2ab(wbout)], { type: 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Danh_sách_đơn_hàng.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
         },
     },
     computed: {
