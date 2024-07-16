@@ -95,10 +95,10 @@ Vue.component(
     "profile",
     require("./components/profile/UserProfile.vue").default
 );
-Vue.component(
-    "config-table",
-    require("./components/home/master/ConfigTable.vue").default
-);
+// Vue.component(
+//     "config-table",
+//     require("./components/home/master/ConfigTable.vue").default
+// );
 
 
 // Vue.component(
