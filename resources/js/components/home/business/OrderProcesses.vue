@@ -35,6 +35,7 @@
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
             :material_donateds="material_donateds" :material_combos="material_combos"
+            :api_handler="api_handler"
             :order_lacks="case_data_temporary.order_lacks" :filterOrders="filterOrders"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
@@ -154,8 +155,6 @@ export default {
             api_check_price: '/api/check-data/check-price',
             api_check_customer_key: '/api/check-data/check-customer-partner',
 
-
-
         }
     },
     created() {
@@ -163,6 +162,7 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+       
         getSoSapNoteFromSyntax(data_item, key_array, separator) {
             let so_sap_note = "";
             key_array.forEach((key, index) => {
@@ -629,8 +629,11 @@ export default {
             this.count_order_lack = count;
         },
         getOrders(orders) {
-            this.orders = orders;
+            this.case_save_so.id = '';
+            this.case_save_so.title = '';
+            this.case_data_temporary.order_syncs_selected = [];
             this.case_data_temporary.order_lacks = [];
+            this.orders = orders;
             this.case_index.count_reset_filter++;
             // this.getResetFilter();
         },
@@ -662,23 +665,21 @@ export default {
             return sap_so_number + promotion;
         },
         getListMaterialDetect(data) {
-            console.table(data);
             this.material_saps = [...data];
             // group by theo sap_so_number và customer_sku_code
             let group = Object.groupBy(this.material_saps, ({ sap_so_number, customer_sku_code }) => sap_so_number + customer_sku_code);
             let group_entries = Object.entries(group);
             let exist = false;
             group_entries.forEach((group_entrie, index) => {
-                console.table(group_entrie[1])
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
-                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code && order.sap_so_number == first_group_entri.sap_so_number);
+                    const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code &&
+                                                                            order.sap_so_number == first_group_entri.sap_so_number);
                     if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
                         (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
                         first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit']) ||
-                        (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code'] &&
-                            first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number']
+                        (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
                         )) {
                         this.orders[index_order_group]['sku_sap_code'] = first_group_entri.sap_code;
                         this.orders[index_order_group]['sku_sap_name'] = first_group_entri.name;
@@ -686,7 +687,6 @@ export default {
                         this.orders[index_order_group]['barcode'] = first_group_entri.bar_code;
                         this.orders[index_order_group]['quantity3_sap'] = first_group_entri.quantity3_sap;
                     }
-                    this.case_index.detect_material = group_entrie[1].length;
                     this.case_data_temporary.detect_materials.forEach(item => {
                         group_entrie[1].forEach(item_material => {
                             if (item.customer_sku_code == item_material.customer_sku_code &&
@@ -708,8 +708,7 @@ export default {
                                 // this.orders[i]['sku_sap_code'] != '' &&
                                 tmp.sap_so_number == this.orders[i].sap_so_number &&
                                 tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
-                                (tmp.bar_code == this.orders[i].customer_sku_code) &&
-                                tmp.sap_so_number == this.orders[i].sap_so_number) {
+                                (tmp.bar_code == this.orders[i].customer_sku_code)) {
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
                                 this.orders[i]['sku_sap_name'] = tmp.name;
                                 this.orders[i]['sku_sap_unit'] = tmp.unit_code;
@@ -723,21 +722,23 @@ export default {
             for (let index = 0; index < this.case_data_temporary.detect_materials.length; index++) {
                 const material = this.case_data_temporary.detect_materials[index];
                 const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code && order.sap_so_number == material.sap_so_number);
-                switch (index) {
+                switch (index_order) {
                     default:
-                        if (index_order !== -1) {
                             let exist = false;
-                            this.orders.forEach((order, index) => {
+                            this.orders.forEach((order, index_item) => {
                                 if (order.customer_sku_code == material.customer_sku_code &&
                                     order.customer_sku_unit == material.customer_sku_unit &&
                                     order.sap_so_number == material.sap_so_number &&
                                     order.sku_sap_code == material.sap_code &&
+                                    order.sku_sap_name == material.name &&
                                     order.barcode == material.bar_code) {
                                     exist = true;
                                 }
                             })
                             if (!exist) {
-                                this.orders.push({
+                                let index_sap_code  = this.orders.findIndex((order) => order.sku_sap_code == material.sap_code );
+                                if(index_sap_code == -1) {
+                                    this.orders.push({
                                     order: this.orders.length + 1,
                                     id: '',
                                     customer_sku_code: material.customer_sku_code == undefined ? '' : material.customer_sku_code,
@@ -777,8 +778,9 @@ export default {
                                     so_header_id: this.orders[index_order]['so_header_id'],
                                 });
                                 this.moveIndexOrder(this.orders, this.orders.length - 1, index_order + 1);
+                                }
+
                             }
-                        }
                         break;
                 }
             }
