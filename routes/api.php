@@ -41,9 +41,10 @@ use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
+use App\Http\Controllers\Api\Master\UserFieldTableController;
 use App\Models\Business\Delivery;
 use App\Models\Business\UploadedFile;
-
+use App\Models\Master\UserFieldTable;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,9 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
     });
     Route::prefix('master')->group(function () {
+        Route::prefix('/user-field-table')->group(function () {
+            Route::get('/', [UserFieldTableController::class, 'apiGetUserFieldTable']);
+        });
         Route::prefix('/material-donateds')->group(function () {
             Route::get('/', [MaterialDonatedController::class, 'getAll']);
             Route::get('/minified', [MaterialDonatedController::class, 'getAllMinified']);
