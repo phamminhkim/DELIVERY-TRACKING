@@ -515,7 +515,7 @@ export default {
                             return item;
                         }
                     });
-                    this.$showMessage('success', 'Thành công', 'Check cấu hình');
+                    this.$showMessage('success', 'Thành công', 'Check cấu hình trường thành công');
                 }
                 else {
                     this.$showMessage('error', 'Lỗi', errors.sap_error);
@@ -527,7 +527,6 @@ export default {
         async updateColumnHeader(data) {
             // this.field_order_suffices = data;
             this.case_data_temporary.user_field_tables = data;
-            console.table(this.case_data_temporary.user_field_tables);
             await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
         },
         getPerPageChange(per_page) {
