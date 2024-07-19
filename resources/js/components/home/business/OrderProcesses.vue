@@ -629,8 +629,11 @@ export default {
             this.count_order_lack = count;
         },
         getOrders(orders) {
-            this.orders = orders;
+            this.case_save_so.id = '';
+            this.case_save_so.title = '';
+            this.case_data_temporary.order_syncs_selected = [];
             this.case_data_temporary.order_lacks = [];
+            this.orders = orders;
             this.case_index.count_reset_filter++;
             // this.getResetFilter();
         },
