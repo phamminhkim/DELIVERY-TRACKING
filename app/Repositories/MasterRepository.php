@@ -28,7 +28,7 @@ use App\Repositories\Master\MaterialComboRepository;
 use App\Repositories\Master\MaterialDonatedRepository;
 use App\Repositories\Master\CustomerPartnerRepository;
 use App\Repositories\Master\SapComplianceRepository;
-
+use App\Repositories\Master\UserFieldTableRepository;
 use Illuminate\Http\Request;
 
 class MasterRepository
@@ -134,5 +134,9 @@ class MasterRepository
     public static function sapComplianceRequest(Request $request)
     {
         return new SapComplianceRepository($request);
+    }
+    public static function userFieldTableRequest(Request $request)
+    {
+        return new UserFieldTableRepository($request);
     }
 }

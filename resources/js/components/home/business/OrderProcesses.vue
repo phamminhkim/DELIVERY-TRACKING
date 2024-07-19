@@ -35,6 +35,7 @@
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
             :material_donateds="material_donateds" :material_combos="material_combos"
+            :api_handler="api_handler"
             :order_lacks="case_data_temporary.order_lacks" :filterOrders="filterOrders"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
@@ -154,8 +155,6 @@ export default {
             api_check_price: '/api/check-data/check-price',
             api_check_customer_key: '/api/check-data/check-customer-partner',
 
-
-
         }
     },
     created() {
@@ -163,6 +162,7 @@ export default {
         this.case_is_loading.created_conponent = true;
     },
     methods: {
+       
         getSoSapNoteFromSyntax(data_item, key_array, separator) {
             let so_sap_note = "";
             key_array.forEach((key, index) => {

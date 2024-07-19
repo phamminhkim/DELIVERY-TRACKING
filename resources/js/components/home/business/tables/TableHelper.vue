@@ -27,7 +27,6 @@
 <script>
 export default {
     props: {
-
         columns: [],
         eventname: String,
     },
@@ -40,7 +39,9 @@ export default {
         }
     },
     watch: {
-
+        columns: function (val) {
+           this.fields = [...val];
+        }
     },
     methods: {
         dragStart(which, ev) {
