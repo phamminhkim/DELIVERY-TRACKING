@@ -42,8 +42,8 @@ export default {
         }
     },
     methods: {
-        processOrderSync() {
-            this.$emit('processOrderSync');
+        processOrderSync(shipping_id) {
+            this.$emit('processOrderSync', shipping_id);
         },
         emitSelectedOrderSync(selected) {
             this.$emit('emitSelectedOrderSync', selected);
