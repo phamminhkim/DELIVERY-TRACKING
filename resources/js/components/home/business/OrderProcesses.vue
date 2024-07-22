@@ -382,7 +382,7 @@ export default {
         getEmitOrderSyncs(item_selecteds) {
             this.getProcessOrderSyncSelected(item_selecteds);
         },
-        async getProcessOrderSync() {
+        async getProcessOrderSync(shipping_id) {
             try {
                 this.case_is_loading.sap_sync = true;
                 // $('#modalOptionOrderSync').modal('hide'); // nghiệp vụ
@@ -392,7 +392,8 @@ export default {
                         return {
                             'id': item.so_header_id,
                             'warehouse_code': item.warehouse_id,
-                            'so_sap_note': item.so_sap_note
+                            'so_sap_note': item.so_sap_note,
+                            'Ship_cond': shipping_id
                         }
                     })
                 };

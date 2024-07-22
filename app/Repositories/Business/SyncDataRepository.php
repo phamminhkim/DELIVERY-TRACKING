@@ -83,7 +83,7 @@ class SyncDataRepository extends RepositoryAbs
                                 "distr_chan" => "20",
                                 "doc_type" => "ZOR",
                                 "lgort" => $warehouse_code,
-                                "Ship_cond" => "",
+                                "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
                                 "SO_KEY" => $order->id,
                                 "GROUP_NAME" =>isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,// $order->sap_so_number,
                                 "CUST_NO" => $order->customer_code,
