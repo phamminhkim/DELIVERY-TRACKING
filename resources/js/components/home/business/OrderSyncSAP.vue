@@ -22,9 +22,22 @@
                             class="btn btn-sm btn-success btn-group__border">
                             <span class="badge badge-light badge-sm mr-2">{{
             this.case_data_temporary.order_syncs_selected.length }}</span>Xuất Excel</button>
-                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
-                            :show-count="true" @input="changeInputSetWarehouse()" v-model="case_model.warehouse_id"
-                            :options="case_data_temporary.warehouses" />
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                                    :show-count="true" @input="changeInputSetWarehouse()"
+                                    v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
+                            </div>
+                            <div class="col-lg-6">
+                                <select v-model="case_model.shipping_id" class="form-control " aria-placeholder="Shipping" >
+                                    <option  value="">Chọn Shipping</option>
+                                    <option v-for="item in case_data.shipping_datas" :value="item.id">
+                                        {{ item.code }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -82,6 +95,7 @@ export default {
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
+
             case_is_loading: {
                 sap_sync: false,
             },
@@ -102,6 +116,102 @@ export default {
             case_data: {
                 order_syncs: [],
                 wareshouses_default: [],
+                shipping_datas: [
+                    {
+                        id: '01',
+                        code: 'HCM_Company Deliver',
+                    },
+                    {
+                        id: '02',
+                        code: 'HCM_Customer Pick Up',
+                    },
+                    {
+                        id: '03',
+                        code: 'HN_Company Deliver',
+                    },
+                    {
+                        id: '04',
+                        code: 'HN_Customer Pick Up',
+                    },
+                    {
+                        id: '05',
+                        code: 'DN_Company Deliver',
+                    },
+                    {
+                        id: '06',
+                        code: 'DN_Customer Pick Up',
+                    },
+                ],
+                mapping_ships: [
+                    {
+                        warehouse_code: '3114',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3101',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3001',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3002',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3003',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3005',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3008',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3010',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3113',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3011',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3117',
+                        shipping_id: '01',
+                    },
+                    {
+                        warehouse_code: '3004',
+                        shipping_id: '03',
+                    },
+                    {
+                        warehouse_code: '3003',
+                        shipping_id: '03',
+                    },
+                    {
+                        warehouse_code: '3009',
+                        shipping_id: '03',
+                    },
+                    {
+                        warehouse_code: '3007',
+                        shipping_id: '03',
+                    },
+                    {
+                        warehouse_code: '3012',
+                        shipping_id: '03',
+                    },
+                    {
+                        warehouse_code: '3017',
+                        shipping_id: '03',
+                    },
+                ],
             },
             case_data_temporary: {
                 order_syncs_selected: [],
@@ -114,6 +224,7 @@ export default {
             },
             case_model: {
                 warehouse_id: null,
+                shipping_id: '',
             },
             fields: [
                 {
@@ -220,8 +331,18 @@ export default {
         this.fetchWarehouses();
     },
     methods: {
+        getSetMappingShipping(warehouse_id) {
+            let find_warehouse = this.case_data.wareshouses_default.find(warehouse => warehouse.id == warehouse_id);
+            let warehouse_code = find_warehouse ? find_warehouse.code : '';
+            this.case_data.mapping_ships.forEach(item => {
+                if (item.warehouse_code == warehouse_code) {
+                    this.case_model.shipping_id = item.shipping_id;
+                } 
+            });
+        },
         changeInputSetWarehouse() {
             this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected);
+            this.getSetMappingShipping(this.case_model.warehouse_id);
         },
         findWarehouse(warehouse_id) {
             if (!warehouse_id) {
@@ -333,7 +454,8 @@ export default {
                         return {
                             'id': item.id,
                             'warehouse_code': item.warehouse_id,
-                            'so_sap_note': item.so_sap_note
+                            'so_sap_note': item.so_sap_note,
+                            'Ship_cond': this.case_model.shipping_id,
                         }
                     })
                 };
