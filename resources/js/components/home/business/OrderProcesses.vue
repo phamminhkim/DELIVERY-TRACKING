@@ -672,6 +672,7 @@ export default {
             let group_entries = Object.entries(group);
             let exist = false;
             group_entries.forEach((group_entrie, index) => {
+
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code &&
@@ -679,9 +680,10 @@ export default {
                     if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
                         (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
-                        first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit']) ||
-                        (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
-                        )) {
+                        first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit']) ) {
+                        //     ||
+                        // (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
+                        // )
                         this.orders[index_order_group]['sku_sap_code'] = first_group_entri.sap_code;
                         this.orders[index_order_group]['sku_sap_name'] = first_group_entri.name;
                         this.orders[index_order_group]['sku_sap_unit'] = first_group_entri.unit_code;
@@ -708,12 +710,14 @@ export default {
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
                                 // this.orders[i]['sku_sap_code'] != '' &&
                                 tmp.sap_so_number == this.orders[i].sap_so_number &&
-                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ||
-                                (tmp.bar_code == this.orders[i].customer_sku_code)) {
+                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ) {
+                                //     ||
+                                // (tmp.bar_code == this.orders[i].customer_sku_code)
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
                                 this.orders[i]['sku_sap_name'] = tmp.name;
                                 this.orders[i]['sku_sap_unit'] = tmp.unit_code;
                                 this.orders[i]['barcode'] = tmp.bar_code;
+
                                 this.orders[i]['quantity3_sap'] = tmp.quantity3_sap;
                             }
                         }
