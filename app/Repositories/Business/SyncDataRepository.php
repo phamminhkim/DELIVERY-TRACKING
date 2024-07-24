@@ -120,15 +120,18 @@ class SyncDataRepository extends RepositoryAbs
                     $sync_sap_status = 0;
                     $so_sap_note = '';
                     $warehouse_id = 0;
+                    $shipping_id = 0;
                     if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
                         $soHeader->so_uid = $soNumber;
                         $soHeader->sync_sap_status = 1;
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
+                        $soHeader->shipping_id = isset($value["Ship_cond"]) ? $value["Ship_cond"] : null;
                         $sync_sap_status = $soHeader->sync_sap_status = 1 ;
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
+                        $shipping_id = $soHeader->shipping_id;
                         $soHeader->save();
                     } else if ($json_value['SO_KEY'] == '') {
                         $this->errors['not_config_user'] = $json_value['MESSAGE'];
@@ -141,6 +144,7 @@ class SyncDataRepository extends RepositoryAbs
                         "sync_sap_status" => $sync_sap_status,
                         "so_sap_note" => $so_sap_note,
                         "warehouse_code" => $warehouse_id,
+                        "Ship_cond" => $shipping_id,
                         "message" => $json_value['MESSAGE']
                     ];
                 }
