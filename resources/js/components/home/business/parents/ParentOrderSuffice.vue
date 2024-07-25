@@ -34,8 +34,8 @@
             @checkBoxRow="getCheckBoxRow" @sortingChanged="sortingChanged" @isHandleDbClick="getIsHandleDbClick"
             @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
             @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
-            :filterOrders="filterOrders" @filterItems="getFilterItems" @emitResetFilter="getResetFilter"
-            :field_order_suffices="filterIsShowFields">
+            @emitFieldSetWidth="handleEmittedFieldSetWidth" :filterOrders="filterOrders" @filterItems="getFilterItems"
+            @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
         </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -466,22 +466,21 @@ export default {
                 },
             ],
             api_user_field_table: '/api/master/user-field-table',
-
         }
     },
     async created() {
         // this.case_data_temporary.field_selecteds = this.field_order_suffices;
         this.case_data_temporary.field_selecteds = this.case_data_temporary.user_field_tables;
-       await this.fetchUserFieldTable();
+        await this.fetchUserFieldTable();
     },
     methods: {
         async fetchUserFieldTable(fields) {
             try {
-                if(fields === undefined) {
+                if (fields === undefined) {
                     fields = this.case_data_temporary.user_field_tables;
                 }
                 let body = {
-                    user_id : window.Laravel.current_user.id,
+                    user_id: window.Laravel.current_user.id,
                     tables: [
                         fields
                     ]
@@ -499,7 +498,8 @@ export default {
                                     key: item.key,
                                     label: item.label,
                                     sort_table: item.sort_table,
-                                    thClass: item.thClass
+                                    thClass: item.thClass,
+                                    set_width: item.set_width
                                 }
                             }
                             return {
@@ -509,13 +509,13 @@ export default {
                                 key: item.key,
                                 label: item.label,
                                 sort_table: item.sort_table,
-                                thClass: item.thClass
+                                thClass: item.thClass,
+                                set_width: item.set_width
                             }
                         } else {
                             return item;
                         }
                     });
-                    this.$showMessage('success', 'Thành công', 'Check cấu hình trường thành công');
                 }
                 else {
                     this.$showMessage('error', 'Lỗi', errors.sap_error);
@@ -602,6 +602,15 @@ export default {
         },
         checkDuplicateOrder(arr_duplicate, value) {
             return arr_duplicate.includes(value);
+        },
+        async handleEmittedFieldSetWidth(width, key) {
+            this.case_data_temporary.user_field_tables = this.case_data_temporary.user_field_tables.map((item) => {
+                if (item.key == key) {
+                    item.set_width = width;
+                }
+                return item;
+            });
+            await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
         }
 
     },
