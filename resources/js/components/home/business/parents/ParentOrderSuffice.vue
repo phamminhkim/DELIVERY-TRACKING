@@ -13,7 +13,7 @@
             <span v-else class="font-weight-bold text-danger">Tắt chỉnh sửa</span>
         </button>
         <div class="form-group d-inline-block">
-            <TableHelper :columns="case_data_temporary.user_field_tables" eventname="updateColumnHeader"
+            <TableHelper :columns="user_field_tables" eventname="updateColumnHeader"
                 v-on:updateColumnHeader="updateColumnHeader"></TableHelper>
         </div>
         <div class="form-group d-inline-block border-bottom p-2 px-4 rounded mb-0"
@@ -57,6 +57,7 @@ export default {
             type: String,
             default: 'order'
         },
+       
         getOnChangeCategoryType: {
             type: Function
         },
@@ -93,7 +94,13 @@ export default {
         count_reset_filter: {
             type: Number,
             default: 0
-        }
+        },
+        user_field_tables: {
+            type: Array
+        },
+        filterIsShowFields: {
+            type: Array
+        },
     },
     components: {
         TableOrderSuffice,
@@ -470,64 +477,17 @@ export default {
     },
     async created() {
         // this.case_data_temporary.field_selecteds = this.field_order_suffices;
-        this.case_data_temporary.field_selecteds = this.case_data_temporary.user_field_tables;
-        await this.fetchUserFieldTable();
+        // this.case_data_temporary.field_selecteds = this.case_data_temporary.user_field_tables;
+        this.case_data_temporary.field_selecteds = this.user_field_tables;   
+        // await this.fetchUserFieldTable();
     },
     methods: {
-        async fetchUserFieldTable(fields) {
-            try {
-                if (fields === undefined) {
-                    fields = this.case_data_temporary.user_field_tables;
-                }
-                let body = {
-                    user_id: window.Laravel.current_user.id,
-                    tables: [
-                        fields
-                    ]
-                };
-                const { data, success, errors } = await this.api_handler.get(this.api_user_field_table, body);
-                if (success) {
-                    this.case_data_temporary.user_field_tables = data.field_table.map((item, index) => {
-                        if (item.key == 'customer_sku_code') {
-                            const arr_duplicate = this.duplicateFilterOrder(item.key, index);
-                            if (this.checkDuplicateOrder(arr_duplicate, item.key)) {
-                                return {
-                                    isShow: item.isShow,
-                                    tdClass: 'hover-field-order bg-duplicate',
-                                    class: item.class,
-                                    key: item.key,
-                                    label: item.label,
-                                    sort_table: item.sort_table,
-                                    thClass: item.thClass,
-                                    set_width: item.set_width
-                                }
-                            }
-                            return {
-                                tdClass: 'hover-field-order',
-                                isShow: item.isShow,
-                                class: item.class,
-                                key: item.key,
-                                label: item.label,
-                                sort_table: item.sort_table,
-                                thClass: item.thClass,
-                                set_width: item.set_width
-                            }
-                        } else {
-                            return item;
-                        }
-                    });
-                }
-                else {
-                    this.$showMessage('error', 'Lỗi', errors.sap_error);
-                }
-            } catch (error) {
-
-            }
-        },
+        
         async updateColumnHeader(data) {
             // this.field_order_suffices = data;
-            this.case_data_temporary.user_field_tables = data;
-            await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
+            // this.case_data_temporary.user_field_tables = data;
+            this.$emit('emitUpdateColumnHeader', data);
+            // await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
         },
         getPerPageChange(per_page) {
             this.per_page = per_page;
@@ -604,13 +564,22 @@ export default {
             return arr_duplicate.includes(value);
         },
         async handleEmittedFieldSetWidth(width, key) {
-            this.case_data_temporary.user_field_tables = this.case_data_temporary.user_field_tables.map((item) => {
+            // this.case_data_temporary.user_field_tables = this.case_data_temporary.user_field_tables.map((item) => {
+            //     if (item.key == key) {
+            //         item.set_width = width;
+            //     }
+            //     return item;
+            // });
+            // await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
+            let data = [...this.user_field_tables];
+            data = this.user_field_tables.map((item) => {
                 if (item.key == key) {
                     item.set_width = width;
                 }
                 return item;
             });
-            await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
+            this.$emit('emitUpdateColumnHeader', data);
+            // await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);user_field_tables
         }
 
     },
@@ -619,11 +588,7 @@ export default {
             const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
             return Object.keys(group_by_so_num).length
         },
-        filterIsShowFields() {
-            // this.case_data_temporary.field_selecteds = this.field_order_suffices.filter((field) => field.isShow);
-            this.case_data_temporary.field_selecteds = this.case_data_temporary.user_field_tables.filter((field) => field.isShow);
-            return this.case_data_temporary.field_selecteds;
-        },
+       
     }
 }
 </script>
