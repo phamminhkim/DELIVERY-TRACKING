@@ -55,6 +55,7 @@
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
             :warehouses="case_data_temporary.warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
             :is_sap_sync="case_is_loading.sap_sync" @viewDetailOrderSyncs="getviewDetailOrderSyncs"
+            @emitSetShipping="handleEmittedSetShipping"
             @emitDataFetchWarehouse="getEmitDataFetchWarehouse" @emitDataWarehouse="getEmitDataWarehouse">
         </ParentOrderSynchronized>
 
@@ -168,7 +169,12 @@ export default {
         await this.fetchUserFieldTable();
     },
     methods: {
-
+        handleEmittedSetShipping(shipping_id) {
+            this.case_data_temporary.order_syncs_selected.forEach(item => {
+                item.shipping_id = shipping_id;
+            });
+           
+        },
         getSoSapNoteFromSyntax(data_item, key_array, separator) {
             let so_sap_note = "";
             key_array.forEach((key, index) => {
@@ -453,7 +459,8 @@ export default {
                             'id': item.so_header_id,
                             'warehouse_code': item.warehouse_id,
                             'so_sap_note': item.so_sap_note,
-                            'Ship_cond': shipping_id
+                            // 'Ship_cond': shipping_id
+                            'Ship_cond': item.shipping_id
                         }
                     })
                 };
@@ -468,6 +475,7 @@ export default {
                                 order_sync.so_uid = item.so_number;
                                 order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
+                                order_sync.shipping_id = item.shipping_id;
                             }
                         });
                         switch (item.sync_sap_status) {
@@ -665,6 +673,7 @@ export default {
                         sync_sap_status: '',
                         noti_sync: '',
                         warehouse_id: '',
+                        shipping_id: '',
                         so_header_id: order.so_header_id,
                         so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
                     }

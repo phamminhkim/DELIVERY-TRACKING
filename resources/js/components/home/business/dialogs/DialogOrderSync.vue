@@ -45,6 +45,7 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <select v-model="case_model.shipping_id" class="form-control "
+                                            @change="changeInputSetShippingID()"
                                                 aria-placeholder="Shipping">
                                                 <option value="">Chọn Shipping</option>
                                                 <option v-for="item in case_data_temporary.shipping_datas" :value="item.id">
@@ -68,7 +69,8 @@
                         </div>
                         <div class="form-group">
                             <TableOrderSync :fields="fields" :items="order_syncs" :query="case_filter.query"
-                                :warehouses="warehouses" @emitSelectedOrderSync="emitSelectedOrderSync">
+                            :shipping_datas="case_data_temporary.shipping_datas" 
+                            :warehouses="case_data_temporary.warehouses" @emitSelectedOrderSync="emitSelectedOrderSync">
                             </TableOrderSync>
                             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                                 :current_page="current_page" @pageChange="getPageChange"
@@ -270,6 +272,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'shipping_id',
+                    label: 'Shipping',
+                    sortable: true,
+                    class: 'text-nowrap text-center'
+                },
+                {
                     key: 'so_sap_note',
                     label: 'Ghi chú',
                     sortable: true,
@@ -319,6 +327,12 @@ export default {
         this.fetchWarehouses();
     },
     methods: {
+        changeInputSetShippingID(){
+            this.getSetShipping(this.case_model.shipping_id);
+        },
+        getSetShipping(shipping_id, order_syncs_selected) {
+            this.$emit('emitSetShipping', shipping_id);
+        },
         getSetMappingShipping(warehouse_id) {
             let find_warehouse = this.warehouses.find(warehouse => warehouse.id == warehouse_id);
             let warehouse_code = find_warehouse ? find_warehouse.code : '';

@@ -29,7 +29,8 @@
                                     v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                             </div>
                             <div class="col-lg-6">
-                                <select v-model="case_model.shipping_id" class="form-control " aria-placeholder="Shipping" >
+                                <select v-model="case_model.shipping_id" class="form-control" aria-placeholder="Shipping"
+                                @change="changeInputSetShippingID()" >
                                     <option  value="">Chọn Shipping</option>
                                     <option v-for="item in case_data.shipping_datas" :value="item.id">
                                         {{ item.code }}
@@ -52,6 +53,7 @@
             </div>
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
                 :use_component="'OrderSyncSAP'" :current_page="current_page" :per_page="per_page"
+                :shipping_datas="case_data.shipping_datas" :warehouses="case_data_temporary.warehouses"
                 @emitSelectedOrderSync="getSelectedOrderSync">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
@@ -282,6 +284,12 @@ export default {
                     class: 'text-nowrap text-center'
                 },
                 {
+                    key: 'shipping_id',
+                    label: 'Shipping',
+                    sortable: true,
+                    class: 'text-nowrap text-center'
+                },
+                {
                     key: 'customer_code',
                     label: 'Mã KH',
                     sortable: true,
@@ -343,6 +351,9 @@ export default {
         changeInputSetWarehouse() {
             this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected);
             this.getSetMappingShipping(this.case_model.warehouse_id);
+        },
+        changeInputSetShippingID(){
+            this.getSetShipping(this.case_model.shipping_id, this.case_data_temporary.order_syncs_selected);
         },
         findWarehouse(warehouse_id) {
             if (!warehouse_id) {
@@ -455,7 +466,7 @@ export default {
                             'id': item.id,
                             'warehouse_code': item.warehouse_id,
                             'so_sap_note': item.so_sap_note,
-                            'Ship_cond': this.case_model.shipping_id,
+                            'Ship_cond': item.shipping_id,
                         }
                     })
                 };
@@ -549,6 +560,15 @@ export default {
                 this.case_data.order_syncs.forEach(order_sync => {
                     if (item.id == order_sync.id) {
                         order_sync.warehouse_id = warehouse_code;
+                    }
+                });
+            });
+        },
+        getSetShipping(shipping_id, order_syncs_selected) {
+            order_syncs_selected.forEach(item => {
+                this.case_data.order_syncs.forEach(order_sync => {
+                    if (item.id == order_sync.id) {
+                        order_sync.shipping_id = shipping_id;
                     }
                 });
             });
