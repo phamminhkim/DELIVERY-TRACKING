@@ -19,4 +19,5 @@ class UserFieldTableController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+
 }

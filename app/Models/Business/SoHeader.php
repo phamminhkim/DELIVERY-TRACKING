@@ -13,6 +13,7 @@ class SoHeader extends Model
     protected $fillable = [
         'order_process_id',
         'warehouse_id',
+        'shipping_id',
         'so_uid',
         'sap_so_number',
         'so_sap_note',

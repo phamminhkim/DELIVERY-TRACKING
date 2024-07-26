@@ -10,6 +10,7 @@
             :use_component_syncs_sap="use_component_syncs_sap"
             @emitDataFetchWarehouse="emitDataFetchWarehouse"
             @viewDetailOrderSyncs="viewDetailOrderSyncs"
+            @emitSetShipping="handleEmittedSetShipping"
             @emitDataWarehouse="emitDataWarehouse">
         </DialogOrderSync>
     </div>
@@ -60,6 +61,9 @@ export default {
         },
         emitDataWarehouse(warehouse_id){
             this.$emit('emitDataWarehouse', warehouse_id);
+        },
+        handleEmittedSetShipping(shipping_id){
+            this.$emit('emitSetShipping', shipping_id);
         }
     },
     computed: {

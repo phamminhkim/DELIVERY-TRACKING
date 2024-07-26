@@ -7,21 +7,28 @@
                 :tbody-tr-class="hightLightCopy" table-class="table-order-suffices" :current-page="current_page"
                 :per-page="per_page">
                 <template #head(index)="header">
-                    <div :ref="'header_' + header.column" class="col-resize"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column" class="col-resize"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'index')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'index')">
                         <span>{{ header.label }}</span>
                     </div>
                 </template>
                 <template #head(customer_name)="header">
-                    <div tabindex="0" class="text-center col-resize d-flex justify-content-between"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    tabindex="0" class="text-center col-resize d-flex justify-content-between"
                         :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_name')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_name')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
+
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
                             :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
@@ -31,9 +38,12 @@
                     </div>
                 </template>
                 <template #head(sap_so_number)="header">
-                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sap_so_number')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sap_so_number')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -45,9 +55,12 @@
                     </div>
                 </template>
                 <template #head(so_sap_note)="header">
-                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'so_sap_note')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'so_sap_note')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -59,9 +72,12 @@
                     </div>
                 </template>
                 <template #head(barcode)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'barcode')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'barcode')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
@@ -79,9 +95,12 @@
                     </div>
                 </template>
                 <template #head(sku_sap_code)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_code')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_code')"
                         class="text-center d-flex col-resize justify-content-between ">
                         <label class="mb-0 col-resize" :class="{
@@ -99,9 +118,12 @@
                     </div>
                 </template>
                 <template #head(sku_sap_name)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_name')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_name')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
@@ -119,9 +141,12 @@
                     </div>
                 </template>
                 <template #head(quantity3_sap)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity3_sap')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity3_sap')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
@@ -155,9 +180,12 @@
                         @change="checkBoxAll(data.index)"></b-form-checkbox>
                 </template>
                 <template #head(sku_sap_unit)="header">
-                    <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'sku_sap_unit')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'sku_sap_unit')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -170,9 +198,12 @@
                     </div>
                 </template>
                 <template #head(promotive)="header">
-                    <div class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center d-flex justify-content-between col-resize" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'promotive')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'promotive')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -185,9 +216,12 @@
                     </div>
                 </template>
                 <template #head(note)="header">
-                    <div class="text-center  col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center  col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'note')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'note')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -200,9 +234,12 @@
                     </div>
                 </template>
                 <template #head(customer_code)="header">
-                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_code')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_code')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -215,9 +252,12 @@
                     </div>
                 </template>
                 <template #head(customer_sku_code)="header">
-                    <div class="text-center d-flex col-resize justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center d-flex col-resize justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_code')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_code')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -230,9 +270,12 @@
                     </div>
                 </template>
                 <template #head(customer_sku_name)="header">
-                    <div class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_name')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_name')">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
@@ -245,9 +288,12 @@
                     </div>
                 </template>
                 <template #head(quantity1_po)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity1_po')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity1_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -265,12 +311,13 @@
                         :value="data.item"></b-form-checkbox>
                 </template>
                 <template #cell(barcode)="data">
-                    <div class="barcode overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="barcode overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.barcode, data.field.key)" -->
                         <!-- @input="handleItem(data.item.barcode, 'barcode', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.barcode"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.barcode"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.barcode + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.barcode, data.field.key)"
@@ -292,12 +339,14 @@
                     <!-- <div v-if="isCheckLack(data.item)">
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                     </div> -->
-                    <div class="customer_name overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" :ref="'ref_customer_name_' + data.index" class="customer_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_name, 'customer_name', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_name"
+                        <input v-if="isHandleDbClick()" v-model="data.item.customer_name"
                             @dblclick="handleDoubleClick($event)"
-                            />
+                            @input="offsetWidth('ref_customer_name_', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_name + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.customer_name, data.field.key)"
@@ -312,12 +361,13 @@
 
                 </template>
                 <template #cell(sap_so_number)="data">
-                    <div class="sap_so_number overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="sap_so_number overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sap_so_number, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sap_so_number"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.sap_so_number"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sap_so_number + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.sap_so_number, data.field.key)"
@@ -333,15 +383,16 @@
                     </div>
                 </template>
                 <template #cell(quantity1_po)="data">
-                    <div class="quantity1_po overflow-hidden" :class="{
-            'text-danger': isCheckLack(data.item)
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="quantity1_po overflow-hidden" :class="{
+            'text-danger': isCheckLack(data.item),
         }">
                         <!-- {{ data.item.quantity1_po }} -->
                         <!-- @keydown="copyItem($event, data.item.quantity1_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.quantity1_po, 'quantity1_po', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity1_po"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.quantity1_po"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity1_po + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.quantity1_po, data.field.key)"
@@ -356,14 +407,15 @@
                     </div>
                 </template>
                 <template #cell(quantity2_po)="data">
-                    <div class="quantity2_po overflow-hidden" :class="{
-            'text-danger': isCheckLack(data.item)
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="quantity2_po overflow-hidden" :class="{
+            'text-danger': isCheckLack(data.item),
         }">
                         <!-- @keydown="copyItem($event, data.item.quantity2_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.quantity2_po, 'quantity2_po', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity2_po"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.quantity2_po"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity2_po + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.quantity2_po, data.field.key)"
@@ -378,16 +430,18 @@
                     </div>
                 </template>
                 <template #cell(inventory_quantity)="data">
-                    <div class="inventory_quantity overflow-hidden" :class="{
+                    <div :style="{
+                            'width': data.field.set_width + 'px' + '!important'
+                            }"
+                    class="inventory_quantity overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item),
-            'text-danger': data.item.inventory_quantity <= 0
+            'text-danger': data.item.inventory_quantity <= 0,
         }">
                         <!-- {{ data.item.inventory_quantity }} -->
                         <!-- @keydown="copyItem($event, data.item.inventory_quantity, data.field.key)" -->
                         <!-- @input="handleItem(data.item.inventory_quantity, 'inventory_quantity', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.inventory_quantity"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.inventory_quantity"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.inventory_quantity + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.inventory_quantity, data.field.key)"
@@ -403,9 +457,12 @@
                     </div>
                 </template>
                 <template #head(customer_sku_unit)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'customer_sku_unit')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'customer_sku_unit')"
                         class="text-center d-flex col-resize justify-content-between">
                         <label class="mb-0 col-resize">
@@ -419,9 +476,12 @@
                     </div>
                 </template>
                 <template #head(po)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -435,9 +495,12 @@
                     </div>
                 </template>
                 <template #head(promotive_name)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'promotive_name')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'promotive_name')"
                         class="text-center d-flex col-resize justify-content-between">
                         <label class="mb-0 col-resize">
@@ -451,9 +514,12 @@
                     </div>
                 </template>
                 <template #head(inventory_quantity)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'inventory_quantity')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'inventory_quantity')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -467,9 +533,12 @@
                     </div>
                 </template>
                 <template #head(quantity2_po)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'quantity2_po')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'quantity2_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -483,9 +552,12 @@
                     </div>
                 </template>
                 <template #head(variant_quantity)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'variant_quantitys')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'variant_quantitys')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -499,9 +571,12 @@
                     </div>
                 </template>
                 <template #head(price_po)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'price_po')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'price_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -515,9 +590,12 @@
                     </div>
                 </template>
                 <template #head(amount_po)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'amount_po')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'amount_po')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -531,9 +609,12 @@
                     </div>
                 </template>
                 <template #head(compliance)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'compliance')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'compliance')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -547,9 +628,12 @@
                     </div>
                 </template>
                 <template #head(is_compliant)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'is_compliant')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'is_compliant')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -565,9 +649,12 @@
                     </div>
                 </template>
                 <template #head(note1)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'note1')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'note1')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -580,9 +667,12 @@
                     </div>
                 </template>
                 <template #head(company_price)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'company_price')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'company_price')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -596,9 +686,12 @@
                     </div>
                 </template>
                 <template #head(level2)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level2')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level2')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -612,9 +705,12 @@
                     </div>
                 </template>
                 <template #head(level3)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level3')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level3')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -628,9 +724,12 @@
                     </div>
                 </template>
                 <template #head(level4)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'level4')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'level4')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -644,9 +743,12 @@
                     </div>
                 </template>
                 <template #head(po_number)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }" 
+                    :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po_number')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po_number')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -660,9 +762,12 @@
                     </div>
                 </template>
                 <template #head(po_delivery_date)="header">
-                    <div :ref="'header_' + header.column"
+                    <div :style="{
+                        'width': header.field.set_width + 'px' + '!important'
+                    }"
+                     :ref="'header_' + header.column"
                         @mousedown="handleMouseDownHeader($event, 'header_' + header.column, 'po_delivery_date')"
-                        @mouseup="handleMouseUpHeader" @mouseleave="handleMouseLeaveHeader"
+                        @mouseup="handleMouseUpHeader(header.field.key)" @mouseleave="handleMouseLeaveHeader"
                         @mousemove="handleMouseMoveHeader($event, 'header_' + header.column, 'po_delivery_date')"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize">
@@ -676,12 +781,13 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_code)="data">
-                    <div class="overflow-hidden sku_sap_code">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" :ref="'ref_sku_sap_code_' + data.index" class="overflow-hidden sku_sap_code">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_code"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.sku_sap_code"
+                            @dblclick="handleDoubleClick($event)" />
                         <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
@@ -701,12 +807,13 @@
 
                 </template>
                 <template #cell(sku_sap_name)="data">
-                    <div class="sku_sap_name overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="sku_sap_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_name"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.sku_sap_name"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_name + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)"
@@ -721,12 +828,13 @@
 
                 </template>
                 <template #cell(so_sap_note)="data">
-                    <div class="so_sap_note overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="so_sap_note overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.so_sap_note, data.field.key)" -->
                         <!-- @input="handleItem(data.item.so_sap_note, 'so_sap_note', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.so_sap_note"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.so_sap_note"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.so_sap_note + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
@@ -740,12 +848,13 @@
 
                 </template>
                 <template #cell(quantity3_sap)="data">
-                    <div class="quantity3_sap overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="quantity3_sap overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)" -->
                         <!-- @input="handleItem(data.item.quantity3_sap, 'quantity3_sap', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.quantity3_sap"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.quantity3_sap"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity3_sap + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)"
@@ -760,12 +869,13 @@
 
                 </template>
                 <template #cell(customer_sku_name)="data">
-                    <div class="customer_sku_name overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="customer_sku_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_name"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.customer_sku_name"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_name + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)"
@@ -780,12 +890,13 @@
 
                 </template>
                 <template #cell(customer_sku_unit)="data">
-                    <div class="customer_sku_unit overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="customer_sku_unit overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_unit"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.customer_sku_unit"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_unit + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)"
@@ -800,12 +911,13 @@
 
                 </template>
                 <template #cell(po)="data">
-                    <div class="po overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po, 'po', data.index)"  -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po"
-                            @dblclick="handleDoubleClick($event)"
-                            />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.po"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.po, data.field.key)"
@@ -818,12 +930,13 @@
                     </div>
                 </template>
                 <template #cell(sku_sap_unit)="data">
-                    <div class="sku_sap_unit overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="sku_sap_unit overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.sku_sap_unit"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.sku_sap_unit"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_unit + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)"
@@ -837,12 +950,13 @@
                     </div>
                 </template>
                 <template #cell(customer_code)="data">
-                    <div class="customer_code overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="customer_code overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_code, 'customer_code', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_code"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.customer_code"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_code + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.customer_code, data.field.key)"
@@ -857,12 +971,13 @@
                     </div>
                 </template>
                 <template #cell(promotive_name)="data">
-                    <div class="promotive_name overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="promotive_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.promotive_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.promotive_name, 'promotive_name', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.promotive_name"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.promotive_name"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.promotive_name + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.promotive_name, data.field.key)"
@@ -876,12 +991,13 @@
                     </div>
                 </template>
                 <template #cell(note1)="data">
-                    <div class="note1 overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="note1 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.note1, data.field.key)" -->
                         <!-- @input="handleItem(data.item.note1, 'note1', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.note1"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.note1"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.note1 + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.note1, data.field.key)"
@@ -894,12 +1010,13 @@
                     </div>
                 </template>
                 <template #cell(note)="data">
-                    <div class="note overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="note overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.note, data.field.key)" -->
                         <!-- @input="handleItem(data.item.note, 'note', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.note"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.note"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.note + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.note, data.field.key)"
@@ -912,12 +1029,13 @@
                     </div>
                 </template>
                 <template #cell(compliance)="data">
-                    <div class="compliance overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="compliance overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.compliance, data.field.key)" -->
                         <!-- @input="handleItem(data.item.compliance, 'compliance', data.index)"  -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.compliance"
-                            @dblclick="handleDoubleClick($event)"
-                            />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.compliance"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.compliance + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.compliance, data.field.key)"
@@ -930,12 +1048,13 @@
                     </div>
                 </template>
                 <template #cell(level2)="data">
-                    <div class="level2 overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="level2 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level2, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level2, 'level2', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level2"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.level2"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level2 + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.level2, data.field.key)"
@@ -948,12 +1067,13 @@
                     </div>
                 </template>
                 <template #cell(level3)="data">
-                    <div class="level3 overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="level3 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level3, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level3, 'level3', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level3"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.level3"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level3 + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.level3, data.field.key)"
@@ -968,12 +1088,13 @@
 
                 </template>
                 <template #cell(level4)="data">
-                    <div class="level4 overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="level4 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level4, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level4, 'level4', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.level4"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.level4"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level4 + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.level4, data.field.key)"
@@ -987,7 +1108,9 @@
 
                 </template>
                 <template #cell(promotive)="data">
-                    <div class="overflow-hidden promotive">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="overflow-hidden promotive">
                         <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.promotive, data.field.key)"
                             @mousedown="startSelection($event, data.item.promotive, data.index, data.field.key)"
@@ -1005,12 +1128,13 @@
 
                 </template>
                 <template #cell(amount_po)="data">
-                    <div class="amount_po overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="amount_po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.amount_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.amount_po, 'amount_po', data.index)"  -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.amount_po"
-                            @dblclick="handleDoubleClick($event)"
-                            />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.amount_po"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.amount_po + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.amount_po, data.field.key)"
@@ -1025,12 +1149,13 @@
 
                 </template>
                 <template #cell(price_po)="data">
-                    <div class="price_po overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="price_po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.price_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.price_po, 'price_po', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.price_po"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.price_po"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.price_po + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.price_po, data.field.key)"
@@ -1047,12 +1172,13 @@
 
                 </template>
                 <template #cell(company_price)="data">
-                    <div class="company_price overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="company_price overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.company_price, data.field.key)" -->
                         <!-- @input="handleItem(data.item.company_price, 'company_price', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.company_price"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.company_price"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.company_price + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.company_price, data.field.key)"
@@ -1072,12 +1198,13 @@
 
                 </template>
                 <template #cell(customer_sku_code)="data">
-                    <div class="customer_sku_code overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="customer_sku_code overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.customer_sku_code"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.customer_sku_code"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.index + data.field.key"
                             @dblclick="handleDoubleClick($event)"
@@ -1092,7 +1219,9 @@
 
                 </template>
                 <template #cell(is_compliant)="data">
-                    <div class="is_compliant overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="is_compliant overflow-hidden">
 
                         <div :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.is_compliant + data.index + data.field.key"
@@ -1113,12 +1242,13 @@
                     </div>
                 </template>
                 <template #cell(po_number)="data">
-                    <div class="po_number overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="po_number overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po_number, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po_number, 'po_number', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po_number"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.po_number"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po_number + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.po_number, data.field.key)"
@@ -1131,12 +1261,13 @@
                     </div>
                 </template>
                 <template #cell(po_delivery_date)="data">
-                    <div class="po_delivery_date overflow-hidden">
+                    <div :style="{
+            'width': data.field.set_width + 'px' + '!important'
+        }" class="po_delivery_date overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po_delivery_date, 'po_delivery_date', data.index)" -->
-                        <input v-if="isHandleDbClick()" class="px-2" v-model="data.item.po_delivery_date"
-                            @dblclick="handleDoubleClick($event)"
-                             />
+                        <input v-if="isHandleDbClick()"  v-model="data.item.po_delivery_date"
+                            @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po_delivery_date + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)"
@@ -1270,6 +1401,7 @@ export default {
             is_mouse_down: false,
             width: 100,
             previous_mouse_position: 0,
+            width_input: 200,
         }
     },
     watch: {
@@ -1283,8 +1415,31 @@ export default {
     },
     created() {
         this.fetchMaterialCategoryType();
+
+    },
+    mounted() {
+        this.createTextWidth();
     },
     methods: {
+        createTextWidth() {
+            console.log('createTextWidth', this.$refs, this.$refs.header_customer_name, this.$refs['header_']);
+        },
+        offsetWidth(ref, index) {
+            const refName = `${ref}${index}`;
+            let text = this.$refs[refName].querySelector('input');
+            let calculateTextWidth = this.calculateTextWidth(text.value);
+            this.width_input = calculateTextWidth;
+            if (this.width_input < 10) {
+                this.width_input = 200;
+            }
+            return text.style.width = `${this.width_input}px`;
+        },
+        calculateTextWidth(text) {
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            context.font = '14px Arial';
+            return context.measureText(text).width;
+        },
         async fetchMaterialCategoryType() {
             try {
                 this.is_loading = true;
@@ -1624,9 +1779,10 @@ export default {
             }
 
         },
-        handleMouseUpHeader() {
+        handleMouseUpHeader(key) {
             this.is_mouse_down = false;
             clearTimeout(this.mouse_hould_timeout);
+            this.$emit('emitFieldSetWidth', this.width, key); 
         },
         handleMouseLeaveHeader() {
             this.is_mouse_down = false;
@@ -1636,6 +1792,7 @@ export default {
             if (this.is_mouse_down) {
                 // lấy class customer_name
                 let get_class = document.getElementsByClassName(class_cell);
+
                 if (e.clientX > this.previous_mouse_position) {
                     this.width = this.width++ + 5;
                 } else if (e.clientX < this.previous_mouse_position) {
@@ -1646,6 +1803,7 @@ export default {
                     get_class[index].style.width = this.width + 'px';
                 }
                 this.previous_mouse_position = e.clientX;
+                console.log(this.width);
             }
         },
         getResetFilter() {

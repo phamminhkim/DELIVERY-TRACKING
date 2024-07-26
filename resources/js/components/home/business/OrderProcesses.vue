@@ -13,7 +13,8 @@
             :item_selecteds="case_data_temporary.item_selecteds" @changeEventCompliance="getChangeEventCompliance"
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
-            @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey">
+            @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey"
+            @changeEventOrderCopy="getEmittedChangeEventOrderCopy">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -34,15 +35,16 @@
         <!-- Parent -->
         <ParentOrderSuffice ref="parentOrderSuffice" v-show="tab_value == 'order'" :row_orders="row_orders"
             :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
-            :material_donateds="material_donateds" :material_combos="material_combos"
-            :api_handler="api_handler"
+            :material_donateds="material_donateds" :material_combos="material_combos" :api_handler="api_handler"
             :order_lacks="case_data_temporary.order_lacks" :filterOrders="filterOrders"
+            :user_field_tables="case_data_temporary.user_field_tables"
+            :filterIsShowFields="filterIsShowFields"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
-            @emitResetFilter="getResetFilter" @editRow="getEditRow">
+            @emitResetFilter="getResetFilter" @editRow="getEditRow" @emitUpdateColumnHeader="handleEmittedUpdateColumnHeader">
         </ParentOrderSuffice>
         <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value"
             :order_lacks="case_data_temporary.order_lacks" @convertOrderLack="getConvertOrderLack"
@@ -53,6 +55,7 @@
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
             :warehouses="case_data_temporary.warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
             :is_sap_sync="case_is_loading.sap_sync" @viewDetailOrderSyncs="getviewDetailOrderSyncs"
+            @emitSetShipping="handleEmittedSetShipping"
             @emitDataFetchWarehouse="getEmitDataFetchWarehouse" @emitDataWarehouse="getEmitDataWarehouse">
         </ParentOrderSynchronized>
 
@@ -143,6 +146,8 @@ export default {
                 filter_orders: [],
                 error_csv_data: {},
                 detect_materials: [],
+                user_field_tables: [],
+                field_selecteds: [],
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty', 'SL chênh lệch',
@@ -154,15 +159,22 @@ export default {
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
             api_check_customer_key: '/api/check-data/check-customer-partner',
+            api_user_field_table: '/api/master/user-field-table',
 
         }
     },
-    created() {
+    async created() {
         this.getUrl();
         this.case_is_loading.created_conponent = true;
+        await this.fetchUserFieldTable();
     },
     methods: {
-       
+        handleEmittedSetShipping(shipping_id) {
+            this.case_data_temporary.order_syncs_selected.forEach(item => {
+                item.shipping_id = shipping_id;
+            });
+           
+        },
         getSoSapNoteFromSyntax(data_item, key_array, separator) {
             let so_sap_note = "";
             key_array.forEach((key, index) => {
@@ -264,7 +276,7 @@ export default {
                     });
                     if (is_customer_code_null) {
                         this.$showMessage('warning', 'Cảnh báo', 'Không tìm thấy mã khách hàng cho khách hàng '
-                         + customer_keys.map(item => item).join(', '));
+                            + customer_keys.map(item => item).join(', '));
                     } else {
                         this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
                     }
@@ -292,6 +304,60 @@ export default {
         },
         getEditRow(is_edit_row) {
             this.case_is_loading.edit_row = is_edit_row;
+        },
+        async fetchUserFieldTable(fields) {
+            try {
+                if (fields === undefined) {
+                    fields = this.case_data_temporary.user_field_tables;
+                }
+                let body = {
+                    user_id: window.Laravel.current_user.id,
+                    tables: [
+                        fields
+                    ]
+                };
+                const { data, success, errors } = await this.api_handler.get(this.api_user_field_table, body);
+                if (success) {
+                    this.case_data_temporary.user_field_tables = data.field_table.map((item, index) => {
+                        if (item.key == 'customer_sku_code') {
+                            const arr_duplicate = this.duplicateFilterOrder(item.key, index);
+                            if (this.checkDuplicateOrder(arr_duplicate, item.key)) {
+                                return {
+                                    isShow: item.isShow,
+                                    tdClass: 'hover-field-order bg-duplicate',
+                                    class: item.class,
+                                    key: item.key,
+                                    label: item.label,
+                                    sort_table: item.sort_table,
+                                    thClass: item.thClass,
+                                    set_width: item.set_width
+                                }
+                            }
+                            return {
+                                tdClass: 'hover-field-order',
+                                isShow: item.isShow,
+                                class: item.class,
+                                key: item.key,
+                                label: item.label,
+                                sort_table: item.sort_table,
+                                thClass: item.thClass,
+                                set_width: item.set_width
+                            }
+                        } else {
+                            return item;
+                        }
+                    });
+                }
+                else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
+                }
+            } catch (error) {
+
+            }
+        },
+        async handleEmittedUpdateColumnHeader(data){
+            this.case_data_temporary.user_field_tables = data;
+            await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
         },
         getEmitDataWarehouse(warehouse_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
@@ -393,7 +459,8 @@ export default {
                             'id': item.so_header_id,
                             'warehouse_code': item.warehouse_id,
                             'so_sap_note': item.so_sap_note,
-                            'Ship_cond': shipping_id
+                            // 'Ship_cond': shipping_id
+                            'Ship_cond': item.shipping_id
                         }
                     })
                 };
@@ -408,6 +475,7 @@ export default {
                                 order_sync.so_uid = item.so_number;
                                 order_sync.sync_sap_status = item.sync_sap_status;
                                 order_sync.noti_sync = item.message;
+                                order_sync.shipping_id = item.shipping_id;
                             }
                         });
                         switch (item.sync_sap_status) {
@@ -605,6 +673,7 @@ export default {
                         sync_sap_status: '',
                         noti_sync: '',
                         warehouse_id: '',
+                        shipping_id: '',
                         so_header_id: order.so_header_id,
                         so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
                     }
@@ -676,11 +745,11 @@ export default {
                 if (group_entrie[1].length > 1) {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code &&
-                                                                            order.sap_so_number == first_group_entri.sap_so_number);
+                        order.sap_so_number == first_group_entri.sap_so_number);
                     if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
                         (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
-                        first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit']) ) {
+                        first_group_entri.customer_sku_unit == this.orders[index_order_group]['customer_sku_unit'])) {
                         //     ||
                         // (first_group_entri.bar_code == this.orders[index_order_group]['customer_sku_code']
                         // )
@@ -710,7 +779,7 @@ export default {
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
                                 // this.orders[i]['sku_sap_code'] != '' &&
                                 tmp.sap_so_number == this.orders[i].sap_so_number &&
-                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit) ) {
+                                tmp.customer_sku_unit == this.orders[i].customer_sku_unit)) {
                                 //     ||
                                 // (tmp.bar_code == this.orders[i].customer_sku_code)
                                 this.orders[i]['sku_sap_code'] = tmp.sap_code;
@@ -729,21 +798,21 @@ export default {
                 const index_order = this.orders.findIndex((order) => order.customer_sku_code == material.customer_sku_code && order.sap_so_number == material.sap_so_number);
                 switch (index_order) {
                     default:
-                            let exist = false;
-                            this.orders.forEach((order, index_item) => {
-                                if (order.customer_sku_code == material.customer_sku_code &&
-                                    order.customer_sku_unit == material.customer_sku_unit &&
-                                    order.sap_so_number == material.sap_so_number &&
-                                    order.sku_sap_code == material.sap_code &&
-                                    order.sku_sap_name == material.name &&
-                                    order.barcode == material.bar_code) {
-                                    exist = true;
-                                }
-                            })
-                            if (!exist) {
-                                let index_sap_code  = this.orders.findIndex((order) => order.sku_sap_code == material.sap_code );
-                                if(index_sap_code == -1) {
-                                    this.orders.push({
+                        let exist = false;
+                        this.orders.forEach((order, index_item) => {
+                            if (order.customer_sku_code == material.customer_sku_code &&
+                                order.customer_sku_unit == material.customer_sku_unit &&
+                                order.sap_so_number == material.sap_so_number &&
+                                order.sku_sap_code == material.sap_code &&
+                                order.sku_sap_name == material.name &&
+                                order.barcode == material.bar_code) {
+                                exist = true;
+                            }
+                        })
+                        if (!exist) {
+                            let index_sap_code = this.orders.findIndex((order) => order.sku_sap_code == material.sap_code);
+                            if (index_sap_code == -1) {
+                                this.orders.push({
                                     order: this.orders.length + 1,
                                     id: '',
                                     customer_sku_code: material.customer_sku_code == undefined ? '' : material.customer_sku_code,
@@ -783,9 +852,9 @@ export default {
                                     so_header_id: this.orders[index_order]['so_header_id'],
                                 });
                                 this.moveIndexOrder(this.orders, this.orders.length - 1, index_order + 1);
-                                }
-
                             }
+
+                        }
                         break;
                 }
             }
@@ -1300,6 +1369,40 @@ export default {
         getBtnCopy(index, item) {
             this.case_data_temporary.copy = JSON.parse(JSON.stringify(item));
             this.case_is_loading.delete_row = false;
+            this.copyJsonToClipboard(this.case_data_temporary.copy);
+        },
+        copyJsonToClipboard(data) {
+            // const copyText = JSON.stringify(data);
+            const textArea = document.createElement("textarea"); // Create a textarea element
+            textArea.value = this.convertJsonToTSV(data); // Set the JSON string as the value of the textarea
+            document.body.appendChild(textArea); // Append the textarea to the document
+            textArea.select(); // Select the textarea content
+            document.execCommand("copy"); // Copy the selected content to the clipboard
+            document.body.removeChild(textArea); // Remove the textarea from the document
+            this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
+        },
+        convertJsonToTSVSelected(selecteds) {
+            const rows = selecteds.map(row => this.filterIsShowFields.map(key => 
+                row[key.key]).join("\t")
+            );
+            return [...rows].join("\n");
+        },
+        getEmittedChangeEventOrderCopy() {
+            this.copyJsonToClipboardSelected(this.case_data_temporary.item_selecteds);
+            this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
+        },
+        copyJsonToClipboardSelected(selecteds) {
+            const tsvString = this.convertJsonToTSVSelected(selecteds);
+            const textArea = document.createElement("textarea");
+            textArea.value = tsvString;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+        },
+        convertJsonToTSV(item) {
+            const values = this.filterIsShowFields.map(field => item[field.key]);
+            return [values.join("\t")].join("\n");
         },
         getFilterItems(items, field, boolean) {
             if (field == 'reset') {
@@ -1381,6 +1484,25 @@ export default {
                 order.is_compliant = null;
             });
         },
+        getDuplicates(arr) {
+            const seen = new Set();
+            const duplicates = new Set();
+            for (const value of arr) {
+                if (seen.has(value)) {
+                    duplicates.add(value);
+                } else {
+                    seen.add(value);
+                }
+            }
+            return Array.from(duplicates);
+        },
+        duplicateFilterOrder(value, key) {
+            const duplicate = this.getDuplicates(this.filterOrders.map(item => item[key]));
+            return duplicate;
+        },
+        checkDuplicateOrder(arr_duplicate, value) {
+            return arr_duplicate.includes(value);
+        },
 
     },
     computed: {
@@ -1409,7 +1531,11 @@ export default {
             }
             return news;
 
-        }
+        },
+        filterIsShowFields() {
+            this.case_data_temporary.field_selecteds =  this.case_data_temporary.user_field_tables.filter((field) => field.isShow)
+            return this.case_data_temporary.field_selecteds;
+        },
     },
 }
 </script>
