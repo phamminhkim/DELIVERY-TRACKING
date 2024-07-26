@@ -15,15 +15,27 @@
                 <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}</a>
             </template>
             <template #cell(warehouse_code)="data">
-                <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
-                    }}</span>
+                <!-- <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
+                    }}</span> -->
+                <div style="width:20rem">
+                    <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                        :show-count="true" v-model="data.item.warehouse_id" :options="warehouses"
+                        :load-options="loadOptions" />
+                </div>
+
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
                     placeholder="Nhập mã kho" /> -->
             </template>
-            <!-- <template #cell(sync_sap_status)="data">
-                <span v-if="!data.sync_sap_status" class="badge badge-sm badge-warning">Chưa đồng bộ</span>
-                <span v-else class="badge badge-sm badge-success">Đã đồng bộ</span>
-            </template> -->
+            <template #cell(shipping_id)="data">
+                <div style="width:10rem">
+                    <select v-model="data.item.shipping_id" class="form-control form-control-sm">
+                    <option value="">Chọn shipping</option>
+                    <option v-for="(ship, index) in shipping_datas" :key="index" :value="ship.id">
+                        {{ ship.code }}
+                    </option>
+                </select>
+                </div>
+            </template>
             <template #cell(sync_sap_status)="data">
                 <span class="badge bg-success" v-if="data.item.sync_sap_status == 1">Đã đồng bộ</span>
                 <span class="badge bg-warning" v-if="data.item.sync_sap_status == 0">Chưa đồng bộ</span>
@@ -33,6 +45,10 @@
 </template>
 <script>
 import ApiHandler, { APIRequest } from '../../ApiHandler';
+import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+
 export default {
     props: {
         use_component: {
@@ -45,7 +61,11 @@ export default {
         current_page: Number,
         per_page: Number,
         un_selecteds: Array,
-        warehouses: Array
+        warehouses: Array,
+        shipping_datas: Array,
+    },
+    components: {
+        Treeselect
     },
 
     data() {
@@ -78,6 +98,40 @@ export default {
         this.fetchWarehouses();
     },
     methods: {
+        loadOptions({ action, parentNode, callback }) {
+            // Typically, do the AJAX stuff here.
+            // Once the server has responded,
+            // assign children options to the parent node & call the callback.
+
+            if (action === LOAD_CHILDREN_OPTIONS) {
+                switch (parentNode.id) {
+                    case 'success': {
+                        simulateAsyncOperation(() => {
+                            parentNode.children = [{
+                                id: 'child',
+                                label: 'Child option',
+                            }]
+                            callback()
+                        })
+                        break
+                    }
+                    case 'no-children': {
+                        simulateAsyncOperation(() => {
+                            parentNode.children = []
+                            callback()
+                        })
+                        break
+                    }
+                    case 'failure': {
+                        simulateAsyncOperation(() => {
+                            callback(new Error('Failed to load options: network error.'))
+                        })
+                        break
+                    }
+                    default: /* empty */
+                }
+            }
+        },
         async fetchWarehouses() {
             let { data, success } = await this.api_handler.get(this.case_api.warehouse);
             if (success) {

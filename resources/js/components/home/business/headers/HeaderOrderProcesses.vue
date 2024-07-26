@@ -120,6 +120,9 @@
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">
                     <span class="badge badge-sm badge-danger px-2 mr-1">{{ count_selected }}</span>Xóa
                     dữ liệu</button>
+                    <button @click="emitOrderCopy()"
+                    class="btn-sm font-smaller btn font-weight-bold btn-light rounded  statistic  btn-group__border shadow-btn">
+                    <span class="badge badge-sm badge-info px-2 mr-1">{{ count_selected }}</span>Coppy</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded text-center btn-group__border shadow-btn"><i
                         class="fas fa-search mr-2"></i>Tìm
@@ -142,6 +145,7 @@
                 <button @click="emitSaveOrderProcess()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-save mr-2"></i>Lưu</button>
+                
             </div>
             <!-- <div class="row">
                 <div class="col-3">
@@ -854,6 +858,9 @@ export default {
         },
         emitOrderDelete() {
             this.$emit('changeEventOrderDelete');
+        },
+        emitOrderCopy() {
+            this.$emit('changeEventOrderCopy');
         },
         emitSaveOrderProcess() {
             let is_show_modal_sync_sap = false; // Lưu
