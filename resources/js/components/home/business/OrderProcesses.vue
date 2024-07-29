@@ -14,7 +14,7 @@
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
             @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey"
-            @changeEventOrderCopy="getEmittedChangeEventOrderCopy" @emitBackgroundColor="handleEmittedBackgroundColor" >
+            @changeEventOrderCopy="getEmittedChangeEventOrderCopy" @emitBackgroundColor="handleEmittedBackgroundColor">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -176,7 +176,7 @@ export default {
         handleEmittedBackgroundColor(color) {
             console.log(color, 'mã màu');
             this.case_data_temporary.theme_background = color;
-            if(this.case_data_temporary.index_table !== -1){
+            if (this.case_data_temporary.index_table !== -1) {
                 this.filterOrders[this.case_data_temporary.index_table].theme_background = this.case_data_temporary.theme_background;
                 console.log(this.filterOrders[this.case_data_temporary.index_table].theme_background, 'màu nền');
             }
@@ -906,7 +906,7 @@ export default {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
-                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '')  ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
+                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
                     }
                 }
             });
@@ -1132,7 +1132,7 @@ export default {
                 this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
                 this.case_is_loading.is_save_with_sync_sap = false;
             }
-           
+
 
         },
         refeshOrders() {
@@ -1413,6 +1413,9 @@ export default {
             const rows = selecteds.map(row => this.filterIsShowFields.map(key =>
                 row[key.key]).join("\t")
             );
+            rows.forEach((row, index) => {
+                rows[index] = row.replace(/\n/g, '');
+            });
             return [...rows].join("\n");
         },
         getEmittedChangeEventOrderCopy() {
@@ -1460,7 +1463,7 @@ export default {
                     this.case_data_temporary.filter_orders = items_filter;
                     break;
             }
-           
+
 
         },
         getResetFilter() {
