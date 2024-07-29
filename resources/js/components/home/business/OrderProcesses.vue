@@ -14,7 +14,7 @@
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
             @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey"
-            @changeEventOrderCopy="getEmittedChangeEventOrderCopy" @emitBackgroundColor="handleEmittedBackgroundColor" >
+            @changeEventOrderCopy="getEmittedChangeEventOrderCopy" @emitBackgroundColor="handleEmittedBackgroundColor">
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -176,7 +176,7 @@ export default {
         handleEmittedBackgroundColor(color) {
             console.log(color, 'mã màu');
             this.case_data_temporary.theme_background = color;
-            if(this.case_data_temporary.index_table !== -1){
+            if (this.case_data_temporary.index_table !== -1) {
                 this.filterOrders[this.case_data_temporary.index_table].theme_background = this.case_data_temporary.theme_background;
                 console.log(this.filterOrders[this.case_data_temporary.index_table].theme_background, 'màu nền');
             }
@@ -685,7 +685,7 @@ export default {
                         po_delivery_date: order.po_delivery_date,
                         sync_sap_status: '',
                         noti_sync: '',
-                        warehouse_id: '',
+                        warehouse_id: null,
                         shipping_id: '',
                         so_header_id: order.so_header_id,
                         so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
@@ -906,7 +906,7 @@ export default {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
-                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '')  ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
+                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
                     }
                 }
             });
@@ -1077,6 +1077,7 @@ export default {
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: '',
                             theme_background: '',
+                            // themes: [],
                         });
                     } else {
                         this.orders.push({
@@ -1120,6 +1121,7 @@ export default {
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: (data_item.company_price == null || data_item.company_price == '') ? '' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
                             theme_background: '',
+                            // themes: [],
                         });
                     }
 
@@ -1130,7 +1132,7 @@ export default {
                 this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
                 this.case_is_loading.is_save_with_sync_sap = false;
             }
-           
+
 
         },
         refeshOrders() {
@@ -1404,12 +1406,16 @@ export default {
             textArea.select(); // Select the textarea content
             document.execCommand("copy"); // Copy the selected content to the clipboard
             document.body.removeChild(textArea); // Remove the textarea from the document
-            this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
+            // this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
         },
         convertJsonToTSVSelected(selecteds) {
+            selecteds.sort((a, b) => a.order - b.order);
             const rows = selecteds.map(row => this.filterIsShowFields.map(key =>
                 row[key.key]).join("\t")
             );
+            rows.forEach((row, index) => {
+                rows[index] = row.replace(/\n/g, '');
+            });
             return [...rows].join("\n");
         },
         getEmittedChangeEventOrderCopy() {
@@ -1457,7 +1463,7 @@ export default {
                     this.case_data_temporary.filter_orders = items_filter;
                     break;
             }
-           
+
 
         },
         getResetFilter() {

@@ -793,7 +793,7 @@
                         <!-- @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" -->
                         <input v-if="isHandleDbClick()" class="w-100"  v-model="data.item.sku_sap_code"
                             @dblclick="handleDoubleClick($event)" />
-                        <div class="sku_sap_code" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
+                        <div class="sku_sap_code text-left" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.index + data.field.key"
                             @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
