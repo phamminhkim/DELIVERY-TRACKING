@@ -685,7 +685,7 @@ export default {
                         po_delivery_date: order.po_delivery_date,
                         sync_sap_status: '',
                         noti_sync: '',
-                        warehouse_id: '',
+                        warehouse_id: null,
                         shipping_id: '',
                         so_header_id: order.so_header_id,
                         so_sap_note: order.so_sap_note !== null ? order.so_sap_note + (order.promotive_name == null ? '' : order.promotive_name) : this.itemNote(order),
@@ -1077,6 +1077,7 @@ export default {
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: '',
                             theme_background: '',
+                            // themes: [],
                         });
                     } else {
                         this.orders.push({
@@ -1120,6 +1121,7 @@ export default {
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: (data_item.company_price == null || data_item.company_price == '') ? '' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
                             theme_background: '',
+                            // themes: [],
                         });
                     }
 
