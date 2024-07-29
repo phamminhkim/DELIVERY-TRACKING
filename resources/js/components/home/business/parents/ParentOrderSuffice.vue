@@ -35,7 +35,7 @@
             @handleItem="getHandleItem" @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem"
             @btnCopyDeleteRow="getBtnCopyDeleteRow" @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy"
             @emitFieldSetWidth="handleEmittedFieldSetWidth" :filterOrders="filterOrders" @filterItems="getFilterItems"
-            @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields">
+            @emitResetFilter="getResetFilter" :field_order_suffices="filterIsShowFields" @emitIndex="emitIndex" >
         </TableOrderSuffice>
         <PaginationTable :rows="row_orders" :per_page="per_page" :page_options="page_options"
             :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -482,7 +482,9 @@ export default {
         // await this.fetchUserFieldTable();
     },
     methods: {
-        
+        emitIndex(index) {
+            this.$emit('emitIndex', index);
+        },
         async updateColumnHeader(data) {
             // this.field_order_suffices = data;
             // this.case_data_temporary.user_field_tables = data;

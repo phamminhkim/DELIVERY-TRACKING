@@ -120,7 +120,7 @@
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded  text-danger  btn-group__border shadow-btn">
                     <span class="badge badge-sm badge-danger px-2 mr-1">{{ count_selected }}</span>Xóa
                     dữ liệu</button>
-                    <button @click="emitOrderCopy()"
+                <button @click="emitOrderCopy()"
                     class="btn-sm font-smaller btn font-weight-bold btn-light rounded  statistic  btn-group__border shadow-btn">
                     <span class="badge badge-sm badge-info px-2 mr-1">{{ count_selected }}</span>Coppy</button>
                 <button @click="openModalSearchOrderProcesses()" type="button"
@@ -145,8 +145,24 @@
                 <button @click="emitSaveOrderProcess()" type="button"
                     class="btn-sm font-smaller btn btn-success px-4 rounded btn-group__border shadow-btn">
                     <i class="fas fa-save mr-2"></i>Lưu</button>
-                
+
+
             </div>
+            <!-- <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="d-flex">
+                            <div class="color-box mr-2" v-for="(color, index) in theme_colors" :key="index" :style="{
+            backgroundColor: color,
+            border: color == '#FFFFFF' ? '1px solid #000' : '',
+            width: '30px', height: '30px'
+        }" @click="emitBackgroundColor(color)" ></div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div> -->
             <!-- <div class="row">
                 <div class="col-3">
                     <div class="input-group input-group-sm mb-3">
@@ -274,6 +290,9 @@ export default {
             api_check_inventory: '/api/check-data/check-inventory',
             api_check_price: '/api/check-data/check-price',
             api_check_promotion: '/api/check-data/check-promotion',
+            theme_colors: [
+                "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#808080", "#FFA500", "#800080", "#87CEFA"
+            ],
 
 
         }
@@ -284,6 +303,9 @@ export default {
 
     },
     methods: {
+        emitBackgroundColor(color) {
+            this.$emit('emitBackgroundColor', color);
+        },
         getGeneralExcelTemplateUrl() {
             let url = "template/excel/Template excel chung (Khi convert PDF lỗi).xlsx";
             return url;
@@ -689,6 +711,7 @@ export default {
                         compliance: '',
                         is_compliant: null,
                         quantity3_sap: '',
+                        difference: '',
 
                     });
                     item_index++;
@@ -906,7 +929,7 @@ export default {
                 } else {
                     this.$showMessage('error', 'Lỗi', message);
                 }
-               
+
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -1028,5 +1051,12 @@ export default {
     background: linear-gradient(to right, #009fff, #ff0026) !important;
     color: white !important;
     opacity: 0.8 !important;
+}
+
+.color-box {
+    &:hover {
+        cursor: pointer;
+        border: 1px solid #000;
+    }
 }
 </style>
