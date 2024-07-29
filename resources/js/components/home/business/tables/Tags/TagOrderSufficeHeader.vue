@@ -15,6 +15,10 @@
                     <!-- <b-dropdown-item-button @click="filterCancleInventory()" button-class="px-5">Reset <u
                         class="font-weigh-bold">H</u>àng
                     thiếu</b-dropdown-item-button> -->
+                    <b-dropdown-item-button @click="filterPriceDiffrences()" button-class="px-5">Giá <u
+                        class="font-weigh-bold">chênh lệch</u></b-dropdown-item-button>
+                        <b-dropdown-item-button @click="filterPriceEqual()" button-class="px-5">Giá <u
+                            class="font-weigh-bold">ngang nhau</u></b-dropdown-item-button>
                     <b-dropdown-item-button @click="resetfilter()" button-class="px-5"><u class="font-weight-bold">Reset</u></b-dropdown-item-button>
                 <b-dropdown-group id="dropdown-group-1" header="Color" header-classes="text-left px-5">
                     <b-dropdown-item-button @click="filterPromotionCategoryExtraOffer()" button-class="px-5 ml-3">
@@ -184,6 +188,14 @@ export default {
         filterCancleInventory() {
             this.case_boolean.is_length_equal = true;
             this.$emit('emitFilter', ['false'], 'is_inventory', false);
+        },
+        filterPriceDiffrences() {
+            this.case_boolean.is_length_equal = true;
+            this.$emit('emitFilter', ['price_difference'], 'difference', false);
+        },
+        filterPriceEqual() {
+            this.case_boolean.is_length_equal = true;
+            this.$emit('emitFilter', ['price_equal'], 'difference', false);
         },
         resetfilter() {
             this.case_boolean.is_length_equal = false;

@@ -59,8 +59,8 @@ export default {
         emitDataFetchWarehouse(warehouses){
             this.$emit('emitDataFetchWarehouse', warehouses);
         },
-        emitDataWarehouse(warehouse_id){
-            this.$emit('emitDataWarehouse', warehouse_id);
+        emitDataWarehouse(warehouse_id, shipping_id){
+            this.$emit('emitDataWarehouse', warehouse_id, shipping_id);
         },
         handleEmittedSetShipping(shipping_id){
             this.$emit('emitSetShipping', shipping_id);
