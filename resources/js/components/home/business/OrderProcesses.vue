@@ -1406,7 +1406,7 @@ export default {
             textArea.select(); // Select the textarea content
             document.execCommand("copy"); // Copy the selected content to the clipboard
             document.body.removeChild(textArea); // Remove the textarea from the document
-            this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
+            // this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
         },
         convertJsonToTSVSelected(selecteds) {
             selecteds.sort((a, b) => a.order - b.order);
