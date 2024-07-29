@@ -341,10 +341,11 @@ export default {
                     this.case_model.shipping_id = item.shipping_id;
                 } 
             });
+
         },
         emitDataWarehouse() {
-            this.$emit('emitDataWarehouse', this.case_model.warehouse_id);
             this.getSetMappingShipping(this.case_model.warehouse_id);
+            this.$emit('emitDataWarehouse', this.case_model.warehouse_id, this.case_model.shipping_id);
         },
         async fetchWarehouses() {
             let { data, success } = await this.api_handler.get(this.case_api.warehouse);

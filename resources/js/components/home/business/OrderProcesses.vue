@@ -14,7 +14,7 @@
             @changeEventOrderSyncSAP="showModalSyncSAP" @listCustomerGroup="getListCustomerGroup"
             @emitCheckInventory="getCheckInventory" @emitCheckPrice="getCheckPriceModal"
             @emitErrorConvertFile="getEmitErrorConvertFile" @emitDetectCustomerKey="getEmitDetectCustomerKey"
-            @changeEventOrderCopy="getEmittedChangeEventOrderCopy">
+            @changeEventOrderCopy="getEmittedChangeEventOrderCopy" @emitBackgroundColor="handleEmittedBackgroundColor" >
         </HeaderOrderProcesses>
         <DialogOrderCheckInventory @emitModelWarehouseId="getModelWarehouseId"></DialogOrderCheckInventory>
         <DialogOrderCheckPrice @emitModelSoNumbers="getModelSoNumbers"></DialogOrderCheckPrice>
@@ -37,14 +37,14 @@
             :count_reset_filter="case_index.count_reset_filter" :orders="orders" :getDeleteRow="getDeleteRow"
             :material_donateds="material_donateds" :material_combos="material_combos" :api_handler="api_handler"
             :order_lacks="case_data_temporary.order_lacks" :filterOrders="filterOrders"
-            :user_field_tables="case_data_temporary.user_field_tables"
-            :filterIsShowFields="filterIsShowFields"
+            :user_field_tables="case_data_temporary.user_field_tables" :filterIsShowFields="filterIsShowFields"
             :getOnChangeCategoryType="getOnChangeCategoryType" :tab_value="tab_value" :case_save_so="case_save_so"
             :is_loading_detect_sap_code="case_is_loading.detect_sap_code" @checkBoxRow="getCheckBoxRow"
             @sortingChanged="getSortingChanged" @createRow="getCreateRow" @handleItem="getHandleItem"
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
-            @emitResetFilter="getResetFilter" @editRow="getEditRow" @emitUpdateColumnHeader="handleEmittedUpdateColumnHeader">
+            @emitResetFilter="getResetFilter" @editRow="getEditRow" @emitIndex="getEmitIndex"
+            @emitUpdateColumnHeader="handleEmittedUpdateColumnHeader">
         </ParentOrderSuffice>
         <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value"
             :order_lacks="case_data_temporary.order_lacks" @convertOrderLack="getConvertOrderLack"
@@ -55,8 +55,8 @@
             :order_syncs_selected="case_data_temporary.order_syncs_selected" @emitOrderSyncs="getEmitOrderSyncs"
             :warehouses="case_data_temporary.warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
             :is_sap_sync="case_is_loading.sap_sync" @viewDetailOrderSyncs="getviewDetailOrderSyncs"
-            @emitSetShipping="handleEmittedSetShipping"
-            @emitDataFetchWarehouse="getEmitDataFetchWarehouse" @emitDataWarehouse="getEmitDataWarehouse">
+            @emitSetShipping="handleEmittedSetShipping" @emitDataFetchWarehouse="getEmitDataFetchWarehouse"
+            @emitDataWarehouse="getEmitDataWarehouse">
         </ParentOrderSynchronized>
 
 
@@ -148,6 +148,8 @@ export default {
                 detect_materials: [],
                 user_field_tables: [],
                 field_selecteds: [],
+                theme_background: '',
+                index_table: -1,
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty', 'SL chênh lệch',
@@ -160,7 +162,6 @@ export default {
             api_check_price: '/api/check-data/check-price',
             api_check_customer_key: '/api/check-data/check-customer-partner',
             api_user_field_table: '/api/master/user-field-table',
-
         }
     },
     async created() {
@@ -169,11 +170,22 @@ export default {
         await this.fetchUserFieldTable();
     },
     methods: {
+        getEmitIndex(index) {
+            this.case_data_temporary.index_table = index;
+        },
+        handleEmittedBackgroundColor(color) {
+            console.log(color, 'mã màu');
+            this.case_data_temporary.theme_background = color;
+            if(this.case_data_temporary.index_table !== -1){
+                this.filterOrders[this.case_data_temporary.index_table].theme_background = this.case_data_temporary.theme_background;
+                console.log(this.filterOrders[this.case_data_temporary.index_table].theme_background, 'màu nền');
+            }
+        },
         handleEmittedSetShipping(shipping_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
                 item.shipping_id = shipping_id;
             });
-           
+
         },
         getSoSapNoteFromSyntax(data_item, key_array, separator) {
             let so_sap_note = "";
@@ -355,13 +367,14 @@ export default {
 
             }
         },
-        async handleEmittedUpdateColumnHeader(data){
+        async handleEmittedUpdateColumnHeader(data) {
             this.case_data_temporary.user_field_tables = data;
             await this.fetchUserFieldTable(this.case_data_temporary.user_field_tables);
         },
-        getEmitDataWarehouse(warehouse_id) {
+        getEmitDataWarehouse(warehouse_id, shipping_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
                 item.warehouse_id = warehouse_id;
+                item.shipping_id = shipping_id;
             });
         },
         getEmitDataFetchWarehouse(warehouses) {
@@ -494,7 +507,7 @@ export default {
                     if (count_sync > 0) {
                         this.$showMessage('success', 'Thành công', 'Có ' + count_sync + ' đơn hàng đã đồng bộ');
                     }
-                    this.checkOrderSyncWithOrderProcess();
+                    // this.checkOrderSyncWithOrderProcess(); Hàm Rest đơn hàng
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
                 }
@@ -893,6 +906,7 @@ export default {
                 for (var i = 0; i < this.orders.length; i++) {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.orders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
+                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '')  ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
                     }
                 }
             });
@@ -1007,107 +1021,117 @@ export default {
         showDialogTitleOrderSo() {
             this.$refs.dialogTitleOrderSo.showDialogTitleOrderSo();
         },
-        getSaveOrderSO(item, is_modal_sync_sap) {
+        async getSaveOrderSO(item, is_modal_sync_sap, event_component) {
             this.case_is_loading.is_save_with_sync_sap = is_modal_sync_sap;
-
+            // if (event_component === undefined) {
+            //     this.refeshOrders();
+            // }
             this.refeshOrders();
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
             this.case_save_so.serial_number = item.serial_number;
             this.case_save_so.customer_group_id = item.customer_group_id;
             this.$refs.headerOrderProcesses.setCustomerGroupId(item.customer_group_id);
-            item.so_data_items.forEach(data_item => {
-                var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
-                if (data_item.is_inventory == true) {
-                    this.case_data_temporary.order_lacks.push({
-                        order: data_item.order,
-                        id: data_item.id,
-                        customer_sku_code: data_item.customer_sku_code,
-                        customer_sku_name: data_item.customer_sku_name,
-                        customer_sku_unit: data_item.customer_sku_unit,
-                        quantity: data_item.quantity,
-                        company_price: data_item.company_price,
-                        customer_code: data_item.so_header.customer_code,
-                        level2: data_item.so_header.level2,
-                        level3: data_item.so_header.level3,
-                        level4: data_item.so_header.level4,
-                        note1: data_item.so_header.note,
-                        note: data_item.note,
-                        barcode: data_item.barcode,
-                        sku_sap_code: data_item.sku_sap_code,
-                        sku_sap_name: data_item.sku_sap_name,
-                        sku_sap_unit: data_item.sku_sap_unit,
-                        inventory_quantity: data_item.inventory_quantity,
-                        amount_po: data_item.amount_po,
-                        is_inventory: data_item.is_inventory,
-                        is_promotive: data_item.is_promotive,
-                        price_po: data_item.price_po,
-                        promotive: data_item.promotive_name,
-                        promotive_name: data_item.promotive_name,
-                        quantity1_po: data_item.quantity1_po,
-                        quantity2_po: data_item.quantity2_po,
-                        customer_name: data_item.so_header.customer_name,
-                        variant_quantity: variant_quantity,
-                        extra_offer: '',
-                        promotion_category: '',
-                        po_delivery_date: data_item.so_header.po_delivery_date,
-                        po_number: data_item.so_header.po_number,
-                        sap_so_number: data_item.so_header.sap_so_number,
-                        compliance: data_item.compliance,
-                        is_compliant: data_item.is_compliant,
-                        quantity3_sap: data_item.quantity3_sap,
-                        so_header_id: data_item.so_header_id,
-                        so_sap_note: data_item.so_header.so_sap_note,
-                    });
-                } else {
-                    this.orders.push({
-                        order: data_item.order,
-                        id: data_item.id,
-                        customer_sku_code: data_item.customer_sku_code,
-                        customer_sku_name: data_item.customer_sku_name,
-                        customer_sku_unit: data_item.customer_sku_unit,
-                        quantity: data_item.quantity,
-                        company_price: data_item.company_price,
-                        customer_code: data_item.so_header.customer_code,
-                        level2: data_item.so_header.level2,
-                        level3: data_item.so_header.level3,
-                        level4: data_item.so_header.level4,
-                        note1: data_item.so_header.note,
-                        note: data_item.note,
-                        barcode: data_item.barcode,
-                        sku_sap_code: data_item.sku_sap_code,
-                        sku_sap_name: data_item.sku_sap_name,
-                        sku_sap_unit: data_item.sku_sap_unit,
-                        inventory_quantity: data_item.inventory_quantity,
-                        amount_po: data_item.amount_po,
-                        is_inventory: data_item.is_inventory,
-                        is_promotive: data_item.is_promotive,
-                        price_po: data_item.price_po,
-                        promotive: data_item.promotive_name,
-                        promotive_name: data_item.promotive_name,
-                        quantity1_po: data_item.quantity1_po,
-                        quantity2_po: data_item.quantity2_po,
-                        customer_name: data_item.so_header.customer_name,
-                        variant_quantity: variant_quantity,
-                        extra_offer: '',
-                        promotion_category: '',
-                        po_delivery_date: data_item.so_header.po_delivery_date,
-                        po_number: data_item.so_header.po_number,
-                        sap_so_number: data_item.so_header.sap_so_number,
-                        compliance: data_item.compliance,
-                        is_compliant: data_item.is_compliant,
-                        quantity3_sap: data_item.quantity3_sap,
-                        so_header_id: data_item.so_header_id,
-                        so_sap_note: data_item.so_header.so_sap_note,
-                    });
-                }
+            if (!_.isEmpty(item)) {
+                item.so_data_items.forEach(data_item => {
+                    var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
+                    if (data_item.is_inventory == true) {
+                        this.case_data_temporary.order_lacks.push({
+                            order: data_item.order,
+                            id: data_item.id,
+                            customer_sku_code: data_item.customer_sku_code,
+                            customer_sku_name: data_item.customer_sku_name,
+                            customer_sku_unit: data_item.customer_sku_unit,
+                            quantity: data_item.quantity,
+                            company_price: data_item.company_price,
+                            customer_code: data_item.so_header.customer_code,
+                            level2: data_item.so_header.level2,
+                            level3: data_item.so_header.level3,
+                            level4: data_item.so_header.level4,
+                            note1: data_item.so_header.note,
+                            note: data_item.note,
+                            barcode: data_item.barcode,
+                            sku_sap_code: data_item.sku_sap_code,
+                            sku_sap_name: data_item.sku_sap_name,
+                            sku_sap_unit: data_item.sku_sap_unit,
+                            inventory_quantity: data_item.inventory_quantity,
+                            amount_po: data_item.amount_po,
+                            is_inventory: data_item.is_inventory,
+                            is_promotive: data_item.is_promotive,
+                            price_po: data_item.price_po,
+                            promotive: data_item.promotive_name,
+                            promotive_name: data_item.promotive_name,
+                            quantity1_po: data_item.quantity1_po,
+                            quantity2_po: data_item.quantity2_po,
+                            customer_name: data_item.so_header.customer_name,
+                            variant_quantity: variant_quantity,
+                            extra_offer: '',
+                            promotion_category: '',
+                            po_delivery_date: data_item.so_header.po_delivery_date,
+                            po_number: data_item.so_header.po_number,
+                            sap_so_number: data_item.so_header.sap_so_number,
+                            compliance: data_item.compliance,
+                            is_compliant: data_item.is_compliant,
+                            quantity3_sap: data_item.quantity3_sap,
+                            so_header_id: data_item.so_header_id,
+                            so_sap_note: data_item.so_header.so_sap_note,
+                            difference: '',
+                            theme_background: '',
+                        });
+                    } else {
+                        this.orders.push({
+                            order: data_item.order,
+                            id: data_item.id,
+                            customer_sku_code: data_item.customer_sku_code,
+                            customer_sku_name: data_item.customer_sku_name,
+                            customer_sku_unit: data_item.customer_sku_unit,
+                            quantity: data_item.quantity,
+                            company_price: data_item.company_price,
+                            customer_code: data_item.so_header.customer_code,
+                            level2: data_item.so_header.level2,
+                            level3: data_item.so_header.level3,
+                            level4: data_item.so_header.level4,
+                            note1: data_item.so_header.note,
+                            note: data_item.note,
+                            barcode: data_item.barcode,
+                            sku_sap_code: data_item.sku_sap_code,
+                            sku_sap_name: data_item.sku_sap_name,
+                            sku_sap_unit: data_item.sku_sap_unit,
+                            inventory_quantity: data_item.inventory_quantity,
+                            amount_po: data_item.amount_po,
+                            is_inventory: data_item.is_inventory,
+                            is_promotive: data_item.is_promotive,
+                            price_po: data_item.price_po,
+                            promotive: data_item.promotive_name,
+                            promotive_name: data_item.promotive_name,
+                            quantity1_po: data_item.quantity1_po,
+                            quantity2_po: data_item.quantity2_po,
+                            customer_name: data_item.so_header.customer_name,
+                            variant_quantity: variant_quantity,
+                            extra_offer: '',
+                            promotion_category: '',
+                            po_delivery_date: data_item.so_header.po_delivery_date,
+                            po_number: data_item.so_header.po_number,
+                            sap_so_number: data_item.so_header.sap_so_number,
+                            compliance: data_item.compliance,
+                            is_compliant: data_item.is_compliant,
+                            quantity3_sap: data_item.quantity3_sap,
+                            so_header_id: data_item.so_header_id,
+                            so_sap_note: data_item.so_header.so_sap_note,
+                            difference: (data_item.company_price == null || data_item.company_price == '') ? '' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
+                            theme_background: '',
+                        });
+                    }
 
-            });
+                });
+            }
             this.refHeaderOrderProcesses();
             if (this.case_is_loading.is_save_with_sync_sap) {
                 this.showModalSyncSAP(this.case_is_loading.is_save_with_sync_sap);
                 this.case_is_loading.is_save_with_sync_sap = false;
             }
+           
+
         },
         refeshOrders() {
             this.orders = [];
@@ -1136,9 +1160,10 @@ export default {
         },
         async fetchOrderProcessSODetail(id) {
             try {
+                let event_component = 'DialogListOrderProcessSO';
                 // this.case_is_loading.fetch_api = true;
                 const { data } = await this.api_handler.get(this.api_order_process_so + '/' + id);
-                this.getSaveOrderSO(data);
+                this.getSaveOrderSO(data, false, event_component);
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -1382,7 +1407,7 @@ export default {
             this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
         },
         convertJsonToTSVSelected(selecteds) {
-            const rows = selecteds.map(row => this.filterIsShowFields.map(key => 
+            const rows = selecteds.map(row => this.filterIsShowFields.map(key =>
                 row[key.key]).join("\t")
             );
             return [...rows].join("\n");
@@ -1405,18 +1430,34 @@ export default {
             return [values.join("\t")].join("\n");
         },
         getFilterItems(items, field, boolean) {
-            if (field == 'reset') {
-                this.case_data_temporary.items = [];
-            } else {
-                this.case_data_temporary.items = items;
-                this.case_data_temporary.field = field;
-                this.case_is_loading.is_inventory = boolean;
-                this.case_is_loading.created_conponent = false;
-                let items_filter = this.orders.filter(order => {
-                    return items.includes(order[field]);
-                });
-                this.case_data_temporary.filter_orders = items_filter;
+            console.log(items, field, boolean);
+            switch (field) {
+                case 'difference':
+                    this.case_data_temporary.items = items;
+                    this.case_data_temporary.field = field;
+                    this.case_is_loading.is_inventory = boolean;
+                    this.case_is_loading.created_conponent = false;
+                    let items_filter_dif = this.orders.filter(order => {
+                        return items.includes(order[field]);
+                    });
+                    this.case_data_temporary.filter_orders = items_filter_dif;
+                    break;
+                case 'reset':
+                    this.case_data_temporary.items = [];
+                    break;
+
+                default:
+                    this.case_data_temporary.items = items;
+                    this.case_data_temporary.field = field;
+                    this.case_is_loading.is_inventory = boolean;
+                    this.case_is_loading.created_conponent = false;
+                    let items_filter = this.orders.filter(order => {
+                        return items.includes(order[field]);
+                    });
+                    this.case_data_temporary.filter_orders = items_filter;
+                    break;
             }
+           
 
         },
         getResetFilter() {
@@ -1533,7 +1574,7 @@ export default {
 
         },
         filterIsShowFields() {
-            this.case_data_temporary.field_selecteds =  this.case_data_temporary.user_field_tables.filter((field) => field.isShow)
+            this.case_data_temporary.field_selecteds = this.case_data_temporary.user_field_tables.filter((field) => field.isShow)
             return this.case_data_temporary.field_selecteds;
         },
     },
