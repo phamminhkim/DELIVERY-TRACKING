@@ -1,6 +1,9 @@
 <template>
     <div>
-        <b-table responsive small hover :fields="fields" :items="items" head-variant="light"
+        <b-table responsive small hover :fields="fields" :items="items" head-variant="light" 
+            :class="{
+                'position-relative-custom': use_component === 'DialogOrderSync'
+            }"
             :current-page="current_page" :per-page="per_page" :filter="query">
             <template #head(select)="data">
                 <input type="checkbox" v-model="case_checkbox.select_all" @change="changeSelectAll()" />
@@ -17,12 +20,11 @@
             <template #cell(warehouse_code)="data">
                 <!-- <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
                     }}</span> -->
-                <div style="width:20rem">
-                    <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
+                <div style="width:20rem;">
+                        <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
                         :show-count="true" v-model="data.item.warehouse_id" :options="warehouses"
                         :load-options="loadOptions" />
                 </div>
-
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
                     placeholder="Nhập mã kho" /> -->
             </template>
@@ -181,5 +183,8 @@ export default {
 <style lang="scss" scoped>
 .cursor-poiner {
     cursor: pointer;
+}
+.position-relative-custom {
+    height: 25rem !important;
 }
 </style>
