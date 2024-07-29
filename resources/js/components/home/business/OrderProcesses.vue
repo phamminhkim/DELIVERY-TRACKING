@@ -1409,6 +1409,7 @@ export default {
             this.$showMessage('success', 'Thành công', 'Copy dữ liệu thành công');
         },
         convertJsonToTSVSelected(selecteds) {
+            selecteds.sort((a, b) => a.order - b.order);
             const rows = selecteds.map(row => this.filterIsShowFields.map(key =>
                 row[key.key]).join("\t")
             );
