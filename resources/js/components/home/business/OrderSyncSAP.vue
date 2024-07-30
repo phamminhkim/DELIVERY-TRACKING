@@ -278,6 +278,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'so_sap_note',
+                    label: 'SAP note',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'warehouse_code',
                     label: 'Kho',
                     sortable: true,
@@ -345,7 +351,7 @@ export default {
             this.case_data.mapping_ships.forEach(item => {
                 if (item.warehouse_code == warehouse_code) {
                     this.case_model.shipping_id = item.shipping_id;
-                } 
+                }
             });
         },
         changeInputSetWarehouse() {
