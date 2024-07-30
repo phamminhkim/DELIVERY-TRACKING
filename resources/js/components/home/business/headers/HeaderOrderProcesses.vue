@@ -618,7 +618,7 @@ export default {
         },
         browserCustomerGroup() {
             this.emitCustomerGroupId(this.form_filter.customer_group);
-            this.resetConfig();
+            // this.resetConfig();
             this.customer_groups.forEach(customer_group => {
                 if (customer_group.id == this.form_filter.customer_group) {
                     this.extract_order_configs = customer_group.extract_order_configs;

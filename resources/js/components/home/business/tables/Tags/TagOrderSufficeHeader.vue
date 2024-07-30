@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-dropdown menu-class="form-dropdown" id="dropdown-1" size="sm" variant="light" ref="dropdown"
-            @show="filterItems(column)" toggle-class="text-center rounded p-0 px-1 ml-1">
+            @show="filterItems(column)" toggle-class="text-center rounded p-0 px-1 ml-1 mr-1">
             <template #button-content class="button">
                 <i v-if="case_boolean.is_length_equal" class="fas fa-filter fa-sm"></i>
             </template>
