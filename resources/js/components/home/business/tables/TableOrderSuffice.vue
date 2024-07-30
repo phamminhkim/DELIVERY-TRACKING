@@ -22,7 +22,6 @@
                         class="text-center col-resize d-flex justify-content-between" :ref="'header_' + header.column">
                         <label class="mb-0 col-resize">
                             {{ header.label }}
-                            kim
                         </label>
                         <TagOrderSufficeHeader :column="header.column" :orders="case_filter.orders"
                             :count_reset_filter="count_reset_filter" @showHideDropdown="getShowHideDopdown"
