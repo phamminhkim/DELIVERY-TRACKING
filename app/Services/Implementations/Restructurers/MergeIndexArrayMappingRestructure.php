@@ -35,19 +35,29 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
                 $output[$structure_key] = OperatorUtility::replaceValue($output[$structure_key], $array['replace_value']);
             }
             if (isset($array['date_format']) && $output[$structure_key]) {
-                $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+                if (isset($array['convert_date_format'])) {
+                    $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], $array['convert_date_format'], $output[$structure_key]);
+                } else {
+                    $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+                }
             }
         }
         // Xử lý loại cấu hình theo các key
         foreach ($structure as $structure_key => $array) {
             if (isset($array['key_array'])) {
-                $key_array = $array['key_array'];
-                $separator = $array['separator'];
-                $value_array = [];
-                foreach ($key_array as $key) {
-                    $value_array[] = $output[$key];
+                if (isset($array['join_after_add_customer']) && $array['join_after_add_customer'] == true) {
+                    // Lưu lại cấu trúc key để xử lý sau khi add thông tin khách hàng
+                    $output[$structure_key] = $array;
+                } else {
+                    // Thực hiện join các key
+                    $key_array = $array['key_array'];
+                    $separator = $array['separator'];
+                    $value_array = [];
+                    foreach ($key_array as $key) {
+                        $value_array[] = $output[$key];
+                    }
+                    $output[$structure_key] = implode($separator, $value_array);
                 }
-                $output[$structure_key] = implode($separator, $value_array);
             }
         }
         return $output;
