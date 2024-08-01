@@ -80,6 +80,19 @@
 									</div>
 								</div>
 
+                                <VueJsonEditor
+                                    v-else-if="form_field.type == 'json'"
+                                    v-model="item[form_field.key]"
+                                    :id="form_field.key"
+                                    :name="form_field.key"
+                                    :placeholder="form_field.placeholder"
+                                    v-bind:class="
+                                        hasError(form_field.key) ? 'is-invalid' : ''
+                                    "
+                                    :required="form_field.required"
+                                >
+                                </VueJsonEditor>
+
 								<input
 									v-model="item[form_field.key]"
 									class="form-control"
@@ -123,11 +136,13 @@
 	import 'toastr/toastr.scss';
 	import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 	import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+    import VueJsonEditor from 'vue-json-editor';
 
 	export default {
 		name: 'CrudDialog',
 		components: {
 			Treeselect,
+            VueJsonEditor
 		},
 		props: {
 			is_editing: Boolean,
@@ -186,6 +201,12 @@
 			},
 			async updateItem() {
 				try {
+                    this.form_structure.form_fields.forEach(field => {
+                        if (field.type == 'json') {
+                            this.item[field.key] = JSON.stringify(this.item[field.key]);
+                        }
+                    });
+
 					let data = await this.api_handler
 						.put(
 							`${this.page_url_update}/${this.item[this.primary_key]}`,
@@ -209,6 +230,12 @@
 			},
 			async createItem() {
 				try {
+                    this.form_structure.form_fields.forEach(field => {
+                        if (field.type == 'json') {
+                            this.item[field.key] = JSON.stringify(this.item[field.key]);
+                        }
+                    });
+
 					let data = await this.api_handler
 						.post(this.page_url_create, {}, this.item)
 						.finally(() => {
@@ -256,6 +283,11 @@
 			editing_item: async function (item) {
 				this.errors = {};
 				this.item = structuredClone(item);
+                this.form_structure.form_fields.forEach(field => {
+                    if (field.type == 'json') {
+                        this.item[field.key] = this.item[field.key] ? JSON.parse(this.item[field.key]) : null;
+                    }
+                });
 				const treeselect_async_fields = this.form_structure?.form_fields?.filter(
 					(field) => {
 						return field.type == 'treeselect' && field.treeselect.async;

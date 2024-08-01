@@ -32,6 +32,12 @@ export default {
                         sortable: true,
                         class: "text-nowrap text-center",
                     },
+                    {
+                        key: "note",
+                        label: "Ghi chú",
+                        sortable: false,
+                        class: "text-nowrap text-center",
+                    },
                 ],
                 table_cells: [
                     //theo lý thuyết nên có đủ khai báo cho tất cả các cells
@@ -50,6 +56,20 @@ export default {
                         key: "name",
                         type: "text", //html input type
                         required: true,
+                    },
+                    {
+                        label: "Cấu trúc Sap Note",
+                        placeholder: "Nhập cấu trúc Sap Note..",
+                        key: "sap_so_note_syntax",
+                        type: "json",
+                        required: false,
+                    },
+                    {
+                        label: "Ghi chú",
+                        placeholder: "Nhập ghi chú nếu có..",
+                        key: "note",
+                        type: "text",
+                        required: false,
                     },
                 ],
             },
