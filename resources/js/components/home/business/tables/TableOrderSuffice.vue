@@ -9,8 +9,8 @@
                 <template #head(index)="header">
                     <div :style="{
             'width': header.field.set_width + 'px' + '!important'
-        }" :ref="'header_' + header.column" class="col-resize" @mousedown="onMouseDown($event, header.field.key, header.field.set_width)"
-                        tabindex="0">
+        }" :ref="'header_' + header.column" class="col-resize"
+                        @mousedown="onMouseDown($event, header.field.key, header.field.set_width)" tabindex="0">
                         <span>{{ header.label }}</span>
                     </div>
                 </template>
@@ -68,7 +68,7 @@
                 <template #head(barcode)="header">
                     <div :style="{
             'width': header.field.set_width + 'px' + '!important',
-            position: 'relative'
+            position: 'relative',
         }" :ref="'header_' + header.column" @mousedown="onMouseDown($event, header.field.key, header.field.set_width)"
                         class="text-center col-resize d-flex justify-content-between">
                         <label class="mb-0 col-resize" :class="{
@@ -291,7 +291,8 @@
                 </template>
                 <template #cell(barcode)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.barcode,
         }" class="barcode overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.barcode, data.field.key)" -->
                         <!-- @input="handleItem(data.item.barcode, 'barcode', data.index)" -->
@@ -300,12 +301,12 @@
                         <div v-else :style="{
             'width': '100%',
             'height': '1.5rem',
-            'background-color': data.item.theme_background
+            // 'background-color': data.item.theme_background
         }" tabindex="0" :ref="'keyListenerDiv_' + data.item.barcode + data.index + data.field.key"
-                            @click="emitIndex(data.index)"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.barcode, data.field.key)"
                             @mousedown="startSelection($event, data.item.barcode, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.barcode, $event, data.index)"
+                            @mousemove="selectItem(data.item.barcode, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.barcode, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.barcode) && isSameField(case_order.field_order, data.field.key) }">
                             <span class="text-center rounded " :class="{
@@ -323,7 +324,8 @@
                         {{ data.item.customer_name }}{{ data.item.promotive }} <br>
                     </div> -->
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.customer_name
         }" :ref="'ref_customer_name_' + data.index" class="customer_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_name, 'customer_name', data.index)" -->
@@ -332,9 +334,10 @@
                             @input="offsetWidth('ref_customer_name_', data.index)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_name + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_name, data.field.key)"
                             @mousedown="startSelection($event, data.item.customer_name, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_name, $event, data.index)"
+                            @mousemove="selectItem(data.item.customer_name, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_name, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_name) && isSameField(case_order.field_order, data.field.key) }">
@@ -345,7 +348,8 @@
                 </template>
                 <template #cell(sap_so_number)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.sap_so_number
         }" class="sap_so_number overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sap_so_number, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sap_so_number, 'sap_so_number', data.index)" -->
@@ -353,9 +357,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sap_so_number + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.sap_so_number, data.field.key)"
                             @mousedown="startSelection($event, data.item.sap_so_number, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.sap_so_number, $event, data.index)"
+                            @mousemove="selectItem(data.item.sap_so_number, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.sap_so_number, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sap_so_number) && isSameField(case_order.field_order, data.field.key) }">
@@ -367,7 +372,8 @@
                 </template>
                 <template #cell(quantity1_po)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.quantity1_po
         }" class="quantity1_po overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item),
         }">
@@ -378,9 +384,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity1_po + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.quantity1_po, data.field.key)"
                             @mousedown="startSelection($event, data.item.quantity1_po, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.quantity1_po, $event, data.index)"
+                            @mousemove="selectItem(data.item.quantity1_po, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.quantity1_po, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.quantity1_po) && isSameField(case_order.field_order, data.field.key) }">
@@ -391,7 +398,8 @@
                 </template>
                 <template #cell(quantity2_po)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.quantity2_po
         }" class="quantity2_po overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item),
         }">
@@ -401,9 +409,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity2_po + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.quantity2_po, data.field.key)"
                             @mousedown="startSelection($event, data.item.quantity2_po, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.quantity2_po, $event, data.index)"
+                            @mousemove="selectItem(data.item.quantity2_po, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.quantity2_po, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.quantity2_po) && isSameField(case_order.field_order, data.field.key) }">
@@ -414,7 +423,8 @@
                 </template>
                 <template #cell(inventory_quantity)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.inventory_quantity
         }" class="inventory_quantity overflow-hidden" :class="{
             'text-danger': isCheckLack(data.item),
             'text-danger': data.item.inventory_quantity <= 0,
@@ -426,9 +436,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.inventory_quantity + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.inventory_quantity, data.field.key)"
                             @mousedown="startSelection($event, data.item.inventory_quantity, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.inventory_quantity, $event, data.index)"
+                            @mousemove="selectItem(data.item.inventory_quantity, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.inventory_quantity, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.inventory_quantity) && isSameField(case_order.field_order, data.field.key) }">
@@ -730,7 +741,8 @@
                 </template>
                 <template #cell(sku_sap_code)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.sku_sap_code
         }" :ref="'ref_sku_sap_code_' + data.index" class="overflow-hidden sku_sap_code">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_code, 'sku_sap_code', data.index)" -->
@@ -738,10 +750,11 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div class="sku_sap_code text-left" v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_code + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.sku_sap_code, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @mousedown="startSelection($event, data.item.sku_sap_code, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.sku_sap_code, $event, data.index)"
+                            @mousemove="selectItem(data.item.sku_sap_code, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.sku_sap_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sku_sap_code) && isSameField(case_order.field_order, data.field.key) }">
                             <span class="text-center rounded" :class="{
@@ -756,7 +769,8 @@
                 </template>
                 <template #cell(sku_sap_name)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.sku_sap_name
         }" class="sku_sap_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_name, 'sku_sap_name', data.index)" -->
@@ -764,9 +778,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_name + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.sku_sap_name, data.field.key)"
                             @mousedown="startSelection($event, data.item.sku_sap_name, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.sku_sap_name, $event, data.index)"
+                            @mousemove="selectItem(data.item.sku_sap_name, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.sku_sap_name, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sku_sap_name) && isSameField(case_order.field_order, data.field.key) }">
@@ -777,7 +792,8 @@
                 </template>
                 <template #cell(so_sap_note)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.so_sap_note
         }" class="so_sap_note overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.so_sap_note, data.field.key)" -->
                         <!-- @input="handleItem(data.item.so_sap_note, 'so_sap_note', data.index)" -->
@@ -785,9 +801,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.so_sap_note + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.so_sap_note, data.field.key)"
                             @mousedown="startSelection($event, data.item.so_sap_note, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.so_sap_note, $event, data.index)"
+                            @mousemove="selectItem(data.item.so_sap_note, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.so_sap_note, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.so_sap_note) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.so_sap_note }}</span>
@@ -797,7 +814,8 @@
                 </template>
                 <template #cell(quantity3_sap)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.quantity3_sap
         }" class="quantity3_sap overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)" -->
                         <!-- @input="handleItem(data.item.quantity3_sap, 'quantity3_sap', data.index)" -->
@@ -805,9 +823,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.quantity3_sap + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.quantity3_sap, data.field.key)"
                             @mousedown="startSelection($event, data.item.quantity3_sap, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.quantity3_sap, $event, data.index)"
+                            @mousemove="selectItem(data.item.quantity3_sap, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.quantity3_sap, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.quantity3_sap) && isSameField(case_order.field_order, data.field.key) }">
@@ -818,7 +837,8 @@
                 </template>
                 <template #cell(customer_sku_name)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.customer_sku_name
         }" class="customer_sku_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_name, 'customer_sku_name', data.index)" -->
@@ -826,9 +846,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_name + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_sku_name, data.field.key)"
                             @mousedown="startSelection($event, data.item.customer_sku_name, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_sku_name, $event, data.index)"
+                            @mousemove="selectItem(data.item.customer_sku_name, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_sku_name, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_sku_name) && isSameField(case_order.field_order, data.field.key) }">
@@ -839,7 +860,8 @@
                 </template>
                 <template #cell(customer_sku_unit)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.customer_sku_unit
         }" class="customer_sku_unit overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_unit, 'customer_sku_unit', data.index)" -->
@@ -847,9 +869,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_unit + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_sku_unit, data.field.key)"
                             @mousedown="startSelection($event, data.item.customer_sku_unit, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_sku_unit, $event, data.index)"
+                            @mousemove="selectItem(data.item.customer_sku_unit, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_sku_unit, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_sku_unit) && isSameField(case_order.field_order, data.field.key) }">
@@ -860,7 +883,8 @@
                 </template>
                 <template #cell(po)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.po
         }" class="po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po, 'po', data.index)"  -->
@@ -868,9 +892,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.po, data.field.key)"
                             @mousedown="startSelection($event, data.item.po, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.po, $event, data.index)"
+                            @mousemove="selectItem(data.item.po, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.po, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.po) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.po }}</span>
@@ -879,7 +904,8 @@
                 </template>
                 <template #cell(sku_sap_unit)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.sku_sap_unit
         }" class="sku_sap_unit overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)" -->
                         <!-- @input="handleItem(data.item.sku_sap_unit, 'sku_sap_unit', data.index)" -->
@@ -887,9 +913,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.sku_sap_unit + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.sku_sap_unit, data.field.key)"
                             @mousedown="startSelection($event, data.item.sku_sap_unit, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.sku_sap_unit, $event, data.index)"
+                            @mousemove="selectItem(data.item.sku_sap_unit, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.sku_sap_unit, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.sku_sap_unit) && isSameField(case_order.field_order, data.field.key) }">
@@ -899,7 +926,8 @@
                 </template>
                 <template #cell(customer_code)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.customer_code
         }" class="customer_code overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_code, 'customer_code', data.index)" -->
@@ -907,9 +935,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_code + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_code, data.field.key)"
                             @mousedown="startSelection($event, data.item.customer_code, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_code, $event, data.index)"
+                            @mousemove="selectItem(data.item.customer_code, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_code, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_code) && isSameField(case_order.field_order, data.field.key) }">
@@ -920,7 +949,8 @@
                 </template>
                 <template #cell(promotive_name)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.promotive_name
         }" class="promotive_name overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.promotive_name, data.field.key)" -->
                         <!-- @input="handleItem(data.item.promotive_name, 'promotive_name', data.index)" -->
@@ -928,9 +958,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.promotive_name + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.promotive_name, data.field.key)"
                             @mousedown="startSelection($event, data.item.promotive_name, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.promotive_name, $event, data.index)"
+                            @mousemove="selectItem(data.item.promotive_name, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.promotive_name, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.promotive_name) && isSameField(case_order.field_order, data.field.key) }">
@@ -940,7 +971,8 @@
                 </template>
                 <template #cell(note1)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.note1
         }" class="note1 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.note1, data.field.key)" -->
                         <!-- @input="handleItem(data.item.note1, 'note1', data.index)" -->
@@ -948,9 +980,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.note1 + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.note1, data.field.key)"
                             @mousedown="startSelection($event, data.item.note1, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.note1, $event, data.index)"
+                            @mousemove="selectItem(data.item.note1, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.note1, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.note1) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.note1 }}{{ data.item.promotive }}</span>
@@ -959,7 +992,8 @@
                 </template>
                 <template #cell(note)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.note
         }" class="note overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.note, data.field.key)" -->
                         <!-- @input="handleItem(data.item.note, 'note', data.index)" -->
@@ -967,9 +1001,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.note + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.note, data.field.key)"
                             @mousedown="startSelection($event, data.item.note, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.note, $event, data.index)"
+                            @mousemove="selectItem(data.item.note, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.note, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.note) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.note }}</span>
@@ -978,7 +1013,8 @@
                 </template>
                 <template #cell(compliance)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.compliance
         }" class="compliance overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.compliance, data.field.key)" -->
                         <!-- @input="handleItem(data.item.compliance, 'compliance', data.index)"  -->
@@ -986,9 +1022,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.compliance + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.compliance, data.field.key)"
                             @mousedown="startSelection($event, data.item.compliance, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.compliance, $event, data.index)"
+                            @mousemove="selectItem(data.item.compliance, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.compliance, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.compliance) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.compliance }}</span>
@@ -997,7 +1034,8 @@
                 </template>
                 <template #cell(level2)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.level2
         }" class="level2 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level2, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level2, 'level2', data.index)" -->
@@ -1005,9 +1043,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level2 + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.level2, data.field.key)"
                             @mousedown="startSelection($event, data.item.level2, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.level2, $event, data.index)"
+                            @mousemove="selectItem(data.item.level2, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.level2, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level2) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level2 }}</span>
@@ -1016,7 +1055,8 @@
                 </template>
                 <template #cell(level3)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.level3
         }" class="level3 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level3, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level3, 'level3', data.index)" -->
@@ -1024,9 +1064,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level3 + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.level3, data.field.key)"
                             @mousedown="startSelection($event, data.item.level3, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.level3, $event, data.index)"
+                            @mousemove="selectItem(data.item.level3, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.level3, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level3) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level3 }}</span>
@@ -1037,7 +1078,8 @@
                 </template>
                 <template #cell(level4)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.level4
         }" class="level4 overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.level4, data.field.key)" -->
                         <!-- @input="handleItem(data.item.level4, 'level4', data.index)" -->
@@ -1045,9 +1087,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.level4 + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.level4, data.field.key)"
                             @mousedown="startSelection($event, data.item.level4, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.level4, $event, data.index)"
+                            @mousemove="selectItem(data.item.level4, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.level4, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.level4) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.level4 }}</span>
@@ -1057,12 +1100,14 @@
                 </template>
                 <template #cell(promotive)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.promotive
         }" class="overflow-hidden promotive">
                         <div tabindex="0" :ref="'keyListenerDiv_' + data.item.promotive + data.index + data.field.key"
+                        @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.promotive, data.field.key)"
                             @mousedown="startSelection($event, data.item.promotive, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.promotive, $event, data.index)"
+                            @mousemove="selectItem(data.item.promotive, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_sku_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.promotive) && isSameField(case_order.field_order, data.field.key) }">
                             <div class="d-flex justify-content-end py-2 ">
@@ -1077,7 +1122,8 @@
                 </template>
                 <template #cell(amount_po)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.amount_po
         }" class="amount_po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.amount_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.amount_po, 'amount_po', data.index)"  -->
@@ -1085,9 +1131,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.amount_po + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.amount_po, data.field.key)"
                             @mousedown="startSelection($event, data.item.amount_po, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.amount_po, $event, data.index)"
+                            @mousemove="selectItem(data.item.amount_po, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.amount_po, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.amount_po) && isSameField(case_order.field_order, data.field.key) }">
                             <span><strong>{{ data.value.toLocaleString(locale_format) }}
@@ -1098,7 +1145,8 @@
                 </template>
                 <template #cell(price_po)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.price_po
         }" class="price_po overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.price_po, data.field.key)" -->
                         <!-- @input="handleItem(data.item.price_po, 'price_po', data.index)" -->
@@ -1106,9 +1154,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.price_po + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.price_po, data.field.key)"
                             @mousedown="startSelection($event, data.item.price_po, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.price_po, $event, data.index)"
+                            @mousemove="selectItem(data.item.price_po, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.price_po, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.price_po) && isSameField(case_order.field_order, data.field.key) }">
                             <span> <strong :class="{
@@ -1121,7 +1170,8 @@
                 </template>
                 <template #cell(company_price)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.company_price
         }" class="company_price overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.company_price, data.field.key)" -->
                         <!-- @input="handleItem(data.item.company_price, 'company_price', data.index)" -->
@@ -1129,9 +1179,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.company_price + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.company_price, data.field.key)"
                             @mousedown="startSelection($event, data.item.company_price, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.company_price, $event, data.index)"
+                            @mousemove="selectItem(data.item.company_price, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.company_price, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.company_price) && isSameField(case_order.field_order, data.field.key) }">
@@ -1147,7 +1198,8 @@
                 </template>
                 <template #cell(customer_sku_code)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.customer_sku_code
         }" class="customer_sku_code overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)" -->
                         <!-- @input="handleItem(data.item.customer_sku_code, 'customer_sku_code', data.index)" -->
@@ -1155,10 +1207,11 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.customer_sku_code + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @dblclick="handleDoubleClick($event)"
                             @mousedown="startSelection($event, data.item.customer_sku_code, data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.customer_sku_code, data.field.key)"
-                            @mousemove="selectItem(data.item.customer_sku_code, $event, data.index)"
+                            @mousemove="selectItem(data.item.customer_sku_code, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.customer_sku_code, $event)"
                             :class="{ 'change-border': isChangeBorder(data.item.customer_sku_code) && isSameField(case_order.field_order, data.field.key) }">
                             {{ data.item.customer_sku_code }}
@@ -1168,14 +1221,16 @@
                 </template>
                 <template #cell(is_compliant)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.is_compliant
         }" class="is_compliant overflow-hidden">
 
                         <div :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.is_compliant + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.is_compliant, data.field.key)"
                             @mousedown="startSelection($event, data.item.is_compliant, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.is_compliant, $event, data.index)"
+                            @mousemove="selectItem(data.item.is_compliant, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.is_compliant, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.is_compliant) && isSameField(case_order.field_order, data.field.key) }">
@@ -1191,7 +1246,8 @@
                 </template>
                 <template #cell(po_number)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.po_number
         }" class="po_number overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po_number, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po_number, 'po_number', data.index)" -->
@@ -1199,9 +1255,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po_number + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.po_number, data.field.key)"
                             @mousedown="startSelection($event, data.item.po_number, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.po_number, $event, data.index)"
+                            @mousemove="selectItem(data.item.po_number, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.po_number, $event)" @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.po_number) && isSameField(case_order.field_order, data.field.key) }">
                             <span>{{ data.item.po_number }}</span>
@@ -1210,7 +1267,8 @@
                 </template>
                 <template #cell(po_delivery_date)="data">
                     <div :style="{
-            'width': data.field.set_width + 'px' + '!important'
+            'width': data.field.set_width + 'px' + '!important',
+            // 'background-color': data.item.theme_background.po_delivery_date
         }" class="po_delivery_date overflow-hidden">
                         <!-- @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)" -->
                         <!-- @input="handleItem(data.item.po_delivery_date, 'po_delivery_date', data.index)" -->
@@ -1218,9 +1276,10 @@
                             @dblclick="handleDoubleClick($event)" />
                         <div v-else :style="'width: 100%;height: 1.5rem;'" tabindex="0"
                             :ref="'keyListenerDiv_' + data.item.po_delivery_date + data.index + data.field.key"
+                            @click="emitIndex(data.index, data.field.key)"
                             @keydown="copyItem($event, data.item.po_delivery_date, data.field.key)"
                             @mousedown="startSelection($event, data.item.po_delivery_date, data.index, data.field.key)"
-                            @mousemove="selectItem(data.item.po_delivery_date, $event, data.index)"
+                            @mousemove="selectItem(data.item.po_delivery_date, $event, data.index, data.field.key)"
                             @mouseup="endSelection(data.item.po_delivery_date, $event)"
                             @dblclick="handleDoubleClick($event)"
                             :class="{ 'change-border': isChangeBorder(data.item.po_delivery_date) && isSameField(case_order.field_order, data.field.key) }">
@@ -1400,16 +1459,17 @@ export default {
         this.fetchMaterialCategoryType();
 
     },
-   
+
     methods: {
         onMouseDown(event, columnKey, set_width) {
-            event.preventDefault(); 
+            if (!this.case_is_status.show_dropdown) {
+                event.preventDefault();
             const startX = event.clientX;
             this.column_widths[columnKey] = set_width;
             const startWidth = this.column_widths[columnKey];
 
             const onMouseMove = (e) => {
-                const newWidth = Math.max(50, startWidth + (e.clientX - startX)); 
+                const newWidth = Math.max(50, startWidth + (e.clientX - startX));
                 this.column_widths[columnKey] = newWidth;
             };
 
@@ -1421,6 +1481,8 @@ export default {
 
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
+            }
+            
         },
         offsetWidth(ref, index) {
             const refName = `${ref}${index}`;
@@ -1552,7 +1614,7 @@ export default {
             this.getPushHeader(item, header);
             this.setFocusToKeyListener(item, index, header);
         },
-        selectItem(item, event, index) {
+        selectItem(item, event, index, key) {
             if (event !== undefined) {
                 event.preventDefault();
             }
@@ -1576,6 +1638,8 @@ export default {
                 if (!exit_indexs) {
                     this.case_index.orders.push(index);
                 };
+                this.$emit('emitMosMouveSelectItem', this.case_index.orders, key);
+
             }
         },
         selectItemEventKey(item, event) {
@@ -1606,8 +1670,8 @@ export default {
             this.isSelecting = false;
 
         },
-        emitIndex(index) {
-            this.$emit('emitIndex', index);
+        emitIndex(index, key) {
+            this.$emit('emitIndex', index, key);
         },
         copyItem(event, item, field, index) {
             console.log(event.keyCode, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
@@ -1749,7 +1813,9 @@ export default {
             if (item.order == this.case_index.order) {
                 return 'font-italic text-secondary highlight-copy';
             }
+            return item.tr_class;
         },
+
         refeshCaseCopy() {
             this.case_is_status.copy = false;
             this.case_index.order = -1;
@@ -1908,5 +1974,45 @@ export default {
     top: -6px;
     width: 10px;
     z-index: 1;
+}
+
+::v-deep .b-table-bg-black {
+    background: #000000;
+}
+
+::v-deep .b-table-bg-white {
+    background: #ffffff;
+}
+
+::v-deep .b-table-bg-red {
+    background: #ff0000;
+}
+
+::v-deep .b-table-bg-green {
+    background: #00ff00;
+}
+
+::v-deep .b-table-bg-blue {
+    background: #0000ff;
+}
+
+::v-deep .b-table-bg-yellow {
+    background: #ffff00;
+}
+
+::v-deep .b-table-bg-gray {
+    background: #808080;
+}
+
+::v-deep .b-table-bg-orange {
+    background: #ffa500;
+}
+
+::v-deep .b-table-bg-purple {
+    background: #800080;
+}
+
+::v-deep .b-table-bg-cyan {
+    background: #87CEFA;
 }
 </style>
