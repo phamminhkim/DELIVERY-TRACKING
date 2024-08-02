@@ -15,7 +15,8 @@ class SapMaterial extends Model
         'unit_id',
         'bar_code',
         'sap_code',
-        'name'
+        'name',
+        'priority'
 
     ];
     protected $casts = [

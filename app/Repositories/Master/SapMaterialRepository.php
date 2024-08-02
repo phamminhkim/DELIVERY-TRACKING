@@ -62,7 +62,7 @@ class SapMaterialRepository extends RepositoryAbs
                 $query->select(['id', 'unit_code']);
             }]);
 
-            $perPage = $request->filled('per_page')? $this->request->per_page : 1000;
+            $perPage = $request->filled('per_page') ? $this->request->per_page : 1000;
             $sap_materials = $query->paginate($perPage, ['*'], 'page', $request->page);
 
             if ($request->filled('search') && $sap_materials->isEmpty()) {
@@ -254,7 +254,6 @@ class SapMaterialRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'sap_code' => 'required|string',
                 'unit_id' => 'required|integer|exists:sap_units,id',
                 'name' => 'required|string',
@@ -280,6 +279,14 @@ class SapMaterialRepository extends RepositoryAbs
                     'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
                 ]);
+
+                if (isset($this->data['priority'])) {
+                    // Cách 1: Sử dụng phương thức setAttribute
+                    $sapMaterial->setAttribute('priority', $this->data['priority']);
+
+                    // Cách 2: Thiết lập trực tiếp trường 'priority' trong mảng attributes
+                    // $sapMaterial->attributes['priority'] = $this->data['priority'];
+                }
 
                 return $sapMaterial;
             }
@@ -406,6 +413,7 @@ class SapMaterialRepository extends RepositoryAbs
                     'unit_id' => $this->data['unit_id'],
                     'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
+                    'priority' => $this->data['priority'],
                 ]);
                 $sapMaterial->save();
 
