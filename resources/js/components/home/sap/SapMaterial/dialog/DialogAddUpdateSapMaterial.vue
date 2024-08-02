@@ -100,6 +100,22 @@
 								<strong>{{ getError('name') }}</strong>
 							</span>
 						</div>
+                        <div class="form-group">
+							<label>Độ ưu tiên</label>
+							<!-- <small class="text-danger">*</small> -->
+							<input
+								v-model="sap_material.priority"
+								class="form-control"
+								id="priority"
+								name="priority"
+								placeholder="Nhập độ ưu tiên (nếu có)..."
+								v-bind:class="hasError('priority') ? 'is-invalid' : ''"
+								type="text"
+							/>
+							<span v-if="hasError('priority')" class="invalid-feedback" role="alert">
+								<strong>{{ getError('priority') }}</strong>
+							</span>
+						</div>
 					</div>
 
 					<div class="modal-footer justify-content-between">
@@ -149,6 +165,7 @@
 					unit_id: null,
 					bar_code: '',
 					name: '',
+					priority: '',
 				},
 				unit_options: [],
 
@@ -181,6 +198,7 @@
 						unit_id: this.sap_material.unit_id,
 						bar_code: this.sap_material.bar_code,
 						name: this.sap_material.name,
+						priority: this.sap_material.priority,
 					});
 					console.log(result);
 
@@ -210,6 +228,7 @@
 						unit_id: this.sap_material.unit_id,
 						bar_code: this.sap_material.bar_code,
 						name: this.sap_material.name,
+						priority: this.sap_material.priority,
 					};
 					const data = await this.api_handler.put(
 						`${this.api_url}/${this.sap_material.id}`,
@@ -282,6 +301,7 @@
 				this.sap_material.unit_id = null;
 				this.sap_material.bar_code = '';
 				this.sap_material.name = '';
+				this.sap_material.priority = '';
 				this.clearErrors();
 			},
 
@@ -290,6 +310,7 @@
 				this.sap_material.unit_id = null;
 				this.sap_material.bar_code = null;
 				this.sap_material.name = null;
+				this.sap_material.priority = null;
 			},
 			clearErrors() {
 				this.errors = {};
@@ -334,6 +355,7 @@
 				this.sap_material.unit_id = item.unit_id;
 				this.sap_material.bar_code = item.bar_code;
 				this.sap_material.name = item.name;
+				this.sap_material.priority = item.priority;
 				this.sap_material.id = item.id;
 			},
 		},
