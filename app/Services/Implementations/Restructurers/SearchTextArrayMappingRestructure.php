@@ -59,10 +59,13 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
             }
 
             // Xử lý format ngày
-            if ($output[$structure_key] && isset($array['date_format'])) {
-                $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+            if (isset($array['date_format']) && $output[$structure_key]) {
+                if (isset($array['convert_date_format'])) {
+                    $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], $array['convert_date_format'], $output[$structure_key]);
+                } else {
+                    $output[$structure_key] = FormatDateUtility::formatDate2Date($array['date_format'], 'Y-m-d', $output[$structure_key]);
+                }
             }
-
         }
 
         // Xử lý loại cấu hình theo các key
