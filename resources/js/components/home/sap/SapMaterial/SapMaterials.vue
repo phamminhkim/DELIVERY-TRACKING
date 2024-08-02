@@ -342,12 +342,19 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+                    {
+						key: 'priority',
+						label: 'Độ ưu tiên',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
 					{
 						key: 'is_deleted',
 						label: 'Trạng thái',
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+
 					{
 						key: 'action',
 						label: 'Action',
