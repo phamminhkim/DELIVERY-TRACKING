@@ -187,18 +187,52 @@ export default {
             });
 
         },
-        getSoSapNoteFromSyntax(data_item, key_array, separator) {
+        getSoSapNoteFromSyntax(data_item, key_array, separators, format_data) {
             let so_sap_note = "";
+            let so_sap_note_array = [];
+            let verify_separators = [];
             key_array.forEach((key, index) => {
                 let data_key = this.getDataKeyFromSyntaxKey(key);
-                if (index == key_array.length - 1) {
-                    so_sap_note += data_item[data_key];
-                } else {
-                    so_sap_note += data_item[data_key] + separator;
+                let data_value = data_item[data_key];
+                // Duyệt format_data
+                format_data.forEach((format_item) => {
+                    if (format_item.key == key) {
+                        if (format_item.type == 'date') {
+                            data_value = data_value ? this.convertFormatDate(data_item[data_key], format_item.format) : data_value;
+                            return;
+                        }
+                    }
+                });
+                if (data_value) {
+                    so_sap_note_array.push(data_value);
+                    if (index > 0) {
+                        verify_separators.push(separators[index-1]);
+                    } else {
+                        verify_separators.push('');
+                    }
                 }
             });
+            // Duyệt so_sap_note và merge theo verify_separators
+            for (let index = 0; index < so_sap_note_array.length; index++) {
+                if (index == 0) {
+                    so_sap_note += so_sap_note_array[index];
+                } else {
+                    so_sap_note += verify_separators[index] + so_sap_note_array[index];
+                }
+            }
             return so_sap_note;
         },
+        convertFormatDate(date, format) {
+            // 'd.m.Y' sang '20.01.2024'
+            // 'd-m-Y' sang '20-01-2024'
+            // 'd/m/Y' sang '20/01/2024'
+            date = new Date(date);
+            let day = ("0" + date.getDate()).slice(-2);
+            let month = ("0" + (date.getMonth() + 1)).slice(-2);
+            let year = date.getFullYear();
+            return format.replace('d', day).replace('m', month).replace('Y', year);
+        },
+
         getDataKeyFromSyntaxKey(syntax_key) {
             let data_key = syntax_key;
             switch (syntax_key) {
@@ -274,8 +308,9 @@ export default {
                         });
                         if (data.so_sap_note_syntax) {
                             let key_array = data.so_sap_note_syntax.key_array;
-                            let separator = data.so_sap_note_syntax.separator;
-                            item.so_sap_note = this.getSoSapNoteFromSyntax(item, key_array, separator);
+                            let separators = data.so_sap_note_syntax.separators;
+                            let format_data = data.so_sap_note_syntax.format_data;
+                            item.so_sap_note = this.getSoSapNoteFromSyntax(item, key_array, separators, format_data);
                             // console.log(item.so_sap_note);
                         }
                         return item;

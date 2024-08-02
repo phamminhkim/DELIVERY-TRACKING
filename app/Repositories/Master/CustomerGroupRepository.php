@@ -73,6 +73,8 @@ class CustomerGroupRepository extends RepositoryAbs
                 $customerGroup = CustomerGroup::findOrFail($id);
                 $customerGroup->update([
                     'name' => $this->data['name'],
+                    'sap_so_note_syntax' => $this->data['sap_so_note_syntax'],
+                    'note' => $this->data['note'],
                 ]);
 
                 return $customerGroup;

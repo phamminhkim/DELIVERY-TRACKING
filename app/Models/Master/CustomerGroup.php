@@ -13,7 +13,7 @@ class CustomerGroup extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name'
+        'name', 'sap_so_note_syntax', 'note'
     ];
 
     public function customers()

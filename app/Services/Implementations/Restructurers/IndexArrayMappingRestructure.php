@@ -61,9 +61,12 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                 }
                 // Xử lý format ngày
                 if (isset($value_item['date_format']) && $output[$key]) {
-                    $output[$key] = FormatDateUtility::formatDate2Date($value_item['date_format'], 'Y-m-d', $output[$key]);
+                    if (isset($value_item['convert_date_format'])) {
+                        $output[$key] = FormatDateUtility::formatDate2Date($value_item['date_format'], $value_item['convert_date_format'], $output[$key]);
+                    } else {
+                        $output[$key] = FormatDateUtility::formatDate2Date($value_item['date_format'], 'Y-m-d', $output[$key]);
+                    }
                 }
-
             }
             if ($skip_item) {
                 // Tìm không thấy key trong mảng data thì bỏ qua
