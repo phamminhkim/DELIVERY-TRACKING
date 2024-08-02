@@ -78,7 +78,7 @@ class CheckDataRepository extends RepositoryAbs
                     $sap_so_number = $item['sap_so_number'];
                     $checkCode = $customer_sku_code . $sap_so_number;
                     if (in_array($checkCode, $existingCodes)) {
-                        continue;
+                        // continue;
                     }
                     $existingCodes[] = $checkCode;
                     // Kiểm tra sự tồn tại của trường 'customer_sku_unit'
