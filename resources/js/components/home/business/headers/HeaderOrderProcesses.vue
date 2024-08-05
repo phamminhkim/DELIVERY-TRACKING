@@ -677,9 +677,9 @@ export default {
                         order: item_index,
                         id: '',
                         barcode: '',
-                        sku_sap_code: '',
+                        sku_sap_code: item.SkuSapCode,
                         sku_sap_name: '',
-                        sku_sap_unit: '',
+                        sku_sap_unit: item.SkuSapUnit,
                         promotive: '',
                         promotive_name: '',
                         promotion_category: '',
@@ -710,7 +710,7 @@ export default {
                         po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
                         compliance: '',
                         is_compliant: null,
-                        quantity3_sap: '',
+                        quantity3_sap: this.convertStringToNumber(item.SapQuantity),
                         difference: '',
 
                     });
