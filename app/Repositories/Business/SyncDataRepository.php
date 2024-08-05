@@ -77,26 +77,26 @@ class SyncDataRepository extends RepositoryAbs
                         } else {
                             $warehouse_code = $warehouse->code;
                         }
+
+                        $sapData['BODY'][] = [
+                            "sales_org" => "3000",
+                            "distr_chan" => "20",
+                            "doc_type" => "ZOR",
+                            "lgort" => $warehouse_code,
+                            "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
+                            "SO_KEY" => $order->id,
+                            "GROUP_NAME" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null, // $order->sap_so_number,
+                            "CUST_NO" => $order->customer_code,
+                            "VER_BOM_SALE" => "",
+                            "LV2" => $order->level2,
+                            "LV3" => $order->level3,
+                            "LV4" => $order->level4,
+                            "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                            "USER" => auth()->user()->email,
+                            "ITEMS" => $ITEM_DATA
+                        ];
                     }
                 }
-                $sapData['BODY'][] = [
-                    "sales_org" => "3000",
-                    "distr_chan" => "20",
-                    "doc_type" => "ZOR",
-                    "lgort" => $warehouse_code,
-                    "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
-                    "SO_KEY" => $order->id,
-                    "GROUP_NAME" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null, // $order->sap_so_number,
-                    "CUST_NO" => $order->customer_code,
-                    "VER_BOM_SALE" => "",
-                    "LV2" => $order->level2,
-                    "LV3" => $order->level3,
-                    "LV4" => $order->level4,
-                    "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
-                    "USER" => auth()->user()->email,
-                    "ITEMS" => $ITEM_DATA
-                ];
-                // dd($sapData);
             }
             // dd($sapData);
             $json = SapApiHelper::postData(json_encode($sapData));
@@ -120,17 +120,28 @@ class SyncDataRepository extends RepositoryAbs
                     $warehouse_id = 0;
                     $shipping_id = 0;
                     if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
+                        //lấy giá trị trong mảng $fields['data'] theo  id
+                        $value_item = null;
+                        foreach ($fields['data'] as $value) {
+                            if ($value['id'] == $json_value['SO_KEY']) {
+                                $value_item = $value;
+                                continue; //thoát vòng lặp
+                            }
+                        }
+                        // dd($value_item);
                         $soHeader = SoHeader::find($json_value['SO_KEY']);
                         $soHeader->so_uid = $soNumber;
                         $soHeader->sync_sap_status = 1;
-                        $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
-                        $soHeader->warehouse_id = $value["warehouse_code"];
-                        $soHeader->shipping_id = isset($value["Ship_cond"]) ? $value["Ship_cond"] : null;
+                        //  $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
+                        $soHeader->warehouse_id = $value_item["warehouse_code"];
+                        $soHeader->shipping_id = isset($value_item["Ship_cond"]) ? $value_item["Ship_cond"] : null;
                         $sync_sap_status = $soHeader->sync_sap_status = 1;
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
                         $shipping_id = $soHeader->shipping_id;
                         $soHeader->save();
+                        // dd($json_value);
+
                     } else if ($json_value['SO_KEY'] == '') {
                         $this->errors['not_config_user'] = $json_value['MESSAGE'];
                         $this->changeIsSyncingSapSoHeader($so_headers, false);
