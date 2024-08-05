@@ -22,6 +22,10 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                     continue;
                 }
                 if (isset($value_item['value'])) {
+                    if (is_object($match)) {
+                        // Chuyển đổi object thành array, fix lỗi hàm array_key_exists quá hạn
+                        $match = json_decode(json_encode($match), true);
+                    }
                     if (!array_key_exists($value_item['value'], $match)) {
                         // Tìm không thấy index trong mảng data thì bỏ qua
                         $skip_item = true;
