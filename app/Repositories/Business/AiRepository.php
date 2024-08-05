@@ -992,7 +992,10 @@ class AiRepository extends RepositoryAbs
                     foreach ($key_array as $key) {
                         $value_array[] = $table_data[$key];
                     }
-                    $table_data['SoSapNote'] = implode($separator, $value_array);
+                    $filtered_arr = array_filter($value_array, function($value) {
+                        return !is_null($value) && $value !== '';
+                    });
+                    $table_data['SoSapNote'] = implode($separator, $filtered_arr);
                 }
             }
         }
