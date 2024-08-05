@@ -52,11 +52,11 @@ class SyncDataRepository extends RepositoryAbs
                     $not_sync_so_headers[] = $so_header;
                 }
             }
-            // dd($not_sync_so_headers);
 
             foreach ($not_sync_so_headers as $so_header) {
                 $order = $so_header;
                 $items = [];
+
                 foreach ($fields['data'] as $value) {
                     if ($value['id'] == $order->id) {
                         $ITEM_DATA = [];
@@ -70,37 +70,35 @@ class SyncDataRepository extends RepositoryAbs
                                 ];
                             }
                         }
-                        foreach ($fields['data'] as $field) {
-                            $warehouse_id = $field['warehouse_code'];
-                            $warehouse = Warehouse::where('id', $warehouse_id)->first();
-                            if ($warehouse == null) {
-                                $warehouse_code = "3101";
-                            } else {
-                                $warehouse_code = $warehouse->code;
-                            }
-                            $sapData['BODY'][] = [
-                                "sales_org" => "3000",
-                                "distr_chan" => "20",
-                                "doc_type" => "ZOR",
-                                "lgort" => $warehouse_code,
-                                "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
-                                "SO_KEY" => $order->id,
-                                "GROUP_NAME" =>isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,// $order->sap_so_number,
-                                "CUST_NO" => $order->customer_code,
-                                "VER_BOM_SALE" => "",
-                                "LV2" => $order->level2,
-                                "LV3" => $order->level3,
-                                "LV4" => $order->level4,
-                                "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
-                                "USER" => auth()->user()->email,
-                                "ITEMS" => $ITEM_DATA
-                            ];
+                        $warehouse_id = $value['warehouse_code'];
+                        $warehouse = Warehouse::where('id', $warehouse_id)->first();
+                        if ($warehouse == null) {
+                            $warehouse_code = "3101";
+                        } else {
+                            $warehouse_code = $warehouse->code;
                         }
                     }
                 }
+                $sapData['BODY'][] = [
+                    "sales_org" => "3000",
+                    "distr_chan" => "20",
+                    "doc_type" => "ZOR",
+                    "lgort" => $warehouse_code,
+                    "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
+                    "SO_KEY" => $order->id,
+                    "GROUP_NAME" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null, // $order->sap_so_number,
+                    "CUST_NO" => $order->customer_code,
+                    "VER_BOM_SALE" => "",
+                    "LV2" => $order->level2,
+                    "LV3" => $order->level3,
+                    "LV4" => $order->level4,
+                    "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                    "USER" => auth()->user()->email,
+                    "ITEMS" => $ITEM_DATA
+                ];
                 // dd($sapData);
             }
-
+            // dd($sapData);
             $json = SapApiHelper::postData(json_encode($sapData));
 
             $jsonString = json_encode($json); // Convert the array to a JSON string
@@ -128,7 +126,7 @@ class SyncDataRepository extends RepositoryAbs
                         $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
                         $soHeader->warehouse_id = $value["warehouse_code"];
                         $soHeader->shipping_id = isset($value["Ship_cond"]) ? $value["Ship_cond"] : null;
-                        $sync_sap_status = $soHeader->sync_sap_status = 1 ;
+                        $sync_sap_status = $soHeader->sync_sap_status = 1;
                         $so_sap_note = $soHeader->so_sap_note;
                         $warehouse_id = $soHeader->warehouse_id;
                         $shipping_id = $soHeader->shipping_id;
