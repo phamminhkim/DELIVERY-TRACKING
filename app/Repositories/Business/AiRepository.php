@@ -60,6 +60,7 @@ use Illuminate\Http\Request;
 use App\Enums\Ai\Convert\ConvertMethod;
 use App\Enums\Ai\Extract\ExtractMethod;
 use App\Enums\Ai\Restructure\RestructureMethod;
+use App\Models\Master\SapMaterial;
 
 class AiRepository extends RepositoryAbs
 {
@@ -1001,6 +1002,22 @@ class AiRepository extends RepositoryAbs
         }
         return $table_data;
     }
+    private function addCustomInfoToItem($items)
+    {
+        foreach ($items as $index => $item_data) {
+            // Dò mã sku sap để lấy sku name
+            if (array_key_exists('SkuSapName', $item_data) && array_key_exists('SkuSapCode', $item_data)) {
+                $sku_sap_code = $item_data['SkuSapCode'];
+                $sku_sap = SapMaterial::query()->where('sap_code', $sku_sap_code)->first();
+                $sku_sap_name = "";
+                if ($sku_sap) {
+                    $sku_sap_name = $sku_sap->name;
+                }
+                $items[$index]['SkuSapName'] = $sku_sap_name;
+            }
+        }
+        return $items;
+    }
     // Xử lý mẫu 1 header có 1 item
     private function restructureHeaderItem($order_data, $header_key_names) {
         $result = array();
@@ -1014,6 +1031,7 @@ class AiRepository extends RepositoryAbs
                 $header[$header_key] = $data[$header_key];
             }
             $header = $this->addCustomInfo($header);
+            $items = $this->addCustomInfoToItem($items);
 
             $array_data = [
                 'headers' => $header,
@@ -1035,6 +1053,7 @@ class AiRepository extends RepositoryAbs
             if ($data[$split_header_key]) {
                 // Lưu lại data theo header trước đó
                 if ($items) {
+                    $items = $this->addCustomInfoToItem($items);
                     $array_data = [
                         'headers' => $header,
                         'items' => $items,
@@ -1053,6 +1072,7 @@ class AiRepository extends RepositoryAbs
                 // Xử lý data cuối
                 if ($index == ($row_count - 1)) {
                     if ($items) {
+                        $items = $this->addCustomInfoToItem($items);
                         $array_data = [
                             'headers' => $header,
                             'items' => $items,

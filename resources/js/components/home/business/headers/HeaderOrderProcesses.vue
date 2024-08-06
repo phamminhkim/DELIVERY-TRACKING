@@ -678,7 +678,7 @@ export default {
                         id: '',
                         barcode: '',
                         sku_sap_code: item.SkuSapCode,
-                        sku_sap_name: '',
+                        sku_sap_name: item.SkuSapName,
                         sku_sap_unit: item.SkuSapUnit,
                         promotive: '',
                         promotive_name: '',
