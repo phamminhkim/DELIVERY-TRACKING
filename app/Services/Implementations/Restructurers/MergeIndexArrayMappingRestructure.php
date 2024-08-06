@@ -29,6 +29,10 @@ class MergeIndexArrayMappingRestructure implements DataRestructureInterface
                     }
                 }
             }
+            // Xử lý chuỗi theo regex
+            if (isset($array['regex_match'])) {
+                $output[$structure_key] = OperatorUtility::regexMatch($output[$structure_key], $array['regex_match']);
+            }
             $output[$structure_key] = $output[$structure_key] ? implode(" ", $output[$structure_key]) : "";
             // Xử lý replace
             if (isset($array['replace_value'])) {
