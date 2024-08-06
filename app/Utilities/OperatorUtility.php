@@ -44,7 +44,7 @@ class OperatorUtility
     public static function regexMatch($raw_data, $regex)
     {
         preg_match($regex, $raw_data, $matches);
-        return count($matches) > 0 ? $matches[0] : null;
+        return count($matches) > 0 ? trim($matches[0]) : null;
     }
     public static function getValueWithCondition($array, $condition)
     {
