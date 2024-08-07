@@ -308,6 +308,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'order_process.customer_group.name',
+                    label: 'Nhóm KH',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'order_process.created_by.name',
                     label: 'Người tạo',
                     sortable: true,
