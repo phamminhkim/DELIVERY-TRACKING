@@ -68,7 +68,7 @@ class CheckDataRepository extends RepositoryAbs
             $mappingData = [];
             $existingCodes = [];
             $existingSapSoNumber = [];
-            $foundMapping =[];
+            $foundMapping = [];
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
@@ -105,9 +105,9 @@ class CheckDataRepository extends RepositoryAbs
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
                 // $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', 0) ->orderBy('priority', 'asc')->first();
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)
-    ->where('is_deleted', 0)
-    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 1 ELSE 2 END, priority ASC')
-    ->first();
+                    ->where('is_deleted', 0)
+                    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 1 ELSE 2 END, priority ASC')
+                    ->first();
 
                 if ($sapMaterial && $sapMaterial->is_deleted != 1) {
 
@@ -185,11 +185,10 @@ class CheckDataRepository extends RepositoryAbs
                                 ];
                                 $foundMapping = true;
                             }
-
                         }
                     }
                     if (!$foundMapping) {
-                         // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
+                        // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
                         $mappingData[] = [
                             'customer_sku_code' => $customer_sku_code,
                             'customer_sku_unit' => $customer_sku_unit,
