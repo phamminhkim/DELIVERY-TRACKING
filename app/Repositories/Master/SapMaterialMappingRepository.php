@@ -62,13 +62,21 @@ class SapMaterialMappingRepository extends RepositoryAbs
                     }
                     $customer_material_existed = CustomerMaterial::query()
                         ->whereHas('customer_group', function ($query) use ($customer_group) {
-                            return $query->where('customer_group_id', $customer_group->id);
+                            $query->where('customer_group_id', $customer_group->id);
                         })
                         ->where('customer_sku_code', $material['customer_material_sku_code'])
                         ->first();
+
                     if ($customer_material_existed) {
+                        // Cập nhật bản ghi customer material hiện có
+                        $customer_material_existed->update([
+                            'customer_sku_name' => $material['customer_material_name'],
+                            'customer_sku_unit' => $material['customer_material_unit']
+                        ]);
+
                         $customer_material = $customer_material_existed;
                     } else {
+                         // Tạo một bản ghi customer material mới
                         $customer_material = CustomerMaterial::create([
                             'customer_group_id' => $customer_group->id,
                             'customer_sku_code' => $material['customer_material_sku_code'],
