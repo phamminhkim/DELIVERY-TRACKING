@@ -977,10 +977,30 @@ class AiRepository extends RepositoryAbs
             }
         }
         // Thêm trường SapSoNumber
-        if (array_key_exists('PoNumber', $table_data) && array_key_exists('PoDeliveryDate', $table_data)) {
-            $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
-            $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
-                : $table_data['PoNumber'];
+        if (array_key_exists('SapSoNumber', $table_data)) {
+            // Trường hợp có cấu hình SapSoNumber
+            $sap_so_number_info = $table_data['SapSoNumber'];
+            if (isset($sap_so_number_info['join_after_add_customer']) && $sap_so_number_info['join_after_add_customer'] == true) {
+                if (isset($sap_so_number_info['key_array'])) {
+                    $key_array = $sap_so_number_info['key_array'];
+                    $separator = $sap_so_number_info['separator'];
+                    $value_array = [];
+                    foreach ($key_array as $key) {
+                        $value_array[] = $table_data[$key];
+                    }
+                    $filtered_arr = array_filter($value_array, function($value) {
+                        return !is_null($value) && $value !== '';
+                    });
+                    $table_data['SapSoNumber'] = implode($separator, $filtered_arr);
+                }
+            }
+        } else {
+            // Thêm trường SapSoNumber mặc định nếu không có cấu hình
+            if (array_key_exists('PoNumber', $table_data) && array_key_exists('PoDeliveryDate', $table_data)) {
+                $po_delivery_date = str_replace('-', '', $table_data['PoDeliveryDate']);
+                $table_data['SapSoNumber'] = $po_delivery_date ? $table_data['PoNumber'] . '-' . $po_delivery_date
+                    : $table_data['PoNumber'];
+            }
         }
         // Thêm trường SoSapNote (nếu có) sau khi có đầy đủ thông tin
         if (array_key_exists('SoSapNote', $table_data)) {

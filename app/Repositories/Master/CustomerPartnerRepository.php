@@ -370,17 +370,17 @@ class CustomerPartnerRepository extends RepositoryAbs
                 'code' => 'required|string',
                 'name' => 'string',
                 // 'note' => 'string',
-                'LV2' => 'string',
-                'LV3' => 'string',
-                'LV4' => 'string',
+                // 'LV2' => 'string',
+                // 'LV3' => 'string',
+                // 'LV4' => 'string',
             ], [
                 'code.required' => 'Yêu cầu nhập mã kho.',
                 'code.string' => 'Mã kho phải là chuỗi.',
                 'name.string' => 'Tên khách hàng phải là chuỗi.',
                 // 'note.string' => 'Ghi chú phải là chuỗi.',
-                'LV2.string' => 'LV2 phải là chuỗi.',
-                'LV3.string' => 'LV3 phải là chuỗi.',
-                'LV4.string' => 'LV4 phải là chuỗi.',
+                // 'LV2.string' => 'LV2 phải là chuỗi.',
+                // 'LV3.string' => 'LV3 phải là chuỗi.',
+                // 'LV4.string' => 'LV4 phải là chuỗi.',
             ]);
 
             if ($validator->fails()) {
