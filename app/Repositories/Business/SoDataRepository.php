@@ -25,11 +25,10 @@ class SoDataRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'title' => 'required',
-                'order_data.*.sap_so_number' => 'required|max:35',
+                'order_data.*.sap_so_number' => 'required',
             ], [
                 'title.required' => 'Title là bắt buộc',
-                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc',
-                'order_data.*.sap_so_number.max' => 'Số SAP SO không được vượt quá 35 ký tự',
+                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc'
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
@@ -111,11 +110,10 @@ class SoDataRepository extends RepositoryAbs
         try {
             $validator = Validator::make($this->data, [
                 'title' => 'required',
-                'order_data.*.sap_so_number' => 'required|max:35',
+                'order_data.*.sap_so_number' => 'required',
             ], [
                 'title.required' => 'Title là bắt buộc',
-                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc',
-                'order_data.*.sap_so_number.max' => 'Số SAP SO không được vượt quá 35 ký tự',
+                'order_data.*.sap_so_number.required' => 'Số SAP SO là bắt buộc'
             ]);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
