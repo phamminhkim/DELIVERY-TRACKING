@@ -22,6 +22,12 @@ class LocalFileService implements FileServiceInterface
     {
         Storage::disk('temp')->delete($file_path);
     }
+    public function deleteTemporaryFileByFilename($file)
+    {
+        $file_name = $file->getClientOriginalName();
+        $file_name = str_replace(' ', '_', $file_name);
+        Storage::disk('temp')->delete($file_name);
+    }
 
     public function saveProtectedFile($file, $user_id, $batch_id = null)
     {

@@ -201,4 +201,15 @@ class AiController extends ResponseController
         }
     }
 
+    public function findTextPosition(Request $request)
+    {
+        $handler = BusinessRepository::pdfTextLocator($request);
+        $data = $handler->findTextPosition();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+
 }
