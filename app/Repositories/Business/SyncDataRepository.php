@@ -77,7 +77,10 @@ class SyncDataRepository extends RepositoryAbs
                         } else {
                             $warehouse_code = $warehouse->code;
                         }
-
+                        $group_name = $order->sap_so_number;
+                        if (strlen($group_name) > 35) {
+                            $group_name = substr($group_name, 0, 35);
+                        }
                         $sapData['BODY'][] = [
                             "sales_org" => "3000",
                             "distr_chan" => "20",
@@ -85,7 +88,7 @@ class SyncDataRepository extends RepositoryAbs
                             "lgort" => $warehouse_code,
                             "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
                             "SO_KEY" => $order->id,
-                            "GROUP_NAME" => $order->sap_so_number, //isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                            "GROUP_NAME" => $group_name,//$order->sap_so_number, //isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
                             "CUST_NO" => $order->customer_code,
                             "VER_BOM_SALE" => "",
                             "LV2" => $order->level2,
