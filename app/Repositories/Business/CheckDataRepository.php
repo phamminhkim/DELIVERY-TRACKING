@@ -103,14 +103,13 @@ class CheckDataRepository extends RepositoryAbs
                     continue;
                 }
                 // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
-                // $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)->where('is_deleted', 0) ->orderBy('priority', 'asc')->first();
                 $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)
                     ->where('is_deleted', 0)
-                    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 1 ELSE 2 END, priority ASC')
+                    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
+                    ->orderBy('id', 'asc') // Sắp xếp theo id nếu bar_code không có dữ liệu trong cột priority
                     ->first();
 
                 if ($sapMaterial && $sapMaterial->is_deleted != 1) {
-
                     // Thêm thông tin vào mappingData
                     $sap_code = $sapMaterial->sap_code;
                     $bar_code = $sapMaterial->bar_code;
