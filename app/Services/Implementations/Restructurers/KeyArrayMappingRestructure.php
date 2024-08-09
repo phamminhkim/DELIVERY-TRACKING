@@ -57,8 +57,13 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                     (isset($value_item['default']) ? $value_item['default'] :
                     $match[$value_item['value_2']]);
 
-                    $operator = OperatorUtility::getOperator($value_item['operator']);
-                    $output[$key] = OperatorUtility::$operator($value_1, $value_2);
+                    // Kiểm tra giá trị số
+                    if (is_numeric($value_1) && is_numeric($value_2)) {
+                        $operator = OperatorUtility::getOperator($value_item['operator']);
+                        $output[$key] = OperatorUtility::$operator($value_1, $value_2);
+                    } else {
+                        $output[$key] = "";
+                    }
                 } else {
                     $output[$key] = $value_item['default'];
                 }
