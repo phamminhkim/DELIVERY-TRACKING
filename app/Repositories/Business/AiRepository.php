@@ -1028,7 +1028,7 @@ class AiRepository extends RepositoryAbs
             // Dò mã sku sap để lấy sku name
             if (array_key_exists('SkuSapName', $item_data) && array_key_exists('SkuSapCode', $item_data)) {
                 $sku_sap_code = $item_data['SkuSapCode'];
-                $sku_sap = SapMaterial::query()->where('sap_code', $sku_sap_code)->first();
+                $sku_sap = SapMaterial::query()->where('sap_code', $sku_sap_code)->select('name')->first();
                 $sku_sap_name = "";
                 if ($sku_sap) {
                     $sku_sap_name = $sku_sap->name;
