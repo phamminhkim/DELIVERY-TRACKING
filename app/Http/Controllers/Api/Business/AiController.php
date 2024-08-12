@@ -211,5 +211,15 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function getTextByCoords(Request $request)
+    {
+        $handler = BusinessRepository::pdfTextLocator($request);
+        $data = $handler->getTextByCoords();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
 }

@@ -350,6 +350,9 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('pdf-text-locator')->group(function () {
         Route::post('/', [AiController::class, 'findTextPosition']);
     });
+    Route::prefix('pdf-get-text-by-coords')->group(function () {
+        Route::post('/', [AiController::class, 'getTextByCoords']);
+    });
     Route::prefix('so-header')->group(function () {
         Route::post('/sync-sale-order', [SyncDataController::class, 'syncSoHeaderFromSap']);
         Route::get('/', [SyncDataController::class, 'getSoHeader']);
