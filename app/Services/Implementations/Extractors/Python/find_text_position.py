@@ -15,17 +15,28 @@ def find_text_position(pdf_path, src_page_num, search_text, src_index):
 
     page_height = int(page.rect.height)
     page_width = int(page.rect.width)
-
-    if not page.is_wrapped:
-        x_top_left = int(text_instances[index].x0)
-        y_top_left = int(page_height - text_instances[index].y0)
-        x_bottom_right = int(text_instances[index].x1)
-        y_bottom_right = int(page_height - text_instances[index].y1)
+    if page_height < page_width:
+        if not page.is_wrapped:
+            x_top_left = int(text_instances[index].x0)
+            y_top_left = int(page_height - text_instances[index].y0)
+            x_bottom_right = int(text_instances[index].x1)
+            y_bottom_right = int(page_height - text_instances[index].y1)
+        else:
+            x_top_left = int(page_width - text_instances[index].y1)
+            y_top_left = int(page_height - text_instances[index].x0)
+            x_bottom_right = int(page_width - text_instances[index].y0)
+            y_bottom_right = int(page_height - text_instances[index].x1)
     else:
-        x_top_left = int(page_width - text_instances[index].y1)
-        y_top_left = int(page_height - text_instances[index].x0)
-        x_bottom_right = int(page_width - text_instances[index].y0)
-        y_bottom_right = int(page_height - text_instances[index].x1)
+        if not page.is_wrapped:
+            x_top_left = int(page_width - text_instances[index].y1)
+            y_top_left = int(page_height - text_instances[index].x0)
+            x_bottom_right = int(page_width - text_instances[index].y0)
+            y_bottom_right = int(page_height - text_instances[index].x1)
+        else:
+            x_top_left = int(text_instances[index].x0)
+            y_top_left = int(page_height - text_instances[index].y0)
+            x_bottom_right = int(text_instances[index].x1)
+            y_bottom_right = int(page_height - text_instances[index].y1)
     return json.dumps({"x0": x_top_left, "y0": y_top_left, "x1": x_bottom_right, "y1": y_bottom_right})
 
 if __name__ == "__main__":
