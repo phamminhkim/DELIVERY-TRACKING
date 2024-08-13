@@ -241,4 +241,14 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function checkStringKeyMultiFiles(Request $request)
+    {
+        $handler = BusinessRepository::pdfTextLocator($request);
+        $data = $handler->checkStringKeyMultiFiles();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

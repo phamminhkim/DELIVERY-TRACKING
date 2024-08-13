@@ -83,7 +83,7 @@ class PdfTextLocatorRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    // Check string key
+    // Check string key a file
     public function checkStringKey()
     {
         $result = [];
@@ -94,6 +94,34 @@ class PdfTextLocatorRepository extends RepositoryAbs
             $string_key = $this->request->input('string_key');
             $result = $this->pdf_text_locator_service->checkStringKey($file_path, $page_num, $string_key);
             $this->file_service->deleteTemporaryFile($file_path);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+        return $result;
+    }
+    // Check string key with multiple files
+    public function checkStringKeyMultiFiles()
+    {
+        $result = [];
+        try {
+            $files = $this->request->file('file');
+            $exist_count = 0;
+            $exist_files = [];
+            foreach ($files as $file) {
+                $file_name = $file->getClientOriginalName();
+                $file_path = $this->file_service->saveTemporaryFile($file);
+                $page_num = $this->request->input('page_num');
+                $string_key = $this->request->input('string_key');
+                $json_result = $this->pdf_text_locator_service->checkStringKey($file_path, $page_num, $string_key);
+                $this->file_service->deleteTemporaryFile($file_path);
+                if (isset($json_result['is_exist']) && $json_result['is_exist'] == True) {
+                    $exist_files[] = $file_name;
+                    $exist_count++;
+                }
+            }
+            $result['exist_files'] = $exist_files;
+            $result['exist_count'] = $exist_count;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
