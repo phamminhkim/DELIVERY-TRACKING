@@ -221,5 +221,24 @@ class AiController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-
+    public function getFullText(Request $request)
+    {
+        $handler = BusinessRepository::pdfTextLocator($request);
+        $data = $handler->getFullText();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function checkStringKey(Request $request)
+    {
+        $handler = BusinessRepository::pdfTextLocator($request);
+        $data = $handler->checkStringKey();
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 }

@@ -47,4 +47,35 @@ class PdfTextLocatorService
         $result = json_decode($output, true);
         return $result;
     }
+    public function getFullText($pdf_path, $page_num)
+    {
+        $method = "get_full_text";
+        $cmd = sprintf(
+            'python %s --pdf_path %s --method %s --page_num %d',
+            $this->python_script_path,
+            escapeshellarg($pdf_path),
+            $method,
+            $page_num
+        );
+        $output = shell_exec($cmd);
+
+        $result = json_decode($output, true);
+        return $result;
+    }
+    public function checkStringKey($pdf_path, $page_num, $string_key)
+    {
+        $method = "check_string_key";
+        $cmd = sprintf(
+            'python %s --pdf_path %s --method %s --page_num %d --string_key %s',
+            $this->python_script_path,
+            escapeshellarg($pdf_path),
+            $method,
+            $page_num,
+            escapeshellarg($string_key)
+        );
+        $output = shell_exec($cmd);
+
+        $result = json_decode($output, true);
+        return $result;
+    }
 }

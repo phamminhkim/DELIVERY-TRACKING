@@ -30,7 +30,7 @@ class PdfTextLocatorRepository extends RepositoryAbs
             $search_text = $this->request->input('search_text');
             $index = $this->request->input('index');
             $result = $this->pdf_text_locator_service->findTextPosition($file_path, $page_num, $search_text, $index);
-            $this->file_service->deleteTemporaryFileByFilename($file);
+            $this->file_service->deleteTemporaryFile($file_path);
             if (isset($result['error'])) {
                 $this->errors = $result['error'];
                 return null;
@@ -51,7 +51,7 @@ class PdfTextLocatorRepository extends RepositoryAbs
             $page_num = $this->request->input('page_num');
             $coords = $this->request->input('coords');
             $result = $this->pdf_text_locator_service->getTextByCoords($file_path, $page_num, $coords);
-            $this->file_service->deleteTemporaryFileByFilename($file);
+            $this->file_service->deleteTemporaryFile($file_path);
             if (isset($result['error'])) {
                 $this->errors = $result['error'];
                 return null;
@@ -62,5 +62,42 @@ class PdfTextLocatorRepository extends RepositoryAbs
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
+    }
+    // Lấy full text
+    public function getFullText()
+    {
+        try {
+            $file = $this->request->file('file');
+            $file_path = $this->file_service->saveTemporaryFile($file);
+            $page_num = $this->request->input('page_num');
+            $result = $this->pdf_text_locator_service->getFullText($file_path, $page_num);
+            $this->file_service->deleteTemporaryFile($file_path);
+            if (isset($result['error'])) {
+                $this->errors = $result['error'];
+                return null;
+            } else {
+                return $result;
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    // Check string key
+    public function checkStringKey()
+    {
+        $result = [];
+        try {
+            $file = $this->request->file('file');
+            $file_path = $this->file_service->saveTemporaryFile($file);
+            $page_num = $this->request->input('page_num');
+            $string_key = $this->request->input('string_key');
+            $result = $this->pdf_text_locator_service->checkStringKey($file_path, $page_num, $string_key);
+            $this->file_service->deleteTemporaryFile($file_path);
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+        return $result;
     }
 }

@@ -9,6 +9,12 @@ def find_text_position(pdf_path, src_page_num, search_text, src_index):
         page_num = src_page_num - 1
         page = doc[int(page_num)]
         text_instances = page.search_for(search_text)
+        if not text_instances:
+            return json.dumps({"error": "Text not found"})
+        else:
+            # Số chuỗi được tìm thấy
+            num_searched_text = len(text_instances)
+
         # Ví trí detect tính từ 0
         index = src_index - 1
         if int(index) < 0 or int(index) >= len(text_instances):
@@ -38,7 +44,19 @@ def find_text_position(pdf_path, src_page_num, search_text, src_index):
                 y_top_left = int(page_height - text_instances[index].y0)
                 x_bottom_right = int(text_instances[index].x1)
                 y_bottom_right = int(page_height - text_instances[index].y1)
-        return json.dumps({"x0": x_top_left, "y0": y_top_left, "x1": x_bottom_right, "y1": y_bottom_right})
+        # return json.dumps({"x0": x_top_left, "y0": y_top_left, "x1": x_bottom_right, "y1": y_bottom_right})
+        # Trả về thêm num_text_instances
+        return json.dumps(
+                        {
+                            "rect_coord":
+                                {
+                                    "x0": x_top_left,
+                                    "y0": y_top_left,
+                                    "x1": x_bottom_right,
+                                    "y1": y_bottom_right
+                                },
+                            "num_searched_text": num_searched_text
+                        })
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -91,6 +109,31 @@ def get_text_by_coords(pdf_path, src_page_num, coords):
     except Exception as e:
         return json.dumps({"error": str(e)})
 
+def get_full_text(pdf_path, src_page_num):
+    try:
+        doc = pymupdf.open(pdf_path)
+        # Vị trí page tính từ 0
+        page_num = src_page_num - 1
+        page = doc[int(page_num)]
+        return json.dumps({"text": page.get_text()})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+def check_string_key(pdf_path, src_page_num, string_key):
+    try:
+        doc = pymupdf.open(pdf_path)
+        # Vị trí page tính từ 0
+        page_num = src_page_num - 1
+        page = doc[int(page_num)]
+        full_text = page.get_text()
+        full_text = json.dumps(full_text)
+        # Kiểm tra string_key có tìm thấy trong full text
+        if string_key in full_text:
+            return json.dumps({"is_exist": True})
+        else:
+            return json.dumps({"is_exist": False})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
 if __name__ == "__main__":
     # Tạo từ điển để lưu trữ các cặp key-value
     args_dict = {}
@@ -139,6 +182,22 @@ if __name__ == "__main__":
             sys.exit(1)
         print(get_text_by_coords(pdf_path, page_num, coords))
         sys.exit(1)
+
+    # Lấy full text của page
+    elif method == 'get_full_text':
+        print(get_full_text(pdf_path, page_num))
+        sys.exit(1)
+
+    # Check string_key trên page
+    elif method == 'check_string_key':
+        string_key = args_dict.get('--string_key')
+        # Kiểm tra string_key trống thì in lỗi
+        if not string_key:
+            print(json.dumps({"error": "Missing string_key"}))
+            sys.exit(1)
+        print(check_string_key(pdf_path, page_num, string_key))
+        sys.exit(1)
+
     else:
         print(json.dumps({"error": "Invalid method"}))
         sys.exit(1)
