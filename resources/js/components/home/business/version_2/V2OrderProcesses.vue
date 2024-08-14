@@ -23,7 +23,8 @@
             @checkCompliance="handleCheckCompliance" @checkPrice="handleCheckPrice" @filterOrder="handleFilterOrder"
             @orderSyncSap="handleOrderSyncSap" @addRow="handleAddRow" @duplicateRow="handleDuplicateRow"
             @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
-            @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial" />
+            @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
+            @modalListOrder="handleModalListOrder" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" />
@@ -32,6 +33,7 @@
             :item_selecteds="item_selecteds"
             :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
+        <DialogListOrderProcessSO />
     </div>
 </template>
 <script>
@@ -43,6 +45,7 @@ import DialogOrderProcessesCheckInventory from './dialog/DialogOrderProcessesChe
 import DialogOrderProcessesCheckPrice from './dialog/DialogOrderProcessesCheckPrice.vue';
 import DialogOrderProcessesSync from './dialog/DialogOrderProcessesSync.vue';
 import DialogSearchOrderProcesses from '../../business/dialogs/DialogSearchOrderProcesses.vue';
+import DialogListOrderProcessSO from '../../business/dialogs/DialogListOrderProcessSO.vue';
 
 export default {
     components: {
@@ -52,7 +55,8 @@ export default {
         DialogOrderProcessesCheckInventory,
         DialogOrderProcessesCheckPrice,
         DialogOrderProcessesSync,
-        DialogSearchOrderProcesses
+        DialogSearchOrderProcesses,
+        DialogListOrderProcessSO
     },
     data() {
         return {
@@ -249,6 +253,7 @@ export default {
         await this.fetchWarehouse();
         await this.fetchMaterialCategoryType();
         await this.fetchOrderHeader();
+        await this.getUrl();
     },
     methods: {
         async apiCheckPrice(so_numbers, is_promotion) {
@@ -1436,7 +1441,16 @@ export default {
             this.is_open_modal_search_order_processes = false;
             $('#form_search_order_processes').modal('hide');
         },
-
+        handleModalListOrder() {
+            $('#listOrderProcessSO').modal('show');
+        },
+        getUrl() {
+            const url = window.location.href;
+            const id = url.split('#')[1];
+            if (id) {
+                this.fetchOrderProcessSODetail(id);
+            }
+        },
     },
     computed: {
         filteredOrders() {

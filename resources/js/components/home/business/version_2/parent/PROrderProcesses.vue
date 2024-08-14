@@ -1,6 +1,7 @@
 <template>
     <div>
         <ChildOrderProcessesInputHeader @convertFile="openModalDialogOrderProcessesConvertFile"  />
+        <ChildOrderProcessesListOrder @modalListOrder="modalListOrder" />
         <div class="card">
             <div class="card-header bg-white mb-0">
                 <ChildOrderProcessesHeader :order="order"
@@ -49,6 +50,7 @@ import ChildOrderProcessesHeader from '../child/header/ChildOrderProcessesHeader
 import ChildOrderProcessesColorDefHeader from '../child/header/ChildOrderProcessesColorDefHeader.vue';
 import ChildOrderProcessesBody from '../child/body/ChildOrderProcessesBody.vue';
 import DialogOrderProcessesConvertFile from '../dialog/DialogOrderProcessesConvertFile.vue';
+import ChildOrderProcessesListOrder from '../child/header/ChildOrderProcessesListOrder.vue';
 export default {
     props: {
         columns: { type: Array, default: () => [] },
@@ -65,6 +67,7 @@ export default {
         ChildOrderProcessesBody,
         DialogOrderProcessesConvertFile,
         ChildOrderProcessesColorDefHeader,
+        ChildOrderProcessesListOrder,
     },
     data() {
         return {
@@ -166,6 +169,9 @@ export default {
         },
         changeMaterial() {
             this.$emit('changeMaterial');
+        },
+        modalListOrder() {
+            this.$emit('modalListOrder');
         }
     }
 }
