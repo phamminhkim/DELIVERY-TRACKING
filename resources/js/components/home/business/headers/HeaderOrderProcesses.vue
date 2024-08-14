@@ -148,13 +148,13 @@
 
 
             </div>
-            <!-- <div class="form-group">
+            <div class="form-group">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="d-flex">
                             <div class="color-box mr-2" v-for="(color, index) in theme_colors" :key="index" :style="{
-            backgroundColor: color,
-            border: color == '#FFFFFF' ? '1px solid #000' : '',
+            backgroundColor: color.color,
+            border: color.color == '#FFFFFF' ? '1px solid #000' : '',
             width: '30px', height: '30px'
         }" @click="emitBackgroundColor(color)" ></div>
                         </div>
@@ -162,7 +162,7 @@
 
                     </div>
                 </div>
-            </div> -->
+            </div>
             <!-- <div class="row">
                 <div class="col-3">
                     <div class="input-group input-group-sm mb-3">
@@ -291,7 +291,46 @@ export default {
             api_check_price: '/api/check-data/check-price',
             api_check_promotion: '/api/check-data/check-promotion',
             theme_colors: [
-                "#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#808080", "#FFA500", "#800080", "#87CEFA"
+                {
+                    name: 'black',
+                    color: '#000000',
+                },
+                {
+                    name: 'white',
+                    color: '#FFFFFF',
+                },
+                {
+                    name: 'red',
+                    color: '#FF0000',
+                },
+                {
+                    name: 'green',
+                    color: '#00FF00',
+                },
+                {
+                    name: 'blue',
+                    color: '#0000FF',
+                },
+                {
+                    name: 'yellow',
+                    color: '#FFFF00',
+                },
+                {
+                    name: 'gray',
+                    color: '#808080',
+                },
+                {
+                    name: 'orange',
+                    color: '#FFA500',
+                },
+                {
+                    name: 'purple',
+                    color: '#800080',
+                },
+                {
+                    name: 'light-blue',
+                    color: '#87CEFA',
+                }
             ],
 
 

@@ -44,7 +44,7 @@
             @btnDuplicateRow="getBtnDuplicateRow" @pasteItem="getPasteItem" @btnCopyDeleteRow="getBtnCopyDeleteRow"
             @btnParseCreateRow="getBtnParseCreateRow" @btnCopy="getBtnCopy" @filterItems="getFilterItems"
             @emitResetFilter="getResetFilter" @editRow="getEditRow" @emitIndex="getEmitIndex"
-            @emitUpdateColumnHeader="handleEmittedUpdateColumnHeader">
+            @emitUpdateColumnHeader="handleEmittedUpdateColumnHeader" @emitMosMouveSelectItem="getMosMouveSelectItem" >
         </ParentOrderSuffice>
         <ParentOrderLack v-show="tab_value == 'order_lack'" :tab_value="tab_value"
             :order_lacks="case_data_temporary.order_lacks" @convertOrderLack="getConvertOrderLack"
@@ -112,12 +112,14 @@ export default {
                 check_box: [],
                 count_reset_filter: 0,
                 detect_material: 0,
+                filter_orders: [],
             },
             case_save_so: {
                 id: '',
                 title: '',
                 serial_number: '',
-                customer_group_id: -1
+                customer_group_id: -1,
+
             },
             case_is_loading: {
                 detect_sap_code: false,
@@ -150,6 +152,7 @@ export default {
                 field_selecteds: [],
                 theme_background: '',
                 index_table: -1,
+                key_item: '',
             },
             header_fields: ['Makh Key', 'Mã Sap So', 'Barcode_cty', 'Masap', 'Tensp', 'Tên SKU', 'SL_sap', 'Dvt',
                 'Km', 'Ghi_chu', 'Makh', 'Unit_barcode_description', 'Dvt_po', 'Po', 'Qty', 'Combo', 'Check tồn', 'Po_qty', 'SL chênh lệch',
@@ -170,16 +173,47 @@ export default {
         await this.fetchUserFieldTable();
     },
     methods: {
-        getEmitIndex(index) {
+        getMosMouveSelectItem(indexs, key) {
+            this.case_index.filter_orders = indexs;
+            this.case_data_temporary.key_item = key;
+        },
+        getEmitIndex(index, key) {
             this.case_data_temporary.index_table = index;
+            this.case_data_temporary.key_item = key;
+            let indexs = [];
+            indexs.push(index);
+            const unique = new Set(indexs);
+            this.case_index.filter_orders = [...unique];
         },
         handleEmittedBackgroundColor(color) {
-            console.log(color, 'mã màu');
-            this.case_data_temporary.theme_background = color;
-            if (this.case_data_temporary.index_table !== -1) {
-                this.filterOrders[this.case_data_temporary.index_table].theme_background = this.case_data_temporary.theme_background;
-                console.log(this.filterOrders[this.case_data_temporary.index_table].theme_background, 'màu nền');
+            this.case_data_temporary.theme_background = color.color;
+            // if (this.case_data_temporary.index_table !== -1) {
+            //     this.filterOrders[this.case_data_temporary.index_table].theme_background[this.case_data_temporary.key_item] = this.case_data_temporary.theme_background;
+            //     this.case_data_temporary.index_table = -1;
+
+            // }
+            this.case_data_temporary.item_selecteds.forEach(item => {
+                this.filterOrders.forEach(order => {
+                    if (order.order == item.order) {
+                        order.tr_class = ' b-table-bg-' + color.name;
+                    }
+                });
+                 this.case_index.filter_orders = [];
+                this.case_data_temporary.key_item = '';
+            });
+            if(this.case_index.filter_orders.length > 0) {
+                console.time('start');
+                this.case_index.filter_orders.forEach(index => {
+                    this.filterOrders[index].theme_background[this.case_data_temporary.key_item] = this.case_data_temporary.theme_background;
+                });
+                console.timeEnd('start');
+                // this.case_index.filter_orders = [];
+                // this.case_data_temporary.key_item = '';
+                this.case_data_temporary.index_table = -1;
+
             }
+            // this.case_index.filter_orders = [];
+
         },
         handleEmittedSetShipping(shipping_id) {
             this.case_data_temporary.order_syncs_selected.forEach(item => {
@@ -1062,6 +1096,7 @@ export default {
             //     this.refeshOrders();
             // }
             this.refeshOrders();
+            console.log(item);
             this.case_save_so.id = item.id;
             this.case_save_so.title = item.title;
             this.case_save_so.serial_number = item.serial_number;
@@ -1111,7 +1146,47 @@ export default {
                             so_header_id: data_item.so_header_id,
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: '',
-                            theme_background: '',
+                            theme_background: {
+                                order: '',
+                                id: '',
+                                customer_sku_name: '',
+                                customer_sku_name: '',
+                                customer_sku_unit: '',
+                                quantity: '',
+                                company_price: '',
+                                customer_code: '',
+                                level2: '',
+                                level3: '',
+                                level4: '',
+                                note1: '',
+                                note: '',
+                                barcode: '',
+                                sku_sap_code: '',
+                                sku_sap_name: '',
+                                sku_sap_unit: '',
+                                inventory_quantity: '',
+                                amount_po: '',
+                                is_inventory: '',
+                                is_promotive: '',
+                                price_po: '',
+                                promotive: '',
+                                promotive_name: '',
+                                quantity1_po: '',
+                                quantity2_po: '',
+                                customer_name: '',
+                                variant_quantity: '',
+                                extra_offer: '',
+                                promotion_category: '',
+                                po_delivery_date: '',
+                                po_number: '',
+                                sap_so_number: '',
+                                compliance: '',
+                                is_compliant: '',
+                                quantity3_sap: '',
+                                so_header_id: '',
+                                so_sap_note: '',
+                            },
+                            tr_class: '',
                             // themes: [],
                         });
                     } else {
@@ -1155,7 +1230,47 @@ export default {
                             so_header_id: data_item.so_header_id,
                             so_sap_note: data_item.so_header.so_sap_note,
                             difference: (data_item.company_price == null || data_item.company_price == '') ? '' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
-                            theme_background: '',
+                            tr_class: '',
+                            theme_background: {
+                                order: '',
+                                id: '',
+                                customer_sku_name: '',
+                                customer_sku_name: '',
+                                customer_sku_unit: '',
+                                quantity: '',
+                                company_price: '',
+                                customer_code: '',
+                                level2: '',
+                                level3: '',
+                                level4: '',
+                                note1: '',
+                                note: '',
+                                barcode: '',
+                                sku_sap_code: '',
+                                sku_sap_name: '',
+                                sku_sap_unit: '',
+                                inventory_quantity: '',
+                                amount_po: '',
+                                is_inventory: '',
+                                is_promotive: '',
+                                price_po: '',
+                                promotive: '',
+                                promotive_name: '',
+                                quantity1_po: '',
+                                quantity2_po: '',
+                                customer_name: '',
+                                variant_quantity: '',
+                                extra_offer: '',
+                                promotion_category: '',
+                                po_delivery_date: '',
+                                po_number: '',
+                                sap_so_number: '',
+                                compliance: '',
+                                is_compliant: '',
+                                quantity3_sap: '',
+                                so_header_id: '',
+                                so_sap_note: '',
+                            },
                             // themes: [],
                         });
                     }

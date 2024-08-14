@@ -9,6 +9,7 @@ use App\Models\Business\SoHeader;
 use App\Models\Business\SoDataItem;
 use App\Models\Business\OrderProcess;
 use App\Models\Business\UploadedFile;
+use App\ThemeColor;
 use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -83,7 +84,7 @@ class SoDataRepository extends RepositoryAbs
                                     'is_inventory' => $item['is_inventory'],
                                     'inventory_quantity' => $item['inventory_quantity'],
                                     'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
-                                    'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
+                                    'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']) : null,
                                     'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
                                     'compliance' => $item['compliance'],
                                     'is_compliant' => $item['is_compliant'],
@@ -91,7 +92,40 @@ class SoDataRepository extends RepositoryAbs
                                     'updated_at' => $date_now,
                                 ];
                             });
-                        SoDataItem::insert($so_data_items->toArray());
+                            $insert_so_item = SoDataItem::insert($so_data_items->toArray());
+                            if ($insert_so_item) {
+                                // $so_data_items_id = SoDataItem::where('order_process_id', $order_process->id)->pluck('id')->toArray();
+                                $so_data_items_id = SoDataItem::where('so_header_id', $so_header->id)->pluck('id')->toArray();
+
+                                $theme_colors = collect($so_items)->map(function ($item) {
+                                    if (!isset($item['theme_color'])) {
+                                        $item['theme_color'] = [
+                                            'background' => '#ffffff',
+                                            'text' => '#000000',
+                                        ];
+                                    }
+                                    $theme_color = $item['theme_color'];
+                                    $obj_color = (object) [
+                                        'background' => $theme_color['background'],
+                                        'text' => $theme_color['text'],
+                                    ];
+                                    return [
+                                        'background' => $obj_color->background,
+                                        'text' => $obj_color->text,
+                                    ];
+                                });
+                                // dd($theme_colors[1], $so_data_items_id);
+                                foreach ($so_data_items_id as $key => $item_id) {
+                                    // dd('key'.$key, 'item'.$item_id);
+                                    $create_theme_color = ThemeColor::create([
+                                        'so_data_item_id' => $item_id,
+                                        'background' => $theme_colors[$key]['background'],
+                                        'text' => $theme_colors[$key]['text'],
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ]);
+                                }
+                            }
                         });
                     });
                 }
@@ -106,7 +140,8 @@ class SoDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function updateSoData($id){
+    public function updateSoData($id)
+    {
         try {
             $validator = Validator::make($this->data, [
                 'title' => 'required',
@@ -140,6 +175,11 @@ class SoDataRepository extends RepositoryAbs
                 }
 
                 // Xóa tất cả so_data_items và so_headers của order_process
+                $order_process->not_sync_so_data_items->each(function ($so_data_item) {
+                    if ($so_data_item->theme_color) {
+                        $so_data_item->theme_color->delete();
+                    }
+                });
                 $order_process->not_sync_so_data_items()->delete();
                 $order_process->not_sync_so_headers()->delete();
                 $order_process->updated_by = $current_user_id;
@@ -188,7 +228,7 @@ class SoDataRepository extends RepositoryAbs
                                 'is_inventory' => $item['is_inventory'],
                                 'inventory_quantity' => $item['inventory_quantity'],
                                 'price_po' =>  $item['price_po'] ? str_replace(",", "", $item['price_po']) : null,
-                                'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']): null,
+                                'amount_po' => $item['amount_po'] ? str_replace(",", "", $item['amount_po']) : null,
                                 'company_price' => $item['company_price'] ? str_replace(",", "", $item['company_price']) : null,
                                 'compliance' => $item['compliance'],
                                 'is_compliant' => $item['is_compliant'],
@@ -196,7 +236,36 @@ class SoDataRepository extends RepositoryAbs
                                 'updated_at' => $date_now,
                             ];
                         });
-                    SoDataItem::insert($so_data_items->toArray());
+                        $insert_so_item = SoDataItem::insert($so_data_items->toArray());
+                        if ($insert_so_item) {
+                            $so_data_items_id = SoDataItem::where('so_header_id', $so_header->id)->pluck('id')->toArray();
+                            $theme_colors = collect($so_items)->map(function ($item) {
+                                if (!isset($item['theme_color'])) {
+                                    $item['theme_color'] = [
+                                        'background' => '#ffffff',
+                                        'text' => '#000000',
+                                    ];
+                                }
+                                $theme_color = $item['theme_color'];
+                                $obj_color = (object) [
+                                    'background' => $theme_color['background'],
+                                    'text' => $theme_color['text'],
+                                ];
+                                return [
+                                    'background' => $obj_color->background,
+                                    'text' => $obj_color->text,
+                                ];
+                            });
+                            foreach ($so_data_items_id as $key => $item_id) {
+                                $create_theme_color = ThemeColor::create([
+                                    'so_data_item_id' => $item_id,
+                                    'background' => $theme_colors[$key]['background'],
+                                    'text' => $theme_colors[$key]['text'],
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+                            }
+                        }
                     });
                 });
                 DB::commit();
@@ -230,17 +299,19 @@ class SoDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getSoData($id){
+    public function getSoData($id)
+    {
         try {
-                $order_process = OrderProcess::findOrFail($id);
-                $order_process->load(['so_data_items', 'so_data_items.so_header']);
-                return $order_process;
+            $order_process = OrderProcess::findOrFail($id);
+            $order_process->load(['so_data_items.theme_color', 'so_data_items.so_header']);
+            return $order_process;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
         }
     }
-    public function deleteSoData($id){
+    public function deleteSoData($id)
+    {
         try {
             $validator = Validator::make($this->data, [], []);
             if ($validator->fails()) {
@@ -262,7 +333,8 @@ class SoDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-    public function getOrderProcessList(){
+    public function getOrderProcessList()
+    {
         try {
             $validator = Validator::make($this->data, [], []);
             if ($validator->fails()) {

@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\ThemeColor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -47,5 +48,9 @@ class SoDataItem extends Model
     public function so_header()
     {
         return $this->belongsTo(SoHeader::class);
+    }
+    public function theme_color()
+    {
+        return $this->belongsTo(ThemeColor::class, 'id', 'so_data_item_id');
     }
 }
