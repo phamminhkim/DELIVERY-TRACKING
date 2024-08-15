@@ -6,21 +6,53 @@
                     <div class="d-flex">
                         <div class="d-flex">
                             <b-dropdown size="sm" split text="Chọn màu nền" class="m-2" variant="light">
-                                <div class="color-box mr-2 ml-2 mb-1 d-inline-block float-left"
-                                    v-for="(color, index) in theme_colors" :key="index" :style="{
-                                        backgroundColor: color.color,
-                                        border: color.color == '#FFFFFF' ? '1px solid #000' : '',
-                                        width: '15px', height: '15px'
-                                    }" @click="emitBackgroundColor(color)"></div>
+                                <div class="form-group">
+                                    <div class="color-box mr-2 ml-2 mb-1 d-inline-block float-left"
+                                        v-for="(color, index) in theme_colors" :key="index" :style="{
+                                            backgroundColor: color.color,
+                                            border: color.color == '#FFFFFF' ? '1px solid #000' : '',
+                                            width: '15px', height: '15px'
+                                        }" @click="emitBackgroundColor(color)">
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center float-left mt-3 w-100"
+                                    @click="emitBackgroundColor(theme_color_default)" style="cursor: pointer;">
+                                    <div class="color-box mr-2 ml-2 mb-1 " :style="{
+                                            backgroundColor: '#dddddd',
+                                            border: '4px solid #000',
+                                            width: '25px', height: '25px',
+                                            opacity: 0.3,
+
+                                        }"></div>
+                                    <div class="text-black-50">
+                                        <small><u>None</u></small>
+                                    </div>
+                                </div>
                             </b-dropdown>
                         </div>
                         <div class="d-flex">
                             <b-dropdown size="sm" split text="Chọn màu text" class="m-2" variant="light">
-                                <div class="color-box mr-2 ml-2 mb-1 d-inline-block float-left" v-for="(color, index) in theme_colors" :key="index" :style="{
-                                        backgroundColor: color.color,
-                                        border: color.color == '#FFFFFF' ? '1px solid #000' : '',
-                                        width: '15px', height: '15px'
-                                    }" @click="emitTextColor(color)"></div>
+                                <div class="form-group">
+                                    <div class="color-box mr-2 ml-2 mb-1 d-inline-block float-left"
+                                        v-for="(color, index) in theme_colors" :key="index" :style="{
+                                            backgroundColor: color.color,
+                                            border: color.color == '#FFFFFF' ? '1px solid #000' : '',
+                                            width: '15px', height: '15px'
+                                        }" @click="emitTextColor(color)"></div>
+                                </div>
+                                <div class="d-flex align-items-center float-left mt-3 w-100"
+                                    @click="emitTextColor(theme_color_default)" style="cursor: pointer;">
+                                    <div class="color-box mr-2 ml-2 mb-1 " :style="{
+                                            backgroundColor: '#dddddd',
+                                            border: '4px solid #000',
+                                            width: '25px', height: '25px',
+                                            opacity: 0.3,
+
+                                        }"></div>
+                                    <div class="text-black-50">
+                                        <small><u>None</u></small>
+                                    </div>
+                                </div>
                             </b-dropdown>
                         </div>
                     </div>
@@ -33,6 +65,10 @@
 export default {
     data() {
         return {
+            theme_color_default: {
+                name: 'none',
+                color: '',
+            },
             theme_colors: [
                 {
                     name: 'black',

@@ -23,6 +23,7 @@
                     <div class="content">
                         <ChildOrderProcessesBody :columns="columns" :filteredOrders="filteredOrders"
                         :material_category_types="material_category_types"
+                        :update_status_function_set_data="update_status_function_set_data"
                          @table="emitTable" @inputSearch="emitInputSearch"
                          @emitRangeChanged="emitRangeChanged"
                          @filterOrder="filterOrder"
@@ -32,7 +33,9 @@
                          @copyRow="copyRow"
                          @pasteRow="pasteRow"
                          @deleteRow="deleteRow"
-                         @rowSelectionChanged="rowSelectionChanged" />
+                         @rowSelectionChanged="rowSelectionChanged"
+                         @cellEdited="cellEdited"
+                         @clipboardPasted="clipboardPasted" />
                     </div>
                 </div>
             </div>
@@ -60,6 +63,8 @@ export default {
         order: { type: Object, default: () => {} },
         material_category_types: { type: Array, default: () => [] },
         CountGrpSoNumber: { type: Number, default: 0 },
+        update_status_function_set_data: { type: Number, default: 0 },
+
     },
     components: {
         ChildOrderProcessesInputHeader,
@@ -172,7 +177,13 @@ export default {
         },
         modalListOrder() {
             this.$emit('modalListOrder');
-        }
+        },
+        cellEdited(cell) {
+            this.$emit('cellEdited', cell);
+        },
+        clipboardPasted(rows) {
+            this.$emit('clipboardPasted', rows);
+        },
     }
 }
 </script>

@@ -13,6 +13,7 @@
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
             :CountGrpSoNumber="CountGrpSoNumber" @convertFile="handleEmittedConvertFile" :file="file"
+            :update_status_function_set_data="update_status_function.set_data"
             @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
@@ -24,7 +25,7 @@
             @orderSyncSap="handleOrderSyncSap" @addRow="handleAddRow" @duplicateRow="handleDuplicateRow"
             @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
             @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
-            @modalListOrder="handleModalListOrder" />
+            @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited" @clipboardPasted="handleClipboardPasted"  />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" />
@@ -33,7 +34,7 @@
             :item_selecteds="item_selecteds"
             :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
-        <DialogListOrderProcessSO />
+        <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail" />
     </div>
 </template>
 <script>
@@ -75,6 +76,9 @@ export default {
             case_check: {
                 warehouse_id: null,
                 shipping_id: '',
+            },
+            update_status_function: {
+                set_data: 0,
             },
             item_selecteds: [],
             copy: {},
@@ -600,10 +604,12 @@ export default {
         },
         async handleCheckPromotion() {
             await this.apiCheckPromotion();
+            this.update_status_function.set_data++;
         },
         async handleDetectCustomerKey() {
             let unique_customer_name = [...new Set(this.filteredOrders.map(item => item.customer_name))];
             await this.checkCustomerKey(unique_customer_name);
+            this.update_status_function.set_data++;
         },
         async checkCustomerKey(unique_customer_name) {
             try {
@@ -677,8 +683,9 @@ export default {
                 const data_order = api_data_orders[index];
                 await this.getConvertFilePDF(data_order);
             }
+            this.update_status_function.set_data = this.update_status_function.set_data + 1;
             this.$showMessage('success', 'Thành công', 'Convert file thành công');
-            await this.fetchSapMaterial();
+            // await this.fetchSapMaterial(); 
             $('#DialogOrderProcessesConvertFile').modal('hide');
             this.refeshProcessingFile();
         },
@@ -693,6 +700,7 @@ export default {
                 });
             });
             this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
+            this.update_status_function.set_data++;
             this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
         },
         async getConvertFilePDF(file_response) {
@@ -764,10 +772,12 @@ export default {
         async handleCheckInventorySubmit(warehouse_id) {
             this.case_check.warehouse_id = warehouse_id;
             await this.apiCheckInventory();
+            this.update_status_function.set_data++;
         },
         async handleCheckPriceSubmit(so_numbers, is_promotion) {
             let promotion = is_promotion ? 'X' : '';
             await this.apiCheckPrice(so_numbers, promotion);
+            this.update_status_function.set_data++;
             $('#DialogOrderProcessesCheckPrice').modal('hide');
         },
         getInventory(data) {
@@ -810,7 +820,7 @@ export default {
             this.filter.search = value;
         },
         handleInputBackgroundColor(data) {
-            this.theme_color_background = data.name == 'white' ? '' : data;
+            this.theme_color_background = data;
             let keys = [];
             keys = Object.keys(this.range.items[0]);
             this.range.indexs.forEach(index_range => {
@@ -818,9 +828,10 @@ export default {
                     this.filteredOrders[index_range - 1].theme_color.background[key] = this.theme_color_background.color;
                 });
             });
+           this.update_status_function.set_data++;
         },
         handleInputTextColor(data) {
-            this.theme_color_text = data.name == 'white' ? '' : data;
+            this.theme_color_text = data;
             let keys = [];
             keys = Object.keys(this.range.items[0]);
             this.range.indexs.forEach(index_range => {
@@ -828,10 +839,9 @@ export default {
                     this.filteredOrders[index_range - 1].theme_color.text[key] = this.theme_color_text.color;
                 });
             });
+            this.update_status_function.set_data++;
         },
         handleEmittedRangeChanged(range) {
-            console.log('rangeChanged Emit:', range.getData(), range.getRows().map(row => row.getData()), range.getRows().map(row => row.getIndex()),
-                range.getRows().map(row => row.getPosition()), 'positon');
             this.range.indexs = range.getRows().map(row => row.getPosition());
             this.range.full_items = range.getRows().map(row => row.getData());
             this.range.items = range.getData();
@@ -1095,6 +1105,7 @@ export default {
         },
         async handleCheckCompliance() {
             await this.apiCheckComplianceFromOrder();
+            this.update_status_function.set_data++;
         },
         convertToNumber(value) {
             return Number(value);
@@ -1253,6 +1264,7 @@ export default {
             this.order.title = item.title;
             this.order.customer_group_id = item.customer_group_id;
             this.order.serial_number = item.serial_number;
+            this.update_status_function.set_data++;
         },
         getCheckPrice(data) {
             this.material_prices = [...data];
@@ -1266,6 +1278,7 @@ export default {
                 }
             });
             this.filteredOrders = [...orders];
+            this.update_status_function.set_data++;
         },
         // handleEditPromotion(value, postion){
         //     this.filteredOrders[postion - 1].promotion_category = value;
@@ -1284,11 +1297,13 @@ export default {
                         }
                     });
                 });
+                this.update_status_function.set_data++;
             }
         },
         handleChangeInputSetWarehouse(warehouse_id, selecteds) {
             this.getSetWarehouse(warehouse_id, selecteds);
             this.getSetMappingShipping(warehouse_id);
+            this.update_status_function.set_data++;
         },
         getSetWarehouse(warehouse_code, order_syncs_selected) {
             order_syncs_selected.forEach(item => {
@@ -1298,6 +1313,7 @@ export default {
                     }
                 });
             });
+            this.update_status_function.set_data++;
         },
         getSetMappingShipping(warehouse_id) {
             let find_warehouse = this.wareshouses_defaults.find(warehouse => warehouse.id == warehouse_id);
@@ -1307,6 +1323,7 @@ export default {
                     this.case_check.shipping_id = item.shipping_id;
                 }
             });
+
         },
         handeleWarehouseDefault(warehouse_defaults) {
             this.wareshouses_defaults = warehouse_defaults;
@@ -1326,7 +1343,7 @@ export default {
         handleAddRow(position) {
             // push sau vị trí position
             this.orders.splice(position, 0, {
-                order: this.orders.length + 1,
+                order: position + 1 ,
                 id: '',
                 customer_sku_code: '',
                 customer_sku_name: '',
@@ -1367,6 +1384,7 @@ export default {
                 difference: '',
                 theme_color: this.setDataThemeColor(null),
             });
+            this.update_status_function.set_data++;
         },
         handleDuplicateRow(position, data) {
             // duplicate sau vị trí position
@@ -1374,9 +1392,12 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
+            this.update_status_function.set_data++;
         },
         handleCopyRow(position, data) {
+            data.order = position + 1;
             this.copy = data;
+            this.update_status_function.set_data++;
         },
         handlePasteRow(position) {
             // paste vào vị trí position
@@ -1384,6 +1405,7 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
+            this.update_status_function.set_data++;
         },
         handleDeleteRow(position) {
             // xóa vị trí position
@@ -1391,6 +1413,7 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
+            this.update_status_function.set_data++;
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;
@@ -1419,6 +1442,7 @@ export default {
             });
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
+            this.update_status_function.set_data++;
         },
         getReplaceItem(item_materials, order_index) {
             this.item_selecteds.forEach((item_selected, index) => {
@@ -1435,6 +1459,7 @@ export default {
             });
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
+            this.update_status_function.set_data++;
 
         },
         closeModalSearchOrderProcesses() {
@@ -1444,12 +1469,32 @@ export default {
         handleModalListOrder() {
             $('#listOrderProcessSO').modal('show');
         },
-        getUrl() {
+        async getUrl() {
             const url = window.location.href;
             const id = url.split('#')[1];
             if (id) {
-                this.fetchOrderProcessSODetail(id);
+              await this.fetchOrderProcessSODetail(id);
+              await this.fetchOrderHeader();
+            this.update_status_function.set_data++;
             }
+        },
+        handleFetchOrderProcessSODetail(data){
+            console.log(data, 'data');
+        },
+        handleCellEdited(cell) {
+            // cell.getRow().getData(), cell.getRow().getPosition()
+            const position = cell.getRow().getPosition();
+            const data = cell.getRow().getData();
+            this.filteredOrders[position - 1] = data;
+            this.update_status_function.set_data++;
+        },
+        handleClipboardPasted(rows){
+            let positions = rows.map(row => row.getPosition());
+            let data = rows.map(row => row.getData());
+            positions.forEach((position, index) => {
+                this.filteredOrders[position - 1] = data[index];
+            });
+            this.update_status_function.set_data++;
         },
     },
     computed: {

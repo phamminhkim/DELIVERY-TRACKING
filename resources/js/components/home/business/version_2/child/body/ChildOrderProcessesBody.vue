@@ -15,6 +15,7 @@ export default {
         columns: { type: Array, default: () => [] },
         filteredOrders: { type: Array, default: () => [] },
         material_category_types: { type: Array, default: () => [] },
+        update_status_function_set_data: { type: Number, default: 0 },
     },
     components: {
         ChildOrderProcessesSearchBody,
@@ -67,40 +68,55 @@ export default {
         };
     },
     mounted() {
-
         this.loadTable();
         this.table.on("rangeChanged", (range) => {
             // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
-
         });
-        // sự kiện editOrParams ở header
-        this.table.on("edit", (cell) => {
-            console.log('edit:', cell);
+        this.table.on("cellEdited", (cell) => {
+            this.$emit('cellEdited', cell);
         });
-        this.table.on("rowSelectionChanged", (data, rows, selected, deselected) => {
-            //rows - array of row components for the currently selected rows in order of selection
-            //data - array of data objects for the currently selected rows in order of selection
-            //selected - array of row components that were selected in the last action
-            //deselected - array of row components that were deselected in the last action
-            // console.log('rowSelectionChanged:', data, rows, selected, deselected);
-            // this.$emit('rowSelectionChanged', data, rows, selected, deselected);
+        // sự kiện khi clipboardPasted
+        this.table.on("clipboardPasted", (clipboard, rowData, rows) => {
+            this.$emit('clipboardPasted', rows);
         });
 
     },
     watch: {
-        filteredOrders: {
-            handler: function (newVal, oldVal) {
-                this.table.setData(newVal);
-            },
-            deep: true,
-        },
+        // filteredOrders: {
+        //     handler: function (newVal, oldVal) {
+        //         this.table.setData(newVal);
+        //         // this.table.updateData(newVal);
+        //         // this.table.replaceData(newVal);
+        //     },
+        //     // deep: true,
+        // },
+        // filteredOrders: {
+        //     handler: _.debounce(function (newVal) {
+        //         this.table.setData(newVal);
+        //     }, 100),
+        //     immediate: true,
+        // },
+        // compFilterOrders(newVal) {
+        //     this.table.setData(newVal);
+        // },
         'filterColumn': {
             handler: function (newVal, oldVal) {
                 this.table.setColumns(newVal);
             },
+            // deep: true,
+        },
+        update_status_function_set_data: {
+            handler: function (newVal, oldVal) {
+                if (newVal === 1) {
+                    this.table.setData(this.filteredOrders);
+                } else {
+                    this.table.updateOrAddData(this.filteredOrders);
+                }
+            },
+            // immediate: true,
             deep: true,
-        }
+        },
 
     },
     methods: {
@@ -194,9 +210,11 @@ export default {
         loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = new Tabulator(this.$refs.table, {
+                index: "order",
                 debugInvalidComponentFuncs: false,
                 columnHeaderSortMulti: false,
                 // headerFilterLiveFilterDelay: 800,
+                headerSortClickElement:"icon",
                 data: this.filteredOrders,
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
@@ -205,7 +223,7 @@ export default {
                 // selectableRange: true,
                 //enable range selection
                 selectableRange: 1,
-                // selectableRangeColumns: true,
+                selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
                 scrollToColumnIfVisible: false,
@@ -231,6 +249,9 @@ export default {
                             if (row.getCell(key)) {
                                 row.getCell(key).getElement().style.backgroundColor = data.theme_color.background[key];
                                 row.getCell(key).getElement().style.color = data.theme_color.text[key];
+                            }
+                            if(key == 'price_po' && data.theme_color.text[key] == '') {
+                                row.getCell(key).getElement().style.color = 'red';
                             }
                         });
                     }
@@ -434,6 +455,9 @@ export default {
 
                 };
             });
+        },
+        compFilterOrders() {
+            return this.filteredOrders;
         }
     }
 };
