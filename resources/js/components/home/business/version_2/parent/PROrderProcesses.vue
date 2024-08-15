@@ -23,7 +23,8 @@
                     <div class="content">
                         <ChildOrderProcessesBody :columns="columns" :filteredOrders="filteredOrders"
                         :material_category_types="material_category_types"
-                        :update_status_function_set_data="update_status_function_set_data"
+                        :update_status_function="update_status_function"
+                        :position_order="position_order"
                          @table="emitTable" @inputSearch="emitInputSearch"
                          @emitRangeChanged="emitRangeChanged"
                          @filterOrder="filterOrder"
@@ -35,7 +36,9 @@
                          @deleteRow="deleteRow"
                          @rowSelectionChanged="rowSelectionChanged"
                          @cellEdited="cellEdited"
-                         @clipboardPasted="clipboardPasted" />
+                         @clipboardPasted="clipboardPasted"
+                         @inputBackgroundColor="inputBackgroundColor"
+                         @inputTextColor="inputTextColor" />
                     </div>
                 </div>
             </div>
@@ -63,7 +66,8 @@ export default {
         order: { type: Object, default: () => {} },
         material_category_types: { type: Array, default: () => [] },
         CountGrpSoNumber: { type: Number, default: 0 },
-        update_status_function_set_data: { type: Number, default: 0 },
+        update_status_function: { type: Object, default: () => {} },
+        position_order: { type: Object, default: () => {} },
 
     },
     components: {
@@ -166,8 +170,8 @@ export default {
         pasteRow(position) {
             this.$emit('pasteRow', position);
         },
-        deleteRow(position) {
-            this.$emit('deleteRow', position);
+        deleteRow(position, data) {
+            this.$emit('deleteRow', position, data);
         },
         rowSelectionChanged(selected, is_check_or_uncheck) {
             this.$emit('rowSelectionChanged', selected ,is_check_or_uncheck);

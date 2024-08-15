@@ -13,7 +13,7 @@
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
             :CountGrpSoNumber="CountGrpSoNumber" @convertFile="handleEmittedConvertFile" :file="file"
-            :update_status_function_set_data="update_status_function.set_data"
+            :update_status_function="update_status_function" :position_order="position"
             @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
@@ -25,7 +25,8 @@
             @orderSyncSap="handleOrderSyncSap" @addRow="handleAddRow" @duplicateRow="handleDuplicateRow"
             @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
             @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
-            @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited" @clipboardPasted="handleClipboardPasted"  />
+            @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited"
+            @clipboardPasted="handleClipboardPasted" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" />
@@ -79,6 +80,13 @@ export default {
             },
             update_status_function: {
                 set_data: 0,
+                delete: 0,
+                add_row: 0,
+
+            },
+            position: {
+                order: -1,
+                order_end: -1,
             },
             item_selecteds: [],
             copy: {},
@@ -828,7 +836,7 @@ export default {
                     this.filteredOrders[index_range - 1].theme_color.background[key] = this.theme_color_background.color;
                 });
             });
-           this.update_status_function.set_data++;
+            this.update_status_function.set_data++;
         },
         handleInputTextColor(data) {
             this.theme_color_text = data;
@@ -1341,79 +1349,89 @@ export default {
             });
         },
         handleAddRow(position) {
-            // push sau vị trí position
-            this.orders.splice(position, 0, {
-                order: position + 1 ,
-                id: '',
-                customer_sku_code: '',
-                customer_sku_name: '',
-                customer_sku_unit: '',
-                quantity: '',
-                company_price: '',
-                customer_code: '',
-                level2: '',
-                level3: '',
-                level4: '',
-                note1: '',
-                note: '',
-                barcode: '',
-                sku_sap_code: '',
-                sku_sap_name: '',
-                sku_sap_unit: '',
-                inventory_quantity: '',
-                amount_po: '',
-                is_inventory: '',
-                is_promotive: '',
-                price_po: '',
-                promotive: '',
-                promotive_name: '',
-                quantity1_po: '',
-                quantity2_po: '',
-                customer_name: '',
-                variant_quantity: '',
-                extra_offer: '',
-                promotion_category: '',
-                po_delivery_date: '',
-                po_number: '',
-                sap_so_number: '',
-                compliance: '',
-                is_compliant: '',
-                quantity3_sap: '',
-                so_header_id: '',
-                so_sap_note: '',
-                difference: '',
-                theme_color: this.setDataThemeColor(null),
+            this.position.order = position;
+            this.range.indexs.forEach(index_range => {
+                this.filteredOrders.splice(index_range - 1, 0, {
+                    order: this.orders.length,
+                    id: '',
+                    customer_sku_code: '',
+                    customer_sku_name: '',
+                    customer_sku_unit: '',
+                    quantity: '',
+                    company_price: '',
+                    customer_code: '',
+                    level2: '',
+                    level3: '',
+                    level4: '',
+                    note1: '',
+                    note: '',
+                    barcode: '',
+                    sku_sap_code: '',
+                    sku_sap_name: '',
+                    sku_sap_unit: '',
+                    inventory_quantity: '',
+                    amount_po: '',
+                    is_inventory: '',
+                    is_promotive: '',
+                    price_po: '',
+                    promotive: '',
+                    promotive_name: '',
+                    quantity1_po: '',
+                    quantity2_po: '',
+                    customer_name: '',
+                    variant_quantity: '',
+                    extra_offer: '',
+                    promotion_category: '',
+                    po_delivery_date: '',
+                    po_number: '',
+                    sap_so_number: '',
+                    compliance: '',
+                    is_compliant: '',
+                    quantity3_sap: '',
+                    so_header_id: '',
+                    so_sap_note: '',
+                    difference: '',
+                    theme_color: this.setDataThemeColor(null),
+                });
             });
-            this.update_status_function.set_data++;
+            this.orders.forEach((order, index) => {
+                order.order = index + 1;
+            });
+            this.update_status_function.add_row++;
+            // this.update_status_function.set_data++;
         },
         handleDuplicateRow(position, data) {
-            // duplicate sau vị trí position
-            this.filteredOrders.splice(position, 0, data);
+            let data_copy = { ...data };
+            this.range.indexs.forEach(index_range => {
+                this.filteredOrders.splice(index_range - 1, 0, { ...data_copy });
+            });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            this.update_status_function.set_data++;
+            this.update_status_function.add_row++;
         },
         handleCopyRow(position, data) {
-            data.order = position + 1;
-            this.copy = data;
-            this.update_status_function.set_data++;
+            // data.order = position + 1;
+            let data_copy = { ...data };
+            // data_copy.order = position + 1;
+            this.copy = data_copy;
+            // this.update_status_function.set_data++;
         },
         handlePasteRow(position) {
-            // paste vào vị trí position
-            this.filteredOrders.splice(position, 0, this.copy);
+            this.filteredOrders.splice(position - 1, 0, { ...this.copy });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.add_row++;
         },
-        handleDeleteRow(position) {
-            // xóa vị trí position
-            this.filteredOrders.splice(position - 1, 1);
+        handleDeleteRow(position, data) {
+            this.filteredOrders.splice(data.order - 1, 1);
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            this.update_status_function.set_data++;
+            this.position.order = data.order;
+            this.update_status_function.delete++;
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;
@@ -1473,22 +1491,24 @@ export default {
             const url = window.location.href;
             const id = url.split('#')[1];
             if (id) {
-              await this.fetchOrderProcessSODetail(id);
-              await this.fetchOrderHeader();
-            this.update_status_function.set_data++;
+                await this.fetchOrderProcessSODetail(id);
+                await this.fetchOrderHeader();
+                this.update_status_function.set_data++;
             }
         },
-        handleFetchOrderProcessSODetail(data){
+        handleFetchOrderProcessSODetail(data) {
             console.log(data, 'data');
         },
         handleCellEdited(cell) {
             // cell.getRow().getData(), cell.getRow().getPosition()
             const position = cell.getRow().getPosition();
             const data = cell.getRow().getData();
+            data.promotive_name = data.promotive;
+            // data.promotion_category = data.promotive;
             this.filteredOrders[position - 1] = data;
             this.update_status_function.set_data++;
         },
-        handleClipboardPasted(rows){
+        handleClipboardPasted(rows) {
             let positions = rows.map(row => row.getPosition());
             let data = rows.map(row => row.getData());
             positions.forEach((position, index) => {

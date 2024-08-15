@@ -15,7 +15,8 @@ export default {
         columns: { type: Array, default: () => [] },
         filteredOrders: { type: Array, default: () => [] },
         material_category_types: { type: Array, default: () => [] },
-        update_status_function_set_data: { type: Number, default: 0 },
+        update_status_function: { type: Object, default: () => { } },
+        position_order: { type: Object, default: () => { } },
     },
     components: {
         ChildOrderProcessesSearchBody,
@@ -27,10 +28,56 @@ export default {
             selectedRangeStart: {},
             selectedRangeEnd: {},
             cell_values: [],
+            theme_filter_colors: [
+                {
+                    name: 'black',
+                    color: '#000000',
+                },
+                {
+                    name: 'red',
+                    color: '#FF0000',
+                },
+                {
+                    name: 'green',
+                    color: '#00FF00',
+                },
+                {
+                    name: 'blue',
+                    color: '#0000FF',
+                },
+                {
+                    name: 'yellow',
+                    color: '#FFFF00',
+                },
+                {
+                    name: 'gray',
+                    color: '#808080',
+                },
+                {
+                    name: 'orange',
+                    color: '#FFA500',
+                },
+                {
+                    name: 'purple',
+                    color: '#800080',
+                },
+                {
+                    name: 'light-blue',
+                    color: '#87CEFA',
+                }
+            ],
+            theme_color_default: {
+                name: 'none',
+                color: '',
+            },
             theme_colors: [
                 {
                     name: 'black',
                     color: '#000000',
+                },
+                {
+                    name: 'white',
+                    color: '#FFFFFF',
                 },
                 {
                     name: 'red',
@@ -83,39 +130,49 @@ export default {
 
     },
     watch: {
-        // filteredOrders: {
+        // 'filterColumn': {
         //     handler: function (newVal, oldVal) {
-        //         this.table.setData(newVal);
-        //         // this.table.updateData(newVal);
-        //         // this.table.replaceData(newVal);
+        //         this.table.setColumns(newVal);
         //     },
-        //     // deep: true,
+        //     deep: true,
         // },
-        // filteredOrders: {
-        //     handler: _.debounce(function (newVal) {
-        //         this.table.setData(newVal);
-        //     }, 100),
-        //     immediate: true,
-        // },
-        // compFilterOrders(newVal) {
-        //     this.table.setData(newVal);
-        // },
-        'filterColumn': {
-            handler: function (newVal, oldVal) {
-                this.table.setColumns(newVal);
-            },
-            // deep: true,
-        },
-        update_status_function_set_data: {
-            handler: function (newVal, oldVal) {
-                if (newVal === 1) {
+        'update_status_function.set_data': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal == 1) {
+                    this.table.setColumns(this.filterColumn());
                     this.table.setData(this.filteredOrders);
                 } else {
                     this.table.updateOrAddData(this.filteredOrders);
+                    this.table.setColumns(this.filterColumn());
+                    // this.table.updateData(this.filteredOrders);
+                    // this.table.redraw(true);
+                    // this.table.setData(this.filteredOrders);
+
                 }
-            },
-            // immediate: true,
+            }, 10),
             deep: true,
+        },
+        'update_status_function.add_row': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    // this.table.addRow(this.position_order.order);
+                    // this.table.updateOrAddData(this.filteredOrders);
+                    this.table.setColumns(this.filterColumn());
+                    this.table.setData(this.filteredOrders);
+                }
+            }, 10),
+        },
+        'update_status_function.delete': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    // this.table.redraw();
+                    // this.table.setData(this.filteredOrders);
+                    this.table.deleteRow(this.position_order.order);
+                    this.table.updateData(this.filteredOrders); 
+                    this.table.setData(this.filteredOrders);
+
+                }
+            }, 10),
         },
 
     },
@@ -192,7 +249,7 @@ export default {
                         },
                         {
                             label: "Màu",
-                            menu: this.theme_colors.map(color => {
+                            menu: this.theme_filter_colors.map(color => {
                                 return {
                                     label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
                                     action: (e, column) => {
@@ -214,7 +271,7 @@ export default {
                 debugInvalidComponentFuncs: false,
                 columnHeaderSortMulti: false,
                 // headerFilterLiveFilterDelay: 800,
-                headerSortClickElement:"icon",
+                headerSortClickElement: "icon",
                 data: this.filteredOrders,
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
@@ -250,7 +307,7 @@ export default {
                                 row.getCell(key).getElement().style.backgroundColor = data.theme_color.background[key];
                                 row.getCell(key).getElement().style.color = data.theme_color.text[key];
                             }
-                            if(key == 'price_po' && data.theme_color.text[key] == '') {
+                            if (key == 'price_po' && data.theme_color.text[key] == '') {
                                 row.getCell(key).getElement().style.color = 'red';
                             }
                         });
@@ -296,14 +353,45 @@ export default {
                 //     }
                 // },
                 {
-                    label: "<i class='fas fa-check-square'></i> Chọn dòng",
+                    label: "<i class='fas fa-fill text-black-50 mr-1'></i>Tô màu",
+                    menu: [
+                        {
+                            label: "Nền",
+                            menu: this.theme_colors.map(color => {
+                                return {
+                                    label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray;"></div>`,
+                                    action: (e, column) => {
+                                        this.$emit('inputBackgroundColor', color);
+                                    },
+                                };
+                            }),
+                            cssClass: "color-menu",
+                        },
+                        {
+                            label: "Chữ",
+                            menu: this.theme_colors.map(color => {
+                                return {
+                                    label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
+                                    action: (e, column) => {
+                                        this.$emit('inputTextColor', color);
+                                    },
+                                };
+                            }),
+                        }
+                    ]
+                },
+                {
+                    separator: true,
+                },
+                {
+                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Chọn dòng",
                     action: (e, row) => {
                         row.select();
                         this.$emit('rowSelectionChanged', row.getData(), true);
                     }
                 },
                 {
-                    label: "<i class='fas fa-check-square'></i> Hủy chọn dòng",
+                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Hủy chọn dòng",
                     action: (e, row) => {
                         row.deselect();
                         this.$emit('rowSelectionChanged', row.getData(), false);
@@ -313,7 +401,7 @@ export default {
                     separator: true,
                 },
                 {
-                    label: "<i class='fas fa-plus'></i> Thêm dòng",
+                    label: "<i class='fas fa-plus text-black-50 mr-1'></i> Thêm dòng",
                     action: (e, row) => {
                         this.$emit('addRow', row.getPosition());
                     }
@@ -328,7 +416,7 @@ export default {
                 //     }
                 // },
                 {
-                    label: "<i class='fas fa-copy'></i> Copy",
+                    label: "<i class='fas fa-copy text-black-50 mr-1'></i> Copy dòng",
                     action: (e, row) => {
                         this.$emit('copyRow', row.getPosition(), row.getData());
                     }
@@ -337,7 +425,7 @@ export default {
                     separator: true,
                 },
                 {
-                    label: "<i class='fas fa-paste'></i> Paste",
+                    label: "<i class='fas fa-paste text-black-50 mr-1'></i> Paste",
                     action: (e, row) => {
                         this.$emit('pasteRow', row.getPosition());
                     }
@@ -346,31 +434,27 @@ export default {
                     separator: true,
                 },
                 {
-                    label: "<i class='fas fa-clone'></i> Duplicate",
+                    label: "<i class='fas fa-clone text-black-50 mr-1'></i> Duplicate",
                     action: (e, row) => {
+                        // thêm dòng row mới vào bảng tương ứng với dòng row hiện tại
                         this.$emit('duplicateRow', row.getPosition(), row.getData());
+                        console.log('row.getPosition():', row.getPosition(), row.getData());
+
+                        // row.move(row.getPosition() + 1, false);
                     }
                 },
                 {
                     separator: true,
                 },
                 {
-                    label: "<i class='fas fa-trash'></i> Xóa dòng",
+                    label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {
-                        this.$emit('deleteRow', row.getPosition());
-                        row.delete();
+                        this.$emit('deleteRow', row.getPosition(), row.getData());
+                        // row.delete();
                     }
                 },
-                // {
-                //     label: "Admin Functions",
-                //     menu: [
 
-                //         {
-                //             label: "<i class='fas fa-ban'></i> Disabled Option",
-                //             disabled: true,
-                //         },
-                //     ]
-                // }
+
             ];
             return rowMenu;
         },
@@ -415,9 +499,7 @@ export default {
                 });
             }
             return menu;
-        }
-    },
-    computed: {
+        },
         filterColumn() {
             if (!this.columns || !this.material_category_types) {
                 console.error('columns or material_category_types is undefined');
@@ -434,20 +516,20 @@ export default {
                     } : {},
                     headerMenu: this.headerMenu(),
                     // headerMenu: this.headerMenuV2(),
-                    cellEdited: (cell) => {
-                        // cell - the CellComponent for the edited cell
-                        console.log('Value selected:', cell.getValue());
-                        console.log('Row data:', cell.getRow().getData());
-                        console.log('Column data:', cell.getColumn().getField());
-                        console.log('position:', cell.getRow().getPosition());
-                    },
+                    // cellEdited: (cell) => {
+                    //     // cell - the CellComponent for the edited cell
+                    //     console.log('Value selected:', cell.getValue());
+                    //     console.log('Row data:', cell.getRow().getData());
+                    //     console.log('Column data:', cell.getColumn().getField());
+                    //     console.log('position:', cell.getRow().getPosition());
+                    //     this.$emit('cellEdited', cell);
+                    // },
                     formatter: column.field == "sap_so_number" ? (cell, formatterParams, onRendered) => {
                         let ma_sap = cell.getValue(); // Giá trị của cột 'ma_sap'
                         let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
                         cell.getRow().getData().promotive_name = promotive;
                         cell.getRow().getData().note1 = promotive;
                         cell.getRow().getData().is_promotive = true;
-
 
                         let value_promotive = promotive ? `${promotive}` : '';
                         return `${ma_sap}${value_promotive}`;
@@ -456,10 +538,8 @@ export default {
                 };
             });
         },
-        compFilterOrders() {
-            return this.filteredOrders;
-        }
-    }
+    },
+
 };
 </script>
 <style lang="scss" scoped>
