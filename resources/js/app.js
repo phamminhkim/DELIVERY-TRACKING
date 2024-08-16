@@ -13,6 +13,22 @@ import moment from "moment";
 import drag from "v-drag"
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
+// import { TabulatorFull} from 'tabulator-tables'; // Named import
+// import {Tabulator} from 'tabulator-tables'; // Named import
+var Tabulator = require("tabulator-tables").TabulatorFull;
+
+import 'tabulator-tables/dist/css/tabulator.min.css'; // Optional: import Tabulator CSS
+// import 'tabulator-tables/dist/css/tabulator_bootstrap4.min.css'; // Optional: import theme
+// import 'tabulator-tables/dist/css/tabulator_site.min.css'; // Optional: import  màu xanh excel
+// import 'tabulator-tables/dist/css/tabulator_midnight.min.css'; // Optional: import theme black
+import 'tabulator-tables/dist/css/tabulator_simple.min.css'; // Optional: import theme default
+// import 'tabulator-tables/dist/css/tabulator_modern.min.css'; // Optional: import theme màu xanh
+// import 'tabulator-tables/dist/css/tabulator_materialize.min.css'; // Optional: import theme màu đỏ
+// import 'tabulator-tables/dist/css/tabulator_semanticui.min.css'; // Optional: import theme màu đỏ
+// import 'tabulator-tables/dist/css/tabulator_bulma.min.css'; // Optional: import theme màu đỏ
+
+Vue.prototype.$Tabulator = Tabulator;
+
 Vue.filter("formatDate", function (value) {
     if (value) {
         return moment(String(value)).format("DD/MM/YYYY");
@@ -94,6 +110,10 @@ Vue.component(
 Vue.component(
     "profile",
     require("./components/profile/UserProfile.vue").default
+);
+Vue.component(
+    "v2-order-processes",
+    require("./components/home/business/version_2/V2OrderProcesses.vue").default
 );
 // Vue.component(
 //     "config-table",

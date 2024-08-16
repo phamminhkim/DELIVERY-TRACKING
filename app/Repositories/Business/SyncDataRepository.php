@@ -217,6 +217,12 @@ class SyncDataRepository extends RepositoryAbs
                     $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
                 }
 
+                 // Lọc theo order_process_id
+                 if ($this->request->filled('order_process_id')) {
+                    $order_process_ids = $this->request->order_process_id;
+                    $query->whereIn('order_process_id', $order_process_ids);
+                }
+
                 // Lọc theo số PO
                 if ($this->request->filled('po_number')) {
                     $po_number = $this->request->po_number;

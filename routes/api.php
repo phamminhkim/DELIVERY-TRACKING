@@ -347,6 +347,21 @@ Route::middleware('auth:api')->group(function () {
 
 
     });
+    Route::prefix('pdf-text-locator')->group(function () {
+        Route::post('/', [AiController::class, 'findTextPosition']);
+    });
+    Route::prefix('pdf-get-text-by-coords')->group(function () {
+        Route::post('/', [AiController::class, 'getTextByCoords']);
+    });
+    Route::prefix('pdf-get-full-text')->group(function () {
+        Route::post('/', [AiController::class, 'getFullText']);
+    });
+    Route::prefix('pdf-check-string-key')->group(function () {
+        Route::post('/', [AiController::class, 'checkStringKey']);
+    });
+    Route::prefix('pdf-check-key-multi-files')->group(function () {
+        Route::post('/', [AiController::class, 'checkStringKeyMultiFiles']);
+    });
     Route::prefix('so-header')->group(function () {
         Route::post('/sync-sale-order', [SyncDataController::class, 'syncSoHeaderFromSap']);
         Route::get('/', [SyncDataController::class, 'getSoHeader']);

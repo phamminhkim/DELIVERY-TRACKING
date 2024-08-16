@@ -10,17 +10,29 @@ class LocalFileService implements FileServiceInterface
 {
     public function saveTemporaryFile($file)
     {
-        $file_name = $file->getClientOriginalName();
-        $file_name = str_replace(' ', '_', $file_name);
-        Storage::disk('temp')->put($file_name, file_get_contents($file));
+        $full_file_name = $file->getClientOriginalName();
+        $file_extension = pathinfo($full_file_name, PATHINFO_EXTENSION);
+        $file_name_without_extension = pathinfo($full_file_name, PATHINFO_FILENAME);
+        $file_name_without_extension = str_replace(' ', '_', $file_name_without_extension);
+        // Generate a unique file name
+        $unique_file_name = $file_name_without_extension . '_' . uniqid() . '.' . $file_extension;
+        Storage::disk('temp')->put($unique_file_name, file_get_contents($file));
 
-        $file_path = Storage::disk('temp')->path($file_name);
+        $file_path = Storage::disk('temp')->path($unique_file_name);
         return $file_path;
     }
 
     public function deleteTemporaryFile($file_path)
     {
-        Storage::disk('temp')->delete($file_path);
+        // Storage::disk('temp')->delete($file_path);
+        if (file_exists($file_path)) {
+            unlink($file_path);
+        }
+
+    }
+    public function deleteTemporaryFileByFilename($file_name)
+    {
+        Storage::disk('temp')->delete($file_name);
     }
 
     public function saveProtectedFile($file, $user_id, $batch_id = null)
