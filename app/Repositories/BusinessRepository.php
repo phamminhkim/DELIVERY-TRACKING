@@ -16,6 +16,7 @@ use App\Repositories\Business\RawSoHeaderRepository;
 use App\Repositories\Business\UploadedFileRepository;
 use App\Repositories\Business\SoDataRepository;
 use App\Repositories\Business\SyncDataRepository;
+use App\Repositories\Business\PdfTextLocatorRepository;
 use App\Services\DataRestructureService;
 use App\Services\Implementations\Converters\LeagueCsvConverter;
 use App\Services\Implementations\Converters\ManualConverter;
@@ -286,6 +287,11 @@ class BusinessRepository
     static function syncDataRequest(Request $request)
     {
         return new SyncDataRepository($request);
+    }
+    public static function pdfTextLocator(Request $request)
+    {
+        $file_service = new LocalFileService();
+        return new PdfTextLocatorRepository($file_service, $request);
     }
 
 }

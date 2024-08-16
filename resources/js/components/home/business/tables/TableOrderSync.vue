@@ -2,7 +2,8 @@
     <div>
         <b-table responsive small hover :fields="fields" :items="items" head-variant="light" 
             :class="{
-                'position-relative-custom': use_component === 'DialogOrderSync'
+                'position-relative-custom': use_component === 'DialogOrderSync',
+                'custom-set-height' : class_modal_v2 === 'V2OrderProcesses',
             }"
             :current-page="current_page" :per-page="per_page" :filter="query">
             <template #head(select)="data">
@@ -65,6 +66,10 @@ export default {
         un_selecteds: Array,
         warehouses: Array,
         shipping_datas: Array,
+        class_modal_v2: {
+            type: String,
+            default: ''
+        },
     },
     components: {
         Treeselect
@@ -186,5 +191,8 @@ export default {
 }
 .position-relative-custom {
     height: 25rem !important;
+}
+.custom-set-height{
+    min-height: 30rem !important;
 }
 </style>
