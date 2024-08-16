@@ -115,7 +115,7 @@ export default {
             warehouse_defaults: [],
 
             columns: [
-                { title: 'ID', field: 'id', headerSort: false, isVisible: false },
+                // { title: 'ID', field: 'id', headerSort: false, isVisible: false },
                 {
                     title: 'MaKh_Key', field: 'customer_name', headerSort: false, isVisible: false
                 },
@@ -571,6 +571,8 @@ export default {
             } catch (error) {
                 // this.$showMessage('error', 'Lỗi', error);
                 let errors = error.response.data.errors;
+                console.log(errors);
+                this.$showMessage('error', 'Lỗi', errors.sync_all_data);
                 this.$showMessage('error', 'Lỗi', errors.map(item => item).join('<br>'));
             } finally {
                 this.is_loading = false;
@@ -885,7 +887,8 @@ export default {
             this.filter.field = field;
             this.update_status_function.add_row++;
         },
-        handleOrderSyncSap() {
+        async handleOrderSyncSap() {
+            await this.UpdateSaleOrder(this.order.id);
             $('#DialogOrderProcessesSync').modal('show');
         },
         appendFormData(pdf_files, config_id) {
