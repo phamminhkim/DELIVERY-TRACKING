@@ -136,19 +136,37 @@ export default {
         //     },
         //     deep: true,
         // },
+
         'update_status_function.set_data': {
             handler: _.debounce(function (newVal, oldVal) {
-                if (newVal == 1) {
+                if (newVal) {
                     this.table.setColumns(this.filterColumn());
                     this.table.setData(this.filteredOrders);
-                } else {
-                    this.table.updateOrAddData(this.filteredOrders);
-                    this.table.setColumns(this.filterColumn());
-                    // this.table.updateData(this.filteredOrders);
-                    // this.table.redraw(true);
-                    // this.table.setData(this.filteredOrders);
+                } 
+                // else {
+                //     // this.table.updateOrAddData(this.filteredOrders);
+                //     this.table.updateData(this.filteredOrders);
+                //     // this.table.updateColumnDefinition(this.filterColumn());
+                //     this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
 
-                }
+                //     // this.table.updateColumn
+                // }
+            }, 10),
+            deep: true,
+        },
+        'update_status_function.update_data': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    this.table.updateData(this.filteredOrders);
+                    this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
+                } 
+            }, 10),
+            deep: true,
+        },
+
+        'update_status_function.color': {
+            handler: _.debounce(function (newVal, oldVal) {
+                this.table.updateData(this.filteredOrders);
             }, 10),
             deep: true,
         },
@@ -157,7 +175,7 @@ export default {
                 if (newVal) {
                     // this.table.addRow(this.position_order.order);
                     // this.table.updateOrAddData(this.filteredOrders);
-                    this.table.setColumns(this.filterColumn());
+                    this.table.updateColumnDefinition(this.filterColumn());
                     this.table.setData(this.filteredOrders);
                 }
             }, 10),
@@ -167,8 +185,8 @@ export default {
                 if (newVal) {
                     // this.table.redraw();
                     // this.table.setData(this.filteredOrders);
-                    this.table.deleteRow(this.position_order.order);
-                    this.table.updateData(this.filteredOrders); 
+                    // this.table.deleteRow(this.position_order.order);
+                    // this.table.updateData(this.filteredOrders);
                     this.table.setData(this.filteredOrders);
 
                 }
@@ -196,14 +214,16 @@ export default {
             // Không có sự thay đổi đáng kể  
             return false;
         },
+        formatterSapSoNumber() {
+            return (cell, formatterParams, onRendered) => {
+                let ma_sap = cell.getValue();
+                let promotive = cell.getRow().getData().promotive;
+                let value_promotive = promotive ? `${promotive}` : '';
+                return `${ma_sap}${value_promotive}`;
+            };
+        },
         headerMenu() {
             var headerMenu = [
-                // {
-                //     label: "Ẩn cột",
-                //     action: function (e, column) {
-                //         column.hide();
-                //     }
-                // },
                 {
                     label: "Reset",
                     action: (e, column) => {
@@ -260,6 +280,9 @@ export default {
                         },
                     ],
                 },
+                {
+                    separator: true,
+                },
 
             ];
             return headerMenu;
@@ -268,10 +291,12 @@ export default {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = new Tabulator(this.$refs.table, {
                 index: "order",
+                // movableColumns: true,
+                // movableRows: true,
+                // movableRowsConnectedElements: "#drop-area", //element to receive rows
                 debugInvalidComponentFuncs: false,
                 columnHeaderSortMulti: false,
                 // headerFilterLiveFilterDelay: 800,
-                headerSortClickElement: "icon",
                 data: this.filteredOrders,
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
@@ -307,9 +332,26 @@ export default {
                                 row.getCell(key).getElement().style.backgroundColor = data.theme_color.background[key];
                                 row.getCell(key).getElement().style.color = data.theme_color.text[key];
                             }
-                            if (key == 'price_po' && data.theme_color.text[key] == '') {
-                                row.getCell(key).getElement().style.color = 'red';
+                            switch (key) {
+                                case 'price_po':
+                                    if (data.theme_color.text[key] == '' || data.theme_color.text[key] == null) {
+                                        row.getCell('price_po').getElement().style.color = 'red';
+                                    }
+                                    break;
+                                case 'inventory_quantity':
+                                    if (data.theme_color.background[key] == '' || data.theme_color.background[key] == null) {
+                                        // && data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0
+                                        if ((data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0 || data.inventory_quantity < data.quantity2_po)) {
+                                            row.getCell('inventory_quantity').getElement().style.background = 'red';
+                                        }
+                                    }
+                                    break;
+
+                                default:
+                                    break;
                             }
+
+
                         });
                     }
                     if (data.extra_offer == 'X') {
@@ -324,6 +366,7 @@ export default {
                         row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
                         row.getCell('sku_sap_code').getElement().style.color = '#212529';
                     }
+
                 },
             });
         },
@@ -458,48 +501,6 @@ export default {
             ];
             return rowMenu;
         },
-        headerMenuV2() {
-            var menu = [];
-            var columns = this.columns;
-            for (let column of columns) {
-
-                //create checkbox element using font awesome icons
-                let icon = document.createElement("i");
-                icon.classList.add("fas");
-                icon.classList.add(column.isVisible() ? "fa-check-square" : "fa-square");
-
-                //build label
-                let label = document.createElement("span");
-                let title = document.createElement("span");
-
-                title.textContent = " " + column.getDefinition().title;
-
-                label.appendChild(icon);
-                label.appendChild(title);
-
-                //create menu item
-                menu.push({
-                    label: label,
-                    action: function (e) {
-                        //prevent menu closing
-                        e.stopPropagation();
-
-                        //toggle current column visibility
-                        column.toggle();
-
-                        //change menu item icon
-                        if (column.isVisible()) {
-                            icon.classList.remove("fa-square");
-                            icon.classList.add("fa-check-square");
-                        } else {
-                            icon.classList.remove("fa-check-square");
-                            icon.classList.add("fa-square");
-                        }
-                    }
-                });
-            }
-            return menu;
-        },
         filterColumn() {
             if (!this.columns || !this.material_category_types) {
                 console.error('columns or material_category_types is undefined');
@@ -571,11 +572,10 @@ export default {
 ::v-deep .tabulator-range-selected {
     background-color: lightgray !important;
 }
-
-::v-deep .tabulator-range-active {
-    // background-color: lightgray !important;
-    border: 1px solid rgb(251, 255, 0) !important;
+::v-deep .tabulator-range-only-cell-selected {
+    border: 2px solid rgb(28, 210, 255) !important;
 }
+
 
 ::v-deep .highlighted {
     background-color: yellow !important;
