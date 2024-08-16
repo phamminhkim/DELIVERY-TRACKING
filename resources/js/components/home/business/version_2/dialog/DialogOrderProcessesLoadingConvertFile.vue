@@ -86,6 +86,9 @@ export default {
             //     this.hideModal();
             // }
             this.value = (this.processing_index / this.file_length).toFixed(2) * 100;
+            // if(this.value == this.max){
+            //     this.hideModal();
+            // }
            
 
         }
