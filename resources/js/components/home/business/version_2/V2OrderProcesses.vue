@@ -1516,7 +1516,8 @@ export default {
             }
         },
         handleFetchOrderProcessSODetail(data) {
-            console.log(data, 'data');
+            this.getSaveOrderSO(data);
+            this.update_status_function.set_data++;
         },
         handleCellEdited(cell) {
             // cell.getRow().getData(), cell.getRow().getPosition()

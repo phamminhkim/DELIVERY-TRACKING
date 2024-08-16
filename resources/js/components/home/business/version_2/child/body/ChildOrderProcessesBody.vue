@@ -573,7 +573,11 @@ export default {
     background-color: lightgray !important;
 }
 ::v-deep .tabulator-range-only-cell-selected {
-    border: 2px solid rgb(28, 210, 255) !important;
+    border: 2px solid rgb(255, 28, 153) !important;
+}
+::v-deep .tabulator-range-active {
+    // background-color: lightgray !important;
+    border: 2px solid red !important;
 }
 
 
