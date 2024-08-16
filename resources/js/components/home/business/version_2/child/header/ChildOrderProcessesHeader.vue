@@ -27,7 +27,7 @@
                     <button @click="emitChangeMaterial()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-search text-primary mr-2"></i>Tìm <span class="border-bottom border-danger">Mã
                             SAP</span> </button>
-                    <button class="btn btn-light btn-sm text-xs border-bottom"><i
+                    <button @click="emitExportExcel()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-file-export text-info mr-2"></i>Xuất <span
                             class="border-bottom border-danger">Excel</span> </button>
                     
@@ -85,6 +85,9 @@ export default {
         },
         emitChangeMaterial() {
             this.$emit('changeMaterial');
+        },
+        emitExportExcel() {
+            this.$emit('exportExcel');
         }
     }
 }
