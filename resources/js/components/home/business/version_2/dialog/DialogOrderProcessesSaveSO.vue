@@ -4,7 +4,10 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold text-uppercase">Lưu đơn hàng</h5>
+                        <h5 class="modal-title font-weight-bold text-uppercase">
+                            <span v-if="order.id == -1">Lưu đơn hàng</span>
+                            <span v-else>Cập nhật đơn hàng</span>
+                        </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -17,7 +20,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary btn-sm px-2" data-dismiss="modal" >Close</button>
                         <button v-if="order.id == -1" @click="emitSaveOrderSo()" type="button" class="btn btn-success btn-sm px-2">Lưu đơn hàng</button>
                         <button v-else @click="emitUpdateOrderSo()" type="button" class="btn btn-success btn-sm px-2">Cập nhật đơn hàng</button>
                     </div>
