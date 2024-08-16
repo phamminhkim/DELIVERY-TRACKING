@@ -5,58 +5,50 @@ import json
 def find_text_position(pdf_path, src_page_num, search_text, src_index):
     try:
         doc = pymupdf.open(pdf_path)
+        # Lấy số page của doc
+        num_pages = len(doc)
+        # Kiểm tra nếu vị trí page truyền vào không lớn hơn num_pages
+        if src_page_num > num_pages:
+            return json.dumps({"error": "Page out of bounds"})
         # Vị trí page tính từ 0
         page_num = src_page_num - 1
         page = doc[int(page_num)]
+        rotation = page.rotation  # Kiểm tra xoay trang
         text_instances = page.search_for(search_text)
         if not text_instances:
             return json.dumps({"error": "Text not found"})
-        else:
-            # Số chuỗi được tìm thấy
-            num_searched_text = len(text_instances)
 
+        # Số chuỗi được tìm thấy
+        num_found_text = len(text_instances)
         # Ví trí detect tính từ 0
         index = src_index - 1
         if int(index) < 0 or int(index) >= len(text_instances):
             return json.dumps({"error": "Index out of bounds"})
+        if rotation == 0:
+            text_instances = [pymupdf.Rect(r.x0, page.rect.height - r.y0, r.x1, page.rect.height - r.y1) for r in text_instances]
+        if rotation == 90:
+            text_instances = [pymupdf.Rect(page.rect.width - r.y1, page.rect.height - r.x0, page.rect.width - r.y0, page.rect.height - r.x1) for r in text_instances]
+        # elif rotation == 180:
+        #     text_instances = [pymupdf.Rect(page.rect.width - r.x1, page.rect.height - r.y1, page.rect.width - r.x0, page.rect.height - r.y0) for r in text_instances]
+        # elif rotation == 270:
+        #     text_instances = [pymupdf.Rect(r.y0, page.rect.height - r.x1, r.y1, page.rect.height - r.x0) for r in text_instances]
 
-        page_height = int(page.rect.height)
-        page_width = int(page.rect.width)
-        if page_height < page_width:
-            if not page.is_wrapped:
-                x_top_left = int(text_instances[index].x0)
-                y_top_left = int(page_height - text_instances[index].y0)
-                x_bottom_right = int(text_instances[index].x1)
-                y_bottom_right = int(page_height - text_instances[index].y1)
-            else:
-                x_top_left = int(page_width - text_instances[index].y1)
-                y_top_left = int(page_height - text_instances[index].x0)
-                x_bottom_right = int(page_width - text_instances[index].y0)
-                y_bottom_right = int(page_height - text_instances[index].x1)
-        else:
-            if not page.is_wrapped:
-                x_top_left = int(page_width - text_instances[index].y1)
-                y_top_left = int(page_height - text_instances[index].x0)
-                x_bottom_right = int(page_width - text_instances[index].y0)
-                y_bottom_right = int(page_height - text_instances[index].x1)
-            else:
-                x_top_left = int(text_instances[index].x0)
-                y_top_left = int(page_height - text_instances[index].y0)
-                x_bottom_right = int(text_instances[index].x1)
-                y_bottom_right = int(page_height - text_instances[index].y1)
-        # return json.dumps({"x0": x_top_left, "y0": y_top_left, "x1": x_bottom_right, "y1": y_bottom_right})
-        # Trả về thêm num_text_instances
+        x_top_left = int(text_instances[index].x0)
+        y_top_left = int(text_instances[index].y0)
+        x_bottom_right = int(text_instances[index].x1)
+        y_bottom_right = int(text_instances[index].y1)
         return json.dumps(
-                        {
-                            "rect_coord":
-                                {
-                                    "x0": x_top_left,
-                                    "y0": y_top_left,
-                                    "x1": x_bottom_right,
-                                    "y1": y_bottom_right
-                                },
-                            "num_searched_text": num_searched_text
-                        })
+            {
+                "rect_coord":
+                    {
+                        "x0": x_top_left,
+                        "y0": y_top_left,
+                        "x1": x_bottom_right,
+                        "y1": y_bottom_right
+                    },
+                "num_found_text": num_found_text,
+                "page_rotation": rotation
+            })
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -109,13 +101,21 @@ def get_text_by_coords(pdf_path, src_page_num, coords):
     except Exception as e:
         return json.dumps({"error": str(e)})
 
-def get_full_text(pdf_path, src_page_num):
+def get_full_text(pdf_path, src_page_num, output_path):
+
     try:
+        merged_data = []
         doc = pymupdf.open(pdf_path)
         # Vị trí page tính từ 0
         page_num = src_page_num - 1
         page = doc[int(page_num)]
-        return json.dumps({"text": page.get_text()})
+        full_text = page.get_text()
+        # with open(output_path, 'wb') as f:
+        #     f.write(full_text)
+        with open(output_path, 'wb') as f:
+            f.write(full_text.encode('utf-8'))
+
+        return json.dumps({"result": True})
     except Exception as e:
         return json.dumps({"error": str(e)})
 
@@ -134,6 +134,7 @@ def check_string_key(pdf_path, src_page_num, string_key):
             return json.dumps({"is_exist": False})
     except Exception as e:
         return json.dumps({"error": str(e)})
+
 if __name__ == "__main__":
     # Tạo từ điển để lưu trữ các cặp key-value
     args_dict = {}
@@ -165,13 +166,11 @@ if __name__ == "__main__":
         # Kiểm tra search_text trống thì in lỗi
         if not search_text:
             print(json.dumps({"error": "Missing search_text"}))
-            sys.exit(1)
         # Kiểm tra index trống thì in lỗi
-        if not index:
+        elif not index:
             print(json.dumps({"error": "Missing index"}))
-            sys.exit(1)
-        print(find_text_position(pdf_path, page_num, search_text, index))
-        sys.exit(1)
+        else:
+            print(find_text_position(pdf_path, page_num, search_text, index))
 
     # Lấy text theo tọa độ
     elif method == 'get_text_by_coords':
@@ -179,14 +178,16 @@ if __name__ == "__main__":
         # Kiểm tra coords trống thì in lỗi
         if not coords:
             print(json.dumps({"error": "Missing coords"}))
-            sys.exit(1)
-        print(get_text_by_coords(pdf_path, page_num, coords))
-        sys.exit(1)
+        else:
+            print(get_text_by_coords(pdf_path, page_num, coords))
 
     # Lấy full text của page
     elif method == 'get_full_text':
-        print(get_full_text(pdf_path, page_num))
-        sys.exit(1)
+        output_path = args_dict.get('--output_path')
+        if not output_path:
+            print(json.dumps({"error": "Missing output_path"}))
+        else:
+            print(get_full_text(pdf_path, page_num, output_path))
 
     # Check string_key trên page
     elif method == 'check_string_key':
@@ -194,10 +195,10 @@ if __name__ == "__main__":
         # Kiểm tra string_key trống thì in lỗi
         if not string_key:
             print(json.dumps({"error": "Missing string_key"}))
-            sys.exit(1)
-        print(check_string_key(pdf_path, page_num, string_key))
-        sys.exit(1)
+        else:
+            print(check_string_key(pdf_path, page_num, string_key))
 
     else:
         print(json.dumps({"error": "Invalid method"}))
-        sys.exit(1)
+
+    sys.exit(1)

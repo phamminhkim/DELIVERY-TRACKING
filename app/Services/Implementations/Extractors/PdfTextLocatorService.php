@@ -3,6 +3,7 @@
 namespace App\Services\Implementations\Extractors;
 
 use Illuminate\Support\Facades\Log;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class PdfTextLocatorService
 {
@@ -49,17 +50,28 @@ class PdfTextLocatorService
     }
     public function getFullText($pdf_path, $page_num)
     {
+        $result = null;
         $method = "get_full_text";
+        $dir = (new TemporaryDirectory())->create();
+        $output_path = $dir->path('extract.txt');
+
         $cmd = sprintf(
-            'python %s --pdf_path %s --method %s --page_num %d',
+            'python %s --pdf_path %s --method %s --page_num %d --output_path %s',
             $this->python_script_path,
             escapeshellarg($pdf_path),
             $method,
-            $page_num
+            $page_num,
+            escapeshellarg($output_path),
         );
-        $output = shell_exec($cmd);
+        $cmd_exec = shell_exec($cmd);
 
-        $result = json_decode($output, true);
+        $cmd_result = json_decode($cmd_exec, true);
+        if (isset($cmd_result['error'])) {
+            $result = $cmd_result;
+        } else {
+            $result = $this->getFilesContents($output_path);
+        }
+        $dir->delete();
         return $result;
     }
     public function checkStringKey($pdf_path, $page_num, $string_key)
@@ -77,5 +89,12 @@ class PdfTextLocatorService
 
         $result = json_decode($output, true);
         return $result;
+    }
+    protected function getFilesContents($filePath)
+    {
+        $output = [];
+        $output[] = $content = file_get_contents($filePath);
+
+        return $output;
     }
 }
