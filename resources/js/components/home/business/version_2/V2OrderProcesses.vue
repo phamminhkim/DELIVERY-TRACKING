@@ -26,19 +26,22 @@
             @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
             @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
             @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited"
-            @clipboardPasted="handleClipboardPasted" />
+            @clipboardPasted="handleClipboardPasted" @exportExcel="handleExportExcel" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
-            :processing_index="processing_file.index" />
+            :processing_index="processing_file.index" :api_data_orders="api_data_orders"
+            :processing_files="processing_file.files" />
 
         <DialogSearchOrderProcesses @itemReplaceAll="getReplaceItemAll" @itemReplace="getReplaceItem"
             :item_selecteds="item_selecteds"
             :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
         <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail" />
+        <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
     </div>
 </template>
 <script>
+import * as XLSX from 'xlsx';
 import PROrderProcesses from './parent/PROrderProcesses.vue';
 import ApiHandler, { APIRequest } from '../../ApiHandler';
 import DialogOrderProcessesSaveSO from './dialog/DialogOrderProcessesSaveSO.vue';
@@ -48,6 +51,7 @@ import DialogOrderProcessesCheckPrice from './dialog/DialogOrderProcessesCheckPr
 import DialogOrderProcessesSync from './dialog/DialogOrderProcessesSync.vue';
 import DialogSearchOrderProcesses from '../../business/dialogs/DialogSearchOrderProcesses.vue';
 import DialogListOrderProcessSO from '../../business/dialogs/DialogListOrderProcessSO.vue';
+import DialogGetDataConvertFile from '../../business/dialogs/DialogGetDataConvertFile.vue';
 
 export default {
     components: {
@@ -58,7 +62,8 @@ export default {
         DialogOrderProcessesCheckPrice,
         DialogOrderProcessesSync,
         DialogSearchOrderProcesses,
-        DialogListOrderProcessSO
+        DialogListOrderProcessSO,
+        DialogGetDataConvertFile
     },
     data() {
         return {
@@ -82,14 +87,18 @@ export default {
                 set_data: 0,
                 delete: 0,
                 add_row: 0,
+                color: 0,
+                update_data: 0,
 
             },
             position: {
                 order: -1,
                 order_end: -1,
             },
+            error_csv_data: {},
             item_selecteds: [],
             copy: {},
+            api_data_orders: [],
             warehouses: [],
             material_saps: [],
             sap_codes: [],
@@ -106,44 +115,44 @@ export default {
             warehouse_defaults: [],
 
             columns: [
-                { title: 'ID', field: 'id', headerSort: false },
+                { title: 'ID', field: 'id', headerSort: false, isVisible: false },
                 {
-                    title: 'MaKh_Key', field: 'customer_name', headerSort: false,
+                    title: 'MaKh_Key', field: 'customer_name', headerSort: false, isVisible: false
                 },
                 {
                     title: 'Mã sap so', field: 'sap_so_number',
-                    editor: "input", headerSort: false
+                    editor: "input", headerSort: false, isVisible: false
 
                 },
-                { title: 'Sap_note', field: 'so_sap_note', headerSort: false },
-                { title: 'Barcode_Cty', field: 'barcode', headerSort: false },
-                { title: 'MaSap', field: 'sku_sap_code', headerSort: false },
-                { title: 'TenSp', field: 'sku_sap_name', headerSort: false },
-                { title: 'SL_sap', field: 'quantity3_sap', headerSort: false },
-                { title: 'Dvt', field: 'sku_sap_unit', headerSort: false },
-                { title: 'Km', field: 'promotive', headerSort: false, editor: "list", editorParams: { values: ["red", "green", "blue", "orange"] } },
-                { title: 'Ghi chú', field: 'note', headerSort: false },
-                { title: 'MaKh', field: 'customer_code', headerSort: false },
-                { title: 'Unit_barcode', field: 'customer_sku_code', headerSort: false },
-                { title: 'Unit_barcode_description', field: 'customer_sku_name', headerSort: false },
-                { title: 'Dvt_po', field: 'customer_sku_unit', headerSort: false },
-                { title: 'Po', field: 'po', headerSort: false },
-                { title: 'Qty', field: 'quantity1_po', headerSort: false },
-                { title: 'Combo', field: 'promotive_name', headerSort: false },
-                { title: 'Check Tồn', field: 'inventory_quantity', headerSort: false },
-                { title: 'Po_qty', field: 'quantity2_po', headerSort: false },
-                { title: 'SL Chênh Lệch', field: 'variant_quantity', headerSort: false },
-                { title: 'Pur_price', field: 'price_po', headerSort: false },
-                { title: 'Amount', field: 'amount_po', headerSort: false },
-                { title: 'QC', field: 'compliance', headerSort: false },
-                { title: 'Đúng_QC', field: 'is_compliant', headerSort: false },
-                { title: 'Ghi chú 1', field: 'note1', headerSort: false },
-                { title: 'Giá_cty', field: 'company_price', headerSort: false },
-                { title: 'Level2', field: 'level2', headerSort: false },
-                { title: 'Level3', field: 'level3', headerSort: false },
-                { title: 'Level4', field: 'level4', headerSort: false },
-                { title: 'Po_number', field: 'po_number', headerSort: false },
-                { title: 'po_delivery_date', field: 'po_delivery_date', headerSort: false },
+                { title: 'Sap_note', field: 'so_sap_note', headerSort: false, isVisible: false },
+                { title: 'Barcode_Cty', field: 'barcode', headerSort: false, isVisible: false },
+                { title: 'MaSap', field: 'sku_sap_code', headerSort: false, isVisible: false },
+                { title: 'TenSp', field: 'sku_sap_name', headerSort: false, isVisible: true },
+                { title: 'SL_sap', field: 'quantity3_sap', headerSort: false, isVisible: true },
+                { title: 'Dvt', field: 'sku_sap_unit', headerSort: false, isVisible: true },
+                { title: 'Km', field: 'promotive', headerSort: false, isVisible: true, editor: "list", editorParams: { values: ["red", "green", "blue", "orange"] } },
+                { title: 'Ghi chú', field: 'note', headerSort: false, isVisible: true },
+                { title: 'MaKh', field: 'customer_code', headerSort: false, isVisible: true },
+                { title: 'Unit_barcode', field: 'customer_sku_code', headerSort: false, isVisible: true },
+                { title: 'Unit_barcode_description', field: 'customer_sku_name', headerSort: false, isVisible: true },
+                { title: 'Dvt_po', field: 'customer_sku_unit', headerSort: false, isVisible: true },
+                { title: 'Po', field: 'po', headerSort: false, isVisible: true },
+                { title: 'Qty', field: 'quantity1_po', headerSort: false, isVisible: true },
+                { title: 'Combo', field: 'promotive_name', headerSort: false, isVisible: true },
+                { title: 'Check Tồn', field: 'inventory_quantity', headerSort: false, isVisible: true },
+                { title: 'Po_qty', field: 'quantity2_po', headerSort: false, isVisible: true },
+                { title: 'SL Chênh Lệch', field: 'variant_quantity', headerSort: false, isVisible: true },
+                { title: 'Pur_price', field: 'price_po', headerSort: false, isVisible: true },
+                { title: 'Amount', field: 'amount_po', headerSort: false, isVisible: true },
+                { title: 'QC', field: 'compliance', headerSort: false, isVisible: true },
+                { title: 'Đúng_QC', field: 'is_compliant', headerSort: false, isVisible: true },
+                { title: 'Ghi chú 1', field: 'note1', headerSort: false, isVisible: true },
+                { title: 'Giá_cty', field: 'company_price', headerSort: false, isVisible: true },
+                { title: 'Level2', field: 'level2', headerSort: false, isVisible: true },
+                { title: 'Level3', field: 'level3', headerSort: false, isVisible: true },
+                { title: 'Level4', field: 'level4', headerSort: false, isVisible: true },
+                { title: 'Po_number', field: 'po_number', headerSort: false, isVisible: true },
+                { title: 'po_delivery_date', field: 'po_delivery_date', headerSort: false, isVisible: false },
             ],
             url_api: {
                 order_process_so: '/api/sales-order',
@@ -186,6 +195,7 @@ export default {
             processing_file: {
                 length: 0,
                 index: 0,
+                files: [],
             },
             mapping_ships: [
                 {
@@ -264,7 +274,7 @@ export default {
         await this.fetchCustomerGroup();
         await this.fetchWarehouse();
         await this.fetchMaterialCategoryType();
-        await this.fetchOrderHeader();
+        // await this.fetchOrderHeader();
         await this.getUrl();
     },
     methods: {
@@ -532,8 +542,11 @@ export default {
                     );
                 return file_response;
             } catch (error) {
-                console.error(error.response);
-                // !error.response.data.success ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';
+                if (!error.response.data.success) {
+                    this.error_csv_data = error.response;
+                    return error.response.data;
+                }
+                // ? this.$emit('emitErrorConvertFile', error.response.data.errors) : '';
                 throw error;
             }
 
@@ -612,12 +625,12 @@ export default {
         },
         async handleCheckPromotion() {
             await this.apiCheckPromotion();
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         async handleDetectCustomerKey() {
             let unique_customer_name = [...new Set(this.filteredOrders.map(item => item.customer_name))];
             await this.checkCustomerKey(unique_customer_name);
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         async checkCustomerKey(unique_customer_name) {
             try {
@@ -678,24 +691,29 @@ export default {
         },
         async handleExtractFilePDF(files) {
             $('#DialogOrderProcessesLoadingConvertFile').modal('show');
+            this.refeshProcessingFile();
             this.processing_file.length = files.length;
-            let api_data_orders = [];
+            this.api_data_orders = [];
             for (let index = 0; index < files.length; index++) {
                 const file = files[index];
-                api_data_orders.push(await this.apiConvertPDF(this.appendFormData(file, this.order.extract_config_id)));
+                this.api_data_orders.push(await this.apiConvertPDF(this.appendFormData(file, this.order.extract_config_id)));
+                this.api_data_orders[index].name = file.name;
                 this.processing_file.index = index + 1;
+
             }
             this.refeshOrder();
             this.refeshOrderHeader();
-            for (let index = 0; index < api_data_orders.length; index++) {
-                const data_order = api_data_orders[index];
-                await this.getConvertFilePDF(data_order);
+            for (let index = 0; index < this.api_data_orders.length; index++) {
+                const data_order = this.api_data_orders[index];
+                if (data_order.success) {
+                    await this.getConvertFilePDF(data_order);
+                }
             }
-            this.update_status_function.set_data = this.update_status_function.set_data + 1;
+            this.update_status_function.set_data++;
             this.$showMessage('success', 'Thành công', 'Convert file thành công');
             // await this.fetchSapMaterial(); 
             $('#DialogOrderProcessesConvertFile').modal('hide');
-            this.refeshProcessingFile();
+
         },
         async handleDetectSapCodeOrder() {
             this.filteredOrders.forEach(element => {
@@ -780,12 +798,12 @@ export default {
         async handleCheckInventorySubmit(warehouse_id) {
             this.case_check.warehouse_id = warehouse_id;
             await this.apiCheckInventory();
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         async handleCheckPriceSubmit(so_numbers, is_promotion) {
             let promotion = is_promotion ? 'X' : '';
             await this.apiCheckPrice(so_numbers, promotion);
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
             $('#DialogOrderProcessesCheckPrice').modal('hide');
         },
         getInventory(data) {
@@ -836,7 +854,7 @@ export default {
                     this.filteredOrders[index_range - 1].theme_color.background[key] = this.theme_color_background.color;
                 });
             });
-            this.update_status_function.set_data++;
+            this.update_status_function.color++;
         },
         handleInputTextColor(data) {
             this.theme_color_text = data;
@@ -847,7 +865,7 @@ export default {
                     this.filteredOrders[index_range - 1].theme_color.text[key] = this.theme_color_text.color;
                 });
             });
-            this.update_status_function.set_data++;
+            this.update_status_function.color++;
         },
         handleEmittedRangeChanged(range) {
             this.range.indexs = range.getRows().map(row => row.getPosition());
@@ -865,6 +883,7 @@ export default {
             }
             this.filter.value = value;
             this.filter.field = field;
+            this.update_status_function.add_row++;
         },
         handleOrderSyncSap() {
             $('#DialogOrderProcessesSync').modal('show');
@@ -1113,7 +1132,7 @@ export default {
         },
         async handleCheckCompliance() {
             await this.apiCheckComplianceFromOrder();
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         convertToNumber(value) {
             return Number(value);
@@ -1272,7 +1291,7 @@ export default {
             this.order.title = item.title;
             this.order.customer_group_id = item.customer_group_id;
             this.order.serial_number = item.serial_number;
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         getCheckPrice(data) {
             this.material_prices = [...data];
@@ -1286,7 +1305,7 @@ export default {
                 }
             });
             this.filteredOrders = [...orders];
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         // handleEditPromotion(value, postion){
         //     this.filteredOrders[postion - 1].promotion_category = value;
@@ -1305,13 +1324,13 @@ export default {
                         }
                     });
                 });
-                this.update_status_function.set_data++;
+                this.update_status_function.update_data++;
             }
         },
         handleChangeInputSetWarehouse(warehouse_id, selecteds) {
             this.getSetWarehouse(warehouse_id, selecteds);
             this.getSetMappingShipping(warehouse_id);
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         getSetWarehouse(warehouse_code, order_syncs_selected) {
             order_syncs_selected.forEach(item => {
@@ -1321,7 +1340,7 @@ export default {
                     }
                 });
             });
-            this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         getSetMappingShipping(warehouse_id) {
             let find_warehouse = this.wareshouses_defaults.find(warehouse => warehouse.id == warehouse_id);
@@ -1497,13 +1516,16 @@ export default {
             }
         },
         handleFetchOrderProcessSODetail(data) {
-            console.log(data, 'data');
+            this.getSaveOrderSO(data);
+            this.update_status_function.set_data++;
         },
         handleCellEdited(cell) {
             // cell.getRow().getData(), cell.getRow().getPosition()
             const position = cell.getRow().getPosition();
             const data = cell.getRow().getData();
             data.promotive_name = data.promotive;
+            data.note1 = data.promotive;
+            data.is_promotive = true;
             // data.promotion_category = data.promotive;
             this.filteredOrders[position - 1] = data;
             this.update_status_function.set_data++;
@@ -1515,6 +1537,64 @@ export default {
                 this.filteredOrders[position - 1] = data[index];
             });
             this.update_status_function.set_data++;
+        },
+        handleExportExcel() {
+            // let data = this.orders.concat(this.case_data_temporary.order_lacks);
+            let data_news = this.orders.map((item, index) => {
+                return {
+                    'STT': index + 1,
+                    'Makh Key': item.customer_name,
+                    'Mã Sap So': item.sap_so_number,
+                    'Barcode_cty': item.barcode,
+                    'Masap': item.sku_sap_code,
+                    'Tensp': item.customer_sku_name,
+                    'SL_sap': item.quantity3_sap,
+                    // 'Dvt': item.customer_sku_unit,
+                    'Dvt': item.sku_sap_unit,
+                    'Km': item.promotive,
+                    'Ghi_chu': item.note1,
+                    'Makh': item.customer_code,
+                    'Unit_barcode': item.customer_sku_code,
+                    'Unit_barcode_description': item.sku_sap_name,
+                    // 'Dvt_po': item.sku_sap_unit,
+                    'Dvt_po': item.customer_sku_unit,
+                    'Po': item.po_number,
+                    'Qty': item.quantity1_po,
+                    'Combo': item.promotion_category,
+                    'Check tồn': item.inventory_quantity,
+                    'Po_qty': item.quantity2_po,
+                    'SL chênh lệch': item.variant_quantity,
+                    'Pur_price': item.price_po,
+                    'Amount': item.amount_po,
+                    'QC': item.compliance,
+                    'Đúng_QC': item.is_compliant,
+                    'Ghi chú 1': item.note,
+                    'Gia_cty': item.company_price,
+                    'Level 2': item.level2,
+                    'Level 3': item.level3,
+                    'Level 4': item.level4,
+                    'po_number': item.po_number,
+                    'po_delivery_date': item.po_delivery_date,
+                }
+            })
+            var ws = XLSX.utils.json_to_sheet(data_news);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            const blob = new Blob([this.s2ab(wbout)], { type: 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'xu_ly_don_hang.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        s2ab(s) {
+            const buf = new ArrayBuffer(s.length);
+            const view = new Uint8Array(buf);
+            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
         },
     },
     computed: {

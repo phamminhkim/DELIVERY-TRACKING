@@ -13,10 +13,13 @@
                  @checkCompliance="checkCompliance"
                  @checkPrice="checkPrice"
                  @orderSyncSap="orderSyncSap"
+                 @exportExcel="exportExcel"
                  @changeMaterial="changeMaterial" />
                 <ChildOrderProcessesColorDefHeader @inputBackgroundColor="inputBackgroundColor" @inputTextColor="inputTextColor"/>
                 <h6 class="font-weight-bold">Tiêu đề: {{ order.title }}</h6>
                 <span>Số đơn hàng : <b>{{ CountGrpSoNumber }}</b></span>
+                <!-- <TableHelper :columns="user_field_tables" eventname="updateColumnHeader"
+                v-on:updateColumnHeader="updateColumnHeader"></TableHelper> -->
             </div>
             <div class="card-body p-0">
                 <div ref="zoomContainer" class="zoom-container" >
@@ -57,6 +60,7 @@ import ChildOrderProcessesColorDefHeader from '../child/header/ChildOrderProcess
 import ChildOrderProcessesBody from '../child/body/ChildOrderProcessesBody.vue';
 import DialogOrderProcessesConvertFile from '../dialog/DialogOrderProcessesConvertFile.vue';
 import ChildOrderProcessesListOrder from '../child/header/ChildOrderProcessesListOrder.vue';
+import TableHelper from '../../../business/tables/TableHelper.vue';
 export default {
     props: {
         columns: { type: Array, default: () => [] },
@@ -77,6 +81,7 @@ export default {
         DialogOrderProcessesConvertFile,
         ChildOrderProcessesColorDefHeader,
         ChildOrderProcessesListOrder,
+        TableHelper
     },
     data() {
         return {
@@ -187,6 +192,9 @@ export default {
         },
         clipboardPasted(rows) {
             this.$emit('clipboardPasted', rows);
+        },
+        exportExcel() {
+            this.$emit('exportExcel');
         },
     }
 }

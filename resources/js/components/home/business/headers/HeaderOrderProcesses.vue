@@ -148,7 +148,7 @@
 
 
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="d-flex">
@@ -162,7 +162,7 @@
 
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- <div class="row">
                 <div class="col-3">
                     <div class="input-group input-group-sm mb-3">

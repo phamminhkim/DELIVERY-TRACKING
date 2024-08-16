@@ -26,7 +26,7 @@ export default {
                     name: 'Excel',
                     icon: 'fas fa-file-excel',
                     color: 'success',
-                    note: 'Convert to Excel',
+                    note: 'Convert Excel',
                     type: 'excel'
                 },
                 {
@@ -34,7 +34,7 @@ export default {
                     name: 'PDF',
                     icon: 'fas fa-file-pdf',
                     color: 'danger',
-                    note: 'Convert to PDF',
+                    note: 'Convert PDF',
                     type: 'pdf'
                 },
                 // {
