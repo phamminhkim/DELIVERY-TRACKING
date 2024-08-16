@@ -1022,21 +1022,41 @@ class AiRepository extends RepositoryAbs
         }
         return $table_data;
     }
-    private function addCustomInfoToItem($items)
+    private function addCustomInfoToItem($data)
     {
-        foreach ($items as $index => $item_data) {
-            // Dò mã sku sap để lấy sku name
-            if (array_key_exists('SkuSapName', $item_data) && array_key_exists('SkuSapCode', $item_data)) {
-                $sku_sap_code = $item_data['SkuSapCode'];
-                $sku_sap = SapMaterial::query()->where('sap_code', $sku_sap_code)->select('name')->first();
-                $sku_sap_name = "";
-                if ($sku_sap) {
-                    $sku_sap_name = $sku_sap->name;
+        // Xử lý tìm tên sản phẩm theo mã SAP
+        // Xử lý tăng tốc độ khi truy vấn bảng SAP
+        // Step 1: Extract all SkuSapCode values
+        $data_all_items = array_column($data, 'items');
+        $data_items = array_column($data_all_items, '0');
+        $sku_sap_codes = array_column($data_items, 'SkuSapCode');
+        $sku_sap_names = array_column($data_items, 'SkuSapName');
+        // Check có yêu cầu lấy tên sản phẩm
+        if ($sku_sap_names && $sku_sap_codes) {
+            // Step 2: Query SapMaterial table once
+            $sku_sap_records = SapMaterial::whereIn('sap_code', $sku_sap_codes)
+                ->select('sap_code', 'name')
+                ->get()
+                ->keyBy('sap_code');
+
+            // Step 3: Map SkuSapCode to SkuSapName
+            $sku_sap_map = $sku_sap_records->mapWithKeys(function ($item) {
+                return [$item->sap_code => $item->name];
+            });
+
+            // Step 4: Update $items with SkuSapName
+            foreach ($data as $index => $item_data) {
+                if (isset($item_data['items']) && isset($item_data['items'][0])) {
+                    if (array_key_exists('SkuSapName', $item_data['items'][0]) &&
+                        array_key_exists('SkuSapCode', $item_data['items'][0])) {
+                        $sku_sap_code = $item_data['items'][0]['SkuSapCode'];
+                        $sku_sap_name = $sku_sap_map->get($sku_sap_code, '');
+                        $data[$index]['items'][0]['SkuSapName'] = $sku_sap_name;
+                    }
                 }
-                $items[$index]['SkuSapName'] = $sku_sap_name;
             }
         }
-        return $items;
+        return $data;
     }
     // Xử lý mẫu 1 header có 1 item
     private function restructureHeaderItem($order_data, $header_key_names) {
@@ -1051,14 +1071,13 @@ class AiRepository extends RepositoryAbs
                 $header[$header_key] = $data[$header_key];
             }
             $header = $this->addCustomInfo($header);
-            $items = $this->addCustomInfoToItem($items);
-
             $array_data = [
                 'headers' => $header,
                 'items' => $items,
             ];
             array_push($result, $array_data);
         }
+        $result = $this->addCustomInfoToItem($result);
         return $result;
     }
     // Xử lý mẫu 1 header có nhiều item
@@ -1073,7 +1092,6 @@ class AiRepository extends RepositoryAbs
             if ($data[$split_header_key]) {
                 // Lưu lại data theo header trước đó
                 if ($items) {
-                    $items = $this->addCustomInfoToItem($items);
                     $array_data = [
                         'headers' => $header,
                         'items' => $items,
@@ -1092,7 +1110,6 @@ class AiRepository extends RepositoryAbs
                 // Xử lý data cuối
                 if ($index == ($row_count - 1)) {
                     if ($items) {
-                        $items = $this->addCustomInfoToItem($items);
                         $array_data = [
                             'headers' => $header,
                             'items' => $items,
@@ -1103,6 +1120,7 @@ class AiRepository extends RepositoryAbs
                 }
             }
         }
+        $result = $this->addCustomInfoToItem($result);
         return $result;
     }
     // Xử lý mẫu 1 item có nhiều header
