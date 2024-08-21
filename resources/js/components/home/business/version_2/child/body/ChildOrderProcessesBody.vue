@@ -17,6 +17,10 @@ export default {
         material_category_types: { type: Array, default: () => [] },
         update_status_function: { type: Object, default: () => { } },
         position_order: { type: Object, default: () => { } },
+        range_items: { type: Array, default: () => [] },
+        hidden_columns: { type: Array, default: () => [] },
+        range: { type: Object, default: () => { } },
+        update_column: { type: Number, default: 0 },
     },
     components: {
         ChildOrderProcessesSearchBody,
@@ -112,13 +116,15 @@ export default {
                     color: '#87CEFA',
                 }
             ],
+
         };
     },
-    mounted() {
-        this.loadTable();
+    async mounted() {
+        await this.loadTable();
         this.table.on("rangeChanged", (range) => {
             // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
+
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
@@ -126,6 +132,15 @@ export default {
         // sự kiện khi clipboardPasted
         this.table.on("clipboardPasted", (clipboard, rowData, rows) => {
             this.$emit('clipboardPasted', rows);
+        });
+        this.table.on("columnResized", (column) => {
+            this.$emit('columnResized', column);
+        });
+        // sự kiện movableColumns
+        this.table.on("columnMoved", (column) => {
+            this.$emit('columnMoved', this.table.getColumns().map(column => column.getField()));
+            // lấy toàn bộ column trong bảng
+            // console.log('this.table.getColumns():', this.table.getColumns().map(column => column.getField(), column.getDefinition()));
         });
 
     },
@@ -136,13 +151,24 @@ export default {
         //     },
         //     deep: true,
         // },
-
+        filteredOrders: {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    this.tableData = newVal;
+                }
+            }, 10),
+            deep: true,
+        },
         'update_status_function.set_data': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
+                    console.time('renderData');
+                    // Code render component
+                    this.table.clearData();
                     this.table.setColumns(this.filterColumn());
                     this.table.setData(this.filteredOrders);
-                } 
+                    console.timeEnd('renderData');
+                }
                 // else {
                 //     // this.table.updateOrAddData(this.filteredOrders);
                 //     this.table.updateData(this.filteredOrders);
@@ -157,9 +183,14 @@ export default {
         'update_status_function.update_data': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
+
+                    console.log('update_data:');
+                    console.time('updateData'); 
+                    // this.table.clearData();
                     this.table.updateData(this.filteredOrders);
-                    this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
-                } 
+                    // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
+                    console.timeEnd('updateData');
+                }
             }, 10),
             deep: true,
         },
@@ -192,9 +223,18 @@ export default {
                 }
             }, 10),
         },
+        'update_column': {
+            handler: function (newVal, oldVal) {
+                if (newVal) {
+                    this.table.options.rowContextMenu[4].menu = this.updateContextMenu_4();
+                }
+            },
+            deep: true,
+        },
 
     },
     methods: {
+
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
             if (newVal.length !== oldVal.length) {
@@ -218,6 +258,8 @@ export default {
             return (cell, formatterParams, onRendered) => {
                 let ma_sap = cell.getValue();
                 let promotive = cell.getRow().getData().promotive;
+                console.log('ma_sap:', ma_sap, 'promotive:', promotive);
+
                 let value_promotive = promotive ? `${promotive}` : '';
                 return `${ma_sap}${value_promotive}`;
             };
@@ -287,20 +329,26 @@ export default {
             ];
             return headerMenu;
         },
-        loadTable() {
+        async loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
-            this.table = new Tabulator(this.$refs.table, {
+            this.table = await new Tabulator(this.$refs.table, {
+                maxHeight: 500,
+                tabIndex: -1,
                 index: "order",
-                // movableColumns: true,
+                movableColumns: true,
+                movableColumnsInitialDelay: 0,
                 // movableRows: true,
                 // movableRowsConnectedElements: "#drop-area", //element to receive rows
                 debugInvalidComponentFuncs: false,
                 columnHeaderSortMulti: false,
                 // headerFilterLiveFilterDelay: 800,
-                data: this.filteredOrders,
+                // data: this.filteredOrders,
+                data: this.tableData,
+                headerSortClickElement:"icon", //trigger sort on icon click
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
-                // layout: "fitColumns",
+                layout: "fitColumns",
+                // placeholder:"Không có dữ liệu",
                 rowHeader: { resizable: false, frozen: true, width: 20, hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false },
                 // selectableRange: true,
                 //enable range selection
@@ -312,44 +360,45 @@ export default {
                 scrollToColumnPosition: "left",
                 // selectableRows:true, // Chọn Row
                 editTriggerEvent: "dblclick", // dblClick Chỉnh sửa
+                enterEdit: true, // Chỉnh sửa khi nhấn Enter
                 clipboard: true,
                 clipboardCopyStyled: false,
                 clipboardCopyConfig: {
-                    rowHeaders: false, //do not include row headers in clipboard output
+                    rowHeaders: true, //do not include row headers in clipboard output
                     columnHeaders: false, //do not include column headers in clipboard output
                 },
                 clipboardCopyRowRange: "range",
                 clipboardPasteParser: "range",
                 clipboardPasteAction: "range",
+                // clipboardPasteAction:"replace",
                 rowFormatter: (row) => {
                     const data = row.getData();
                     if (data.theme_color) {
                         const keys = Object.keys(data.theme_color.background);
                         // row.getElement().style.backgroundColor = "lightcoral";
-                        // lấy element tabulator-field="quantity3_sap" để thay đổi màu
                         keys.forEach(key => {
                             if (row.getCell(key)) {
                                 row.getCell(key).getElement().style.backgroundColor = data.theme_color.background[key];
                                 row.getCell(key).getElement().style.color = data.theme_color.text[key];
                             }
-                            switch (key) {
-                                case 'price_po':
-                                    if (data.theme_color.text[key] == '' || data.theme_color.text[key] == null) {
-                                        row.getCell('price_po').getElement().style.color = 'red';
-                                    }
-                                    break;
-                                case 'inventory_quantity':
-                                    if (data.theme_color.background[key] == '' || data.theme_color.background[key] == null) {
-                                        // && data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0
-                                        if ((data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0 || data.inventory_quantity < data.quantity2_po)) {
-                                            row.getCell('inventory_quantity').getElement().style.background = 'red';
-                                        }
-                                    }
-                                    break;
+                            // switch (key) {
+                            //     case 'price_po':
+                            //         if (data.theme_color.text[key] == '' || data.theme_color.text[key] == null) {
+                            //             row.getCell('price_po').getElement().style.color = 'red';
+                            //         }
+                            //         break;
+                            //     // case 'inventory_quantity':
+                            //     //     if (data.theme_color.background[key] == '' || data.theme_color.background[key] == null) {
+                            //     //         // && data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0
+                            //     //         if ((data.inventory_quantity == null || data.inventory_quantity == '' || data.inventory_quantity == 0 || data.inventory_quantity < data.quantity2_po)) {
+                            //     //             row.getCell('inventory_quantity').getElement().style.background = 'red';
+                            //     //         }
+                            //     //     }
+                            //     //     break;
 
-                                default:
-                                    break;
-                            }
+                            //     default:
+                            //         break;
+                            // }
 
 
                         });
@@ -388,7 +437,7 @@ export default {
             this.$emit("emitRangeChanged", range);
         },
         rowMenu() {
-            var rowMenu = [
+            let rowMenu = [
                 // {
                 //     label: "<i class='fas fa-user'></i> Change Name",
                 //     action: function (e, row) {
@@ -396,7 +445,7 @@ export default {
                 //     }
                 // },
                 {
-                    label: "<i class='fas fa-fill text-black-50 mr-1'></i>Tô màu",
+                    label: "<i class='fas fa-fill text-black-50 mr-1'></i> Tô màu",
                     menu: [
                         {
                             label: "Nền",
@@ -427,22 +476,63 @@ export default {
                     separator: true,
                 },
                 {
-                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Chọn dòng",
+                    label: "<i class='fas fa-eye-slash text-black-50 mr-1'></i> Ẩn cột",
                     action: (e, row) => {
-                        row.select();
-                        this.$emit('rowSelectionChanged', row.getData(), true);
-                    }
-                },
-                {
-                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Hủy chọn dòng",
-                    action: (e, row) => {
-                        row.deselect();
-                        this.$emit('rowSelectionChanged', row.getData(), false);
+                        this.$emit('toggleColumn', row.getPosition());
+                        Object.keys(this.range_items[0]).forEach(key => {
+                            this.table.hideColumn(key);
+                            rowMenu[4].menu.push({
+                                label: this.columns.find(column => column.field == key).title,
+                                action: (e, row, colu) => {
+                                    this.$emit('toggleColumnShow', row.getPosition(), key);
+                                    this.table.showColumn(key);
+                                    rowMenu[4].menu = rowMenu[4].menu.filter(item => item.label != this.columns.find(column => column.field == key).title);
+                                    this.table.options.rowContextMenu = rowMenu;
+                                },
+                            });
+
+                        });
+                        const hidden_columns = this.table.getColumns().filter(column => !column.visible);
+                        this.$emit('hiddenColumns', hidden_columns);
                     }
                 },
                 {
                     separator: true,
                 },
+                {
+                    label: "<i class='fas fa-eye text-black-50 mr-1'></i> Hiện cột",
+                    menu: this.hidden_columns.map((column, index) => {
+                        return {
+                            label: column.title,
+                            action: (e, row, colu) => {
+                                this.$emit('toggleColumnShow', row.getPosition(), column.field);
+                                this.table.showColumn(column.field);
+                                // xóa menu item đã chọn trong menu
+                                rowMenu[4].menu = rowMenu[4].menu.filter(item => item.label != column.title);
+                                // cập nhật lại menu
+                                this.table.options.rowContextMenu = rowMenu;
+
+                            },
+                        };
+                    }),
+                },
+                // {
+                //     label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Chọn dòng",
+                //     action: (e, row) => {
+                //         row.select();
+                //         this.$emit('rowSelectionChanged', row.getData(), true);
+                //     }
+                // },
+                // {
+                //     label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Hủy chọn dòng",
+                //     action: (e, row) => {
+                //         row.deselect();
+                //         this.$emit('rowSelectionChanged', row.getData(), false);
+                //     }
+                // },
+                // {
+                //     separator: true,
+                // },
                 {
                     label: "<i class='fas fa-plus text-black-50 mr-1'></i> Thêm dòng",
                     action: (e, row) => {
@@ -459,9 +549,13 @@ export default {
                 //     }
                 // },
                 {
-                    label: "<i class='fas fa-copy text-black-50 mr-1'></i> Copy dòng",
+                    label: "<i class='fas fa-copy text-black-50 mr-1'></i> Copy",
                     action: (e, row) => {
-                        this.$emit('copyRow', row.getPosition(), row.getData());
+                        // this.$emit('copyRow', row.getPosition(), row.getData());
+                        // add this.range.items vào clipboard
+                        // console.log('range', this.range);
+                        this.table.copyToClipboard("range");
+
                     }
                 },
                 {
@@ -470,7 +564,9 @@ export default {
                 {
                     label: "<i class='fas fa-paste text-black-50 mr-1'></i> Paste",
                     action: (e, row) => {
-                        this.$emit('pasteRow', row.getPosition());
+                        // this.$emit('pasteRow', row.getPosition());
+                        // this.table.clipboardPasteParser("range");
+                        console.log('Paste:', 'Chức năng Paste chưa hoàn thiện');
                     }
                 },
                 {
@@ -511,10 +607,14 @@ export default {
                     title: column.title,
                     field: column.field,
                     headerSort: false,
+                    width: column.width,
                     editor: column.field == "promotive" ? "list" : "textarea",
+                    visible: column.visible,
                     editorParams: column.field == "promotive" ? {
                         values: this.material_category_types.map(item => item.name)
-                    } : {},
+                    } : {
+                        shiftEnterSubmit: true,
+                    },
                     headerMenu: this.headerMenu(),
                     // headerMenu: this.headerMenuV2(),
                     // cellEdited: (cell) => {
@@ -534,11 +634,29 @@ export default {
 
                         let value_promotive = promotive ? `${promotive}` : '';
                         return `${ma_sap}${value_promotive}`;
-                    } : undefined,
+                    } : '',
 
                 };
             });
         },
+        updateContextMenu_4() {
+            let context_menu_4 = this.hidden_columns.map(column => {
+                return {
+                    label: column.title,
+                    action: (e, row, colu) => {
+                        this.$emit('toggleColumnShow', row.getPosition(), column.field);
+                        this.table.showColumn(column.field);
+                        // xóa menu item đã chọn trong menu
+                        this.table.options.rowContextMenu[4].menu = this.table.options.rowContextMenu[4].menu.filter(item => item.label != column.title);
+                        // cập nhật lại menu
+                        this.table.options.rowContextMenu = this.table.options.rowContextMenu;
+
+                    },
+                }
+            });
+            return context_menu_4;
+            
+        }
     },
 
 };
@@ -572,9 +690,11 @@ export default {
 ::v-deep .tabulator-range-selected {
     background-color: lightgray !important;
 }
+
 ::v-deep .tabulator-range-only-cell-selected {
-    border: 2px solid rgb(255, 28, 153) !important;
+    border: 2px solid rgb(255, 28, 28) !important;
 }
+
 ::v-deep .tabulator-range-active {
     // background-color: lightgray !important;
     border: 2px solid red !important;
@@ -595,5 +715,10 @@ export default {
     background-color: rgb(44, 238, 119) !important;
     font-weight: bold !important;
     font-style: italic !important;
+}
+
+::v-deep .tabulator-menu-item {
+    font-size: 0.8em !important;
+    /* Kích thước văn bản nhỏ hơn */
 }
 </style>

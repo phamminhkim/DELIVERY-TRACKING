@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="modal fade" id="DialogOrderProcessesLoadingConvertFile" tabindex="-1">
+        <div class="modal fade" id="DialogOrderProcessesLoadingConvertFile"  data-backdrop="static" data-keyboard="false" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -10,7 +10,6 @@
                         </button>
                     </div>
                     <div class="modal-body pb-0">
-                        
                         <div class="form-group table-responsive">
                             <table class="table table-sm table-bordered  text-xs">
                                 <thead>
@@ -57,6 +56,11 @@
                             </b-progress>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button v-show="isShowBtnDataOrders() == true"  @click="emitCreateDataOrders()" type="button" class="btn btn-primary btn-sm text-xs px-2" data-dismiss="modal">Tạo mới</button>
+                        <button v-show="isShowBtnDataOrders() == true" @click="emitMoreDataOrders()" type="button" class="btn btn-info btn-sm text-xs px-2" data-dismiss="modal">Thêm dữ liệu</button>
+                        <button type="button" class="btn btn-secondary btn-sm text-xs px-2" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -69,7 +73,8 @@ export default {
         file: { type: Object, default: () => { } },
         processing_index: { type: Number, default: 0 },
         api_data_orders: { type: Array, default: () => [] },
-        processing_files: { type: Array, default: () => [] }
+        processing_files: { type: Array, default: () => [] },
+      
     },
     data() {
         return {
@@ -86,9 +91,9 @@ export default {
             //     this.hideModal();
             // }
             this.value = (this.processing_index / this.file_length).toFixed(2) * 100;
-            // if(this.value == this.max){
-            //     this.hideModal();
-            // }
+            if(this.value == this.max){
+                this.$emit('processingSuccess');
+            }
            
 
         }
@@ -113,6 +118,15 @@ export default {
             a.click();
             URL.revokeObjectURL(url);
         },
+        emitCreateDataOrders() {
+            this.$emit('createDataOrders');
+        },
+        emitMoreDataOrders() {
+            this.$emit('moreDataOrders');
+        },
+        isShowBtnDataOrders() {
+            return this.value == this.max ? true : false;
+        }
     }
 }
 </script>

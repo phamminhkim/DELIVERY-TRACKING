@@ -1,55 +1,69 @@
 <template>
-    <div>
-        <ChildOrderProcessesInputHeader @convertFile="openModalDialogOrderProcessesConvertFile"  />
-        <ChildOrderProcessesListOrder @modalListOrder="modalListOrder" />
+    <div class="text-xs">
+        <!-- <div class="d-inline-block">
+            <ChildOrderProcessesInputHeader @convertFile="openModalDialogOrderProcessesConvertFile" />
+        </div> -->
+        <div class="d-inline-block">
+            <ChildOrderProcessesConvertFileHeader :processing_success="processing_success" :order="order" :file="file"
+                :customer_groups="customer_groups" @inputCustomerGroupId="emitInputCustomerGroupId"
+                @inputExtractConfigID="emitInputExtractConfigID" @extractFilePDF="emitExtractFilePDF" />
+        </div>
+        <div class="d-inline-flex float-right mt-2">
+            <div >
+                <ChildOrderProcessesListOrder @modalListOrder="modalListOrder" />
+            </div>
+            <!-- <div>
+                <ChildOrderProcessesLayoutHeader @listLayout="listLayout" />
+            </div> -->
+
+
+        </div>
+
         <div class="card">
             <div class="card-header bg-white mb-0">
-                <ChildOrderProcessesHeader :order="order"
-                 @saveUpdateOrder="saveUpdateOrder"
-                 @detectSapCodeOrder="detectSapCodeOrder" @updateOrder="updateOrder"
-                 @emitDetectCustomerKey="emitDetectCustomerKey"
-                 @checkPromotion="checkPromotion"
-                 @checkInventory="checkInventory"
-                 @checkCompliance="checkCompliance"
-                 @checkPrice="checkPrice"
-                 @orderSyncSap="orderSyncSap"
-                 @exportExcel="exportExcel"
-                 @changeMaterial="changeMaterial" />
-                <ChildOrderProcessesColorDefHeader @inputBackgroundColor="inputBackgroundColor" @inputTextColor="inputTextColor"/>
-                <h6 class="font-weight-bold">Tiêu đề: {{ order.title }}</h6>
-                <span>Số đơn hàng : <b>{{ CountGrpSoNumber }}</b></span>
+                <ChildOrderProcessesHeader :order="order" @saveUpdateOrder="saveUpdateOrder"
+                    @detectSapCodeOrder="detectSapCodeOrder" @updateOrder="updateOrder"
+                    @emitDetectCustomerKey="emitDetectCustomerKey" @checkPromotion="checkPromotion"
+                    @checkInventory="checkInventory" @checkCompliance="checkCompliance" @checkPrice="checkPrice"
+                    @orderSyncSap="orderSyncSap" @exportExcel="exportExcel" @changeMaterial="changeMaterial"
+                    @saveUpdateLayout="saveUpdateLayout" />
+                <!-- <ChildOrderProcessesColorDefHeader @inputBackgroundColor="inputBackgroundColor" @inputTextColor="inputTextColor"/> -->
+                
+                <div class="d-flex">
+                    <div class="mr-2">
+                        <span>Số đơn hàng : <b>{{ CountOrderSoNumber }}</b></span>
+                    </div>
+                    <div class="mr-2">
+                        <span>Số phiếu : <b>{{ CountGrpSoNumber }}</b></span>
+                    </div>
+                    <div class=""><span>Tiêu đề: </span><small class="font-weight-bold text-xs">{{ order.title }}</small><small class="text-danger text-xs">(*)</small></div>
+                </div>
                 <!-- <TableHelper :columns="user_field_tables" eventname="updateColumnHeader"
                 v-on:updateColumnHeader="updateColumnHeader"></TableHelper> -->
             </div>
             <div class="card-body p-0">
-                <div ref="zoomContainer" class="zoom-container" >
+                <div ref="zoomContainer" class="zoom-container">
                     <div class="content">
                         <ChildOrderProcessesBody :columns="columns" :filteredOrders="filteredOrders"
-                        :material_category_types="material_category_types"
-                        :update_status_function="update_status_function"
-                        :position_order="position_order"
-                         @table="emitTable" @inputSearch="emitInputSearch"
-                         @emitRangeChanged="emitRangeChanged"
-                         @filterOrder="filterOrder"
-                         @editPromotion="editPromotion"
-                         @addRow="addRow"
-                         @duplicateRow="duplicateRow"
-                         @copyRow="copyRow"
-                         @pasteRow="pasteRow"
-                         @deleteRow="deleteRow"
-                         @rowSelectionChanged="rowSelectionChanged"
-                         @cellEdited="cellEdited"
-                         @clipboardPasted="clipboardPasted"
-                         @inputBackgroundColor="inputBackgroundColor"
-                         @inputTextColor="inputTextColor" />
+                            :material_category_types="material_category_types"
+                            :range="range" :update_column="update_column"
+                            :update_status_function="update_status_function" :position_order="position_order"
+                            :range_items="range_items" :hidden_columns="hidden_columns" @table="emitTable"
+                            @inputSearch="emitInputSearch" @emitRangeChanged="emitRangeChanged"
+                            @filterOrder="filterOrder" @editPromotion="editPromotion" @addRow="addRow"
+                            @duplicateRow="duplicateRow" @copyRow="copyRow" @pasteRow="pasteRow" @deleteRow="deleteRow"
+                            @rowSelectionChanged="rowSelectionChanged" @cellEdited="cellEdited"
+                            @clipboardPasted="clipboardPasted" @inputBackgroundColor="inputBackgroundColor"
+                            @inputTextColor="inputTextColor" @toggleColumn="toggleColumn" @hiddenColumns="hiddenColumns"
+                            @toggleColumnShow="toggleColumnShow" @columnResized="columnResized"
+                            @columnMoved="columnMoved" />
                     </div>
                 </div>
             </div>
         </div>
-        <DialogOrderProcessesConvertFile :order="order" :file="file" :customer_groups="customer_groups"
-         @inputCustomerGroupId="emitInputCustomerGroupId"
-         @inputExtractConfigID="emitInputExtractConfigID"
-         @extractFilePDF="emitExtractFilePDF" />
+        <!-- <DialogOrderProcessesConvertFile :order="order" :file="file" :customer_groups="customer_groups"
+            @inputCustomerGroupId="emitInputCustomerGroupId" @inputExtractConfigID="emitInputExtractConfigID"
+            @extractFilePDF="emitExtractFilePDF" /> -->
 
     </div>
 </template>
@@ -61,17 +75,25 @@ import ChildOrderProcessesBody from '../child/body/ChildOrderProcessesBody.vue';
 import DialogOrderProcessesConvertFile from '../dialog/DialogOrderProcessesConvertFile.vue';
 import ChildOrderProcessesListOrder from '../child/header/ChildOrderProcessesListOrder.vue';
 import TableHelper from '../../../business/tables/TableHelper.vue';
+import ChildOrderProcessesLayoutHeader from '../child/header/ChildOrderProcessesLayoutHeader.vue';
+import ChildOrderProcessesConvertFileHeader from '../child/header/ChildOrderProcessesConvertFileHeader.vue';
 export default {
     props: {
         columns: { type: Array, default: () => [] },
         filteredOrders: { type: Array, default: () => [] },
-        file: { type: Object, default: () => {} },
+        file: { type: Object, default: () => { } },
         customer_groups: { type: Array, default: () => [] },
-        order: { type: Object, default: () => {} },
+        order: { type: Object, default: () => { } },
         material_category_types: { type: Array, default: () => [] },
         CountGrpSoNumber: { type: Number, default: 0 },
-        update_status_function: { type: Object, default: () => {} },
-        position_order: { type: Object, default: () => {} },
+        CountOrderSoNumber: { type: Number, default: 0 },
+        update_status_function: { type: Object, default: () => { } },
+        position_order: { type: Object, default: () => { } },
+        range_items: { type: Array, default: () => [] },
+        hidden_columns: { type: Array, default: () => [] },
+        processing_success: { type: Number, default: 0 },
+        range: { type: Object, default: () => { } },
+        update_column:  { type: Number, default: 0 },
 
     },
     components: {
@@ -81,11 +103,13 @@ export default {
         DialogOrderProcessesConvertFile,
         ChildOrderProcessesColorDefHeader,
         ChildOrderProcessesListOrder,
-        TableHelper
+        TableHelper,
+        ChildOrderProcessesLayoutHeader,
+        ChildOrderProcessesConvertFileHeader
     },
     data() {
         return {
-           
+
             scale: 1,
             isZoomed: false
         }
@@ -179,7 +203,7 @@ export default {
             this.$emit('deleteRow', position, data);
         },
         rowSelectionChanged(selected, is_check_or_uncheck) {
-            this.$emit('rowSelectionChanged', selected ,is_check_or_uncheck);
+            this.$emit('rowSelectionChanged', selected, is_check_or_uncheck);
         },
         changeMaterial() {
             this.$emit('changeMaterial');
@@ -196,6 +220,27 @@ export default {
         exportExcel() {
             this.$emit('exportExcel');
         },
+        toggleColumn(column) {
+            this.$emit('toggleColumn', column);
+        },
+        hiddenColumns(columns) {
+            this.$emit('hiddenColumns', columns);
+        },
+        listLayout() {
+            this.$emit('listLayout');
+        },
+        toggleColumnShow(column, field) {
+            this.$emit('toggleColumnShow', column, field);
+        },
+        columnResized(column) {
+            this.$emit('columnResized', column);
+        },
+        columnMoved(column) {
+            this.$emit('columnMoved', column);
+        },
+        saveUpdateLayout() {
+            this.$emit('saveUpdateLayout');
+        }
     }
 }
 </script>
