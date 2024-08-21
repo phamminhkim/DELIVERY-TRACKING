@@ -8,7 +8,7 @@
             <DialogOrderProcessesSync :order_headers="order_headers" :api_handler="api_handler"
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
                 :mapping_ships="mapping_ships" :case_check="case_check" @warehouseDefault="handeleWarehouseDefault"
-                @changeInputSetShippingID="handleChangeInputSetShippingID" />
+                @changeInputSetShippingID="handleChangeInputSetShippingID" @emitWarehouseId="handleWarehouseId" />
             <DialogOrderProcessesLayout :columns="columns" />
         </div>
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
@@ -605,7 +605,7 @@ export default {
                     await this.fetchOrderHeader();
                     $('#DialogOrderProcessesSaveSO').modal('hide');
                     this.$showMessage('success', 'Thành công', 'Cập nhật đơn hàng thành công');
-                    if(this.is_modal_sync_sap){
+                    if (this.is_modal_sync_sap) {
                         $('#DialogOrderProcessesSync').modal('show');
                     }
                 }
@@ -636,7 +636,7 @@ export default {
                     // this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                     // this.hideDialogTitleOrderSo();
                     $('#DialogOrderProcessesSaveSO').modal('hide');
-                    if(this.is_modal_sync_sap){
+                    if (this.is_modal_sync_sap) {
                         $('#DialogOrderProcessesSync').modal('show');
                     }
 
@@ -1418,8 +1418,9 @@ export default {
             }
         },
         handleChangeInputSetWarehouse(warehouse_id, selecteds) {
+            console.log(warehouse_id, 'forrm trên');
             this.getSetWarehouse(warehouse_id, selecteds);
-            this.getSetMappingShipping(warehouse_id);
+            this.getSetMappingShipping(warehouse_id, selecteds);
             this.update_status_function.update_data++;
         },
         getSetWarehouse(warehouse_code, order_syncs_selected) {
@@ -1432,7 +1433,7 @@ export default {
             });
             this.update_status_function.update_data++;
         },
-        getSetMappingShipping(warehouse_id) {
+        getSetMappingShipping(warehouse_id, order_syncs_selected) {
             let find_warehouse = this.wareshouses_defaults.find(warehouse => warehouse.id == warehouse_id);
             let warehouse_code = find_warehouse ? find_warehouse.code : '';
             this.mapping_ships.forEach(item => {
@@ -1440,12 +1441,31 @@ export default {
                     this.case_check.shipping_id = item.shipping_id;
                 }
             });
+            order_syncs_selected.forEach(item => {
+                this.order_headers.forEach(order_sync => {
+                    if (item.id == order_sync.id) {
+                        order_sync.shipping_id = this.case_check.shipping_id;
+                    }
+                });
+            });
+
         },
         handeleWarehouseDefault(warehouse_defaults) {
             this.wareshouses_defaults = warehouse_defaults;
         },
         handleChangeInputSetShippingID(shipping_id, selecteds) {
             this.getSetShipping(shipping_id, selecteds)
+        },
+        handleWarehouseId(warehouse_id, id) {
+            let find_warehouse = this.wareshouses_defaults.find(warehouse => warehouse.id == warehouse_id);
+            let warehouse_code = find_warehouse ? find_warehouse.code : '';
+            let shipping_id = '';
+            this.mapping_ships.forEach(item => {
+                if (item.warehouse_code == warehouse_code) {
+                    shipping_id = item.shipping_id;
+                }
+            });
+            this.order_headers.find(order_sync => order_sync.id == id).shipping_id = shipping_id;
         },
         getSetShipping(shipping_id, order_syncs_selected) {
             order_syncs_selected.forEach(item => {

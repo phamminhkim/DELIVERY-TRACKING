@@ -24,6 +24,7 @@
                 <div style="width:20rem;">
                         <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
                         :show-count="true" v-model="data.item.warehouse_id" :options="warehouses"
+                        @input="emitWarehouseId(data.item.warehouse_id, data.item.id)"
                         :load-options="loadOptions" />
                 </div>
                 <!-- <input class="form-control form-control-sm border" v-model="data.item.warehouse_id"
@@ -181,6 +182,10 @@ export default {
                     return '';
                 }
             }
+        },
+        emitWarehouseId(warehouse_id, id) {
+            this.$emit('emitWarehouseId', warehouse_id, id);
+           
         }
     }
 }
