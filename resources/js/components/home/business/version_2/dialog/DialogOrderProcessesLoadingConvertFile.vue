@@ -1,6 +1,7 @@
 <template>
     <div>
-        <div class="modal fade" id="DialogOrderProcessesLoadingConvertFile"  data-backdrop="static" data-keyboard="false" tabindex="-1">
+        <div class="modal fade" id="DialogOrderProcessesLoadingConvertFile" data-backdrop="static" data-keyboard="false"
+            tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -50,16 +51,19 @@
                         </div>
                         <div class="form-group text-center">
                             <small>Đang xử lý file: {{ processing_index }}/{{ file_length }}</small>
-                            <b-progress height="1rem" :max="max" show-progress :animated="value == 100 ? false : true" variant="success">
-                                <b-progress-bar :value="value"  
-                                    :label="`${value}%`"></b-progress-bar>
+                            <b-progress height="1rem" :max="max" show-progress :animated="value == 100 ? false : true"
+                                variant="success">
+                                <b-progress-bar :value="value" :label="`${value}%`"></b-progress-bar>
                             </b-progress>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button v-show="isShowBtnDataOrders() == true"  @click="emitCreateDataOrders()" type="button" class="btn btn-primary btn-sm text-xs px-2" data-dismiss="modal">Tạo mới</button>
-                        <button v-show="isShowBtnDataOrders() == true" @click="emitMoreDataOrders()" type="button" class="btn btn-info btn-sm text-xs px-2" data-dismiss="modal">Thêm dữ liệu</button>
-                        <button type="button" class="btn btn-secondary btn-sm text-xs px-2" data-dismiss="modal">Close</button>
+                        <button v-show="isShowBtnDataOrders() == true" @click="emitCreateDataOrders()" type="button"
+                            class="btn btn-primary btn-sm text-xs px-2" data-dismiss="modal">Tạo mới</button>
+                        <button v-show="isShowBtnDataOrders() == true" @click="emitMoreDataOrders()" type="button"
+                            class="btn btn-info btn-sm text-xs px-2" data-dismiss="modal">Thêm dữ liệu</button>
+                        <button type="button" class="btn btn-secondary btn-sm text-xs px-2"
+                            data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -74,12 +78,14 @@ export default {
         processing_index: { type: Number, default: 0 },
         api_data_orders: { type: Array, default: () => [] },
         processing_files: { type: Array, default: () => [] },
-      
+        orders: { type: Array, default: () => [] },
+
     },
     data() {
         return {
             value: 0,
             max: 100,
+            is_error: false,
         }
     },
     watch: {
@@ -91,12 +97,13 @@ export default {
             //     this.hideModal();
             // }
             this.value = (this.processing_index / this.file_length).toFixed(2) * 100;
-            if(this.value == this.max){
+            if (this.value == this.max) {
                 this.$emit('processingSuccess');
+                this.autoLoadDataOrders();
+                // this.is_error =  false; 
             }
-           
+        },
 
-        }
     },
     methods: {
         emitConvertFile(file) {
@@ -126,7 +133,28 @@ export default {
         },
         isShowBtnDataOrders() {
             return this.value == this.max ? true : false;
+        },
+        autoLoadDataOrders() {
+            if (this.orders.length == 0) {
+                if (!this.isCheckSuccesssApiDataOrders()) {
+                    // this.emitMoreDataOrders();
+                    this.emitCreateDataOrders();
+                    this.hideModal();
+                } 
+                // else {
+                //     this.emitCreateDataOrders();
+                // }
+            
+            }
+        },
+        isCheckSuccesssApiDataOrders() {
+            this.is_error = false;
+            if (!this.api_data_orders.every(item => item.success == true)) {
+                this.is_error = true;
+            }
+            return this.is_error;
         }
+
     }
 }
 </script>

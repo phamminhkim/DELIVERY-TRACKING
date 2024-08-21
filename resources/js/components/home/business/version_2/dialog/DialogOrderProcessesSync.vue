@@ -24,12 +24,10 @@
                             <div class="col-lg-4">
                                 <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
                                     :show-count="true" @input="changeInputSetWarehouse()"
-                                    v-model="case_check.warehouse_id"
-                                   :options="warehouses" />
+                                    v-model="case_check.warehouse_id" :options="warehouses" />
                             </div>
                             <div class="col-lg-3">
-                                <select  class="form-control form-control-sm"
-                                v-model="case_check.shipping_id"
+                                <select class="form-control form-control-sm" v-model="case_check.shipping_id"
                                     aria-placeholder="Shipping" @change="changeInputSetShippingID()">
                                     <option value="">Chọn Shipping</option>
                                     <option v-for="item in shipping_datas" :value="item.id">
@@ -37,11 +35,22 @@
                                     </option>
                                 </select>
                             </div>
+                            <div class="col-lg-5">
+                                <div class="input-group ">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    </div>
+                                    <input v-model="case_filter.query" type="text" class="form-control form-control-sm"
+                                        placeholder="Tìm kiếm...">
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group custom-text">
                             <TableOrderSync :fields="fields" :items="order_headers" :shipping_datas="shipping_datas"
                                 :warehouses="warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
-                                :use_component="'OrderSyncSAP'" :class_modal_v2="'V2OrderProcesses'" />
+                                @emitWarehouseId="emitWarehouseId"
+                                :query="case_filter.query" :use_component="'OrderSyncSAP'"
+                                :class_modal_v2="'V2OrderProcesses'" />
                         </div>
                     </div>
 
@@ -69,6 +78,9 @@ export default {
     data() {
         return {
             is_loading: false,
+            case_filter: {
+                query: '',
+            },
             fields: [
                 {
                     key: 'select',
@@ -296,19 +308,23 @@ export default {
             window.open(url, '_blank');
         },
         changeInputSetWarehouse() {
-            this.$emit('changeInputSetWarehouse', this.case_check.warehouse_id , this.order_syncs_selected)
+            this.$emit('changeInputSetWarehouse', this.case_check.warehouse_id, this.order_syncs_selected)
         },
-        changeInputSetShippingID(){
-            this.$emit('changeInputSetShippingID', this.case_check.shipping_id , this.order_syncs_selected)
+        changeInputSetShippingID() {
+            this.$emit('changeInputSetShippingID', this.case_check.shipping_id, this.order_syncs_selected)
         },
-        isUndefined(value){
-            if(value === undefined){
+        isUndefined(value) {
+            if (value === undefined) {
                 return null;
             } else {
                 return value;
             }
         },
-       
+        emitWarehouseId(warehouse_id, id) {
+            this.$emit('emitWarehouseId', warehouse_id, id);
+          
+        },
+
     },
 
 }
