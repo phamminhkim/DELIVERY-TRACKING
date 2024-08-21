@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="modal fade" id="DialogOrderProcessesCheckInventory" tabindex="-1">
+        <div class="modal fade" id="DialogOrderProcessesCheckInventory" data-backdrop="static" data-keyboard="false" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
