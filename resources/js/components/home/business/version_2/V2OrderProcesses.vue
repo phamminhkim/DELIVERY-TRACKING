@@ -80,6 +80,7 @@ export default {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
             is_open_modal_search_order_processes: false,
+            is_modal_sync_sap: false,
             filter: {
                 search: '',
                 field: '',
@@ -604,6 +605,9 @@ export default {
                     await this.fetchOrderHeader();
                     $('#DialogOrderProcessesSaveSO').modal('hide');
                     this.$showMessage('success', 'Thành công', 'Cập nhật đơn hàng thành công');
+                    if(this.is_modal_sync_sap){
+                        $('#DialogOrderProcessesSync').modal('show');
+                    }
                 }
             } catch (error) {
                 // this.$showMessage('error', 'Lỗi', error);
@@ -632,6 +636,9 @@ export default {
                     // this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                     // this.hideDialogTitleOrderSo();
                     $('#DialogOrderProcessesSaveSO').modal('hide');
+                    if(this.is_modal_sync_sap){
+                        $('#DialogOrderProcessesSync').modal('show');
+                    }
 
                 }
             } catch (error) {
@@ -925,6 +932,7 @@ export default {
             this.range.items = range.getData();
         },
         handleSaveUpdateOrder() {
+            this.is_modal_sync_sap = false;
             $('#DialogOrderProcessesSaveSO').modal('show');
             // this.UpdateSaleOrder(202);
         },
@@ -938,8 +946,14 @@ export default {
             this.update_status_function.add_row++;
         },
         async handleOrderSyncSap() {
-            await this.UpdateSaleOrder(this.order.id);
-            $('#DialogOrderProcessesSync').modal('show');
+            this.is_modal_sync_sap = true;
+            if (this.order.id == -1) {
+                $('#DialogOrderProcessesSaveSO').modal('show');
+            } else {
+                await this.UpdateSaleOrder(this.order.id);
+                $('#DialogOrderProcessesSync').modal('show');
+            }
+
         },
         appendFormData(pdf_files, config_id) {
             let formData = new FormData();
@@ -1191,8 +1205,8 @@ export default {
         },
         handleUpdateOrder() {
             // this.UpdateSaleOrder(202); 
-            console.log('Update đơn hàng')
             // this.handleSaveUpdateOrder();
+            this.is_modal_sync_sap = false;
             $('#DialogOrderProcessesSaveSO').modal('show');
         },
         handleProcessingSuccess() {
