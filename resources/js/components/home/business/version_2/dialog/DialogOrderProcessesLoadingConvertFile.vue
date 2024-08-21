@@ -74,6 +74,7 @@ export default {
         processing_index: { type: Number, default: 0 },
         api_data_orders: { type: Array, default: () => [] },
         processing_files: { type: Array, default: () => [] },
+        orders: { type: Array, default: () => [] },
       
     },
     data() {
@@ -93,10 +94,11 @@ export default {
             this.value = (this.processing_index / this.file_length).toFixed(2) * 100;
             if(this.value == this.max){
                 this.$emit('processingSuccess');
+                this.autoLoadDataOrders();
+                
             }
-           
-
-        }
+        },
+      
     },
     methods: {
         emitConvertFile(file) {
@@ -126,7 +128,13 @@ export default {
         },
         isShowBtnDataOrders() {
             return this.value == this.max ? true : false;
-        }
+        },
+        autoLoadDataOrders(){
+            if(this.orders.length == 0){
+                this.emitCreateDataOrders();
+                this.hideModal();
+            }
+        },
     }
 }
 </script>

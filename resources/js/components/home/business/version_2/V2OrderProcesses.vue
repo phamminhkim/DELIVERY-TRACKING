@@ -36,7 +36,7 @@
             @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
-            :processing_index="processing_file.index" :api_data_orders="api_data_orders"
+            :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
             :processing_files="processing_file.files" @processingSuccess="handleProcessingSuccess"
             @createDataOrders="handleCreateDataOrders" @moreDataOrders="handleMoreDataOrders" />
 
