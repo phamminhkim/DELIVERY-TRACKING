@@ -766,8 +766,9 @@ export default {
                 });
             });
             this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
-            this.update_status_function.set_data++;
             this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
+            await this.apiCheckComplianceFromOrder();
+            this.update_status_function.set_data++;
         },
         isUndefined(value) {
             if (value === undefined) {
