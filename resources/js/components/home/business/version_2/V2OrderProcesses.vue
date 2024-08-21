@@ -385,11 +385,14 @@ export default {
                 this.is_loading = false;
             }
         },
+        uniqueOrderProcessId() {
+            return [...new Set(this.filteredOrders.map(item => item.order_process_id))];
+        },
         async fetchOrderHeader() {
             try {
                 this.is_loading = true;
                 const { data } = await this.api_handler.get(this.url_api.order_sync, {
-                    'order_process_id': this.filteredOrders.map(item => item.order_process_id),
+                    'order_process_id': this.uniqueOrderProcessId(),
                 });
                 if (Array.isArray(data)) {
                     this.order_headers = data;
