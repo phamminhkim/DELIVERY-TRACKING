@@ -432,7 +432,7 @@ class UserFieldTableRepository extends RepositoryAbs
                     'title' => 'MaKh_Key',
                     'field' => 'customer_name',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ],
                 [
@@ -440,28 +440,28 @@ class UserFieldTableRepository extends RepositoryAbs
                     'field' => 'sap_so_number',
                     'editor' => 'input',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ],
                 [
                     'title' => 'Sap_note',
                     'field' => 'so_sap_note',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ],
                 [
                     'title' => 'Barcode_Cty',
                     'field' => 'barcode',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ],
                 [
                     'title' => 'MaSap',
                     'field' => 'sku_sap_code',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ],
                 [
@@ -643,7 +643,7 @@ class UserFieldTableRepository extends RepositoryAbs
                     'title' => 'po_delivery_date',
                     'field' => 'po_delivery_date',
                     'headerSort' => false,
-                    'visible' => false,
+                    'visible' => true,
                     'width' => 150
                 ]
             ];
