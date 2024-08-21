@@ -9,11 +9,15 @@
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
                 :mapping_ships="mapping_ships" :case_check="case_check" @warehouseDefault="handeleWarehouseDefault"
                 @changeInputSetShippingID="handleChangeInputSetShippingID" />
+            <DialogOrderProcessesLayout :columns="columns" />
         </div>
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
-            :CountGrpSoNumber="CountGrpSoNumber" @convertFile="handleEmittedConvertFile" :file="file"
-            :update_status_function="update_status_function" :position_order="position"
+            :CountGrpSoNumber="CountGrpSoNumber" :CountOrderSoNumber="CountOrderSoNumber"
+            @convertFile="handleEmittedConvertFile" :file="file" :range="range"
+            :update_column="update_status_function.column" :update_status_function="update_status_function"
+            :position_order="position" :range_items="range.items" :hidden_columns="filterHiddenColumns"
+            :processing_success="update_status_function.processing_file"
             @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
@@ -26,14 +30,18 @@
             @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
             @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
             @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited"
-            @clipboardPasted="handleClipboardPasted" @exportExcel="handleExportExcel" />
+            @clipboardPasted="handleClipboardPasted" @exportExcel="handleExportExcel" @toggleColumn="handleToggleColumn"
+            @hiddenColumns="handleHiddenColumns" @listLayout="handleListLayout"
+            @toggleColumnShow="handleToggleColumnShow" @columnResized="handleColumnResized"
+            @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders"
-            :processing_files="processing_file.files" />
+            :processing_files="processing_file.files" @processingSuccess="handleProcessingSuccess"
+            @createDataOrders="handleCreateDataOrders" @moreDataOrders="handleMoreDataOrders" />
 
         <DialogSearchOrderProcesses @itemReplaceAll="getReplaceItemAll" @itemReplace="getReplaceItem"
-            :item_selecteds="item_selecteds"
+            :item_selecteds="range.full_items"
             :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
         <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail" />
@@ -52,6 +60,7 @@ import DialogOrderProcessesSync from './dialog/DialogOrderProcessesSync.vue';
 import DialogSearchOrderProcesses from '../../business/dialogs/DialogSearchOrderProcesses.vue';
 import DialogListOrderProcessSO from '../../business/dialogs/DialogListOrderProcessSO.vue';
 import DialogGetDataConvertFile from '../../business/dialogs/DialogGetDataConvertFile.vue';
+import DialogOrderProcessesLayout from './dialog/DialogOrderProcessesLayout.vue';
 
 export default {
     components: {
@@ -63,7 +72,8 @@ export default {
         DialogOrderProcessesSync,
         DialogSearchOrderProcesses,
         DialogListOrderProcessSO,
-        DialogGetDataConvertFile
+        DialogGetDataConvertFile,
+        DialogOrderProcessesLayout,
     },
     data() {
         return {
@@ -89,6 +99,8 @@ export default {
                 add_row: 0,
                 color: 0,
                 update_data: 0,
+                processing_file: 0,
+                column: 0,
 
             },
             position: {
@@ -113,47 +125,43 @@ export default {
             material_category_types: [],
             order_headers: [],
             warehouse_defaults: [],
+            hidden_columns: [],
 
-            columns: [
-                // { title: 'ID', field: 'id', headerSort: false, isVisible: false },
-                {
-                    title: 'MaKh_Key', field: 'customer_name', headerSort: false, isVisible: false
-                },
-                {
-                    title: 'Mã sap so', field: 'sap_so_number',
-                    editor: "input", headerSort: false, isVisible: false
-
-                },
-                { title: 'Sap_note', field: 'so_sap_note', headerSort: false, isVisible: false },
-                { title: 'Barcode_Cty', field: 'barcode', headerSort: false, isVisible: false },
-                { title: 'MaSap', field: 'sku_sap_code', headerSort: false, isVisible: false },
-                { title: 'TenSp', field: 'sku_sap_name', headerSort: false, isVisible: true },
-                { title: 'SL_sap', field: 'quantity3_sap', headerSort: false, isVisible: true },
-                { title: 'Dvt', field: 'sku_sap_unit', headerSort: false, isVisible: true },
-                { title: 'Km', field: 'promotive', headerSort: false, isVisible: true, editor: "list", editorParams: { values: ["red", "green", "blue", "orange"] } },
-                { title: 'Ghi chú', field: 'note', headerSort: false, isVisible: true },
-                { title: 'MaKh', field: 'customer_code', headerSort: false, isVisible: true },
-                { title: 'Unit_barcode', field: 'customer_sku_code', headerSort: false, isVisible: true },
-                { title: 'Unit_barcode_description', field: 'customer_sku_name', headerSort: false, isVisible: true },
-                { title: 'Dvt_po', field: 'customer_sku_unit', headerSort: false, isVisible: true },
-                { title: 'Po', field: 'po', headerSort: false, isVisible: true },
-                { title: 'Qty', field: 'quantity1_po', headerSort: false, isVisible: true },
-                { title: 'Combo', field: 'promotive_name', headerSort: false, isVisible: true },
-                { title: 'Check Tồn', field: 'inventory_quantity', headerSort: false, isVisible: true },
-                { title: 'Po_qty', field: 'quantity2_po', headerSort: false, isVisible: true },
-                { title: 'SL Chênh Lệch', field: 'variant_quantity', headerSort: false, isVisible: true },
-                { title: 'Pur_price', field: 'price_po', headerSort: false, isVisible: true },
-                { title: 'Amount', field: 'amount_po', headerSort: false, isVisible: true },
-                { title: 'QC', field: 'compliance', headerSort: false, isVisible: true },
-                { title: 'Đúng_QC', field: 'is_compliant', headerSort: false, isVisible: true },
-                { title: 'Ghi chú 1', field: 'note1', headerSort: false, isVisible: true },
-                { title: 'Giá_cty', field: 'company_price', headerSort: false, isVisible: true },
-                { title: 'Level2', field: 'level2', headerSort: false, isVisible: true },
-                { title: 'Level3', field: 'level3', headerSort: false, isVisible: true },
-                { title: 'Level4', field: 'level4', headerSort: false, isVisible: true },
-                { title: 'Po_number', field: 'po_number', headerSort: false, isVisible: true },
-                { title: 'po_delivery_date', field: 'po_delivery_date', headerSort: false, isVisible: false },
-            ],
+            // columns: [
+            //     { title: 'ID', field: 'id', headerSort: false, visible: false, width: 100 },
+            //     { title: 'MaKh_Key', field: 'customer_name', headerSort: false, visible: false, width: 150 },
+            //     { title: 'Mã sap so', field: 'sap_so_number', editor: "input", headerSort: false, visible: false, width: 150 },
+            //     { title: 'Sap_note', field: 'so_sap_note', headerSort: false, visible: false, width: 150 },
+            //     { title: 'Barcode_Cty', field: 'barcode', headerSort: false, visible: false, width: 150 },
+            //     { title: 'MaSap', field: 'sku_sap_code', headerSort: false, visible: false, width: 150 },
+            //     { title: 'TenSp', field: 'sku_sap_name', headerSort: false, visible: true, width: 200 },
+            //     { title: 'SL_sap', field: 'quantity3_sap', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Dvt', field: 'sku_sap_unit', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Km', field: 'promotive', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Ghi chú', field: 'note', headerSort: false, visible: true, width: 200 },
+            //     { title: 'MaKh', field: 'customer_code', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Unit_barcode', field: 'customer_sku_code', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Unit_barcode_description', field: 'customer_sku_name', headerSort: false, visible: true, width: 200 },
+            //     { title: 'Dvt_po', field: 'customer_sku_unit', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Po', field: 'po', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Qty', field: 'quantity1_po', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Combo', field: 'promotive_name', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Check Tồn', field: 'inventory_quantity', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Po_qty', field: 'quantity2_po', headerSort: false, visible: true, width: 100 },
+            //     { title: 'SL Chênh Lệch', field: 'variant_quantity', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Pur_price', field: 'price_po', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Amount', field: 'amount_po', headerSort: false, visible: true, width: 150 },
+            //     { title: 'QC', field: 'compliance', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Đúng_QC', field: 'is_compliant', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Ghi chú 1', field: 'note1', headerSort: false, visible: true, width: 200 },
+            //     { title: 'Giá_cty', field: 'company_price', headerSort: false, visible: true, width: 150 },
+            //     { title: 'Level2', field: 'level2', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Level3', field: 'level3', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Level4', field: 'level4', headerSort: false, visible: true, width: 100 },
+            //     { title: 'Po_number', field: 'po_number', headerSort: false, visible: true, width: 150 },
+            //     { title: 'po_delivery_date', field: 'po_delivery_date', headerSort: false, visible: false, width: 150 },
+            // ],
+            columns: [],
             url_api: {
                 order_process_so: '/api/sales-order',
                 customer_groups: 'api/master/customer-groups',
@@ -170,6 +178,7 @@ export default {
                 check_compliance: '/api/check-data/check-compliance',
                 check_price: '/api/check-data/check-price',
                 order_sync: '/api/so-header',
+                user_field_table_version_2: '/api/master/user-field-table/v_2',
 
             },
             order: {
@@ -271,6 +280,7 @@ export default {
     },
     async created() {
         // await this.fetchOrderProcessSODetail(258);
+        await this.fetchUserFieldTable();
         await this.fetchCustomerGroup();
         await this.fetchWarehouse();
         await this.fetchMaterialCategoryType();
@@ -278,6 +288,29 @@ export default {
         await this.getUrl();
     },
     methods: {
+        async fetchUserFieldTable(fields) {
+            try {
+                if (fields === undefined) {
+                    fields = this.columns;
+                }
+                let body = {
+                    user_id: window.Laravel.current_user.id,
+                    tables: [
+                        fields
+                    ]
+                };
+                const { data, success, errors } = await this.api_handler.get(this.url_api.user_field_table_version_2, body);
+                if (success) {
+                    this.columns = data.field_table;
+                    this.update_status_function.column++;
+                }
+                else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
+                }
+            } catch (error) {
+
+            }
+        },
         async apiCheckPrice(so_numbers, is_promotion) {
             try {
                 this.is_loading = true;
@@ -524,6 +557,7 @@ export default {
                         // difference: 'price_difference',
                         theme_color: this.setDataThemeColor(data_item.theme_color),
                         order_process_id: data_item.order_process_id,
+                        so_header: this.setDataSoHeader(data_item.so_header),
                     });
 
                 });
@@ -703,21 +737,22 @@ export default {
                 this.processing_file.index = index + 1;
 
             }
-            this.refeshOrder();
-            this.refeshOrderHeader();
-            for (let index = 0; index < this.api_data_orders.length; index++) {
-                const data_order = this.api_data_orders[index];
-                if (data_order.success) {
-                    await this.getConvertFilePDF(data_order);
-                }
-            }
-            this.update_status_function.set_data++;
-            this.$showMessage('success', 'Thành công', 'Convert file thành công');
+            // this.refeshOrder();
+            // this.refeshOrderHeader();
+            // for (let index = 0; index < this.api_data_orders.length; index++) {
+            //     const data_order = this.api_data_orders[index];
+            //     if (data_order.success) {
+            //         await this.getConvertFilePDF(data_order);
+            //     }
+            // }
+            // this.update_status_function.set_data++;
+            this.$showMessage('info', 'Hoàn tất', 'Xử lý file hoàn tất');
             // await this.fetchSapMaterial(); 
             $('#DialogOrderProcessesConvertFile').modal('hide');
 
         },
         async handleDetectSapCodeOrder() {
+            this.sap_codes = [];
             this.filteredOrders.forEach(element => {
                 this.sap_codes.push({
                     customer_sku_code: element.customer_sku_code,
@@ -731,6 +766,13 @@ export default {
             this.update_status_function.set_data++;
             this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
         },
+        isUndefined(value) {
+            if (value === undefined) {
+                return '';
+            } else {
+                return value;
+            }
+        },
         async getConvertFilePDF(file_response) {
             let item_index = 1;
             for (let index = 0; index < file_response.data.length; index++) {
@@ -741,14 +783,14 @@ export default {
                         order: item_index,
                         id: '',
                         barcode: '',
-                        sku_sap_code: '',
-                        sku_sap_name: '',
-                        sku_sap_unit: '',
+                        sku_sap_code: this.isUndefined(item.SkuSapCode),
+                        sku_sap_name: this.isUndefined(item.SkuSapName),
+                        sku_sap_unit: this.isUndefined(item.SkuSapUnit),
                         promotive: '',
                         promotive_name: '',
                         promotion_category: '',
                         extra_offer: '',
-                        customer_name: file_response.data[index].headers.CustomerKey,
+                        customer_name: this.isUndefined(file_response.data[index].headers.CustomerKey),
                         note: file_response.data[index].headers.CustomerKey === undefined ? '' : file_response.data[index].headers.CustomerKey,
                         note1: file_response.data[index].headers.CustomerNote,
                         customer_sku_code: item.ProductID,
@@ -760,24 +802,27 @@ export default {
                         amount_po: this.convertStringToNumber(item.ProductAmount),
                         // amount_po: item.ProductAmount,
                         // this.calculatorAmount(item.ProductAmount),
-                        customer_code: file_response.data[index].headers.CustomerCode,
+                        customer_code: this.isUndefined(file_response.data[index].headers.CustomerCode),
                         company_price: '',
-                        level2: file_response.data[index].headers.CustomerLevel2,
-                        level3: file_response.data[index].headers.CustomerLevel3,
-                        level4: file_response.data[index].headers.CustomerLevel4,
+                        level2: this.isUndefined(file_response.data[index].headers.CustomerLevel2),
+                        level3: this.isUndefined(file_response.data[index].headers.CustomerLevel3),
+                        level4: this.isUndefined(file_response.data[index].headers.CustomerLevel4),
                         is_promotive: false,
                         is_inventory: false,
                         inventory_quantity: '',
-                        sap_so_number: file_response.data[index].headers.SapSoNumber,
-                        so_sap_note: file_response.data[index].headers.SoSapNote,
-                        po_number: file_response.data[index].headers.PoNumber,
-                        po_delivery_date: file_response.data[index].headers.PoDeliveryDate,
+                        sap_so_number: this.isUndefined(file_response.data[index].headers.SapSoNumber),
+                        so_sap_note: this.isUndefined(file_response.data[index].headers.SoSapNote),
+                        po_number: this.isUndefined(file_response.data[index].headers.PoNumber),
+                        po_delivery_date: this.isUndefined(file_response.data[index].headers.PoDeliveryDate),
                         compliance: '',
                         is_compliant: null,
-                        quantity3_sap: '',
+                        quantity3_sap: this.convertStringToNumber(item.SapQuantity),
                         difference: '',
+                        po: '',
+                        so_header: this.setDataSoHeader(item.so_header),
                         theme_color: this.setDataThemeColor(null),
                         order_process_id: '',
+                        variant_quantity: '',
 
                     });
                     item_index++;
@@ -800,6 +845,7 @@ export default {
         async handleCheckInventorySubmit(warehouse_id) {
             this.case_check.warehouse_id = warehouse_id;
             await this.apiCheckInventory();
+            $('#DialogOrderProcessesCheckInventory').modal('hide');
             this.update_status_function.update_data++;
         },
         async handleCheckPriceSubmit(so_numbers, is_promotion) {
@@ -817,6 +863,7 @@ export default {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                         // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
+                        this.filteredOrders[i].theme_color.background.inventory_quantity = (orders[i]['variant_quantity'] == '' || orders[i]['variant_quantity'] == null || orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
                     }
                 }
             });
@@ -826,7 +873,6 @@ export default {
             $('#DialogOrderProcessesCheckInventory').modal('show');
         },
         handleCheckPrice() {
-            console.log('handleCheckPrice');
             $('#DialogOrderProcessesCheckPrice').modal('show');
         },
         handleSaveOrderSo(data) {
@@ -987,6 +1033,15 @@ export default {
             }
 
         },
+        setDataSoHeader(so_header) {
+            if (so_header) {
+                return {
+                    sync_sap_status: so_header.sync_sap_status,
+                }
+            } else {
+                return null;
+            }
+        },
         getListMaterialDetect(data) {
             this.material_saps = [...data];
             // group by theo sap_so_number và customer_sku_code
@@ -1125,6 +1180,9 @@ export default {
             array.splice(toIndex, 0, element);
         },
         convertStringToNumber(string) {
+            if (string === undefined || string === null) {
+                return '';
+            }
             return parseFloat(string);
         },
         handleUpdateOrder() {
@@ -1133,9 +1191,17 @@ export default {
             // this.handleSaveUpdateOrder();
             $('#DialogOrderProcessesSaveSO').modal('show');
         },
+        handleProcessingSuccess() {
+            this.update_status_function.processing_file++;
+        },
         async handleCheckCompliance() {
             await this.apiCheckComplianceFromOrder();
             this.update_status_function.update_data++;
+        },
+        async handleSaveUpdateLayout() {
+            await this.fetchUserFieldTable(this.columns);
+            this.$showMessage('success', 'Thành công', 'Cập nhật layout thành công');
+            // this.update_status_function.set_data++;
         },
         convertToNumber(value) {
             return Number(value);
@@ -1304,6 +1370,9 @@ export default {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
                         orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
+                        orders[i]['theme_color'].text.company_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
+                        orders[i]['theme_color'].text.pur_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
+
                     }
                 }
             });
@@ -1353,7 +1422,6 @@ export default {
                     this.case_check.shipping_id = item.shipping_id;
                 }
             });
-
         },
         handeleWarehouseDefault(warehouse_defaults) {
             this.wareshouses_defaults = warehouse_defaults;
@@ -1423,9 +1491,10 @@ export default {
             // this.update_status_function.set_data++;
         },
         handleDuplicateRow(position, data) {
-            let data_copy = { ...data };
-            this.range.indexs.forEach(index_range => {
-                this.filteredOrders.splice(index_range - 1, 0, { ...data_copy });
+            // let data_copy = { ...data };
+            this.range.full_items.forEach(item => {
+                let data_copy = { ...item };
+                this.filteredOrders.splice(item.order - 1, 0, { ...data_copy });
             });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
@@ -1448,7 +1517,10 @@ export default {
             this.update_status_function.add_row++;
         },
         handleDeleteRow(position, data) {
-            this.filteredOrders.splice(data.order - 1, 1);
+            // this.filteredOrders.splice(data.order - 1, 1);
+            this.range.indexs.forEach(index_range => {
+                this.filteredOrders.splice(index_range - 1, 1);
+            });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
@@ -1599,6 +1671,69 @@ export default {
             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
             return buf;
         },
+        handleToggleColumn(column) {
+            Object.keys(this.range.items[0]).forEach(key => {
+                this.columns.forEach(column => {
+                    if (key == column.field) {
+                        column.visible = false;
+                    }
+                });
+            });
+        },
+        handleHiddenColumns(hidden_columns) {
+            // console.log('hiddenColumns:', hidden_columns.map(column => column.getField()));
+            this.hidden_columns = hidden_columns;
+        },
+        handleListLayout() {
+            $('#DialogOrderProcessesLayout').modal('show');
+        },
+        handleToggleColumnShow(column, field) {
+            this.columns.forEach(column => {
+                if (column.field == field) {
+                    column.visible = true;
+                }
+            });
+        },
+        handleColumnResized(item) {
+            this.columns.forEach(column => {
+                if (column.field == item.getField()) {
+                    column.width = item.getWidth();
+                }
+            });
+        },
+        handleColumnMoved(items) {
+            items.forEach((item, index_item) => {
+                if (item !== undefined) {
+                    this.columns.forEach((column, index) => {
+                        if (item == column.field) {
+                            this.moveIndexOrder(this.columns, index, index_item);
+                        }
+                    });
+                }
+            });
+        },
+        async handleCreateDataOrders() {
+            this.refeshOrder();
+            this.refeshOrderHeader();
+            for (let index = 0; index < this.api_data_orders.length; index++) {
+                const data_order = this.api_data_orders[index];
+                if (data_order.success) {
+                    await this.getConvertFilePDF(data_order);
+                }
+            }
+            this.update_status_function.set_data++;
+            // this.$showMessage('success', 'Thành công', 'Tạo mới dữ liệu thành công');
+        },
+        async handleMoreDataOrders() {
+            for (let index = 0; index < this.api_data_orders.length; index++) {
+                const data_order = this.api_data_orders[index];
+                if (data_order.success) {
+                    await this.getConvertFilePDF(data_order);
+                }
+            }
+            this.update_status_function.set_data++;
+            // this.$showMessage('success', 'Thành công', 'Thêm dữ liệu thành công');
+        },
     },
     computed: {
         filteredOrders() {
@@ -1633,6 +1768,13 @@ export default {
         CountGrpSoNumber() {
             const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number, promotive_name }) => sap_so_number + (promotive_name == null ? '' : promotive_name));
             return Object.keys(group_by_so_num).length
+        },
+        CountOrderSoNumber() {
+            const group_by_so_num = Object.groupBy(this.orders, ({ sap_so_number }) => sap_so_number);
+            return Object.keys(group_by_so_num).length
+        },
+        filterHiddenColumns() {
+            return this.columns.filter(column => column.visible == false);
         },
 
     }

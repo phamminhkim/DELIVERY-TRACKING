@@ -74,6 +74,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('master')->group(function () {
         Route::prefix('/user-field-table')->group(function () {
             Route::get('/', [UserFieldTableController::class, 'apiGetUserFieldTable']);
+            Route::get('/v_2', [UserFieldTableController::class, 'apiGetUserFieldTableVersion_2']);
         });
         Route::prefix('/material-donateds')->group(function () {
             Route::get('/', [MaterialDonatedController::class, 'getAll']);

@@ -19,5 +19,18 @@ class UserFieldTableController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function apiGetUserFieldTableVersion_2(Request $request)
+    {
+        $handler = MasterRepository::userFieldTableRequest($request);
+        $userFieldTable = $handler->getUserFieldTableVersion_2();
+
+        if ($userFieldTable) {
+            return $this->responseSuccess($userFieldTable);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    
+    
 
 }

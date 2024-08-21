@@ -1,7 +1,7 @@
 <template>
     <div class="form-group mb-1">
         <div class="row">
-            <div class="col-lg-9">
+            <div class="col-lg-12">
                 <div class="form-group mb-0">
                     <button @click="emitDetectSapCodeOrder()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fab fa-product-hunt text-danger mr-2"></i>Dò Mã <span
@@ -9,7 +9,8 @@
                     <button @click="emitDetectCustomerKey()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-user-tag text-primary mr-2"></i>Dò Mã <span
                             class="border-bottom border-danger">KH</span> </button>
-                    <button @click="emitCheckPromotion()" class="btn btn-light btn-sm text-xs border-bottom text-warning"><i
+                    <button @click="emitCheckPromotion()"
+                        class="btn btn-light btn-sm text-xs border-bottom text-warning"><i
                             class="fas fa-ad text-warning mr-2"></i>Check <span
                             class="border-bottom border-danger">Khuyến Mãi</span> </button>
                     <button @click="emitCheckInventory()" class="btn btn-light btn-sm text-xs border-bottom"><i
@@ -30,17 +31,19 @@
                     <button @click="emitExportExcel()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-file-export text-info mr-2"></i>Xuất <span
                             class="border-bottom border-danger">Excel</span> </button>
-                    
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="form-group mb-0 text-right">
-                        <button @click="emitOrderSyncSap()" class="btn btn-info btn-sm text-xs border-bottom"><i
+                    <button @click="emitSaveUpdateLayout()"
+                        class="btn btn-light text-primary btn-sm text-xs border-bottom">
+                        <i class="fas fa-disease mr-2"></i>Lưu <span class="border-bottom border-danger">Layout</span>
+                    </button>
+                    <button @click="emitOrderSyncSap()" class="btn btn-info btn-sm text-xs border-bottom"><i
                             class="fas fa-cloud-upload-alt mr-2"></i>Đồng Bộ <span
                             class="border-bottom border-danger">SAP</span> </button>
-                        <button v-if="order.id == -1" @click="emitSaveUpdateOrder()" type="button" class="btn btn-sm px-2 text-xs btn-success">Lưu đơn hàng</button>
-                        <button v-else @click="emitUpdateOrder()" type="button" class="btn btn-sm px-2 text-xs btn-warning">Cập nhật đơn hàng</button>
-                    </div>
+                    <button v-if="order.id == -1" @click="emitSaveUpdateOrder()" type="button"
+                        class="btn btn-sm px-2 text-xs btn-success">Lưu đơn hàng</button>
+                    <button v-else @click="emitUpdateOrder()" type="button"
+                        class="btn btn-sm px-2 text-xs btn-warning">Cập nhật đơn hàng</button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -48,11 +51,11 @@
 <script>
 export default {
     props: {
-        order: { type: Object, default: () => {} },
+        order: { type: Object, default: () => { } },
     },
     data() {
         return {
-          
+
         }
     },
     methods: {
@@ -88,6 +91,9 @@ export default {
         },
         emitExportExcel() {
             this.$emit('exportExcel');
+        },
+        emitSaveUpdateLayout() {
+            this.$emit('saveUpdateLayout');
         }
     }
 }

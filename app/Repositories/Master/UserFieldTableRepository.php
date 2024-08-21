@@ -386,7 +386,7 @@ class UserFieldTableRepository extends RepositoryAbs
                 ],
             ];
             if ($fields['user_id']) {
-                $userFieldTable = UserFieldTable::where('user_id', $fields['user_id'])->first();
+                $userFieldTable = UserFieldTable::where('user_id', $fields['user_id'])->where('version', '1.0.0')->first();
                 if ($fields['tables'][0] == "[]") {
                     if (!$userFieldTable) {
                         $userFieldTable = UserFieldTable::create([
@@ -414,4 +414,267 @@ class UserFieldTableRepository extends RepositoryAbs
         }
     }
 
+    public function getUserFieldTableVersion_2()
+    {
+        try {
+
+            $fields = $this->request->all();
+            $user = Auth::user();
+            $fields_default = [
+                [
+                    'title' => 'ID',
+                    'field' => 'id',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'MaKh_Key',
+                    'field' => 'customer_name',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Mã sap so',
+                    'field' => 'sap_so_number',
+                    'editor' => 'input',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Sap_note',
+                    'field' => 'so_sap_note',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Barcode_Cty',
+                    'field' => 'barcode',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'MaSap',
+                    'field' => 'sku_sap_code',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'TenSp',
+                    'field' => 'sku_sap_name',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 200
+                ],
+                [
+                    'title' => 'SL_sap',
+                    'field' => 'quantity3_sap',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Dvt',
+                    'field' => 'sku_sap_unit',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Km',
+                    'field' => 'promotive',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Ghi chú',
+                    'field' => 'note',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 200
+                ],
+                [
+                    'title' => 'MaKh',
+                    'field' => 'customer_code',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Unit_barcode',
+                    'field' => 'customer_sku_code',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Unit_barcode_description',
+                    'field' => 'customer_sku_name',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 200
+                ],
+                [
+                    'title' => 'Dvt_po',
+                    'field' => 'customer_sku_unit',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Po',
+                    'field' => 'po',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Qty',
+                    'field' => 'quantity1_po',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Combo',
+                    'field' => 'promotive_name',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Check Tồn',
+                    'field' => 'inventory_quantity',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Po_qty',
+                    'field' => 'quantity2_po',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'SL Chênh Lệch',
+                    'field' => 'variant_quantity',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Pur_price',
+                    'field' => 'price_po',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Amount',
+                    'field' => 'amount_po',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'QC',
+                    'field' => 'compliance',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Đúng_QC',
+                    'field' => 'is_compliant',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Ghi chú 1',
+                    'field' => 'note1',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 200
+                ],
+                [
+                    'title' => 'Giá_cty',
+                    'field' => 'company_price',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'Level2',
+                    'field' => 'level2',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Level3',
+                    'field' => 'level3',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Level4',
+                    'field' => 'level4',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 100
+                ],
+                [
+                    'title' => 'Po_number',
+                    'field' => 'po_number',
+                    'headerSort' => false,
+                    'visible' => true,
+                    'width' => 150
+                ],
+                [
+                    'title' => 'po_delivery_date',
+                    'field' => 'po_delivery_date',
+                    'headerSort' => false,
+                    'visible' => false,
+                    'width' => 150
+                ]
+            ];
+            if ($fields['user_id']) {
+                $json = json_decode($fields['tables'][0]);
+                $userFieldTable = UserFieldTable::where('user_id', $fields['user_id'])->where('version', '2.0.0')->first();
+                if ($fields['tables'][0] == "[]") {
+                    if (!$userFieldTable) {
+                        $userFieldTable = UserFieldTable::create([
+                            'user_id' => $user->id,
+                            'field_table' => $fields_default,
+                            'version' => '2.0.0'
+                        ]);
+                    }
+                    // $field_tables = $userFieldTable->field_table;
+                    // if (!isset($field_tables[0]['set_width'])) {
+                    //     $userFieldTable->field_table = $fields_default;
+                    //     $userFieldTable->save();
+                    // }
+                } else {
+                    $json = json_decode($fields['tables'][0]);
+                    $userFieldTable->field_table = $json;
+                    $userFieldTable->save();
+                    return $userFieldTable;
+                }
+                return $userFieldTable;
+            }
+            return false;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 }

@@ -220,7 +220,7 @@ export default {
                     'data': this.order_syncs_selected.map(item => {
                         return {
                             'id': item.id,
-                            'warehouse_code': item.warehouse_id,
+                            'warehouse_code': this.isUndefined(item.warehouse_id),
                             'so_sap_note': item.so_sap_note,
                             'Ship_cond': item.shipping_id,
                         }
@@ -300,6 +300,13 @@ export default {
         },
         changeInputSetShippingID(){
             this.$emit('changeInputSetShippingID', this.case_check.shipping_id , this.order_syncs_selected)
+        },
+        isUndefined(value){
+            if(value === undefined){
+                return null;
+            } else {
+                return value;
+            }
         },
        
     },
