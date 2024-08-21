@@ -1418,7 +1418,6 @@ export default {
             }
         },
         handleChangeInputSetWarehouse(warehouse_id, selecteds) {
-            console.log(warehouse_id, 'forrm trên');
             this.getSetWarehouse(warehouse_id, selecteds);
             this.getSetMappingShipping(warehouse_id, selecteds);
             this.update_status_function.update_data++;
