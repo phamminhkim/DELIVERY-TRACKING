@@ -1790,10 +1790,7 @@ export default {
                         return this.orders.filter(order => {
                             return Object.values(order.theme_color.background).some(value =>
                                 String(value).toLowerCase().includes(this.filter.value.toLowerCase())
-                            ) ||
-                                Object.values(order.theme_color.text).some(value =>
-                                    String(value).toLowerCase().includes(this.filter.value.toLowerCase())
-                                );
+                            );
                         });
                     case 'theme_color_txt':
                         // filter màu  text
