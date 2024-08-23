@@ -255,7 +255,7 @@ export default {
             this.window_width = window.innerWidth;
             this.window_height = window.innerHeight;
             if (this.table) {
-                await this.table.setHeight(this.window_height - 200);
+                await this.table.setHeight(this.window_height - 280);
             }
             // this.table.setHeight(this.window_height - 200);
             console.log('updateWindowDimensions:', this.window_width, this.window_height);
