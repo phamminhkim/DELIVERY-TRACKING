@@ -118,7 +118,7 @@ class SyncDataRepository extends RepositoryAbs
             if (!empty($jsonData['data'])) {
                 foreach ($jsonData['data'] as $json_value) {
                     $soNumber = $json_value['SO_NUMBER'];
-                    Log::info($soNumber);
+                    // Log::info($soNumber);
                     $sync_sap_status = 0;
                     $so_sap_note = '';
                     $warehouse_id = 0;
