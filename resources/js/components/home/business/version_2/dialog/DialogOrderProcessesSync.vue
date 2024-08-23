@@ -1,8 +1,10 @@
 <template>
     <div>
-        <div class="modal fade" id="DialogOrderProcessesSync" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
+        <div class="modal fade" id="DialogOrderProcessesSync" data-backdrop="static" data-keyboard="false" tabindex="-1">
+            <div class="modal-dialog " :class="{
+                'modal-xl': !is_loading,
+            }">
+                <div class="modal-content" v-show="!is_loading">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">Đồng bộ đơn hàng</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -53,7 +55,14 @@
                                 :class_modal_v2="'V2OrderProcesses'" />
                         </div>
                     </div>
-
+                </div>
+                <div v-show="is_loading" class="modal-content text-center modal-dialog-centered">
+                    <div class="modal-body">
+                        <div class="form-group text-center">
+                            <p class="text-primary"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tiến hành đồng bộ
+                                Sap</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
