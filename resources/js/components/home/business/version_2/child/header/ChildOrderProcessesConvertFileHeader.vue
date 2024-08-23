@@ -55,9 +55,15 @@ export default {
     methods: {
         emitInputCustomerGroupId(event) {
             this.$emit('inputCustomerGroupId', event.target.value);
+            if(this.extract_order_configs.length > 0) {
+                this.selected_order.config_id = this.extract_order_configs[0].id;
+            } else {
+                this.selected_order.config_id = -1;
+            }
         },
         emitInputExtractConfigID(event) {
             this.$emit('inputExtractConfigID', event.target.value);
+           
         },
         emitExtractFilePDF(event) {
             this.$emit('extractFilePDF', event.target.files);
@@ -75,7 +81,7 @@ export default {
                 });
             });
             if (news.length > 0) {
-                this.selected_order.config_id = news[0].id;
+                // this.selected_order.config_id = news[0].id;
                 this.$emit('inputExtractConfigID', this.selected_order.config_id);
             } else {
                 this.selected_order.config_id = -1;
