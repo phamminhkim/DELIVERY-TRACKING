@@ -716,16 +716,15 @@ export default {
     min-height: 0.2em !important;
 }
 
-::v-deep .tabulator-range-selected {
-    background-color: lightgray !important;
-}
+
 
 ::v-deep .tabulator-range-only-cell-selected {
     border: 2px solid rgb(255, 28, 28) !important;
+    // background-color: transparent !important;
 }
 
 ::v-deep .tabulator-range-active {
-    // background-color: lightgray !important;
+    background-color: transparent !important;
     border: 2px solid red !important;
 }
 
@@ -750,13 +749,15 @@ export default {
     font-size: 0.8em !important;
     /* Kích thước văn bản nhỏ hơn */
 }
+
 ::v-deep .tabulator-row {
     &:hover {
-        background-color:  rgb(232, 232, 232) !important;
+        background-color: rgb(232, 232, 232) !important;
         cursor: cell;
     }
 }
-::v-deep .tabulator-range-selected {
-    background-color: transparent !important;   
+
+::v-deep .tabulator-row .tabulator-cell.tabulator-range-selected:not(.tabulator-range-only-cell-selected):not(.tabulator-range-row-header) {
+    background-color: #f3f3f3;
 }
 </style>
