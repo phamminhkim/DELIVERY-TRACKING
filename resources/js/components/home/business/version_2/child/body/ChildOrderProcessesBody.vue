@@ -116,6 +116,8 @@ export default {
                     color: '#87CEFA',
                 }
             ],
+            window_width: 0,
+            window_height: 0,
 
         };
     },
@@ -124,6 +126,14 @@ export default {
         this.table.on("rangeChanged", (range) => {
             // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
+
+        });
+        this.table.on("rangeAdded", (range) => {
+            console.log('rangeAdded:', range);
+        });
+        this.table.on("rangeRemoved", (range) => {
+            // this.$emit("emitRangeChanged", range);
+            console.log('rangeRemoved:', range, range.getRows().map(row => row.getData()));
 
         });
         this.table.on("cellEdited", (cell) => {
@@ -142,8 +152,10 @@ export default {
             // lấy toàn bộ column trong bảng
             // console.log('this.table.getColumns():', this.table.getColumns().map(column => column.getField(), column.getDefinition()));
         });
+        // window.addEventListener('resize', this.updateWindowDimensions);
 
     },
+
     watch: {
         // 'filterColumn': {
         //     handler: function (newVal, oldVal) {
@@ -185,7 +197,7 @@ export default {
                 if (newVal) {
 
                     console.log('update_data:');
-                    console.time('updateData'); 
+                    console.time('updateData');
                     // this.table.clearData();
                     this.table.updateData(this.filteredOrders);
                     // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
@@ -194,7 +206,6 @@ export default {
             }, 10),
             deep: true,
         },
-
         'update_status_function.color': {
             handler: _.debounce(function (newVal, oldVal) {
                 this.table.updateData(this.filteredOrders);
@@ -234,7 +245,15 @@ export default {
 
     },
     methods: {
-
+        async updateWindowDimensions() {
+            this.window_width = window.innerWidth;
+            this.window_height = window.innerHeight;
+            if (this.table) {
+                await this.table.setHeight(this.window_height - 200);
+            }
+            // this.table.setHeight(this.window_height - 200);
+            console.log('updateWindowDimensions:', this.window_width, this.window_height);
+        },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
             if (newVal.length !== oldVal.length) {
@@ -332,7 +351,7 @@ export default {
         async loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = await new Tabulator(this.$refs.table, {
-                maxHeight: 500,
+                // maxHeight: 500,
                 tabIndex: -1,
                 index: "order",
                 movableColumns: true,
@@ -344,7 +363,7 @@ export default {
                 // headerFilterLiveFilterDelay: 800,
                 // data: this.filteredOrders,
                 data: this.tableData,
-                headerSortClickElement:"icon", //trigger sort on icon click
+                headerSortClickElement: "icon", //trigger sort on icon click
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
                 layout: "fitColumns",
@@ -418,6 +437,8 @@ export default {
 
                 },
             });
+            // await this.updateWindowDimensions();
+
         },
         handleEmittedInputSearch(value) {
             // switch (value) {
@@ -590,6 +611,13 @@ export default {
                     action: (e, row) => {
                         this.$emit('deleteRow', row.getPosition(), row.getData());
                         // row.delete();
+                        let selectedRows = this.table.getSelectedRows();  // Lấy tất cả các hàng được chọn
+                        let selectedData = selectedRows.map(row => row.getData()); // Lấy dữ liệu của các hàng đó
+
+                        // tôi đang selectableRange toàn bộ hàng, nếu bạn muốn xóa hàng được chọn, hãy sử dụng dòng dưới đây
+                        // console.log(selectedData, 'selectedData', this.table.getSelectedRows());
+                        // nhưng dữ liệu không thấy được cập nhật
+                        console.log(selectedData, 'selectedData', this.table.getSelectedRows());
                     }
                 },
 
@@ -625,15 +653,16 @@ export default {
                     //     console.log('position:', cell.getRow().getPosition());
                     //     this.$emit('cellEdited', cell);
                     // },
-                    formatter: column.field == "sap_so_number" ? (cell, formatterParams, onRendered) => {
-                        let ma_sap = cell.getValue(); // Giá trị của cột 'ma_sap'
+                    formatter: (column.field == "sap_so_number" || column.field == "so_sap_note") ? (cell, formatterParams, onRendered) => {
+                        let value = cell.getValue(); // Giá trị của cột 'ma_sap'
                         let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
                         cell.getRow().getData().promotive_name = promotive;
                         cell.getRow().getData().note1 = promotive;
                         cell.getRow().getData().is_promotive = true;
 
                         let value_promotive = promotive ? `${promotive}` : '';
-                        return `${ma_sap}${value_promotive}`;
+                        let value_new = value == null ? '' : value;
+                        return `${value_new}${value_promotive}`;
                     } : '',
 
                 };
@@ -655,7 +684,7 @@ export default {
                 }
             });
             return context_menu_4;
-            
+
         }
     },
 
@@ -720,5 +749,14 @@ export default {
 ::v-deep .tabulator-menu-item {
     font-size: 0.8em !important;
     /* Kích thước văn bản nhỏ hơn */
+}
+::v-deep .tabulator-row {
+    &:hover {
+        background-color:  rgb(232, 232, 232) !important;
+        cursor: cell;
+    }
+}
+::v-deep .tabulator-range-selected {
+    background-color: transparent !important;   
 }
 </style>

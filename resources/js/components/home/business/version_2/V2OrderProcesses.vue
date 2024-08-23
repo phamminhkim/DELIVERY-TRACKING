@@ -237,6 +237,10 @@ export default {
                     shipping_id: '01',
                 },
                 {
+                    warehouse_code: '3108',
+                    shipping_id: '01',
+                },
+                {
                     warehouse_code: '3010',
                     shipping_id: '01',
                 },
