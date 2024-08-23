@@ -1561,6 +1561,8 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
+            console.log('Xóa dữ liệu');
+            console.log(this.range);
             this.position.order = data.order;
             this.update_status_function.delete++;
         },
@@ -1780,11 +1782,17 @@ export default {
             } else {
                 switch (this.filter.event) {
                     case 'theme_color':
+                        // filter màu 2 cột background và text
                         return this.orders.filter(order => {
                             return Object.values(order.theme_color.background).some(value =>
                                 String(value).toLowerCase().includes(this.filter.value.toLowerCase())
+                            ) ||
+                            Object.values(order.theme_color.text).some(value =>
+                                String(value).toLowerCase().includes(this.filter.value.toLowerCase())
                             );
                         });
+
+                       
                     default:
                         return this.orders.filter(order => {
                             return order[this.filter.field].includes(this.filter.value.toLowerCase());
