@@ -346,14 +346,38 @@ export default {
                         },
                         {
                             label: "Màu",
-                            menu: this.theme_filter_colors.map(color => {
-                                return {
-                                    label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
-                                    action: (e, column) => {
-                                        this.$emit('filterOrder', color.color, column.getField(), 'theme_color');
-                                    },
-                                };
-                            }),
+                            menu: [
+                                {
+                                    label: "Nền",
+                                    menu: this.theme_filter_colors.map(color => {
+                                        return {
+                                            label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
+                                            action: (e, column) => {
+                                                this.$emit('filterOrder', color.color, column.getField(), 'theme_color_bg');
+                                            },
+                                        };
+                                    }),
+                                },
+                                {
+                                    label: "Chữ",
+                                    menu: this.theme_filter_colors.map(color => {
+                                        return {
+                                            label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
+                                            action: (e, column) => {
+                                                this.$emit('filterOrder', color.color, column.getField(), 'theme_color_txt');
+                                            },
+                                        };
+                                    }),
+                                },
+                            ],
+                            // menu: this.theme_filter_colors.map(color => {
+                            //     return {
+                            //         label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
+                            //         action: (e, column) => {
+                            //             this.$emit('filterOrder', color.color, column.getField(), 'theme_color');
+                            //         },
+                            //     };
+                            // }),
                         },
                     ],
                 },

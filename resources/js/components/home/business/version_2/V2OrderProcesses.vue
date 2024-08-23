@@ -1785,18 +1785,23 @@ export default {
                 return this.orders;
             } else {
                 switch (this.filter.event) {
-                    case 'theme_color':
-                        // filter màu 2 cột background và text
+                    case 'theme_color_bg':
+                        // filter màu background
                         return this.orders.filter(order => {
                             return Object.values(order.theme_color.background).some(value =>
                                 String(value).toLowerCase().includes(this.filter.value.toLowerCase())
                             ) ||
-                            Object.values(order.theme_color.text).some(value =>
+                                Object.values(order.theme_color.text).some(value =>
+                                    String(value).toLowerCase().includes(this.filter.value.toLowerCase())
+                                );
+                        });
+                    case 'theme_color_txt':
+                        // filter màu  text
+                        return this.orders.filter(order => {
+                            return Object.values(order.theme_color.text).some(value =>
                                 String(value).toLowerCase().includes(this.filter.value.toLowerCase())
                             );
                         });
-
-                       
                     default:
                         return this.orders.filter(order => {
                             return order[this.filter.field].includes(this.filter.value.toLowerCase());
