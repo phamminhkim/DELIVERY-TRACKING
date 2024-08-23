@@ -430,6 +430,12 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
+                    {
+						key: 'update_at',
+						label: 'Ngày cập nhật',
+						sortable: true,
+						class: 'text-nowrap text-center',
+					},
 					{
 						key: 'action',
 						label: 'Action',
