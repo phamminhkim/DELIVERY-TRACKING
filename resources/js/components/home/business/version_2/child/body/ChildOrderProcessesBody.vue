@@ -121,6 +121,10 @@ export default {
 
         };
     },
+    created() {
+        this.tableData = this.filteredOrders;
+
+    },
     async mounted() {
         await this.loadTable();
         this.table.on("rangeChanged", (range) => {
@@ -129,11 +133,11 @@ export default {
 
         });
         this.table.on("rangeAdded", (range) => {
-            console.log('rangeAdded:', range);
+            // console.log('rangeAdded:', range);
         });
         this.table.on("rangeRemoved", (range) => {
             // this.$emit("emitRangeChanged", range);
-            console.log('rangeRemoved:', range, range.getRows().map(row => row.getData()));
+            // console.log('rangeRemoved:', range, range.getRows().map(row => row.getData()));
 
         });
         this.table.on("cellEdited", (cell) => {
@@ -152,7 +156,7 @@ export default {
             // lấy toàn bộ column trong bảng
             // console.log('this.table.getColumns():', this.table.getColumns().map(column => column.getField(), column.getDefinition()));
         });
-        // window.addEventListener('resize', this.updateWindowDimensions);
+        window.addEventListener('resize', this.updateWindowDimensions);
 
     },
 
@@ -176,9 +180,7 @@ export default {
                 if (newVal) {
                     console.time('renderData');
                     // Code render component
-                    this.table.clearData();
-                    this.table.setColumns(this.filterColumn());
-                    this.table.setData(this.filteredOrders);
+                    this.setData();
                     console.timeEnd('renderData');
                 }
                 // else {
@@ -199,7 +201,8 @@ export default {
                     console.log('update_data:');
                     console.time('updateData');
                     // this.table.clearData();
-                    this.table.updateData(this.filteredOrders);
+                    // this.table.updateData(this.filteredOrders);
+                    this.updateData();
                     // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
                     console.timeEnd('updateData');
                 }
@@ -244,6 +247,9 @@ export default {
         },
 
     },
+    updated() {
+        this.updateWindowDimensions();
+    },
     methods: {
         async updateWindowDimensions() {
             this.window_width = window.innerWidth;
@@ -253,6 +259,16 @@ export default {
             }
             // this.table.setHeight(this.window_height - 200);
             console.log('updateWindowDimensions:', this.window_width, this.window_height);
+        },
+        setData() {
+            this.updateWindowDimensions();
+            this.table.clearData();
+            this.table.setColumns(this.filterColumn());
+            this.table.setData(this.filteredOrders);
+        },
+        updateData() {
+            this.table.updateData(this.filteredOrders);
+            this.updateWindowDimensions();
         },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
@@ -716,16 +732,15 @@ export default {
     min-height: 0.2em !important;
 }
 
-::v-deep .tabulator-range-selected {
-    background-color: lightgray !important;
-}
+
 
 ::v-deep .tabulator-range-only-cell-selected {
     border: 2px solid rgb(255, 28, 28) !important;
+    // background-color: transparent !important;
 }
 
 ::v-deep .tabulator-range-active {
-    // background-color: lightgray !important;
+    background-color: transparent !important;
     border: 2px solid red !important;
 }
 
@@ -750,13 +765,15 @@ export default {
     font-size: 0.8em !important;
     /* Kích thước văn bản nhỏ hơn */
 }
+
 ::v-deep .tabulator-row {
     &:hover {
-        background-color:  rgb(232, 232, 232) !important;
+        background-color: rgb(232, 232, 232) !important;
         cursor: cell;
     }
 }
-::v-deep .tabulator-range-selected {
-    background-color: transparent !important;   
+
+::v-deep .tabulator-row .tabulator-cell.tabulator-range-selected:not(.tabulator-range-only-cell-selected):not(.tabulator-range-row-header) {
+    background-color: #f3f3f3;
 }
 </style>
