@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SapMaterialMapping extends Model
 {
     //no timestamps
-    public $timestamps = false;
+    public $timestamps = true;
 
     //fillable
     protected $fillable = [
@@ -17,7 +17,10 @@ class SapMaterialMapping extends Model
         'customer_number',
         'conversion_rate_sap',
     ];
-
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
     public function customer_material()
     {
         return $this->belongsTo(CustomerMaterial::class);
@@ -25,6 +28,6 @@ class SapMaterialMapping extends Model
 
     public function sap_material()
     {
-        return $this->belongsTo(SapMaterial::class);
+        return $this->belongsTo(SapMaterial::class, 'sap_material_id');
     }
 }

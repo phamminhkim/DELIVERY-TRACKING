@@ -44,16 +44,9 @@
 									placeholder="Yêu cầu chọn nhóm khách hàng.."
 									:options="customer_group_options"
 									:normalizer="normalizerOption"
-								required
-									:disabled="is_editing"
+									required
 									v-bind:class="hasError('v') ? 'is-invalid' : ''"
 								></treeselect>
-								<span
-									v-if="is_editing"
-									class="readonly-text"
-									style="color: red; font-style: italic"
-									>Không được phép chỉnh sửa</span
-								>
 							</div>
 							<span
 								v-if="hasError('customer_group_id')"
@@ -73,16 +66,9 @@
 								name="customer_sku_code"
 								placeholder="Yêu cầu nhập mã SKU..."
 								required
-								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_code') ? 'is-invalid' : ''"
 								type="text"
 							/>
-							<span
-								v-if="is_editing"
-								class="readonly-text"
-								style="color: red; font-style: italic"
-								>Không được phép chỉnh sửa</span
-							>
 
 							<span
 								v-if="hasError('customer_sku_code')"
@@ -108,7 +94,6 @@
 								v-bind:class="hasError('customer_sku_name') ? 'is-invalid' : ''"
 								type="text"
 								required
-
 							/>
 							<span
 								v-if="hasError('customer_sku_name')"
@@ -118,7 +103,7 @@
 								<strong>{{ getError('customer_sku_name') }}</strong>
 							</span>
 						</div>
-                        <div class="form-group">
+						<div class="form-group">
 							<label for="customer_number">Số lượng - KH</label>
 							<small class="text-danger">*</small>
 							<input
@@ -132,7 +117,6 @@
 								type="number"
 								min="1"
 								required
-
 							/>
 							<span
 								v-if="hasError('customer_number')"
@@ -151,18 +135,10 @@
 								id="customer_sku_unit"
 								name="customer_sku_unit"
 								placeholder="Yêu cầu nhập đơn vị tính SKU..."
-								:disabled="is_editing"
 								v-bind:class="hasError('customer_sku_unit') ? 'is-invalid' : ''"
 								type="text"
 								required
-
 							/>
-							<span
-								v-if="is_editing"
-								class="readonly-text"
-								style="color: red; font-style: italic"
-								>Không được phép chỉnh sửa</span
-							>
 							<span
 								v-if="hasError('customer_sku_unit')"
 								class="invalid-feedback"
@@ -198,15 +174,9 @@
 								placeholder="Chọn sản phẩm.."
 								required
 								:load-options="loadOptions"
-								:disabled="is_editing"
 								:async="true"
 							/>
-							<span
-								v-if="is_editing"
-								class="readonly-text"
-								style="color: red; font-style: italic"
-								>Không được phép chỉnh sửa</span
-							>
+
 							<span
 								v-if="hasError('sap_material_id')"
 								class="invalid-feedback"
@@ -263,7 +233,7 @@
 					</div>
 
 					<div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-secondary" @click="resetDialog">
+						<button type="button" class="btn btn-secondary" @click="resetDialog">
 							Reset
 						</button>
 						<button type="submit" title="Submit" class="btn btn-primary">
@@ -382,17 +352,31 @@
 			async updateSapMapping() {
 				try {
 					this.is_loading = true;
+					const request = {
+						customer_material_id: parseInt(
+							this.sap_material_mapping.customer_material_id,
+						),
+						// sap_material_id: parseInt(this.sap_material_mapping.sap_material_id),
+						sap_material_id: this.sap_material_mapping.sap_material_code,
+						percentage: this.sap_material_mapping.percentage,
+						customer_number: this.sap_material_mapping.customer_number,
+						conversion_rate_sap: this.sap_material_mapping.conversion_rate_sap,
+						customer_group_id: this.sap_material_mapping.customer_group_id,
+						customer_sku_code: this.sap_material_mapping.customer_sku_code,
+						customer_sku_name: this.sap_material_mapping.customer_sku_name,
+						customer_sku_unit: this.sap_material_mapping.customer_sku_unit,
+					};
 					const result = await this.api_handler.put(
 						`${this.api_url}/${this.sap_material_mapping.id}`,
-						this.sap_material_mapping,
+						request,
 					);
-
+					// console.log(result);
 					// Xử lý dữ liệu trả về (nếu cần)
 					if (!result.errors) {
 						if (result.data && Array.isArray(result.data)) {
 							this.sap_material_mappings.data.push(result.data);
 						}
-						this.showMessage('success', 'Thêm thành công');
+						this.showMessage('success', 'Cập nhật thành công');
 						this.closeDialog();
 						await this.refetchData(); // Load the data again after successful creation
 					} else {
@@ -448,21 +432,21 @@
 				};
 			},
 			closeDialog() {
-				// this.clearForm();
-				// this.clearErrors();
+				this.clearForm();
+				this.clearErrors();
 				$('#DialogAddUpdateSapMapping').modal('hide');
 			},
 			resetDialog() {
-				this.sap_material_mapping.sap_material_id = null;
-				this.sap_material_mapping.customer_material_id = null;
-				this.sap_material_mapping.percentage = '';
-				this.sap_material_mapping.customer_number = '';
-				this.sap_material_mapping.conversion_rate_sap = '';
-				this.sap_material_mapping.customer_group_id = null;
-				this.sap_material_mapping.customer_sku_code = '';
-				this.sap_material_mapping.customer_sku_name = '';
-				this.sap_material_mapping.customer_sku_unit = '';
-				this.sap_material_mapping.sap_material_code = null;
+				// this.sap_material_mapping.sap_material_id = null;
+				// this.sap_material_mapping.customer_material_id = null;
+				// this.sap_material_mapping.percentage = '';
+				// this.sap_material_mapping.customer_number = '';
+				// this.sap_material_mapping.conversion_rate_sap = '';
+				// this.sap_material_mapping.customer_group_id = null;
+				// this.sap_material_mapping.customer_sku_code = '';
+				// this.sap_material_mapping.customer_sku_name = '';
+				// this.sap_material_mapping.customer_sku_unit = '';
+				// this.sap_material_mapping.sap_material_code = null;
 				this.clearErrors();
 			},
 
@@ -526,7 +510,7 @@
 				this.sap_material_mapping.customer_sku_unit =
 					item.customer_material.customer_sku_unit;
 				this.sap_material_mapping.customer_material_id = item.customer_material_id;
-				this.sap_material_mapping.sap_material_id = item.sap_material_id;
+				// this.sap_material_mapping.sap_material_id = item.sap_material_id;
 				this.sap_material_mapping.percentage = item.percentage;
 				this.sap_material_mapping.customer_number = item.customer_number;
 				this.sap_material_mapping.conversion_rate_sap = item.conversion_rate_sap;
