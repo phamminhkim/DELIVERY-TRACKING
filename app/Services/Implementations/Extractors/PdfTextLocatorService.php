@@ -4,6 +4,8 @@ namespace App\Services\Implementations\Extractors;
 
 use Illuminate\Support\Facades\Log;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class PdfTextLocatorService
 {
@@ -29,16 +31,16 @@ class PdfTextLocatorService
             $index
         );
 
-        $output = [];
-        $return_code = 0;
-        exec($cmd, $output, $return_code);
+        $process = Process::fromShellCommandline($cmd);
+        $process->run();
 
-        if ($return_code == 0) {
-            $result['error'] = "Command failed with return code: " . $return_code;
+        if (!$process->getErrorOutput()) {
+            $cmd_output = $process->getOutput();
+            $result = json_decode($cmd_output, true);
         } else {
-            $output_str = implode("\n", $output);
-            $result = json_decode($output_str, true);
+            $result['error'] = $process->getErrorOutput();
         }
+
         return $result;
     }
     public function getTextByCoords($pdf_path, $page_num, $coords)
@@ -54,15 +56,14 @@ class PdfTextLocatorService
             escapeshellarg($coords)
         );
 
-        $output = [];
-        $return_code = 0;
-        exec($cmd, $output, $return_code);
+        $process = Process::fromShellCommandline($cmd);
+        $process->run();
 
-        if ($return_code == 0) {
-            $result['error'] = "Command failed with return code: " . $return_code;
+        if (!$process->getErrorOutput()) {
+            $cmd_output = $process->getOutput();
+            $result = json_decode($cmd_output, true);
         } else {
-            $output_str = implode("\n", $output);
-            $result = json_decode($output_str, true);
+            $result['error'] = $process->getErrorOutput();
         }
         return $result;
     }
@@ -82,21 +83,21 @@ class PdfTextLocatorService
             escapeshellarg($output_path),
         );
 
-        $output = [];
-        $return_code = 0;
-        exec($cmd, $output, $return_code);
+        $process = Process::fromShellCommandline($cmd);
+        $process->run();
 
-        if ($return_code == 0) {
-            $result['error'] = "Command failed with return code: " . $return_code;
-        } else {
-            $output_str = implode("\n", $output);
-            $cmd_result = json_decode($output_str, true);
+        if (!$process->getErrorOutput()) {
+            $cmd_output = $process->getOutput();
+            $cmd_result = json_decode($cmd_output, true);
             if (isset($cmd_result['error'])) {
                 $result = $cmd_result;
             } else {
                 $result = $this->getFilesContents($output_path);
             }
+        } else {
+            $result['error'] = $process->getErrorOutput();
         }
+
         $dir->delete();
         return $result;
     }
@@ -113,15 +114,14 @@ class PdfTextLocatorService
             escapeshellarg($string_key)
         );
 
-        $output = [];
-        $return_code = 0;
-        exec($cmd, $output, $return_code);
+        $process = Process::fromShellCommandline($cmd);
+        $process->run();
 
-        if ($return_code == 0) {
-            $result['error'] = "Command failed with return code: " . $return_code;
+        if (!$process->getErrorOutput()) {
+            $cmd_output = $process->getOutput();
+            $result = json_decode($cmd_output, true);
         } else {
-            $output_str = implode("\n", $output);
-            $result = json_decode($output_str, true);
+            $result['error'] = $process->getErrorOutput();
         }
         return $result;
     }
