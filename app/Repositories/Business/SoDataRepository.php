@@ -348,7 +348,7 @@ class SoDataRepository extends RepositoryAbs
                 foreach ($order_processes as $order_process_item) {
                     $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
                     $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
-                    unset($order_process_item->so_headers, $order_process_item->synchronized_so_headers);
+                    unset($order_process_item->synchronized_so_headers);
                 }
                 return $order_processes;
             }
