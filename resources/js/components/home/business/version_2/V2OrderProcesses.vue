@@ -3,8 +3,8 @@
         <div>
             <DialogOrderProcessesSaveSO :order="order" @saveOrderSo="handleSaveOrderSo"
                 @updateOrderSo="handleUpdateOrderSo" />
-            <DialogOrderProcessesCheckInventory :warehouses="warehouses" @checkInventory="handleCheckInventorySubmit" />
-            <DialogOrderProcessesCheckPrice @checkPrice="handleCheckPriceSubmit" />
+            <DialogOrderProcessesCheckInventory :is_loading="is_loading" :warehouses="warehouses" @checkInventory="handleCheckInventorySubmit" />
+            <DialogOrderProcessesCheckPrice :is_loading="is_loading" @checkPrice="handleCheckPriceSubmit" />
             <DialogOrderProcessesSync :order_headers="order_headers" :api_handler="api_handler"
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
                 :mapping_ships="mapping_ships" :case_check="case_check" @warehouseDefault="handeleWarehouseDefault"
