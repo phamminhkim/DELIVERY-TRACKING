@@ -345,6 +345,11 @@ class SoDataRepository extends RepositoryAbs
                     ->where('created_by', $current_user_id)
                     ->orderBy('updated_at', 'desc')->get();
                 $order_processes->load(['created_by', 'updated_by', 'customer_group']);
+                foreach ($order_processes as $order_process_item) {
+                    $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
+                    $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
+                    unset($order_process_item->so_headers, $order_process_item->synchronized_so_headers);
+                }
                 return $order_processes;
             }
             return false;
