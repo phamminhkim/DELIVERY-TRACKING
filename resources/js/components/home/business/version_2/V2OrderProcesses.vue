@@ -3,7 +3,8 @@
         <div>
             <DialogOrderProcessesSaveSO :order="order" @saveOrderSo="handleSaveOrderSo"
                 @updateOrderSo="handleUpdateOrderSo" />
-            <DialogOrderProcessesCheckInventory :is_loading="is_loading" :warehouses="warehouses" @checkInventory="handleCheckInventorySubmit" />
+            <DialogOrderProcessesCheckInventory :is_loading="is_loading" :warehouses="warehouses"
+                @checkInventory="handleCheckInventorySubmit" />
             <DialogOrderProcessesCheckPrice :is_loading="is_loading" @checkPrice="handleCheckPriceSubmit" />
             <DialogOrderProcessesSync :order_headers="order_headers" :api_handler="api_handler"
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
@@ -41,10 +42,11 @@
             @createDataOrders="handleCreateDataOrders" @moreDataOrders="handleMoreDataOrders" />
 
         <DialogSearchOrderProcesses @itemReplaceAll="getReplaceItemAll" @itemReplace="getReplaceItem"
-            :item_selecteds="range.full_items"
-            :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
+            :item_selecteds="range.full_items" :update_status_function="update_status_function"
+            :is_open_modal_search_order_processes="is_open_modal_search_order_processes" :orders="filteredOrders"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
-        <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail" />
+        <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail"
+            :update_status_function="update_status_function" />
         <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
     </div>
 </template>
@@ -102,6 +104,9 @@ export default {
                 update_data: 0,
                 processing_file: 0,
                 column: 0,
+                replace: 0,
+                replace_all: 0,
+                fetch_api_list_orders: 0,
 
             },
             position: {
@@ -127,41 +132,6 @@ export default {
             order_headers: [],
             warehouse_defaults: [],
             hidden_columns: [],
-
-            // columns: [
-            //     { title: 'ID', field: 'id', headerSort: false, visible: false, width: 100 },
-            //     { title: 'MaKh_Key', field: 'customer_name', headerSort: false, visible: false, width: 150 },
-            //     { title: 'Mã sap so', field: 'sap_so_number', editor: "input", headerSort: false, visible: false, width: 150 },
-            //     { title: 'Sap_note', field: 'so_sap_note', headerSort: false, visible: false, width: 150 },
-            //     { title: 'Barcode_Cty', field: 'barcode', headerSort: false, visible: false, width: 150 },
-            //     { title: 'MaSap', field: 'sku_sap_code', headerSort: false, visible: false, width: 150 },
-            //     { title: 'TenSp', field: 'sku_sap_name', headerSort: false, visible: true, width: 200 },
-            //     { title: 'SL_sap', field: 'quantity3_sap', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Dvt', field: 'sku_sap_unit', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Km', field: 'promotive', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Ghi chú', field: 'note', headerSort: false, visible: true, width: 200 },
-            //     { title: 'MaKh', field: 'customer_code', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Unit_barcode', field: 'customer_sku_code', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Unit_barcode_description', field: 'customer_sku_name', headerSort: false, visible: true, width: 200 },
-            //     { title: 'Dvt_po', field: 'customer_sku_unit', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Po', field: 'po', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Qty', field: 'quantity1_po', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Combo', field: 'promotive_name', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Check Tồn', field: 'inventory_quantity', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Po_qty', field: 'quantity2_po', headerSort: false, visible: true, width: 100 },
-            //     { title: 'SL Chênh Lệch', field: 'variant_quantity', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Pur_price', field: 'price_po', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Amount', field: 'amount_po', headerSort: false, visible: true, width: 150 },
-            //     { title: 'QC', field: 'compliance', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Đúng_QC', field: 'is_compliant', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Ghi chú 1', field: 'note1', headerSort: false, visible: true, width: 200 },
-            //     { title: 'Giá_cty', field: 'company_price', headerSort: false, visible: true, width: 150 },
-            //     { title: 'Level2', field: 'level2', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Level3', field: 'level3', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Level4', field: 'level4', headerSort: false, visible: true, width: 100 },
-            //     { title: 'Po_number', field: 'po_number', headerSort: false, visible: true, width: 150 },
-            //     { title: 'po_delivery_date', field: 'po_delivery_date', headerSort: false, visible: false, width: 150 },
-            // ],
             columns: [],
             url_api: {
                 order_process_so: '/api/sales-order',
@@ -1583,37 +1553,35 @@ export default {
             }
         },
         getReplaceItemAll(item_materials, barcode) {
-            this.item_selecteds.forEach((item_selected, index) => {
-                item_materials.forEach(item_material => {
-                    this.filteredOrders.forEach((order) => {
-                        if (order.barcode == barcode) {
-                            order.sku_sap_code = item_material.sap_code;
-                            order.sku_sap_name = item_material.name;
-                            order.sku_sap_unit = item_material.unit.unit_code;
-                            order.barcode = item_material.bar_code;
-                        }
-                    })
-                });
+            item_materials.forEach(item_material => {
+                this.filteredOrders.forEach((order) => {
+                    if (order.barcode == barcode) {
+                        order.sku_sap_code = item_material.sap_code;
+                        order.sku_sap_name = item_material.name;
+                        order.sku_sap_unit = item_material.unit.unit_code;
+                        order.barcode = item_material.bar_code;
+                    }
+                })
             });
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
+            this.update_status_function.replace_all++;
             this.update_status_function.set_data++;
         },
         getReplaceItem(item_materials, order_index) {
-            this.item_selecteds.forEach((item_selected, index) => {
-                item_materials.forEach(item_material => {
-                    this.filteredOrders.forEach((order) => {
-                        if (order.order == order_index) {
-                            order.sku_sap_code = item_material.sap_code;
-                            order.sku_sap_name = item_material.name;
-                            order.sku_sap_unit = item_material.unit.unit_code;
-                            order.barcode = item_material.bar_code;
-                        }
-                    })
-                });
+            item_materials.forEach(item_material => {
+                this.filteredOrders.forEach((order) => {
+                    if (order.order == order_index) {
+                        order.sku_sap_code = item_material.sap_code;
+                        order.sku_sap_name = item_material.name;
+                        order.sku_sap_unit = item_material.unit.unit_code;
+                        order.barcode = item_material.bar_code;
+                    }
+                })
             });
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
+            this.update_status_function.replace++;
             this.update_status_function.set_data++;
 
         },
@@ -1622,6 +1590,7 @@ export default {
             $('#form_search_order_processes').modal('hide');
         },
         handleModalListOrder() {
+            this.update_status_function.fetch_api_list_orders++;
             $('#listOrderProcessSO').modal('show');
         },
         async getUrl() {
@@ -1758,6 +1727,7 @@ export default {
         async handleCreateDataOrders() {
             this.refeshOrder();
             this.refeshOrderHeader();
+            this.refeshUpdateFunctionReplace();
             for (let index = 0; index < this.api_data_orders.length; index++) {
                 const data_order = this.api_data_orders[index];
                 if (data_order.success) {
@@ -1776,6 +1746,10 @@ export default {
             }
             this.update_status_function.set_data++;
             // this.$showMessage('success', 'Thành công', 'Thêm dữ liệu thành công');
+        },
+        refeshUpdateFunctionReplace() {
+            this.update_status_function.replace = 0;
+            this.update_status_function.replace_all = 0;
         },
     },
     computed: {
