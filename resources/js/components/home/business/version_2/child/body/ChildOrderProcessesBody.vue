@@ -197,8 +197,6 @@ export default {
         'update_status_function.update_data': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-
-                    console.log('update_data:');
                     console.time('updateData');
                     // this.table.clearData();
                     // this.table.updateData(this.filteredOrders);
@@ -257,8 +255,6 @@ export default {
             if (this.table) {
                 await this.table.setHeight(this.window_height - 280);
             }
-            // this.table.setHeight(this.window_height - 200);
-            console.log('updateWindowDimensions:', this.window_width, this.window_height);
         },
         setData() {
             this.updateWindowDimensions();

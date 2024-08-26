@@ -36,6 +36,20 @@ export default {
         TableOrderProcessSO,
         PaginationTable
     },
+    props: {
+        is_loading: { type: Boolean, default: false },
+        update_status_function: { type: Object, default: () => { } }
+    },
+    watch: {
+        'update_status_function.fetch_api_list_orders': {
+            handler: function (val) {
+                if (val) {
+                    this.fetchOrderProcessSO();
+                }
+            },
+            deep: true
+        }
+    },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
