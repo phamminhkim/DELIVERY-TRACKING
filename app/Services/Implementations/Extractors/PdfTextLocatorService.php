@@ -14,7 +14,7 @@ class PdfTextLocatorService
     public function __construct()
     {
         // Đường dẫn tới file Python script
-        $this->python_script_path = base_path('app\Services\Implementations\Extractors\Python\find_text_position.py');
+        $this->python_script_path = base_path('app/Services/Implementations/Extractors/Python/find_text_position.py');
     }
 
     public function findTextPosition($pdf_path, $page_num, $search_text, $index)
@@ -22,7 +22,7 @@ class PdfTextLocatorService
         $result = null;
         $method = "get_coords_by_text";
         $cmd = sprintf(
-            'python %s --pdf_path %s --method %s --page_num %d --search_text %s --index %d',
+            'python3.8 %s --pdf_path %s --method %s --page_num %d --search_text %s --index %d',
             $this->python_script_path,
             escapeshellarg($pdf_path),
             $method,
@@ -48,7 +48,7 @@ class PdfTextLocatorService
         $result = null;
         $method = "get_text_by_coords";
         $cmd = sprintf(
-            'python %s --pdf_path %s --method %s --page_num %d --coords %s',
+            'python3.8 %s --pdf_path %s --method %s --page_num %d --coords %s',
             $this->python_script_path,
             escapeshellarg($pdf_path),
             $method,
@@ -75,7 +75,7 @@ class PdfTextLocatorService
         $output_path = $dir->path('extract.txt');
 
         $cmd = sprintf(
-            'python %s --pdf_path %s --method %s --page_num %d --output_path %s',
+            'python3.8 %s --pdf_path %s --method %s --page_num %d --output_path %s',
             $this->python_script_path,
             escapeshellarg($pdf_path),
             $method,
@@ -106,7 +106,7 @@ class PdfTextLocatorService
         $result = null;
         $method = "check_string_key";
         $cmd = sprintf(
-            'python %s --pdf_path %s --method %s --page_num %d --string_key %s',
+            'python3.8 %s --pdf_path %s --method %s --page_num %d --string_key %s',
             $this->python_script_path,
             escapeshellarg($pdf_path),
             $method,
