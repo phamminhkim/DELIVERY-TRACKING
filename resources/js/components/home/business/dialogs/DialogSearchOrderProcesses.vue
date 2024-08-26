@@ -14,6 +14,14 @@
                         </button>
                     </div>
                     <div class="modal-body bg-gray-light">
+                        <div class="d-flex form-group border-bottom p-1 text-xs">
+                            <div class="mr-5">
+                                <span class="text-success">Số lần thao tác <u>ReplaceAll</u>: {{ update_status_function.replace_all }}</span>
+                            </div>
+                            <div>
+                                <span class="text-success">Số lần thao tác <u>Replace</u>: {{ update_status_function.replace }} </span>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-lg-9">
@@ -61,6 +69,7 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="form-group">
                             <b-table small striped hover head-variant="light" table-class="box-max-height-500"
                                 :items="case_data.sap_materials" :fields="field_products" responsive
@@ -111,10 +120,10 @@
                     </div>
                     <div class="modal-footer d-block text-center">
                         <button @click="emitReplaceItemAll()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn">Replace
-                            All</button>
+                            class="btn btn-sm px-4 btn-light shadow-btn"><span class="text-xs text-success">({{ orders.length }} items)</span> Replace
+                            All </button>
                         <button @click="emitReplaceItem()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn">Replace</button>
+                            class="btn btn-sm px-4 btn-light shadow-btn"><span class="text-xs text-success">({{ countItemFirst() }} item)</span> Replace</button>
                     </div>
                 </div>
             </div>
@@ -132,7 +141,9 @@ export default {
         },
         item_selecteds: {
             type: Array
-        }
+        },
+        orders: { type: Array, default: () => [] },
+        update_status_function: { type: Object, default: () => { } },
 
     },
     components: {
@@ -396,6 +407,17 @@ export default {
             };
             const form_search_order_processes = this.$refs.form_search_order_processes;
             form_search_order_processes.style.transform = `translate(0px, 0px)`;
+        },
+        countItemFirst() {
+            // không lấy số âm
+            let count_positive = this.item_selecteds.length - 1;
+            count_positive = count_positive < 0 ? 0 : count_positive;
+            let count = this.item_selecteds.length - count_positive;
+            if (count < 0) {
+                return 0;
+            } else {
+                return count;
+            }
         }
     }
 }

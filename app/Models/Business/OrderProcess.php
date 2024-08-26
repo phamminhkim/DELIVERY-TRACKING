@@ -28,6 +28,12 @@ class OrderProcess extends Model
     {
         return $this->hasMany(SoHeader::class);
     }
+    public function synchronized_so_headers()
+    {
+        return $this->hasMany(SoHeader::class)->where(function ($query) {
+            $query->whereNotNull('so_uid');
+        });
+    }
     public function not_sync_so_data_items()
     {
         // Lấy data chưa đồng bộ SAP
