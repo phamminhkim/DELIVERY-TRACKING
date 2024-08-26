@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="modal fade" id="DialogOrderProcessesCheckPrice" tabindex="-1">
+        <div class="modal fade" id="DialogOrderProcessesCheckPrice" data-backdrop="static" data-keyboard="false" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content" v-show="!is_loading">
                     <div class="modal-header">
                         <h5 class="modal-title font-weight-bold text-uppercase">Check Giá</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -24,9 +24,16 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button @click="emitCheckPrice()" type="button" class="btn btn-warning btn-sm">Check
+                        <button type="button" class="btn btn-secondary btn-sm text-xs" data-dismiss="modal">Close</button>
+                        <button @click="emitCheckPrice()" type="button" class="btn btn-warning btn-sm text-xs">Check
                             giá</button>
+                    </div>
+                </div>
+                <div v-show="is_loading" class="modal-content text-center modal-dialog-centered">
+                    <div class="modal-header p-0 mt-3">
+                        <div class="text-center text-xs">
+                            <p class="text-warning p-0 "><i class="fas fa-spinner fa-spin mr-2"></i>Đang Check Giá</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -35,6 +42,9 @@
 </template>
 <script>
 export default {
+    props: {
+        is_loading: { type: Boolean, default: false },
+    },
     data() {
         return {
             so_numbers: '',

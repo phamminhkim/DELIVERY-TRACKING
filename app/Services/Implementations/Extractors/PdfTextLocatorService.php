@@ -17,6 +17,7 @@ class PdfTextLocatorService
 
     public function findTextPosition($pdf_path, $page_num, $search_text, $index)
     {
+        $result = null;
         $method = "get_coords_by_text";
         $cmd = sprintf(
             'python %s --pdf_path %s --method %s --page_num %d --search_text %s --index %d',
@@ -27,13 +28,22 @@ class PdfTextLocatorService
             escapeshellarg($search_text),
             $index
         );
-        $output = shell_exec($cmd);
 
-        $result = json_decode($output, true);
+        $output = [];
+        $return_code = 0;
+        exec($cmd, $output, $return_code);
+
+        if ($return_code == 0) {
+            $result['error'] = "Command failed with return code: " . $return_code;
+        } else {
+            $output_str = implode("\n", $output);
+            $result = json_decode($output_str, true);
+        }
         return $result;
     }
     public function getTextByCoords($pdf_path, $page_num, $coords)
     {
+        $result = null;
         $method = "get_text_by_coords";
         $cmd = sprintf(
             'python %s --pdf_path %s --method %s --page_num %d --coords %s',
@@ -43,9 +53,17 @@ class PdfTextLocatorService
             $page_num,
             escapeshellarg($coords)
         );
-        $output = shell_exec($cmd);
 
-        $result = json_decode($output, true);
+        $output = [];
+        $return_code = 0;
+        exec($cmd, $output, $return_code);
+
+        if ($return_code == 0) {
+            $result['error'] = "Command failed with return code: " . $return_code;
+        } else {
+            $output_str = implode("\n", $output);
+            $result = json_decode($output_str, true);
+        }
         return $result;
     }
     public function getFullText($pdf_path, $page_num)
@@ -63,19 +81,28 @@ class PdfTextLocatorService
             $page_num,
             escapeshellarg($output_path),
         );
-        $cmd_exec = shell_exec($cmd);
 
-        $cmd_result = json_decode($cmd_exec, true);
-        if (isset($cmd_result['error'])) {
-            $result = $cmd_result;
+        $output = [];
+        $return_code = 0;
+        exec($cmd, $output, $return_code);
+
+        if ($return_code == 0) {
+            $result['error'] = "Command failed with return code: " . $return_code;
         } else {
-            $result = $this->getFilesContents($output_path);
+            $output_str = implode("\n", $output);
+            $cmd_result = json_decode($output_str, true);
+            if (isset($cmd_result['error'])) {
+                $result = $cmd_result;
+            } else {
+                $result = $this->getFilesContents($output_path);
+            }
         }
         $dir->delete();
         return $result;
     }
     public function checkStringKey($pdf_path, $page_num, $string_key)
     {
+        $result = null;
         $method = "check_string_key";
         $cmd = sprintf(
             'python %s --pdf_path %s --method %s --page_num %d --string_key %s',
@@ -85,9 +112,17 @@ class PdfTextLocatorService
             $page_num,
             escapeshellarg($string_key)
         );
-        $output = shell_exec($cmd);
 
-        $result = json_decode($output, true);
+        $output = [];
+        $return_code = 0;
+        exec($cmd, $output, $return_code);
+
+        if ($return_code == 0) {
+            $result['error'] = "Command failed with return code: " . $return_code;
+        } else {
+            $output_str = implode("\n", $output);
+            $result = json_decode($output_str, true);
+        }
         return $result;
     }
     protected function getFilesContents($filePath)
