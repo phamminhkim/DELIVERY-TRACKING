@@ -24,14 +24,16 @@ def find_text_position(pdf_path, src_page_num, search_text, src_index):
         index = src_index - 1
         if int(index) < 0 or int(index) >= len(text_instances):
             return json.dumps({"error": "Index out of bounds"})
+        page_height = int(page.rect.height)
+        page_width = int(page.rect.width)
         if rotation == 0:
-            text_instances = [pymupdf.Rect(r.x0, page.rect.height - r.y0, r.x1, page.rect.height - r.y1) for r in text_instances]
+            text_instances = [pymupdf.Rect(r.x0, page_height - r.y0, r.x1, page_height - r.y1) for r in text_instances]
         if rotation == 90:
-            text_instances = [pymupdf.Rect(page.rect.width - r.y1, page.rect.height - r.x0, page.rect.width - r.y0, page.rect.height - r.x1) for r in text_instances]
+            text_instances = [pymupdf.Rect(page_width - r.y1, page_height - r.x0, page_width - r.y0, page_height - r.x1) for r in text_instances]
         # elif rotation == 180:
-        #     text_instances = [pymupdf.Rect(page.rect.width - r.x1, page.rect.height - r.y1, page.rect.width - r.x0, page.rect.height - r.y0) for r in text_instances]
+        #     text_instances = [pymupdf.Rect(page_width - r.x1, page_height - r.y1, page_width - r.x0, page_height - r.y0) for r in text_instances]
         # elif rotation == 270:
-        #     text_instances = [pymupdf.Rect(r.y0, page.rect.height - r.x1, r.y1, page.rect.height - r.x0) for r in text_instances]
+        #     text_instances = [pymupdf.Rect(r.y0, page_height - r.x1, r.y1, page_height - r.x0) for r in text_instances]
 
         x_top_left = int(text_instances[index].x0)
         y_top_left = int(text_instances[index].y0)
@@ -55,9 +57,15 @@ def find_text_position(pdf_path, src_page_num, search_text, src_index):
 def get_text_by_coords(pdf_path, src_page_num, coords):
     try:
         doc = pymupdf.open(pdf_path)
+        # Lấy số page của doc
+        num_pages = len(doc)
+        # Kiểm tra nếu vị trí page truyền vào không lớn hơn num_pages
+        if src_page_num > num_pages:
+            return json.dumps({"error": "Page out of bounds"})
         # Vị trí page tính từ 0
         page_num = src_page_num - 1
         page = doc[int(page_num)]
+        rotation = page.rotation  # Kiểm tra xoay trang
         # Lấy tọa độ nguồn
         coords = coords.split(' ')
         src_x0 = int(coords[0])
@@ -68,35 +76,23 @@ def get_text_by_coords(pdf_path, src_page_num, coords):
         # Quy tọa độ đích
         page_height = int(page.rect.height)
         page_width = int(page.rect.width)
-        if page_height < page_width:
-            if not page.is_wrapped:
-                x0 = int(src_x0)
-                y0 = int(page_height - src_y0)
-                x1 = int(src_x1)
-                y1 = int(page_height - src_y1)
-            else:
-                x0 = int(page_height - src_y0)
-                y0 = int(page_width - src_x1)
-                x1 = int(page_height - src_y1)
-                y1 = int(page_width - src_x0)
-        else:
-            if not page.is_wrapped:
-                x0 = int(page_height - src_y0)
-                y0 = int(page_width - src_x1)
-                x1 = int(page_height - src_y1)
-                y1 = int(page_width - src_x0)
-            else:
-                x0 = int(src_x0)
-                y0 = int(page_height - src_y0)
-                x1 = int(src_x1)
-                y1 = int(page_height - src_y1)
+        if rotation == 0:
+            x0 = int(src_x0)
+            y0 = int(page_height - src_y0)
+            x1 = int(src_x1)
+            y1 = int(page_height - src_y1)
+        if rotation == 90:
+            x0 = int(page_height - src_y0)
+            y0 = int(page_width - src_x1)
+            x1 = int(page_height - src_y1)
+            y1 = int(page_width - src_x0)
 
         rect = pymupdf.Rect(x0, y0, x1, y1)
         # Trích xuất văn bản từ vùng chữ nhật
         text_instances = page.get_textbox(rect)
 
         if not text_instances:
-            return json.dumps({"error": "Empty text"})
+            return json.dumps({"error": "Not found text"})
         return json.dumps({"text": text_instances})
     except Exception as e:
         return json.dumps({"error": str(e)})
