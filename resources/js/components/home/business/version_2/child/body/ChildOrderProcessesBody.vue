@@ -167,6 +167,13 @@ export default {
             this.$emit('headerClick', column);
 
         });
+        this.table.on("cellEditing", (cell) => {
+            console.log('cellEditing:');
+            // this.table.options.selectableRange = true; // Update selectableRange option
+        });
+        this.table.on("cellEditCancelled", (cell) => {
+            console.log('cellEditCancelled:');
+        });
 
         this.table.on("headerContext", (e, column) => {
             //e - the click event object
@@ -286,6 +293,9 @@ export default {
         updateData() {
             this.table.updateData(this.filteredOrders);
             this.updateWindowDimensions();
+            // cập nhật column formatter
+            // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumberOrSoSapNote() });
+            // cập nhật formater cho cột 'so_sap_note'
         },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
@@ -408,7 +418,6 @@ export default {
         async loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = await new Tabulator(this.$refs.table, {
-                // maxHeight: 500,
                 tabIndex: -1,
                 index: "order",
                 movableColumns: true,
@@ -420,6 +429,7 @@ export default {
                 // headerFilterLiveFilterDelay: 800,
                 // data: this.filteredOrders,
                 data: this.tableData,
+                column: this.filterColumn(),
                 headerSortClickElement: "icon", //trigger sort on icon click
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
@@ -498,6 +508,23 @@ export default {
                         row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
                         row.getCell('sku_sap_code').getElement().style.color = '#212529';
                     }
+                    // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
+                    // Lấy ô của cột 'combined_field'
+                    const cell_sap_so_number = row.getCell('sap_so_number');
+                    const cell_so_sap_note = row.getCell('so_sap_note');
+                    if (cell_sap_so_number) {
+                        const value1 = data.sap_so_number == null ? '' : data.sap_so_number;
+                        const value2 = data.promotive == null ? '' : data.promotive;
+                        // Kết hợp hai giá trị và cập nhật nội dung của ô
+                        cell_sap_so_number.getElement().innerHTML = `<span>${value1}</span><span>${value2}</span>`;
+                    }
+                    if (cell_so_sap_note) {
+                        const value1 = data.so_sap_note == null ? '' : data.so_sap_note;
+                        const value2 = data.promotive == null ? '' : data.promotive;
+                        cell_so_sap_note.getElement().innerHTML = `<span>${value1}</span><span>${value2}</span>`;
+                    }
+
+
 
                 },
             });
@@ -741,7 +768,21 @@ export default {
             });
             return context_menu_4;
 
-        }
+        },
+
+        formatterSapSoNumberOrSoSapNote() {
+            return (cell, formatterParams, onRendered) => {
+                let value = cell.getValue(); // Giá trị của cột 'ma_sap'
+                let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
+                cell.getRow().getData().promotive_name = promotive;
+                cell.getRow().getData().note1 = promotive;
+                cell.getRow().getData().is_promotive = true;
+
+                let value_promotive = promotive ? `${promotive}` : '';
+                let value_new = value == null ? '' : value;
+                return `${value_new}${value_promotive}`;
+            };
+        },
     },
 
 };
