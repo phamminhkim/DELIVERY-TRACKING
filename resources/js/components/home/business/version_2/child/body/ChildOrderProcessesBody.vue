@@ -118,6 +118,10 @@ export default {
             ],
             window_width: 0,
             window_height: 0,
+            range_table: {
+                indexs: [],
+                items: [],
+            },
 
         };
     },
@@ -127,17 +131,15 @@ export default {
     },
     async mounted() {
         await this.loadTable();
+
         this.table.on("rangeChanged", (range) => {
             // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
-
-        });
-        this.table.on("rangeAdded", (range) => {
-            // console.log('rangeAdded:', range);
+            this.$emit("emitGetRangesData", this.table.getRangesData(), this.table.getRanges().map(range => range.getRows().map(row => row.getPosition())));
         });
         this.table.on("rangeRemoved", (range) => {
             // this.$emit("emitRangeChanged", range);
-            // console.log('rangeRemoved:', range, range.getRows().map(row => row.getData()));
+            this.$emit("emitRangeRemoved", range);
 
         });
         this.table.on("cellEdited", (cell) => {
@@ -156,6 +158,25 @@ export default {
             // lấy toàn bộ column trong bảng
             // console.log('this.table.getColumns():', this.table.getColumns().map(column => column.getField(), column.getDefinition()));
         });
+        this.table.on("rowSelected", (row) => {
+            //row - row component for the selected row
+            console.log('rowSelected:', row.getData());
+        });
+        this.table.on("headerClick", (e, column) => {
+            //  column.getTable().getRows().map(row => row.getPosition()));
+            this.$emit('headerClick', column);
+
+        });
+
+        this.table.on("headerContext", (e, column) => {
+            //e - the click event object
+            //column - column component
+            console.log('headerContext:', column.getField());
+        });
+
+
+
+
         window.addEventListener('resize', this.updateWindowDimensions);
 
     },
@@ -404,10 +425,17 @@ export default {
                 // layout: "fitDataFill",
                 layout: "fitColumns",
                 // placeholder:"Không có dữ liệu",
-                rowHeader: { resizable: false, frozen: true, width: 20, hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false },
+                rowHeader: {
+                    resizable: false,
+                    frozen: true,
+                    width: 20,
+                    hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false,
+                    field: "rownum",
+                },
+                initialSelection: false,
                 // selectableRange: true,
                 //enable range selection
-                selectableRange: 1,
+                selectableRange: true,
                 selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
@@ -646,14 +674,6 @@ export default {
                     label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {
                         this.$emit('deleteRow', row.getPosition(), row.getData());
-                        // row.delete();
-                        let selectedRows = this.table.getSelectedRows();  // Lấy tất cả các hàng được chọn
-                        let selectedData = selectedRows.map(row => row.getData()); // Lấy dữ liệu của các hàng đó
-
-                        // tôi đang selectableRange toàn bộ hàng, nếu bạn muốn xóa hàng được chọn, hãy sử dụng dòng dưới đây
-                        // console.log(selectedData, 'selectedData', this.table.getSelectedRows());
-                        // nhưng dữ liệu không thấy được cập nhật
-                        console.log(selectedData, 'selectedData', this.table.getSelectedRows());
                     }
                 },
 

@@ -34,7 +34,9 @@
             @clipboardPasted="handleClipboardPasted" @exportExcel="handleExportExcel" @toggleColumn="handleToggleColumn"
             @hiddenColumns="handleHiddenColumns" @listLayout="handleListLayout"
             @toggleColumnShow="handleToggleColumnShow" @columnResized="handleColumnResized"
-            @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout" />
+            @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout"
+            @emitRangeRemoved="handleRangeRemoved" @headerClick="handleHeaderClick"
+            @emitGetRangesData="handleGetRangesData" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -168,6 +170,11 @@ export default {
                 type: ''
             },
             range: {
+                indexs: [],
+                items: [],
+                full_items: [],
+            },
+            range_v2: {
                 indexs: [],
                 items: [],
                 full_items: [],
@@ -881,23 +888,53 @@ export default {
         handleInputBackgroundColor(data) {
             this.theme_color_background = data;
             let keys = [];
-            keys = Object.keys(this.range.items[0]);
-            this.range.indexs.forEach(index_range => {
-                keys.forEach(key => {
-                    this.filteredOrders[index_range - 1].theme_color.background[key] = this.theme_color_background.color;
+            if (this.range_v2.items.length == 1) {
+                this.range_v2.items.forEach((item_ranges, index_item) => {
+                    item_ranges.forEach((item, index) => {
+                        keys = Object.keys(item);
+                        keys.forEach(key => {
+                            let index_order = this.range_v2.indexs[index_item][index] - 1;
+                            this.filteredOrders[index_order].theme_color.background[key] = this.theme_color_background.color;
+                        });
+                    });
                 });
-            });
+            } else {
+                this.range_v2.items.forEach((item_ranges, index_item) => {
+                    item_ranges.forEach((item, index) => {
+                        keys = Object.keys(item);
+                        let index_order = this.range_v2.indexs[index_item][index] - 1;
+                        keys.forEach(key => {
+                            this.filteredOrders[index_order].theme_color.background[key] = this.theme_color_background.color;
+                        });
+                    });
+                });
+            }
             this.update_status_function.color++;
         },
         handleInputTextColor(data) {
             this.theme_color_text = data;
             let keys = [];
-            keys = Object.keys(this.range.items[0]);
-            this.range.indexs.forEach(index_range => {
-                keys.forEach(key => {
-                    this.filteredOrders[index_range - 1].theme_color.text[key] = this.theme_color_text.color;
+            if (this.range_v2.items.length == 1) {
+                this.range_v2.items.forEach((item_ranges, index_item) => {
+                    item_ranges.forEach((item, index) => {
+                        keys = Object.keys(item);
+                        keys.forEach(key => {
+                            let index_order = this.range_v2.indexs[index_item][index] - 1;
+                            this.filteredOrders[index_order].theme_color.text[key] = this.theme_color_text.color;
+                        });
+                    });
                 });
-            });
+            } else {
+                this.range_v2.items.forEach((item_ranges, index_item) => {
+                    item_ranges.forEach((item, index) => {
+                        keys = Object.keys(item);
+                        let index_order = this.range_v2.indexs[index_item][index] - 1;
+                        keys.forEach(key => {
+                            this.filteredOrders[index_order].theme_color.text[key] = this.theme_color_text.color;
+                        });
+                    });
+                });
+            }
             this.update_status_function.color++;
         },
         handleEmittedRangeChanged(range) {
@@ -1528,17 +1565,28 @@ export default {
             this.update_status_function.add_row++;
         },
         handleDeleteRow(position, data) {
-            // this.filteredOrders.splice(data.order - 1, 1);
-            this.range.indexs.forEach(index_range => {
-                this.filteredOrders.splice(index_range - 1, 1);
+            console.log(this.range_v2);
+            let indexs = [...this.range_v2.indexs];
+            let allIndexesToDelete = [];
+            indexs.forEach((item) => {
+                let uniques = [...new Set(item)];
+                let uniqueIndexApartOne = uniques.map(item => item - 1);
+                allIndexesToDelete.push(...uniqueIndexApartOne);
             });
+            allIndexesToDelete = [...new Set(allIndexesToDelete)];
+            const updatedOrders = this.filteredOrders.filter((_, index) => allIndexesToDelete.includes(index));
+            updatedOrders.forEach((update_order, index_update) => {
+                this.filteredOrders.forEach((order, index) => {
+                    if(order.order == update_order.order){
+                        this.filteredOrders.splice(index, 1);
+                    }
+                });
+            });
+            // Hiển thị mảng đã cập nhật
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            console.log('Xóa dữ liệu');
-            console.log(this.range);
-            this.position.order = data.order;
-            this.update_status_function.delete++;
+            this.update_status_function.set_data++;
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;
@@ -1751,6 +1799,57 @@ export default {
             this.update_status_function.replace = 0;
             this.update_status_function.replace_all = 0;
         },
+        refeshRange() {
+            this.range.indexs = [];
+            this.range.items = [];
+            this.range.full_items = [];
+        },
+        getItemsFirstRange() {
+            let first_items = this.filteredOrders.length - (this.filteredOrders.length - 1);
+            this.range.indexs = [1];
+            this.range.items = this.filteredOrders.map((item, index) => {
+                if (index == (first_items - 1)) {
+                    return item;
+                }
+            });
+            this.range.full_items = this.filteredOrders.map((item, index) => {
+                if (index == (first_items - 1)) {
+                    return item;
+                }
+            })
+        },
+        handleRangeRemoved(range) {
+            if (this.filteredOrders.length == 0) {
+                this.refeshRange();
+            } else {
+                this.getItemsFirstRange();
+            }
+        },
+        handleHeaderClick(column) {
+            let field = column.getField();
+            this.range.indexs = column.getTable().getRows().map(row => row.getPosition());
+            this.range.items = column.getTable().getRows().map(row => row.getData());
+            this.range.full_items = column.getTable().getRows().map(row => row.getData());
+            switch (field) {
+                case 'rownum':
+                    this.range.indexs.sort((a, b) => b - a);
+                    this.range.indexs.forEach(index => {
+                        // xóa dữ liệu
+                        this.filteredOrders.splice(index - 1, 1);
+                    });
+                    break;
+
+                default:
+                    break;
+            }
+        },
+        handleGetRangesData(table, positiones) {
+            let items = table.map(range => range);
+            this.range_v2.indexs = positiones;
+            this.range_v2.items = items.map(item => item);
+
+        },
+
     },
     computed: {
         filteredOrders() {
