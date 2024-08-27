@@ -28,6 +28,8 @@ use App\Services\Implementations\Converters\RegexMatchConverter;
 use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Extractors\ExcelExtractorService;
+use App\Services\Implementations\Extractors\PdfTextLocatorService;
+
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure;
@@ -1513,48 +1515,109 @@ class AiRepository extends RepositoryAbs
     // Hàm kiểm tra config có mapping với file không
     private function checkMappingConfig($extract_order_config, $file)
     {
+        $result = false;
         try {
             $extract_order_config->load(['extract_data_config']);
             $extract_data_config = $extract_order_config->extract_data_config;
             $advanced_settings_info = json_decode($extract_data_config->advanced_settings_info);
+            $check_string_key = isset($advanced_settings_info->check_mapping_config->check_string_key) ?
+                $advanced_settings_info->check_mapping_config->check_string_key : null;
+            if ($check_string_key) {
+                // Kiểm tra mẫu theo chuỗi từ khóa
+                $string_key = $check_string_key->string_key;
 
-            $check_table_areas = $advanced_settings_info->check_mapping_config->check_table_areas;
-            $x_coordinates = [];
-            if (isset($advanced_settings_info->check_mapping_config->columns)) {
-                $x_coordinates = $advanced_settings_info->columns->x_coordinates;
-            }
-            $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
-            $data_extractor = new CamelotExtractorService();
+                // Chuyển $string_key dạng text thuần
+                $page = isset($check_string_key->page) ? $check_string_key->page : 1;
+                $file_path = $this->file_service->saveTemporaryFile($file);
+                $text_locator = new PdfTextLocatorService();
+                // $check_string_key_result = $text_locator->checkStringKey($file_path, $page, $string_key);
+                $get_full_text_result = $text_locator->getFullText($file_path, $page);
+                if (!isset($get_full_text_result['error'])) {
+                    // Kiểm tra chuỗi trong $get_full_text_result[0] có chứa $string_key
+                    if (strpos($get_full_text_result[0], $string_key) !== false) {
+                        // Kiểm tra thêm vị trí các chuỗi text
+                        $check_text_break_line = isset($check_string_key->check_text_break_line) ? $check_string_key->check_text_break_line : null;
+                        if ($check_text_break_line) {
+                            $text_break_line_info = array();
+                            foreach ($check_text_break_line as $text_break_line) {
+                                $text1 =$text_break_line->text_1;
+                                $text2 = $text_break_line->text_2;
+                                $text1_string = $text1->text;
+                                $text1_page = $text1->page;
+                                $text1_index = $text1->index;
+                                $text2_string = $text2->text;
+                                $text2_page = $text2->page;
+                                $text2_index = $text2->index;
 
-            $file_path = $this->file_service->saveTemporaryFile($file);
+                                $text1_position = $text_locator->findTextPosition($file_path, $text1_page, $text1_string, $text1_index);
+                                $text2_position = $text_locator->findTextPosition($file_path, $text2_page, $text2_string, $text2_index);
 
-            $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas, $x_coordinates);
-            $this->file_service->deleteTemporaryFile($file_path);
-            $table_0 = isset($value_table_area[0]) ? $value_table_area[0] : null;
-            $check_value = "";
-            if ($table_0) {
-                $csv = Reader::createFromString($table_0);
-                $records = $csv->getRecords();
-
-                $collection = collect([]);
-                foreach ($records as $record) {
-                    $collection->push($record);
+                                if (isset($text1_position['error']) || isset($text2_position['error'])) {
+                                    $text_break_line_info[] = false;
+                                } else {
+                                    $text1_position_x = $text1_position['rect_coord']['x0'];
+                                    $text2_position_x = $text2_position['rect_coord']['x0'];
+                                    if ($text1_position_x < $text2_position_x) {
+                                        $text_break_line_info[] = false;
+                                    } else {
+                                        $text_break_line_info[] = true;
+                                    }
+                                }
+                            }
+                            // Nếu tất cả phần tử $text_break_line_info là true thì $result là true
+                            if (!in_array(false, $text_break_line_info)) {
+                                $result = true;
+                            }
+                        } else {
+                            $result = true;
+                        }
+                    }
                 }
-                $table_0_array = $collection->toArray();
-                $check_value = $table_0_array[0][0];
-                // Remove tất cả space trong check_value
-                $check_value = preg_replace('/\s+/', '', $check_value);
-
+                else {
+                    $result = false;
+                }
+                $this->file_service->deleteTemporaryFile($file_path);
             }
-            // Check chuỗi $value_table_area[0] có chứa chuỗi $check_condition
-            if (strpos($check_value, $check_condition) !== false) {
-                return true;
+            else {
+                // Kiểm tra mẫu theo vùng tọa độ
+                $check_table_areas = $advanced_settings_info->check_mapping_config->check_table_areas;
+                $x_coordinates = [];
+                if (isset($advanced_settings_info->check_mapping_config->columns)) {
+                    $x_coordinates = $advanced_settings_info->columns->x_coordinates;
+                }
+                $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
+                $data_extractor = new CamelotExtractorService();
+
+                $file_path = $this->file_service->saveTemporaryFile($file);
+
+                $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas, $x_coordinates);
+                $this->file_service->deleteTemporaryFile($file_path);
+                $table_0 = isset($value_table_area[0]) ? $value_table_area[0] : null;
+                $check_value = "";
+                if ($table_0) {
+                    $csv = Reader::createFromString($table_0);
+                    $records = $csv->getRecords();
+
+                    $collection = collect([]);
+                    foreach ($records as $record) {
+                        $collection->push($record);
+                    }
+                    $table_0_array = $collection->toArray();
+                    $check_value = $table_0_array[0][0];
+                    // Remove tất cả space trong check_value
+                    $check_value = preg_replace('/\s+/', '', $check_value);
+
+                }
+                // Check chuỗi $value_table_area[0] có chứa chuỗi $check_condition
+                if (strpos($check_value, $check_condition) !== false) {
+                    $result = true;
+                }
             }
         } catch (\Throwable $th) {
-            return false;
+            $result = false;
         }
 
-        return false;
+        return $result;
     }
 
     public function getConvertConfigList()
