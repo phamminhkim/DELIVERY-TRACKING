@@ -14,12 +14,12 @@
                         </button>
                     </div>
                     <div class="modal-body bg-gray-light">
-                        <div class="d-flex form-group border-bottom p-1 text-xs">
+                        <div v-if="update_status_function" class="d-flex form-group border-bottom p-1 text-xs">
                             <div class="mr-5">
-                                <span class="text-success">Số lần thao tác <u>ReplaceAll</u>: {{ update_status_function.replace_all }}</span>
+                                <span class="text-success">Số lần thao tác <u>ReplaceAll</u>: <span v-if="update_status_function">{{ update_status_function.replace_all }}</span></span>
                             </div>
                             <div>
-                                <span class="text-success">Số lần thao tác <u>Replace</u>: {{ update_status_function.replace }} </span>
+                                <span class="text-success">Số lần thao tác <u>Replace</u>: <span v-if="update_status_function">{{ update_status_function.replace }}</span></span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -120,10 +120,10 @@
                     </div>
                     <div class="modal-footer d-block text-center">
                         <button @click="emitReplaceItemAll()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn"><span class="text-xs text-success">({{ orders.length }} items)</span> Replace
+                            class="btn btn-sm px-4 btn-light shadow-btn"><span class="text-xs text-success"><span v-if="update_status_function">({{ orders.length }} items)</span> </span> Replace
                             All </button>
                         <button @click="emitReplaceItem()" type="button"
-                            class="btn btn-sm px-4 btn-light shadow-btn"><span class="text-xs text-success">({{ countItemFirst() }} item)</span> Replace</button>
+                            class="btn btn-sm px-4 btn-light shadow-btn"><span v-if="update_status_function" class="text-xs text-success">({{ countItemFirst() }} item)</span> Replace</button>
                     </div>
                 </div>
             </div>

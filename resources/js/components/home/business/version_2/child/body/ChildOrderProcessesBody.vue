@@ -246,8 +246,10 @@ export default {
                 if (newVal) {
                     // this.table.addRow(this.position_order.order);
                     // this.table.updateOrAddData(this.filteredOrders);
-                    this.table.updateColumnDefinition(this.filterColumn());
+                    // this.table.updateColumnDefinition(this.filterColumn());
                     this.table.setData(this.filteredOrders);
+                    // this.table.updateOrAddData(this.filteredOrders);
+                    console.log('getTableData:', this.table.getData());
                 }
             }, 10),
         },
@@ -509,7 +511,6 @@ export default {
                         row.getCell('sku_sap_code').getElement().style.color = '#212529';
                     }
                     // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
-                    // Lấy ô của cột 'combined_field'
                     const cell_sap_so_number = row.getCell('sap_so_number');
                     const cell_so_sap_note = row.getCell('so_sap_note');
                     if (cell_sap_so_number) {
@@ -523,8 +524,6 @@ export default {
                         const value2 = data.promotive == null ? '' : data.promotive;
                         cell_so_sap_note.getElement().innerHTML = `<span>${value1}</span><span>${value2}</span>`;
                     }
-
-
 
                 },
             });
