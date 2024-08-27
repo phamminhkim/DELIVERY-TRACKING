@@ -29,6 +29,7 @@ use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Extractors\ExcelExtractorService;
 use App\Services\Implementations\Extractors\PdfTextLocatorService;
+use App\Services\Implementations\Extractors\AiExtractorService;
 
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
@@ -697,6 +698,20 @@ class AiRepository extends RepositoryAbs
                 $options['advanced_settings_info'] = $advanced_settings_info;
             }
         } else if ($this->data_extractor instanceof ExcelExtractorService) {
+            if (!$extract_data_config) {
+                $table_area_info = json_decode($this->request->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
+            } else {
+                $table_area_info = json_decode($extract_data_config->table_area_info);
+                $options['table_area_info'] = $table_area_info;
+                $specify_table_number = 0;
+                $exclude_head_tables_count = 0;
+                $exclude_tail_tables_count = 0;
+            }
+        } else if ($this->data_extractor instanceof AiExtractorService) {
             if (!$extract_data_config) {
                 $table_area_info = json_decode($this->request->table_area_info);
                 $options['table_area_info'] = $table_area_info;

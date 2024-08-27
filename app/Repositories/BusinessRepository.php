@@ -25,6 +25,8 @@ use App\Services\Implementations\Converters\RegexSplitConverter;
 use App\Services\Implementations\Converters\TableConverterService;
 use App\Services\Implementations\Extractors\CamelotExtractorService;
 use App\Services\Implementations\Extractors\ExcelExtractorService;
+use App\Services\Implementations\Extractors\AiExtractorService;
+
 use App\Services\Implementations\Files\LocalFileService;
 use App\Services\Implementations\Restructurers\IndexArrayMappingRestructure;
 use App\Services\Implementations\Restructurers\KeyArrayMappingRestructure;
@@ -67,6 +69,9 @@ class BusinessRepository
                         switch ($method) {
                             case ExtractMethod::CAMELOT:
                                 $data_extractor = new CamelotExtractorService();
+                                break;
+                            case ExtractMethod::AI:
+                                $data_extractor = new AiExtractorService();
                                 break;
                             default:
                                 throw new \Exception('Extract method is not specified');
@@ -152,6 +157,7 @@ class BusinessRepository
         $extract_config = ExtractOrderConfig::find(intval($config_id));
         if ($extract_config) {
             $convert_file_type = $extract_config->convert_file_type;
+            $extract_data_config = $extract_config->extract_data_config;
             // Data
             $table_convert_config =  $extract_config->convert_table_config;
             $data_restruct_config = $extract_config->restructure_data_config;
@@ -168,8 +174,20 @@ class BusinessRepository
         $header_extractor = null;
         switch ($convert_file_type) {
             case 'pdf':
-                $data_extractor = new CamelotExtractorService();
-                $header_extractor = new CamelotExtractorService();
+                switch ($extract_data_config->method) {
+                    case ExtractMethod::CAMELOT:
+                        $data_extractor = new CamelotExtractorService();
+                        $header_extractor = new CamelotExtractorService();
+                        break;
+                    case ExtractMethod::AI:
+                        $data_extractor = new AiExtractorService();
+                        $header_extractor = new AiExtractorService();
+                        break;
+                    default:
+                        $data_extractor = new CamelotExtractorService();
+                        $header_extractor = new CamelotExtractorService();
+                        break;
+                }
                 break;
             case 'excel':
                 $data_extractor = new ExcelExtractorService();

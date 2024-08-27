@@ -15,6 +15,7 @@ class OrderProcess extends Model
         'title',
         'created_by',
         'updated_by',
+        'is_deleted',
     ];
     protected $casts = [
         'is_deleted' => 'boolean',

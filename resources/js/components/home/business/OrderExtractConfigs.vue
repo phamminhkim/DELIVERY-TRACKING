@@ -979,7 +979,7 @@
 				extract_phase_result: [],
                 extract_header_phase_result: [],
 				extract_phase_options: {
-					methods: [{ id: 'camelot', label: 'Camelot' }],
+					methods: [{ id: 'camelot', label: 'Camelot' }, { id: 'ai', label: 'AI' }],
 					camelot_flavors: [
 						{ id: 'stream', label: 'Stream' },
 						{ id: 'lattice', label: 'Lattice' },
@@ -1734,7 +1734,7 @@
                 this.extract_phase_result = [];
                 this.extract_header_phase_result = [];
                 this.extract_phase_options = {
-                    methods: [{ id: 'camelot', label: 'Camelot' }],
+                    methods: [{ id: 'camelot', label: 'Camelot' }, { id: 'ai', label: 'AI' }],
                     camelot_flavors: [
                         { id: 'stream', label: 'Stream' },
                         { id: 'lattice', label: 'Lattice' },
