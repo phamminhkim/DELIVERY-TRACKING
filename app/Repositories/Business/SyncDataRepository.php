@@ -88,7 +88,7 @@ class SyncDataRepository extends RepositoryAbs
                             "lgort" => $warehouse_code,
                             "Ship_cond" => isset($value["Ship_cond"]) ? $value["Ship_cond"] : null,
                             "SO_KEY" => $order->id,
-                            "GROUP_NAME" => $group_name,//$order->sap_so_number, //isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                            "GROUP_NAME" => $group_name, //$order->sap_so_number, //isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
                             "CUST_NO" => $order->customer_code,
                             "VER_BOM_SALE" => "",
                             "LV2" => $order->level2,
@@ -192,8 +192,9 @@ class SyncDataRepository extends RepositoryAbs
                         $query->where('created_by', $user_id);
                     });
                 }
-                // dd($user_id);
-
+                $query->whereHas('order_process', function ($query) {
+                    $query->where('is_deleted', 0); // Chỉ lấy những order_process có is_deleted = 0
+                });
                 // Lọc theo danh sách các ID
                 if ($this->request->filled('ids')) {
                     $ids = $this->request->ids;
@@ -218,8 +219,8 @@ class SyncDataRepository extends RepositoryAbs
                     $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
                 }
 
-                 // Lọc theo order_process_id
-                 if ($this->request->filled('order_process_id')) {
+                // Lọc theo order_process_id
+                if ($this->request->filled('order_process_id')) {
                     $order_process_ids = $this->request->order_process_id;
                     $query->whereIn('order_process_id', $order_process_ids);
                 }
