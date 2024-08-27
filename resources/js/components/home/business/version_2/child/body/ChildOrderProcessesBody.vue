@@ -118,6 +118,10 @@ export default {
             ],
             window_width: 0,
             window_height: 0,
+            range_table: {
+                indexs: [],
+                items: [],
+            },
 
         };
     },
@@ -127,17 +131,15 @@ export default {
     },
     async mounted() {
         await this.loadTable();
+
         this.table.on("rangeChanged", (range) => {
             // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
-
-        });
-        this.table.on("rangeAdded", (range) => {
-            // console.log('rangeAdded:', range);
+            this.$emit("emitGetRangesData", this.table.getRangesData(), this.table.getRanges().map(range => range.getRows().map(row => row.getPosition())));
         });
         this.table.on("rangeRemoved", (range) => {
             // this.$emit("emitRangeChanged", range);
-            // console.log('rangeRemoved:', range, range.getRows().map(row => row.getData()));
+            this.$emit("emitRangeRemoved", range);
 
         });
         this.table.on("cellEdited", (cell) => {
@@ -156,6 +158,32 @@ export default {
             // lấy toàn bộ column trong bảng
             // console.log('this.table.getColumns():', this.table.getColumns().map(column => column.getField(), column.getDefinition()));
         });
+        this.table.on("rowSelected", (row) => {
+            //row - row component for the selected row
+            console.log('rowSelected:', row.getData());
+        });
+        this.table.on("headerClick", (e, column) => {
+            //  column.getTable().getRows().map(row => row.getPosition()));
+            this.$emit('headerClick', column);
+
+        });
+        this.table.on("cellEditing", (cell) => {
+            console.log('cellEditing:');
+            // this.table.options.selectableRange = true; // Update selectableRange option
+        });
+        this.table.on("cellEditCancelled", (cell) => {
+            console.log('cellEditCancelled:');
+        });
+
+        this.table.on("headerContext", (e, column) => {
+            //e - the click event object
+            //column - column component
+            console.log('headerContext:', column.getField());
+        });
+
+
+
+
         window.addEventListener('resize', this.updateWindowDimensions);
 
     },
@@ -218,8 +246,10 @@ export default {
                 if (newVal) {
                     // this.table.addRow(this.position_order.order);
                     // this.table.updateOrAddData(this.filteredOrders);
-                    this.table.updateColumnDefinition(this.filterColumn());
+                    // this.table.updateColumnDefinition(this.filterColumn());
                     this.table.setData(this.filteredOrders);
+                    // this.table.updateOrAddData(this.filteredOrders);
+                    console.log('getTableData:', this.table.getData());
                 }
             }, 10),
         },
@@ -265,6 +295,9 @@ export default {
         updateData() {
             this.table.updateData(this.filteredOrders);
             this.updateWindowDimensions();
+            // cập nhật column formatter
+            // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumberOrSoSapNote() });
+            // cập nhật formater cho cột 'so_sap_note'
         },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
@@ -387,7 +420,6 @@ export default {
         async loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = await new Tabulator(this.$refs.table, {
-                // maxHeight: 500,
                 tabIndex: -1,
                 index: "order",
                 movableColumns: true,
@@ -399,27 +431,35 @@ export default {
                 // headerFilterLiveFilterDelay: 800,
                 // data: this.filteredOrders,
                 data: this.tableData,
+                column: this.filterColumn(),
                 headerSortClickElement: "icon", //trigger sort on icon click
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 // layout: "fitDataFill",
                 layout: "fitColumns",
                 // placeholder:"Không có dữ liệu",
-                rowHeader: { resizable: false, frozen: true, width: 20, hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false },
+                rowHeader: {
+                    resizable: false,
+                    frozen: true,
+                    width: 20,
+                    hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false,
+                    field: "rownum",
+                },
+                initialSelection: false,
                 // selectableRange: true,
                 //enable range selection
-                selectableRange: 1,
+                selectableRange: true,
                 selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
-                scrollToColumnIfVisible: false,
-                scrollToColumnPosition: "left",
+                // scrollToColumnIfVisible: false,
+                // scrollToColumnPosition: "left",
                 // selectableRows:true, // Chọn Row
                 editTriggerEvent: "dblclick", // dblClick Chỉnh sửa
                 enterEdit: true, // Chỉnh sửa khi nhấn Enter
                 clipboard: true,
                 clipboardCopyStyled: false,
                 clipboardCopyConfig: {
-                    rowHeaders: true, //do not include row headers in clipboard output
+                    rowHeaders: false, //do not include row headers in clipboard output
                     columnHeaders: false, //do not include column headers in clipboard output
                 },
                 clipboardCopyRowRange: "range",
@@ -469,6 +509,20 @@ export default {
                         row.getCell('barcode').getElement().style.color = '#212529';
                         row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
                         row.getCell('sku_sap_code').getElement().style.color = '#212529';
+                    }
+                    // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
+                    const cell_sap_so_number = row.getCell('sap_so_number');
+                    const cell_so_sap_note = row.getCell('so_sap_note');
+                    if (cell_sap_so_number) {
+                        const value1 = data.sap_so_number == null ? '' : data.sap_so_number;
+                        const value2 = data.promotive == null ? '' : data.promotive;
+                        // Kết hợp hai giá trị và cập nhật nội dung của ô
+                        cell_sap_so_number.getElement().innerHTML = `<span>${value1}</span><span>${value2}</span>`;
+                    }
+                    if (cell_so_sap_note) {
+                        const value1 = data.so_sap_note == null ? '' : data.so_sap_note;
+                        const value2 = data.promotive == null ? '' : data.promotive;
+                        cell_so_sap_note.getElement().innerHTML = `<span>${value1}</span><span>${value2}</span>`;
                     }
 
                 },
@@ -646,14 +700,6 @@ export default {
                     label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {
                         this.$emit('deleteRow', row.getPosition(), row.getData());
-                        // row.delete();
-                        let selectedRows = this.table.getSelectedRows();  // Lấy tất cả các hàng được chọn
-                        let selectedData = selectedRows.map(row => row.getData()); // Lấy dữ liệu của các hàng đó
-
-                        // tôi đang selectableRange toàn bộ hàng, nếu bạn muốn xóa hàng được chọn, hãy sử dụng dòng dưới đây
-                        // console.log(selectedData, 'selectedData', this.table.getSelectedRows());
-                        // nhưng dữ liệu không thấy được cập nhật
-                        console.log(selectedData, 'selectedData', this.table.getSelectedRows());
                     }
                 },
 
@@ -721,7 +767,21 @@ export default {
             });
             return context_menu_4;
 
-        }
+        },
+
+        formatterSapSoNumberOrSoSapNote() {
+            return (cell, formatterParams, onRendered) => {
+                let value = cell.getValue(); // Giá trị của cột 'ma_sap'
+                let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
+                cell.getRow().getData().promotive_name = promotive;
+                cell.getRow().getData().note1 = promotive;
+                cell.getRow().getData().is_promotive = true;
+
+                let value_promotive = promotive ? `${promotive}` : '';
+                let value_new = value == null ? '' : value;
+                return `${value_new}${value_promotive}`;
+            };
+        },
     },
 
 };

@@ -56,7 +56,8 @@
                             @clipboardPasted="clipboardPasted" @inputBackgroundColor="inputBackgroundColor"
                             @inputTextColor="inputTextColor" @toggleColumn="toggleColumn" @hiddenColumns="hiddenColumns"
                             @toggleColumnShow="toggleColumnShow" @columnResized="columnResized"
-                            @columnMoved="columnMoved" />
+                            @emitGetRangesData="emitGetRangesData" 
+                            @columnMoved="columnMoved" @emitRangeRemoved="emitRangeRemoved" @headerClick="headerClick" />
                     </div>
                 </div>
             </div>
@@ -240,7 +241,17 @@ export default {
         },
         saveUpdateLayout() {
             this.$emit('saveUpdateLayout');
-        }
+        },
+        emitRangeRemoved(range) {
+            this.$emit('emitRangeRemoved', range);
+        },
+        headerClick(column) {
+            this.$emit('headerClick', column);
+        },
+        emitGetRangesData(table, positiones) {
+            this.$emit('emitGetRangesData', table, positiones);
+        },
+       
     }
 }
 </script>

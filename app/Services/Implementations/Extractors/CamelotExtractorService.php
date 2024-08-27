@@ -36,9 +36,9 @@ class CamelotExtractorService implements DataExtractorInterface
         return $table;
     }
 
-    private function extractNoSplitPages($file_path, $options)
+    private function extractNoSplitPages($file_path_org, $options)
     {
-        $file_path = "\"" . $file_path . "\"";
+        $file_path = "\"" . $file_path_org . "\"";
         $instance = new Camelot($file_path, $options['flavor']);
 
         // Nếu để mặc định thì Camelot chỉ lấy 1 page đầu
@@ -87,6 +87,10 @@ class CamelotExtractorService implements DataExtractorInterface
             }
             if (isset($advanced_settings_info->columns)) {
                 $x_coordinates = $advanced_settings_info->columns->x_coordinates;
+                if ($x_coordinates == 'auto') {
+                    $columns_info = $advanced_settings_info->columns->columns_info;
+                    $x_coordinates = $this->autoDetectXCoordinates($file_path_org, $columns_info);
+                }
                 $instance->setColumnSeparators($x_coordinates, true);
                 // $instance->setColumnSeparators(['44,168,274,333,398,475'], true);
                 // $instance->setColumnSeparators(['72,95,209,327,442,529,566,606,683'], false);
@@ -125,9 +129,9 @@ class CamelotExtractorService implements DataExtractorInterface
         return $table;
     }
 
-    private function extractWithPages($file_path, $options, $pages)
+    private function extractWithPages($file_path_org, $options, $pages)
     {
-        $file_path = "\"" . $file_path . "\"";
+        $file_path = "\"" . $file_path_org . "\"";
         $instance = new Camelot($file_path, $options['flavor']);
 
         $instance->pages($pages);
@@ -147,6 +151,10 @@ class CamelotExtractorService implements DataExtractorInterface
             }
             if (isset($advanced_settings_info->columns)) {
                 $x_coordinates = $advanced_settings_info->columns->x_coordinates;
+                if ($x_coordinates == 'auto') {
+                    $columns_info = $advanced_settings_info->columns->columns_info;
+                    $x_coordinates = $this->autoDetectXCoordinates($file_path_org, $columns_info);
+                }
                 $instance->setColumnSeparators($x_coordinates, true);
                 // $instance->setColumnSeparators(['44,168,274,333,398,475'], true);
                 // $instance->setColumnSeparators(['72,95,209,327,442,529,566,606,683'], false);
@@ -312,5 +320,19 @@ class CamelotExtractorService implements DataExtractorInterface
         $instance->pages('all');
         $tables = $instance->extract();
         return $tables;
+    }
+
+    public function autoDetectXCoordinates($file_path, $columns_info) {
+        $x_coords = [];
+        foreach ($columns_info as $col_info) {
+            $col_name = $col_info->col_name;
+            $page = $col_info->page;
+            $index = $col_info->index;
+            $x_coord = $col_info->x_coord;
+            $text_locator = new PdfTextLocatorService();
+            $result = $text_locator->findTextPosition($file_path, $page, $col_name, $index);
+            $x_coords[] = $result['rect_coord'][$x_coord];
+        }
+        return $x_coords;
     }
 }
