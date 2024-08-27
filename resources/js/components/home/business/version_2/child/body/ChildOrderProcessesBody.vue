@@ -439,15 +439,15 @@ export default {
                 selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
-                scrollToColumnIfVisible: false,
-                scrollToColumnPosition: "left",
+                // scrollToColumnIfVisible: false,
+                // scrollToColumnPosition: "left",
                 // selectableRows:true, // Chọn Row
                 editTriggerEvent: "dblclick", // dblClick Chỉnh sửa
                 enterEdit: true, // Chỉnh sửa khi nhấn Enter
                 clipboard: true,
                 clipboardCopyStyled: false,
                 clipboardCopyConfig: {
-                    rowHeaders: true, //do not include row headers in clipboard output
+                    rowHeaders: false, //do not include row headers in clipboard output
                     columnHeaders: false, //do not include column headers in clipboard output
                 },
                 clipboardCopyRowRange: "range",

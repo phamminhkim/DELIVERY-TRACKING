@@ -1663,7 +1663,8 @@ export default {
             data.is_promotive = true;
             // data.promotion_category = data.promotive;
             this.filteredOrders[position - 1] = data;
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         handleClipboardPasted(rows) {
             let positions = rows.map(row => row.getPosition());
