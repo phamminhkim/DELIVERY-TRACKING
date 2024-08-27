@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="modal fade" id="DialogOrderProcessesSync" data-backdrop="static" data-keyboard="false" tabindex="-1">
-            <div class="modal-dialog " :class="{
+            <div class="modal-dialog modal-dialog-scrollable" :class="{
                 'modal-xl': !is_loading,
             }">
                 <div class="modal-content" v-show="!is_loading">
@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group custom-text">
+                        <div class="form-group custom-text overflow">
                             <TableOrderSync :fields="fields" :items="order_headers" :shipping_datas="shipping_datas"
                                 :warehouses="warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
                                 @emitWarehouseId="emitWarehouseId"
@@ -342,5 +342,9 @@ export default {
 .custom-text {
     font-size: 0.8em !important;
     /* Kích thước văn bản nhỏ hơn */
+}
+.overflow{
+    overflow: auto;
+    height: 38em;
 }
 </style>
