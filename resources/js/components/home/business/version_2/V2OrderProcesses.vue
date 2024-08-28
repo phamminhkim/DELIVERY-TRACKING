@@ -948,13 +948,13 @@ export default {
             // this.UpdateSaleOrder(202);
         },
         handleFilterOrder(value, field, event) {
-            console.log('handleFilterOrder', value, field, event);
             if (event !== undefined) {
                 this.filter.event = event;
             }
             this.filter.value = value;
             this.filter.field = field;
-            this.update_status_function.add_row++;
+            // this.update_status_function.add_row++;
+            this.update_status_function.set_data++;
         },
         async handleOrderSyncSap() {
             this.is_modal_sync_sap = true;
@@ -1509,8 +1509,8 @@ export default {
                     sku_sap_unit: '',
                     inventory_quantity: '',
                     amount_po: '',
-                    is_inventory: '',
-                    is_promotive: '',
+                    is_inventory: false,
+                    is_promotive: false,
                     price_po: '',
                     promotive: '',
                     promotive_name: '',
@@ -1565,28 +1565,21 @@ export default {
             this.update_status_function.add_row++;
         },
         handleDeleteRow(position, data) {
-            console.log(this.range_v2);
             let indexs = [...this.range_v2.indexs];
-            let allIndexesToDelete = [];
-            indexs.forEach((item) => {
-                let uniques = [...new Set(item)];
-                let uniqueIndexApartOne = uniques.map(item => item - 1);
-                allIndexesToDelete.push(...uniqueIndexApartOne);
-            });
-            allIndexesToDelete = [...new Set(allIndexesToDelete)];
-            const updatedOrders = this.filteredOrders.filter((_, index) => allIndexesToDelete.includes(index));
-            updatedOrders.forEach((update_order, index_update) => {
-                this.filteredOrders.forEach((order, index) => {
-                    if(order.order == update_order.order){
-                        this.filteredOrders.splice(index, 1);
-                    }
-                });
+            let uniques = [...new Set(indexs.flat())];
+            uniques.sort((a, b) => b - a);
+            uniques.forEach(index => {
+                let item_dlt = this.filteredOrders.splice(index - 1, 1);
+                this.orders = this.orders.filter(order => order.order != item_dlt[0].order);
             });
             // Hiển thị mảng đã cập nhật
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            // this.update_status_function.update_data++;
+            this.update_status_function.delete++;
+
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;
@@ -1614,7 +1607,8 @@ export default {
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
             this.update_status_function.replace_all++;
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         getReplaceItem(item_materials, order_index) {
             item_materials.forEach(item_material => {
@@ -1630,7 +1624,8 @@ export default {
             this.closeModalSearchOrderProcesses();
             this.item_selecteds = [];
             this.update_status_function.replace++;
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
 
         },
         closeModalSearchOrderProcesses() {
@@ -1672,7 +1667,8 @@ export default {
             positions.forEach((position, index) => {
                 this.filteredOrders[position - 1] = data[index];
             });
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
         },
         handleExportExcel() {
             // let data = this.orders.concat(this.case_data_temporary.order_lacks);
