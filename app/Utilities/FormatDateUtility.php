@@ -21,8 +21,15 @@ class FormatDateUtility
 
     public static function formatDate2Date($src_date_format, $dest_date_format, $date)
     {
-        if (!$date) return null;
-        return Carbon::createFromFormat($src_date_format, $date)->format($dest_date_format);
+        $result = null;
+        try {
+            if ($date && $date != "0/00/00") {
+                $result =  Carbon::createFromFormat($src_date_format, $date)->format($dest_date_format);
+            }
+        } catch (\Throwable $th) {
+            $result = null;
+        }
+        return $result;
     }
 
 }

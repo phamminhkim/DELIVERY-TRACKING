@@ -49,6 +49,8 @@
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" />
         <DialogListOrderProcessSO @fetchOrderProcessSODetail="handleFetchOrderProcessSODetail"
             :update_status_function="update_status_function" />
+        <DialogOrderProcessesLoadingSAP />
+        <DialogOrderProcessesLoadingCustomerKey />
         <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
     </div>
 </template>
@@ -65,6 +67,9 @@ import DialogSearchOrderProcesses from '../../business/dialogs/DialogSearchOrder
 import DialogListOrderProcessSO from '../../business/dialogs/DialogListOrderProcessSO.vue';
 import DialogGetDataConvertFile from '../../business/dialogs/DialogGetDataConvertFile.vue';
 import DialogOrderProcessesLayout from './dialog/DialogOrderProcessesLayout.vue';
+import DialogOrderProcessesLoadingSAP from './dialog/DialogOrderProcessesLoadingSAP.vue';
+import DialogOrderProcessesLoadingCustomerKey from './dialog/DialogOrderProcessesLoadingCustomerKey.vue';
+
 
 export default {
     components: {
@@ -78,6 +83,8 @@ export default {
         DialogListOrderProcessSO,
         DialogGetDataConvertFile,
         DialogOrderProcessesLayout,
+        DialogOrderProcessesLoadingSAP,
+        DialogOrderProcessesLoadingCustomerKey
     },
     data() {
         return {
@@ -639,7 +646,7 @@ export default {
             try {
                 const { data, success, message } = await this.api_handler.post(this.url_api.check_promotion, {}, filter);
                 if (data) {
-                    await this.getValuePromotionCategory(data.items);
+                   await this.getValuePromotionCategory(data.items);
                     this.$showMessage('success', 'Thành công', 'Check khuyến mãi thành công');
                 } else {
                     this.$showMessage('error', 'Lỗi', message);
@@ -651,16 +658,19 @@ export default {
             }
         },
         async handleCheckPromotion() {
-            await this.apiCheckPromotion();
+            let check = await this.apiCheckPromotion();
             this.update_status_function.update_data++;
         },
         async handleDetectCustomerKey() {
             let unique_customer_name = [...new Set(this.filteredOrders.map(item => item.customer_name))];
             await this.checkCustomerKey(unique_customer_name);
             this.update_status_function.update_data++;
+
+
         },
         async checkCustomerKey(unique_customer_name) {
             try {
+
                 let customer_keys = [];
                 let is_customer_code_null = false;
                 let body = {
@@ -701,6 +711,7 @@ export default {
                     } else {
                         this.$showMessage('success', 'Thành công', 'Kiểm tra mã khách hàng thành công');
                     }
+                    this.is_loading = false;
                 } else {
                     if (errors) {
                         errors.items.length == body.items.length ? this.$showMessage('error', 'Lỗi', errors.message + '<br>'
@@ -743,6 +754,7 @@ export default {
 
         },
         async handleDetectSapCodeOrder() {
+            await $('#DialogOrderProcessesLoadingSAP').modal('show');
             this.sap_codes = [];
             this.filteredOrders.forEach(element => {
                 this.sap_codes.push({
@@ -754,9 +766,11 @@ export default {
                 });
             });
             this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
-            this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
+            await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
             await this.apiCheckComplianceFromOrder();
             this.update_status_function.set_data++;
+            await $('#DialogOrderProcessesLoadingSAP').modal('hide');
+
         },
         isUndefined(value) {
             if (value === undefined) {
@@ -833,6 +847,7 @@ export default {
                     }
                 });
             });
+
         },
         async handleCheckInventorySubmit(warehouse_id) {
             this.case_check.warehouse_id = warehouse_id;
@@ -855,7 +870,7 @@ export default {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                         // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
-                        this.filteredOrders[i].theme_color.background.inventory_quantity = (orders[i]['variant_quantity'] == '' || orders[i]['variant_quantity'] == null || orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
+                        this.filteredOrders[i].theme_color.text.inventory_quantity = (orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
                     }
                 }
             });
@@ -1399,8 +1414,8 @@ export default {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
                         orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
-                        orders[i]['theme_color'].text.company_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
-                        orders[i]['theme_color'].text.pur_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
+                        orders[i]['theme_color'].text.company_price = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
+                        orders[i]['theme_color'].text.price_po = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
 
                     }
                 }

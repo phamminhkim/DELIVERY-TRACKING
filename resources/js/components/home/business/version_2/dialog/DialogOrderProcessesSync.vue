@@ -47,7 +47,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group custom-text overflow">
+                        <div class="form-group custom-text ">
                             <TableOrderSync :fields="fields" :items="order_headers" :shipping_datas="shipping_datas"
                                 :warehouses="warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
                                 @emitWarehouseId="emitWarehouseId"
