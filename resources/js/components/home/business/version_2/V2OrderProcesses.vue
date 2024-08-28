@@ -1399,8 +1399,8 @@ export default {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
                         orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
-                        orders[i]['theme_color'].text.company_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
-                        orders[i]['theme_color'].text.pur_price = orders[i]['pur_price'] == orders[i]['company_price'] ? '' : '#FF0000';
+                        orders[i]['theme_color'].text.company_price = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
+                        orders[i]['theme_color'].text.price_po = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
 
                     }
                 }
