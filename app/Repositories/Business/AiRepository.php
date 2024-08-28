@@ -229,25 +229,42 @@ class AiRepository extends RepositoryAbs
 
                     // Raw data
                     $raw_data = $this->extractDataForDirect($file, $extract_data_config);
-                    $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
 
                     $order_data = null;
                     $order_header = null;
                     // Table data & order data
+                    $extract_method = $extract_data_config->method;
                     if ($convert_file_type == 'pdf') {
-                        // Data
-                        $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
-                        $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
-                        // Header
-                        $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
-                        $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
-                        $order_header = $this->addCustomInfo($restruct_header);
+                        switch ($extract_method) {
+                            case ExtractMethod::CAMELOT:
+                                $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
+                                // Data
+                                $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
+                                $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
+                                // Header
+                                $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
+                                $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                                $order_header = $this->addCustomInfo($restruct_header);
 
-                        $array_data = [
-                            'headers' => $order_header,
-                            'items' => $order_data,
-                        ];
-                        array_push($final_data, $array_data);
+                                $array_data = [
+                                    'headers' => $order_header,
+                                    'items' => $order_data,
+                                ];
+                                array_push($final_data, $array_data);
+                                break;
+                            case ExtractMethod::AI:
+                                $raw_data_table = $raw_data['line_items'];
+                                $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config);
+                                $raw_header_table[] = $raw_data['Info_PO'];
+                                $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
+                                $order_header = $this->addCustomInfo($restruct_header[0]);
+                                $array_data = [
+                                    'headers' => $order_header,
+                                    'items' => $order_data,
+                                ];
+                                array_push($final_data, $array_data);
+                                break;
+                        }
 
                     } else if ($convert_file_type == 'excel') {
                         $table_area_info = json_decode($extract_data_config->table_area_info);
@@ -275,6 +292,7 @@ class AiRepository extends RepositoryAbs
                                 break;
 
                             default:
+                                $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
                                 // Data
                                 $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
                                 // Header
@@ -671,6 +689,7 @@ class AiRepository extends RepositoryAbs
     private function extractData($file_path, $extract_data_config = null)
     {
         $options = array();
+        $is_extract_by_ai = false;
         if ($this->data_extractor instanceof CamelotExtractorService) {
             if (!$extract_data_config) {
                 $options['is_merge_pages'] = $this->request->is_merge_pages == 'true' ? true : false;
@@ -725,15 +744,19 @@ class AiRepository extends RepositoryAbs
                 $exclude_head_tables_count = 0;
                 $exclude_tail_tables_count = 0;
             }
+            $is_extract_by_ai = true;
         }
         $tables = $this->data_extractor->extract($file_path, $options);
         $choosen_tables = [];
-
-        if ($specify_table_number > 0) {
-            $choosen_tables[] = $tables[$specify_table_number - 1];
+        if ($is_extract_by_ai) {
+            $choosen_tables = $tables;
         } else {
-            for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
-                $choosen_tables[] = $tables[$i];
+            if ($specify_table_number > 0) {
+                $choosen_tables[] = $tables[$specify_table_number - 1];
+            } else {
+                for ($i = $exclude_head_tables_count; $i < count($tables) - $exclude_tail_tables_count; $i++) {
+                    $choosen_tables[] = $tables[$i];
+                }
             }
         }
         return $choosen_tables;
@@ -1295,6 +1318,33 @@ class AiRepository extends RepositoryAbs
         try {
             // $table_data = json_decode($table_data, true);
             return $this->restructureData($table_data, $restructure_data_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
+    public function restructureDataByAi($table_data, $restructure_config)
+    {
+        try {
+            $new_restructure_config = clone $restructure_config;
+            $structure = json_decode($new_restructure_config->structure, true);
+            $data_config = json_encode($structure['data_config']);
+            $new_restructure_config->structure = $data_config;
+            return $this->restructureData($table_data, $new_restructure_config);
+        } catch (\Throwable $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function restructureHeaderByAi($table_data, $restructure_config)
+    {
+        try {
+            $new_restructure_config = clone $restructure_config;
+            $structure = json_decode($new_restructure_config->structure, true);
+            $header_config = json_encode($structure['header_config']);
+            $new_restructure_config->structure = $header_config;
+            return $this->restructureData($table_data, $new_restructure_config);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

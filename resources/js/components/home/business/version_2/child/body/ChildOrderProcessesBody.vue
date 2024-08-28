@@ -175,6 +175,7 @@ export default {
             console.log('cellEditCancelled:');
         });
 
+
         this.table.on("headerContext", (e, column) => {
             //e - the click event object
             //column - column component
@@ -247,21 +248,22 @@ export default {
                     // this.table.addRow(this.position_order.order);
                     // this.table.updateOrAddData(this.filteredOrders);
                     // this.table.updateColumnDefinition(this.filterColumn());
-                    this.table.setData(this.filteredOrders);
-                    // this.table.updateOrAddData(this.filteredOrders);
-                    console.log('getTableData:', this.table.getData());
+                    // this.table.setData(this.filteredOrders);
+                    this.table.updateOrAddData(this.filteredOrders);
+                    this.table.moveRow(this.position_order.order, this.position_order.order -1)
+                    console.log('this.table.getData().length:', this.table.getData().length);
                 }
             }, 10),
         },
         'update_status_function.delete': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-                    // this.table.redraw();
-                    // this.table.setData(this.filteredOrders);
-                    // this.table.deleteRow(this.position_order.order);
-                    // this.table.updateData(this.filteredOrders);
-                    this.table.setData(this.filteredOrders);
-
+                    let positiones = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
+                    let uniques = [...new Set(positiones.flat())];
+                    uniques.sort((a, b) => b[0] - a[0]);
+                    uniques.forEach(unique => {
+                        this.table.deleteRow(unique);
+                    });     
                 }
             }, 10),
         },
@@ -295,9 +297,10 @@ export default {
         updateData() {
             this.table.updateData(this.filteredOrders);
             this.updateWindowDimensions();
-            // cập nhật column formatter
-            // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumberOrSoSapNote() });
-            // cập nhật formater cho cột 'so_sap_note'
+            let positon = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
+            let fields = this.table.getRanges().map(range => range.getColumns().map(column => column.getField()));
+            this.table.scrollToRow(positon[0][0], "top", false);
+            this.table.scrollToColumn(fields[0][0], "center", false);
         },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
@@ -424,6 +427,11 @@ export default {
                 index: "order",
                 movableColumns: true,
                 movableColumnsInitialDelay: 0,
+                // scrollToRowPosition: "nearest",
+                // scrollTo: false,
+                // virtualScroll: true,  
+                // layout:"fitColumns",
+                // scrollToRowIfVisible: false, //prevent scrolling to a row if it is visible
                 // movableRows: true,
                 // movableRowsConnectedElements: "#drop-area", //element to receive rows
                 debugInvalidComponentFuncs: false,
@@ -740,7 +748,7 @@ export default {
                         let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
                         cell.getRow().getData().promotive_name = promotive;
                         cell.getRow().getData().note1 = promotive;
-                        cell.getRow().getData().is_promotive = true;
+                        cell.getRow().getData().is_promotive = promotive !== '' ? true : false
 
                         let value_promotive = promotive ? `${promotive}` : '';
                         let value_new = value == null ? '' : value;
@@ -768,14 +776,13 @@ export default {
             return context_menu_4;
 
         },
-
         formatterSapSoNumberOrSoSapNote() {
             return (cell, formatterParams, onRendered) => {
                 let value = cell.getValue(); // Giá trị của cột 'ma_sap'
                 let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
                 cell.getRow().getData().promotive_name = promotive;
                 cell.getRow().getData().note1 = promotive;
-                cell.getRow().getData().is_promotive = true;
+                cell.getRow().getData().is_promotive = promotive !== '' ? true : false;
 
                 let value_promotive = promotive ? `${promotive}` : '';
                 let value_new = value == null ? '' : value;
