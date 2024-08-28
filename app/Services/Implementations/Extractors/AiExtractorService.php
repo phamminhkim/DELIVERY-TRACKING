@@ -20,16 +20,16 @@ class AiExtractorService implements DataExtractorInterface
         $body_data = json_decode(json_encode($api_extract_info->body_data), true);
         $api_request = new ApiRequest($api_url, [], $body_data, $api_method);
         $api_response = $this->handleRequest($api_request, $file_path);
-
+        if (isset($api_response[0]['data'][0]['content'])) {
+            $raw_table_data = $api_response[0]['data'][0]['content'];
+        }
         return $raw_table_data;
     }
     public function handleRequest($request, $file_path)
     {
         try {
-            //use guzzle
-            // $client = new \GuzzleHttp\Client();
             $client = new \GuzzleHttp\Client([
-                'verify' => false, // Tạm thời bỏ qua xác thực SSL trên local
+                'verify' => false, // Tạm thời bỏ qua xác thực SSL
             ]);
             $promises = [];
 
@@ -37,33 +37,36 @@ class AiExtractorService implements DataExtractorInterface
             if (isset($body['bearer_token'])) {
                 $token_info = $body['bearer_token'];
                 $file_key_name = $body['file_key_name'];
-                $login_response = $client->request($token_info['token_method'], $token_info['token_url'], [
-                    'json' => $token_info['token_body'],
-                    'headers' => $token_info['token_header'],
-                    // 'verify' => false,
-                ]);
+                try {
+                    $login_response = $client->request($token_info['token_method'], $token_info['token_url'], [
+                        'json' => $token_info['token_body'],
+                        'headers' => $token_info['token_header'],
+                    ]);
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
 
                 $login_data = json_decode($login_response->getBody());
-                $token = 'Bearer ' . $login_data->access;
+                $token = 'Bearer ' . $login_data->data->access;
+
+                $file_paths = [
+                    $file_path
+                ];
+                $multipart = [];
+                foreach ($file_paths as $path) {
+                    $multipart[] = [
+                        'name'     => $file_key_name, // Tên của trường trong form-data
+                        'contents' => fopen($path, 'r'), // Mở tệp để đọc
+                        'filename' => basename($path) // Tên tệp
+                    ];
+                }
 
                 $promises[] = $client->requestAsync($request->method, $request->url, [
                     'query' => $request->queries,
-                    // 'json' => $request->body,
-                    'multipart' => [
-                        [
-                            'name'     => $file_key_name, // Tên của trường trong form-data
-                            'contents' => fopen($file_path, 'r'), // Mở tệp để đọc
-                            'filename' => basename($file_path) // Tên tệp
-                        ]
-                    ],
+                    'multipart' => $multipart,
                     'headers' => [
                         'Authorization' => $token
-                    ]
-                ]);
-            } else {
-                $promises[] = $client->requestAsync($request->method, $request->url, [
-                    'query' => $request->queries,
-                    'json' => $request->body
+                    ],
                 ]);
             }
 
