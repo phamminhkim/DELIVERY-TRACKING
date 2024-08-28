@@ -247,6 +247,12 @@ export default {
                     class: 'text-nowrap'
                 },
                 {
+                    key: 'update_at',
+                    label: 'Ngày cập nhật',
+                    sortable: true,
+                    class: 'text-nowrap'
+                },
+                {
                     key: 'sync_sap_status',
                     label: 'TT Đồng bộ',
                     sortable: true,
@@ -331,12 +337,7 @@ export default {
                     sortable: true,
                     class: 'text-nowrap'
                 },
-                {
-                    key: 'update_at',
-                    label: 'Ngày cập nhật',
-                    sortable: true,
-                    class: 'text-nowrap'
-                },
+                
 
             ],
             per_page: 15,

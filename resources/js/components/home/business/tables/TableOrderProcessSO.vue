@@ -30,6 +30,11 @@
                     {{ data.item.customer_group.name }}
                 </div>
             </template>
+            <template #cell(synchronized_so_count)="data">
+                <div class="text-center">
+                    {{ data.item.synchronized_so_count }}/{{ data.item.total_so_count }}
+                </div>
+            </template>
             <template #cell(updated_by)="data">
                 <div>
                     <span class="mr-1 text-primary"><i class="fas fa-id-card-alt"></i></span>
@@ -82,6 +87,12 @@ export default {
                 {
                     key: 'serial_number',
                     label: 'Serial_number',
+                    class: 'text-nowrap',
+                    sortable: true,
+                },
+                {
+                    key: 'synchronized_so_count',
+                    label: 'Số SO đã đồng bộ',
                     class: 'text-nowrap',
                     sortable: true,
                 },
