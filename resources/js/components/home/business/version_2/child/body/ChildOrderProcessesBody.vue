@@ -691,19 +691,19 @@ export default {
                 {
                     separator: true,
                 },
-                {
-                    label: "<i class='fas fa-clone text-black-50 mr-1'></i> Duplicate",
-                    action: (e, row) => {
-                        // thêm dòng row mới vào bảng tương ứng với dòng row hiện tại
-                        this.$emit('duplicateRow', row.getPosition(), row.getData());
-                        console.log('row.getPosition():', row.getPosition(), row.getData());
+                // {
+                //     label: "<i class='fas fa-clone text-black-50 mr-1'></i> Duplicate",
+                //     action: (e, row) => {
+                //         // thêm dòng row mới vào bảng tương ứng với dòng row hiện tại
+                //         this.$emit('duplicateRow', row.getPosition(), row.getData());
+                //         console.log('row.getPosition():', row.getPosition(), row.getData());
 
-                        // row.move(row.getPosition() + 1, false);
-                    }
-                },
-                {
-                    separator: true,
-                },
+                //         // row.move(row.getPosition() + 1, false);
+                //     }
+                // },
+                // {
+                //     separator: true,
+                // },
                 {
                     label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {

@@ -855,7 +855,7 @@ export default {
                         orders[i]['inventory_quantity'] = tmp['ATP_QUANTITY'];
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                         // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
-                        this.filteredOrders[i].theme_color.background.inventory_quantity = (orders[i]['variant_quantity'] == '' || orders[i]['variant_quantity'] == null || orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
+                        this.filteredOrders[i].theme_color.text.inventory_quantity = (orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
                     }
                 }
             });
