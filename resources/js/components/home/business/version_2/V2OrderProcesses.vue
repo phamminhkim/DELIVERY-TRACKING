@@ -1576,7 +1576,10 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            // this.update_status_function.update_data++;
+            this.update_status_function.delete++;
+
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;

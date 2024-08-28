@@ -258,12 +258,12 @@ export default {
         'update_status_function.delete': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-                    // this.table.redraw();
-                    // this.table.setData(this.filteredOrders);
-                    // this.table.deleteRow(this.position_order.order);
-                    // this.table.updateData(this.filteredOrders);
-                    this.table.setData(this.filteredOrders);
-
+                    let positiones = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
+                    let uniques = [...new Set(positiones.flat())];
+                    uniques.sort((a, b) => b[0] - a[0]);
+                    uniques.forEach(unique => {
+                        this.table.deleteRow(unique);
+                    });     
                 }
             }, 10),
         },
