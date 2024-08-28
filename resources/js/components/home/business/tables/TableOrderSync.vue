@@ -1,6 +1,7 @@
 <template>
     <div>
         <b-table responsive small hover :fields="fields" :items="items" head-variant="light" 
+        :sticky-header="window_height + 'px'"
             :class="{
                 'position-relative-custom': use_component === 'DialogOrderSync',
                 'custom-set-height' : class_modal_v2 === 'V2OrderProcesses',
@@ -90,6 +91,8 @@ export default {
             case_api: {
                 warehouse: 'api/master/warehouses/company-3000',
             },
+            window_height: 0,
+            window_width: 0,
         }
     },
     watch: {
@@ -105,7 +108,15 @@ export default {
     created() {
         this.fetchWarehouses();
     },
+    mounted() {
+        this.updateWindownHeight();
+        window.addEventListener('resize', this.updateWindownHeight);
+    },
     methods: {
+        updateWindownHeight() {
+            this.window_height = window.innerHeight - 210;
+            this.window_width = window.innerWidth;
+        },
         loadOptions({ action, parentNode, callback }) {
             // Typically, do the AJAX stuff here.
             // Once the server has responded,
