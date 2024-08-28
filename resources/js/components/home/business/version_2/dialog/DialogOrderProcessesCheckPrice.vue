@@ -32,7 +32,7 @@
                 <div v-show="is_loading" class="modal-content text-center modal-dialog-centered">
                     <div class="modal-header p-0 mt-3">
                         <div class="text-center text-xs">
-                            <p class="text-warning p-0 "><i class="fas fa-spinner fa-spin mr-2"></i>Đang Check Giá</p>
+                            <p class="text-warning p-0 "><i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý</p>
                         </div>
                     </div>
                 </div>
