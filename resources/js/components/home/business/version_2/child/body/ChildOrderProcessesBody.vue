@@ -21,6 +21,9 @@ export default {
         hidden_columns: { type: Array, default: () => [] },
         range: { type: Object, default: () => { } },
         update_column: { type: Number, default: 0 },
+        item_filters: { type: Array, default: () => [] },
+        item_change_checked: { type: Array, default: () => [] },
+
     },
     components: {
         ChildOrderProcessesSearchBody,
@@ -122,6 +125,8 @@ export default {
                 indexs: [],
                 items: [],
             },
+            column: '',
+            item_selecteds: [],
 
         };
     },
@@ -164,7 +169,9 @@ export default {
         });
         this.table.on("headerClick", (e, column) => {
             //  column.getTable().getRows().map(row => row.getPosition()));
-            this.$emit('headerClick', column);
+            this.$emit('headerClick', column, this.table.getRanges());
+            console.log('headerClick:', column.getField());
+            console.log('getRanges:', this.table.getRanges());
 
         });
         this.table.on("cellEditing", (cell) => {
@@ -181,8 +188,30 @@ export default {
             //column - column component
             console.log('headerContext:', column.getField());
         });
+        this.table.on("popupOpened", (component) => {
+            this.$emit('popupOpened', component.getField());
+            this.column = component.getField();
+            console.log('this.column:', this.column);
+            setTimeout(() => {
+                this.table.getColumns().forEach(column => {
+                    if (column.getField() == this.column) {
+                        column.getDefinition().headerPopup = this.headerPopupFormatter(this.column);
+                    }
+                });
+            }, 100); // Delay of 0ms to allow DOM updates
 
-
+        });
+        this.table.on("popupClosed", (component) => {
+            this.$emit('popupOpened', component.getField());
+            this.column = component.getField();
+            setTimeout(() => {
+                this.table.getColumns().forEach(column => {
+                    if (column.getField() == this.column) {
+                        column.getDefinition().headerPopup = this.headerPopupFormatter(this.column);
+                    }
+                });
+            }, 100); // Delay of 0ms to allow DOM updates
+        });
 
 
         window.addEventListener('resize', this.updateWindowDimensions);
@@ -250,7 +279,7 @@ export default {
                     // this.table.updateColumnDefinition(this.filterColumn());
                     // this.table.setData(this.filteredOrders);
                     this.table.updateOrAddData(this.filteredOrders);
-                    this.table.moveRow(this.position_order.order, this.position_order.order -1)
+                    this.table.moveRow(this.position_order.order, this.position_order.order - 1)
                     console.log('this.table.getData().length:', this.table.getData().length);
                 }
             }, 10),
@@ -258,12 +287,22 @@ export default {
         'update_status_function.delete': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-                    let positiones = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
-                    let uniques = [...new Set(positiones.flat())];
-                    uniques.sort((a, b) => b[0] - a[0]);
-                    uniques.forEach(unique => {
-                        this.table.deleteRow(unique);
-                    });     
+                    // Get the positions of the rows to delete
+                    let positions = this.table.getRanges()
+                        .map(range => range.getRows().map(row => row.getPosition()))
+                        .flat(); // Flatten the array if necessary
+
+                    let uniquePositions = [...new Set(positions)].sort((a, b) => b - a);
+
+                    uniquePositions.forEach(position => {
+                        try {
+                            let row = this.table.getRowFromPosition(position); // Get the row using the position
+                            this.table.deleteRow(row); // Delete the row
+                        } catch (error) {
+                            console.error(`Delete Error - No matching row found at position: ${position}`, error);
+                        }
+                    });
+
                 }
             }, 10),
         },
@@ -271,6 +310,18 @@ export default {
             handler: function (newVal, oldVal) {
                 if (newVal) {
                     this.table.options.rowContextMenu[4].menu = this.updateContextMenu_4();
+                }
+            },
+            deep: true,
+        },
+        'item_filters': {
+            handler: function (newVal, oldVal) {
+                if (newVal) {
+                    this.table.getColumns().forEach(column => {
+                        if (column.getField() == this.column) {
+                            column.getDefinition().headerPopup = this.headerPopupFormatter(this.column);
+                        }
+                    });
                 }
             },
             deep: true,
@@ -299,8 +350,10 @@ export default {
             this.updateWindowDimensions();
             let positon = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
             let fields = this.table.getRanges().map(range => range.getColumns().map(column => column.getField()));
-            this.table.scrollToRow(positon[0][0], "top", false);
-            this.table.scrollToColumn(fields[0][0], "center", false);
+            if (positon[0][0] !== undefined) {
+                this.table.scrollToRow(positon[0][0], "top", false);
+                this.table.scrollToColumn(fields[0][0], "center", false);
+            }
         },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
@@ -325,7 +378,6 @@ export default {
             return (cell, formatterParams, onRendered) => {
                 let ma_sap = cell.getValue();
                 let promotive = cell.getRow().getData().promotive;
-                console.log('ma_sap:', ma_sap, 'promotive:', promotive);
 
                 let value_promotive = promotive ? `${promotive}` : '';
                 return `${ma_sap}${value_promotive}`;
@@ -386,6 +438,10 @@ export default {
                                             label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
                                             action: (e, column) => {
                                                 this.$emit('filterOrder', color.color, column.getField(), 'theme_color_bg');
+                                                console.log('color:', color.color, 'column.getField:', column.getField());
+                                                this.table.setFilter([
+                                                    { field: theme_color.background[column.getField()], type: "like", value: color.color },
+                                                ]);
                                             },
                                         };
                                     }),
@@ -715,6 +771,185 @@ export default {
             ];
             return rowMenu;
         },
+        emptyHeaderFilter() {
+            return document.createElement("div");
+        },
+        createSearchInput(container) {
+            var label = document.createElement("label");
+            label.innerHTML = "Tìm kiếm:";
+            label.style.display = "block";
+            label.style.fontSize = ".7em";
+
+            var input = document.createElement("input");
+            input.classList.add("form-control", "form-control-sm", "text-xs");
+            input.placeholder = "Tìm kiếm...";
+
+            container.appendChild(label);
+            container.appendChild(input);
+
+            return input;
+        },
+        createItemsContainer() {
+            var itemsContainer = document.createElement("div");
+            itemsContainer.style.marginTop = "10px"; // Thêm khoảng cách giữa input và danh sách
+            return itemsContainer;
+        },
+        renderItems(itemsContainer, filter = "") {
+            itemsContainer.innerHTML = ""; // Xóa các mục hiện tại
+            if (this.item_filters.length > 0) {
+                this.item_filters
+                    .filter(item => item.name.toLowerCase().includes(filter.toLowerCase()) ||
+                        item.promotive_name.toLowerCase().includes(filter.toLowerCase()))
+                    .forEach(item => {
+                        var itemContainer = document.createElement("div");
+                        itemContainer.style.display = "flex";
+                        itemContainer.style.alignItems = "center";
+                        itemContainer.classList.add("text-xs");
+
+                        var checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.value = item.name + item.promotive_name;
+
+                        var itemLabel = document.createElement("label");
+                        itemLabel.classList.add("text-black-50");
+                        itemLabel.style.marginBottom = "0";
+                        let value = '';
+                        switch (this.column) {
+                            case 'sap_so_number':
+                                value = item.name + item.promotive_name
+                                break;
+                            case 'so_sap_note':
+                                value = item.name + item.promotive_name
+                                break;
+                            case 'promotive':
+                                value = item.name
+                                break;
+                            case 'promotive_name':
+                                value = item.name
+                                break;
+                            case 'note1':
+                                value = item.name
+                                break;
+                            default:
+                                value = item.name
+                                break;
+                        }
+                        itemLabel.innerHTML = value == '' ? '<b>Null</b>' : value;
+
+
+                        itemLabel.style.marginLeft = "5px";
+                        itemLabel.style.fontSize = ".7em";
+                        itemLabel.style.fontWeight = "600";
+
+                        itemContainer.appendChild(checkbox);
+                        itemContainer.appendChild(itemLabel);
+                        itemsContainer.appendChild(itemContainer);
+
+                        // So sánh với item_change_checked
+                        if (this.item_change_checked.length > 0) {
+                            this.item_change_checked.forEach(item_checked => {
+                                if (item_checked.name === item.name && item_checked.promotive_name === item.promotive_name) {
+                                    checkbox.checked = true;
+                                }
+                            });
+                        }
+
+                        // Lắng nghe sự kiện thay đổi trạng thái của checkbox
+                        checkbox.addEventListener("change", (e) => {
+                            if (checkbox.checked) {
+                                this.item_selecteds.push(item);
+                            } else {
+                                this.item_selecteds = this.item_selecteds.filter(item_selected =>
+                                    !(item_selected.name === item.name && item_selected.promotive_name === item.promotive_name));
+                            }
+                            this.$emit('itemChangeChecked', this.item_selecteds, checkbox.checked);
+                        });
+                    });
+            }
+        },
+        createResetButton() {
+            // Implement this.btnReset() logic here or call this.btnReset() directly if it's defined elsewhere
+            return this.btnReset();
+        },
+        createUpdateButton(itemContainer, filter = "") {
+            // Implement this.btnUpdate() logic here or call this.btnUpdate() directly if it's defined elsewhere
+            return this.btnUpdate(itemContainer, filter = "");
+        },
+
+        createSearchButton(column) {
+            // Implement this.btnSearch(column) logic here or call this.btnSearch(column) directly if it's defined elsewhere
+            return this.btnSearch(column);
+        },
+        headerPopupFormatter(column) {
+            var container = document.createElement("div");
+
+            // Tạo input tìm kiếm và lấy tham chiếu đến nó
+            var input = this.createSearchInput(container);
+
+            // Tạo container cho các mục
+            var itemsContainer = this.createItemsContainer();
+            container.appendChild(itemsContainer);
+
+            // Render các mục ban đầu
+            this.$nextTick(() => {
+                this.renderItems(itemsContainer);
+            });
+
+            // Thêm sự kiện keyup để tìm kiếm và lọc các mục
+            let debounceTimer;
+            input.addEventListener("keyup", (e) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    this.renderItems(itemsContainer, e.target.value);
+                }, 300); // Delay 300ms trước khi thực hiện việc lọc
+            });
+
+            // Thêm các nút vào container
+            container.appendChild(this.createResetButton());
+            container.appendChild(this.createSearchButton(column));
+            container.appendChild(this.createUpdateButton(itemsContainer, ""));
+
+            return container;
+        },
+        btnUpdate(itemContainer, filter = "") {
+            var button_update = document.createElement("button");
+            button_update.innerHTML = "Cập nhật";
+            button_update.classList.add("btn", "btn-sm", "btn-light", "text-xs");
+            button_update.style.marginTop = "10px";
+            button_update.style.fontSize = ".7em";
+            button_update.style.fontWeight = "600";
+            button_update.addEventListener("click", () => {
+                // this.$emit('resetItem');
+                this.renderItems(itemContainer, filter);
+
+            });
+            return button_update;
+        },
+
+        btnReset() {
+            var button_reset = document.createElement("button");
+            button_reset.innerHTML = "Reset";
+            button_reset.classList.add("btn", "btn-sm", "btn-light", "text-xs");
+            button_reset.style.marginTop = "10px";
+            button_reset.style.fontSize = ".7em";
+            button_reset.style.fontWeight = "600";
+            button_reset.addEventListener("click", () => {
+                this.$emit('resetItem');
+            });
+            return button_reset;
+        },
+        btnSearch(column) {
+            var button_search = document.createElement("button");
+            button_search.innerHTML = "Search";
+            button_search.classList.add("btn", "btn-sm", "btn-light", "text-xs");
+            button_search.style.marginTop = "10px";
+            button_search.style.fontSize = ".7em";
+            button_search.style.fontWeight = "600";
+            button_search.addEventListener("click", (column) => {
+                this.$emit('searchItem', this.column, 'search_item');
+            });
+            return button_search;
+        },
         filterColumn() {
             if (!this.columns || !this.material_category_types) {
                 console.error('columns or material_category_types is undefined');
@@ -728,21 +963,16 @@ export default {
                     width: column.width,
                     editor: column.field == "promotive" ? "list" : "textarea",
                     visible: column.visible,
+                    // headerPopup: this.headerPopupFormatter(''),
+                    // headerPopupIcon: "<i class='fas fa-filter' title='Filter column'></i>",
+                    // headerFilter: this.emptyHeaderFilter(),
+                    // headerFilterFunc: "like",
                     editorParams: column.field == "promotive" ? {
                         values: this.material_category_types.map(item => item.name)
                     } : {
                         shiftEnterSubmit: true,
                     },
                     headerMenu: this.headerMenu(),
-                    // headerMenu: this.headerMenuV2(),
-                    // cellEdited: (cell) => {
-                    //     // cell - the CellComponent for the edited cell
-                    //     console.log('Value selected:', cell.getValue());
-                    //     console.log('Row data:', cell.getRow().getData());
-                    //     console.log('Column data:', cell.getColumn().getField());
-                    //     console.log('position:', cell.getRow().getPosition());
-                    //     this.$emit('cellEdited', cell);
-                    // },
                     formatter: (column.field == "sap_so_number" || column.field == "so_sap_note") ? (cell, formatterParams, onRendered) => {
                         let value = cell.getValue(); // Giá trị của cột 'ma_sap'
                         let promotive = cell.getRow().getData().promotive; // Giá trị của cột 'note'
@@ -790,6 +1020,7 @@ export default {
             };
         },
     },
+
 
 };
 </script>

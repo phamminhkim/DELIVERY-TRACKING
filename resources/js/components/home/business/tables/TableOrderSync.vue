@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-table responsive small hover :fields="fields" :items="items" head-variant="light" 
-        :sticky-header="window_height + 'px'"
+        :sticky-header="window_height + 'px'"  thead-class="thead-light custom-thead"
             :class="{
                 'position-relative-custom': use_component === 'DialogOrderSync',
                 'custom-set-height' : class_modal_v2 === 'V2OrderProcesses',
@@ -114,7 +114,7 @@ export default {
     },
     methods: {
         updateWindownHeight() {
-            this.window_height = window.innerHeight - 210;
+            this.window_height = window.innerHeight - 220;
             this.window_width = window.innerWidth;
         },
         loadOptions({ action, parentNode, callback }) {
@@ -210,5 +210,10 @@ export default {
 }
 .custom-set-height{
     min-height: 30rem !important;
+}
+::v-deep .custom-thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
 }
 </style>

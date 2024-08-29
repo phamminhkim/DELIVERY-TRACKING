@@ -45,8 +45,8 @@
                 <div ref="zoomContainer" class="zoom-container">
                     <div class="content">
                         <ChildOrderProcessesBody :columns="columns" :filteredOrders="filteredOrders"
-                            :material_category_types="material_category_types"
-                            :range="range" :update_column="update_column"
+                            :material_category_types="material_category_types" :item_change_checked="item_change_checked"
+                            :range="range" :update_column="update_column" :item_filters="item_filters"
                             :update_status_function="update_status_function" :position_order="position_order"
                             :range_items="range_items" :hidden_columns="hidden_columns" @table="emitTable"
                             @inputSearch="emitInputSearch" @emitRangeChanged="emitRangeChanged"
@@ -56,7 +56,9 @@
                             @clipboardPasted="clipboardPasted" @inputBackgroundColor="inputBackgroundColor"
                             @inputTextColor="inputTextColor" @toggleColumn="toggleColumn" @hiddenColumns="hiddenColumns"
                             @toggleColumnShow="toggleColumnShow" @columnResized="columnResized"
-                            @emitGetRangesData="emitGetRangesData" 
+                            @emitGetRangesData="emitGetRangesData" @popupOpened="popupOpened"
+                            @itemChangeChecked="itemChangeChecked" @searchItem="searchItem"
+                            @resetItem="resetItem"
                             @columnMoved="columnMoved" @emitRangeRemoved="emitRangeRemoved" @headerClick="headerClick" />
                     </div>
                 </div>
@@ -95,6 +97,8 @@ export default {
         processing_success: { type: Number, default: 0 },
         range: { type: Object, default: () => { } },
         update_column:  { type: Number, default: 0 },
+        item_filters: { type: Array, default: () => [] },
+        item_change_checked: { type: Array, default: () => [] },
 
     },
     components: {
@@ -245,11 +249,23 @@ export default {
         emitRangeRemoved(range) {
             this.$emit('emitRangeRemoved', range);
         },
-        headerClick(column) {
-            this.$emit('headerClick', column);
+        headerClick(column, getRanges) {
+            this.$emit('headerClick', column, getRanges);
         },
         emitGetRangesData(table, positiones) {
             this.$emit('emitGetRangesData', table, positiones);
+        },
+        popupOpened(field) {
+            this.$emit('popupOpened', field);
+        },
+        itemChangeChecked(item, checked) {
+            this.$emit('itemChangeChecked', item, checked);
+        },
+        searchItem(column, event) {
+            this.$emit('searchItem', column, event);
+        },
+        resetItem() {
+            this.$emit('resetItem');
         },
        
     }
