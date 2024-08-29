@@ -15,10 +15,11 @@
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
             :CountGrpSoNumber="CountGrpSoNumber" :CountOrderSoNumber="CountOrderSoNumber"
+            :item_change_checked="item_change_checked"
             @convertFile="handleEmittedConvertFile" :file="file" :range="range"
             :update_column="update_status_function.column" :update_status_function="update_status_function"
             :position_order="position" :range_items="range.items" :hidden_columns="filterHiddenColumns"
-            :processing_success="update_status_function.processing_file"
+            :processing_success="update_status_function.processing_file" :item_filters="item_filters"
             @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
@@ -36,7 +37,9 @@
             @toggleColumnShow="handleToggleColumnShow" @columnResized="handleColumnResized"
             @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout"
             @emitRangeRemoved="handleRangeRemoved" @headerClick="handleHeaderClick"
-            @emitGetRangesData="handleGetRangesData" />
+            @emitGetRangesData="handleGetRangesData" @popupOpened="handlePopupOpened"
+            @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem"
+            @resetItem="handleResetItem" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -124,6 +127,7 @@ export default {
             },
             error_csv_data: {},
             item_selecteds: [],
+            item_change_checked: [],
             copy: {},
             api_data_orders: [],
             warehouses: [],
@@ -142,6 +146,8 @@ export default {
             warehouse_defaults: [],
             hidden_columns: [],
             columns: [],
+            item_filters: [],
+            search_items: [],
             url_api: {
                 order_process_so: '/api/sales-order',
                 customer_groups: 'api/master/customer-groups',
@@ -646,7 +652,7 @@ export default {
             try {
                 const { data, success, message } = await this.api_handler.post(this.url_api.check_promotion, {}, filter);
                 if (data) {
-                   await this.getValuePromotionCategory(data.items);
+                    await this.getValuePromotionCategory(data.items);
                     this.$showMessage('success', 'Thành công', 'Check khuyến mãi thành công');
                 } else {
                     this.$showMessage('error', 'Lỗi', message);
@@ -1837,18 +1843,25 @@ export default {
                 this.getItemsFirstRange();
             }
         },
-        handleHeaderClick(column) {
+        handleHeaderClick(column , getRanges) {
             let field = column.getField();
             this.range.indexs = column.getTable().getRows().map(row => row.getPosition());
             this.range.items = column.getTable().getRows().map(row => row.getData());
             this.range.full_items = column.getTable().getRows().map(row => row.getData());
+
+            this.range_v2.indexs = getRanges.map(range => range.getRows().map(row => row.getPosition()));
+
             switch (field) {
                 case 'rownum':
-                    this.range.indexs.sort((a, b) => b - a);
-                    this.range.indexs.forEach(index => {
-                        // xóa dữ liệu
-                        this.filteredOrders.splice(index - 1, 1);
-                    });
+                    // this.range.indexs.sort((a, b) => b - a);
+                    // this.range.indexs.forEach(index => {
+                    //     // xóa dữ liệu
+                    //     this.filteredOrders.splice(index - 1, 1);
+                    // });
+                    // xóa tất cả dữ liệu trong filteredOrders
+                    console.log(this.range_v2.indexs)
+                    // this.filteredOrders = [];
+
                     break;
 
                 default:
@@ -1860,6 +1873,43 @@ export default {
             this.range_v2.indexs = positiones;
             this.range_v2.items = items.map(item => item);
 
+        },
+        handlePopupOpened(field) {
+
+            // let uniques = [...new Set(this.orders.map(order => {
+            //     return {
+            //         name: order[field],
+            //         promotive_name: order.promotive_name == null ? '' : order.promotive_name
+            //     }
+            // }))];
+            // this.item_filters = uniques;
+            let uniques = [];
+            let map = new Map();
+
+            this.orders.forEach(order => {
+                let key = `${order[field]}_${order.promotive || ''}`;
+                if (!map.has(key)) {
+                    map.set(key, true); // Set any value to the map
+                    uniques.push({
+                        name: order[field] == null ? '' : order[field],
+                        promotive_name: order.promotive == null ? '' : order.promotive
+                    });
+                }
+            });
+            this.item_filters = uniques;
+        },
+        handleItemChangeChecked(items, is_checked) {
+            this.item_change_checked = items;
+        },
+        handleSearchItem(column, event) {
+            this.filter.event = 'search_item';
+            this.filter.field = column;
+            this.update_status_function.set_data++;
+        },
+        handleResetItem() {
+            this.item_change_checked = [];
+            this.filter.field = '';
+            this.update_status_function.set_data++;
         },
 
     },
@@ -1884,21 +1934,21 @@ export default {
                                 String(value).toLowerCase().includes(this.filter.value.toLowerCase())
                             );
                         });
-                    default:
+                    case 'search_item':
+                        // search_items
                         return this.orders.filter(order => {
-                            return order[this.filter.field].includes(this.filter.value.toLowerCase());
+                            return this.item_change_checked.some(item => {
+                                return order[this.filter.field].includes(item.name);
+                            });
                         });
+                    default:
+                        // return this.orders.filter(order => {
+                        //     return order[this.filter.field].includes(this.filter.value.toLowerCase());
+                        // });
+                        break;
                 }
 
             }
-            // // Nếu có giá trị tìm kiếm thì trả về dữ liệu đã lọc
-            // const searchTerm = this.filter.search.toLowerCase();
-            //     return this.orders.filter(order => {
-            //         // filter tất cả các trường có chứa giá trị tìm kiếm
-            //         return Object.values(order).some(value =>
-            //             String(value).toLowerCase().includes(searchTerm)
-            //         );
-            //     });
 
         },
         CountGrpSoNumber() {
