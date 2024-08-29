@@ -232,110 +232,128 @@ export default {
                 {
                     key: 'select',
                     label: '',
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'index',
                     label: 'Stt',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'so_uid',
                     label: 'SAP SO num',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'update_at',
                     label: 'Ngày cập nhật',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'sync_sap_status',
                     label: 'TT Đồng bộ',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'noti_sync',
                     label: 'Thông báo',
                     sortable: true,
                     class: 'text-nowrap text-danger',
-                    tdClass: 'text-danger'
+                    tdClass: 'text-danger',
+                    stickyColumn: true,
                 },
                 {
                     key: 'po_number',
                     label: 'PO num',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'Ngày YC giao',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'sap_so_number',
                     label: 'SO Key',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'so_sap_note',
                     label: 'SAP note',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'warehouse_code',
                     label: 'Kho',
                     sortable: true,
-                    class: 'text-nowrap text-center'
+                    class: 'text-nowrap text-center',
+                    stickyColumn: true,
                 },
                 {
                     key: 'shipping_id',
                     label: 'Shipping',
                     sortable: true,
-                    class: 'text-nowrap text-center'
+                    class: 'text-nowrap text-center',
+                    stickyColumn: true,
                 },
                 {
                     key: 'customer_code',
                     label: 'Mã KH',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'customer_name',
                     label: 'Tên KH',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'order_process.customer_group.name',
                     label: 'Nhóm KH',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'order_process.created_by.name',
                     label: 'Người tạo',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'Ngày giao',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 {
                     key: 'create_at',
                     label: 'Ngày tạo',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    stickyColumn: true,
                 },
                 
 
