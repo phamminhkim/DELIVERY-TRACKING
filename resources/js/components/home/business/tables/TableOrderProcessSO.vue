@@ -31,9 +31,9 @@
                 </div>
             </template>
             <template #cell(synchronized_so_count)="data">
-                <div class="text-center" @click="getUrlDetail(data.item)">
+                <div class="text-center">
                     {{ data.item.synchronized_so_count }}/{{ data.item.total_so_count }}
-                    <small class="text-primary" style="cursor: pointer;"><i class="fas fa-eye"></i></small>
+                    <small  @click="getUrlDetail(data.item)" class="text-primary" style="cursor: pointer;"><i class="fas fa-eye"></i></small>
                 </div>
             </template>
             <template #cell(updated_by)="data">
