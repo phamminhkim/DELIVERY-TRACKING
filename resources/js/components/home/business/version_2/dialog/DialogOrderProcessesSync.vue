@@ -106,7 +106,9 @@ export default {
                     key: 'so_uid',
                     label: 'SAP SO num',
                     sortable: true,
-                    class: 'text-nowrap'
+                    class: 'text-nowrap',
+                    thClass: 'th-class-so_uid',
+                    tdClass: 'th-class-so_uid bg-white'
                 },
                 {
                     key: 'sync_sap_status',
@@ -346,5 +348,11 @@ export default {
 .overflow{
     overflow: auto;
     height: 38em;
+}
+::v-deep .th-class-so_uid {
+    position: sticky !important;
+    /* position: fixed; */
+    left: 0 !important;
+    z-index: 3 !important;
 }
 </style>

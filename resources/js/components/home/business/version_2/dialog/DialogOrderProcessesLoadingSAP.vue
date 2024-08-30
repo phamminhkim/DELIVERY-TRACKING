@@ -1,6 +1,5 @@
 <template>
-    <div>
-        <div class="modal fade" id="DialogOrderProcessesLoadingSAP" data-backdrop="static" data-keyboard="false"
+    <div class="modal fade" id="DialogOrderProcessesLoadingSAP" data-backdrop="static" data-keyboard="false"
             tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content text-center modal-dialog-centered">
@@ -13,8 +12,6 @@
             </div>
 
         </div>
-
-    </div>
 </template>
 <script>
 export default {

@@ -254,6 +254,7 @@ class AiRepository extends RepositoryAbs
                                 break;
                             case ExtractMethod::AI:
                                 $raw_data_table = $raw_data['line_items'];
+                                $raw_header_table = array();
                                 $raw_header_table[] = $raw_data['Info_PO'];
                                 $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
                                 $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
