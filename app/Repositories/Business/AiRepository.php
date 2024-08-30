@@ -254,8 +254,9 @@ class AiRepository extends RepositoryAbs
                                 break;
                             case ExtractMethod::AI:
                                 $raw_data_table = $raw_data['line_items'];
-                                $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config);
                                 $raw_header_table[] = $raw_data['Info_PO'];
+                                $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
+                                $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
                                 $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
                                 $order_header = $this->addCustomInfo($restruct_header[0]);
                                 $array_data = [
@@ -944,6 +945,10 @@ class AiRepository extends RepositoryAbs
                 $options['structure'] = json_decode($this->request->structure, true);
             } else {
                 $options['structure'] = json_decode($restructure_data_config->structure, true);
+                if (isset($restructure_data_config->decimal_separator) &&
+                    $restructure_data_config->decimal_separator) {
+                    $options['decimal_separator'] = $restructure_data_config->decimal_separator;
+                }
             }
         } elseif ($this->data_restructure instanceof MergeIndexArrayMappingRestructure) {
             if (!$restructure_data_config) {
@@ -1324,13 +1329,14 @@ class AiRepository extends RepositoryAbs
         }
     }
 
-    public function restructureDataByAi($table_data, $restructure_config)
+    public function restructureDataByAi($table_data, $restructure_config, $decimal_separator = null)
     {
         try {
             $new_restructure_config = clone $restructure_config;
             $structure = json_decode($new_restructure_config->structure, true);
             $data_config = json_encode($structure['data_config']);
             $new_restructure_config->structure = $data_config;
+            $new_restructure_config->decimal_separator = $decimal_separator;
             return $this->restructureData($table_data, $new_restructure_config);
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
@@ -1581,6 +1587,7 @@ class AiRepository extends RepositoryAbs
     private function checkMappingConfig($extract_order_config, $file)
     {
         $result = false;
+        $file_path = $this->file_service->saveTemporaryFile($file);
         try {
             $extract_order_config->load(['extract_data_config']);
             $extract_data_config = $extract_order_config->extract_data_config;
@@ -1593,7 +1600,7 @@ class AiRepository extends RepositoryAbs
 
                 // Chuyển $string_key dạng text thuần
                 $page = isset($check_string_key->page) ? $check_string_key->page : 1;
-                $file_path = $this->file_service->saveTemporaryFile($file);
+                // $file_path = $this->file_service->saveTemporaryFile($file);
                 $text_locator = new PdfTextLocatorService();
                 // $check_string_key_result = $text_locator->checkStringKey($file_path, $page, $string_key);
                 $get_full_text_result = $text_locator->getFullText($file_path, $page);
@@ -1641,7 +1648,7 @@ class AiRepository extends RepositoryAbs
                 else {
                     $result = false;
                 }
-                $this->file_service->deleteTemporaryFile($file_path);
+                // $this->file_service->deleteTemporaryFile($file_path);
             }
             else {
                 // Kiểm tra mẫu theo vùng tọa độ
@@ -1653,10 +1660,10 @@ class AiRepository extends RepositoryAbs
                 $check_condition = $advanced_settings_info->check_mapping_config->check_condition;
                 $data_extractor = new CamelotExtractorService();
 
-                $file_path = $this->file_service->saveTemporaryFile($file);
+                // $file_path = $this->file_service->saveTemporaryFile($file);
 
                 $value_table_area = $data_extractor->getValueTableAreas($file_path, $check_table_areas, $x_coordinates);
-                $this->file_service->deleteTemporaryFile($file_path);
+                // $this->file_service->deleteTemporaryFile($file_path);
                 $table_0 = isset($value_table_area[0]) ? $value_table_area[0] : null;
                 $check_value = "";
                 if ($table_0) {
@@ -1681,7 +1688,7 @@ class AiRepository extends RepositoryAbs
         } catch (\Throwable $th) {
             $result = false;
         }
-
+        $this->file_service->deleteTemporaryFile($file_path);
         return $result;
     }
 
