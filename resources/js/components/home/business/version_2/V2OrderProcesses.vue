@@ -760,21 +760,25 @@ export default {
         async handleDetectSapCodeOrder() {
             await $('#DialogOrderProcessesLoadingSAP').modal('show');
             this.sap_codes = [];
-            this.filteredOrders.forEach(element => {
-                this.sap_codes.push({
-                    customer_sku_code: element.customer_sku_code,
-                    customer_sku_unit: element.customer_sku_unit,
-                    quantity2_po: element.quantity2_po,
-                    promotion: element.promotive_name,
-                    sap_so_number: element.sap_so_number,
+            setTimeout(async () => {
+                this.filteredOrders.forEach(element => {
+                    this.sap_codes.push({
+                        customer_sku_code: element.customer_sku_code,
+                        customer_sku_unit: element.customer_sku_unit,
+                        quantity2_po: element.quantity2_po,
+                        promotion: element.promotive_name,
+                        sap_so_number: element.sap_so_number,
+                    });
                 });
-            });
-            this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
-            await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
-            await this.apiCheckComplianceFromOrder();
-            this.update_status_function.set_data++;
-            await $('#DialogOrderProcessesLoadingSAP').modal('hide');
+                await this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
+                await this.apiCheckComplianceFromOrder();
+                await $('#DialogOrderProcessesLoadingSAP').modal('hide');
+                await this.updateFuncSetData();
+            }, 10); 
 
+        },
+        async updateFuncSetData() {
+            this.update_status_function.set_data++;
         },
         isUndefined(value) {
             if (value === undefined) {
@@ -784,7 +788,7 @@ export default {
             }
         },
         async getConvertFilePDF(file_response) {
-            let index_item = 1;
+            // let index_item = 1;
             for (let index = 0; index < file_response.data.length; index++) {
                 let files = file_response.data[index].items;
                 for (let index_item = 0; index_item < files.length; index_item++) {
@@ -835,7 +839,7 @@ export default {
                         variant_quantity: '',
 
                     });
-                    index_item++;
+                    // index_item++;
                     this.bar_codes.push(item.ProductID);
                 }
             }
@@ -1090,7 +1094,7 @@ export default {
                 return null;
             }
         },
-        getListMaterialDetect(data) {
+        async getListMaterialDetect(data) {
             this.material_saps = [...data];
             // group by theo sap_so_number và customer_sku_code
             let group = Object.groupBy(this.material_saps, ({ sap_so_number, customer_sku_code }) => sap_so_number + customer_sku_code);
@@ -1215,9 +1219,11 @@ export default {
                         break;
                 }
             }
-            this.orders.forEach((order, index) => {
-                order.order = index + 1;
-            });
+            await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
+            await this.updateOrder();
+            // this.orders.forEach((order, index) => {
+            //     order.order = index + 1;
+            // });
         },
         moveIndexOrder(array, fromIndex, toIndex) {
             if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
