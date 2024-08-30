@@ -1077,14 +1077,20 @@ class AiRepository extends RepositoryAbs
         $data_items = array_column($data_all_items, '0');
         $sku_sap_codes = array_column($data_items, 'SkuSapCode');
         $sku_sap_names = array_column($data_items, 'SkuSapName');
+        // Convert sku_sap_codes thành mảng không key
+        $sku_sap_codes = array_values(array_filter($sku_sap_codes));
         // Check có yêu cầu lấy tên sản phẩm
         if ($sku_sap_names && $sku_sap_codes) {
             // Step 2: Query SapMaterial table once
-            $sku_sap_records = SapMaterial::whereIn('sap_code', $sku_sap_codes)
-                ->select('sap_code', 'name')
-                ->get()
-                ->keyBy('sap_code');
-
+            $chunk_size = 1000; // Kích thước mảng con
+            $sku_sap_records = collect();
+            foreach (array_chunk($sku_sap_codes, $chunk_size) as $chunk) {
+                $partialResults = SapMaterial::whereIn('sap_code', $chunk)
+                    ->select('sap_code', 'name')
+                    ->get()
+                    ->keyBy('sap_code');
+                $sku_sap_records = $sku_sap_records->merge($partialResults);
+            }
             // Step 3: Map SkuSapCode to SkuSapName
             $sku_sap_map = $sku_sap_records->mapWithKeys(function ($item) {
                 return [$item->sap_code => $item->name];
