@@ -31,8 +31,9 @@
                 </div>
             </template>
             <template #cell(synchronized_so_count)="data">
-                <div class="text-center">
+                <div class="text-center" @click="getUrlDetail(data.item)">
                     {{ data.item.synchronized_so_count }}/{{ data.item.total_so_count }}
+                    <small class="text-primary" style="cursor: pointer;"><i class="fas fa-eye"></i></small>
                 </div>
             </template>
             <template #cell(updated_by)="data">
@@ -162,6 +163,13 @@ export default {
             const url = window.location.origin + this.$route.path + '#' + item.id + '?seri=' + item.serial_number;
             window.open(url, '_blank');
         },
+        getUrlDetail(item) {
+            let ids = '';
+            let url = '';
+            ids = item.so_headers.map(so => so.id).join(',');
+            url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
+            window.open(url, '_blank');
+        }
     },
 }
 </script>

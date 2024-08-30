@@ -31,6 +31,8 @@
                         SAP</label>
                     <div class="col-lg-3 mt-1 mb-1">
                         <b> {{ order_sync.so_uid }}</b>
+                        <span v-if="order_sync.so_uid != null" class="badge badge-sm badge-success px-2 ml-2">Đã đồng bộ</span>
+                        <span v-if="order_sync.so_uid == null" class="badge badge-sm badge-warning px-2 ml-2">Chưa đồng bộ</span>
                     </div>
                     <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1" for="">Ngày
                         tạo</label>
