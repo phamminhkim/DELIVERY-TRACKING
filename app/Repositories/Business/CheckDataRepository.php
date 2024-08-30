@@ -68,10 +68,11 @@ class CheckDataRepository extends RepositoryAbs
             $mappingData = [];
             $existingCodes = [];
             $existingSapSoNumber = [];
-            $foundMapping = [];
+            // $foundMapping = false;
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
+                $foundMapping = false;
                 if (!empty($item['customer_sku_code'])) {
                     // Tiếp tục xử lý thông tin khi 'customer_sku_code' không trống
                     $customer_sku_code = $item['customer_sku_code'];
@@ -139,6 +140,7 @@ class CheckDataRepository extends RepositoryAbs
                         'quantity3_sap' => $quantity2_po,
                     ];
                 } else {
+
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
                     $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
                         $query->where('customer_group_id', $customer_group_id)
@@ -146,6 +148,7 @@ class CheckDataRepository extends RepositoryAbs
                     })->get();
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
+                        if ($customer_sku_code == '3300974-5') dd(1);
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
                         $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
                         $customer_number = $sapMaterialMapping->customer_number;
@@ -187,6 +190,7 @@ class CheckDataRepository extends RepositoryAbs
                         }
                     }
                     if (!$foundMapping) {
+
                         // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
                         $mappingData[] = [
                             'customer_sku_code' => $customer_sku_code,
