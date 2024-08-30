@@ -148,7 +148,6 @@ class CheckDataRepository extends RepositoryAbs
                     })->get();
 
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                        if ($customer_sku_code == '3300974-5') dd(1);
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
                         $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
                         $customer_number = $sapMaterialMapping->customer_number;
