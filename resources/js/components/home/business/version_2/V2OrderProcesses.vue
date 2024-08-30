@@ -15,12 +15,11 @@
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
             :CountGrpSoNumber="CountGrpSoNumber" :CountOrderSoNumber="CountOrderSoNumber"
-            :item_change_checked="item_change_checked"
-            @convertFile="handleEmittedConvertFile" :file="file" :range="range"
-            :update_column="update_status_function.column" :update_status_function="update_status_function"
-            :position_order="position" :range_items="range.items" :hidden_columns="filterHiddenColumns"
-            :processing_success="update_status_function.processing_file" :item_filters="item_filters"
-            @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
+            :item_change_checked="item_change_checked" @convertFile="handleEmittedConvertFile" :file="file"
+            :range="range" :update_column="update_status_function.column"
+            :update_status_function="update_status_function" :position_order="position" :range_items="range.items"
+            :hidden_columns="filterHiddenColumns" :processing_success="update_status_function.processing_file"
+            :item_filters="item_filters" @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
             @inputTextColor="handleInputTextColor" @saveUpdateOrder="handleSaveUpdateOrder"
@@ -38,8 +37,7 @@
             @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout"
             @emitRangeRemoved="handleRangeRemoved" @headerClick="handleHeaderClick"
             @emitGetRangesData="handleGetRangesData" @popupOpened="handlePopupOpened"
-            @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem"
-            @resetItem="handleResetItem" />
+            @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem" @resetItem="handleResetItem" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -451,6 +449,7 @@ export default {
                 // this.case_is_loading.fetch_api = true;
                 const { data, success } = await this.api_handler.get(this.url_api.order_process_so + '/' + id);
                 if (success) {
+                    console.log(data, 'data');
                     await this.getSaveOrderSO(data);
                 }
             } catch (error) {
@@ -557,7 +556,6 @@ export default {
                         order_process_id: data_item.order_process_id,
                         so_header: this.setDataSoHeader(data_item.so_header),
                     });
-
                 });
             }
         },
@@ -762,21 +760,25 @@ export default {
         async handleDetectSapCodeOrder() {
             await $('#DialogOrderProcessesLoadingSAP').modal('show');
             this.sap_codes = [];
-            this.filteredOrders.forEach(element => {
-                this.sap_codes.push({
-                    customer_sku_code: element.customer_sku_code,
-                    customer_sku_unit: element.customer_sku_unit,
-                    quantity2_po: element.quantity2_po,
-                    promotion: element.promotive_name,
-                    sap_so_number: element.sap_so_number,
+            setTimeout(async () => {
+                this.filteredOrders.forEach(element => {
+                    this.sap_codes.push({
+                        customer_sku_code: element.customer_sku_code,
+                        customer_sku_unit: element.customer_sku_unit,
+                        quantity2_po: element.quantity2_po,
+                        promotion: element.promotive_name,
+                        sap_so_number: element.sap_so_number,
+                    });
                 });
-            });
-            this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
-            await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
-            await this.apiCheckComplianceFromOrder();
-            this.update_status_function.set_data++;
-            await $('#DialogOrderProcessesLoadingSAP').modal('hide');
+                await this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
+                await this.apiCheckComplianceFromOrder();
+                await $('#DialogOrderProcessesLoadingSAP').modal('hide');
+                await this.updateFuncSetData();
+            }, 10); 
 
+        },
+        async updateFuncSetData() {
+            this.update_status_function.set_data++;
         },
         isUndefined(value) {
             if (value === undefined) {
@@ -786,13 +788,13 @@ export default {
             }
         },
         async getConvertFilePDF(file_response) {
-            let item_index = 1;
+            // let index_item = 1;
             for (let index = 0; index < file_response.data.length; index++) {
                 let files = file_response.data[index].items;
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
-                        order: item_index,
+                        order: index_item,
                         id: '',
                         barcode: '',
                         sku_sap_code: this.isUndefined(item.SkuSapCode),
@@ -837,7 +839,7 @@ export default {
                         variant_quantity: '',
 
                     });
-                    item_index++;
+                    // index_item++;
                     this.bar_codes.push(item.ProductID);
                 }
             }
@@ -1092,7 +1094,7 @@ export default {
                 return null;
             }
         },
-        getListMaterialDetect(data) {
+        async getListMaterialDetect(data) {
             this.material_saps = [...data];
             // group by theo sap_so_number và customer_sku_code
             let group = Object.groupBy(this.material_saps, ({ sap_so_number, customer_sku_code }) => sap_so_number + customer_sku_code);
@@ -1217,9 +1219,11 @@ export default {
                         break;
                 }
             }
-            this.orders.forEach((order, index) => {
-                order.order = index + 1;
-            });
+            await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
+            await this.updateOrder();
+            // this.orders.forEach((order, index) => {
+            //     order.order = index + 1;
+            // });
         },
         moveIndexOrder(array, fromIndex, toIndex) {
             if (fromIndex < 0 || fromIndex >= array.length || toIndex < 0 || toIndex >= array.length) {
@@ -1794,12 +1798,14 @@ export default {
             this.refeshOrder();
             this.refeshOrderHeader();
             this.refeshUpdateFunctionReplace();
+            console.log(this.api_data_orders);
             for (let index = 0; index < this.api_data_orders.length; index++) {
                 const data_order = this.api_data_orders[index];
                 if (data_order.success) {
                     await this.getConvertFilePDF(data_order);
                 }
             }
+            await this.updateOrder();
             this.update_status_function.set_data++;
             // this.$showMessage('success', 'Thành công', 'Tạo mới dữ liệu thành công');
         },
@@ -1810,9 +1816,16 @@ export default {
                     await this.getConvertFilePDF(data_order);
                 }
             }
+            await this.updateOrder();
             this.update_status_function.set_data++;
             // this.$showMessage('success', 'Thành công', 'Thêm dữ liệu thành công');
         },
+        async updateOrder() {
+            this.orders.forEach((order, index) => {
+                order.order = index + 1;
+            });
+        },
+
         refeshUpdateFunctionReplace() {
             this.update_status_function.replace = 0;
             this.update_status_function.replace_all = 0;
@@ -1843,7 +1856,7 @@ export default {
                 this.getItemsFirstRange();
             }
         },
-        handleHeaderClick(column , getRanges) {
+        handleHeaderClick(column, getRanges) {
             let field = column.getField();
             this.range.indexs = column.getTable().getRows().map(row => row.getPosition());
             this.range.items = column.getTable().getRows().map(row => row.getData());

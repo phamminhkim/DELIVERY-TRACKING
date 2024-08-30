@@ -10,6 +10,11 @@
             <template #head(select)="data">
                 <input type="checkbox" v-model="case_checkbox.select_all" @change="changeSelectAll()" />
             </template>
+            <template #head(so_uid)="data">
+                <div class="text-center so_uid">
+                    {{ data.label }}
+                </div>
+            </template>
             <template #cell(select)="data">
                 <input type="checkbox" v-model="case_checkbox.selected" :value="data.item" />
             </template>
