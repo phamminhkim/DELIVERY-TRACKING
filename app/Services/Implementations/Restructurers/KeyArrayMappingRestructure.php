@@ -11,6 +11,21 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
     public function restructure($data, $options)
     {
         $structure = $options['structure'];
+        $has_default_decimal_separator = isset($options['decimal_separator']) ? true : false;
+        if ($has_default_decimal_separator) {
+            $default_decimal_separator = $options['decimal_separator'];
+            switch ($default_decimal_separator) {
+                case '.':
+                    $default_thousand_separator = ",";
+                    break;
+                case ',':
+                    $default_thousand_separator = ".";
+                    break;
+                default:
+                    $default_thousand_separator = ",";
+                    break;
+            }
+        }
         $collection = collect([]);
         $skip_item = false;
         foreach ($data as $match) {
@@ -69,7 +84,11 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                 }
                 // Thay thế dấu phân cách thập phân và phân cách hàng nghìn
                 if (isset($value_item['decimal_separator']) && isset($value_item['thousand_separator'])) {
-                    $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
+                    if ($has_default_decimal_separator) {
+                        $output[$key] = OperatorUtility::replaceSeparator($output[$key], $default_decimal_separator, $default_thousand_separator);
+                    } else{
+                        $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
+                    }
                 }
                 if (isset($value_item['regex_match'])) {
                     $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
