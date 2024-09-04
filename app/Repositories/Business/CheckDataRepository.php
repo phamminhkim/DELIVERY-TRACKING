@@ -237,13 +237,43 @@ class CheckDataRepository extends RepositoryAbs
             $items = $this->data['items'];
 
             $customer_data = [];
+            // Xử lý lệnh so sánh customer key
+            $remove_chars = ['.',',',' '];
+            $replace_expression = 'name';
+                foreach ($remove_chars as $char) {
+                    $replace_expression = "REPLACE($replace_expression, '$char', '')";
+                }
+                $query_expression = 'LOWER('. $replace_expression. ') LIKE ?';
+
+            // Kiểm tra xem tất cả key không tồn tại
+            $customer_keys = array_map(function($item) use ($remove_chars) {
+                return strtolower(str_replace($remove_chars, '', trim($item['customer_key'])));
+            }, $items);
+
+            $existingPartners = CustomerPartner::where('customer_group_id', $customer_group_id)
+                ->where(function($query) use ($query_expression, $customer_keys) {
+                    foreach ($customer_keys as $key) {
+                        $query->orWhereRaw($query_expression, ['%' . $key . '%']);
+                    }
+                })
+                ->first();
+            if (!$existingPartners) {
+                $this->errors = [
+                    'customer_group_id' => $customer_group_id,
+                    'items' => $items,
+                    'message' => 'Tất cả Key khách hàng chưa có trong nhóm khách hàng này.
+                        Cần kiểm tra và cập nhật Key trong bảng KH đối tác!',
+                ];
+                return false;
+            }
+
             foreach ($items as $item) {
                 $customer_key = $item['customer_key'];
+                $cleared_customer_key = strtolower(str_replace($remove_chars, '', $customer_key));
+                $query = CustomerPartner::query()->where('customer_group_id', $customer_group_id)
+                    ->whereRaw($query_expression, ['%' . $cleared_customer_key . '%']);
+                $customer_partner = $query->first();
 
-                $customer_partner = CustomerPartner::query()
-                    ->where('customer_group_id', $customer_group_id)
-                    ->where('name', $customer_key)
-                    ->first();
                 $customer_code = null;
                 $customer_note = null;
                 $customer_LV2 = null;
@@ -266,19 +296,6 @@ class CheckDataRepository extends RepositoryAbs
                     'customer_LV3' => $customer_LV3,
                     'customer_LV4' => $customer_LV4,
                 ];
-                // Kiểm tra xem key khách hàng đã tồn tại trong nhóm khách hàng hay chưa
-                $existingPartner = CustomerPartner::where('customer_group_id', $customer_group_id)
-                    ->whereIn('name', array_column($items, 'customer_key'))
-                    ->first();
-                if (!$existingPartner) {
-                    // $this->errors = ['customer_group_id' => $customer_key, 'message' => 'Key khách hàng không có trong nhóm khách hàng này.'];
-                    $this->errors = [
-                        'customer_group_id' => $customer_group_id,
-                        'items' => $items,
-                        'message' => 'Các Key khách hàng không có trong nhóm khách hàng này.',
-                    ];
-                    return false;
-                }
             }
             // Kiểm tra và lấy SoSapNote của KH nếu có
             $so_sap_note_syntax = $this->getSoSapNoteSyntax($customer_group_id);
