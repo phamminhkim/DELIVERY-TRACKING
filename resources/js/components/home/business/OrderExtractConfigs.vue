@@ -1844,6 +1844,8 @@
                             this.is_convert_header = data.is_convert_header;
                             $('#importConfigDialog').modal('hide');
                             this.$showMessage('success', 'Import cấu hình thành công');
+                            this.onClickUpdateConfig(this.data_config_type.DATA);
+                            this.onClickUpdateConfig(this.data_config_type.HEADER);
                         } catch (error) {
                             this.$showMessage('error', 'Lỗi', error);
                         }
