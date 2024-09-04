@@ -9,23 +9,36 @@ class ExcelExtractor
     public function extractData($file)
     {
         $local_file_service = new LocalFileService();
-        $file_path = $local_file_service->saveTemporaryFile($file);
-        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
-        $reader->setReadDataOnly(true);
-        $spreadsheet = $reader->load($file_path);
-        $local_file_service->deleteTemporaryFile($file_path);
-        $worksheet = $spreadsheet->getActiveSheet();
+        $file_path = null;
         $raw_table_data = [];
-        foreach ($worksheet->getRowIterator() as $row) {
-            $cellIterator = $row->getCellIterator();
-            $cellIterator->setIterateOnlyExistingCells(FALSE); // This loops through all cells,
-            $data = [];
-            foreach ($cellIterator as $cell) {
-                $data[] = $cell->getValue();
+
+        try {
+            $file_path = $local_file_service->saveTemporaryFile($file);
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file_path);
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            foreach ($worksheet->getRowIterator() as $row) {
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false); // This loops through all cells
+                $data = [];
+                foreach ($cellIterator as $cell) {
+                    $data[] = $cell->getValue();
+                }
+                $raw_table_data[] = $data;
             }
-            $raw_table_data[] = $data;
+
+            // Remove the first row (header)
+            $raw_table_data = array_slice($raw_table_data, 1);
+        } catch (\Exception $exception) {
+            // Handle exception if needed
+        } finally {
+            if (isset($file_path)) {
+                $local_file_service->deleteTemporaryFile($file_path);
+            }
         }
-        $raw_table_data = array_slice($raw_table_data, 1);
+
         return $raw_table_data;
     }
 
