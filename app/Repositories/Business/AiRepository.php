@@ -1014,7 +1014,20 @@ class AiRepository extends RepositoryAbs
         // Thêm thông tin customer partner
         if (isset( $table_data['CustomerKey'])) {
             $customer_key = trim($table_data['CustomerKey']);
-            $customer_partner = CustomerPartner::query()->where('customer_group_id', $this->customer_group_id)->where('name', $customer_key)->first();
+            $remove_chars = ['.',',',' '];
+            $customer_key = strtolower(str_replace($remove_chars, '', $customer_key));
+
+            // Lồng các hàm REPLACE để loại bỏ các ký tự không mong muốn
+            $replace_expression = 'name';
+            foreach ($remove_chars as $char) {
+                $replace_expression = "REPLACE($replace_expression, '$char', '')";
+            }
+            $query_expression = 'LOWER('. $replace_expression. ') LIKE ?';
+            // Kiểm tra chứa chuỗi customer_key
+            $query = CustomerPartner::query()->where('customer_group_id', $this->customer_group_id)
+                ->whereRaw($query_expression, ['%' . $customer_key . '%']);
+            $customer_partner = $query->first();
+
             if ($customer_partner) {
                 $table_data['CustomerCode'] = $customer_partner->code;
                 $table_data['CustomerNote'] = $customer_partner->note;
