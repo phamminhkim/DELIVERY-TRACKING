@@ -48,7 +48,11 @@ class IndexArrayMappingRestructure implements DataRestructureInterface
                     $output[$key] = OperatorUtility::replaceSeparator($output[$key], $value_item['decimal_separator'], $value_item['thousand_separator']);
                 }
                 if (isset($value_item['regex_match'])) {
-                    $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
+                    if (isset($value_item['regex_match_index'])) {
+                        $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match'], $value_item['regex_match_index']);
+                    } else {
+                        $output[$key] = OperatorUtility::regexMatch($output[$key], $value_item['regex_match']);
+                    }
                 }
                 // Xử lý giá trị theo điều kiên
                 if (isset($value_item['condition'])) {

@@ -49,7 +49,11 @@ class SearchTextArrayMappingRestructure implements DataRestructureInterface
             }
             // Xử lý chuỗi theo regex
             if (isset($array['regex_match'])) {
-                $output[$structure_key] = OperatorUtility::regexMatch($output[$structure_key], $array['regex_match']);
+                if (isset($array['regex_match_index'])) {
+                    $output[$structure_key] = OperatorUtility::regexMatch($output[$structure_key], $array['regex_match'], $array['regex_match_index']);
+                } else {
+                    $output[$structure_key] = OperatorUtility::regexMatch($output[$structure_key], $array['regex_match']);
+                }
             }
             // Xử lý replace
             if (isset($array['replace_value'])) {

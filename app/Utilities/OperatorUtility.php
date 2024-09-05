@@ -41,10 +41,10 @@ class OperatorUtility
         $string = str_replace($decimal_separator, '.', $string);
         return $string;
     }
-    public static function regexMatch($raw_data, $regex)
+    public static function regexMatch($raw_data, $regex, $output_index = 0)
     {
         preg_match($regex, $raw_data, $matches);
-        return count($matches) > 0 ? trim($matches[0]) : null;
+        return count($matches) > $output_index ? trim($matches[$output_index]) : null;
     }
     public static function getValueWithCondition($array, $condition)
     {
