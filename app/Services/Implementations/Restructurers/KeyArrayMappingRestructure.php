@@ -69,7 +69,11 @@ class KeyArrayMappingRestructure implements DataRestructureInterface
                 }
 
                 if (isset($value_item['regex_match'])) {
-                    $value = OperatorUtility::regexMatch($value, $value_item['regex_match']);
+                    if (isset($value_item['regex_match_index'])) {
+                        $value = OperatorUtility::regexMatch($value, $value_item['regex_match'], $value_item['regex_match_index']);
+                    } else {
+                        $value = OperatorUtility::regexMatch($value, $value_item['regex_match']);
+                    }
                 }
 
                 // Xử lý replace
