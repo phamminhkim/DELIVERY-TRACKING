@@ -22,7 +22,7 @@
                 {{ data.index + 1 }}
             </template>
             <template #cell(sap_so_number)="data">
-                <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}{{ data.item.note }}</a>
+                <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}{{ data.item.promotive_name }}</a>
             </template>
             <template #cell(warehouse_code)="data">
                 <!-- <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
