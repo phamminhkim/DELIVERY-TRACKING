@@ -310,6 +310,7 @@ class SoDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
     public function deleteSoData($id)
     {
         try {
@@ -320,6 +321,11 @@ class SoDataRepository extends RepositoryAbs
                 $current_user_id = $this->current_user->id;
                 DB::beginTransaction();
                 $order_process = OrderProcess::findOrFail($id);
+                // Kiểm tra có tồn tại đơn hàng đã hoặc đang đồng bộ SAP
+                if ($order_process->sync_so_headers->count() > 0) {
+                    $this->errors = "Tồn tại đơn hàng đã hoặc đang được đồng bộ SAP";
+                    return false;
+                }
                 $order_process->is_deleted = true;
                 $order_process->updated_by = $current_user_id;
                 $order_process->save();
@@ -333,6 +339,75 @@ class SoDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
+    public function deleteMultipleSo()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'so_header_ids' => 'required|array',
+                'so_header_ids.*' => 'required|integer',
+            ], [
+                'so_header_ids.required' => 'Danh sách id là bắt buộc',
+                'so_header_ids.array' => 'Danh sách id phải là mảng',
+                'so_header_ids.*.required' => 'Id là bắt buộc',
+                'so_header_ids.*.integer' => 'Id phải là số nguyên',
+            ]);
+            if ($validator->fails()) {
+                $this->errors = $validator->errors()->all();
+            } else {
+                DB::beginTransaction();
+                $so_header_ids = $this->data['so_header_ids'];
+                $so_headers = SoHeader::whereIn('id', $so_header_ids)->get();
+                // Lấy so_header đã hoặc đang đồng bộ
+                $sync_so_headers = $so_headers->filter(function ($so_header) {
+                    return $so_header->so_uid || $so_header->is_syncing_sap;
+                });
+                // Kiểm tra tất cả đơn đã hoặc đang đồng bộ SAP
+                if ($sync_so_headers->count() > 0) {
+                    $this->errors = "Tồn tại đơn hàng đã hoặc đang được đồng bộ SAP";
+                    // Trả về các đơn đã hoặc đang đồng bộ SAP
+                    $this->message['sync_so_headers'] = $sync_so_headers->map(function ($so_header) {
+                        return [
+                            'id' => $so_header->id,
+                            'sap_so_number' => $so_header->sap_so_number,
+                            'so_uid' => $so_header->so_uid,
+                            'is_syncing_sap' => $so_header->is_syncing_sap,
+                        ];
+                    });
+
+                    return false;
+                }
+                // Xóa so_header
+                $so_headers->each(function ($so_header) {
+                    if ($so_header->theme_color) {
+                        $so_header->theme_color->delete();
+                    }
+                });
+                $so_headers->each(function ($so_header) {
+                    $so_header->so_data_items->each(function ($so_data_item) {
+                        if ($so_data_item->theme_color) {
+                            $so_data_item->theme_color->delete();
+                        }
+                    });
+                });
+                $so_headers->each(function ($so_header) {
+                    $so_header->so_data_items()->delete();
+                });
+                $so_headers->each(function ($so_header) {
+                    $so_header->delete();
+                });
+                DB::commit();
+                return true;
+            }
+            return false;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
+
     public function getOrderProcessList()
     {
         try {

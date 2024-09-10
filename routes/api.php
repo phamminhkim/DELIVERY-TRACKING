@@ -343,6 +343,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('save-so', [SoDataController::class, 'saveSoData']);
         Route::put('/{id}', [SoDataController::class, 'updateSoData']);
         Route::delete('/{id}', [SoDataController::class, 'deleteSoData']);
+        Route::post('/delete-multiple', [SoDataController::class, 'deleteMultipleSo']);
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
         Route::get('/', [SoDataController::class, 'getOrderProcessList']);
 

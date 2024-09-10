@@ -22,7 +22,7 @@
                 {{ data.index + 1 }}
             </template>
             <template #cell(sap_so_number)="data">
-                <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}{{ data.item.note }}</a>
+                <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}{{ data.item.promotive_name }}</a>
             </template>
             <template #cell(warehouse_code)="data">
                 <!-- <span class="badge badge-sm badge-info px-2">{{ findWarehouse(data.item.warehouse_id)
@@ -49,6 +49,9 @@
             <template #cell(sync_sap_status)="data">
                 <span class="badge bg-success" v-if="data.item.sync_sap_status == 1">Đã đồng bộ</span>
                 <span class="badge bg-warning" v-if="data.item.sync_sap_status == 0">Chưa đồng bộ</span>
+            </template>
+            <template #cell(so_sap_note)="data">
+                <span>{{ data.item.so_sap_note }}{{ data.item.promotive_name }}</span>
             </template>
         </b-table>
     </div>
