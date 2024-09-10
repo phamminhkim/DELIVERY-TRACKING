@@ -94,7 +94,9 @@ class SyncDataRepository extends RepositoryAbs
                             "LV2" => $order->level2,
                             "LV3" => $order->level3,
                             "LV4" => $order->level4,
-                            "NOTE" => isset($value["so_sap_note"]) ? $value["so_sap_note"] : null,
+                            "NOTE" => isset($value["so_sap_note"]) ?
+                                ($value["promotive_name"] ? $value["so_sap_note"] . $value["promotive_name"] : $value["so_sap_note"])
+                                : null,
                             "USER" => auth()->user()->email,
                             "ITEMS" => $ITEM_DATA
                         ];
@@ -270,8 +272,15 @@ class SyncDataRepository extends RepositoryAbs
                 $query->with(['warehouse' => function ($query) {
                     $query->select('id', 'code');
                 }]);
+                $query->with(['so_data_items']);
 
                 $soHeader = $query->get();
+
+                // Lấy trường promotive_name để xử lý SAP note, SO name
+                foreach ($soHeader as $item) {
+                    $item->promotive_name = $item->so_data_items->first()->promotive_name;
+                    unset($item->so_data_items);
+                }
 
                 return $soHeader;
             }
