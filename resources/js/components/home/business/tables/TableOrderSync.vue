@@ -50,6 +50,9 @@
                 <span class="badge bg-success" v-if="data.item.sync_sap_status == 1">Đã đồng bộ</span>
                 <span class="badge bg-warning" v-if="data.item.sync_sap_status == 0">Chưa đồng bộ</span>
             </template>
+            <template #cell(so_sap_note)="data">
+                <span>{{ data.item.so_sap_note }}{{ data.item.promotive_name }}</span>
+            </template>
         </b-table>
     </div>
 </template>
