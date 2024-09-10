@@ -498,6 +498,7 @@ export default {
                             'warehouse_code': item.warehouse_id,
                             'so_sap_note': item.so_sap_note,
                             'Ship_cond': item.shipping_id,
+                            'promotive_name': item.promotive_name,
                         }
                     })
                 };
