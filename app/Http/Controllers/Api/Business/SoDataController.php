@@ -32,6 +32,17 @@ class SoDataController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function deleteMultipleSo(Request $request)
+    {
+        $handler = BusinessRepository::soDataRequest($request);
+        $data = $handler->deleteMultipleSo();
+
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function updateSoData(Request $request, $id)
     {
         $handler = BusinessRepository::soDataRequest($request);
