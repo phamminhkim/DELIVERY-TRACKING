@@ -278,7 +278,11 @@ class SyncDataRepository extends RepositoryAbs
 
                 // Lấy trường promotive_name để xử lý SAP note, SO name
                 foreach ($soHeader as $item) {
-                    $item->promotive_name = $item->so_data_items->first()->promotive_name;
+                    if ($item->so_data_items->count() > 0) {
+                        $item->promotive_name = $item->so_data_items->first()->promotive_name;
+                    } else {
+                        $item->promotive_name = '';
+                    }
                     unset($item->so_data_items);
                 }
 
