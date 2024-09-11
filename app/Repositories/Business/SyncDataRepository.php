@@ -113,58 +113,57 @@ class SyncDataRepository extends RepositoryAbs
             // Kiểm tra lỗi kết nối đồng bộ
             if (!$jsonData['success']) {
                 $this->errors['sap_error'] = $jsonData['error'];
-                $this->changeIsSyncingSapSoHeader($so_headers, false);
-                return null;
-            }
-
-            if (!empty($jsonData['data'])) {
-                foreach ($jsonData['data'] as $json_value) {
-                    $soNumber = $json_value['SO_NUMBER'];
-                    // Log::info($soNumber);
-                    $sync_sap_status = 0;
-                    $so_sap_note = '';
-                    $warehouse_id = 0;
-                    $shipping_id = 0;
-                    if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
-                        //lấy giá trị trong mảng $fields['data'] theo  id
-                        $value_item = null;
-                        foreach ($fields['data'] as $value) {
-                            if ($value['id'] == $json_value['SO_KEY']) {
-                                $value_item = $value;
-                                continue; //thoát vòng lặp
-                            }
-                        }
-                        // dd($value_item);
-                        $soHeader = SoHeader::find($json_value['SO_KEY']);
-                        $soHeader->so_uid = $soNumber;
-                        $soHeader->sync_sap_status = 1;
-                        //  $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
-                        $soHeader->warehouse_id = $value_item["warehouse_code"];
-                        $soHeader->shipping_id = isset($value_item["Ship_cond"]) ? $value_item["Ship_cond"] : null;
-                        $sync_sap_status = $soHeader->sync_sap_status = 1;
-                        $so_sap_note = $soHeader->so_sap_note;
-                        $warehouse_id = $soHeader->warehouse_id;
-                        $shipping_id = $soHeader->shipping_id;
-                        $soHeader->save();
-                        // dd($json_value);
-
-                    } else if ($json_value['SO_KEY'] == '') {
-                        $this->errors['not_config_user'] = $json_value['MESSAGE'];
-                        $this->changeIsSyncingSapSoHeader($so_headers, false);
-                        return null;
-                    }
-                    $result[] = [
-                        "id" => $json_value['SO_KEY'],
-                        "so_number" => $soNumber,
-                        "sync_sap_status" => $sync_sap_status,
-                        "so_sap_note" => $so_sap_note,
-                        "warehouse_code" => $warehouse_id,
-                        "Ship_cond" => $shipping_id,
-                        "message" => $json_value['MESSAGE']
-                    ];
-                }
+                $result = null;
             } else {
-                $this->errors['synchronized_error'] = "Các đơn hàng đã được đồng bộ trước đó";
+                if (!empty($jsonData['data'])) {
+                    foreach ($jsonData['data'] as $json_value) {
+                        $soNumber = $json_value['SO_NUMBER'];
+                        // Log::info($soNumber);
+                        $sync_sap_status = 0;
+                        $so_sap_note = '';
+                        $warehouse_id = 0;
+                        $shipping_id = 0;
+                        if (($json_value['SO_KEY'] != '') && ($json_value['SO_NUMBER'] != '')) {
+                            //lấy giá trị trong mảng $fields['data'] theo  id
+                            $value_item = null;
+                            foreach ($fields['data'] as $value) {
+                                if ($value['id'] == $json_value['SO_KEY']) {
+                                    $value_item = $value;
+                                    continue; //thoát vòng lặp
+                                }
+                            }
+                            // dd($value_item);
+                            $soHeader = SoHeader::find($json_value['SO_KEY']);
+                            $soHeader->so_uid = $soNumber;
+                            $soHeader->sync_sap_status = 1;
+                            //  $soHeader->so_sap_note = isset($value["so_sap_note"]) ? $value["so_sap_note"] : null;
+                            $soHeader->warehouse_id = $value_item["warehouse_code"];
+                            $soHeader->shipping_id = isset($value_item["Ship_cond"]) ? $value_item["Ship_cond"] : null;
+                            $sync_sap_status = $soHeader->sync_sap_status = 1;
+                            $so_sap_note = $soHeader->so_sap_note;
+                            $warehouse_id = $soHeader->warehouse_id;
+                            $shipping_id = $soHeader->shipping_id;
+                            $soHeader->save();
+                            // dd($json_value);
+
+                        } else if ($json_value['SO_KEY'] == '') {
+                            $this->errors['not_config_user'] = $json_value['MESSAGE'];
+                            $result = null;
+                            break;
+                        }
+                        $result[] = [
+                            "id" => $json_value['SO_KEY'],
+                            "so_number" => $soNumber,
+                            "sync_sap_status" => $sync_sap_status,
+                            "so_sap_note" => $so_sap_note,
+                            "warehouse_code" => $warehouse_id,
+                            "Ship_cond" => $shipping_id,
+                            "message" => $json_value['MESSAGE']
+                        ];
+                    }
+                } else {
+                    $this->errors['synchronized_error'] = "Các đơn hàng đã được đồng bộ trước đó";
+                }
             }
             DB::commit();
             $this->changeIsSyncingSapSoHeader($so_headers, false);
