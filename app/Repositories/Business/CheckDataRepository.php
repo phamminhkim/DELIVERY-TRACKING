@@ -243,7 +243,7 @@ class CheckDataRepository extends RepositoryAbs
                 foreach ($remove_chars as $char) {
                     $replace_expression = "REPLACE($replace_expression, '$char', '')";
                 }
-                $query_expression = 'LOWER('. $replace_expression. ') LIKE ?';
+                $query_expression = 'LOWER('. $replace_expression. ') = ?';
 
             // Kiểm tra xem tất cả key không tồn tại
             $customer_keys = array_map(function($item) use ($remove_chars) {
@@ -253,7 +253,7 @@ class CheckDataRepository extends RepositoryAbs
             $existingPartners = CustomerPartner::where('customer_group_id', $customer_group_id)
                 ->where(function($query) use ($query_expression, $customer_keys) {
                     foreach ($customer_keys as $key) {
-                        $query->orWhereRaw($query_expression, ['%' . $key . '%']);
+                        $query->orWhereRaw($query_expression, [$key]);
                     }
                 })
                 ->first();
@@ -271,7 +271,7 @@ class CheckDataRepository extends RepositoryAbs
                 $customer_key = $item['customer_key'];
                 $cleared_customer_key = strtolower(str_replace($remove_chars, '', $customer_key));
                 $query = CustomerPartner::query()->where('customer_group_id', $customer_group_id)
-                    ->whereRaw($query_expression, ['%' . $cleared_customer_key . '%']);
+                    ->whereRaw($query_expression, [$cleared_customer_key]);
                 $customer_partner = $query->first();
 
                 $customer_code = null;
