@@ -841,6 +841,21 @@
                                 </span>
                             </div>
                             <div class="form-group">
+                                <label>Vị trí</label>
+                                <input
+                                v-model="convert_config.order"
+                                type="number"
+                                class="form-control form-control-sm"
+                                placeholder="Nhập vị trí"
+                                id="order"
+                                name="order"
+                                v-bind:class="hasError('order') ? 'is-invalid' : ''"
+                                />
+                                <span v-if="hasError('order')" class="invalid-feedback" role="alert">
+                                <strong>{{ getError("order") }}</strong>
+                                </span>
+                            </div>
+                            <div class="form-group">
                                 <label>Nhóm cấu hình?</label>
                                 <select v-model="convert_config.is_config_group"
                                 class="form-control"
@@ -1077,6 +1092,7 @@
                     { key: "customer_group_id", label: "Nhóm khách hàng", sortable: true },
                     { key: "name", label: "Tên cấu hình", sortable: true },
                     { key: "convert_file_type", label: "Loại file", sortable: true },
+                    { key: "order", label: "Vị trí", sortable: true },
                     { key: "is_config_group", label: "Nhóm cấu hình?", sortable: true, class: "text-center" },
                     { key: "is_master_config_group", label: "Nhóm chính?", sortable: true, class: "text-center" },
                     { key: "is_slave_config_group", label: "Nhóm phụ?", sortable: true, class: "text-center" },
@@ -1099,6 +1115,7 @@
                     customer_group_id: "",
                     name: "",
                     convert_file_type: "pdf",
+                    order: "",
                     is_config_group: false,
                     is_master_config_group: false,
                     is_slave_config_group: false,
@@ -1123,6 +1140,7 @@
                     customer_group_id: config.customer_group_id,
                     name: config.name,
                     convert_file_type: config.convert_file_type,
+                    order: config.order,
                     is_config_group: config.is_config_group,
                     is_master_config_group: config.is_master_config_group,
                     is_slave_config_group: config.is_slave_config_group,
@@ -1206,6 +1224,7 @@
                     customer_group_id: "",
                     name: "",
                     convert_file_type: "pdf",
+                    order: "",
                     is_config_group: false,
                     is_master_config_group: false,
                     is_slave_config_group: false,
