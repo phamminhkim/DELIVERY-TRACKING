@@ -196,6 +196,7 @@ export default {
             console.log('cellEditing:', cell);
 
 
+
         });
 
         // sự kiện khi clipboardPasted
@@ -1206,9 +1207,11 @@ export default {
                 this.is_column_filter[this.column] = true;
                 this.$emit('filterOrder', 'price_difference', 'difference', 'difference');
                 this.table.setFilter([
-                    { field: "difference", type: "like", value: "price_difference", matchAll: true },
+                    { field: "difference", type: "=", value: "price_difference"},
                 ]);
                 this.removeOnlyDivClassSetPopup();
+                console.log('this.table.getFilters():', this.table.getFilters());
+                console.log('this.table.getData():', this.table.getData());
             });
             return div_price;
         },
@@ -1222,7 +1225,7 @@ export default {
                 this.is_column_filter[this.column] = true;
                 this.$emit('filterOrder', 'price_equal', 'difference', 'difference');
                 this.table.setFilter([
-                    { field: "difference", type: "like", value: "price_equal", },
+                    { field: "difference", type: "like", value: "price_equal" },
                 ]);
                 this.removeOnlyDivClassSetPopup();
 
