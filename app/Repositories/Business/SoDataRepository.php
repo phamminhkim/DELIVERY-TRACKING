@@ -424,6 +424,15 @@ class SoDataRepository extends RepositoryAbs
                     $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
                     $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
                     unset($order_process_item->synchronized_so_headers);
+                    // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
+                    $order_process_item->so_headers->each(function ($so_header) {
+                        if ($so_header->so_data_items->count() > 0) {
+                            $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
+                        } else {
+                            $so_header['promotive_name'] = null;
+                        }
+                        unset($so_header->so_data_items);
+                    });
                 }
                 return $order_processes;
             }

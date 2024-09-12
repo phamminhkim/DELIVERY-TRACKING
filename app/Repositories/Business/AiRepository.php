@@ -1022,10 +1022,10 @@ class AiRepository extends RepositoryAbs
             foreach ($remove_chars as $char) {
                 $replace_expression = "REPLACE($replace_expression, '$char', '')";
             }
-            $query_expression = 'LOWER('. $replace_expression. ') LIKE ?';
+            $query_expression = 'LOWER('. $replace_expression. ') = ?';
             // Kiểm tra chứa chuỗi customer_key
             $query = CustomerPartner::query()->where('customer_group_id', $this->customer_group_id)
-                ->whereRaw($query_expression, ['%' . $customer_key . '%']);
+                ->whereRaw($query_expression, [$customer_key]);
             $customer_partner = $query->first();
 
             if ($customer_partner) {
