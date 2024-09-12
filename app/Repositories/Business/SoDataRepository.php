@@ -416,9 +416,14 @@ class SoDataRepository extends RepositoryAbs
                 $this->errors = $validator->errors()->all();
             } else {
                 $current_user_id = $this->current_user->id;
-                $order_processes = OrderProcess::where('is_deleted', false)
-                    ->where('created_by', $current_user_id)
-                    ->orderBy('updated_at', 'desc')->get();
+                $query = OrderProcess::query();
+                $query->where('is_deleted', false)->orderBy('updated_at', 'desc');
+                if ($this->current_user->hasRole(['admin-order-process'])) {
+                    // Không cần lọc dữ liệu theo user tạo
+                } else {
+                    $query->where('created_by', $current_user_id);
+                }
+                $order_processes = $query->get();
                 $order_processes->load(['created_by', 'updated_by', 'customer_group']);
                 foreach ($order_processes as $order_process_item) {
                     $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
