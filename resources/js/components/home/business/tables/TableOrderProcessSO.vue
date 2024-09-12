@@ -47,8 +47,8 @@
                 <div class="text-center">
                     <span class="badge badge-sm  px-2" :class="{
                         'badge-danger': data.item.synchronized_so_count == 0,
-                        'badge-success': data.item.synchronized_so_count == data.item.total_so_count,
-                        'badge-warning': data.item.synchronized_so_count > 0 && data.item.synchronized_so_count < data.item.total_so_count
+                        'badge-success': data.item.synchronized_so_count == data.item.so_headers.length,
+                        'badge-warning': data.item.synchronized_so_count > 0 && data.item.synchronized_so_count < data.item.so_headers.length
                     }">
                     {{ data.item.synchronized_so_count }}/{{ data.item.so_headers.length }}
                     </span>
