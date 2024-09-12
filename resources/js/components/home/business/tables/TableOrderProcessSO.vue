@@ -10,9 +10,10 @@
                 </div>
             </div>
         </div>
-        <b-table :sticky-header="true" @row-dblclicked="handleDoubleClick" :filter="case_filter.search" responsive hover
-            small striped head-variant="true" :current-page="current_page" :per-page="per_page"
-            :items="list_order_process_so" :fields="fields">
+        <b-table :sticky-header="height_window + 'px'" @row-dblclicked="handleDoubleClick" :filter="case_filter.search"
+            responsive hover small striped head-variant="true" :current-page="current_page" :per-page="per_page"
+            thead-class="text-xs sticky-header-table-order-process-so" :items="list_order_process_so" :fields="fields"
+            table-class="table-order-process-so text-xs">
             <template #cell(index)="data">
                 {{ (data.index + 1) + (current_page * per_page) - per_page }}
             </template>
@@ -30,10 +31,37 @@
                     {{ data.item.customer_group.name }}
                 </div>
             </template>
+
             <template #cell(synchronized_so_count)="data">
+                <!-- <b-button size="sm" @click="data.toggleDetails" class="mr-2">
+                    {{ data.detailsShowing ? 'Hide' : 'Show' }} Details
+                </b-button> -->
+                <!-- <ul>
+                    <li v-for="(so_header, index) in data.item.so_headers" :key="index">
+                        {{ so_header.sap_so_number }}{{ so_header.promotive_name }}
+                    </li>
+                </ul> -->
+                <!-- <div class="text-xs" >
+                    <p class="mb-0">{{ so_header.sap_so_number }}{{ so_header.promotive_name }}</p>
+                </div> -->
                 <div class="text-center">
-                    {{ data.item.synchronized_so_count }}/{{ data.item.total_so_count }}
-                    <small  @click="getUrlDetail(data.item)" class="text-primary" style="cursor: pointer;"><i class="fas fa-eye"></i></small>
+                    <span class="badge badge-sm  px-2" :class="{
+                        'badge-danger': data.item.synchronized_so_count == 0,
+                        'badge-success': data.item.synchronized_so_count == data.item.total_so_count,
+                        'badge-warning': data.item.synchronized_so_count > 0 && data.item.synchronized_so_count < data.item.total_so_count
+                    }">
+                    {{ data.item.synchronized_so_count }}/{{ data.item.so_headers.length }}
+                    </span>
+                    <!-- <small  @click="getUrlDetail(data.item)" class="text-primary" style="cursor: pointer;"><i class="fas fa-eye"></i></small> -->
+                    <button @click="getUrlDetail(data.item)" class="text-xs btn btn-sm border-white badge">
+                        <small  class="text-primary" style="cursor: pointer;"><i
+                                class="fas fa-eye"></i></small>
+                    </button>
+                    <button @click="data.toggleDetails" class="text-xs btn btn-sm border-white badge">
+                        <small  class="text-info text-xs" style="cursor: pointer;"><i
+                                class="fas fa-caret-down"></i></small>
+
+                    </button>
                 </div>
             </template>
             <template #cell(updated_by)="data">
@@ -53,9 +81,64 @@
             </template>
             <template #cell(action)="data">
                 <button @click="emitDltOrderProcessSO(data.index, data.item)" type="button"
-                    class="btn btn-sm btn-danger ">
+                    class="btn btn-sm btn-danger text-xs">
                     <i class="fas fa-trash-alt"></i>
                 </button>
+            </template>
+            <template #row-details="row">
+                <b-row class="mb-2">
+                    <b-col sm="2" class="bg-white "></b-col>
+                    <b-col sm="10" class="bg-white p-1 ">
+                        <table class="table table-responsive mb-0 table-bordered ml-4">
+                            <thead>
+                                <tr class="bg-white font-weight-bold">
+                                    <td>STT</td>
+                                    <td>SO_Key</td>
+                                    <td>Sap_Note</td>
+                                    <td>Khuyến mãi</td>
+                                    <td>Sap_So Num</td>
+                                    <td>Trạng thái</td>
+                                    <td>Level2</td>
+                                    <td>Level3</td>
+                                    <td>Level4</td>
+                                    <td>Action</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(so_header, index) in row.item.so_headers" :key="index">
+                                    <td>{{ index + 1 }}</td>
+                                    <td>{{ so_header.sap_so_number }}{{ so_header.promotive_name }}</td>
+                                    <td>{{ so_header.so_sap_note }}{{ so_header.promotive_name }}</td>
+                                    <td>{{ so_header.promotive_name }}</td>
+                                    <td>{{ so_header.so_uid }}</td>
+                                    <td>
+                                        <span class="badge badge-sm badge-warning"
+                                            v-if="so_header.sync_sap_status == 0">Chưa đồng bộ</span>
+                                        <span class="badge badge-sm badge-success"
+                                            v-else-if="so_header.sync_sap_status == 1">Đã đồng bộ</span>
+                                    </td>
+                                    <td>{{ so_header.level2 }}</td>
+                                    <td>{{ so_header.level3 }}</td>
+                                    <td>{{ so_header.level4 }}</td>
+                                    <td>
+                                        <button @click="getUrlDetailId(so_header)" class="text-xs btn btn-sm border-white badge">
+                                            <small  class="text-xs text-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </small>
+                                        </button>
+                                        <button v-show="so_header.sync_sap_status == 0" @click="deleteSoHeader(row.index,index,so_header)" class="text-xs btn btn-sm border-white badge">
+                                            <small class="text-xs text-danger">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </small>
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </b-col>
+                </b-row>
+
             </template>
         </b-table>
     </div>
@@ -95,6 +178,7 @@ export default {
                     key: 'synchronized_so_count',
                     label: 'Số SO đã đồng bộ',
                     class: 'text-nowrap',
+                    thClass: 'text-center',
                     sortable: true,
                 },
                 {
@@ -146,10 +230,19 @@ export default {
                 search: '',
                 status: '',
                 type: '',
-            }
+            },
+         
+            height_window: 0,
         }
     },
+    mounted() {
+        this.handleHeightWindow();
+        window.addEventListener('resize', this.handleHeightWindow);
+    },
     methods: {
+        handleHeightWindow() {
+            this.height_window = window.innerHeight - 300;
+        },
         emitEditOrderProcessSO(item) {
             this.$emit('editOrderProcessSO');
         },
@@ -169,8 +262,39 @@ export default {
             ids = item.so_headers.map(so => so.id).join(',');
             url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
             window.open(url, '_blank');
-        }
+        },
+        getUrlDetailId(item) {
+            let ids = '';
+            let url = '';
+            ids = item.id;
+            url = window.location.origin + '/sap-syncs-detail' + '#' + ids + '?xem_chi_tiet';
+            window.open(url, '_blank');
+        },
+        deleteSoHeader(index_parent,index_child, item) {
+            const idx_parent = index_parent + (this.current_page * this.per_page) - this.per_page
+            this.$emit('deleteSoHeader', idx_parent,index_child, item);
+        },
+        countSoSyncStatus(so_headers) {
+            let count = 0;
+            so_headers.forEach(so_header => {
+                if (so_header.sync_sap_status == 1) {
+                    count++;
+                }
+            });
+            return count;
+        },
     },
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+::v-deep .table-order-process-so {
+    font-size: .875em;
+}
+
+::v-deep .sticky-header-table-order-process-so {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: white;
+}
+</style>

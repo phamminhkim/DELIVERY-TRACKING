@@ -48,6 +48,7 @@
                             :material_category_types="material_category_types" :item_change_checked="item_change_checked"
                             :range="range" :update_column="update_column" :item_filters="item_filters"
                             :update_status_function="update_status_function" :position_order="position_order"
+                            :item_filter_backgrounds="item_filter_backgrounds" :item_filter_texts="item_filter_texts"
                             :range_items="range_items" :hidden_columns="hidden_columns" @table="emitTable"
                             @inputSearch="emitInputSearch" @emitRangeChanged="emitRangeChanged"
                             @filterOrder="filterOrder" @editPromotion="editPromotion" @addRow="addRow"
@@ -99,6 +100,8 @@ export default {
         update_column:  { type: Number, default: 0 },
         item_filters: { type: Array, default: () => [] },
         item_change_checked: { type: Array, default: () => [] },
+        item_filter_backgrounds: { type: Array, default: () => [] },
+        item_filter_texts: { type: Array, default: () => [] },
 
     },
     components: {
