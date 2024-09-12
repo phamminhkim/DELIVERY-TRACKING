@@ -20,6 +20,7 @@
             :update_status_function="update_status_function" :position_order="position" :range_items="range.items"
             :hidden_columns="filterHiddenColumns" :processing_success="update_status_function.processing_file"
             :item_filters="item_filters" @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
+            :item_filter_backgrounds="item_filter_backgrounds" :item_filter_texts="item_filter_texts"
             @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
             @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
             @inputTextColor="handleInputTextColor" @saveUpdateOrder="handleSaveUpdateOrder"
@@ -145,6 +146,8 @@ export default {
             hidden_columns: [],
             columns: [],
             item_filters: [],
+            item_filter_backgrounds: [],
+            item_filter_texts: [],
             search_items: [],
             url_api: {
                 order_process_so: '/api/sales-order',
@@ -517,7 +520,8 @@ export default {
                         customer_sku_code: data_item.customer_sku_code,
                         customer_sku_name: data_item.customer_sku_name,
                         customer_sku_unit: data_item.customer_sku_unit,
-                        quantity: data_item.quantity,
+                        // quantity: data_item.quantity,
+                        quantity: '',
                         company_price: data_item.company_price,
                         customer_code: data_item.so_header.customer_code,
                         level2: data_item.so_header.level2,
@@ -542,6 +546,7 @@ export default {
                         variant_quantity: variant_quantity,
                         extra_offer: '',
                         promotion_category: '',
+                        po: '',
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
                         sap_so_number: data_item.so_header.sap_so_number,
@@ -680,11 +685,10 @@ export default {
                 let body = {
                     'customer_group_id': this.order.customer_group_id,
                     'items': unique_customer_name.map(key => ({ customer_key: key }))
-
                 };
                 const { data, success, errors, message } = await this.api_handler.post(this.url_api.check_customer_key, {}, body);
                 if (success) {
-                    this.filteredOrders = this.filteredOrders.map(item => {
+                    this.filteredOrders.map(item => {
                         data.items.forEach(item_data => {
                             if (item.customer_name == item_data.customer_key) {
                                 item.customer_code = item_data.customer_code;
@@ -774,7 +778,7 @@ export default {
                 await this.apiCheckComplianceFromOrder();
                 await $('#DialogOrderProcessesLoadingSAP').modal('hide');
                 await this.updateFuncSetData();
-            }, 10); 
+            }, 10);
 
         },
         async updateFuncSetData() {
@@ -970,14 +974,38 @@ export default {
             $('#DialogOrderProcessesSaveSO').modal('show');
             // this.UpdateSaleOrder(202);
         },
+        convertToString(value) {
+            if (value == null || value == undefined) {
+                return '';
+            } else {
+                return value.toString();
+            }
+        },
         handleFilterOrder(value, field, event) {
-            if (event !== undefined) {
-                this.filter.event = event;
+            this.filter.field = '';
+            this.filter.value = '';
+            this.filter.event = '';
+            this.filter.event = this.convertToString(event);
+            switch (this.filter.event) {
+                case 'reset':
+                    this.item_change_checked = [];
+                    this.filter.field = '';
+                    this.filter.value = '';
+                    this.filter.search = '';
+                    this.range_v2.items = [];
+                    this.range_v2.indexs = [];
+                    this.range_v2.full_items = [];
+
+                    break;
+                default:
+                    this.filter.field = field;
+                    break;
             }
             this.filter.value = value;
-            this.filter.field = field;
             // this.update_status_function.add_row++;
-            this.update_status_function.set_data++;
+            // this.update_status_function.set_data++;
+            // this.update_status_function.update_data++;
+
         },
         async handleOrderSyncSap() {
             this.is_modal_sync_sap = true;
@@ -1200,13 +1228,13 @@ export default {
                                     quantity: this.orders[index_order]['quantity'],
                                     quantity1_po: this.orders[index_order]['quantity1_po'],
                                     quantity2_po: this.orders[index_order]['quantity2_po'],
+                                    quantity3_sap: material.quantity3_sap == undefined ? '' : material.quantity3_sap,
                                     customer_name: this.orders[index_order]['customer_name'],
                                     variant_quantity: this.orders[index_order]['variant_quantity'],
                                     extra_offer: this.orders[index_order]['extra_offer'],
                                     promotion_category: this.orders[index_order]['promotion_category'],
                                     compliance: this.orders[index_order]['compliance'],
                                     is_compliant: this.orders[index_order]['is_compliant'],
-                                    quantity3_sap: material.quantity3_sap == undefined ? '' : material.quantity3_sap,
                                     po_number: this.orders[index_order]['po_number'],
                                     po_delivery_date: this.orders[index_order]['po_delivery_date'],
                                     so_header_id: this.orders[index_order]['so_header_id'],
@@ -1679,9 +1707,12 @@ export default {
             const position = cell.getRow().getPosition();
             const data = cell.getRow().getData();
             data.promotive_name = data.promotive;
-            data.note1 = data.promotive;
+            // data.note1 = data.promotive;
             data.is_promotive = true;
             // data.promotion_category = data.promotive;
+            data.difference = (data.company_price == null || data.company_price == '') ? '' : (data.company_price == data.price_po) ? 'price_equal' : 'price_difference';
+            data.theme_color.text.company_price = data.price_po == data.company_price ? '' : '#FF0000';
+            data.theme_color.text.price_po = data.price_po == data.company_price ? '' : '#FF0000';
             this.filteredOrders[position - 1] = data;
             // this.update_status_function.set_data++;
             this.update_status_function.update_data++;
@@ -1887,6 +1918,13 @@ export default {
             this.range_v2.items = items.map(item => item);
 
         },
+        toStringInNumber(value) {
+            if (value == null) {
+                return '';
+            } else {
+                return value.toString();
+            }
+        },
         handlePopupOpened(field) {
 
             // let uniques = [...new Set(this.orders.map(order => {
@@ -1897,32 +1935,82 @@ export default {
             // }))];
             // this.item_filters = uniques;
             let uniques = [];
+            let unique_backgrounds = [];
+            let unique_texts = [];
             let map = new Map();
+            let map_bg = new Map();
+            let map_txt = new Map();
+
 
             this.orders.forEach(order => {
                 let key = `${order[field]}_${order.promotive || ''}`;
                 if (!map.has(key)) {
                     map.set(key, true); // Set any value to the map
                     uniques.push({
-                        name: order[field] == null ? '' : order[field],
+                        name: order[field] === undefined ? '' : this.toStringInNumber(order[field]),
                         promotive_name: order.promotive == null ? '' : order.promotive
+                    });
+                }
+                let key_background = `${order.theme_color.background[field]}`;
+                if (!map_bg.has(key_background)) {
+                    map_bg.set(key_background, true); // Set any value to the map
+                    unique_backgrounds.push({
+                        color: order.theme_color.background[field]
+                    });
+                }
+                let key_text = `${order.theme_color.text[field]}`;
+                if (!map_txt.has(key_text)) {
+                    map_txt.set(key_text, true); // Set any value to the map
+                    unique_texts.push({
+                        color: order.theme_color.text[field]
                     });
                 }
             });
             this.item_filters = uniques;
+            this.item_filter_backgrounds = unique_backgrounds;
+            this.item_filter_texts = unique_texts;
         },
         handleItemChangeChecked(items, is_checked) {
             this.item_change_checked = items;
         },
+        groupFiltersByField() {
+            if (this.item_change_checked.length > 0) {
+                const groupedFilters = this.item_change_checked.reduce((acc, item) => {
+                    if (!acc[item.field]) {
+                        acc[item.field] = [];
+                    }
+                    acc[item.field].push(item.name);
+                    return acc;
+                }, {});
+
+                return groupedFilters;
+            } else {
+                return [];
+            }
+
+        },
         handleSearchItem(column, event) {
-            this.filter.event = 'search_item';
+            this.filter.event = event;
             this.filter.field = column;
-            this.update_status_function.set_data++;
+            // this.filter.value = event;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_data++;
+            console.log(this.filter, 'event', event);
         },
         handleResetItem() {
             this.item_change_checked = [];
             this.filter.field = '';
             this.update_status_function.set_data++;
+        },
+        toLowerCase(value) {
+            if (value == null) {
+                return value;
+            } else {
+                return value.toLowerCase();
+            }
+        },
+        isNull(value) {
+            return value == null ? '' : value;
         },
 
     },
@@ -1933,31 +2021,78 @@ export default {
                 return this.orders;
             } else {
                 switch (this.filter.event) {
+                    case 'reset':
+                        return this.orders;
                     case 'theme_color_bg':
                         // filter màu background
                         return this.orders.filter(order => {
-                            return Object.values(order.theme_color.background).some(value =>
-                                String(value).toLowerCase().includes(this.filter.value.toLowerCase())
-                            );
+                            let text_value = order.theme_color?.background?.[this.filter.field] || '';
+                            let filter_value = this.filter.value || '';
+
+                            // Xử lý khi text_value hoặc filter_value là null hoặc rỗng
+                            if (text_value === null || text_value === '') {
+                                text_value = ''; // Đặt giá trị mặc định là chuỗi rỗng nếu text_value là null hoặc rỗng
+                            }
+
+                            if (filter_value === null || filter_value === '') {
+                                return text_value === "";
+                            }
+
+                            console.log('After conversion:', text_value, filter_value);
+                            // So sánh không phân biệt chữ hoa/thường nếu cả hai là chuỗi
+                            return text_value.toLowerCase().includes(filter_value.toLowerCase());
                         });
                     case 'theme_color_txt':
                         // filter màu  text
                         return this.orders.filter(order => {
-                            return Object.values(order.theme_color.text).some(value =>
-                                String(value).toLowerCase().includes(this.filter.value.toLowerCase())
-                            );
+                            const text_value = order.theme_color?.text?.[this.filter.field] || '';
+                            const filter_value = this.filter.value || '';
+                            return text_value.toLowerCase().includes(filter_value.toLowerCase());
+                        });
+                    case 'extra_offer':
+                        // filter extra_offer
+                        return this.orders.filter(order => {
+                            return order.extra_offer.toLowerCase().includes(this.filter.value.toLowerCase());
+                        });
+                    case 'promotion_category':
+                        // filter promotion_category
+                        return this.orders.filter(order => {
+                            return order.promotion_category.toLowerCase().includes(this.filter.value.toLowerCase());
+                        });
+                    case 'difference':
+                        // filter difference
+                        return this.orders.filter(order => {
+                            return order.difference.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'search_item':
-                        // search_items
+                        const groupedFilters = this.groupFiltersByField();
                         return this.orders.filter(order => {
-                            return this.item_change_checked.some(item => {
-                                return order[this.filter.field].includes(item.name);
+                            return Object.keys(groupedFilters).every(field => {
+                                return groupedFilters[field].some(name => {
+                                    let field_value = order[field]; // Giữ nguyên giá trị gốc của field_value
+                                    if (field_value === null || field_value === '') {
+                                        field_value = ""; // Đặt giá trị mặc định là chuỗi rỗng nếu field_value là null
+                                    }
+
+                                    if (typeof field_value === 'number') {
+                                        name = Number(name);
+                                    } else if (typeof field_value === 'string') {
+                                        name = String(name);
+                                    }
+                                    if (typeof field_value === 'string' && typeof name === 'string') {
+                                        if (name === "") {
+                                            return field_value === "";
+                                        }
+                                        return field_value.toLowerCase().includes(name.toLowerCase());
+                                    }
+                                    return field_value === name;
+                                });
                             });
                         });
                     default:
-                        // return this.orders.filter(order => {
-                        //     return order[this.filter.field].includes(this.filter.value.toLowerCase());
-                        // });
+                        return this.orders.filter(order => {
+                            return order[this.filter.field].includes(this.filter.value.toLowerCase());
+                        });
                         break;
                 }
 

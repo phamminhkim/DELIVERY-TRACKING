@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="modal fade" id="listOrderProcessSO" tabindex="-1">
-            <div class="modal-dialog modal-xl">
+            <div class="modal-dialog modal-xl m-0" >
                 <div class="modal-content">
                     <div class="modal-header bg-gradient-blue">
                         <h5 class="modal-title font-weight-bold text-uppercase">Danh sách xử lý đơn hàng</h5>
@@ -13,7 +13,8 @@
                         <div class="form-group">
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
                                 @handleDoubleClick="getHandleDoubleClick" @dltOrderProcessSO="getDltOrderProcessSO"
-                                :current_page="current_page" :per_page="per_page">
+                                :current_page="current_page" :per_page="per_page"
+                                @deleteSoHeader="handleDeleteSoHeader">
                             </TableOrderProcessSO>
                             <PaginationTable :rows="list_order_process_so.length" :per_page="per_page"
                                 :page_options="page_options" :current_page="current_page" @pageChange="getPageChange"
@@ -54,6 +55,7 @@ export default {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
             api_order_process_so: '/api/sales-order',
+            api_order_so_header_dlt: '/api/sales-order/delete-multiple',
             case_is_loading: {
                 fetch_api: false,
             },
@@ -125,6 +127,35 @@ export default {
                 this.DeleteOrderProcessSO(item.id);
             }
 
+        },
+        getDltSoHeader(index_parent, index_child, item) {
+            if (confirm('Bạn có chắc chắn muốn xóa không?')) {
+                this.apiDeleteSoHeader(item.id, index_parent, index_child);
+            }
+        },
+        handleDeleteSoHeader(index_parent, index_child, item) {
+            // this.DeleteOrderProcessSO(id);
+            this.getDltSoHeader(index_parent, index_child, item);
+        },
+        async apiDeleteSoHeader(id, index_parent, index_child) {
+            try {
+                this.case_is_loading.fetch_api = true;
+                const { data, success } = await this.api_handler.post(this.api_order_so_header_dlt, {},
+                    {
+                        so_header_ids: [id]
+                    }
+                );
+                if(success){
+                    this.$showMessage('success', 'Xóa thành công');
+                    this.list_order_process_so[index_parent].so_headers.splice(index_child, 1);
+                }
+                // this.fetchOrderProcessSO();
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error
+                );
+            } finally {
+                this.case_is_loading.fetch_api = false;
+            }
         }
     },
     computed: {
