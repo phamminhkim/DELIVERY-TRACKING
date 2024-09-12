@@ -555,7 +555,7 @@ export default {
                         quantity3_sap: data_item.quantity3_sap,
                         so_header_id: data_item.so_header_id,
                         so_sap_note: data_item.so_header.so_sap_note,
-                        difference: (data_item.company_price == null || data_item.company_price == '') ? '' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
+                        difference: (data_item.company_price == null || data_item.company_price == '') ? 'price_difference' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
                         // difference: 'price_difference',
                         theme_color: this.setDataThemeColor(data_item.theme_color),
                         order_process_id: data_item.order_process_id,
@@ -835,7 +835,7 @@ export default {
                         compliance: '',
                         is_compliant: null,
                         quantity3_sap: this.convertStringToNumber(item.SapQuantity),
-                        difference: '',
+                        difference: 'price_difference',
                         po: '',
                         so_header: this.setDataSoHeader(item.so_header),
                         theme_color: this.setDataThemeColor(null),
@@ -1451,7 +1451,8 @@ export default {
                 for (var i = 0; i < this.filteredOrders.length; i++) {
                     if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']) {
                         orders[i]['company_price'] = tmp['PRICE'];
-                        orders[i]['difference'] = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? '' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_difference' : 'price_different';
+                        var value_check_difference = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? 'price_difference' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_equal' : 'price_difference';
+                        orders[i]['difference'] = value_check_difference;
                         orders[i]['theme_color'].text.company_price = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
                         orders[i]['theme_color'].text.price_po = orders[i]['price_po'] == orders[i]['company_price'] ? '' : '#FF0000';
 
@@ -1706,11 +1707,14 @@ export default {
             // cell.getRow().getData(), cell.getRow().getPosition()
             const position = cell.getRow().getPosition();
             const data = cell.getRow().getData();
+            const value_check = data.price_po == data.company_price ? 'price_equal' : 'price_difference';
+            console.log(value_check, data.price_po, data.company_price, data.price_po == data.company_price);
             data.promotive_name = data.promotive;
             // data.note1 = data.promotive;
             data.is_promotive = true;
             // data.promotion_category = data.promotive;
-            data.difference = (data.company_price == null || data.company_price == '') ? '' : (data.company_price == data.price_po) ? 'price_equal' : 'price_difference';
+            // data.difference = (data.company_price == null || data.company_price == '' || data.price_po == null || data.price_po == '') ? 'price_difference' : (data.company_price == data.price_po) ? 'price_equal' : 'price_difference';
+            data.difference = value_check;
             data.theme_color.text.company_price = data.price_po == data.company_price ? '' : '#FF0000';
             data.theme_color.text.price_po = data.price_po == data.company_price ? '' : '#FF0000';
             this.filteredOrders[position - 1] = data;
@@ -1721,6 +1725,11 @@ export default {
             let positions = rows.map(row => row.getPosition());
             let data = rows.map(row => row.getData());
             positions.forEach((position, index) => {
+                // check price
+                const value_check = data[index].price_po == data[index].company_price ? 'price_equal' : 'price_difference';
+                data[index].difference = value_check;
+                data[index].theme_color.text.company_price = data[index].price_po == data[index].company_price ? '' : '#FF0000';
+                data[index].theme_color.text.price_po = data[index].price_po == data[index].company_price ? '' : '#FF0000';
                 this.filteredOrders[position - 1] = data[index];
             });
             // this.update_status_function.set_data++;
@@ -2029,24 +2038,27 @@ export default {
                             let text_value = order.theme_color?.background?.[this.filter.field] || '';
                             let filter_value = this.filter.value || '';
 
-                            // Xử lý khi text_value hoặc filter_value là null hoặc rỗng
                             if (text_value === null || text_value === '') {
-                                text_value = ''; // Đặt giá trị mặc định là chuỗi rỗng nếu text_value là null hoặc rỗng
+                                text_value = '';
                             }
-
                             if (filter_value === null || filter_value === '') {
-                                return text_value === "";
+                                return text_value === "" || text_value === null;
                             }
 
-                            console.log('After conversion:', text_value, filter_value);
-                            // So sánh không phân biệt chữ hoa/thường nếu cả hai là chuỗi
                             return text_value.toLowerCase().includes(filter_value.toLowerCase());
                         });
                     case 'theme_color_txt':
                         // filter màu  text
                         return this.orders.filter(order => {
-                            const text_value = order.theme_color?.text?.[this.filter.field] || '';
-                            const filter_value = this.filter.value || '';
+                            let text_value = order.theme_color?.text?.[this.filter.field] || '';
+                            let filter_value = this.filter.value || '';
+
+                            if (text_value === null || text_value === '') {
+                                text_value = '';
+                            }
+                            if (filter_value === null || filter_value === '') {
+                                return text_value === "" || text_value === null;
+                            }
                             return text_value.toLowerCase().includes(filter_value.toLowerCase());
                         });
                     case 'extra_offer':
@@ -2062,7 +2074,8 @@ export default {
                     case 'difference':
                         // filter difference
                         return this.orders.filter(order => {
-                            return order.difference.toLowerCase().includes(this.filter.value.toLowerCase());
+                            let field_value = order.difference || ''; // Giữ nguyên giá trị gốc của field_value
+                            return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'search_item':
                         const groupedFilters = this.groupFiltersByField();
