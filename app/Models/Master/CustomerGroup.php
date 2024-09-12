@@ -33,7 +33,8 @@ class CustomerGroup extends Model
                 ->orWhere(function ($q1) {
                     $q1->where('is_config_group', true)->where('is_master_config_group', true);
                 });
-            });
+            })
+            ->orderBy('order');
     }
 
     public function customer_materials()
@@ -57,6 +58,7 @@ class CustomerGroup extends Model
                 ->orWhere(function ($q2) {
                     $q2->where('is_config_group', true)->where('is_slave_config_group', true);
                 });
-            });
+            })
+            ->orderBy('order');
     }
 }

@@ -1023,7 +1023,7 @@ class AiRepository extends RepositoryAbs
                 $replace_expression = "REPLACE($replace_expression, '$char', '')";
             }
             $query_expression = 'LOWER('. $replace_expression. ') = ?';
-            // Kiểm tra chứa chuỗi customer_key
+            // Kiểm tra bằng chuỗi customer_key
             $query = CustomerPartner::query()->where('customer_group_id', $this->customer_group_id)
                 ->whereRaw($query_expression, [$customer_key]);
             $customer_partner = $query->first();
@@ -1709,7 +1709,7 @@ class AiRepository extends RepositoryAbs
 
     public function getConvertConfigList()
     {
-        $query = ExtractOrderConfig::where('is_official', true)->orderBy('customer_group_id');
+        $query = ExtractOrderConfig::where('is_official', true)->orderBy('customer_group_id')->orderBy('order');
         $query->with([
             'customer_group', 'master_extract_order_config'
         ]);
@@ -1746,6 +1746,7 @@ class AiRepository extends RepositoryAbs
                 $extract_order_config->customer_group_id = $this->data['customer_group_id'];
                 $extract_order_config->name = $this->data['name'];
                 $extract_order_config->convert_file_type = $this->data['convert_file_type'];
+                $extract_order_config->order = $this->data['order'];
                 $extract_order_config->is_config_group = $this->data['is_config_group'] == "true" ? true: false;
                 $extract_order_config->is_master_config_group = $this->data['is_master_config_group'] == "true" ? true: false;
                 $extract_order_config->is_slave_config_group = $this->data['is_slave_config_group'] == "true" ? true: false;

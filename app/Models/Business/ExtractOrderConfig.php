@@ -12,6 +12,7 @@ class ExtractOrderConfig extends Model
 
     protected $fillable = [
         'customer_group_id',
+        'order',
         'extract_data_config_id',
         'convert_table_config_id',
         'restructure_data_config_id',
