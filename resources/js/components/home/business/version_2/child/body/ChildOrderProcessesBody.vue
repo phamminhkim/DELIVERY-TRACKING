@@ -1764,4 +1764,7 @@ export default {
     display: flex;
     justify-content: space-between;
 }
+::v-deep .tabulator-header-popup-button{
+    padding: 0px !important;
+}
 </style>
