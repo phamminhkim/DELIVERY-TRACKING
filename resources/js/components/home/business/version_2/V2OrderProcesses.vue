@@ -1134,6 +1134,9 @@ export default {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code &&
                         order.sap_so_number == first_group_entri.sap_so_number);
+                        if (typeof this.orders[index_order_group]['customer_sku_unit'] === 'string' && this.orders[index_order_group]['customer_sku_unit'] === "") {
+                            first_group_entri.customer_sku_unit = ''
+                            }
                     if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
                         (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
