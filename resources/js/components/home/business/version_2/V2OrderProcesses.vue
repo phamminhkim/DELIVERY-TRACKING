@@ -1134,9 +1134,11 @@ export default {
                     let first_group_entri = group_entrie[1][0];
                     const index_order_group = this.orders.findIndex((order) => order.customer_sku_code == first_group_entri.customer_sku_code &&
                         order.sap_so_number == first_group_entri.sap_so_number);
-                        if (typeof this.orders[index_order_group]['customer_sku_unit'] === 'string' && this.orders[index_order_group]['customer_sku_unit'] === "") {
+                    if (typeof this.orders[index_order_group]['customer_sku_unit'] === 'string' && this.orders[index_order_group]['customer_sku_unit'] === "") {
+                        if (first_group_entri.customer_sku_unit == null || first_group_entri.customer_sku_unit == undefined) {
                             first_group_entri.customer_sku_unit = ''
-                            }
+                        }
+                    }
                     if ((first_group_entri.customer_sku_code == this.orders[index_order_group]['customer_sku_code'] &&
                         first_group_entri.sap_so_number == this.orders[index_order_group]['sap_so_number'] &&
                         (this.orders[index_order_group]['sku_sap_code'] != '' || this.orders[index_order_group]['sku_sap_code'] != null) &&
@@ -1153,6 +1155,11 @@ export default {
                     this.case_data_temporary.detect_materials.forEach(item => {
                         group_entrie[1].forEach(item_material => {
 
+                            if (typeof item_material.customer_sku_unit === 'string' && item_material.customer_sku_unit === "") {
+                                if (item.customer_sku_unit == null || item.customer_sku_unit == undefined) {
+                                    item.customer_sku_unit = '';
+                                }
+                            }
                             if (item.customer_sku_code == item_material.customer_sku_code &&
                                 item.customer_sku_unit == item_material.customer_sku_unit &&
                                 item.sap_so_number == item_material.sap_so_number &&
@@ -1170,7 +1177,9 @@ export default {
                         for (var i = 0; i < this.orders.length; i++) {
                             // const customer_sku_unit = '';
                             if (typeof this.orders[i].customer_sku_unit === 'string' && this.orders[i].customer_sku_unit === "") {
-                                tmp.customer_sku_unit = ''
+                                if (tmp.customer_sku_unit == null || tmp.customer_sku_unit == undefined) {
+                                    tmp.customer_sku_unit = '';
+                                }
                             }
                             if ((tmp.customer_sku_code == this.orders[i].customer_sku_code &&
                                 // this.orders[i]['sku_sap_code'] != '' &&
@@ -1197,7 +1206,9 @@ export default {
                         let exist = false;
                         this.orders.forEach((order, index_item) => {
                             if (typeof order.customer_sku_unit === 'string' && order.customer_sku_unit === "") {
-                                material.customer_sku_unit = ''
+                                if (material.customer_sku_unit == null || material.customer_sku_unit == undefined) {
+                                    material.customer_sku_unit = '';
+                                }
                             }
                             if (order.customer_sku_code == material.customer_sku_code &&
                                 order.customer_sku_unit == material.customer_sku_unit &&
