@@ -175,7 +175,7 @@ class SoDataRepository extends RepositoryAbs
                 }
 
                 // Xóa tất cả so_data_items và so_headers của order_process
-                $order_process->not_sync_so_data_items->each(function ($so_data_item) {
+                $order_process->so_data_items->each(function ($so_data_item) {
                     if ($so_data_item->theme_color) {
                         $so_data_item->theme_color->delete();
                     }
