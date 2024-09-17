@@ -1774,7 +1774,7 @@ export default {
             });
             header_datas = header_datas.filter(header => header !== undefined);
             // Xây dựng dữ liệu với các cột được sắp xếp theo thứ tự của this.columns
-            let data_news = this.orders.map((item, index) => {
+            let data_news = this.filteredOrders.map((item, index) => {
                 return header_datas.reduce((acc, col) => {
                     acc[col.title] = item[col.field] || (col.field === 'STT' ? index + 1 : '');
                     return acc;
