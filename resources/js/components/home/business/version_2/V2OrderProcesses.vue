@@ -1759,44 +1759,30 @@ export default {
         },
         handleExportExcel() {
             // let data = this.orders.concat(this.case_data_temporary.order_lacks);
-            let data_news = this.orders.map((item, index) => {
-                return {
-                    'STT': index + 1,
-                    'Makh Key': item.customer_name,
-                    'Mã Sap So': item.sap_so_number,
-                    'Barcode_cty': item.barcode,
-                    'Masap': item.sku_sap_code,
-                    'Tensp': item.customer_sku_name,
-                    'SL_sap': item.quantity3_sap,
-                    // 'Dvt': item.customer_sku_unit,
-                    'Dvt': item.sku_sap_unit,
-                    'Km': item.promotive,
-                    'Ghi_chu': item.note1,
-                    'Makh': item.customer_code,
-                    'Unit_barcode': item.customer_sku_code,
-                    'Unit_barcode_description': item.sku_sap_name,
-                    // 'Dvt_po': item.sku_sap_unit,
-                    'Dvt_po': item.customer_sku_unit,
-                    'Po': item.po_number,
-                    'Qty': item.quantity1_po,
-                    'Combo': item.promotion_category,
-                    'Check tồn': item.inventory_quantity,
-                    'Po_qty': item.quantity2_po,
-                    'SL chênh lệch': item.variant_quantity,
-                    'Pur_price': item.price_po,
-                    'Amount': item.amount_po,
-                    'QC': item.compliance,
-                    'Đúng_QC': item.is_compliant,
-                    'Ghi chú 1': item.note,
-                    'Gia_cty': item.company_price,
-                    'Level 2': item.level2,
-                    'Level 3': item.level3,
-                    'Level 4': item.level4,
-                    'po_number': item.po_number,
-                    'po_delivery_date': item.po_delivery_date,
+            // cột là this.columns
+            let headers = this.columns.map(col => {
+                if (col.visible !== false) {
+                    return col.title;
                 }
-            })
-            var ws = XLSX.utils.json_to_sheet(data_news);
+            });
+            // xóa headers có giá trị là undefined
+            headers = headers.filter(header => header !== undefined);
+            let header_datas = this.columns.map(col => {
+                if (col.visible !== false) {
+                    return col;
+                }
+            });
+            header_datas = header_datas.filter(header => header !== undefined);
+            // Xây dựng dữ liệu với các cột được sắp xếp theo thứ tự của this.columns
+            let data_news = this.filteredOrders.map((item, index) => {
+                return header_datas.reduce((acc, col) => {
+                    acc[col.title] = item[col.field] || (col.field === 'STT' ? index + 1 : '');
+                    return acc;
+                }, {});
+            });
+
+            // Tạo sheet với headers
+            var ws = XLSX.utils.json_to_sheet(data_news, { header: headers });
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });

@@ -189,14 +189,23 @@ export default {
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
+            console.log('cellEdited:', cell);
 
         });
         this.table.on("cellEditing", (cell) => {
-            //cell - cell component
-            console.log('cellEditing:', cell);
+            // Vô hiệu hóa tất cả các tùy chọn liên quan đến selectableRange
+            // this.table.options.selectableRange = false;
+            // this.table.options.selectableRangeColumns = false;
+            // this.table.options.selectableRangeRows = false;
+            // this.table.options.selectableRangeClearCells = false;
+        
+            console.log('kết thúc', this.table.options.selectableRange);
 
 
-
+        });
+        this.table.on("cellEditCancelled", (cell) => {
+           
+            console.log('Editing cancelled, range selection restored.');
         });
 
         // sự kiện khi clipboardPasted
@@ -240,7 +249,6 @@ export default {
                         const clear_filter_column = headerElement.querySelector('.clear-filter-column');
                         if (clear_filter_column) {
                             clear_filter_column.innerHTML = "<u class='text-danger'>Clear</u> filter <u style='font-weight:500;'>dữ liệu</u>";
-                            console.log('headerElement:', headerElement);
                         }
 
 
@@ -659,6 +667,7 @@ export default {
 
                 },
             });
+
             // await this.updateWindowDimensions();
 
         },
@@ -1207,7 +1216,7 @@ export default {
                 this.is_column_filter[this.column] = true;
                 this.$emit('filterOrder', 'price_difference', 'difference', 'difference');
                 this.table.setFilter([
-                    { field: "difference", type: "=", value: "price_difference"},
+                    { field: "difference", type: "=", value: "price_difference" },
                 ]);
                 this.removeOnlyDivClassSetPopup();
                 console.log('this.table.getFilters():', this.table.getFilters());
@@ -1288,9 +1297,15 @@ export default {
                             return parseInt(value); // Nếu trong bảng là số, chuyển filter value thành số
                         } else if (typeof columnData[0] === 'string') {
                             return value.toString(); // Nếu trong bảng là chuỗi, giữ nguyên chuỗi
-                        } else if(value === ''){
-                            return null;
+                        } else if (value === '') {
+                            return null; // Nếu giá trị là null thì giữ nguyên
+                            // thiếu 1 trường hợp nếu là "false" thì chuyển thành false
+                        } else if (value === 'false') {
+                            return false;
+                        } else if (value === 'true') {
+                            return true;
                         }
+
                         return value;
                     });
                 }
@@ -1764,7 +1779,8 @@ export default {
     display: flex;
     justify-content: space-between;
 }
-::v-deep .tabulator-header-popup-button{
+
+::v-deep .tabulator-header-popup-button {
     padding: 0px !important;
 }
 </style>

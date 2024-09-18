@@ -70,4 +70,14 @@ class CheckDataController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
+    public function checkSAPCode(Request $request)
+    {
+        $handler = BusinessRepository::checkDataRequest($request);
+        $data = $handler->checkSAPCode($request);
+        if ($data) {
+            return $this->response($data);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+        }
+    }
 }

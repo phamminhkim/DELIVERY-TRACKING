@@ -376,6 +376,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('check-compliance', [CheckDataController::class, 'checkCompliance']);
         Route::post('check-inventory', [CheckDataController::class, 'checkInventory']);
         Route::post('check-price', [CheckDataController::class, 'checkPrice']);
+        Route::post('check-sap-code', [CheckDataController::class, 'checkSAPCode']);
     });
 
     Route::prefix('raw-so-headers')->group(function () {
