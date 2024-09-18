@@ -54,6 +54,7 @@
         <DialogOrderProcessesLoadingSAP />
         <DialogOrderProcessesLoadingCustomerKey />
         <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
+        <DialogOrderProcessesNotiCheckSkuSapCode :item_sku_sap_code_nulls="item_sku_sap_code_nulls" @submitOrderSyncSap="handleOrderSyncSapConfirm" />
     </div>
 </template>
 <script>
@@ -71,6 +72,7 @@ import DialogGetDataConvertFile from '../../business/dialogs/DialogGetDataConver
 import DialogOrderProcessesLayout from './dialog/DialogOrderProcessesLayout.vue';
 import DialogOrderProcessesLoadingSAP from './dialog/DialogOrderProcessesLoadingSAP.vue';
 import DialogOrderProcessesLoadingCustomerKey from './dialog/DialogOrderProcessesLoadingCustomerKey.vue';
+import DialogOrderProcessesNotiCheckSkuSapCode from './dialog/DialogOrderProcessesNotiCheckSkuSapCode.vue';
 
 
 export default {
@@ -86,7 +88,8 @@ export default {
         DialogGetDataConvertFile,
         DialogOrderProcessesLayout,
         DialogOrderProcessesLoadingSAP,
-        DialogOrderProcessesLoadingCustomerKey
+        DialogOrderProcessesLoadingCustomerKey,
+        DialogOrderProcessesNotiCheckSkuSapCode,
     },
     data() {
         return {
@@ -149,6 +152,7 @@ export default {
             item_filter_backgrounds: [],
             item_filter_texts: [],
             search_items: [],
+            item_sku_sap_code_nulls: [],
             url_api: {
                 order_process_so: '/api/sales-order',
                 customer_groups: 'api/master/customer-groups',
@@ -166,6 +170,7 @@ export default {
                 check_price: '/api/check-data/check-price',
                 order_sync: '/api/so-header',
                 user_field_table_version_2: '/api/master/user-field-table/v_2',
+                check_sap_code: '/api/check-data/check-sap-code',
 
             },
             order: {
@@ -1007,7 +1012,54 @@ export default {
             // this.update_status_function.update_data++;
 
         },
+        async apiCheckSkuSapCodeIsNull() {
+            try {
+                this.is_loading = true;
+                let body = {
+                    'items': this.orders
+                };
+                const { data, success, errors, message } = await this.api_handler.post(this.url_api.check_sap_code, {}, body);
+                if (data.success) {
+                    await this.traverseArraySkuSapCodeIsNull(data.items);
+                    this.$showMessage('success', 'Thành công', 'Kiểm tra mã SAP trống thành công');
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        async traverseArraySkuSapCodeIsNull(items) {
+            let item_sku_sap_code_nulls = [];
+            let sku_items = [...items];
+            await sku_items.forEach((sku_item, index) => {
+                if (sku_item.is_sap_code_valid == false) {
+                    this.orders[index].theme_color.background.customer_sku_code = '#FFFF00';
+                    this.orders[index].theme_color.text.customer_sku_code = '#FF0000';
+                    item_sku_sap_code_nulls.push(this.orders[index]);
+                }
+            });
+            this.item_sku_sap_code_nulls = item_sku_sap_code_nulls;
+            if (this.item_sku_sap_code_nulls.length > 0) {
+                $('#DialogOrderProcessesNotiCheckSkuSapCode').modal('show');
+                await this.update_status_function.update_data++;
+            } else {
+                await this.handleOrderSyncSapConfirm();
+            }
+        },
         async handleOrderSyncSap() {
+            await this.apiCheckSkuSapCodeIsNull();
+
+            // this.is_modal_sync_sap = true;
+            // if (this.order.id == -1) {
+            //     $('#DialogOrderProcessesSaveSO').modal('show');
+            // } else {
+            //     await this.UpdateSaleOrder(this.order.id);
+            //     $('#DialogOrderProcessesSync').modal('show');
+            // }
+        },
+        async handleOrderSyncSapConfirm() {
             this.is_modal_sync_sap = true;
             if (this.order.id == -1) {
                 $('#DialogOrderProcessesSaveSO').modal('show');
@@ -1015,7 +1067,6 @@ export default {
                 await this.UpdateSaleOrder(this.order.id);
                 $('#DialogOrderProcessesSync').modal('show');
             }
-
         },
         appendFormData(pdf_files, config_id) {
             let formData = new FormData();

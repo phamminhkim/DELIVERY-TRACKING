@@ -189,24 +189,26 @@ export default {
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
-            console.log('cellEdited:', cell);
 
         });
-        this.table.on("cellEditing", (cell) => {
-            // Vô hiệu hóa tất cả các tùy chọn liên quan đến selectableRange
-            // this.table.options.selectableRange = false;
-            // this.table.options.selectableRangeColumns = false;
-            // this.table.options.selectableRangeRows = false;
-            // this.table.options.selectableRangeClearCells = false;
-        
-            console.log('kết thúc', this.table.options.selectableRange);
+        // this.table.on("cellEditing", (cell) => {
+        //     // Vô hiệu hóa tất cả các tùy chọn liên quan đến selectableRange
+        //     // this.table.options.selectableRange = false;
+        //     // this.table.options.selectableRangeColumns = false;
+        //     // this.table.options.selectableRangeRows = false;
+        //     // this.table.options.selectableRangeClearCells = false;
+
+        //     // console.log('kết thúc', this.table.options.selectableRange);
+         
+
+        //     console.log('Đang chỉnh sửa ô:', cell.getValue(), cell.isEdited());
 
 
-        });
-        this.table.on("cellEditCancelled", (cell) => {
-           
-            console.log('Editing cancelled, range selection restored.');
-        });
+        // });
+        // this.table.on("cellEditCancelled", (cell) => {
+
+        //     console.log('Editing cancelled, range selection restored.');
+        // });
 
         // sự kiện khi clipboardPasted
         this.table.on("clipboardPasted", (clipboard, rowData, rows) => {
@@ -316,6 +318,10 @@ export default {
                 if (newVal) {
                     console.time('renderData');
                     // Code render component
+                    // this.table.options.selectableRange = true;
+                    // this.table.options.selectableRangeColumns = true;
+                    // this.table.options.selectableRangeRows = true;
+                    // this.table.options.selectableRangeClearCells = false;
                     this.setData();
                     console.timeEnd('renderData');
                 }
@@ -1556,6 +1562,8 @@ export default {
                         values: this.material_category_types.map(item => item.name)
                     } : {
                         shiftEnterSubmit: true,
+                        selectContents:true,
+                        verticalNavigation : "table",
                     },
                     // headerMenu: this.headerMenu(),
                     formatter: (column.field == "sap_so_number" || column.field == "so_sap_note") ? (cell, formatterParams, onRendered) => {
