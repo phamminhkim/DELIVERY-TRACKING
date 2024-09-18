@@ -670,7 +670,7 @@ class CheckDataRepository extends RepositoryAbs
 
             $check_sap_code = array_map(function($item) {
                 return [
-                    'is_sap_code_valid' => !empty($item['sap_code']),
+                    'is_sap_code_valid' => !empty($item['sku_sap_code']),
                 ];
             }, $this->data['items']);
 
