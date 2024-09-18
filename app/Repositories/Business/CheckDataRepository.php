@@ -652,4 +652,36 @@ class CheckDataRepository extends RepositoryAbs
         }
         return $so_sap_note_syntax;
     }
+    // Check SAP code hợp lệ
+    public function checkSapCode()
+    {
+        try {
+            $validator = Validator::make($this->data, [
+                'items' => 'required|array',
+            ], [
+                'items.array' => 'Data phải là mảng',
+                'items.required' => 'Data là bắt buộc',
+            ]);
+
+            if ($validator->fails()) {
+                $this->message = $validator->errors()->first();
+                return false;
+            }
+
+            $check_sap_code = array_map(function($item) {
+                return [
+                    'is_sap_code_valid' => !empty($item['sap_code']),
+                ];
+            }, $this->data['items']);
+
+            return [
+                'success' => true,
+                'items' => $check_sap_code
+            ];
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return false;
+        }
+    }
 }

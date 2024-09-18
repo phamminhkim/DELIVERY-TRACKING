@@ -61,6 +61,19 @@ class SyncDataRepository extends RepositoryAbs
                     if ($value['id'] == $order->id) {
                         $ITEM_DATA = [];
                         foreach ($order->so_data_items as $item) {
+                            if (!$item->sku_sap_code) {
+                                // Lưu vào danh sách lỗi thiếu mã SAP
+                                $result[] = [
+                                    "id" => $value['id'],
+                                    "so_number" => null,
+                                    "sync_sap_status" => 0,
+                                    "so_sap_note" => $value["so_sap_note"],
+                                    "warehouse_code" => $value['warehouse_code'],
+                                    "Ship_cond" => $value["Ship_cond"],
+                                    "message" => "Đơn hàng có sản phẩm chưa mapping mã SAP!"
+                                ];
+                                break;
+                            }
                             if ($item->is_inventory == 0) {
                                 $ITEM_DATA[] = [
                                     "productId" => $item->sku_sap_code,
