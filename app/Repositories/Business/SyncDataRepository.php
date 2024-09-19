@@ -21,6 +21,7 @@ class SyncDataRepository extends RepositoryAbs
     public function syncSoHeaderFromSap()
     {
         $result = [];
+        $totalSyncedOrders = 0; // Biến để lưu số đơn hàng đã đồng bộ thành công
         $validator = Validator::make($this->request->all(), [
             'data' => 'required|array',
         ], [
@@ -158,7 +159,6 @@ class SyncDataRepository extends RepositoryAbs
                             $shipping_id = $soHeader->shipping_id;
                             $soHeader->save();
                             // dd($json_value);
-
                         } else if ($json_value['SO_KEY'] == '') {
                             $this->errors['not_config_user'] = $json_value['MESSAGE'];
                             $result = null;
@@ -174,10 +174,15 @@ class SyncDataRepository extends RepositoryAbs
                             "message" => $json_value['MESSAGE']
                         ];
                     }
+                    // Tạo thông điệp về số lượng đơn hàng đã đồng bộ thành công
                 } else {
                     $this->errors['synchronized_error'] = "Các đơn hàng đã được đồng bộ trước đó";
                 }
+                // Tính tổng số đơn hàng đã đồng bộ thành công
+                $totalSyncedOrders = collect($result)->where('sync_sap_status', 1)->count();
+                $result['total_synced_orders'] = "Đã đồng bộ thành công " . $totalSyncedOrders . " đơn hàng.";
             }
+
             DB::commit();
             $this->changeIsSyncingSapSoHeader($so_headers, false);
             return $result;
