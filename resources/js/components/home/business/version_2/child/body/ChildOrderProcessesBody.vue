@@ -189,6 +189,7 @@ export default {
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
+            console.log('cellEdited:', cell.getValue(), cell.isEdited(), cell.getRow().getPosition(), cell.getColumn().getField());
 
         });
         // this.table.on("cellEditing", (cell) => {
@@ -206,6 +207,7 @@ export default {
 
         // });
         // this.table.on("cellEditCancelled", (cell) => {
+        //     // Kích hoạt lại tất cả các tùy chọn liên quan đến selectableRange
 
         //     console.log('Editing cancelled, range selection restored.');
         // });

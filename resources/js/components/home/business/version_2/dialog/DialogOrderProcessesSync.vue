@@ -250,7 +250,7 @@ export default {
                         }
                     })
                 };
-                const { data, success, errors } = await this.api_handler.post(this.api_order_sync, {}, body);
+                const { data, success, errors, sync_count } = await this.api_handler.post(this.api_order_sync, {}, body);
                 if (success) {
                     console.log(data);
                     this.$emit('orderSyncSap', data);
@@ -264,7 +264,7 @@ export default {
                     //         }
                     //     });
                     // });
-                    this.$showMessage('success', 'Thành công', 'Đồng bộ đơn hàng thành công');
+                    this.$showMessage('success', 'Thành công', 'Đồng bộ ' + sync_count + 'đơn hàng thành công');
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
                 }
