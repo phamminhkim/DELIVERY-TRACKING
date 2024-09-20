@@ -265,6 +265,10 @@ export default {
                     //     });
                     // });
                     this.$showMessage('success', 'Thành công', 'Đồng bộ ' + sync_count + 'đơn hàng thành công');
+                    let calculator_order_sync = this.order_syncs_selected.length - sync_count;
+                    if (calculator_order_sync > 0) {
+                        this.$showMessage('warning', 'Cảnh báo', 'Đồng bộ ' + calculator_order_sync + 'đơn hàng thất bại');
+                    }
                 } else {
                     this.$showMessage('error', 'Lỗi', 'Đồng bộ đơn hàng thất bại', errors.synchronized_error);
                 }
