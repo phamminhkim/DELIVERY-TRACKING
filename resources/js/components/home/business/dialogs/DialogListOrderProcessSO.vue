@@ -113,18 +113,27 @@ export default {
         async DeleteOrderProcessSO(id) {
             try {
                 this.case_is_loading.fetch_api = true;
-                const { data } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
-                this.$showMessage('success', 'Xóa thành công');
+                const { data, success, errors } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
+                if (success) {
+                    this.$showMessage('success', 'Xóa thành công');
+                } 
+                return success;
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                this.$showMessage('error', 'Lỗi', error.response.data.errors);
+                return error.response.data.success;
             } finally {
                 this.case_is_loading.fetch_api = false;
             }
         },
         getDltOrderProcessSO(index, item) {
             if (confirm('Bạn có chắc chắn muốn xóa không?')) {
-                this.list_order_process_so.splice(index, 1);
-                this.DeleteOrderProcessSO(item.id);
+                const is_deleted = this.DeleteOrderProcessSO(item.id);
+                is_deleted.then((is_deleted) => {
+                    if(is_deleted){
+                        this.list_order_process_so.splice(index, 1);
+                    }
+                });
+               
             }
 
         },

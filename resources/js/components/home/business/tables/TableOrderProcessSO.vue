@@ -250,7 +250,8 @@ export default {
             this.$emit('handleDoubleClick', item);
         },
         emitDltOrderProcessSO(index, item) {
-            this.$emit('dltOrderProcessSO', index, item);
+            const idx_parent = index + (this.current_page * this.per_page) - this.per_page
+            this.$emit('dltOrderProcessSO', idx_parent, item);
         },
         getUrl(item) {
             const url = window.location.origin + this.$route.path + '#' + item.id + '?seri=' + item.serial_number;
