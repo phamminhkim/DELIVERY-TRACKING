@@ -25,6 +25,19 @@ class ResponseController extends Controller
 
         return response()->json($response, $code);
     }
+    public function responseSync($result, $message = '',$sync_count, $code = 200)
+    {
+        $response = [
+            'success' => true,
+            'data'    => $result,
+            'sync_count' => $sync_count,
+        ];
+        if ($message != '') {
+            $response['message'] = $message;
+        }
+
+        return response()->json($response, $code);
+    }
     public function response($result, $message = '', $code = 200)
     {
         $response = [

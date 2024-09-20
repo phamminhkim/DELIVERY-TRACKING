@@ -15,8 +15,8 @@ class SyncDataController extends ResponseController
         $handler = BusinessRepository::syncDataRequest($request);
         $data = $handler->syncSoHeaderFromSap();
 
-        if ($data) {
-            return $this->responseSuccess($data);
+        if ($data && $data['data'] && count($data['data'])> 0) {
+            return $this->responseSync($data['data'],'',$data['total_sync_order']);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
@@ -43,5 +43,4 @@ class SyncDataController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-
 }
