@@ -1691,8 +1691,10 @@ export default {
             // this.update_status_function.set_data++;
             this.update_status_function.add_row++;
         },
-        handleDeleteRow(position, data) {
-            let indexs = [...this.range_v2.indexs];
+        handleDeleteRow(positions, data) {
+            console.log('xóa dòng',);
+            // let indexs = [...this.range_v2.indexs];
+            let indexs = [...positions];
             let uniques = [...new Set(indexs.flat())];
             uniques.sort((a, b) => b - a);
             uniques.forEach(index => {
