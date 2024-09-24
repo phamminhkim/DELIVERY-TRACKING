@@ -177,10 +177,13 @@ export default {
     async mounted() {
         await this.loadTable();
 
+        this.table.on("rangeAdded", function (range) {
+            //range - range component for the selected range
+            console.log('rangeAdded:', range);
+        });
         this.table.on("rangeChanged", (range) => {
-            // this.$emit("emitRangeChanged", range);
             this.emitRangeChanged(range);
-            this.$emit("emitGetRangesData", this.table.getRangesData(), this.table.getRanges().map(range => range.getRows().map(row => row.getPosition())));
+            this.$emit("emitGetRangesData", this.table.getRangesData(), this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
         });
         this.table.on("rangeRemoved", (range) => {
             // this.$emit("emitRangeChanged", range);
@@ -189,7 +192,6 @@ export default {
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
-            console.log('cellEdited:', cell.getValue(), cell.isEdited(), cell.getRow().getPosition(), cell.getColumn().getField());
 
         });
         // this.table.on("cellEditing", (cell) => {
@@ -200,7 +202,7 @@ export default {
         //     // this.table.options.selectableRangeClearCells = false;
 
         //     // console.log('kết thúc', this.table.options.selectableRange);
-         
+
 
         //     console.log('Đang chỉnh sửa ô:', cell.getValue(), cell.isEdited());
 
@@ -294,6 +296,31 @@ export default {
             }, 100); // Delay of 0ms to allow DOM updates
 
         });
+        // this.table.on("historyUndo", (action, component, data) => {
+        //     console.log('historyUndo:', action, component, data);
+
+        //     switch (action) {
+        //         case "cellEdit":
+        //             this.$emit('cellEdited', component, data);
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // });
+        // this.table.on("historyRedo", (action, component, data) => {
+        //     //action - the action that has been redone
+        //     //component - the Component object affected by the action (could be a row or cell component)
+        //     //data - the data being changed
+        //     console.log('historyRedo:', action, component, data);
+        //     switch (action) {
+        //         case "cellEdit":
+        //             this.$emit('cellEdited', component, data);
+        //             break;
+
+        //         default:
+        //             break;
+        //     }
+        // });
 
 
         window.addEventListener('resize', this.updateWindowDimensions);
@@ -429,6 +456,7 @@ export default {
             this.table.clearData();
             this.table.setColumns(this.filterColumn());
             this.table.setData(this.filteredOrders);
+            this.table.clearHistory();
         },
         updateData() {
             this.table.updateData(this.filteredOrders);
@@ -569,6 +597,7 @@ export default {
                 movableColumns: true,
                 movableColumnsInitialDelay: 0,
                 dataTreeFilter: true,
+                // history: true,
                 // scrollToRowPosition: "nearest",
                 // scrollTo: false,
                 // virtualScroll: true,  
@@ -577,7 +606,7 @@ export default {
                 // movableRows: true,
                 // movableRowsConnectedElements: "#drop-area", //element to receive rows
                 debugInvalidComponentFuncs: false,
-                columnHeaderSortMulti: false,
+                // columnHeaderSortMulti: false,
                 // headerFilterLiveFilterDelay: 800,
                 // data: this.filteredOrders,
                 data: this.tableData,
@@ -587,11 +616,17 @@ export default {
                 layout: "fitColumns",
                 // placeholder:"Không có dữ liệu",
                 rowHeader: {
-                    resizable: false,
+                    // resizable: false,
                     frozen: true,
                     width: 20,
-                    hozAlign: "center", formatter: "rownum", cssClass: "range-header-col", editor: false,
-                    field: "rownum",
+                    hozAlign: "center",
+                    // formatter: "rownum", 
+                    formatter: "order",
+                    cssClass: "range-header-col",
+                    // editor: false,
+                    // field: "rownum",
+                    field: "order",
+
                 },
                 initialSelection: false,
                 //enable range selection
@@ -599,6 +634,7 @@ export default {
                 selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
+                selectableRangeClearCellsValue: "",
                 // scrollToColumnIfVisible: false,
                 // scrollToColumnPosition: "left",
                 // selectableRows:true, // Chọn Row
@@ -848,7 +884,8 @@ export default {
                 {
                     label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {
-                        this.$emit('deleteRow', row.getPosition(), row.getData());
+                        // this.$emit('deleteRow', row.getPosition(), row.getData());
+                        this.$emit('deleteRow', this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
                     }
                 },
 
@@ -1564,8 +1601,8 @@ export default {
                         values: this.material_category_types.map(item => item.name)
                     } : {
                         shiftEnterSubmit: true,
-                        selectContents:true,
-                        verticalNavigation : "table",
+                        selectContents: true,
+                        verticalNavigation: "table",
                     },
                     // headerMenu: this.headerMenu(),
                     formatter: (column.field == "sap_so_number" || column.field == "so_sap_note") ? (cell, formatterParams, onRendered) => {
