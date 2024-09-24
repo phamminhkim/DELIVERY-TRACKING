@@ -49,4 +49,22 @@ class LocalFileService implements FileServiceInterface
 
         return $date . '/' . $file_name;
     }
+
+    public function savePoFile($file)
+    {
+        $date = Carbon::today()->format('Ymd');
+        if (!Storage::disk('protected')->exists($date)) {
+            Storage::disk('protected')->makeDirectory($date);
+        }
+        $full_file_name = $file->getClientOriginalName();
+        $file_extension = pathinfo($full_file_name, PATHINFO_EXTENSION);
+        $file_name_without_extension = pathinfo($full_file_name, PATHINFO_FILENAME);
+        $file_name_without_extension = str_replace(' ', '_', $file_name_without_extension);
+        // Generate a unique file name
+        $unique_file_name = $file_name_without_extension . '_' . uniqid() . '.' . $file_extension;
+        $file_path = $date . '/' . $unique_file_name;
+        Storage::disk('protected')->put($file_path, file_get_contents($file));
+
+        return $file_path;
+    }
 }
