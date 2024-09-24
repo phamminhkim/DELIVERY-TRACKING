@@ -27,6 +27,7 @@ class SoHeader extends Model
         'level4',
         'sync_sap_status',
         'is_syncing_sap',
+        'convert_po_uid',
     ];
 
     public function order_process()
