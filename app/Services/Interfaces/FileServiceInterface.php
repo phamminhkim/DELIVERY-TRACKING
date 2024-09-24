@@ -9,4 +9,5 @@ interface FileServiceInterface
     public function deleteTemporaryFileByFilename($file_name);
 
     public function saveProtectedFile($file, $path, $batch_id);
+    public function savePoFile($file);
 }

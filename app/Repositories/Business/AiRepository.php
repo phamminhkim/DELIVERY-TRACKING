@@ -52,6 +52,7 @@ use App\Enums\File\FileStatuses;
 use App\Exceptions\Ai\NotFoundCustomerMaterialException;
 use App\Exceptions\Ai\NotFoundSapMaterialException;
 use App\Jobs\ExtractFile;
+use App\Jobs\SaveRawPoData;
 use App\Models\Business\FileExtractError;
 use App\Models\Business\FileStatus;
 use App\Models\Business\RawSoHeader;
@@ -64,6 +65,9 @@ use App\Enums\Ai\Convert\ConvertMethod;
 use App\Enums\Ai\Extract\ExtractMethod;
 use App\Enums\Ai\Restructure\RestructureMethod;
 use App\Models\Master\SapMaterial;
+use App\Models\Business\RawPoHeader;
+use App\Models\Business\RawPoDataItem;
+use App\Models\Business\PoUploadFile;
 
 class AiRepository extends RepositoryAbs
 {
@@ -174,171 +178,177 @@ class AiRepository extends RepositoryAbs
             $files = $this->request->file('file');
             $final_data = array();
             $csv_data = array();
-            foreach ($files as $file) {
-                $file_name = $file->getClientOriginalName();
-                try {
-                    $array_data = array();
-                    $convert_file_type = null;
-                    $extract_data_config = null;
-                    $convert_table_config = null;
-                    $restructure_data_config = null;
-                    $config_id = $this->request->config_id;
-                    $extract_config = ExtractOrderConfig::find(intval($config_id));
-                    $mapping_config = null;
-                    // Xét extract_config thuộc dạng nhóm config hay config đơn lẻ
-                    if ($extract_config) {
-                        if ($extract_config->is_config_group) {
-                            $is_mapping_config = false;
-                            // Kiểm tra config chính
-                            $is_mapping_config = $this->checkMappingConfig($extract_config, $file);
+            $file = $files[0]; // Chỉ xử lý 1 file
+            $file_name = $file->getClientOriginalName();
+            try {
+                $array_data = array();
+                $convert_file_type = null;
+                $extract_data_config = null;
+                $convert_table_config = null;
+                $restructure_data_config = null;
+                $config_id = $this->request->config_id;
+                $extract_config = ExtractOrderConfig::find(intval($config_id));
+                $mapping_config = null;
+                // Xét extract_config thuộc dạng nhóm config hay config đơn lẻ
+                if ($extract_config) {
+                    if ($extract_config->is_config_group) {
+                        $is_mapping_config = false;
+                        // Kiểm tra config chính
+                        $is_mapping_config = $this->checkMappingConfig($extract_config, $file);
+                        if (!$is_mapping_config) {
+                            // Kiểm tra config phụ
+                            $slave_configs = $extract_config->slave_extract_order_configs;
+                            foreach ($slave_configs as $slave_config) {
+                                $is_mapping_config = $this->checkMappingConfig($slave_config, $file);
+                                if ($is_mapping_config) {
+                                    $mapping_config = $slave_config;
+                                    Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
+                                    // Khởi tạo lại các thông số của config mới
+                                    $this->reconstructDataConfig($mapping_config->id);
+                                    break;
+                                }
+                            }
                             if (!$is_mapping_config) {
-                                // Kiểm tra config phụ
-                                $slave_configs = $extract_config->slave_extract_order_configs;
-                                foreach ($slave_configs as $slave_config) {
-                                    $is_mapping_config = $this->checkMappingConfig($slave_config, $file);
-                                    if ($is_mapping_config) {
-                                        $mapping_config = $slave_config;
-                                        Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
-                                        // Khởi tạo lại các thông số của config mới
-                                        $this->reconstructDataConfig($mapping_config->id);
-                                        break;
-                                    }
-                                }
-                                if (!$is_mapping_config) {
-                                     Log::error("Không có cấu hình nào phù hợp trong nhóm: " . $file_name);
-                                    $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
-                                    $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
-                                    // return null;
-                                    continue;
-                                }
-                            } else {
-                                $mapping_config = $extract_config;
-                                Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
+                                Log::error("Không có cấu hình nào phù hợp trong nhóm: " . $file_name);
+                                $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                                $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
                             }
                         } else {
                             $mapping_config = $extract_config;
-                        }
-                        if ($mapping_config) {
-                            $convert_file_type = $mapping_config->convert_file_type;
-                            $extract_data_config = $mapping_config->extract_data_config;
-                            $convert_table_config =  $mapping_config->convert_table_config;
-                            $restructure_data_config = $mapping_config->restructure_data_config;
-                            $header_extractor_config = $mapping_config->extract_header_config;
-                            $header_convert_table_config =  $mapping_config->convert_table_header_config;
-                            $header_restructure_config = $mapping_config->restructure_header_config;
+                            Log::info("File: " .$file_name . ", thuộc config: id=" . $mapping_config->id . ", name=" . $mapping_config->name);
                         }
                     } else {
-                        $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
-                        // return null;
-                        Log::error("Không tìm thấy cấu hình đã chọn, config_id=" . $config_id);
-                        $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
-                        continue;
+                        $mapping_config = $extract_config;
                     }
-
-                    // Raw data
-                    $raw_data = $this->extractDataForDirect($file, $extract_data_config);
-
-                    $order_data = null;
-                    $order_header = null;
-                    // Table data & order data
-                    $extract_method = $extract_data_config->method;
-                    if ($convert_file_type == 'pdf') {
-                        switch ($extract_method) {
-                            case ExtractMethod::CAMELOT:
-                                $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
-                                // Data
-                                $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
-                                $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
-                                // Header
-                                $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
-                                $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
-                                $order_header = $this->addCustomInfo($restruct_header);
-
-                                $array_data = [
-                                    'headers' => $order_header,
-                                    'items' => $order_data,
-                                ];
-                                array_push($final_data, $array_data);
-                                break;
-                            case ExtractMethod::AI:
-                                $raw_data_table = $raw_data['line_items'];
-                                $raw_header_table = array();
-                                $raw_header_table[] = $raw_data['Info_PO'];
-                                $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
-                                $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
-                                $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
-                                $order_header = $this->addCustomInfo($restruct_header[0]);
-                                $array_data = [
-                                    'headers' => $order_header,
-                                    'items' => $order_data,
-                                ];
-                                array_push($final_data, $array_data);
-                                break;
-                        }
-
-                    } else if ($convert_file_type == 'excel') {
-                        $table_area_info = json_decode($extract_data_config->table_area_info);
-                        $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
-                        $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
-
-                        switch ($header_item_type) {
-                            case 'header-item':
-                                $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-
-                                $array_data = $this->restructureHeaderItem($order_data, $header_key_names);
-                                $final_data = array_merge($final_data, $array_data);
-                                break;
-                            case 'header-items':
-                                $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-
-                                $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
-                                $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
-                                $final_data = array_merge($final_data, $array_data);
-                                break;
-                            case 'item-headers':
-                                $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
-                                $array_data = $this->restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header);
-                                $final_data = array_merge($final_data, $array_data);
-                                break;
-
-                            default:
-                                $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
-                                // Data
-                                $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
-                                // Header
-                                $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
-                                $order_header = $this->addCustomInfo($restruct_header);
-
-                                $array_data = [
-                                    'headers' => $order_header,
-                                    'items' => $order_data,
-                                ];
-                                array_push($final_data, $array_data);
-                                break;
-                        }
+                    if ($mapping_config) {
+                        $convert_file_type = $mapping_config->convert_file_type;
+                        $extract_data_config = $mapping_config->extract_data_config;
+                        $convert_table_config =  $mapping_config->convert_table_config;
+                        $restructure_data_config = $mapping_config->restructure_data_config;
+                        $header_extractor_config = $mapping_config->extract_header_config;
+                        $header_convert_table_config =  $mapping_config->convert_table_header_config;
+                        $header_restructure_config = $mapping_config->restructure_header_config;
                     }
-                    // Kiểm tra items của phần tử cuối $final_data
-                    if (count($final_data) > 0) {
-                        $last_item = end($final_data);
-                        if (count($last_item['items']) == 0) {
-                            Log::error("Convert file với data rỗng: " . $file_name);
-                            $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
-                            $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
-                        }
-                    } else {
-                        Log::error("Loại file chưa được hỗ trợ: " . $file_name);
-                        $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
-                    }
-                } catch (\Throwable $exception) {
-                    Log::error($exception->getMessage());
+                } else {
                     $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                    Log::error("Không tìm thấy cấu hình đã chọn, config_id=" . $config_id);
                     $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
                 }
+
+                // Raw data
+                $raw_data = $this->extractDataForDirect($file, $extract_data_config);
+
+                $order_data = null;
+                $order_header = null;
+                // Table data & order data
+                $extract_method = $extract_data_config->method;
+                if ($convert_file_type == 'pdf') {
+                    switch ($extract_method) {
+                        case ExtractMethod::CAMELOT:
+                            $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
+                            // Data
+                            $table_data = $this->convertToTableDirect($raw_data, $convert_table_config);
+                            $order_data = $this->restructureDataDirect($table_data, $restructure_data_config);
+                            // Header
+                            $table_header = $this->convertHeaderToTableDirect($raw_header, $header_convert_table_config);
+                            $restruct_header = $this->restructureHeaderDirect($table_header, $header_restructure_config);
+                            $order_header = $this->addCustomInfo($restruct_header);
+
+                            $array_data = [
+                                'headers' => $order_header,
+                                'items' => $order_data,
+                            ];
+                            array_push($final_data, $array_data);
+                            break;
+                        case ExtractMethod::AI:
+                            $raw_data_table = $raw_data['line_items'];
+                            $raw_header_table = array();
+                            $raw_header_table[] = $raw_data['Info_PO'];
+                            $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
+                            $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
+                            $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
+                            $order_header = $this->addCustomInfo($restruct_header[0]);
+                            $array_data = [
+                                'headers' => $order_header,
+                                'items' => $order_data,
+                            ];
+                            array_push($final_data, $array_data);
+                            break;
+                    }
+
+                } else if ($convert_file_type == 'excel') {
+                    $table_area_info = json_decode($extract_data_config->table_area_info);
+                    $header_item_type = isset($table_area_info->header_item_type) ? $table_area_info->header_item_type : '';
+                    $header_key_names = isset($table_area_info->header_key_names) ? $table_area_info->header_key_names : [];
+
+                    switch ($header_item_type) {
+                        case 'header-item':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
+                            $array_data = $this->restructureHeaderItem($order_data, $header_key_names);
+                            $final_data = array_merge($final_data, $array_data);
+                            break;
+                        case 'header-items':
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+
+                            $split_header_key = isset($table_area_info->split_header_key) ? $table_area_info->split_header_key : '';
+                            $array_data = $this->restructureHeaderItems($order_data, $header_key_names, $split_header_key);
+                            $final_data = array_merge($final_data, $array_data);
+                            break;
+                        case 'item-headers':
+                            $start_index_header = isset($table_area_info->start_index_header) ? $table_area_info->start_index_header : 0;
+                            $array_data = $this->restructureItemHeaders($raw_data, $restructure_data_config, $header_key_names, $start_index_header);
+                            $final_data = array_merge($final_data, $array_data);
+                            break;
+
+                        default:
+                            $raw_header = $this->extractHeaderForDirect($file, $header_extractor_config);
+                            // Data
+                            $order_data = $this->restructureDataDirect($raw_data, $restructure_data_config);
+                            // Header
+                            $restruct_header = $this->restructureHeaderDirect($raw_header, $header_restructure_config);
+                            $order_header = $this->addCustomInfo($restruct_header);
+
+                            $array_data = [
+                                'headers' => $order_header,
+                                'items' => $order_data,
+                            ];
+                            array_push($final_data, $array_data);
+                            break;
+                    }
+                }
+                // Kiểm tra items của phần tử cuối $final_data
+                if (count($final_data) > 0) {
+                    $last_item = end($final_data);
+                    if (count($last_item['items']) == 0) {
+                        Log::error("Convert file với data rỗng: " . $file_name);
+                        $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                        $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
+                    }
+                } else {
+                    Log::error("Loại file chưa được hỗ trợ: " . $file_name);
+                    $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                }
+            } catch (\Throwable $exception) {
+                Log::error($exception->getMessage());
+                $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
             }
             // Nếu có bất kỳ file nào convert lỗi thì gửi thông báo và không trả về data
             if ($csv_data) {
                 $this->errors["csv_data"] = $csv_data;
                 $final_data = [];
+            }
+            if (count($final_data) > 0) {
+                // Sinh ra convert UID để xác đinh các PO chuyển đổi
+                $convert_po_uid = uniqid('', true);
+                foreach ($final_data as $index => $value) {
+                    $final_data[$index]['convert_po_uid'] = $convert_po_uid;
+                }
+                // Lưu thông tin PO và file
+                $file_service = $this->file_service;
+                $file_path = $file_service->savePoFile($file);
+                SaveRawPoData::dispatch($final_data, $file_path, $file_name, $convert_po_uid);
             }
             return $final_data;
         } catch (\Throwable $exception) {
@@ -1914,5 +1924,76 @@ class AiRepository extends RepositoryAbs
         }
 
         return $result;
+    }
+
+    public function saveRawPoData($final_data, $po_file_path, $po_file_name, $convert_po_uid) {
+        try {
+            DB::beginTransaction();
+            $user_id = $this->current_user->id;
+            $po_upload_file = PoUploadFile::create([
+                'file_name' => $po_file_name,
+                'path' => $po_file_path,
+                'convert_po_uid' => $convert_po_uid,
+                'created_by' => $user_id,
+            ]);
+
+            // Group dữ liệu theo po_number
+            $grouped_data = [];
+            foreach ($final_data as $data) {
+                $po_number = '';
+                $po_number = $data['headers']['PoNumber'];
+                if (!isset($grouped_data[$po_number])) {
+                    $grouped_data[$po_number] = [
+                        'headers' => $data['headers'],
+                        'items' => []
+                    ];
+                }
+                $grouped_data[$po_number]['items'] = array_merge($grouped_data[$po_number]['items'], $data['items']);
+            }
+
+            // Lưu các header và item dữ liệu
+            foreach ($grouped_data as $po_number => $data) {
+                // Lưu các header vào bảng
+                $po_headers = $data['headers'];
+                $raw_po_header = RawPoHeader::create([
+                    'po_number' => $po_headers['PoNumber'],
+                    'po_delivery_date' => isset($po_headers['PoDeliveryDate']) ? $po_headers['PoDeliveryDate'] : NULL,
+                    'customer_name' => isset($po_headers['CustomerKey']) ? $po_headers['CustomerKey'] : NULL,
+                    'customer_code' => isset($po_headers['CustomerCode']) ? $po_headers['CustomerCode'] : NULL,
+                    'note' => isset($po_headers['CustomerNote']) ? $po_headers['CustomerNote'] : NULL,
+                    'level2' => isset($po_headers['CustomerLevel2']) ? $po_headers['CustomerLevel2'] : NULL,
+                    'level3' => isset($po_headers['CustomerLevel3']) ? $po_headers['CustomerLevel3'] : NULL,
+                    'level4' => isset($po_headers['CustomerLevel4']) ? $po_headers['CustomerLevel4'] : NULL,
+                    'sap_so_number' => isset($po_headers['SapSoNumber']) ? $po_headers['SapSoNumber'] : NULL,
+                    'convert_po_uid' => $convert_po_uid,
+                    'created_by' => $user_id,
+                ]);
+
+                $raw_po_header_id = $raw_po_header->id;
+
+                // Lưu các item dữ liệu vào bảng
+                $po_data_items = $data['items'];
+                foreach ($po_data_items as $po_data_item) {
+                    RawPoDataItem::create([
+                        'raw_po_header_id' => $raw_po_header_id,
+                        'customer_sku_unit' => isset($po_data_item['OrdUnit']) ? $po_data_item['OrdUnit'] : NULL,
+                        'customer_sku_code' => isset($po_data_item['ProductID']) ? $po_data_item['ProductID'] : NULL,
+                        'quantity1_po' => isset($po_data_item['Quantity1']) && is_numeric($po_data_item['Quantity1']) ? $po_data_item['Quantity1'] : NULL,
+                        'quantity2_po' => isset($po_data_item['Quantity2']) && is_numeric($po_data_item['Quantity2']) ? $po_data_item['Quantity2'] : NULL,
+                        'customer_sku_name' => isset($po_data_item['ProductName']) ? $po_data_item['ProductName'] : NULL,
+                        'price_po' => isset($po_data_item['ProductPrice']) ? $po_data_item['ProductPrice'] : NULL,
+                        'price_po' => isset($po_data_item['ProductPrice']) && is_numeric($po_data_item['ProductPrice']) ? $po_data_item['ProductPrice'] : NULL,
+                        'amount_po' => isset($po_data_item['ProductAmount']) && is_numeric($po_data_item['ProductAmount']) ? $po_data_item['ProductAmount'] : NULL,
+                    ]);
+                }
+            }
+            DB::commit();
+            return true;
+
+        } catch (\Throwable $exception) {
+            Log::error($exception->getMessage());
+            DB::rollBack();
+            return false;
+        }
     }
 }
