@@ -177,10 +177,10 @@ export default {
     async mounted() {
         await this.loadTable();
 
-        this.table.on("rangeAdded", function (range) {
-            //range - range component for the selected range
-            console.log('rangeAdded:', range);
-        });
+        // this.table.on("rangeAdded", function (range) {
+        //     //range - range component for the selected range
+        //     console.log('rangeAdded:', range);
+        // });
         this.table.on("rangeChanged", (range) => {
             this.emitRangeChanged(range);
             this.$emit("emitGetRangesData", this.table.getRangesData(), this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
