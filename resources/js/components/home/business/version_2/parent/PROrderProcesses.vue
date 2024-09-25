@@ -195,11 +195,11 @@ export default {
         orderSyncSap() {
             this.$emit('orderSyncSap');
         },
-        addRow(position) {
-            this.$emit('addRow', position);
+        addRow(position, positions) {
+            this.$emit('addRow', position, positions);
         },
-        duplicateRow(position, data) {
-            this.$emit('duplicateRow', position, data);
+        duplicateRow(position, data, positions) {
+            this.$emit('duplicateRow', position, data, positions);
         },
         copyRow(position, data) {
             this.$emit('copyRow', position, data);
