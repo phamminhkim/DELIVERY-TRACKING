@@ -54,7 +54,8 @@
         <DialogOrderProcessesLoadingSAP />
         <DialogOrderProcessesLoadingCustomerKey />
         <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
-        <DialogOrderProcessesNotiCheckSkuSapCode :item_sku_sap_code_nulls="item_sku_sap_code_nulls" @submitOrderSyncSap="handleOrderSyncSapConfirm" />
+        <DialogOrderProcessesNotiCheckSkuSapCode :item_sku_sap_code_nulls="item_sku_sap_code_nulls"
+            @submitOrderSyncSap="handleOrderSyncSapConfirm" />
     </div>
 </template>
 <script>
@@ -126,6 +127,8 @@ export default {
             position: {
                 order: -1,
                 order_end: -1,
+                orders: [],
+                orders_end: [],
             },
             error_csv_data: {},
             item_selecteds: [],
@@ -941,6 +944,7 @@ export default {
                     });
                 });
             }
+
             this.update_status_function.color++;
         },
         handleInputTextColor(data) {
@@ -1613,10 +1617,13 @@ export default {
                 });
             });
         },
-        handleAddRow(position) {
+        handleAddRow(position, positions) {
             this.position.order = position;
-            this.range.indexs.forEach(index_range => {
-                this.filteredOrders.splice(index_range - 1, 0, {
+            let indexs = [...positions];
+            let uniques = [...new Set(indexs.flat())];
+            uniques.sort((a, b) => b - a);
+            uniques.forEach(index => {
+                this.filteredOrders.splice(index - 1, 0, {
                     order: this.orders.length,
                     id: '',
                     customer_sku_code: '',
@@ -1659,17 +1666,109 @@ export default {
                     theme_color: this.setDataThemeColor(null),
                 });
             });
+
+            // this.range.indexs.forEach(index_range => {
+            //     this.filteredOrders.splice(index_range - 1, 0, {
+            //         order: this.orders.length,
+            //         id: '',
+            //         customer_sku_code: '',
+            //         customer_sku_name: '',
+            //         customer_sku_unit: '',
+            //         quantity: '',
+            //         company_price: '',
+            //         customer_code: '',
+            //         level2: '',
+            //         level3: '',
+            //         level4: '',
+            //         note1: '',
+            //         note: '',
+            //         barcode: '',
+            //         sku_sap_code: '',
+            //         sku_sap_name: '',
+            //         sku_sap_unit: '',
+            //         inventory_quantity: '',
+            //         amount_po: '',
+            //         is_inventory: false,
+            //         is_promotive: false,
+            //         price_po: '',
+            //         promotive: '',
+            //         promotive_name: '',
+            //         quantity1_po: '',
+            //         quantity2_po: '',
+            //         customer_name: '',
+            //         variant_quantity: '',
+            //         extra_offer: '',
+            //         promotion_category: '',
+            //         po_delivery_date: '',
+            //         po_number: '',
+            //         sap_so_number: '',
+            //         compliance: '',
+            //         is_compliant: '',
+            //         quantity3_sap: '',
+            //         so_header_id: '',
+            //         so_sap_note: '',
+            //         difference: '',
+            //         theme_color: this.setDataThemeColor(null),
+            //     });
+            // });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
             this.update_status_function.add_row++;
             // this.update_status_function.set_data++;
         },
-        handleDuplicateRow(position, data) {
-            // let data_copy = { ...data };
-            this.range.full_items.forEach(item => {
-                let data_copy = { ...item };
-                this.filteredOrders.splice(item.order - 1, 0, { ...data_copy });
+        handleDuplicateRow(position, data, positions) {
+            this.position.order = position;
+            let indexs = [...positions];
+            let uniques = [...new Set(indexs.flat())];
+            uniques.sort((a, b) => b - a);
+            uniques.forEach(index => {
+                let item_double = this.filteredOrders[index - 1];
+                this.filteredOrders.splice(index - 1, 0, {
+                    // order: item_double.order++,
+                    order: this.orders.length,
+                    id: '',
+                    customer_sku_code: item_double.customer_sku_code,
+                    customer_sku_name: item_double.customer_sku_name,
+                    customer_sku_unit: item_double.customer_sku_unit,
+                    quantity: item_double.quantity,
+                    company_price: item_double.company_price,
+                    customer_code: item_double.customer_code,
+                    level2: item_double.level2,
+                    level3: item_double.level3,
+                    level4: item_double.level4,
+                    note1: item_double.note1,
+                    note: item_double.note,
+                    barcode: item_double.barcode,
+                    sku_sap_code: item_double.sku_sap_code,
+                    sku_sap_name: item_double.sku_sap_name,
+                    sku_sap_unit: item_double.sku_sap_unit,
+                    inventory_quantity: item_double.inventory_quantity,
+                    amount_po: item_double.amount_po,
+                    is_inventory: item_double.is_inventory,
+                    is_promotive: item_double.is_promotive,
+                    price_po: item_double.price_po,
+                    promotive: item_double.promotive,
+                    promotive_name: item_double.promotive_name,
+                    quantity1_po: item_double.quantity1_po,
+                    quantity2_po: item_double.quantity2_po,
+                    customer_name: item_double.customer_name,
+                    variant_quantity: item_double.variant_quantity,
+                    extra_offer: item_double.extra_offer,
+                    promotion_category: item_double.promotion_category,
+                    po_delivery_date: item_double.po_delivery_date,
+                    po_number: item_double.po_number,
+                    sap_so_number: item_double.sap_so_number,
+                    compliance: item_double.compliance,
+                    is_compliant: item_double.is_compliant,
+                    quantity3_sap: item_double.quantity3_sap,
+                    so_header_id: item_double.so_header_id,
+                    so_sap_note: item_double.so_sap_note,
+                    difference: item_double.difference,
+                    // theme_color: item_double.theme_color,
+                    theme_color: this.setDataThemeColor(null),
+
+                });
             });
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
@@ -1898,7 +1997,7 @@ export default {
             this.refeshOrder();
             this.refeshOrderHeader();
             this.refeshUpdateFunctionReplace();
-            console.log(this.api_data_orders);
+      
             for (let index = 0; index < this.api_data_orders.length; index++) {
                 const data_order = this.api_data_orders[index];
                 if (data_order.success) {

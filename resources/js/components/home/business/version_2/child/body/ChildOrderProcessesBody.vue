@@ -392,7 +392,7 @@ export default {
                     // this.table.updateColumnDefinition(this.filterColumn());
                     // this.table.setData(this.filteredOrders);
                     this.table.updateOrAddData(this.filteredOrders);
-                    this.table.moveRow(this.position_order.order, this.position_order.order - 1)
+                   
                 }
             }, 10),
         },
@@ -457,6 +457,9 @@ export default {
             this.table.setColumns(this.filterColumn());
             this.table.setData(this.filteredOrders);
             this.table.clearHistory();
+            this.table.setSort([
+                { column: "order", dir: "asc" },
+            ]);
         },
         updateData() {
             this.table.updateData(this.filteredOrders);
@@ -832,7 +835,7 @@ export default {
                 {
                     label: "<i class='fas fa-plus text-black-50 mr-1'></i> Thêm dòng",
                     action: (e, row) => {
-                        this.$emit('addRow', row.getPosition());
+                        this.$emit('addRow', row.getPosition(), this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
                     }
                 },
                 {
@@ -868,19 +871,18 @@ export default {
                 {
                     separator: true,
                 },
-                // {
-                //     label: "<i class='fas fa-clone text-black-50 mr-1'></i> Duplicate",
-                //     action: (e, row) => {
-                //         // thêm dòng row mới vào bảng tương ứng với dòng row hiện tại
-                //         this.$emit('duplicateRow', row.getPosition(), row.getData());
-                //         console.log('row.getPosition():', row.getPosition(), row.getData());
-
-                //         // row.move(row.getPosition() + 1, false);
-                //     }
-                // },
-                // {
-                //     separator: true,
-                // },
+                {
+                    label: "<i class='fas fa-clone text-black-50 mr-1'></i> Duplicate",
+                    action: (e, row) => {
+                        // thêm dòng row mới vào bảng tương ứng với dòng row hiện tại
+                        this.$emit('duplicateRow', row.getPosition(), row.getData(), this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
+                        // console.log('row.getPosition():', row.getPosition(), row.getData());
+                        // row.move(row.getPosition() + 1, false);
+                    }
+                },
+                {
+                    separator: true,
+                },
                 {
                     label: "<i class='fas fa-trash text-black-50 mr-1'></i> Xóa dòng",
                     action: (e, row) => {
