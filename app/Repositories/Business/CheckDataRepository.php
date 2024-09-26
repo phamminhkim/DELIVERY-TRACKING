@@ -127,12 +127,12 @@ class CheckDataRepository extends RepositoryAbs
                     }
                     $foundMapping = false;
 
-                    $temp_item['barcode'] = $bar_code;
-                    $temp_item['sku_sap_code'] = $sap_code;
-                    $temp_item['sku_sap_name'] = $name;
-                    $temp_item['sku_sap_unit'] = $unit_code;
-                    $temp_item['sku_sap_unit_id'] = $unit_id;
-                    $temp_item['quantity3_sap'] = $quantity2_po;
+                    $item['barcode'] = $bar_code;
+                    $item['sku_sap_code'] = $sap_code;
+                    $item['sku_sap_name'] = $name;
+                    $item['sku_sap_unit'] = $unit_code;
+                    $item['sku_sap_unit_id'] = $unit_id;
+                    $item['quantity3_sap'] = $quantity2_po;
                     $mappingData[] = $item;
                 } else {
 
@@ -181,14 +181,14 @@ class CheckDataRepository extends RepositoryAbs
                         }
                     }
                     if (!$foundMapping) {
+                        // Thêm dữ liệu mặc định vào mappingData nếu không tìm thấy ánh xạ
+                        $item['barcode'] = null;
+                        $item['sku_sap_code'] = null;
+                        $item['sku_sap_name'] = null;
+                        $item['sku_sap_unit'] = null;
+                        $item['sku_sap_unit_id'] = null;
+                        $item['quantity3_sap'] = $item['quantity2_po'];
 
-                        // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
-                        $temp_item['barcode'] = null;
-                        $temp_item['sku_sap_code'] = null;
-                        $temp_item['sku_sap_name'] = null;
-                        $temp_item['sku_sap_unit'] = null;
-                        $temp_item['sku_sap_unit_id'] = null;
-                        $temp_item['quantity3_sap'] = $item['quantity2_po'];
                         $mappingData[] = $item;
                     }
                 }
