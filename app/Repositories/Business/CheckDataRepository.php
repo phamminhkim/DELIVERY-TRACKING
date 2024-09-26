@@ -127,18 +127,13 @@ class CheckDataRepository extends RepositoryAbs
                     }
                     $foundMapping = false;
 
-                    $mappingData[] = [
-                        'customer_sku_code' => $customer_sku_code,
-                        'customer_sku_unit' => $customer_sku_unit,
-                        'sap_so_number' => $sap_so_number,
-                        'promotion' => $promotion,
-                        'bar_code' => $bar_code,
-                        'sap_code' => $sap_code,
-                        'unit_id' => $unit_id,
-                        'name' => $name,
-                        'unit_code' => $unit_code,
-                        'quantity3_sap' => $quantity2_po,
-                    ];
+                    $temp_item['barcode'] = $bar_code;
+                    $temp_item['sku_sap_code'] = $sap_code;
+                    $temp_item['sku_sap_name'] = $name;
+                    $temp_item['sku_sap_unit'] = $unit_code;
+                    $temp_item['sku_sap_unit_id'] = $unit_id;
+                    $temp_item['quantity3_sap'] = $quantity2_po;
+                    $mappingData[] = $item;
                 } else {
 
                     // Kiểm tra ánh xạ trong bảng SapMaterialMapping
@@ -147,6 +142,7 @@ class CheckDataRepository extends RepositoryAbs
                             ->where('customer_sku_code', $customer_sku_code);
                     })->get();
 
+                    $temp_item = $item;
                     foreach ($sapMaterialMappings as $sapMaterialMapping) {
                         $sap_material_id = $sapMaterialMapping->sap_material_id;
                         $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
@@ -172,18 +168,14 @@ class CheckDataRepository extends RepositoryAbs
                                 }
                                 $quantity2_po = $item['quantity2_po'];
                                 $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
-                                $mappingData[] = [
-                                    'customer_sku_code' => $customer_sku_code,
-                                    'customer_sku_unit' => $customer_sku_unit,
-                                    'sap_so_number' => $sap_so_number,
-                                    'promotion' => $promotion,
-                                    'bar_code' => $bar_code,
-                                    'sap_code' => $sap_code,
-                                    'unit_id' => $unit_id,
-                                    'name' => $name,
-                                    'unit_code' => $unit_code,
-                                    'quantity3_sap' => $quantity3_sap,
-                                ];
+
+                                $temp_item['barcode'] = $bar_code;
+                                $temp_item['sku_sap_code'] = $sap_code;
+                                $temp_item['sku_sap_name'] = $name;
+                                $temp_item['sku_sap_unit'] = $unit_code;
+                                $temp_item['sku_sap_unit_id'] = $unit_id;
+                                $temp_item['quantity3_sap'] = $quantity3_sap;
+                                $mappingData[] = $temp_item;
                                 $foundMapping = true;
                             }
                         }
@@ -191,18 +183,13 @@ class CheckDataRepository extends RepositoryAbs
                     if (!$foundMapping) {
 
                         // Cả hai bảng đều không có dữ liệu cho mã này, thêm một bản ánh xạ với các giá trị null và gắn quantity2_po cho quantity3_sap
-                        $mappingData[] = [
-                            'customer_sku_code' => $customer_sku_code,
-                            'customer_sku_unit' => $customer_sku_unit,
-                            'sap_so_number' => $sap_so_number,
-                            'promotion' => null,
-                            'bar_code' => null,
-                            'sap_code' => null,
-                            'unit_id' => null,
-                            'name' => null,
-                            'unit_code' => null,
-                            'quantity3_sap' => $item['quantity2_po'],
-                        ];
+                        $temp_item['barcode'] = null;
+                        $temp_item['sku_sap_code'] = null;
+                        $temp_item['sku_sap_name'] = null;
+                        $temp_item['sku_sap_unit'] = null;
+                        $temp_item['sku_sap_unit_id'] = null;
+                        $temp_item['quantity3_sap'] = $item['quantity2_po'];
+                        $mappingData[] = $item;
                     }
                 }
             }
