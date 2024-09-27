@@ -1525,7 +1525,7 @@ export default {
                         values: this.material_category_types.map(item => item.name)
                     } : {
                         shiftEnterSubmit: true,
-                        // selectContents: true,
+                        selectContents: true,
                         verticalNavigation: "table",
                     },
                     // headerMenu: this.headerMenu(),
