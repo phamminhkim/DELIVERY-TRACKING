@@ -819,7 +819,7 @@ export default {
                 await this.apiCheckComplianceFromOrder();
                 await $('#DialogOrderProcessesLoadingSAP').modal('hide');
                 // await this.updateFuncSetData();
-                await this.updateFuncUpdateOrAdd();
+                await this.updateFuncSetData();
                 // this.update_status_function.update_data++;
             }, 10);
 
