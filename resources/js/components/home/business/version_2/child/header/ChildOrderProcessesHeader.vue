@@ -22,9 +22,9 @@
                     <button @click="emitCheckCompliance()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fab fa-trade-federation text-danger mr-2"></i>Check <span
                             class="border-bottom border-danger">Quy Cách</span> </button>
-                    <!-- <button class="btn btn-light btn-sm text-xs border-bottom"><i
+                    <button @click="emitDeleteOrders()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-trash-alt text-danger mr-2"></i>Xóa <span
-                            class="border-bottom border-danger">Dữ liệu</span> </button> -->
+                            class="border-bottom border-danger">Dữ liệu</span> </button>
                     <button @click="emitChangeMaterial()" class="btn btn-light btn-sm text-xs border-bottom"><i
                             class="fas fa-search text-primary mr-2"></i>Tìm <span class="border-bottom border-danger">Mã
                             SAP</span> </button>
@@ -35,9 +35,13 @@
                         class="btn btn-light text-primary btn-sm text-xs border-bottom">
                         <i class="fas fa-disease mr-2"></i>Lưu <span class="border-bottom border-danger">Layout</span>
                     </button>
+                    <button  @click="emitDeleteOrdersHistory()"    
+                        class="btn btn-light text-secondary btn-sm text-xs border-bottom">
+                        <i class="fas fa-history mr-2"></i><span class="border-bottom border-danger">Đã Xóa </span>Gần Đây
+                    </button>
                     <button @click="emitOrderSyncSap()" class="btn btn-info btn-sm text-xs border-bottom"><i
                             class="fas fa-cloud-upload-alt mr-2"></i>Đồng Bộ <span
-                            class="border-bottom border-danger">SAP</span> </button>
+                            class="border-bottom border-danger">SAP</span> </button>    
                     <button v-if="order.id == -1" @click="emitSaveUpdateOrder()" type="button"
                         class="btn btn-sm px-2 text-xs btn-success">Lưu đơn hàng</button>
                     <button v-else @click="emitUpdateOrder()" type="button"
@@ -94,6 +98,12 @@ export default {
         },
         emitSaveUpdateLayout() {
             this.$emit('saveUpdateLayout');
+        },
+        emitDeleteOrders() {
+            this.$emit('deleteOrders');
+        },
+        emitDeleteOrdersHistory() {
+            this.$emit('deleteOrdersHistory');
         }
     }
 }
