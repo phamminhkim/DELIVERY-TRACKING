@@ -21,24 +21,26 @@
             :hidden_columns="filterHiddenColumns" :processing_success="update_status_function.processing_file"
             :item_filters="item_filters" @inputCustomerGroupId="handleEmittedInputCustomerGroupId"
             :item_filter_backgrounds="item_filter_backgrounds" :item_filter_texts="item_filter_texts"
-            @inputExtractConfigID="handleEmittedInputExtractConfigID" @inputSearch="handleEmittedInputSearch"
-            @emitRangeChanged="handleEmittedRangeChanged" @inputBackgroundColor="handleInputBackgroundColor"
-            @inputTextColor="handleInputTextColor" @saveUpdateOrder="handleSaveUpdateOrder"
-            @extractFilePDF="handleExtractFilePDF" @detectSapCodeOrder="handleDetectSapCodeOrder"
-            @updateOrder="handleUpdateOrder" @emitDetectCustomerKey="handleDetectCustomerKey"
-            @checkPromotion="handleCheckPromotion" @checkInventory="handleCheckInventory"
-            @checkCompliance="handleCheckCompliance" @checkPrice="handleCheckPrice" @filterOrder="handleFilterOrder"
-            @orderSyncSap="handleOrderSyncSap" @addRow="handleAddRow" @duplicateRow="handleDuplicateRow"
-            @copyRow="handleCopyRow" @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow"
-            @rowSelectionChanged="handleRowSelectionChanged" @changeMaterial="handleChangeMaterial"
-            @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited"
+            :selected_indexs="selected_indexs" @inputExtractConfigID="handleEmittedInputExtractConfigID"
+            @inputSearch="handleEmittedInputSearch" @emitRangeChanged="handleEmittedRangeChanged"
+            @inputBackgroundColor="handleInputBackgroundColor" @inputTextColor="handleInputTextColor"
+            @saveUpdateOrder="handleSaveUpdateOrder" @extractFilePDF="handleExtractFilePDF"
+            @detectSapCodeOrder="handleDetectSapCodeOrder" @updateOrder="handleUpdateOrder"
+            @emitDetectCustomerKey="handleDetectCustomerKey" @checkPromotion="handleCheckPromotion"
+            @checkInventory="handleCheckInventory" @checkCompliance="handleCheckCompliance"
+            @checkPrice="handleCheckPrice" @filterOrder="handleFilterOrder" @orderSyncSap="handleOrderSyncSap"
+            @addRow="handleAddRow" @duplicateRow="handleDuplicateRow" @copyRow="handleCopyRow"
+            @pasteRow="handlePasteRow" @deleteRow="handleDeleteRow" @rowSelectionChanged="handleRowSelectionChanged"
+            @changeMaterial="handleChangeMaterial" @modalListOrder="handleModalListOrder" @cellEdited="handleCellEdited"
             @clipboardPasted="handleClipboardPasted" @exportExcel="handleExportExcel" @toggleColumn="handleToggleColumn"
             @hiddenColumns="handleHiddenColumns" @listLayout="handleListLayout"
             @toggleColumnShow="handleToggleColumnShow" @columnResized="handleColumnResized"
             @columnMoved="handleColumnMoved" @saveUpdateLayout="handleSaveUpdateLayout"
             @emitRangeRemoved="handleRangeRemoved" @headerClick="handleHeaderClick"
-            @emitGetRangesData="handleGetRangesData" @popupOpened="handlePopupOpened"
-            @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem" @resetItem="handleResetItem" />
+            @deleteRowSuccess="handleDeleteRowSuccess" @emitGetRangesData="handleGetRangesData"
+            @popupOpened="handlePopupOpened" @deleteOrders="handleDeleteOrders"
+            @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem" @resetItem="handleResetItem"
+            @deleteOrdersHistory="handleDeleteOrdersHistory" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -56,6 +58,10 @@
         <!-- <DialogGetDataConvertFile :csv_data="case_data_temporary.error_csv_data"></DialogGetDataConvertFile> -->
         <DialogOrderProcessesNotiCheckSkuSapCode :item_sku_sap_code_nulls="item_sku_sap_code_nulls"
             @submitOrderSyncSap="handleOrderSyncSapConfirm" />
+
+        <DialogOrderProcessesHistoryDelete :orders_delete="orders_delete" :columns="columns"
+            @sortOrdersHistory="handleSortOrdersHistory" :update_status_function="update_status_function"
+            @restoreOrder="handleRestoreOrder" />
     </div>
 </template>
 <script>
@@ -74,6 +80,7 @@ import DialogOrderProcessesLayout from './dialog/DialogOrderProcessesLayout.vue'
 import DialogOrderProcessesLoadingSAP from './dialog/DialogOrderProcessesLoadingSAP.vue';
 import DialogOrderProcessesLoadingCustomerKey from './dialog/DialogOrderProcessesLoadingCustomerKey.vue';
 import DialogOrderProcessesNotiCheckSkuSapCode from './dialog/DialogOrderProcessesNotiCheckSkuSapCode.vue';
+import DialogOrderProcessesHistoryDelete from './dialog/DialogOrderProcessesHistoryDelete.vue';
 
 
 export default {
@@ -91,6 +98,7 @@ export default {
         DialogOrderProcessesLoadingSAP,
         DialogOrderProcessesLoadingCustomerKey,
         DialogOrderProcessesNotiCheckSkuSapCode,
+        DialogOrderProcessesHistoryDelete,
     },
     data() {
         return {
@@ -122,6 +130,9 @@ export default {
                 replace: 0,
                 replace_all: 0,
                 fetch_api_list_orders: 0,
+                update_or_add: 0,
+                delete_row: 0,
+                order_history_delete: 0,
 
             },
             position: {
@@ -280,6 +291,8 @@ export default {
                     shipping_id: '03',
                 },
             ],
+            selected_indexs: [],
+            orders_delete: [],
         }
     },
     async created() {
@@ -292,6 +305,26 @@ export default {
         await this.getUrl();
     },
     methods: {
+        handleRestoreOrder(item_order, position) {
+            this.orders_delete.splice(position - 1, 1);
+            this.orders.splice(item_order.order - 1, 0, item_order);
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
+            this.update_status_function.add_row++;
+            this.update_status_function.order_history_delete++;
+        },
+        handleSortOrdersHistory(sorters) {
+            if (sorters.length > 0) {
+                this.orders_delete = this.orders_delete.sort((a, b) => {
+                    if (sorters[0].dir === 'asc') {
+                        return a[sorters[0].field] > b[sorters[0].field] ? 1 : -1;
+                    } else {
+                        return a[sorters[0].field] < b[sorters[0].field] ? 1 : -1;
+                    }
+                });
+            }
+        },
         async fetchUserFieldTable(fields) {
             try {
                 if (fields === undefined) {
@@ -785,12 +818,17 @@ export default {
                 await this.getListMaterialDetect(await this.fetchSapCodeFromSkuCustomer());
                 await this.apiCheckComplianceFromOrder();
                 await $('#DialogOrderProcessesLoadingSAP').modal('hide');
-                await this.updateFuncSetData();
+                // await this.updateFuncSetData();
+                await this.updateFuncUpdateOrAdd();
+                // this.update_status_function.update_data++;
             }, 10);
 
         },
         async updateFuncSetData() {
             this.update_status_function.set_data++;
+        },
+        async updateFuncUpdateOrAdd() {
+            this.update_status_function.update_or_add++;
         },
         isUndefined(value) {
             if (value === undefined) {
@@ -1400,7 +1438,6 @@ export default {
         // },
         handleOrderSyncSapSubmit(items) {
             if (Array.isArray(items)) {
-                console.log(items);
                 items.forEach(item => {
                     this.order_headers.forEach(order_sync => {
                         if (item.id == order_sync.id) {
@@ -1647,10 +1684,12 @@ export default {
         },
         handleDeleteRow(positions, data) {
             // let indexs = [...this.range_v2.indexs];
+
             let indexs = [...positions];
             let uniques = [...new Set(indexs.flat())];
             uniques.sort((a, b) => b - a);
             uniques.forEach(index => {
+                this.orders_delete.push(this.filteredOrders[index - 1]);
                 let item_dlt = this.filteredOrders.splice(index - 1, 1);
                 this.orders = this.orders.filter(order => order.order != item_dlt[0].order);
             });
@@ -1661,19 +1700,19 @@ export default {
             // this.update_status_function.set_data++;
             // this.update_status_function.update_data++;
             this.update_status_function.delete++;
+            this.update_status_function.order_history_delete++;
 
         },
         handleChangeMaterial() {
             this.is_open_modal_search_order_processes = true;
             $('#form_search_order_processes').modal('show');
         },
-        handleRowSelectionChanged(selected, is_check_or_uncheck) {
-            if (is_check_or_uncheck) {
-                this.item_selecteds = [];
-                this.item_selecteds.push(selected);
-            } else {
-                this.item_selecteds = this.item_selecteds.filter(item => item != selected);
-            }
+        handleRowSelectionChanged(selected, is_check_or_uncheck, positions) {
+            let indexs = [...positions];
+            let uniques = [...new Set(indexs)];
+            let filter_uniques = uniques.filter(item => item !== false);
+            filter_uniques.sort((a, b) => b - a);
+            this.selected_indexs = filter_uniques;
         },
         getReplaceItemAll(item_materials, barcode) {
             item_materials.forEach(item_material => {
@@ -1736,7 +1775,6 @@ export default {
             const position = cell.getRow().getPosition();
             const data = cell.getRow().getData();
             const value_check = data.price_po == data.company_price ? 'price_equal' : 'price_difference';
-            console.log(value_check, data.price_po, data.company_price, data.price_po == data.company_price);
             data.promotive_name = data.promotive;
             // data.note1 = data.promotive;
             data.is_promotive = true;
@@ -1852,7 +1890,7 @@ export default {
             this.refeshOrder();
             this.refeshOrderHeader();
             this.refeshUpdateFunctionReplace();
-      
+
             for (let index = 0; index < this.api_data_orders.length; index++) {
                 const data_order = this.api_data_orders[index];
                 if (data_order.success) {
@@ -2018,7 +2056,6 @@ export default {
             // this.filter.value = event;
             // this.update_status_function.set_data++;
             this.update_status_function.update_data++;
-            console.log(this.filter, 'event', event);
         },
         handleResetItem() {
             this.item_change_checked = [];
@@ -2034,6 +2071,26 @@ export default {
         },
         isNull(value) {
             return value == null ? '' : value;
+        },
+        handleDeleteOrders() {
+            this.selected_indexs.forEach(index => {
+                this.orders_delete.push(this.filteredOrders[index - 1]);
+                let item_dlt = this.filteredOrders.splice(index - 1, 1);
+                this.orders = this.orders.filter(order => order.order != item_dlt[0].order);
+            });
+            this.orders.forEach((order, index) => {
+                order.order = index + 1;
+            });
+            this.update_status_function.delete_row++;
+            this.update_status_function.order_history_delete++;
+
+        },
+        handleDeleteRowSuccess() {
+            this.selected_indexs = [];
+            this.update_status_function.update_data++;
+        },
+        handleDeleteOrdersHistory() {
+            $('#DialogOrderProcessesHistoryDelete').modal('show');
         },
 
     },
