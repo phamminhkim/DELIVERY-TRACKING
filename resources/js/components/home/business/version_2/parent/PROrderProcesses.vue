@@ -26,7 +26,7 @@
                     @emitDetectCustomerKey="emitDetectCustomerKey" @checkPromotion="checkPromotion"
                     @checkInventory="checkInventory" @checkCompliance="checkCompliance" @checkPrice="checkPrice"
                     @orderSyncSap="orderSyncSap" @exportExcel="exportExcel" @changeMaterial="changeMaterial"
-                    @saveUpdateLayout="saveUpdateLayout" />
+                    @saveUpdateLayout="saveUpdateLayout" @deleteOrders="deleteOrders" @deleteOrdersHistory="deleteOrdersHistory" />
                 <!-- <ChildOrderProcessesColorDefHeader @inputBackgroundColor="inputBackgroundColor" @inputTextColor="inputTextColor"/> -->
                 
                 <div class="d-flex">
@@ -50,6 +50,7 @@
                             :update_status_function="update_status_function" :position_order="position_order"
                             :item_filter_backgrounds="item_filter_backgrounds" :item_filter_texts="item_filter_texts"
                             :range_items="range_items" :hidden_columns="hidden_columns" @table="emitTable"
+                            :selected_indexs="selected_indexs"
                             @inputSearch="emitInputSearch" @emitRangeChanged="emitRangeChanged"
                             @filterOrder="filterOrder" @editPromotion="editPromotion" @addRow="addRow"
                             @duplicateRow="duplicateRow" @copyRow="copyRow" @pasteRow="pasteRow" @deleteRow="deleteRow"
@@ -59,7 +60,7 @@
                             @toggleColumnShow="toggleColumnShow" @columnResized="columnResized"
                             @emitGetRangesData="emitGetRangesData" @popupOpened="popupOpened"
                             @itemChangeChecked="itemChangeChecked" @searchItem="searchItem"
-                            @resetItem="resetItem"
+                            @resetItem="resetItem" @deleteRowSuccess="deleteRowSuccess" 
                             @columnMoved="columnMoved" @emitRangeRemoved="emitRangeRemoved" @headerClick="headerClick" />
                     </div>
                 </div>
@@ -102,6 +103,7 @@ export default {
         item_change_checked: { type: Array, default: () => [] },
         item_filter_backgrounds: { type: Array, default: () => [] },
         item_filter_texts: { type: Array, default: () => [] },
+        selected_indexs: { type: Array, default: () => [] }
 
     },
     components: {
@@ -210,8 +212,8 @@ export default {
         deleteRow(position, data) {
             this.$emit('deleteRow', position, data);
         },
-        rowSelectionChanged(selected, is_check_or_uncheck) {
-            this.$emit('rowSelectionChanged', selected, is_check_or_uncheck);
+        rowSelectionChanged(selected, is_check_or_uncheck, positions) {
+            this.$emit('rowSelectionChanged', selected, is_check_or_uncheck, positions);
         },
         changeMaterial() {
             this.$emit('changeMaterial');
@@ -270,6 +272,15 @@ export default {
         resetItem() {
             this.$emit('resetItem');
         },
+        deleteOrders() {
+            this.$emit('deleteOrders');
+        },
+        deleteRowSuccess() {
+            this.$emit('deleteRowSuccess');
+        },
+        deleteOrdersHistory() {
+            this.$emit('deleteOrdersHistory');
+        }
        
     }
 }

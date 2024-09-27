@@ -25,7 +25,7 @@ export default {
         item_change_checked: { type: Array, default: () => [] },
         item_filter_backgrounds: { type: Array, default: () => [] },
         item_filter_texts: { type: Array, default: () => [] },
-
+        selected_indexs: { type: Array, default: () => [] }
     },
     components: {
         ChildOrderProcessesSearchBody,
@@ -167,6 +167,7 @@ export default {
             selected_all: false,
             data_filters: [],
             colorsToFilter: [],
+            is_editing: false,
 
         };
     },
@@ -194,25 +195,26 @@ export default {
             this.$emit('cellEdited', cell);
 
         });
-        // this.table.on("cellEditing", (cell) => {
-        //     // Vô hiệu hóa tất cả các tùy chọn liên quan đến selectableRange
-        //     // this.table.options.selectableRange = false;
-        //     // this.table.options.selectableRangeColumns = false;
-        //     // this.table.options.selectableRangeRows = false;
-        //     // this.table.options.selectableRangeClearCells = false;
+        this.table.on("cellEditing", (cell) => {
+            console.log('Đang chỉnh sửa ô:', cell.getValue(), cell.isEdited());
+            this.is_editing = true;
+            // this.setSelectableRange();selectableRange
+            // this.table.optionsList.registeredDefaults.selectableRange = false;
 
-        //     // console.log('kết thúc', this.table.options.selectableRange);
+            // xem chức năng của cell
+            console.log(cell);
+            // console.log(this.table.optionsList.registeredDefaults.selectableRange);
+
+            console.log(this.table.optionsList.registeredDefaults.selectableRange);
+        });
+        this.table.on("cellEditCancelled", (cell) => {
+            console.log('cellEditCancelled:', cell.getValue());
+            this.is_editing = false;
+            // this.setSelectableRange();
 
 
-        //     console.log('Đang chỉnh sửa ô:', cell.getValue(), cell.isEdited());
 
-
-        // });
-        // this.table.on("cellEditCancelled", (cell) => {
-        //     // Kích hoạt lại tất cả các tùy chọn liên quan đến selectableRange
-
-        //     console.log('Editing cancelled, range selection restored.');
-        // });
+        });
 
         // sự kiện khi clipboardPasted
         this.table.on("clipboardPasted", (clipboard, rowData, rows) => {
@@ -346,22 +348,10 @@ export default {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
                     console.time('renderData');
-                    // Code render component
-                    // this.table.options.selectableRange = true;
-                    // this.table.options.selectableRangeColumns = true;
-                    // this.table.options.selectableRangeRows = true;
-                    // this.table.options.selectableRangeClearCells = false;
                     this.setData();
                     console.timeEnd('renderData');
                 }
-                // else {
-                //     // this.table.updateOrAddData(this.filteredOrders);
-                //     this.table.updateData(this.filteredOrders);
-                //     // this.table.updateColumnDefinition(this.filterColumn());
-                //     this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
 
-                //     // this.table.updateColumn
-                // }
             }, 10),
             deep: true,
         },
@@ -369,10 +359,7 @@ export default {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
                     console.time('updateData');
-                    // this.table.clearData();
-                    // this.table.updateData(this.filteredOrders);
                     this.updateData();
-                    // this.table.updateColumnDefinition("sap_so_number", { formatter: this.formatterSapSoNumber() });
                     console.timeEnd('updateData');
                 }
             }, 10),
@@ -384,15 +371,35 @@ export default {
             }, 10),
             deep: true,
         },
+        'update_status_function.update_or_add': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    this.table.updateOrAddData(this.filteredOrders);
+                }
+            }, 10),
+        },
         'update_status_function.add_row': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-                    // this.table.addRow(this.position_order.order);
-                    // this.table.updateOrAddData(this.filteredOrders);
-                    // this.table.updateColumnDefinition(this.filterColumn());
-                    // this.table.setData(this.filteredOrders);
+
                     this.table.updateOrAddData(this.filteredOrders);
-                   
+
+                }
+            }, 10),
+        },
+        'update_status_function.delete_row': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    this.selected_indexs.forEach(position => {
+                        try {
+                            let row = this.table.getRowFromPosition(position); // Get the row using the position
+                            this.table.deleteRow(row); // Delete the row
+                            this.$emit('deleteRowSuccess');
+                        } catch (error) {
+                            console.error(`Delete Error - No matching row found at position: ${position}`, error);
+                        }
+                    });
+
                 }
             }, 10),
         },
@@ -451,6 +458,14 @@ export default {
                 await this.table.setHeight(this.window_height - 280);
             }
         },
+        setSelectableRange() {
+            if (this.is_editing) {
+                return false;
+            } else {
+                return true;
+            }
+
+        },
         setData() {
             this.updateWindowDimensions();
             this.table.clearData();
@@ -499,99 +514,6 @@ export default {
                 return `${ma_sap}${value_promotive}`;
             };
         },
-        // headerMenu() {
-        //     var headerMenu = [
-        //         {
-        //             label: "Reset",
-        //             action: (e, column) => {
-        //                 this.$emit('filterOrder', '', '');
-        //             }
-        //         },
-        //         {
-        //             label: "Filter",
-        //             menu: [
-        //                 {
-        //                     label: "Giá",
-        //                     menu: [
-        //                         {
-        //                             label: "Chênh lệch",
-        //                             action: (e, column) => {
-        //                                 this.$emit('filterOrder', 'price_difference', 'difference');
-        //                             }
-        //                         },
-        //                         {
-        //                             label: "Ngang nhau",
-        //                             action: (e, column) => {
-        //                                 this.$emit('filterOrder', 'price_equal', 'difference');
-        //                             }
-        //                         },
-        //                     ],
-        //                 },
-        //                 {
-        //                     label: "Khuyến mãi",
-        //                     menu: [
-        //                         {
-        //                             label: "Khuyến mãi",
-        //                             action: (e, column) => {
-        //                                 this.$emit('filterOrder', 'X', 'extra_offer');
-        //                             }
-        //                         },
-        //                         {
-        //                             label: "Combo",
-        //                             action: (e, column) => {
-        //                                 this.$emit('filterOrder', 'X', 'promotion_category');
-        //                             }
-        //                         },
-        //                     ],
-        //                 },
-        //                 {
-        //                     label: "Màu",
-        //                     menu: [
-        //                         {
-        //                             label: "Nền",
-        //                             menu: this.theme_filter_colors.map(color => {
-        //                                 return {
-        //                                     label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
-        //                                     action: (e, column) => {
-        //                                         this.$emit('filterOrder', color.color, column.getField(), 'theme_color_bg');
-        //                                         console.log('color:', color.color, 'column.getField:', column.getField());
-        //                                         this.table.setFilter([
-        //                                             { field: theme_color.background[column.getField()], type: "like", value: color.color },
-        //                                         ]);
-        //                                     },
-        //                                 };
-        //                             }),
-        //                         },
-        //                         {
-        //                             label: "Chữ",
-        //                             menu: this.theme_filter_colors.map(color => {
-        //                                 return {
-        //                                     label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
-        //                                     action: (e, column) => {
-        //                                         this.$emit('filterOrder', color.color, column.getField(), 'theme_color_txt');
-        //                                     },
-        //                                 };
-        //                             }),
-        //                         },
-        //                     ],
-        //                     // menu: this.theme_filter_colors.map(color => {
-        //                     //     return {
-        //                     //         label: `<div style="background: ${color.color};width: 60px; height: 15px; border: 1px solid gray"></div>`,
-        //                     //         action: (e, column) => {
-        //                     //             this.$emit('filterOrder', color.color, column.getField(), 'theme_color');
-        //                     //         },
-        //                     //     };
-        //                     // }),
-        //                 },
-        //             ],
-        //         },
-        //         {
-        //             separator: true,
-        //         },
-
-        //     ];
-        //     return headerMenu;
-        // },
         async loadTable() {
             const Tabulator = this.$Tabulator; // Access Tabulator from Vue prototype
             this.table = await new Tabulator(this.$refs.table, {
@@ -633,7 +555,7 @@ export default {
                 },
                 initialSelection: false,
                 //enable range selection
-                selectableRange: true,
+                selectableRange: this.setSelectableRange(),
                 selectableRangeColumns: true,
                 selectableRangeRows: true,
                 selectableRangeClearCells: true,
@@ -815,23 +737,23 @@ export default {
                         };
                     }),
                 },
-                // {
-                //     label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Chọn dòng",
-                //     action: (e, row) => {
-                //         row.select();
-                //         this.$emit('rowSelectionChanged', row.getData(), true);
-                //     }
-                // },
-                // {
-                //     label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Hủy chọn dòng",
-                //     action: (e, row) => {
-                //         row.deselect();
-                //         this.$emit('rowSelectionChanged', row.getData(), false);
-                //     }
-                // },
-                // {
-                //     separator: true,
-                // },
+                {
+                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Chọn dòng",
+                    action: (e, row) => {
+                        row.select();
+                        this.$emit('rowSelectionChanged', row.getData(), true, this.table.getSelectedRows().map(row => row.getPosition()));
+                    }
+                },
+                {
+                    label: "<i class='fas fa-check-square text-black-50 mr-1'></i> Hủy chọn dòng",
+                    action: (e, row) => {
+                        row.deselect();
+                        this.$emit('rowSelectionChanged', row.getData(), false, this.table.getSelectedRows().map(row => row.getPosition()));
+                    }
+                },
+                {
+                    separator: true,
+                },
                 {
                     label: "<i class='fas fa-plus text-black-50 mr-1'></i> Thêm dòng",
                     action: (e, row) => {
@@ -1603,7 +1525,7 @@ export default {
                         values: this.material_category_types.map(item => item.name)
                     } : {
                         shiftEnterSubmit: true,
-                        selectContents: true,
+                        // selectContents: true,
                         verticalNavigation: "table",
                     },
                     // headerMenu: this.headerMenu(),
