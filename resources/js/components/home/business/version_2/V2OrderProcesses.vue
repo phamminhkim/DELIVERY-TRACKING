@@ -61,7 +61,7 @@
 
         <DialogOrderProcessesHistoryDelete :orders_delete="orders_delete" :columns="columns"
             @sortOrdersHistory="handleSortOrdersHistory" :update_status_function="update_status_function"
-            @restoreOrder="handleRestoreOrder" />
+            @restoreOrder="handleRestoreOrder" @restoreOrderAll="handleRestoreOrderAll" />
     </div>
 </template>
 <script>
@@ -293,6 +293,7 @@ export default {
             ],
             selected_indexs: [],
             orders_delete: [],
+            histories_delete: [],
         }
     },
     async created() {
@@ -305,9 +306,42 @@ export default {
         await this.getUrl();
     },
     methods: {
+        handleRestoreOrderAll() {
+            if (this.histories_delete.length > 0) {
+                this.histories_delete.forEach((item_history, index) => {
+                    this.orders_delete.forEach((item_order, position) => {
+                        if (item_order.order == item_history.order && item_history.event == 'duplicate') {
+                            this.orders.splice(item_order.order, 0, item_order);
+                        }
+                    });
+                });
+            } else {
+                this.orders_delete.forEach((item_order, position) => {
+                    this.orders.splice(item_order.order - 1, 0, item_order);
+                });
+            }
+            this.orders_delete = [];
+            this.histories_delete = [];
+            this.orders.forEach((item, index) => {
+                item.order = index + 1;
+            });
+            this.update_status_function.add_row++;
+            this.update_status_function.order_history_delete++;
+        },
         handleRestoreOrder(item_order, position) {
+            if (this.histories_delete.length > 0) {
+                this.histories_delete.forEach((item_history, index) => {
+                    if (item_order.order == item_history.order && item_history.event == 'duplicate') {
+                        this.orders.splice(item_order.order, 0, item_order);
+                        this.histories_delete.splice(index, 1);
+
+                    }
+                });
+            } else {
+                this.orders.splice(item_order.order - 1, 0, item_order);
+            }
             this.orders_delete.splice(position - 1, 1);
-            this.orders.splice(item_order.order - 1, 0, item_order);
+            // this.orders.splice(item_order.order - 1, 0, item_order);
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
             });
@@ -1622,6 +1656,12 @@ export default {
             uniques.sort((a, b) => b - a);
             uniques.forEach(index => {
                 let item_double = this.filteredOrders[index - 1];
+                item_double.order = index + 1;
+                console.log(item_double.order);
+                this.histories_delete.push({
+                    'event': 'duplicate',
+                    ...item_double
+                });
                 this.filteredOrders.splice(index - 1, 0, {
                     // order: item_double.order++,
                     order: this.orders.length,
