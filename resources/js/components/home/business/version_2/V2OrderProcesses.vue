@@ -2145,7 +2145,7 @@ export default {
                             return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'promotion_category':
-                        // filter promotion_category
+                        // filter promotion_category,
                         return this.orders.filter(order => {
                             let field_value = order.promotion_category || ''; // Giữ nguyên giá trị gốc của field_value
                             return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
