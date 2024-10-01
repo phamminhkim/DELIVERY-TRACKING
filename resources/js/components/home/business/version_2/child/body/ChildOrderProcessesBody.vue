@@ -236,7 +236,6 @@ export default {
 
         });
 
-
         this.table.on("popupOpened", (component) => {
             this.$emit('popupOpened', component.getField());
             this.column = component.getField();
@@ -298,6 +297,17 @@ export default {
             }, 100); // Delay of 0ms to allow DOM updates
 
         });
+        this.table.on("rowDblClick", (e, row) => {
+            let rowData = row.getData();
+            let input = prompt("Di chuyển dòng " + rowData.order + " vào dòng: ", "Nhập số dòng mong muốn"); // Giá trị mặc định là `order` hiện tại
+            if (input !== null && input !== "") {
+                if(typeof this.convertIntoNumber(input) == 'number') {
+                    this.$emit('rowDblClickMoveRow', row.getPosition(), input);
+                } else {
+                    alert('Vui lòng nhập số dòng hợp lệ');
+                }
+            } 
+        });
         // this.table.on("historyUndo", (action, component, data) => {
         //     console.log('historyUndo:', action, component, data);
 
@@ -324,7 +334,6 @@ export default {
         //     }
         // });
 
-
         window.addEventListener('resize', this.updateWindowDimensions);
 
     },
@@ -341,6 +350,16 @@ export default {
                 if (newVal) {
                     this.tableData = newVal;
                 }
+            }, 10),
+            deep: true,
+        },
+        'update_status_function.replace_data': {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (newVal) {
+                    this.table.replaceData(this.filteredOrders);
+                    console.log('replaceData:', this.filteredOrders);
+                }
+
             }, 10),
             deep: true,
         },
@@ -451,6 +470,9 @@ export default {
         this.updateWindowDimensions();
     },
     methods: {
+        convertIntoNumber(value) {
+            return isNaN(value) ? value : Number(value);
+        },
         async updateWindowDimensions() {
             this.window_width = window.innerWidth;
             this.window_height = window.innerHeight;
@@ -485,7 +507,8 @@ export default {
                 this.table.scrollToRow(positon[0][0], "top", false);
                 this.table.scrollToColumn(fields[0][0], "center", false);
             }
-        },
+            
+            },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
             if (newVal.length !== oldVal.length) {
@@ -540,6 +563,7 @@ export default {
                 rowContextMenu: this.rowMenu(), //add context menu to rows
                 layout: "fitColumns",
                 // placeholder:"Không có dữ liệu",
+
                 rowHeader: {
                     // resizable: false,
                     frozen: true,
@@ -551,6 +575,7 @@ export default {
                     // editor: false,
                     // field: "rownum",
                     field: "order",
+
 
                 },
                 initialSelection: false,
@@ -635,6 +660,7 @@ export default {
                     }
 
                 },
+
             });
 
             // await this.updateWindowDimensions();
