@@ -40,7 +40,7 @@
             @deleteRowSuccess="handleDeleteRowSuccess" @emitGetRangesData="handleGetRangesData"
             @popupOpened="handlePopupOpened" @deleteOrders="handleDeleteOrders"
             @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem" @resetItem="handleResetItem"
-            @deleteOrdersHistory="handleDeleteOrdersHistory" />
+            @deleteOrdersHistory="handleDeleteOrdersHistory" @rowDblClickMoveRow="handleRowDblClickMoveRow" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -129,6 +129,7 @@ export default {
                 column: 0,
                 replace: 0,
                 replace_all: 0,
+                replace_data: 0,
                 fetch_api_list_orders: 0,
                 update_or_add: 0,
                 delete_row: 0,
@@ -2138,7 +2139,20 @@ export default {
         handleDeleteOrdersHistory() {
             $('#DialogOrderProcessesHistoryDelete').modal('show');
         },
+        handleRowDblClickMoveRow(position, input) {
+            // di chuyển vị trí mảng
+            let item = this.filteredOrders.splice(position - 1, 1);
+            item[0].order = input;
+            this.filteredOrders.splice(input - 1, 0, item[0]);
+            this.orders.forEach((order, index) => {
+                order.order = index + 1;
+            });
 
+            this.update_status_function.set_data++;
+            // this.update_status_function.replace_data++;
+            // this.update_status_function.update_data++;
+
+        },
     },
     computed: {
         filteredOrders() {
