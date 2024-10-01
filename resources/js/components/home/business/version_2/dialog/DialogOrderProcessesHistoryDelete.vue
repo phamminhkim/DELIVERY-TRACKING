@@ -13,6 +13,11 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="text-xs">
+                            <button type="button" @click="emitRestoreOrderAll()" class="btn btn-sm btn-light text-info text-xs px-2">
+                                <i class='fas fa-undo text-black-50 mr-1'></i>Phục hồi tất cả
+                            </button>
+                        </div>
                         <div ref="table"></div>
                     </div>
                     <div class="modal-footer">
@@ -135,7 +140,6 @@ export default {
                     label: "<i class='fas fa-undo text-black-50 mr-1'></i> Phục hồi",
                     action: (e, row) => {
                         this.$emit('restoreOrder', row.getData(), row.getPosition());
-                        console.log('restoreOrder',row.getData(), row.getPosition());
                         // this.$emit('deleteRow', row.getPosition(), row.getData());
                         // this.$emit('deleteRow', this.table.getRanges().map(r => r.getRows().map(row => row.getPosition())));
                     }
@@ -173,6 +177,9 @@ export default {
                 };
             });
         },
+        emitRestoreOrderAll() {
+            this.$emit('restoreOrderAll');
+        },  
     }
 }
 </script>
