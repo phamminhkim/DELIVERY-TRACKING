@@ -60,7 +60,7 @@
                             @toggleColumnShow="toggleColumnShow" @columnResized="columnResized"
                             @emitGetRangesData="emitGetRangesData" @popupOpened="popupOpened"
                             @itemChangeChecked="itemChangeChecked" @searchItem="searchItem"
-                            @resetItem="resetItem" @deleteRowSuccess="deleteRowSuccess" 
+                            @resetItem="resetItem" @deleteRowSuccess="deleteRowSuccess" @rowDblClickMoveRow="rowDblClickMoveRow"
                             @columnMoved="columnMoved" @emitRangeRemoved="emitRangeRemoved" @headerClick="headerClick" />
                     </div>
                 </div>
@@ -280,7 +280,10 @@ export default {
         },
         deleteOrdersHistory() {
             this.$emit('deleteOrdersHistory');
-        }
+        },
+        rowDblClickMoveRow(position, input) {
+            this.$emit('rowDblClickMoveRow', position, input);
+        },
        
     }
 }
