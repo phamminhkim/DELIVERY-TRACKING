@@ -555,6 +555,8 @@ export default {
                 this.refeshOrder();
                 item.so_data_items.forEach(data_item => {
                     var variant_quantity = this.convertToNumber(data_item.inventory_quantity) - this.convertToNumber(data_item.quantity1_po) * this.convertToNumber(data_item.quantity2_po);
+                    let convert_file_uid = data_item.so_header.convert_po_uid;
+
                     this.orders.push({
                         order: data_item.order,
                         id: data_item.id,
@@ -601,6 +603,8 @@ export default {
                         theme_color: this.setDataThemeColor(data_item.theme_color),
                         order_process_id: data_item.order_process_id,
                         so_header: this.setDataSoHeader(data_item.so_header),
+                        convert_file_uid: convert_file_uid,
+
                     });
                 });
             }
@@ -841,6 +845,7 @@ export default {
             // let index_item = 1;
             for (let index = 0; index < file_response.data.length; index++) {
                 let files = file_response.data[index].items;
+                let convert_file_uid = file_response.data[index].convert_po_uid;
                 for (let index_item = 0; index_item < files.length; index_item++) {
                     let item = files[index_item];
                     this.orders.push({
@@ -887,6 +892,7 @@ export default {
                         theme_color: this.setDataThemeColor(null),
                         order_process_id: '',
                         variant_quantity: '',
+                        convert_file_uid: convert_file_uid,
 
                     });
                     // index_item++;
@@ -2135,12 +2141,14 @@ export default {
                     case 'extra_offer':
                         // filter extra_offer
                         return this.orders.filter(order => {
-                            return order.extra_offer.toLowerCase().includes(this.filter.value.toLowerCase());
+                            let field_value = order.extra_offer || ''; // Giữ nguyên giá trị gốc của field_value
+                            return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'promotion_category':
                         // filter promotion_category
                         return this.orders.filter(order => {
-                            return order.promotion_category.toLowerCase().includes(this.filter.value.toLowerCase());
+                            let field_value = order.promotion_category || ''; // Giữ nguyên giá trị gốc của field_value
+                            return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'difference':
                         // filter difference
