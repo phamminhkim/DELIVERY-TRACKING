@@ -403,7 +403,7 @@ export default {
                 if (newVal) {
 
                     this.table.updateOrAddData(this.filteredOrders);
-
+                    this.table.updateData(this.filteredOrders);
                 }
             }, 10),
         },
