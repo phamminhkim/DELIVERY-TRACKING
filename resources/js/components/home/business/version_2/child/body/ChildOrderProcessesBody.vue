@@ -129,6 +129,7 @@ export default {
                 items: [],
             },
             column: '',
+            input_row: -1,
             item_selecteds: [],
             is_column_filter: {
                 customer_name: false,
@@ -193,19 +194,10 @@ export default {
         });
         this.table.on("cellEdited", (cell) => {
             this.$emit('cellEdited', cell);
-
         });
         this.table.on("cellEditing", (cell) => {
             console.log('Đang chỉnh sửa ô:', cell.getValue(), cell.isEdited());
             this.is_editing = true;
-            // this.setSelectableRange();selectableRange
-            // this.table.optionsList.registeredDefaults.selectableRange = false;
-
-            // xem chức năng của cell
-            console.log(cell);
-            // console.log(this.table.optionsList.registeredDefaults.selectableRange);
-
-            console.log(this.table.optionsList.registeredDefaults.selectableRange);
         });
         this.table.on("cellEditCancelled", (cell) => {
             console.log('cellEditCancelled:', cell.getValue());
@@ -301,12 +293,14 @@ export default {
             let rowData = row.getData();
             let input = prompt("Di chuyển dòng " + rowData.order + " vào dòng: ", "Nhập số dòng mong muốn"); // Giá trị mặc định là `order` hiện tại
             if (input !== null && input !== "") {
-                if(typeof this.convertIntoNumber(input) == 'number') {
+                if (typeof this.convertIntoNumber(input) == 'number') {
+                    this.input_row = this.convertIntoNumber(input);
                     this.$emit('rowDblClickMoveRow', row.getPosition(), input);
+              
                 } else {
                     alert('Vui lòng nhập số dòng hợp lệ');
                 }
-            } 
+            }
         });
         // this.table.on("historyUndo", (action, component, data) => {
         //     console.log('historyUndo:', action, component, data);
@@ -353,11 +347,16 @@ export default {
             }, 10),
             deep: true,
         },
-        'update_status_function.replace_data': {
+        'update_status_function.update_move_row': {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
-                    this.table.replaceData(this.filteredOrders);
-                    console.log('replaceData:', this.filteredOrders);
+                    this.table.setData(this.filteredOrders);
+                    var row = this.table.getRows()[this.convertIntoNumber(this.input_row) - 1]; 
+                    var bottom_right = this.table.getRows()[this.convertIntoNumber(this.input_row) - 1].getCells().slice(-1)[0];
+                    var row_header_cell = row.getCell("order"); 
+                    this.table.addRange(row_header_cell, bottom_right);
+                    this.table.scrollToRow(this.convertIntoNumber(this.input_row) - 1, "top", false);
+                    this.table.scrollToColumn('order', "center", false);
                 }
 
             }, 10),
@@ -497,6 +496,7 @@ export default {
             this.table.setSort([
                 { column: "order", dir: "asc" },
             ]);
+
         },
         updateData() {
             this.table.updateData(this.filteredOrders);
@@ -507,8 +507,8 @@ export default {
                 this.table.scrollToRow(positon[0][0], "top", false);
                 this.table.scrollToColumn(fields[0][0], "center", false);
             }
-            
-            },
+
+        },
         hasSignificantChange(newVal, oldVal) {
             // Kiểm tra xem hai mảng có cùng chiều dài không  
             if (newVal.length !== oldVal.length) {
