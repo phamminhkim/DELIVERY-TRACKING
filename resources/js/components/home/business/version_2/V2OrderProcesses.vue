@@ -314,6 +314,8 @@ export default {
                     this.orders_delete.forEach((item_order, position) => {
                         if (item_order.order == item_history.order && item_history.event == 'duplicate') {
                             this.orders.splice(item_order.order, 0, item_order);
+                        } else {
+                            this.orders.splice(item_order.order - 1, 0, item_order);
                         }
                     });
                 });
@@ -336,7 +338,8 @@ export default {
                     if (item_order.order == item_history.order && item_history.event == 'duplicate') {
                         this.orders.splice(item_order.order, 0, item_order);
                         this.histories_delete.splice(index, 1);
-
+                    } else {
+                        this.orders.splice(item_order.order - 1, 0, item_order);
                     }
                 });
             } else {
