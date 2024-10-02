@@ -296,7 +296,7 @@ export default {
                 if (typeof this.convertIntoNumber(input) == 'number') {
                     this.input_row = this.convertIntoNumber(input);
                     this.$emit('rowDblClickMoveRow', row.getPosition(), input);
-              
+
                 } else {
                     alert('Vui lòng nhập số dòng hợp lệ');
                 }
@@ -351,10 +351,12 @@ export default {
             handler: _.debounce(function (newVal, oldVal) {
                 if (newVal) {
                     this.table.setData(this.filteredOrders);
-                    var row = this.table.getRows()[this.convertIntoNumber(this.input_row) - 1]; 
+                    var row = this.table.getRows()[this.convertIntoNumber(this.input_row) - 1];
                     var bottom_right = this.table.getRows()[this.convertIntoNumber(this.input_row) - 1].getCells().slice(-1)[0];
-                    var row_header_cell = row.getCell("order"); 
+                    var row_header_cell = row.getCell("order");
                     this.table.addRange(row_header_cell, bottom_right);
+                    var current_range = this.table.getRanges();
+                    current_range[0].remove();
                     this.table.scrollToRow(this.convertIntoNumber(this.input_row) - 1, "top", false);
                     this.table.scrollToColumn('order', "center", false);
                 }
