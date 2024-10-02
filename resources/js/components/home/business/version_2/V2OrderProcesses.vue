@@ -134,6 +134,7 @@ export default {
                 update_or_add: 0,
                 delete_row: 0,
                 order_history_delete: 0,
+                update_move_row: 0,
 
             },
             position: {
@@ -2148,8 +2149,8 @@ export default {
                 order.order = index + 1;
             });
 
-            this.update_status_function.set_data++;
-            // this.update_status_function.replace_data++;
+            // this.update_status_function.set_data++;
+            this.update_status_function.update_move_row++;
             // this.update_status_function.update_data++;
 
         },
