@@ -437,6 +437,7 @@ export default {
                         try {
                             let row = this.table.getRowFromPosition(position); // Get the row using the position
                             this.table.deleteRow(row); // Delete the row
+                            this.table.updateData(this.filteredOrders);
                         } catch (error) {
                             console.error(`Delete Error - No matching row found at position: ${position}`, error);
                         }
