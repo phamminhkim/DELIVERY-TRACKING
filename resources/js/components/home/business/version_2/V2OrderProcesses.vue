@@ -310,9 +310,10 @@ export default {
     methods: {
         handleRestoreOrderAll() {
             if (this.histories_delete.length > 0) {
+
                 this.histories_delete.forEach((item_history, index) => {
                     this.orders_delete.forEach((item_order, position) => {
-                        if (item_order.order == item_history.order && item_history.event == 'duplicate') {
+                        if (item_order.order == item_history.order) {
                             this.orders.splice(item_order.order, 0, item_order);
                         } else {
                             this.orders.splice(item_order.order - 1, 0, item_order);
@@ -334,23 +335,29 @@ export default {
         },
         handleRestoreOrder(item_order, position) {
             if (this.histories_delete.length > 0) {
-                this.histories_delete.forEach((item_history, index) => {
-                    if (item_order.order == item_history.order && item_history.event == 'duplicate') {
-                        this.orders.splice(item_order.order, 0, item_order);
+                let is_exist = false;
+                for (let index = this.histories_delete.length - 1; index >= 0; index--) {
+                    const item_history = this.histories_delete[index];
+                    if (_.isEqual(item_order, item_history)) {
                         this.histories_delete.splice(index, 1);
-                    } else {
-                        this.orders.splice(item_order.order - 1, 0, item_order);
+                        is_exist = true;
                     }
-                });
+                }
+                if (!is_exist) {
+                    this.orders.splice(item_order.order - 1, 0, item_order);
+                } else {
+                    this.orders.splice(item_order.order, 0, item_order);
+                }
+
             } else {
                 this.orders.splice(item_order.order - 1, 0, item_order);
             }
             this.orders_delete.splice(position - 1, 1);
-            // this.orders.splice(item_order.order - 1, 0, item_order);
             this.orders.forEach((item, index) => {
                 item.order = index + 1;
             });
             this.update_status_function.add_row++;
+            // this.update_status_function.set_data++;
             this.update_status_function.order_history_delete++;
         },
         handleSortOrdersHistory(sorters) {
@@ -1661,12 +1668,6 @@ export default {
             uniques.sort((a, b) => b - a);
             uniques.forEach(index => {
                 let item_double = this.filteredOrders[index - 1];
-                item_double.order = index + 1;
-                console.log(item_double.order);
-                this.histories_delete.push({
-                    'event': 'duplicate',
-                    ...item_double
-                });
                 this.filteredOrders.splice(index - 1, 0, {
                     // order: item_double.order++,
                     order: this.orders.length,
@@ -1716,6 +1717,20 @@ export default {
             this.orders.forEach((order, index) => {
                 order.order = index + 1;
             });
+            uniques.forEach(index => {
+                let newItem = this.filteredOrders[index - 1];
+                let is_exist = this.histories_delete.some(item => _.isEqual(item, newItem));
+                if (is_exist) {
+                    return;  
+                } else {
+                    this.histories_delete.push({
+                        // 'event': 'duplicate',
+                        ...newItem
+                    });
+                }
+
+
+            });
             this.update_status_function.add_row++;
         },
         handleCopyRow(position, data) {
@@ -1740,8 +1755,12 @@ export default {
             let uniques = [...new Set(indexs.flat())];
             uniques.sort((a, b) => b - a);
             uniques.forEach(index => {
-                this.orders_delete.push(this.filteredOrders[index - 1]);
+                // this.orders_delete.push(this.filteredOrders[index - 1]);
                 let item_dlt = this.filteredOrders.splice(index - 1, 1);
+                this.orders_delete.push({
+                    // 'event': 'delete',
+                    ...item_dlt[0]
+                });
                 this.orders = this.orders.filter(order => order.order != item_dlt[0].order);
             });
             // Hiển thị mảng đã cập nhật
@@ -2125,8 +2144,12 @@ export default {
         },
         handleDeleteOrders() {
             this.selected_indexs.forEach(index => {
-                this.orders_delete.push(this.filteredOrders[index - 1]);
+                // this.orders_delete.push(this.filteredOrders[index - 1]);
                 let item_dlt = this.filteredOrders.splice(index - 1, 1);
+                this.orders_delete.push({
+                    // 'event': 'delete',
+                    ...item_dlt[0]
+                });
                 this.orders = this.orders.filter(order => order.order != item_dlt[0].order);
             });
             this.orders.forEach((order, index) => {
