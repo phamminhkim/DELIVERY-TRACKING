@@ -268,7 +268,7 @@ class MaterialComboRepository extends RepositoryAbs
                 $this->data,
                 [
                     'customer_group_id' => 'required',
-                    'sap_code' => 'required|unique:material_combos,sap_code',
+                    'sap_code' => 'required|unique:material_combos,sap_code,NULL,id,customer_group_id,'.$this->data['customer_group_id'],
                     'bar_code' => 'string',
                     'name' => 'required',
                     'is_active' => 'in:0,1',
@@ -277,7 +277,7 @@ class MaterialComboRepository extends RepositoryAbs
                 [
                     'customer_group_id.required' => 'Mã SAP không được để trống',
                     'sap_code.required' => 'Mã SAP không được để trống',
-                    'sap_code.unique' => 'Mã SAP đã tồn tại',
+                    'sap_code.unique' => 'Mã SAP đã tồn tại trong nhóm khách hàng này',
                     'bar_code.string' => 'Tên không được để trống',
                     'name.required' => 'Tên không được để trống',
                     'is_active.in' => 'Trạng thái chỉ được chứa giá trị 0 hoặc 1.',
