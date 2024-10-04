@@ -84,6 +84,8 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [MaterialDonatedController::class, 'store']);
             Route::put('/{id}', [MaterialDonatedController::class, 'update']);
             Route::delete('/{id}', [MaterialDonatedController::class, 'destroy']);
+            Route::delete('/', [MaterialDonatedController::class, 'destroyMultiple']);
+
         });
         Route::prefix('/material-combos')->group(function () {
             Route::get('/minified', [MaterialComboController::class, 'getAllMinified']);
