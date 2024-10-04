@@ -59,6 +59,7 @@ class SoDataRepository extends RepositoryAbs
                                 'level2' => isset($so_items[0]['level2']) ? $so_items[0]['level2'] : null,
                                 'level3' => isset($so_items[0]['level3']) ? $so_items[0]['level3'] : null,
                                 'level4' => isset($so_items[0]['level4']) ? $so_items[0]['level4'] : null,
+                                'convert_po_uid' => isset($so_items[0]['convert_file_uid']) ? $so_items[0]['convert_file_uid'] : null,
                             ]);
                             $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
                             $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
@@ -203,6 +204,7 @@ class SoDataRepository extends RepositoryAbs
                             'level2' => isset($so_items[0]['level2']) ? $so_items[0]['level2'] : null,
                             'level3' => isset($so_items[0]['level3']) ? $so_items[0]['level3'] : null,
                             'level4' => isset($so_items[0]['level4']) ? $so_items[0]['level4'] : null,
+                            'convert_po_uid' => isset($so_items[0]['convert_file_uid']) ? $so_items[0]['convert_file_uid'] : null,
                         ]);
                         $so_number = UniqueIdUtility::generateSerialUniqueNumber($so_header->customer_code);
                         $so_data_items = collect($so_items)->map(function ($item) use ($so_header, $order_process, $so_number) {
