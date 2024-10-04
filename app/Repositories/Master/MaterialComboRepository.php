@@ -268,7 +268,7 @@ class MaterialComboRepository extends RepositoryAbs
                 $this->data,
                 [
                     'customer_group_id' => 'required',
-                    'sap_code' => 'required|unique:material_combos,sap_code,NULL,id,customer_group_id,'.$this->data['customer_group_id'],
+                    'sap_code' => 'required|unique:material_combos,sap_code,NULL,id,customer_group_id,' . $this->data['customer_group_id'],
                     'bar_code' => 'string',
                     'name' => 'required',
                     'is_active' => 'in:0,1',
@@ -352,6 +352,23 @@ class MaterialComboRepository extends RepositoryAbs
             $material_combo = MaterialCombo::find($id);
             $material_combo->delete();
             return $material_combo;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+    public function destroyMultiple($ids)
+    {
+        try {
+            $deletedItems = MaterialCombo::whereIn('id', $ids)->get(); // Lấy các bản ghi cần xóa
+
+            if ($deletedItems->isNotEmpty()) { // Kiểm tra xem có bản ghi nào để xóa hay không
+                $deletedCount = MaterialCombo::whereIn('id', $ids)->delete(); // Xóa bản ghi
+
+                return $deletedCount;
+            } else {
+                return 0; // Trả về 0 nếu không có bản ghi nào được xóa
+            }
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
