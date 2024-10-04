@@ -91,4 +91,17 @@ class SapMaterialMappingController extends ResponseController
             return $this->responseError($message, $errors);
         }
     }
+    public function deleteMultipleMapping(Request $request)
+    {
+        $handler = MasterRepository::sapMaterialMappingRequest($request);
+        $ids = $request->input('ids');
+
+        $sapMaterialMapping = $handler->deleteMultipleMapping($ids);
+
+        if ($sapMaterialMapping) {
+            return $this->responseSuccess($sapMaterialMapping);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
 }

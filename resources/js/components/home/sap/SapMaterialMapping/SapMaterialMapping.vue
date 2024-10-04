@@ -430,7 +430,7 @@
 						sortable: true,
 						class: 'text-nowrap text-center',
 					},
-                    {
+					{
 						key: 'update_at',
 						label: 'Ngày cập nhật',
 						sortable: true,
@@ -604,57 +604,29 @@
 					}
 				}
 			},
-
 			async deleteMultipleSapMappings() {
-				try {
-					if (this.is_loading) return;
-					this.is_loading = true;
-					if (this.selected_ids.length === 0) {
-						toastr.error('Vui lòng chọn ít nhất 1 dòng');
-						return;
-					}
-					let confirmed = false;
-					let messageShown = false;
-					for (const id of this.selected_ids) {
-						if (!confirmed && confirm('Bạn muốn xoá?')) {
-							confirmed = true;
-						}
-						if (confirmed) {
-							try {
-								const result = await this.api_handler.delete(
-									`${this.api_url}/${id}`,
-								);
-								if (!messageShown) {
-									if (result.success) {
-										this.showMessage(
-											'success',
-											'Xóa thành công',
-											result.message,
-										);
-									} else {
-										this.showMessage('error', 'Lỗi', result.message);
-									}
-									messageShown = true;
-								}
-								if (result.success && Array.isArray(result.data)) {
-									this.sap_material_mappings.data = result.data;
-								}
-							} catch (error) {
-								if (!messageShown) {
-									this.showMessage('error', 'Lỗi', error);
-									messageShown = true;
-								}
+				if (this.selected_ids.length === 0) {
+					this.showMessage('warning', 'Cảnh báo', 'Vui lòng chọn ít nhất 1 mã để xóa');
+					return;
+				}
+				if (confirm('Bạn muốn xoá?')) {
+					try {
+						const result = await this.api_handler.delete(`${this.api_url}`, {
+							ids: this.selected_ids,
+						});
+
+						if (result.success) {
+							if (Array.isArray(result.data)) {
+								this.sap_material_mappings.data = result.data;
 							}
+							this.showMessage('success', 'Xóa thành công', result.message);
+							await this.fetchOptionsData(); // Load the data again after successful deletion
+						} else {
+							this.showMessage('error', 'Lỗi', result.message);
 						}
+					} catch (error) {
+						this.showMessage('error', 'Lỗi', error.message); // Hiển thị thông báo lỗi cụ thể
 					}
-					if (confirmed) {
-						this.selected_ids = [];
-						await this.fetchOptionsData();
-					}
-				} catch (error) {
-					this.showMessage('error', error.response.data.message);
-				} finally {
-					this.is_loading = false;
 				}
 			},
 			async deleteSapMapping(id) {

@@ -93,6 +93,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [MaterialComboController::class, 'store']);
             Route::put('/{id}', [MaterialComboController::class, 'update']);
             Route::delete('/{id}', [MaterialComboController::class, 'destroy']);
+            Route::delete('/', [MaterialComboController::class, 'destroyMultiple']);
         });
         Route::prefix('/material-category')->group(function () {
             Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
@@ -178,6 +179,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
             Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
             Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
+            Route::delete('/', [SapMaterialMappingController::class, 'deleteMultipleMapping']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);

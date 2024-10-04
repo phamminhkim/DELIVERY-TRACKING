@@ -19,9 +19,8 @@ class MaterialComboController extends ResponseController
         if ($material_combo) {
             return $this->response($material_combo);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
-
     }
     public function getAllMinified(Request $request)
     {
@@ -32,7 +31,7 @@ class MaterialComboController extends ResponseController
         if ($material_combo) {
             return $this->response($material_combo);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 
@@ -75,7 +74,7 @@ class MaterialComboController extends ResponseController
         if ($material_combo) {
             return $this->response($material_combo);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 
@@ -86,7 +85,7 @@ class MaterialComboController extends ResponseController
         if ($material_combo) {
             return $this->response($material_combo);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 
@@ -98,6 +97,19 @@ class MaterialComboController extends ResponseController
             return $this->responseSuccess($material_combo);
         } else {
             return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
+    public function destroyMultiple(Request $request)
+    {
+        $handler = MasterRepository::materialComboRequest($request);
+        $ids = $request->input('ids');
+
+        $material_combo = $handler->destroyMultiple($ids);
+
+        if ($material_combo) {
+            return $this->responseSuccess($material_combo);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
         }
     }
 }

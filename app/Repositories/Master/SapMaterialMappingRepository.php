@@ -663,4 +663,21 @@ class SapMaterialMappingRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    public function deleteMultipleMapping($ids)
+    {
+        try {
+            $deletedItems = SapMaterialMapping::whereIn('id', $ids)->get(); // Lấy các bản ghi cần xóa
+
+            if ($deletedItems->isNotEmpty()) { // Kiểm tra xem có bản ghi nào để xóa hay không
+                $deletedCount = SapMaterialMapping::whereIn('id', $ids)->delete(); // Xóa bản ghi
+
+                return $deletedCount;
+            } else {
+                return 0; // Trả về 0 nếu không có bản ghi nào được xóa
+            }
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
 }
