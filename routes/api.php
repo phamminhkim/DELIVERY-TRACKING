@@ -179,6 +179,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/', [SapMaterialMappingController::class, 'createNewSapMaterialMappings']);
             Route::put('/{id}', [SapMaterialMappingController::class, 'updateSapMaterialMapping']);
             Route::delete('/{id}', [SapMaterialMappingController::class, 'deleteExistingSapMaterialMapping']);
+            Route::delete('/', [SapMaterialMappingController::class, 'deleteMultipleMapping']);
         });
         Route::prefix('/sap-units')->group(function () {
             Route::get('/', [SapUnitController::class, 'getAvailableSapUnits']);
