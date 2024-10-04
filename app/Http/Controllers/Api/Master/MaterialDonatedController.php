@@ -98,4 +98,17 @@ class MaterialDonatedController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function destroyMultiple(Request $request)
+    {
+        $handler = MasterRepository::materialdonatedRequest($request);
+        $ids = $request->input('ids');
+
+        $material_donated = $handler->destroyMultiple($ids);
+
+        if ($material_donated) {
+            return $this->responseSuccess($material_donated);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors(), 200);
+        }
+    }
 }
