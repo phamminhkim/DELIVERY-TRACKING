@@ -296,6 +296,7 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
+
     public function checkCompliance()
     {
         try {
@@ -319,23 +320,38 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
+            // Lấy tất cả sap_code và unit_code từ dữ liệu đầu vào
+            $sapCodes = array_column($this->data['items'], 'sap_code');
+            $unitCodes = array_column($this->data['items'], 'unit_code');
+
+            // Tạo mảng chứa kết quả kiểm tra compliance
             $check_compliance = [];
 
+            // Tạo mảng chứa dữ liệu SapCompliance đã được tải về
+            $sapComplianceData = [];
+
+            // Truy vấn SapCompliance với whereIn cho sap_code và unit_code trước
+            SapCompliance::whereIn('sap_code', $sapCodes)
+                ->whereHas('unit', function ($query) use ($unitCodes) {
+                    $query->whereIn('unit_code', $unitCodes);
+                })
+                ->chunk(1000, function ($chunk) use (&$sapComplianceData) {
+                    foreach ($chunk as $sapCompliance) {
+                        // Lưu dữ liệu vào mảng theo cấu trúc [sap_code][unit_code] => compliance
+                        $sapComplianceData[$sapCompliance->sap_code][$sapCompliance->unit->unit_code] = $sapCompliance;
+                    }
+                });
+
+            // Kiểm tra compliance với dữ liệu đã tải về
             foreach ($this->data['items'] as $item) {
                 $sap_code = $item['sap_code'];
                 $unit_code = $item['unit_code'];
                 $quantity1_po = $item['quantity1_po'];
                 $quantity2_po = $item['quantity2_po'];
 
-                // Kiểm tra xem có đơn vị tính trong bảng SapCompliance hay không
-                $sapCompliance = SapCompliance::where('sap_code', $sap_code)
-                    ->whereHas('unit', function ($query) use ($unit_code) {
-                        $query->where('unit_code', $unit_code);
-                    })
-                    ->first();
-
-                if ($sapCompliance) {
-                    $unit_code = $sapCompliance->unit->unit_code;
+                // Kiểm tra xem có dữ liệu trong mảng đã tải hay không
+                if (isset($sapComplianceData[$sap_code][$unit_code])) {
+                    $sapCompliance = $sapComplianceData[$sap_code][$unit_code];
                     $compliance = $sapCompliance->compliance;
 
                     $itemData = [
@@ -373,6 +389,7 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
+
     public function checkPromotions()
     {
         try {
