@@ -29,7 +29,6 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class CheckDataRepository extends RepositoryAbs
 {
-
     public function checkMaterialSAP()
     {
         try {
@@ -65,16 +64,38 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
+            // Chuẩn bị mảng chứa dữ liệu để tối ưu hoá việc truy vấn
+            $customerSkuCodes = array_filter(array_column($items, 'customer_sku_code'));
+            $sapMaterials = [];
+            $sapMaterialMappings = [];
+
+            // Truy vấn trước dữ liệu từ bảng SapMaterial
+            SapMaterial::whereIn('bar_code', $customerSkuCodes)
+                ->where('is_deleted', 0)
+                ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
+                ->orderBy('id', 'asc')
+                ->chunk(1000, function ($chunk) use (&$sapMaterials) {
+                    foreach ($chunk as $sapMaterial) {
+                        $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
+                    }
+                });
+
+            // Truy vấn trước dữ liệu từ bảng SapMaterialMapping
+            SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
+                $query->where('customer_group_id', $customer_group_id)
+                    ->whereIn('customer_sku_code', $customerSkuCodes);
+            })->chunk(1000, function ($chunk) use (&$sapMaterialMappings) {
+                foreach ($chunk as $mapping) {
+                    $sapMaterialMappings[$mapping->customer_material->customer_sku_code][] = $mapping;
+                }
+            });
             $mappingData = [];
             $existingCodes = [];
-            $existingSapSoNumber = [];
-            // $foundMapping = false;
 
             // Tiếp tục xử lý với mảng $items chứa dữ liệu nhập vào
             foreach ($items as $item) {
                 $foundMapping = false;
                 if (!empty($item['customer_sku_code'])) {
-                    // Tiếp tục xử lý thông tin khi 'customer_sku_code' không trống
                     $customer_sku_code = $item['customer_sku_code'];
                     $sap_so_number = $item['sap_so_number'];
                     $checkCode = $customer_sku_code . $sap_so_number;
@@ -82,117 +103,91 @@ class CheckDataRepository extends RepositoryAbs
                         // continue;
                     }
                     $existingCodes[] = $checkCode;
-                    // Kiểm tra sự tồn tại của trường 'customer_sku_unit'
-                    if (isset($item['customer_sku_unit'])) {
-                        $customer_sku_unit = $item['customer_sku_unit'];
-                    } else {
-                        $customer_sku_unit = null; // Xử lý khi trường không tồn tại
+                    $customer_sku_unit = $item['customer_sku_unit'] ?? null;
+                    $promotion = $item['promotion'] ?? null;
+                    $sap_so_number = $item['sap_so_number'] ?? null;
+
+                    // Kiểm tra trong dữ liệu đã tải trước từ bảng SapMaterial
+                    if (isset($sapMaterials[$customer_sku_code])) {
+                        $sapMaterial = $sapMaterials[$customer_sku_code];
+                        if ($sapMaterial->is_deleted != 1) {
+                            $sap_code = $sapMaterial->sap_code;
+                            $bar_code = $sapMaterial->bar_code;
+                            $unit_id = $sapMaterial->unit_id;
+                            $unit_code = $sapMaterial->unit_code;
+                            $quantity2_po = $item['quantity2_po'];
+
+                            $sapUnit = SapUnit::find($unit_id);
+                            if ($sapUnit) {
+                                $unit_code = $sapUnit->unit_code;
+                            } else {
+                                $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                            }
+                            $item['barcode'] = $bar_code;
+                            $item['sku_sap_code'] = $sap_code;
+                            $item['sku_sap_name'] = $sapMaterial->name;
+                            $item['sku_sap_unit'] = $unit_code;
+                            $item['sku_sap_unit_id'] = $unit_id;
+                            $item['quantity3_sap'] = $quantity2_po;
+                            $mappingData[] = $item;
+                            $foundMapping = true;
+                        }
                     }
-                    // Kiểm tra sự tồn tại của trường 'sap_so_number'
-                    if (isset($item['sap_so_number'])) {
-                        $sap_so_number = $item['sap_so_number'];
-                    } else {
-                        $sap_so_number = null; // Xử lý khi trường không tồn tại
-                    }
-                    // Kiểm tra sự tồn tại của trường 'compliance'
-                    if (isset($item['promotion'])) {
-                        $promotion = $item['promotion'];
-                    } else {
-                        $promotion = null; // Xử lý khi trường không tồn tại
-                    }
-                } else {
-                    continue;
-                }
-                // Kiểm tra xem có sự ánh xạ trực tiếp trong bảng SapMaterial hay không
-                $sapMaterial = SapMaterial::where('bar_code', $customer_sku_code)
-                    ->where('is_deleted', 0)
-                    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
-                    ->orderBy('id', 'asc') // Sắp xếp theo id nếu bar_code không có dữ liệu trong cột priority
-                    ->first();
 
-                if ($sapMaterial && $sapMaterial->is_deleted != 1) {
-                    // Thêm thông tin vào mappingData
-                    $sap_code = $sapMaterial->sap_code;
-                    $bar_code = $sapMaterial->bar_code;
-                    $unit_code = $sapMaterial->unit_code;
-                    $name = $sapMaterial->name;
-                    $unit_id = $sapMaterial->unit_id;
-                    $quantity2_po = $item['quantity2_po'];
+                    // Kiểm tra trong dữ liệu đã tải trước từ bảng SapMaterialMapping
+                    if (!$foundMapping && isset($sapMaterialMappings[$customer_sku_code])) {
+                        $temp_item = $item;
+                        foreach ($sapMaterialMappings[$customer_sku_code] as $sapMaterialMapping) {
+                            $sap_material_id = $sapMaterialMapping->sap_material_id;
+                            $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
+                            $customer_number = $sapMaterialMapping->customer_number;
+                            $percentage = $sapMaterialMapping->percentage;
 
-                    $sapUnit = SapUnit::find($unit_id);
-                    if ($sapUnit) {
-                        $unit_code = $sapUnit->unit_code;
-                    } else {
-                        $unit_code = null; // Xử lý khi đơn vị không tồn tại
-                    }
-                    $foundMapping = false;
+                            if ($customer_number != 0) {
+                                $sapMaterial = SapMaterial::find($sap_material_id);
 
-                    $item['barcode'] = $bar_code;
-                    $item['sku_sap_code'] = $sap_code;
-                    $item['sku_sap_name'] = $name;
-                    $item['sku_sap_unit'] = $unit_code;
-                    $item['sku_sap_unit_id'] = $unit_id;
-                    $item['quantity3_sap'] = $quantity2_po;
-                    $mappingData[] = $item;
-                } else {
+                                if ($sapMaterial) {
+                                    // Thêm thông tin vào mappingData
+                                    $sap_code = $sapMaterial->sap_code;
+                                    $bar_code = $sapMaterial->bar_code;
+                                    $unit_code = $sapMaterial->unit_code;
+                                    $name = $sapMaterial->name;
+                                    $unit_id = $sapMaterial->unit_id;
 
-                    // Kiểm tra ánh xạ trong bảng SapMaterialMapping
-                    $sapMaterialMappings = SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customer_sku_code) {
-                        $query->where('customer_group_id', $customer_group_id)
-                            ->where('customer_sku_code', $customer_sku_code);
-                    })->get();
+                                    $sapUnit = SapUnit::find($unit_id);
+                                    if ($sapUnit) {
+                                        $unit_code = $sapUnit->unit_code;
+                                    } else {
+                                        $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                                    }
+                                    $quantity2_po = $item['quantity2_po'];
+                                    $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
 
-                    $temp_item = $item;
-                    foreach ($sapMaterialMappings as $sapMaterialMapping) {
-                        $sap_material_id = $sapMaterialMapping->sap_material_id;
-                        $conversion_rate_sap = $sapMaterialMapping->conversion_rate_sap;
-                        $customer_number = $sapMaterialMapping->customer_number;
-                        $percentage = $sapMaterialMapping->percentage;
-
-                        if ($customer_number != 0) {
-                            $sapMaterial = SapMaterial::find($sap_material_id);
-
-                            if ($sapMaterial) {
-                                // Thêm thông tin vào mappingData
-                                $sap_code = $sapMaterial->sap_code;
-                                $bar_code = $sapMaterial->bar_code;
-                                $unit_code = $sapMaterial->unit_code;
-                                $name = $sapMaterial->name;
-                                $unit_id = $sapMaterial->unit_id;
-
-                                $sapUnit = SapUnit::find($unit_id);
-                                if ($sapUnit) {
-                                    $unit_code = $sapUnit->unit_code;
-                                } else {
-                                    $unit_code = null; // Xử lý khi đơn vị không tồn tại
+                                    $temp_item['barcode'] = $bar_code;
+                                    $temp_item['sku_sap_code'] = $sap_code;
+                                    $temp_item['sku_sap_name'] = $name;
+                                    $temp_item['sku_sap_unit'] = $unit_code;
+                                    $temp_item['sku_sap_unit_id'] = $unit_id;
+                                    $temp_item['quantity3_sap'] = $quantity3_sap;
+                                    $mappingData[] = $temp_item;
+                                    $foundMapping = true;
                                 }
-                                $quantity2_po = $item['quantity2_po'];
-                                $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
-
-                                $temp_item['barcode'] = $bar_code;
-                                $temp_item['sku_sap_code'] = $sap_code;
-                                $temp_item['sku_sap_name'] = $name;
-                                $temp_item['sku_sap_unit'] = $unit_code;
-                                $temp_item['sku_sap_unit_id'] = $unit_id;
-                                $temp_item['quantity3_sap'] = $quantity3_sap;
-                                $mappingData[] = $temp_item;
-                                $foundMapping = true;
                             }
                         }
                     }
                     if (!$foundMapping) {
-                        // Thêm dữ liệu mặc định vào mappingData nếu không tìm thấy ánh xạ
+                        // Thêm dữ liệu mặc định nếu không tìm thấy ánh xạ
                         $item['barcode'] = null;
                         $item['sku_sap_code'] = null;
                         $item['sku_sap_name'] = null;
                         $item['sku_sap_unit'] = null;
                         $item['sku_sap_unit_id'] = null;
                         $item['quantity3_sap'] = $item['quantity2_po'];
-
                         $mappingData[] = $item;
                     }
                 }
             }
+
             return [
                 'success' => true,
                 'items' => $mappingData
@@ -203,6 +198,8 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
+
+
     public function checkCustomer()
     {
         try {
@@ -225,20 +222,20 @@ class CheckDataRepository extends RepositoryAbs
 
             $customer_data = [];
             // Xử lý lệnh so sánh customer key
-            $remove_chars = ['.',',',' '];
+            $remove_chars = ['.', ',', ' '];
             $replace_expression = 'name';
-                foreach ($remove_chars as $char) {
-                    $replace_expression = "REPLACE($replace_expression, '$char', '')";
-                }
-                $query_expression = 'LOWER('. $replace_expression. ') = ?';
+            foreach ($remove_chars as $char) {
+                $replace_expression = "REPLACE($replace_expression, '$char', '')";
+            }
+            $query_expression = 'LOWER(' . $replace_expression . ') = ?';
 
             // Kiểm tra xem tất cả key không tồn tại
-            $customer_keys = array_map(function($item) use ($remove_chars) {
+            $customer_keys = array_map(function ($item) use ($remove_chars) {
                 return strtolower(str_replace($remove_chars, '', trim($item['customer_key'])));
             }, $items);
 
             $existingPartners = CustomerPartner::where('customer_group_id', $customer_group_id)
-                ->where(function($query) use ($query_expression, $customer_keys) {
+                ->where(function ($query) use ($query_expression, $customer_keys) {
                     foreach ($customer_keys as $key) {
                         $query->orWhereRaw($query_expression, [$key]);
                     }
@@ -655,7 +652,7 @@ class CheckDataRepository extends RepositoryAbs
                 return false;
             }
 
-            $check_sap_code = array_map(function($item) {
+            $check_sap_code = array_map(function ($item) {
                 return [
                     'is_sap_code_valid' => !empty($item['sku_sap_code']),
                 ];
