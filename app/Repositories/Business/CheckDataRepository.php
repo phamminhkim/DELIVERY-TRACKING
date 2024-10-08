@@ -70,15 +70,19 @@ class CheckDataRepository extends RepositoryAbs
             $sapMaterialMappings = [];
 
             // Truy vấn trước dữ liệu từ bảng SapMaterial
-            SapMaterial::whereIn('bar_code', $customerSkuCodes)
-                ->where('is_deleted', 0)
-                ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
-                ->orderBy('id', 'asc')
+            SapMaterial::whereIn('bar_code', $customerSkuCodes) // Lọc theo danh sách bar_code
+                ->where('is_deleted', 0) // Chỉ lấy những record chưa bị xóa
+                ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC') // Ưu tiên priority không null trước, sau đó sắp xếp tăng dần
+                ->orderBy('id', 'asc') // Nếu priority trùng nhau, sắp xếp theo id
                 ->chunk(1000, function ($chunk) use (&$sapMaterials) {
                     foreach ($chunk as $sapMaterial) {
-                        $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
+                        // Lưu từng bản ghi SapMaterial vào mảng với key là bar_code
+                        if (!isset($sapMaterials[$sapMaterial->bar_code]) || $sapMaterial->priority < $sapMaterials[$sapMaterial->bar_code]->priority) {
+                            $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
+                        }
                     }
                 });
+
 
             // Truy vấn trước dữ liệu từ bảng SapMaterialMapping
             SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
