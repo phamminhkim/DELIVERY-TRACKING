@@ -375,18 +375,14 @@ class SapMaterialRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-
                 'sap_code' => 'string:sap_materials,sap_code',
                 'unit_id' => 'integer|exists:sap_units,id',
-                // 'bar_code' => 'string',
                 'name' => 'required|string',
             ], [
                 'sap_code.required' => 'Yêu cầu nhập mã SAP.',
                 'sap_code.string' => 'Mã công ty phải là chuỗi.',
-                //'sap_code.unique' => 'Mã material đã tồn tại.',
-                'unit_id.integer' => 'Mã unit phải là chuỗi.',
+                'unit_id.integer' => 'Mã unit phải là số nguyên.',
                 'unit_id.exists' => 'Mã unit không tồn tại.',
-                // 'bar_code.string' => 'Mã Barcode phải là chuỗi.',
                 'name.required' => 'Yêu cầu nhập tên SAP.',
                 'name.string' => 'Tên SAP phải là chuỗi.',
             ]);
@@ -400,7 +396,6 @@ class SapMaterialRepository extends RepositoryAbs
                     }
                 }
             } else {
-
                 $sap_unit = SapUnit::find($this->data['unit_id']);
                 if (!$sap_unit) {
                     $this->errors = 'Không tìm thấy mã sap_unit ' . $this->data['unit_id'];
@@ -411,10 +406,18 @@ class SapMaterialRepository extends RepositoryAbs
                 $sapMaterial->fill([
                     'sap_code' => $this->data['sap_code'],
                     'unit_id' => $this->data['unit_id'],
-                    'bar_code' => $this->data['bar_code'],
                     'name' => $this->data['name'],
-                    'priority' => $this->data['priority'],
+                    // 'priority' => $this->data['priority'],
                 ]);
+
+                // Check if 'bar_code' key exists before updating
+                if (array_key_exists('bar_code', $this->data)) {
+                    $sapMaterial->bar_code = $this->data['bar_code'];
+                }
+                // Check if 'bar_code' key exists before updating
+                if (array_key_exists('priority', $this->data)) {
+                    $sapMaterial->priority = $this->data['priority'];
+                }
                 $sapMaterial->save();
 
                 return $sapMaterial;
