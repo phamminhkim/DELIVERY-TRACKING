@@ -619,6 +619,7 @@ export default {
                     'Kho': this.findWarehouse(item.warehouse_id),
                     'Makh': item.customer_code,
                     'Tên KH': item.customer_name,
+                    'Nhóm KH': item.order_process_id != null ? (item.order_process.customer_group_id != null && item.order_process.customer_group_id !== -1 ? item.order_process.customer_group.name : '' ) : '',
                     'Người tạo': item.order_process.created_by.name,
                     'Ngày tạo': this.$formatDateStyleApartYMD(item.create_at),
                     'Ngày cập nhật': this.$formatDateStyleApartYMD(item.update_at),
