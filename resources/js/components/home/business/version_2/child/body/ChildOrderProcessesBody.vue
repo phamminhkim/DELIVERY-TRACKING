@@ -1282,7 +1282,6 @@ export default {
 
                 // Lấy các giá trị trong cột
                 let filterValues = result[this.column].map(item => item.name);
-
                 // Kiểm tra giá trị đầu tiên trong cột để xác định kiểu dữ liệu
                 let columnData = this.table.getData().map(row => row[this.column]);
 
@@ -1291,11 +1290,15 @@ export default {
                     filterValues = filterValues.map(value => {
                         if (value === null) {
                             return null; // Nếu giá trị là null thì giữ nguyên
-                        } else if (typeof columnData[0] === 'number') {
-                            return parseInt(value); // Nếu trong bảng là số, chuyển filter value thành số
-                        } else if (typeof columnData[0] === 'string') {
-                            return value.toString(); // Nếu trong bảng là chuỗi, giữ nguyên chuỗi
-                        } else if (value === '') {
+                        }
+                        //  else if (typeof columnData[0] === 'number') {
+                        //     console.log('số', value);
+                        //     return parseInt(value); // Nếu trong bảng là số, chuyển filter value thành số
+                        // } else if (typeof columnData[0] === 'string' && value !== '') {
+                        //     console.log('chuỗi', value);
+                        //     return value.toString(); // Nếu trong bảng là chuỗi, giữ nguyên chuỗi
+                        // } 
+                        else if (value === '') {
                             return null; // Nếu giá trị là null thì giữ nguyên
                             // thiếu 1 trường hợp nếu là "false" thì chuyển thành false
                         } else if (value === 'false') {
@@ -1334,7 +1337,6 @@ export default {
                 //     });
                 // }
                 this.removeOnlyDivClassSetPopup();
-                console.log('getFilter', this.table.getFilters());
                 this.$emit('searchItem', this.column, 'search_item');
                 this.$emit('itemChangeChecked', this.item_selecteds, false);
 
@@ -1449,7 +1451,6 @@ export default {
                     //         }
                     //     });
                     // }
-                    console.log(this.table.getFilters());
                     this.removeOnlyDivClassSetPopup();
 
 

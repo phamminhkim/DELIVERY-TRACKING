@@ -539,7 +539,6 @@ export default {
                 // this.case_is_loading.fetch_api = true;
                 const { data, success } = await this.api_handler.get(this.url_api.order_process_so + '/' + id);
                 if (success) {
-                    console.log(data, 'data');
                     await this.getSaveOrderSO(data);
                 }
             } catch (error) {
@@ -611,7 +610,7 @@ export default {
                         customer_sku_unit: data_item.customer_sku_unit,
                         // quantity: data_item.quantity,
                         quantity: '',
-                        company_price: data_item.company_price,
+                        company_price: data_item.company_price !== null ? data_item.company_price.toString() : '',
                         customer_code: data_item.so_header.customer_code,
                         level2: data_item.so_header.level2,
                         level3: data_item.so_header.level3,
@@ -622,17 +621,17 @@ export default {
                         sku_sap_code: data_item.sku_sap_code,
                         sku_sap_name: data_item.sku_sap_name,
                         sku_sap_unit: data_item.sku_sap_unit,
-                        inventory_quantity: data_item.inventory_quantity,
-                        amount_po: data_item.amount_po,
+                        inventory_quantity: data_item.inventory_quantity !== null ? data_item.inventory_quantity.toString() : '',
+                        amount_po: data_item.amount_po !== null ? data_item.amount_po.toString() : '',
                         is_inventory: data_item.is_inventory,
                         is_promotive: data_item.is_promotive,
-                        price_po: data_item.price_po,
+                        price_po: data_item.price_po !== null ? data_item.price_po.toString() : '',
                         promotive: data_item.promotive_name,
                         promotive_name: data_item.promotive_name,
-                        quantity1_po: data_item.quantity1_po,
-                        quantity2_po: data_item.quantity2_po,
+                        quantity1_po: data_item.quantity1_po !== null ? data_item.quantity1_po.toString() : '',
+                        quantity2_po: data_item.quantity2_po !== null ? data_item.quantity2_po.toString() : '',
                         customer_name: data_item.so_header.customer_name,
-                        variant_quantity: variant_quantity,
+                        variant_quantity: variant_quantity !== null ? variant_quantity.toString() : '',
                         extra_offer: '',
                         promotion_category: '',
                         po: '',
@@ -641,7 +640,7 @@ export default {
                         sap_so_number: data_item.so_header.sap_so_number,
                         compliance: data_item.compliance,
                         is_compliant: data_item.is_compliant,
-                        quantity3_sap: data_item.quantity3_sap,
+                        quantity3_sap: data_item.quantity3_sap !== null ? data_item.quantity3_sap.toString() : '',
                         so_header_id: data_item.so_header_id,
                         so_sap_note: data_item.so_header.so_sap_note,
                         difference: (data_item.company_price == null || data_item.company_price == '') ? 'price_difference' : (data_item.company_price == data_item.price_po ? 'price_equal' : 'price_difference'),
@@ -929,8 +928,8 @@ export default {
                         so_sap_note: this.isUndefined(file_response.data[index].headers.SoSapNote),
                         po_number: this.isUndefined(file_response.data[index].headers.PoNumber),
                         po_delivery_date: this.isUndefined(file_response.data[index].headers.PoDeliveryDate),
-                        compliance: '',
-                        is_compliant: null,
+                        compliance: null,
+                        is_compliant: '',
                         quantity3_sap: this.convertStringToNumber(item.SapQuantity),
                         difference: 'price_difference',
                         po: '',
@@ -981,6 +980,7 @@ export default {
                         orders[i]['variant_quantity'] = orders[i]['inventory_quantity'] - orders[i]['quantity1_po'] * orders[i]['quantity2_po'];
                         // orders[i]['is_inventory'] = orders[i]['quantity2_po'] < orders[i]['inventory_quantity'] ? true : false; // Đánh trạng thái hàng thiếu
                         this.filteredOrders[i].theme_color.text.inventory_quantity = (orders[i]['variant_quantity'] <= 0 || orders[i]['inventory_quantity'] < orders[i]['quantity2_po']) ? '#FF0000' : '';
+                        orders[i]['variant_quantity'].toString();
                     }
                 }
             });
@@ -1267,8 +1267,24 @@ export default {
                 return null;
             }
         },
+        covertString(value) {
+            if (value == null || value == undefined) {
+                return '';
+            }
+            return value.toString();
+        },
         async getListMaterialDetect(data) {
             this.orders = [...data];
+            this.orders.forEach((order, index) => {
+                // order.order = index + 1;
+                order.quantity3_sap = this.covertString(order.quantity3_sap);
+                order.quantity1_po = this.covertString(order.quantity1_po);
+                order.quantity2_po = this.covertString(order.quantity2_po);
+                order.price_po = this.covertString(order.price_po);
+                order.amount_po = this.covertString(order.amount_po);
+                order.inventory_quantity = this.covertString(order.inventory_quantity);
+                order.variant_quantity = this.covertString(order.variant_quantity);
+            });
             await this.$showMessage('success', 'Thành công', 'Dò mã SAP thành công');
             await this.updateOrder();
             // this.orders.forEach((order, index) => {
@@ -1287,7 +1303,8 @@ export default {
             if (string === undefined || string === null) {
                 return '';
             }
-            return parseFloat(string);
+            // return parseFloat(string);
+            return string;
         },
         handleUpdateOrder() {
             // this.UpdateSaleOrder(202); 
@@ -1443,7 +1460,7 @@ export default {
         },
         resetCompliance() {
             this.filteredOrders.forEach(order => {
-                order.compliance = '';
+                order.compliance = null;
                 order.is_compliant = null;
             });
         },
@@ -1570,43 +1587,43 @@ export default {
                 this.filteredOrders.splice(index - 1, 0, {
                     order: this.orders.length,
                     id: '',
-                    customer_sku_code: '',
-                    customer_sku_name: '',
-                    customer_sku_unit: '',
-                    quantity: '',
-                    company_price: '',
-                    customer_code: '',
-                    level2: '',
-                    level3: '',
-                    level4: '',
-                    note1: '',
-                    note: '',
-                    barcode: '',
-                    sku_sap_code: '',
-                    sku_sap_name: '',
-                    sku_sap_unit: '',
-                    inventory_quantity: '',
-                    amount_po: '',
+                    customer_sku_code: null,
+                    customer_sku_name: null,
+                    customer_sku_unit: null,
+                    quantity: null,
+                    company_price: null,
+                    customer_code: null,
+                    level2: null,
+                    level3: null,
+                    level4: null,
+                    note1: null,
+                    note: null,
+                    barcode: null,
+                    sku_sap_code: null,
+                    sku_sap_name: null,
+                    sku_sap_unit: null,
+                    inventory_quantity: null,
+                    amount_po: null,
                     is_inventory: false,
                     is_promotive: false,
-                    price_po: '',
-                    promotive: '',
-                    promotive_name: '',
-                    quantity1_po: '',
-                    quantity2_po: '',
-                    customer_name: '',
-                    variant_quantity: '',
-                    extra_offer: '',
-                    promotion_category: '',
-                    po_delivery_date: '',
-                    po_number: '',
-                    sap_so_number: '',
-                    compliance: '',
-                    is_compliant: '',
-                    quantity3_sap: '',
-                    so_header_id: '',
-                    so_sap_note: '',
-                    difference: '',
+                    price_po: null,
+                    promotive: null,
+                    promotive_name: null,
+                    quantity1_po: null,
+                    quantity2_po: null,
+                    customer_name: null,
+                    variant_quantity: null,
+                    extra_offer: null,
+                    promotion_category: null,
+                    po_delivery_date: null,
+                    po_number: null,
+                    sap_so_number: null,
+                    compliance: null,
+                    is_compliant: null,
+                    quantity3_sap: null,
+                    so_header_id: null,
+                    so_sap_note: null,
+                    difference: null,
                     theme_color: this.setDataThemeColor(null),
                 });
             });
@@ -1721,7 +1738,7 @@ export default {
                 let newItem = this.filteredOrders[index - 1];
                 let is_exist = this.histories_delete.some(item => _.isEqual(item, newItem));
                 if (is_exist) {
-                    return;  
+                    return;
                 } else {
                     this.histories_delete.push({
                         // 'event': 'duplicate',
@@ -1853,6 +1870,28 @@ export default {
             data.difference = value_check;
             data.theme_color.text.company_price = data.price_po == data.company_price ? '' : '#FF0000';
             data.theme_color.text.price_po = data.price_po == data.company_price ? '' : '#FF0000';
+            data.inventory_quantity = data.inventory_quantity == '' ? null : data.inventory_quantity;
+            data.amount_po = data.amount_po == '' ? null : data.amount_po;
+            data.price_po = data.price_po == '' ? null : data.price_po;
+            data.quantity1_po = data.quantity1_po == '' ? null : data.quantity1_po;
+            data.quantity2_po = data.quantity2_po == '' ? null : data.quantity2_po;
+            data.quantity3_sap = data.quantity3_sap == '' ? null : data.quantity3_sap;
+            data.variant_quantity = data.variant_quantity == '' ? null : data.variant_quantity;
+            this.filteredOrders[position - 1] = data;
+            // if(data.inventory_quantity !== ''){
+            //     data.inventory_quantity = parseInt(data.inventory_quantity);
+            // }  else if(data.amount_po !== ''){
+            //     data.amount_po = parseInt(data.amount_po);
+            // } else if(data.price_po !== ''){
+            //     data.price_po = parseInt(data.price_po);
+            // } else if(data.quantity1_po !== ''){
+            //     data.quantity1_po = parseInt(data.quantity1_po);
+            // } else if(data.quantity2_po !== ''){
+            //     data.quantity2_po = parseInt(data.quantity2_po);
+            // } else if(data.quantity3_sap !== ''){
+            //     data.quantity3_sap = parseInt(data.quantity3_sap);
+
+            // }
             this.filteredOrders[position - 1] = data;
             // this.update_status_function.set_data++;
             this.update_status_function.update_data++;
@@ -1890,7 +1929,9 @@ export default {
             // Xây dựng dữ liệu với các cột được sắp xếp theo thứ tự của this.columns
             let data_news = this.filteredOrders.map((item, index) => {
                 return header_datas.reduce((acc, col) => {
-                    acc[col.title] = item[col.field] || (col.field === 'STT' ? index + 1 : '');
+                    // acc[col.title] = item[col.field] || (col.field === 'STT' ? index + 1 : '');
+                    acc[col.title] = item[col.field] !== undefined ? item[col.field] : (col.field === 'STT' ? index + 1 : '');
+
                     return acc;
                 }, {});
             });
@@ -2052,9 +2093,10 @@ export default {
         toStringInNumber(value) {
             if (value == null) {
                 return '';
-            } else {
+            }  else {
                 return value.toString();
             }
+
         },
         handlePopupOpened(field) {
 
@@ -2255,6 +2297,9 @@ export default {
                                     if (typeof field_value === 'string' && typeof name === 'string') {
                                         if (name === "") {
                                             return field_value === "";
+                                        }
+                                        if (name === "0") {
+                                            return field_value === "0";
                                         }
                                         return field_value.toLowerCase().includes(name.toLowerCase());
                                     }
