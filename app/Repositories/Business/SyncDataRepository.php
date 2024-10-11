@@ -92,7 +92,7 @@ class SyncDataRepository extends RepositoryAbs
                         } else {
                             $warehouse_code = $warehouse->code;
                         }
-                        $group_name = $order->sap_so_number;
+                        $group_name = isset($value["promotive_name"]) ? $order->sap_so_number . $value["promotive_name"] : $order->sap_so_number;
                         if (strlen($group_name) > 35) {
                             $group_name = substr($group_name, 0, 35);
                         }
