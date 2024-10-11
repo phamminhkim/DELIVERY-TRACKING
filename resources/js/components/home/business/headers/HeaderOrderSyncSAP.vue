@@ -27,25 +27,20 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="form-group row">
-                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
-                                    for="">Số SO SAP</label>
-                                <div class="col-lg-3 mt-1 mb-1">
-                                    <input v-model="case_filter.so_uid" class="form-control form-control-sm"
-                                        name="" id="" />
-                                </div>
-                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
-                                    for="">Từ ngày</label>
+                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1">
+                                    Tạo từ ngày
+                                </label>
                                 <div class="col-lg-3 mt-1 mb-1">
                                     <input v-model="case_filter.from_date" type="date"
-                                        class="form-control form-control-sm" name="" id="" />
+                                        class="form-control form-control-sm" />
                                 </div>
-                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
-                                    for="">Đến ngày</label>
+                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1">
+                                    Đến ngày
+                                </label>
                                 <div class="col-lg-3 mt-1 mb-1">
                                     <input v-model="case_filter.to_date" type="date"
-                                        class="form-control form-control-sm" name="" id="" />
+                                        class="form-control form-control-sm" />
                                 </div>
-
                             </div>
                             <div class="form-group row">
                                 <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
@@ -55,14 +50,10 @@
                                         id="" />
                                 </div>
                                 <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
-                                    for="">Từ ngày</label>
+                                    for="">Số SO SAP</label>
                                 <div class="col-lg-3 mt-1 mb-1">
-                                    <input type="date" class="form-control form-control-sm" name="" id="" />
-                                </div>
-                                <label class="col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
-                                    for="">Đến ngày</label>
-                                <div class="col-lg-3 mt-1 mb-1">
-                                    <input type="date" class="form-control form-control-sm" name="" id="" />
+                                    <input v-model="case_filter.so_uid" class="form-control form-control-sm" name=""
+                                        id="" />
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -91,26 +82,32 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-center">
-                                <div><button @click="emitFormFilterOrderSync()" type="button" class="btn btn-warning btn-sm mt-1 mr-2 mb-1">
+                                <div>
+                                    <button @click="emitFormFilterOrderSync()" type="button"
+                                        class="btn btn-warning btn-sm mt-1 mr-2 mb-1">
                                         <i class="fa fa-search"></i>
                                         Tìm kiếm
-                                    </button></div>
-                                <div><button @click="resetFilter()" type="button" class="btn btn-secondary btn-sm mt-1 mb-1">
+                                    </button>
+                                </div>
+                                <div>
+                                    <button @click="resetFilter()" type="button"
+                                        class="btn btn-secondary btn-sm mt-1 mb-1">
                                         <i class="fa fa-reset"></i>
                                         Xóa bộ lọc
-                                    </button></div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </b-collapse>
     </div>
 </template>
 <script>
-import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
-import ApiHandler, { APIRequest } from '../../ApiHandler';
+import Treeselect from '@riophae/vue-treeselect';
+import ApiHandler from '../../ApiHandler';
+
 export default {
     components: {
         Treeselect,
@@ -123,8 +120,8 @@ export default {
                 customer_groups: false,
             },
             case_filter: {
-                from_date: '',
-                to_date: '',
+                from_date: this.formatDate(this.subtractDate(new Date(), 0, 1, 0)), // Từ 1 tháng trước
+                to_date: this.formatDate(new Date()), // Ngày hiện tại
                 so_uid: '',
                 po_number: '',
                 customer_name: '',
@@ -135,9 +132,11 @@ export default {
                 customer_groups: [],
             },
             case_api: {
-                customer_groups: 'api/master/customer-groups'
-            }
-        }
+                customer_groups: 'api/master/customer-groups',
+            },
+            so_headers: [],
+            api_url_so_headers: '/api/so-header',
+        };
     },
     created() {
         this.fetchCustomerGroup();
@@ -152,8 +151,8 @@ export default {
                         return {
                             id: item.id,
                             label: item.name,
-                        }
-                    })
+                        };
+                    });
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -161,22 +160,59 @@ export default {
                 this.case_loading.customer_groups = false;
             }
         },
+        async fetchData() {
+            try {
+                // Gửi request với các tham số bộ lọc
+                const response = await this.api_handler.get(this.api_url_so_headers, {
+                    from_date: this.case_filter.from_date,
+                    to_date: this.case_filter.to_date,
+                    so_uid: this.case_filter.so_uid,
+                    po_number: this.case_filter.po_number,
+                    customer_code: this.case_filter.customer_code,
+                    customer_name: this.case_filter.customer_name,
+                });
+
+                if (Array.isArray(response.data)) {
+                    this.so_headers = response.data; // Gán dữ liệu từ response
+                } else {
+                    this.so_headers = []; // Trường hợp không có dữ liệu
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
+        // Hàm formatDate và subtractDate để định dạng và tính toán ngày
+        formatDate(date) {
+            const d = new Date(date);
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
+                .getDate()
+                .toString()
+                .padStart(2, '0')}`;
+        },
+        subtractDate(date, years, months, days) {
+            return new Date(
+                date.getFullYear() - years,
+                date.getMonth() - months,
+                date.getDate() - days,
+            );
+        },
         emitFormFilterOrderSync() {
             this.$emit('emitFormFilterOrderSync', this.case_filter);
         },
         resetFilter() {
             this.case_filter = {
-                from_date: '',
-                to_date: '',
+                from_date: this.formatDate(this.subtractDate(new Date(), 0, 1, 0)), // Reset về 1 tháng trước
+                to_date: this.formatDate(new Date()), // Ngày hiện tại
                 so_uid: '',
                 po_number: '',
                 customer_name: '',
                 customer_code: '',
                 customer_group_ids: [],
-            }
+            };
             this.emitFormFilterOrderSync();
-        }
+        },
     },
-}
+};
 </script>
+
 <style lang="scss" scoped></style>

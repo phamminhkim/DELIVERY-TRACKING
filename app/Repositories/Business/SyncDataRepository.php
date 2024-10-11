@@ -207,10 +207,8 @@ class SyncDataRepository extends RepositoryAbs
             if ($user) {
                 $query = SoHeader::query();
 
-                // Kiểm tra xem người dùng có vai trò "admin-system" hay không
-                if ($this->current_user->hasRole(['admin-system'])) {
-                    // Không cần lọc dữ liệu cho vai trò "admin-system"
-                } else {
+                // Kiểm tra vai trò admin-system
+                if (!$this->current_user->hasRole(['admin-system'])) {
                     $user_id = $user->id;
                     // Lọc các bản ghi theo user_id của người dùng hiện tại trong bảng order_process
                     $query->whereHas('order_process', function ($query) use ($user_id) {
@@ -220,22 +218,26 @@ class SyncDataRepository extends RepositoryAbs
                 $query->whereHas('order_process', function ($query) {
                     $query->where('is_deleted', 0); // Chỉ lấy những order_process có is_deleted = 0
                 });
+
                 // Lọc theo danh sách các ID
                 if ($this->request->filled('ids')) {
                     $ids = $this->request->ids;
                     $query->whereIn('id', $ids);
                 }
 
-                // Lọc theo ngày bắt đầu
-                if ($this->request->filled('from_date')) {
-                    $from_date = $this->request->from_date;
-                    $query->whereDate('po_delivery_date', '>=', $from_date);
-                }
-
-                // Lọc theo ngày kết thúc
-                if ($this->request->filled('to_date')) {
-                    $to_date = $this->request->to_date;
-                    $query->whereDate('po_delivery_date', '<=', $to_date);
+                // Xử lý from_date và to_date
+                if ($this->request->filled('from_date') || $this->request->filled('to_date')) {
+                    if ($this->request->filled('from_date')) {
+                        $from_date = $this->request->from_date;
+                        $query->whereDate('created_at', '>=', $from_date);
+                    }
+                    if ($this->request->filled('to_date')) {
+                        $to_date = $this->request->to_date;
+                        $query->whereDate('created_at', '<=', $to_date);
+                    }
+                } else {
+                    // Mặc định lấy dữ liệu trong 1 tháng gần nhất
+                    $query->whereDate('created_at', '>=', now()->subMonth()->toDateString());
                 }
 
                 // Lọc theo số SAP SO
@@ -279,33 +281,25 @@ class SyncDataRepository extends RepositoryAbs
                 $query->orderByDesc('id');
 
                 // Hiển thị danh sách nhóm khách hàng từ bảng order_process
+
                 $query->with([
                     'order_process' => function ($query) {
                         $query->with([
-                            'customer_group' => function ($query) {
-                                $query->select(['id', 'name']);
-                            },
-                            'created_by' => function ($query) {
-                                $query->select(['id', 'name']);
-                            },
+                            'customer_group:id,name',
+                            'created_by:id,name',
                         ]);
                     },
+                    'warehouse:id,code',
+                    'so_data_items',
                 ])->select(['*', DB::raw("DATE(created_at) as create_at"), DB::raw("DATE(updated_at) as update_at")]);
 
-                $query->with(['warehouse' => function ($query) {
-                    $query->select('id', 'code');
-                }]);
-                $query->with(['so_data_items']);
-
+                // Truy vấn dữ liệu
                 $soHeader = $query->get();
 
                 // Lấy trường promotive_name để xử lý SAP note, SO name
+                // Xử lý promotive_name từ so_data_items
                 foreach ($soHeader as $item) {
-                    if ($item->so_data_items->count() > 0) {
-                        $item->promotive_name = $item->so_data_items->first()->promotive_name;
-                    } else {
-                        $item->promotive_name = '';
-                    }
+                    $item->promotive_name = $item->so_data_items->count() > 0 ? $item->so_data_items->first()->promotive_name : '';
                     unset($item->so_data_items);
                 }
 
@@ -316,6 +310,7 @@ class SyncDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
     public function getSoHeaderByIds()
     {
         try {
