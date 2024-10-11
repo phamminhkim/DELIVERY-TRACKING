@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid bg-white p-2">
         <div v-if="!case_component.view_detail">
-            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync"></HeaderOrderSyncSAP>
+            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync" :case_filter="case_filter"></HeaderOrderSyncSAP>
             <div class="row mb-1 align-items-end">
                 <div class="col-lg-6">
                     <div style="position: relative;">
@@ -54,7 +54,7 @@
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
                 :use_component="'OrderSyncSAP'" :current_page="current_page" :per_page="per_page"
                 :shipping_datas="case_data.shipping_datas" :warehouses="case_data_temporary.warehouses"
-                @emitSelectedOrderSync="getSelectedOrderSync">
+                @emitSelectedOrderSync="getSelectedOrderSync" :loading="case_is_loading.fetch_api">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                 :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -99,6 +99,7 @@ export default {
             api_handler: new ApiHandler(window.Laravel.access_token),
 
             case_is_loading: {
+                fetch_api: false,
                 sap_sync: false,
             },
             case_component: {
@@ -365,11 +366,30 @@ export default {
         }
     },
     created() {
+        this.initFilterHeader();
         this.getProcessOrderSync();
         this.getUrl();
         this.fetchWarehouses();
     },
     methods: {
+        initFilterHeader() {
+            this.case_filter.from_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0)); // Từ 1 tháng trước
+            this.case_filter.to_date = this.formatDate(new Date()); // Ngày hiện tại
+        },
+        formatDate(date) {
+            const d = new Date(date);
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
+                .getDate()
+                .toString()
+                .padStart(2, '0')}`;
+        },
+        subtractDate(date, years, months, days) {
+            return new Date(
+                date.getFullYear() - years,
+                date.getMonth() - months,
+                date.getDate() - days,
+            );
+        },
         getSetMappingShipping(warehouse_id) {
             let find_warehouse = this.case_data.wareshouses_default.find(warehouse => warehouse.id == warehouse_id);
             let warehouse_code = find_warehouse ? find_warehouse.code : '';

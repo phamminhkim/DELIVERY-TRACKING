@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-table responsive small hover show-empty :busy="is_loading" :fields="fields" :items="items"
+        <b-table responsive small hover show-empty :busy="loading" :fields="fields" :items="items"
             head-variant="light" :sticky-header="window_height + 'px'" thead-class="thead-light custom-thead" :class="{
                 'position-relative-custom': use_component === 'DialogOrderSync',
                 'custom-set-height': class_modal_v2 === 'V2OrderProcesses',
@@ -89,6 +89,7 @@ export default {
             type: String,
             default: '',
         },
+        loading: Boolean,
     },
     components: {
         Treeselect,
@@ -97,7 +98,6 @@ export default {
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
-            is_loading: false,
             case_checkbox: {
                 selected: [],
                 select_all: false,
@@ -171,12 +171,10 @@ export default {
             }
         },
         async fetchWarehouses() {
-            this.is_loading = true;
             let { data, success } = await this.api_handler.get(this.case_api.warehouse);
             if (success) {
                 this.case_data_temporary.warehouses = data;
             }
-            this.is_loading = false;
         },
         changeSelectAll() {
             if (this.case_checkbox.select_all) {

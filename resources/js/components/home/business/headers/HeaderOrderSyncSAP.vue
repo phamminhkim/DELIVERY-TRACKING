@@ -112,6 +112,9 @@ export default {
     components: {
         Treeselect,
     },
+    props: {
+        case_filter: Object,
+    },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
@@ -119,23 +122,12 @@ export default {
             case_loading: {
                 customer_groups: false,
             },
-            case_filter: {
-                from_date: this.formatDate(this.subtractDate(new Date(), 0, 1, 0)), // Từ 1 tháng trước
-                to_date: this.formatDate(new Date()), // Ngày hiện tại
-                so_uid: '',
-                po_number: '',
-                customer_name: '',
-                customer_code: '',
-                customer_group_ids: [],
-            },
             case_data: {
                 customer_groups: [],
             },
             case_api: {
                 customer_groups: 'api/master/customer-groups',
             },
-            so_headers: [],
-            api_url_so_headers: '/api/so-header',
         };
     },
     created() {
@@ -160,50 +152,15 @@ export default {
                 this.case_loading.customer_groups = false;
             }
         },
-        async fetchData() {
-            try {
-                // Gửi request với các tham số bộ lọc
-                const response = await this.api_handler.get(this.api_url_so_headers, {
-                    from_date: this.case_filter.from_date,
-                    to_date: this.case_filter.to_date,
-                    so_uid: this.case_filter.so_uid,
-                    po_number: this.case_filter.po_number,
-                    customer_code: this.case_filter.customer_code,
-                    customer_name: this.case_filter.customer_name,
-                });
 
-                if (Array.isArray(response.data)) {
-                    this.so_headers = response.data; // Gán dữ liệu từ response
-                } else {
-                    this.so_headers = []; // Trường hợp không có dữ liệu
-                }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            }
-        },
-        // Hàm formatDate và subtractDate để định dạng và tính toán ngày
-        formatDate(date) {
-            const d = new Date(date);
-            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
-                .getDate()
-                .toString()
-                .padStart(2, '0')}`;
-        },
-        subtractDate(date, years, months, days) {
-            return new Date(
-                date.getFullYear() - years,
-                date.getMonth() - months,
-                date.getDate() - days,
-            );
-        },
+
         emitFormFilterOrderSync() {
             this.$emit('emitFormFilterOrderSync', this.case_filter);
         },
         resetFilter() {
             this.case_filter = {
-                from_date: this.formatDate(this.subtractDate(new Date(), 0, 1, 0)), // Reset về 1 tháng trước
-                to_date: this.formatDate(new Date()), // Ngày hiện tại
-                so_uid: '',
+                from_date: "",
+                to_date: "",
                 po_number: '',
                 customer_name: '',
                 customer_code: '',

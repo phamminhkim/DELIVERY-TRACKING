@@ -226,18 +226,13 @@ class SyncDataRepository extends RepositoryAbs
                 }
 
                 // Xử lý from_date và to_date
-                if ($this->request->filled('from_date') || $this->request->filled('to_date')) {
-                    if ($this->request->filled('from_date')) {
-                        $from_date = $this->request->from_date;
-                        $query->whereDate('created_at', '>=', $from_date);
-                    }
-                    if ($this->request->filled('to_date')) {
-                        $to_date = $this->request->to_date;
-                        $query->whereDate('created_at', '<=', $to_date);
-                    }
-                } else {
-                    // Mặc định lấy dữ liệu trong 1 tháng gần nhất
-                    $query->whereDate('created_at', '>=', now()->subMonth()->toDateString());
+                if ($this->request->filled('from_date')) {
+                    $from_date = $this->request->from_date;
+                    $query->whereDate('created_at', '>=', $from_date);
+                }
+                if ($this->request->filled('to_date')) {
+                    $to_date = $this->request->to_date;
+                    $query->whereDate('created_at', '<=', $to_date);
                 }
 
                 // Lọc theo số SAP SO
