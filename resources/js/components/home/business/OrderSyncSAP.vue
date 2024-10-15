@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid bg-white p-2">
         <div v-if="!case_component.view_detail">
-            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync" :case_filter="case_filter"></HeaderOrderSyncSAP>
+            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync" @emitResetFilterForm="resetFilterForm" :case_filter="case_filter"></HeaderOrderSyncSAP>
             <div class="row mb-1 align-items-end">
                 <div class="col-lg-6">
                     <div style="position: relative;">
@@ -356,7 +356,7 @@ export default {
                     class: 'text-nowrap',
                     stickyColumn: true,
                 },
-                
+
 
             ],
             per_page: 15,
@@ -366,15 +366,20 @@ export default {
         }
     },
     created() {
-        this.initFilterHeader();
+        this.initFilterForm();
         this.getProcessOrderSync();
         this.getUrl();
         this.fetchWarehouses();
     },
     methods: {
-        initFilterHeader() {
+        initFilterForm() {
             this.case_filter.from_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0)); // Từ 1 tháng trước
             this.case_filter.to_date = this.formatDate(new Date()); // Ngày hiện tại
+            this.case_filter.so_uid =  '';
+            this.case_filter.po_number = '';
+            this.case_filter.customer_name = '';
+            this.case_filter.customer_code = '';
+            this.case_filter.customer_group_ids = [];
         },
         formatDate(date) {
             const d = new Date(date);
@@ -604,6 +609,10 @@ export default {
             this.case_filter.customer_name = data.customer_name;
             this.case_filter.customer_code = data.customer_code;
             this.case_filter.customer_group_ids = data.customer_group_ids;
+            this.getProcessOrderSync();
+        },
+        resetFilterForm() {
+            this.initFilterForm();
             this.getProcessOrderSync();
         },
         getSetWarehouse(warehouse_code, order_syncs_selected) {

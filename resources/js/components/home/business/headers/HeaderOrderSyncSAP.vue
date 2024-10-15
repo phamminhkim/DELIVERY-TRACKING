@@ -158,15 +158,7 @@ export default {
             this.$emit('emitFormFilterOrderSync', this.case_filter);
         },
         resetFilter() {
-            this.case_filter = {
-                from_date: "",
-                to_date: "",
-                po_number: '',
-                customer_name: '',
-                customer_code: '',
-                customer_group_ids: [],
-            };
-            this.emitFormFilterOrderSync();
+            this.$emit('emitResetFilterForm');
         },
     },
 };
