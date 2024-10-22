@@ -13,6 +13,7 @@ use App\ThemeColor;
 use App\Utilities\UniqueIdUtility;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SoDataRepository extends RepositoryAbs
 {
@@ -416,34 +417,76 @@ class SoDataRepository extends RepositoryAbs
             $validator = Validator::make($this->data, [], []);
             if ($validator->fails()) {
                 $this->errors = $validator->errors()->all();
-            } else {
-                $current_user_id = $this->current_user->id;
-                $query = OrderProcess::query();
-                $query->where('is_deleted', false)->orderBy('updated_at', 'desc');
-                if ($this->current_user->hasRole(['admin-order-process'])) {
-                    // Không cần lọc dữ liệu theo user tạo
-                } else {
-                    $query->where('created_by', $current_user_id);
-                }
-                $order_processes = $query->get();
-                $order_processes->load(['created_by', 'updated_by', 'customer_group']);
-                foreach ($order_processes as $order_process_item) {
-                    $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
-                    $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
-                    unset($order_process_item->synchronized_so_headers);
-                    // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
-                    $order_process_item->so_headers->each(function ($so_header) {
-                        if ($so_header->so_data_items->count() > 0) {
-                            $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
-                        } else {
-                            $so_header['promotive_name'] = null;
-                        }
-                        unset($so_header->so_data_items);
-                    });
-                }
-                return $order_processes;
+                return false;
             }
-            return false;
+
+            $search = $this->request->get('search', '');
+            $sort_field = $this->request->get('sort_field', 'updated_at');
+            $sort_direction = $this->request->get('sort_direction', 'desc');
+            $per_page = $this->request->get('per_page', 'All');
+            $sort_field = $sort_field ? $sort_field : 'updated_at';
+            $sort_direction = $sort_direction ? $sort_direction : 'desc';
+            $current_user_id = $this->current_user->id;
+            $query = OrderProcess::query();
+            $query->where('is_deleted', false);
+            if (!$this->current_user->hasRole(['admin-order-process'])) {
+                $query->where('created_by', $current_user_id);
+            }
+            if ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('serial_number', 'like', "%{$search}%")
+                        // ->orWhere('customer_group_id', 'like', "%{$search}%")
+                        ->orWhereHas('customer_group', function ($qu) use ($search) {
+                            $qu->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhere('title', 'like', "%{$search}%")
+                        // ->orWhere('created_by', 'like', "%{$search}%")
+                        ->orWhereHas('created_by', function ($qu) use ($search) {
+                            $qu->where('name', 'like', "%{$search}%");
+                        })
+                        // ->orWhere('updated_by', 'like', "%{$search}%");
+                        ->orWhereHas('updated_by', function ($qu) use ($search) {
+                            $qu->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $order_processes = $query->get();
+            $order_processes->load(['created_by', 'updated_by', 'customer_group']);
+            foreach ($order_processes as $order_process_item) {
+                $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
+                $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
+                unset($order_process_item->synchronized_so_headers);
+                // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
+                $order_process_item->so_headers->each(function ($so_header) {
+                    if ($so_header->so_data_items->count() > 0) {
+                        $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
+                    } else {
+                        $so_header['promotive_name'] = null;
+                    }
+                    unset($so_header->so_data_items);
+                });
+            }
+            // Sắp xếp theo synchronized_so_count
+            if ($sort_field == 'synchronized_so_count') {
+                $order_processes = $order_processes->sortBy(function ($order_process_item) {
+                    return $order_process_item['synchronized_so_count'];
+                }, SORT_REGULAR, $sort_direction == 'desc');
+            } else {
+                $order_processes = $order_processes->sortBy($sort_field, SORT_REGULAR, $sort_direction === 'desc');
+            }
+            // Phân trang kết quả
+            if ($per_page !== 'All') {
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $order_processes = new LengthAwarePaginator(
+                    $order_processes->forPage($currentPage, $per_page),
+                    $order_processes->count(),
+                    $per_page,
+                    $currentPage,
+                    ['path' => LengthAwarePaginator::resolveCurrentPath()]
+                );
+            }
+            return $order_processes;
         } catch (\Throwable $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
