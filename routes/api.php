@@ -71,12 +71,13 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/orders', [DashboardController::class, 'getOrdersStatistic']);
         Route::get('/', [DashboardController::class, 'getStatistic']);
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
-    });
-    Route::prefix('dashboard-MT')->group(function () {
-        Route::get('/user', [DashboardMTController::class, 'getPoByUser']);
-        Route::get('/group', [DashboardMTController::class, 'getPoByCustomerGroup']);
-        Route::get('/status', [DashboardMTController::class, 'getPoBySyncStatus']);
-        Route::get('/date', [DashboardMTController::class, 'getPoByDate']);
+
+        Route::prefix('MT')->group(function () {
+            Route::get('/user', [DashboardMTController::class, 'getPoByUser']);
+            Route::get('/group', [DashboardMTController::class, 'getPoByCustomerGroup']);
+            Route::get('/status', [DashboardMTController::class, 'getPoBySyncStatus']);
+            Route::get('/date', [DashboardMTController::class, 'getPoByDate']);
+        });
     });
     Route::prefix('master')->group(function () {
         Route::prefix('/user-field-table')->group(function () {
@@ -92,7 +93,6 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [MaterialDonatedController::class, 'update']);
             Route::delete('/{id}', [MaterialDonatedController::class, 'destroy']);
             Route::delete('/', [MaterialDonatedController::class, 'destroyMultiple']);
-
         });
         Route::prefix('/material-combos')->group(function () {
             Route::get('/minified', [MaterialComboController::class, 'getAllMinified']);
@@ -212,7 +212,6 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
             Route::post('/password', [UserController::class, 'changePassword']);
-
         });
         Route::prefix('/order-review-options')->group(function () {
             Route::get('/', [OrderReviewOptionController::class, 'getAvailableOrderReviewOptions']);
@@ -346,7 +345,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [UploadedFileController::class, 'getFiles']);
             Route::delete(('/{id}'), [UploadedFileController::class, 'deleteFile']);
         });
-
     });
 
     Route::prefix('sales-order')->group(function () {
@@ -357,8 +355,6 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/delete-multiple', [SoDataController::class, 'deleteMultipleSo']);
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
         Route::get('/', [SoDataController::class, 'getOrderProcessList']);
-
-
     });
     Route::prefix('pdf-text-locator')->group(function () {
         Route::post('/', [AiController::class, 'findTextPosition']);
