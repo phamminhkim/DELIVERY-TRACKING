@@ -60,9 +60,9 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
             }
 
-            if ($this->request->filled('user_id')) {
-                $user_id = $this->request->user_id;
-                $query->where('order_processes.created_by', $user_id);
+            if ($this->request->filled('user_ids')) {
+                $user_ids = $this->request->user_ids;
+                $query->where('order_processes.created_by', $user_ids);
             }
 
             // Thực thi truy vấn và lấy kết quả
@@ -142,9 +142,9 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->where('order_processes.customer_group_id', $customer_group_ids);
             }
 
-            if ($this->request->filled('user_id')) {
-                $user_id = $this->request->user_id;
-                $query->where('order_processes.created_by', $user_id);
+            if ($this->request->filled('user_ids')) {
+                $user_ids = $this->request->user_ids;
+                $query->where('order_processes.created_by', $user_ids);
             }
 
             $soHeaders = $query->get();
@@ -216,10 +216,10 @@ class DashboardMTRepository extends RepositoryAbs
                 });
             }
 
-            if ($this->request->filled('user_id')) {
-                $user_id = $this->request->user_id;
-                $query->whereHas('order_process', function ($query) use ($user_id) {
-                    $query->where('created_by', $user_id);
+            if ($this->request->filled('user_ids')) {
+                $user_ids = $this->request->user_ids;
+                $query->whereHas('order_process', function ($query) use ($user_ids) {
+                    $query->where('created_by', $user_ids);
                 });
             }
 
@@ -300,9 +300,9 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->where('order_processes.customer_group_id', $customer_group_ids);
             }
 
-            if ($this->request->filled('user_id')) {
-                $user_id = $this->request->user_id;
-                $query->where('order_processes.created_by', $user_id);
+            if ($this->request->filled('user_ids')) {
+                $user_ids = $this->request->user_ids;
+                $query->where('order_processes.created_by', $user_ids);
             }
 
             // Thực thi truy vấn và lấy kết quả
