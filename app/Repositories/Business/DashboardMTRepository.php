@@ -243,7 +243,7 @@ class DashboardMTRepository extends RepositoryAbs
                 $totalOrders = $ordersOnDate->count();
 
                 // Thêm ngày và tổng đơn hàng vào mảng
-                $dates[] = $date->format('d-m-Y'); // Định dạng ngày
+                $dates[] = $date->format('d/m/Y'); // Định dạng ngày
                 $total[] = $totalOrders; // Tổng số đơn hàng trong ngày
             }
             return [

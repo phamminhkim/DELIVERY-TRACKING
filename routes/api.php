@@ -208,6 +208,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('/users')->group(function () {
             Route::get('/', [UserController::class, 'getAvailableUsers']);
+            Route::get('/role', [UserController::class, 'getUsersByRole']);
             Route::post('/', [UserController::class, 'createNewUser']);
             Route::put('/{id}', [UserController::class, 'updateExistingUser']);
             Route::delete('/{id}', [UserController::class, 'deleteExistingUser']);
