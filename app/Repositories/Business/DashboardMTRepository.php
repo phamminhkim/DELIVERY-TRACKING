@@ -100,6 +100,7 @@ class DashboardMTRepository extends RepositoryAbs
         try {
             $user = auth()->user();
 
+            // Kiểm tra quyền truy cập
             if (!$user || !$this->current_user->hasRole(['admin-system'])) {
                 return collect([]);
             }
@@ -116,20 +117,21 @@ class DashboardMTRepository extends RepositoryAbs
                 $endDate = Carbon::parse($this->request->to_date)->endOfDay();
             }
 
-            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả nhóm khách hàng
+            // Lấy tất cả nhóm khách hàng
+            $customerGroups = DB::table('customer_groups')->pluck('name', 'id');
+
+            // Khởi tạo truy vấn để lấy tổng số đơn hàng
             $query = DB::table('customer_groups')
                 ->leftJoin('order_processes', function ($join) {
                     $join->on('customer_groups.id', '=', 'order_processes.customer_group_id')
-                        ->where('order_processes.is_deleted', '=', 0); // Thêm điều kiện để lấy các order_process không bị xóa
+                        ->where('order_processes.is_deleted', '=', 0); // Chỉ lấy các order_process không bị xóa
                 })
                 ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
                     $join->on('order_processes.id', '=', 'so_headers.order_process_id')
-                        ->where('so_headers.created_at', '>=', $startDate)
-                        ->where('so_headers.created_at', '<=', $endDate);
+                        ->whereBetween('so_headers.created_at', [$startDate, $endDate]); // Lọc theo khoảng ngày
                 })
-                ->select('customer_groups.name', DB::raw('COUNT(so_headers.id) as total_orders'))
-                ->groupBy('customer_groups.id', 'customer_groups.name');
-
+                ->select('customer_groups.id', DB::raw('COUNT(so_headers.id) as total_orders'))
+                ->groupBy('customer_groups.id');
 
             // Lọc thêm nếu có các trường khác
             if ($this->request->filled('sync_sap_status')) {
@@ -137,36 +139,43 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
             }
 
+            // Lọc theo nhóm khách hàng nếu có (dùng whereIn để hỗ trợ lọc theo mảng)
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
-                $query->where('order_processes.customer_group_id', $customer_group_ids);
+                $query->whereIn('customer_groups.id', (array) $customer_group_ids);
             }
 
+            // Lọc theo user_id (người tạo đơn hàng)
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->where('order_processes.created_by', $user_ids);
+                $query->whereIn('order_processes.created_by', (array) $user_ids);
             }
 
-            $soHeaders = $query->get();
+            // Thực hiện truy vấn
+            $soHeaders = $query->get()->keyBy('id'); // Chuyển đổi kết quả thành keyBy id
 
             // Tạo hai mảng để chứa tên nhóm khách hàng và tổng số đơn hàng
             $group = [];
             $total = [];
 
-            foreach ($soHeaders as $header) {
-                $group[] = $header->name; // Tên của nhóm khách hàng
-                $total[] = (int) $header->total_orders; // Tổng số đơn hàng (có thể là 0 nếu không có đơn hàng)
+            foreach ($customerGroups as $id => $name) {
+                $group[] = $name; // Tên của nhóm khách hàng
+                // Kiểm tra xem có đơn hàng không, nếu không có thì gán 0
+                $total[] = isset($soHeaders[$id]) ? (int) $soHeaders[$id]->total_orders : 0;
             }
+
+            // Trả về kết quả
             return [
-                "group" => $group,
-                "total" => $total
+                'group' => $group,
+                'total' => $total
             ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
-            return response()->json(['success' => false, 'message' => $this->message, 'errors' => $this->errors], 500);
         }
     }
+
+
     public function getPoByDate()
     {
         try {
