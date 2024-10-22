@@ -11,69 +11,6 @@ use App\Models\Business\SoHeader;
 
 class DashboardMTRepository extends RepositoryAbs
 {
-    //phương thức xử lý bộ lọc chung
-    protected function applyFilters($query)
-    {
-        // Xử lý from_date và to_date
-        if ($this->request->filled('from_date') || $this->request->filled('to_date')) {
-            if ($this->request->filled('from_date')) {
-                $from_date = $this->request->from_date;
-                $query->whereDate('so_headers.created_at', '>=', $from_date);
-            }
-            if ($this->request->filled('to_date')) {
-                $to_date = $this->request->to_date;
-                $query->whereDate('so_headers.created_at', '<=', $to_date);
-            }
-        } else {
-            // Mặc định lấy dữ liệu trong 1 tháng gần nhất
-            $query->whereDate('so_headers.created_at', '>=', now()->subMonth()->toDateString());
-        }
-
-        // Các bộ lọc khác
-        if ($this->request->filled('so_uid')) {
-            $so_uid = $this->request->so_uid;
-            $query->where('so_uid', 'LIKE', '%' . $so_uid . '%');
-        }
-
-        if ($this->request->filled('order_process_id')) {
-            $order_process_ids = $this->request->order_process_id;
-            $query->whereIn('order_process_id', $order_process_ids);
-        }
-
-        if ($this->request->filled('po_number')) {
-            $po_number = $this->request->po_number;
-            $query->where('po_number', 'LIKE', '%' . $po_number . '%');
-        }
-
-        if ($this->request->filled('customer_name')) {
-            $customer_name = $this->request->customer_name;
-            $query->where('customer_name', 'LIKE', '%' . $customer_name . '%');
-        }
-
-        if ($this->request->filled('customer_code')) {
-            $customer_code = $this->request->customer_code;
-            $query->where('customer_code', 'LIKE', '%' . $customer_code . '%');
-        }
-        if ($this->request->filled('sync_sap_status')) {
-            $sync_sap_status = $this->request->sync_sap_status;
-            $query->where('sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
-        }
-        if ($this->request->filled('customer_group_ids')) {
-            $customer_group_ids = $this->request->customer_group_ids;
-            $query->whereHas('order_process', function ($query) use ($customer_group_ids) {
-                $query->where('customer_group_id', $customer_group_ids);
-            });
-        }
-
-        if ($this->request->filled('user_id')) {
-            $user_id = $this->request->user_id;
-            $query->whereHas('order_process', function ($query) use ($user_id) {
-                $query->where('created_by', $user_id);
-            });
-        }
-
-        return $query;
-    }
 
     public function getPoByUser()
     {
@@ -83,83 +20,236 @@ class DashboardMTRepository extends RepositoryAbs
                 return collect([]);
             }
 
-            // Query cơ bản từ bảng SoHeader
-            $query = SoHeader::query();
+            // Khởi tạo biến ngày mặc định là từ đầu đến cuối tháng hiện tại
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
 
-            // Gọi hàm xử lý bộ lọc
-            $this->applyFilters($query);
+            // Nếu có from_date và to_date thì ghi đè lên khoảng ngày mặc định
+            if ($this->request->filled('from_date')) {
+                $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+            }
+            if ($this->request->filled('to_date')) {
+                $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            }
 
-            // Sử dụng join với bảng order_process và loại bỏ các bản ghi có is_deleted = 1
-            $query->join('order_processes', function ($join) {
-                $join->on('so_headers.order_process_id', '=', 'order_processes.id')
-                    ->where('order_processes.is_deleted', '=', 0); // Thêm điều kiện is_deleted = 0
-            })
-                // Thêm join với bảng users để lấy thông tin tên của created_by
+            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả người dùng
+            $query = DB::table('order_processes')
                 ->join('users', 'order_processes.created_by', '=', 'users.id')
-                ->select('order_processes.created_by as id', 'users.name', DB::raw('COUNT(so_headers.id) as total_orders'))
-                ->groupBy('order_processes.created_by', 'users.name');
+                ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
+                    $join->on('order_processes.id', '=', 'so_headers.order_process_id')
+                        ->whereBetween('so_headers.created_at', [$startDate, $endDate]);
+                })
+                ->select(
+                    'users.id',
+                    'users.name',
+                    DB::raw('COUNT(so_headers.id) as total_orders'),
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 1 THEN 1 ELSE 0 END) as synced_orders'),
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders')
+                )
+                ->where('order_processes.is_deleted', '=', 0)
+                ->groupBy('users.id', 'users.name');
 
-            // Truy vấn dữ liệu
+            // Lọc thêm nếu có các trường khác
+            if ($this->request->filled('sync_sap_status')) {
+                $sync_sap_status = $this->request->sync_sap_status;
+                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+            }
+
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
+            }
+
+            if ($this->request->filled('user_id')) {
+                $user_id = $this->request->user_id;
+                $query->where('order_processes.created_by', $user_id);
+            }
+
+            // Thực thi truy vấn và lấy kết quả
             $result = $query->get();
-            // Định dạng lại kết quả trả về như mong muốn
-            $data = $result->map(function ($item) {
-                return [
-                    'created_by' => [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                    ],
-                    'total_orders' => $item->total_orders,
-                ];
-            });
 
-            // Trả về dữ liệu đã được định dạng
-            return $data;
+            // Tạo các mảng chứa thông tin người dùng và tổng số đơn hàng của họ
+            $users = [];
+            $total_orders = [];
+            $synced_orders = [];
+            $unsynced_orders = [];
+
+            foreach ($result as $item) {
+                $users[] = $item->name; // Tên người dùng
+                $total_orders[] = (int) $item->total_orders; // Tổng số đơn hàng
+                $synced_orders[] = (int) $item->synced_orders; // Số đơn hàng đã đồng bộ
+                $unsynced_orders[] = (int) $item->unsynced_orders; // Số đơn hàng chưa đồng bộ
+            }
+
+            // Trả về dữ liệu dưới dạng JSON
+            return
+                [
+                    'users' => $users, // Mảng chứa tên người dùng
+                    'total_orders' => $total_orders, // Mảng chứa tổng số đơn hàng
+                    'synced_orders' => $synced_orders, // Mảng chứa số đơn hàng đã đồng bộ
+                    'unsynced_orders' => $unsynced_orders // Mảng chứa số đơn hàng chưa đồng bộ
+                ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
+            return response()->json(['success' => false, 'message' => $this->message, 'errors' => $this->errors], 500);
         }
     }
-
     public function getPoByCustomerGroup()
     {
         try {
-            // Kiểm tra quyền người dùng
-            if (!$this->current_user->hasRole(['admin-system'])) {
+            $user = auth()->user();
+
+            if (!$user || !$this->current_user->hasRole(['admin-system'])) {
                 return collect([]);
             }
 
-            // Query cơ bản từ bảng SoHeader
-            $query = SoHeader::query();
+            // Khởi tạo biến ngày mặc định là từ đầu đến cuối tháng hiện tại
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
 
-            // Gọi hàm xử lý bộ lọc
-            $this->applyFilters($query);
+            // Nếu có from_date và to_date thì ghi đè lên khoảng ngày mặc định
+            if ($this->request->filled('from_date')) {
+                $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+            }
+            if ($this->request->filled('to_date')) {
+                $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            }
 
-            // Sử dụng join với bảng order_process và loại bỏ các bản ghi có is_deleted = 1
-            $query->join('order_processes', function ($join) {
-                $join->on('so_headers.order_process_id', '=', 'order_processes.id')
-                    ->where('order_processes.is_deleted', '=', 0); // Thêm điều kiện is_deleted = 0
-            })
-                // Thêm join với bảng customer_groups để lấy tên của customer_group
-                ->join('customer_groups', 'order_processes.customer_group_id', '=', 'customer_groups.id')
-                ->select('order_processes.customer_group_id as id', 'customer_groups.name', DB::raw('COUNT(so_headers.id) as total_orders'))
-                ->groupBy('order_processes.customer_group_id', 'customer_groups.name');
+            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả nhóm khách hàng
+            $query = DB::table('customer_groups')
+                ->leftJoin('order_processes', function ($join) {
+                    $join->on('customer_groups.id', '=', 'order_processes.customer_group_id')
+                        ->where('order_processes.is_deleted', '=', 0); // Thêm điều kiện để lấy các order_process không bị xóa
+                })
+                ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
+                    $join->on('order_processes.id', '=', 'so_headers.order_process_id')
+                        ->where('so_headers.created_at', '>=', $startDate)
+                        ->where('so_headers.created_at', '<=', $endDate);
+                })
+                ->select('customer_groups.name', DB::raw('COUNT(so_headers.id) as total_orders'))
+                ->groupBy('customer_groups.id', 'customer_groups.name');
 
-            // Truy vấn dữ liệu
-            $result = $query->get();
 
-            // Định dạng lại kết quả trả về như mong muốn
-            $data = $result->map(function ($item) {
-                return [
-                    'customer_group' => [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                    ],
-                    'total_orders' => $item->total_orders,
-                ];
-            });
+            // Lọc thêm nếu có các trường khác
+            if ($this->request->filled('sync_sap_status')) {
+                $sync_sap_status = $this->request->sync_sap_status;
+                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+            }
 
-            // Trả về dữ liệu đã được định dạng
-            return $data;
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                $query->where('order_processes.customer_group_id', $customer_group_ids);
+            }
+
+            if ($this->request->filled('user_id')) {
+                $user_id = $this->request->user_id;
+                $query->where('order_processes.created_by', $user_id);
+            }
+
+            $soHeaders = $query->get();
+
+            // Tạo hai mảng để chứa tên nhóm khách hàng và tổng số đơn hàng
+            $group = [];
+            $total = [];
+
+            foreach ($soHeaders as $header) {
+                $group[] = $header->name; // Tên của nhóm khách hàng
+                $total[] = (int) $header->total_orders; // Tổng số đơn hàng (có thể là 0 nếu không có đơn hàng)
+            }
+            return [
+                "group" => $group,
+                "total" => $total
+            ];
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+            return response()->json(['success' => false, 'message' => $this->message, 'errors' => $this->errors], 500);
+        }
+    }
+    public function getPoByDate()
+    {
+        try {
+            $user = auth()->user();
+
+            // Kiểm tra quyền truy cập
+            if (!$user || !$this->current_user->hasRole(['admin-system'])) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            // Khởi tạo biến ngày mặc định là từ đầu đến cuối tháng hiện tại
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
+
+            // Nếu có from_date và to_date thì ghi đè lên khoảng ngày mặc định
+            if ($this->request->filled('from_date')) {
+                $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+            }
+            if ($this->request->filled('to_date')) {
+                $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            }
+
+            // Khởi tạo truy vấn
+            $query = SoHeader::query()
+                ->join('order_processes', function ($join) {
+                    $join->on('so_headers.order_process_id', '=', 'order_processes.id')
+                        ->where('order_processes.is_deleted', 0);
+                })
+                ->join('users', 'order_processes.created_by', '=', 'users.id')
+                ->select('so_headers.created_at', DB::raw('COUNT(so_headers.id) as total_orders'))
+                ->groupBy('so_headers.created_at');
+
+            // Áp dụng bộ lọc ngày đã xác định
+            $query->whereDate('so_headers.created_at', '>=', $startDate)
+                ->whereDate('so_headers.created_at', '<=', $endDate);
+
+            // Các bộ lọc khác nếu có
+            if ($this->request->filled('sync_sap_status')) {
+                $sync_sap_status = $this->request->sync_sap_status;
+                $query->where('sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+            }
+
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                $query->whereHas('order_process', function ($query) use ($customer_group_ids) {
+                    $query->where('customer_group_id', $customer_group_ids);
+                });
+            }
+
+            if ($this->request->filled('user_id')) {
+                $user_id = $this->request->user_id;
+                $query->whereHas('order_process', function ($query) use ($user_id) {
+                    $query->where('created_by', $user_id);
+                });
+            }
+
+            // Thực hiện truy vấn và lấy kết quả
+            $soHeader = $query->get();
+
+            // Tạo mảng ngày và tổng số đơn hàng
+            $dateRange = collect(\Carbon\CarbonPeriod::create($startDate, $endDate));
+            $dates = [];
+            $total = [];
+
+            foreach ($dateRange as $date) {
+                // Lọc đơn hàng theo ngày cụ thể
+                $ordersOnDate = $soHeader->filter(function ($header) use ($date) {
+                    return $header->created_at &&
+                        $header->created_at->greaterThanOrEqualTo($date->startOfDay()) &&
+                        $header->created_at->lessThanOrEqualTo($date->endOfDay());
+                });
+
+                // Tính tổng đơn hàng trong ngày
+                $totalOrders = $ordersOnDate->count();
+
+                // Thêm ngày và tổng đơn hàng vào mảng
+                $dates[] = $date->format('d-m-Y'); // Định dạng ngày
+                $total[] = $totalOrders; // Tổng số đơn hàng trong ngày
+            }
+            return [
+                "date" => $dates,
+                "total" => $total
+            ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -174,69 +264,65 @@ class DashboardMTRepository extends RepositoryAbs
                 return collect([]);
             }
 
-            // Query cơ bản từ bảng SoHeader
-            $query = SoHeader::query();
+            // Khởi tạo biến ngày mặc định là từ đầu đến cuối tháng hiện tại
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
 
-            // Gọi hàm xử lý bộ lọc
-            $this->applyFilters($query);
-
-            // Thêm điều kiện join với bảng order_processes và lấy thêm sync_sap_status từ bảng so_headers
-            $query->join('order_processes', 'so_headers.order_process_id', '=', 'order_processes.id')
-                ->selectRaw('so_headers.sync_sap_status, COUNT(so_headers.id) as total_orders')
-                ->groupBy('so_headers.sync_sap_status');
-
-            // Truy vấn dữ liệu
-            $soHeader = $query->get();
-
-            // Định dạng kết quả
-            $data = $soHeader->map(function ($item) {
-                return [
-                    'sync_sap_status' => $item->sync_sap_status,
-                    'total_orders' => $item->total_orders,
-                ];
-            });
-
-            // Tính tổng số đơn hàng của tất cả các trạng thái
-            // $grandTotal = $soHeader->sum('total_orders');
-
-            // // Trả về dữ liệu đã được định dạng kèm tổng số đơn hàng
-            // return [
-            //     'sync_sap' => $data,
-            //     'sync_total' => $grandTotal,
-            // ];
-            return $data;
-        } catch (\Exception $exception) {
-            $this->message = $exception->getMessage();
-            $this->errors = $exception->getTrace();
-        }
-    }
-
-    public function getPoByDate()
-    {
-        try {
-            // Kiểm tra quyền người dùng
-            if (!$this->current_user->hasRole(['admin-system'])) {
-                return collect([]);
+            // Nếu có from_date và to_date thì ghi đè lên khoảng ngày mặc định
+            if ($this->request->filled('from_date')) {
+                $startDate = Carbon::parse($this->request->from_date)->startOfDay();
             }
-            // Query cơ bản từ bảng SoHeader
-            $query = SoHeader::query();
+            if ($this->request->filled('to_date')) {
+                $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            }
 
-            // Gọi hàm xử lý bộ lọc (nếu có)
-            $this->applyFilters($query);
+            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả người dùng
+            $query = DB::table('order_processes')
+                ->join('users', 'order_processes.created_by', '=', 'users.id')
+                ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
+                    $join->on('order_processes.id', '=', 'so_headers.order_process_id')
+                        ->whereBetween('so_headers.created_at', [$startDate, $endDate]);
+                })
+                ->select(
+                    DB::raw('COUNT(so_headers.id) as total_orders'),
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 1 THEN 1 ELSE 0 END) as synced_orders'),
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders')
+                );
 
-            // Thêm điều kiện lấy tổng số đơn hàng theo ngày
-            $query->selectRaw('DATE(so_headers.created_at) as order_date, COUNT(so_headers.id) as total_orders')
-                ->groupBy('order_date');
+            // Lọc thêm nếu có các trường khác
+            if ($this->request->filled('sync_sap_status')) {
+                $sync_sap_status = $this->request->sync_sap_status;
+                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+            }
 
-            // Truy vấn dữ liệu
-            $soHeader = $query->get();
-            $data = $soHeader->map(function ($item) {
-                return [
-                    'order_date' => $item->order_date,
-                    'total_orders' => $item->total_orders,
+            if ($this->request->filled('customer_group_ids')) {
+                $customer_group_ids = $this->request->customer_group_ids;
+                $query->where('order_processes.customer_group_id', $customer_group_ids);
+            }
+
+            if ($this->request->filled('user_id')) {
+                $user_id = $this->request->user_id;
+                $query->where('order_processes.created_by', $user_id);
+            }
+
+            // Thực thi truy vấn và lấy kết quả
+            $result = $query->get();
+
+            // Tạo các mảng chứa thông tin người dùng và tổng số đơn hàng của họ
+            $syncedOrders = [];
+            $unsynced_orders = [];
+
+            foreach ($result as $item) {
+                $syncedOrders[] = (int) $item->synced_orders; // Số đơn hàng đã đồng bộ
+                $unsynced_orders[] = (int) $item->unsynced_orders; // Số đơn hàng chưa đồng bộ
+            }
+
+            // Trả về dữ liệu dưới dạng JSON
+            return
+                [
+                    'synced_orders' => $syncedOrders, // Mảng chứa số đơn hàng đã đồng bộ
+                    'unsynced_orders' => $unsynced_orders // Mảng chứa số đơn hàng chưa đồng bộ
                 ];
-            });
-            return $data;
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
