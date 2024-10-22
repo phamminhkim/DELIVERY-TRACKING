@@ -100,7 +100,6 @@ class DashboardMTRepository extends RepositoryAbs
         try {
             $user = auth()->user();
 
-            // Kiểm tra quyền truy cập
             if (!$user || !$this->current_user->hasRole(['admin-system'])) {
                 return collect([]);
             }
@@ -117,21 +116,19 @@ class DashboardMTRepository extends RepositoryAbs
                 $endDate = Carbon::parse($this->request->to_date)->endOfDay();
             }
 
-            // Lấy tất cả nhóm khách hàng
-            $customerGroups = DB::table('customer_groups')->pluck('name', 'id');
-
-            // Khởi tạo truy vấn để lấy tổng số đơn hàng
+            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả nhóm khách hàng
             $query = DB::table('customer_groups')
                 ->leftJoin('order_processes', function ($join) {
                     $join->on('customer_groups.id', '=', 'order_processes.customer_group_id')
-                        ->where('order_processes.is_deleted', '=', 0); // Chỉ lấy các order_process không bị xóa
+                        ->where('order_processes.is_deleted', '=', 0); // Chỉ lấy order_process không bị xóa
                 })
                 ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
                     $join->on('order_processes.id', '=', 'so_headers.order_process_id')
-                        ->whereBetween('so_headers.created_at', [$startDate, $endDate]); // Lọc theo khoảng ngày
+                        ->where('so_headers.created_at', '>=', $startDate)
+                        ->where('so_headers.created_at', '<=', $endDate);
                 })
-                ->select('customer_groups.id', DB::raw('COUNT(so_headers.id) as total_orders'))
-                ->groupBy('customer_groups.id');
+                ->select('customer_groups.name', DB::raw('COUNT(so_headers.id) as total_orders'))
+                ->groupBy('customer_groups.id', 'customer_groups.name');
 
             // Lọc thêm nếu có các trường khác
             if ($this->request->filled('sync_sap_status')) {
@@ -139,32 +136,30 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
             }
 
-            // Lọc theo nhóm khách hàng nếu có (dùng whereIn để hỗ trợ lọc theo mảng)
+            // Nếu có customer_group_ids, chỉ lọc theo ID đã chọn
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
-                $query->whereIn('customer_groups.id', (array) $customer_group_ids);
+                $query->whereIn('customer_groups.id', $customer_group_ids); // Sử dụng whereIn để lọc nhiều ID
             }
 
-            // Lọc theo user_id (người tạo đơn hàng)
+            // Nếu có user_ids, cũng lọc theo user đã chọn
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->whereIn('order_processes.created_by', (array) $user_ids);
+                $query->whereIn('order_processes.created_by', $user_ids);
             }
 
-            // Thực hiện truy vấn
-            $soHeaders = $query->get()->keyBy('id'); // Chuyển đổi kết quả thành keyBy id
+            $soHeaders = $query->get();
 
             // Tạo hai mảng để chứa tên nhóm khách hàng và tổng số đơn hàng
             $group = [];
             $total = [];
 
-            foreach ($customerGroups as $id => $name) {
-                $group[] = $name; // Tên của nhóm khách hàng
-                // Kiểm tra xem có đơn hàng không, nếu không có thì gán 0
-                $total[] = isset($soHeaders[$id]) ? (int) $soHeaders[$id]->total_orders : 0;
+            // Lặp qua kết quả và thêm vào mảng
+            foreach ($soHeaders as $header) {
+                $group[] = $header->name; // Tên của nhóm khách hàng
+                $total[] = (int) $header->total_orders; // Tổng số đơn hàng (có thể là 0 nếu không có đơn hàng)
             }
 
-            // Trả về kết quả
             return [
                 'group' => $group,
                 'total' => $total
