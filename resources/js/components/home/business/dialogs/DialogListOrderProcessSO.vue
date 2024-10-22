@@ -14,9 +14,10 @@
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
                                 @handleDoubleClick="getHandleDoubleClick" @dltOrderProcessSO="getDltOrderProcessSO"
                                 :current_page="current_page" :per_page="per_page"
-                                @deleteSoHeader="handleDeleteSoHeader">
+                                @deleteSoHeader="handleDeleteSoHeader" @sort="handleSort" :loading="case_is_loading.fetch_api"
+                                @search="handleSearch">
                             </TableOrderProcessSO>
-                            <PaginationTable :rows="list_order_process_so.length" :per_page="per_page"
+                            <PaginationTable :rows="total_items" :per_page="per_page"
                                 :page_options="page_options" :current_page="current_page" @pageChange="getPageChange"
                                 @perPageChange="getPerPageChange">
                             </PaginationTable>
@@ -64,17 +65,34 @@ export default {
             per_page: 10,
             page_options: [10, 20, 50, 100],
             current_page: 1,
+            total_pages: 0,
+            total_items: 0,
+            search_query: '',
+            sort_field: '',
+            sort_direction: '',
         }
     },
     created() {
         this.fetchOrderProcessSO();
     },
     methods: {
+        handleSearch(search_text) {
+            this.search_query = search_text;
+            this.current_page = 1; // Reset to the first page when searching
+            this.fetchOrderProcessSO();
+        },
+        handleSort(sort_field, sort_direction) {
+            this.sort_field = sort_field;
+            this.sort_direction = sort_direction;
+            this.fetchOrderProcessSO();
+        },
         getPerPageChange(per_page) {
             this.per_page = per_page;
+            this.fetchOrderProcessSO();
         },
         getPageChange(page) {
             this.current_page = page;
+            this.fetchOrderProcessSO();
         },
         showModal() {
             this.fetchOrderProcessSO();
@@ -86,8 +104,20 @@ export default {
         async fetchOrderProcessSO() {
             try {
                 this.case_is_loading.fetch_api = true;
-                const { data } = await this.api_handler.get(this.api_order_process_so);
-                this.list_order_process_so = data;
+
+                const { data } = await this.api_handler.get(this.api_order_process_so,
+                    {
+                        page: this.current_page,
+                        per_page: this.per_page === 'All' ? 0 : this.per_page,
+                        search: this.search_query,
+                        sort_field: this.sort_field,
+                        sort_direction: this.sort_direction,
+                    }
+                );
+                this.list_order_process_so = Object.values(data.data);
+                this.current_page = data.current_page;
+                this.total_pages = data.last_page;
+                this.total_items = data.total;
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -116,7 +146,7 @@ export default {
                 const { data, success, errors } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
                 if (success) {
                     this.$showMessage('success', 'Xóa thành công');
-                } 
+                }
                 return success;
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error.response.data.errors);
@@ -133,7 +163,7 @@ export default {
                         this.list_order_process_so.splice(index, 1);
                     }
                 });
-               
+
             }
 
         },
