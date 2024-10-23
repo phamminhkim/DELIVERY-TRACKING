@@ -450,8 +450,11 @@ class SoDataRepository extends RepositoryAbs
                         });
                 });
             }
-
-            $order_processes = $query->orderBy($sort_field, $sort_direction)->get();
+            // Sắp xếp theo field thuộc bảng order_proccess
+            if ($sort_field !== 'synchronized_so_count') {
+                $query->orderBy($sort_field, $sort_direction);
+            }
+            $order_processes = $query->get();
             $order_processes->load(['created_by', 'updated_by', 'customer_group']);
             foreach ($order_processes as $order_process_item) {
                 $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
@@ -467,13 +470,11 @@ class SoDataRepository extends RepositoryAbs
                     unset($so_header->so_data_items);
                 });
             }
-            // Sắp xếp theo synchronized_so_count
+            // Sắp xếp theo synchronized_so_count phát sinh ngoài bảng order_proccess
             if ($sort_field == 'synchronized_so_count') {
                 $order_processes = $order_processes->sortBy(function ($order_process_item) {
                     return $order_process_item['synchronized_so_count'];
                 }, SORT_REGULAR, $sort_direction == 'desc');
-            } else {
-                $order_processes = $order_processes->sortBy($sort_field, SORT_REGULAR, $sort_direction === 'desc');
             }
             // Phân trang kết quả
             if ($per_page !== 'All') {
