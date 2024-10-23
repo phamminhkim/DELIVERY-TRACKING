@@ -424,8 +424,8 @@ class SoDataRepository extends RepositoryAbs
             $sort_field = $this->request->get('sort_field', 'updated_at');
             $sort_direction = $this->request->get('sort_direction', 'desc');
             $per_page = $this->request->get('per_page', 'All');
-            $sort_field = $sort_field ? $sort_field : 'updated_at';
-            $sort_direction = $sort_direction ? $sort_direction : 'desc';
+            $sort_field = $sort_field ?: 'updated_at';
+            $sort_direction = $sort_direction ?: 'desc';
             $current_user_id = $this->current_user->id;
             $query = OrderProcess::query();
             $query->where('is_deleted', false);
@@ -451,7 +451,7 @@ class SoDataRepository extends RepositoryAbs
                 });
             }
 
-            $order_processes = $query->get();
+            $order_processes = $query->orderBy($sort_field, $sort_direction)->get();
             $order_processes->load(['created_by', 'updated_by', 'customer_group']);
             foreach ($order_processes as $order_process_item) {
                 $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
