@@ -73,9 +73,10 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/holidays', [DashboardController::class, 'createPublicHoliday']);
 
         Route::prefix('MT')->group(function () {
+            Route::get('/', [DashboardMTController::class, 'getPOStatistics']);
             Route::get('/user', [DashboardMTController::class, 'getPoByUser']);
             Route::get('/group', [DashboardMTController::class, 'getPoByCustomerGroup']);
-            Route::get('/status', [DashboardMTController::class, 'getPoBySyncStatus']);
+            // Route::get('/status', [DashboardMTController::class, 'getPoBySyncStatus']);
             Route::get('/date', [DashboardMTController::class, 'getPoByDate']);
         });
     });

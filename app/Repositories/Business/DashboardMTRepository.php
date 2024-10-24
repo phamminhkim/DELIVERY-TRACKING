@@ -52,7 +52,7 @@ class DashboardMTRepository extends RepositoryAbs
             // Lọc thêm nếu có các trường khác
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
             }
 
             if ($this->request->filled('customer_group_ids')) {
@@ -60,9 +60,10 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
             }
 
+            // Nếu có user_ids, cũng lọc theo user đã chọn
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->where('order_processes.created_by', $user_ids);
+                $query->whereIn('order_processes.created_by', $user_ids);
             }
 
             // Thực thi truy vấn và lấy kết quả
@@ -133,7 +134,7 @@ class DashboardMTRepository extends RepositoryAbs
             // Lọc thêm nếu có các trường khác
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
             }
 
             // Nếu có customer_group_ids, chỉ lọc theo ID đã chọn
@@ -210,21 +211,18 @@ class DashboardMTRepository extends RepositoryAbs
             // Các bộ lọc khác nếu có
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->where('sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
             }
 
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
-                $query->whereHas('order_process', function ($query) use ($customer_group_ids) {
-                    $query->where('customer_group_id', $customer_group_ids);
-                });
+                $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
             }
 
+            // Nếu có user_ids, cũng lọc theo user đã chọn
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->whereHas('order_process', function ($query) use ($user_ids) {
-                    $query->where('created_by', $user_ids);
-                });
+                $query->whereIn('order_processes.created_by', $user_ids);
             }
 
             // Thực hiện truy vấn và lấy kết quả
@@ -260,7 +258,79 @@ class DashboardMTRepository extends RepositoryAbs
         }
     }
 
-    public function getPoBySyncStatus()
+    // public function getPoBySyncStatus()
+    // {
+    //     try {
+    //         // Kiểm tra quyền người dùng
+    //         if (!$this->current_user->hasRole(['admin-system'])) {
+    //             return collect([]);
+    //         }
+
+    //         // Khởi tạo biến ngày mặc định là từ đầu đến cuối tháng hiện tại
+    //         $startDate = now()->startOfMonth();
+    //         $endDate = now()->endOfMonth();
+
+    //         // Nếu có from_date và to_date thì ghi đè lên khoảng ngày mặc định
+    //         if ($this->request->filled('from_date')) {
+    //             $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+    //         }
+    //         if ($this->request->filled('to_date')) {
+    //             $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+    //         }
+
+    //         // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả người dùng
+    //         $query = DB::table('order_processes')
+    //             ->join('users', 'order_processes.created_by', '=', 'users.id')
+    //             ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
+    //                 $join->on('order_processes.id', '=', 'so_headers.order_process_id')
+    //                     ->whereBetween('so_headers.created_at', [$startDate, $endDate]);
+    //             })
+    //             ->select(
+    //                 DB::raw('COUNT(so_headers.id) as total_orders'),
+    //                 DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 1 THEN 1 ELSE 0 END) as synced_orders'),
+    //                 DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders')
+    //             );
+
+    //         // Lọc thêm nếu có các trường khác
+    //         if ($this->request->filled('sync_sap_status')) {
+    //             $sync_sap_status = $this->request->sync_sap_status;
+    //             $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+    //         }
+
+    //         if ($this->request->filled('customer_group_ids')) {
+    //             $customer_group_ids = $this->request->customer_group_ids;
+    //             $query->where('order_processes.customer_group_id', $customer_group_ids);
+    //         }
+
+    //         if ($this->request->filled('user_ids')) {
+    //             $user_ids = $this->request->user_ids;
+    //             $query->where('order_processes.created_by', $user_ids);
+    //         }
+
+    //         // Thực thi truy vấn và lấy kết quả
+    //         $result = $query->get();
+
+    //         // Tạo các mảng chứa thông tin người dùng và tổng số đơn hàng của họ
+    //         $syncedOrders = [];
+    //         $unsynced_orders = [];
+
+    //         foreach ($result as $item) {
+    //             $syncedOrders[] = (int) $item->synced_orders; // Số đơn hàng đã đồng bộ
+    //             $unsynced_orders[] = (int) $item->unsynced_orders; // Số đơn hàng chưa đồng bộ
+    //         }
+
+    //         // Trả về dữ liệu dưới dạng JSON
+    //         return
+    //             [
+    //                 'synced_orders' => $syncedOrders, // Mảng chứa số đơn hàng đã đồng bộ
+    //                 'unsynced_orders' => $unsynced_orders // Mảng chứa số đơn hàng chưa đồng bộ
+    //             ];
+    //     } catch (\Exception $exception) {
+    //         $this->message = $exception->getMessage();
+    //         $this->errors = $exception->getTrace();
+    //     }
+    // }
+    public function getPOStatistics()
     {
         try {
             // Kiểm tra quyền người dùng
@@ -287,46 +357,38 @@ class DashboardMTRepository extends RepositoryAbs
                     $join->on('order_processes.id', '=', 'so_headers.order_process_id')
                         ->whereBetween('so_headers.created_at', [$startDate, $endDate]);
                 })
+                ->where('order_processes.is_deleted', '=', 0)
                 ->select(
-                    DB::raw('COUNT(so_headers.id) as total_orders'),
-                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 1 THEN 1 ELSE 0 END) as synced_orders'),
-                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders')
+                    DB::raw('COUNT(DISTINCT users.id) as total_users'), // Tổng số người dùng
+                    DB::raw('COUNT(so_headers.id) as total_orders'), // Tổng số đơn hàng
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 1 THEN 1 ELSE 0 END) as synced_orders'), // Đơn đã đồng bộ
+                    DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders') // Đơn chưa đồng bộ
                 );
-
-            // Lọc thêm nếu có các trường khác
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->where('so_headers.sync_sap_status', 'LIKE', '%' . $sync_sap_status . '%');
+                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
             }
-
+            // Thêm điều kiện lọc nếu có các trường khác
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
-                $query->where('order_processes.customer_group_id', $customer_group_ids);
+                $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
             }
 
+            // Nếu có user_ids, cũng lọc theo user đã chọn
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->where('order_processes.created_by', $user_ids);
+                $query->whereIn('order_processes.created_by', $user_ids);
             }
 
-            // Thực thi truy vấn và lấy kết quả
-            $result = $query->get();
+            // Thực hiện truy vấn và lấy kết quả
+            $result = $query->first();
 
-            // Tạo các mảng chứa thông tin người dùng và tổng số đơn hàng của họ
-            $syncedOrders = [];
-            $unsynced_orders = [];
-
-            foreach ($result as $item) {
-                $syncedOrders[] = (int) $item->synced_orders; // Số đơn hàng đã đồng bộ
-                $unsynced_orders[] = (int) $item->unsynced_orders; // Số đơn hàng chưa đồng bộ
-            }
-
-            // Trả về dữ liệu dưới dạng JSON
-            return
-                [
-                    'synced_orders' => $syncedOrders, // Mảng chứa số đơn hàng đã đồng bộ
-                    'unsynced_orders' => $unsynced_orders // Mảng chứa số đơn hàng chưa đồng bộ
-                ];
+            return  [
+                'total_users' => $result->total_users, // Tổng số người dùng
+                'total_orders' => $result->total_orders, // Tổng số đơn hàng
+                'synced_orders' => $result->synced_orders, // Tổng số đơn hàng đã đồng bộ
+                'unsynced_orders' => $result->unsynced_orders // Tổng số đơn hàng chưa đồng bộ
+            ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();

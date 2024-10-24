@@ -32,10 +32,21 @@ class DashboardMTController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-    public function getPoBySyncStatus(Request $request)
+    // public function getPoBySyncStatus(Request $request)
+    // {
+    //     $handler = BusinessRepository::dashboardMTRequest($request);
+    //     $data = $handler->getPoBySyncStatus();
+
+    //     if ($data) {
+    //         return $this->responseSuccess($data);
+    //     } else {
+    //         return $this->responseError($handler->getMessage(), $handler->getErrors());
+    //     }
+    // }
+    public function getPoByDate(Request $request)
     {
         $handler = BusinessRepository::dashboardMTRequest($request);
-        $data = $handler->getPoBySyncStatus();
+        $data = $handler->getPoByDate();
 
         if ($data) {
             return $this->responseSuccess($data);
@@ -43,10 +54,10 @@ class DashboardMTController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
-    public function getPoByDate(Request $request)
+    public function getPOStatistics(Request $request)
     {
         $handler = BusinessRepository::dashboardMTRequest($request);
-        $data = $handler->getPoByDate();
+        $data = $handler->getPOStatistics();
 
         if ($data) {
             return $this->responseSuccess($data);
