@@ -117,36 +117,40 @@ class DashboardMTRepository extends RepositoryAbs
                 $endDate = Carbon::parse($this->request->to_date)->endOfDay();
             }
 
-            // Khởi tạo truy vấn sử dụng LEFT JOIN để đảm bảo lấy tất cả nhóm khách hàng
+            // Tạo truy vấn sử dụng LEFT JOIN để lấy tất cả các nhóm khách hàng
             $query = DB::table('customer_groups')
                 ->leftJoin('order_processes', function ($join) {
                     $join->on('customer_groups.id', '=', 'order_processes.customer_group_id')
-                        ->where('order_processes.is_deleted', '=', 0); // Chỉ lấy order_process không bị xóa
+                        ->where('order_processes.is_deleted', 0); // Chỉ lấy những quy trình đặt hàng không bị xóa
                 })
                 ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
                     $join->on('order_processes.id', '=', 'so_headers.order_process_id')
-                        ->where('so_headers.created_at', '>=', $startDate)
-                        ->where('so_headers.created_at', '<=', $endDate);
+                        ->whereBetween('so_headers.created_at', [$startDate, $endDate]); // Lọc theo khoảng thời gian
                 })
                 ->select('customer_groups.name', DB::raw('COUNT(so_headers.id) as total_orders'))
                 ->groupBy('customer_groups.id', 'customer_groups.name');
-
-            // Lọc thêm nếu có các trường khác
+            // Lọc theo trạng thái đồng bộ SAP
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
+                $query->where(function ($q) use ($sync_sap_status) {
+                    $q->whereIn('so_headers.sync_sap_status', $sync_sap_status)
+                        ->orWhereNull('so_headers.sync_sap_status'); // Bao gồm cả những nhóm không có đơn hàng
+                });
             }
 
-            // Nếu có customer_group_ids, chỉ lọc theo ID đã chọn
+            // Lọc theo các nhóm khách hàng được chọn
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
-                $query->whereIn('customer_groups.id', $customer_group_ids); // Sử dụng whereIn để lọc nhiều ID
+                $query->whereIn('customer_groups.id', $customer_group_ids);
             }
 
-            // Nếu có user_ids, cũng lọc theo user đã chọn
+            // Lọc theo người tạo đơn hàng
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->whereIn('order_processes.created_by', $user_ids);
+                $query->where(function ($q) use ($user_ids) {
+                    $q->whereIn('order_processes.created_by', $user_ids)
+                        ->orWhereNull('order_processes.created_by'); // Bao gồm cả những nhóm không có đơn hàng
+                });
             }
 
             $soHeaders = $query->get();
