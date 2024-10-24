@@ -257,7 +257,6 @@ class DashboardMTRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
-
     // public function getPoBySyncStatus()
     // {
     //     try {
@@ -384,10 +383,10 @@ class DashboardMTRepository extends RepositoryAbs
             $result = $query->first();
 
             return  [
-                'total_users' => $result->total_users, // Tổng số người dùng
-                'total_orders' => $result->total_orders, // Tổng số đơn hàng
-                'synced_orders' => $result->synced_orders, // Tổng số đơn hàng đã đồng bộ
-                'unsynced_orders' => $result->unsynced_orders // Tổng số đơn hàng chưa đồng bộ
+                'total_users' => $result->total_users ?? 0, // Tổng số người dùng
+                'total_orders' => $result->total_orders ?? 0, // Tổng số đơn hàng
+                'synced_orders' => $result->synced_orders ?? 0, // Tổng số đơn hàng đã đồng bộ
+                'unsynced_orders' => $result->unsynced_orders ?? 0 // Tổng số đơn hàng chưa đồng bộ
             ];
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
