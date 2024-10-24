@@ -48,22 +48,27 @@ class DashboardMTRepository extends RepositoryAbs
                 )
                 ->where('order_processes.is_deleted', '=', 0)
                 ->groupBy('users.id', 'users.name');
-
-            // Lọc thêm nếu có các trường khác
+            // Lọc theo trạng thái đơn hàng
             if ($this->request->filled('sync_sap_status')) {
                 $sync_sap_status = $this->request->sync_sap_status;
-                $query->whereIn('so_headers.sync_sap_status', $sync_sap_status);
+                $query->where(function ($q) use ($sync_sap_status) {
+                    $q->whereIn('so_headers.sync_sap_status', $sync_sap_status)
+                        ->orWhereNull('so_headers.sync_sap_status'); // Bao gồm cả những nhóm không có đơn hàng
+                });
             }
-
+            // Lọc theo nhóm đơn hàng
             if ($this->request->filled('customer_group_ids')) {
                 $customer_group_ids = $this->request->customer_group_ids;
                 $query->whereIn('order_processes.customer_group_id', $customer_group_ids);
             }
 
-            // Nếu có user_ids, cũng lọc theo user đã chọn
+            // Lọc theo người tạo đơn hàng
             if ($this->request->filled('user_ids')) {
                 $user_ids = $this->request->user_ids;
-                $query->whereIn('order_processes.created_by', $user_ids);
+                $query->where(function ($q) use ($user_ids) {
+                    $q->whereIn('order_processes.created_by', $user_ids)
+                        ->orWhereNull('order_processes.created_by'); // Bao gồm cả những nhóm không có đơn hàng
+                });
             }
 
             // Thực thi truy vấn và lấy kết quả
