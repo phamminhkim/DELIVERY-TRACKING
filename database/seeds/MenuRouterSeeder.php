@@ -381,6 +381,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Trích xuất đơn hàng',
             ],
+            [
+                'title' => "Thống kê đơn hàng",
+                'icon' => "fas fa-chart-line",
+                'link' => "v2-dashboard-order-processes",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
         ];
     }
 }
