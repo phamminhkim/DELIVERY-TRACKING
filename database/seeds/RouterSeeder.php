@@ -175,6 +175,11 @@ class RouterSeeder extends Seeder
                 'path' => '/v2-order-processes',
                 'component' => 'home/business/version_2/V2OrderProcesses'
             ],
+            [
+                'name' => 'Thống kê đơn hàng',
+                'path' => '/v2-dashboard-order-processes',
+                'component' => 'home/business/version_2/V2DashboardOrderProcesses'
+            ],
         ];
 
         foreach ($routes as $routeData) {

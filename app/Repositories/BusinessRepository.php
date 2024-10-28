@@ -34,7 +34,7 @@ use App\Services\Implementations\Restructurers\MergeIndexArrayMappingRestructure
 use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure;
 use App\Models\Business\ExtractOrderConfig;
 use App\Repositories\Business\CheckDataRepository;
-
+use App\Repositories\Business\DashboardMTRepository;
 use Illuminate\Http\Request;
 
 class BusinessRepository
@@ -54,6 +54,10 @@ class BusinessRepository
     public static function dashboardRequest(Request $request)
     {
         return new DashboardRepository($request);
+    }
+    public static function dashboardMTRequest(Request $request)
+    {
+        return new DashboardMTRepository($request);
     }
     public static function aiRequest(Request $request)
     {

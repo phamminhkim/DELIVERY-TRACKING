@@ -42,6 +42,27 @@ class UserRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+    public function getUsersByRole()
+    {
+        try {
+            // Retrieve users with specific roles
+            $users = User::with(['roles'])
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['user-sale', 'admin-ConvertPO']);
+                })
+                ->get()
+                ->map(function ($user) {
+                    $user->role_ids = $user->roles->pluck('id')->toArray(); // Collect role IDs
+                    return $user; // Return modified user object
+                });
+
+            return $users; // Return the filtered user list
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
+
     public function changePassword()
     {
         try {

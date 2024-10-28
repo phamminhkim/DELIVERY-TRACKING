@@ -20,6 +20,18 @@ class UserController extends ResponseController
             return $this->responseError($handler->getMessage(), $handler->getErrors());
         }
     }
+    public function getUsersByRole(Request $request)
+    {
+
+        $handler = MasterRepository::userRequest($request);
+        $users = $handler->getUsersByRole();
+
+        if ($users) {
+            return $this->responseSuccess($users);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
 
     //add
     public function createNewUser(Request $request)
