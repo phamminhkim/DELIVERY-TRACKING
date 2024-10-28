@@ -6,14 +6,20 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
                     </div>
-                    <input v-model="case_filter.search" type="text" class="form-control" placeholder="Tìm kiếm...">
+                    <input v-model="case_filter.search" @input="handleSearch" type="text" class="form-control" placeholder="Tìm kiếm...">
                 </div>
             </div>
         </div>
-        <b-table :sticky-header="height_window + 'px'" @row-dblclicked="handleDoubleClick" :filter="case_filter.search"
-            responsive hover small striped head-variant="true" :current-page="current_page" :per-page="per_page"
+        <b-table :sticky-header="height_window + 'px'" @row-dblclicked="handleDoubleClick"
+            responsive hover small striped head-variant="true" :per-page="per_page"
             thead-class="text-xs sticky-header-table-order-process-so" :items="list_order_process_so" :fields="fields"
-            table-class="table-order-process-so text-xs">
+            table-class="table-order-process-so text-xs" @sort-changed="onSortChange" :busy="loading">
+            <template #table-busy>
+                <div class="text-center text-primary my-2">
+                    <b-spinner class="align-middle" type="grow"></b-spinner>
+                    <strong>Đang tải dữ liệu...</strong>
+                </div>
+            </template>
             <template #cell(index)="data">
                 {{ (data.index + 1) + (current_page * per_page) - per_page }}
             </template>
@@ -158,6 +164,10 @@ export default {
             type: Number,
             default: 10
         },
+        loading: {
+            type: Boolean,
+            default: false
+        }
     },
     data() {
         return {
@@ -166,7 +176,7 @@ export default {
                     key: 'index',
                     label: 'STT',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
                 {
                     key: 'serial_number',
@@ -223,7 +233,7 @@ export default {
                     key: 'action',
                     label: 'Hành động',
                     class: 'text-nowrap',
-                    sortable: true,
+                    sortable: false,
                 },
             ],
             case_filter: {
@@ -231,7 +241,7 @@ export default {
                 status: '',
                 type: '',
             },
-         
+
             height_window: 0,
         }
     },
@@ -240,6 +250,15 @@ export default {
         window.addEventListener('resize', this.handleHeightWindow);
     },
     methods: {
+        handleSearch() {
+            this.$emit('search', this.case_filter.search);
+        },
+        onSortChange(ctx) {
+            // ctx là object chứa thông tin về field và direction
+            let sort_field = ctx.sortBy; // Lấy trường cần sắp xếp
+            let sort_direction = ctx.sortDesc ? 'desc' : 'asc'; // Đặt hướng sắp xếp
+            this.$emit('sort', sort_field, sort_direction);
+        },
         handleHeightWindow() {
             this.height_window = window.innerHeight - 300;
         },

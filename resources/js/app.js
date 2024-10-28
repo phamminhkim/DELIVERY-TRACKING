@@ -115,6 +115,10 @@ Vue.component(
     "v2-order-processes",
     require("./components/home/business/version_2/V2OrderProcesses.vue").default
 );
+Vue.component(
+    "v2-dashboard-order-processes",
+    require("./components/home/business/version_2/V2DashboardOrderProcesses.vue").default
+);
 // Vue.component(
 //     "config-table",
 //     require("./components/home/master/ConfigTable.vue").default
