@@ -386,7 +386,7 @@ class MenuRouterSeeder extends Seeder
                 'icon' => "fas fa-chart-line",
                 'link' => "v2-dashboard-order-processes",
                 'query_string' => "",
-                'parent' => 'Quản lý dữ liệu',
+                'parent' => 'Quản lí dữ liệu',
             ],
         ];
     }
