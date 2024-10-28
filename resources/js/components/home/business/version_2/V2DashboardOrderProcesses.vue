@@ -160,13 +160,13 @@
                     </div>
                 </div>
             </b-tab>
-            <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
+            <!-- <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
                 <div class="text-xs ">
-                    <!-- <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6> -->
-                    <!-- <div class="mb-1">
+                    <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6>
+                    <div class="mb-1">
                         <button class="btn btn-sm text-xs btn-success bg-white text-success px-4"><i
                                 class="fas fa-file-export mr-2"></i>Xuất báo cáo</button>
-                    </div> -->
+                    </div>
                     <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
                         <ChildOrderProcessesFormSearchResponseLevel :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
@@ -174,7 +174,7 @@
                        <ChildDashboardResponseLevelOrderProcesses />
                     </div>
                 </div>
-            </b-tab>
+            </b-tab> -->
 
         </b-tabs>
 
