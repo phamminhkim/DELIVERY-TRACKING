@@ -53,6 +53,7 @@ export default {
             barThickness: 20,
             maxBarThickness: 20,
             minBarLength: 2,
+
           },
           {
             label: "Chưa đồng bộ",
@@ -69,7 +70,7 @@ export default {
       },
       chartOptions: {
         responsive: true,
-        // maintainAspectRatio: false,
+        maintainAspectRatio: false,
         indexAxis: "y", // Chuyển trục để tạo biểu đồ cột ngang
         plugins: {
           tooltip: {
@@ -85,13 +86,22 @@ export default {
             },
           },
           title: {
-            display: false,
+            display: true,
             text: "PO NGƯỜI DÙNG",
-
-            // color: "rgb(255 255 224)",
-            color: "black",
+            color: "rgb(255 255 224)",
+            // color: "black",
             font: {
               weight: "bold",
+            },
+          },
+          legend: {
+            display: true,
+            position: "right",
+            labels: {
+              color: "rgb(255 255 224)",
+              font: {
+                weight: "bold",
+              },
             },
           },
         },

@@ -1,14 +1,14 @@
 <template>
 
-  <LineChartGenerator :chart-data="chartDatas" :chart-options="chartOptions" :width="width" :height="height" />
+  <LineChartGenerator :chart-data="chartDatas" :chart-options="chartOptions" :width="width" :height="height" :plugins="plugins" />
 
 </template>
 
 <script>
 import { Line as LineChartGenerator } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, LinearScale, Filler } from 'chart.js';
-
-ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, Filler);
+import ChartZoom from 'chartjs-plugin-zoom';
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, Filler, ChartZoom);
 
 
 export default {
@@ -111,9 +111,33 @@ export default {
         ],
       },
       chartOptions: {
+        onClick(e) {
+          const chart = e.chart;
+          chart.options.plugins.zoom.zoom.wheel.enabled = !chart.options.plugins.zoom.zoom.wheel.enabled;
+          chart.options.plugins.zoom.zoom.pinch.enabled = !chart.options.plugins.zoom.zoom.pinch.enabled;
+          chart.update();
+        },
         responsive: true,
         // maintainAspectRatio: false,
         plugins: {
+          zoom: {
+            limits: {
+              y: { min: 0, max: 200, minRange: 50 }
+            },
+            pan: {
+              enabled: true,
+              mode: 'xy',
+            },
+            zoom: {
+              wheel: {
+                enabled: false,
+              },
+              pinch: {
+                enabled: false
+              },
+              mode: 'xy',
+            }
+          },
           legend: {
             display: false,
             position: "bottom",
@@ -126,7 +150,7 @@ export default {
             },
           },
           title: {
-            display: false,
+            display: true,
             text: "PO NGÀY",
             color: "rgb(255 255 224)",
             font: {
@@ -196,6 +220,20 @@ export default {
           },
         },
       },
+      plugins: [
+        {
+          beforeDraw(chart, args, options) {
+            const { ctx, chartArea: { left, top, width, height } } = chart;
+            if (chart.options.plugins.zoom.zoom.wheel.enabled) {
+              ctx.save();
+              ctx.strokeStyle = 'red';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(left, top, width, height);
+              ctx.restore();
+            }
+          }
+        }
+      ]
     };
   },
   methods: {

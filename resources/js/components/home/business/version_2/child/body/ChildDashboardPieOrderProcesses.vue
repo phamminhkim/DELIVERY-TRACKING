@@ -1,6 +1,12 @@
 <template>
-  <Pie :chart-options="chartOptions" :chart-data="chartDataComputed" :chart-id="chartId" :dataset-id-key="datasetIdKey"
-    />
+  <div v-if="chartDataComputed">
+    <Pie :chart-options="chartOptions" :chart-data="chartDataComputed" :chart-id="chartId"
+      :dataset-id-key="datasetIdKey" />
+  </div>
+  <div v-else class="none-data">
+    Không có dữ liệu để hiển thị
+  </div>
+
 </template>
 
 <script>
@@ -90,7 +96,7 @@ export default {
             position: "right",
           },
           title: {
-            display: false,
+            display: true,
             text: "PO NHÓM KHÁCH HÀNG",
             // color: "rgb(255 255 224)",
             color: "black",
@@ -101,7 +107,11 @@ export default {
           datalabels: {
             anchor: 'center', // Vị trí của nhãn (dưới cùng cột)  
             align: 'center', // Căn chỉnh nhãn (dưới cùng cột)  
-            color: 'black', // Màu văn bản  
+            // color: 'black', // Màu văn bản  
+            color: (context) => {
+              const backgroundColor = context.dataset.backgroundColor[context.dataIndex];
+              return this.getTextColor(backgroundColor); // Hàm xác định màu chữ
+            },
             font: {
               size: 12, // Kích thước font
               lineHeight: 1.2, // Chiều cao dòng
@@ -110,58 +120,59 @@ export default {
           },
         },
       },
-      background_color: [
-        {
-          label: "Winmart",
-          backgroundColor: "rgb(0 134 139)",
-        },
-        {
-          label: "Mega",
-          backgroundColor: "rgb(0 139 0)",
-        },
-        {
-          label: "Lotte",
-          backgroundColor: "rgb(205 85 85)",
-        },
-        {
-          label: "BigC",
-          backgroundColor: "rgb(205 155 155)",
-        },
-        {
-          label: "Aeon",
-          backgroundColor: "rgb(205 205 0)",
-        },
-        {
-          label: "Emart",
-          backgroundColor: "rgb(205 149 12)",
-        },
-        {
-          label: "Fujimart",
-          backgroundColor: "rgb(24 116 205)",
-        },
-        {
-          label: "Đơn bổ sung",
-          backgroundColor: "rgb(255 20 147)",
-        },
-        {
-          label: "Mega",
-          backgroundColor: "rgb(180 82 205)",
-        }
-      ],
+      background_color: [],
     };
+  },
+  methods: {
+    getTextColor(backgroundColor) {
+      const [r, g, b] = backgroundColor.match(/\d+/g).map(Number);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness < 128 ? 'white' : 'black';
+    },
+    generateRandomColor() {
+      let color;
+      do {
+        // Sinh màu ngẫu nhiên
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        color = `rgb(${r}, ${g}, ${b})`;
+      } while (this.background_color.includes(color)); // Lặp lại nếu màu đã tồn tại
+
+      // Lưu màu mới vào mảng background_color
+      this.background_color.push(color);
+      return color;
+    },
   },
   computed: {
     chartDataComputed() {
-      var news = {};
-      news.labels = this.data_dashboard_pie.labels;
-      news.datasets = [
-        {
-          backgroundColor: this.background_color.map((item) => this.data_dashboard_pie.labels.includes(item.label) ? item.backgroundColor : "rgb(255 255 255)"),
-          data: this.data_dashboard_pie.datasets,
-        }
-      ];
-      return news;
+      const data = this.data_dashboard_pie.datasets;
+
+      // Kiểm tra nếu tất cả giá trị đều bằng 0
+      const allZero = data.every(value => value === 0);
+
+      if (allZero) {
+        return null; // Hoặc có thể return một cấu trúc đặc biệt để hiển thị thông báo
+      }
+
+      return {
+        labels: this.data_dashboard_pie.labels,
+        datasets: [
+          {
+            backgroundColor: this.data_dashboard_pie.labels.map(() => this.generateRandomColor()),
+            data: data,
+          }
+        ]
+      };
     },
   },
 };
 </script>
+<style lang="scss" scoped>
+.none-data {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>

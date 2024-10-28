@@ -3,120 +3,182 @@
         <!-- <div class="form-goup">
             <h6>Thống kê</h6>
         </div> -->
-        <div class="mb-1">
-            <div class="mb-1">
-                <div class="row">
-                    <div class="col-lg-4">
-                        <button @click="btnCreateOneDayAgo()"
-                            class="btn btn-light bg-white text-primary btn-sm text-xs">1 ngày trước</button>
-                        <button @click="btnCreateSevenDayAgo()"
-                            class="btn btn-light bg-white text-primary btn-sm text-xs">7 ngày trước</button>
-                        <button @click="btnCreateThirtyDayAgo()"
-                            class="btn btn-light bg-white text-primary btn-sm text-xs">30 ngày trước</button>
-                        <button @click="btnCreateNinetyDayAgo()"
-                            class="btn btn-light bg-white text-primary btn-sm text-xs">90 ngày trước</button>
+        <b-tabs content-class="mt-3 text-xs">
+            <b-tab title="Dashboard" active>
+                <div>
+                    <div class="mb-1">
+                        <div class="mb-1">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <button @click="btnCreateOneDayAgo()"
+                                        class="btn btn-light bg-white text-primary btn-sm text-xs">1 ngày trước</button>
+                                    <button @click="btnCreateSevenDayAgo()"
+                                        class="btn btn-light bg-white text-primary btn-sm text-xs">7 ngày trước</button>
+                                    <button @click="btnCreateThirtyDayAgo()"
+                                        class="btn btn-light bg-white text-primary btn-sm text-xs">30 ngày
+                                        trước</button>
+                                    <button @click="btnCreateNinetyDayAgo()"
+                                        class="btn btn-light bg-white text-primary btn-sm text-xs">90 ngày
+                                        trước</button>
+                                    <button @click="btnCreateOneHundredEightyDayAgo()"
+                                        class="btn btn-light bg-white text-primary btn-sm text-xs">180 ngày
+                                        trước</button>
 
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="text-center">
-                            <button @click="btnCreateCurrentDate()"
-                                class="btn btn-primary bg-white text-primary btn-sm text-xs">Hôm
-                                nay</button>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="text-right">
+                                        <button @click="btnCreateCurrentDate()"
+                                            class="btn btn-primary px-4  btn-sm text-xs"><i
+                                                class="fas fa-calendar-day mr-2"></i>Hôm
+                                            nay</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- <button @click="btnCreateOneYear()" class="btn btn-light bg-white text-primary btn-sm text-xs">1 Year</button> -->
+
+
                         </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="text-right">
-                            <button @click="btnSearch()"
-                                class="btn btn-warning bg-white text-warning btn-sm text-xs px-2 "><i
-                                    class="fas fa-search mr-2"></i>Tìm kiếm</button>
-                            <button @click="btnRefresh()"
-                                class="btn btn-secondary bg-white text-secondary btn-sm text-xs px-2 "><i
-                                    class="fas fa-sync-alt mr-2"></i>Làm mới</button>
-                        </div>
-                    </div>
-                </div>
+                        <div class="mb-1 rounded p-2" style="background: rgba(30, 41, 59, 0.1);">
+                            <div class="text-left mb-2">
+                                <button @click="btnSearch()"
+                                    class="btn btn-warning bg-white text-warning btn-sm text-xs px-2 "><i
+                                        class="fas fa-search mr-2"></i>Tìm kiếm</button>
+                                <button @click="btnRefresh()"
+                                    class="btn btn-secondary bg-white text-secondary btn-sm text-xs px-2 "><i
+                                        class="fas fa-sync-alt mr-2"></i>Làm mới</button>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 set-shrink text-right"><span for=""
+                                                class="mb-0 px-2  span-start-date">Từ
+                                                ngày</span></div>
+                                        <div class="flex-fill"><b-form-datepicker v-model="order.start_date"
+                                                class="text-xs mt-1" :max="order.end_date"></b-form-datepicker></div>
+                                    </div>
 
-                <!-- <button @click="btnCreateOneYear()" class="btn btn-light bg-white text-primary btn-sm text-xs">1 Year</button> -->
+                                </div>
+                                <div class="col-lg-9">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 set-shrink text-right"><span for=""
+                                                class="mb-0 px-2 span-start-date">Nhóm KH</span></div>
+                                        <div class="flex-fill">
+                                            <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids"
+                                                :options="customer_groups" :multiple="true" class="text-xs mb-1" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 set-shrink text-right">
+                                            <span for="" class="mb-0 px-2  span-start-date">Đến
+                                                ngày</span>
+                                        </div>
+                                        <div class="flex-fill">
+                                            <b-form-datepicker v-model="order.end_date" class="text-xs mt-1"
+                                                :min="order.start_date"></b-form-datepicker>
+                                        </div>
 
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 set-shrink text-right"><span for=""
+                                                class="mb-0 px-2 span-start-date">Trạng thái</span></div>
+                                        <div class="flex-fill">
+                                            <treeselect placeholder="Trạng thái đồng bộ" v-model="order.sync_sap_status"
+                                                :options="status_syncs" class="text-xs" :multiple="true" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 set-shrink text-right"><span for=""
+                                                class="mb-0 px-2 span-start-date">Người dùng</span></div>
+                                        <div class="flex-fill">
+                                            <treeselect placeholder="Người dùng" v-model="order.user_ids"
+                                                :options="user_roles" :multiple="true" class="text-xs mb-1" />
+                                        </div>
+                                    </div>
 
-            </div>
-            <div class="mb-1 rounded p-2" style="background: rgba(30, 41, 59, 0.1);">
-                <div class="row align-items-end">
-                    <div class="col-lg-3">
-                        <b-form-datepicker v-model="order.start_date" class="text-xs mb-1"
-                            :max="order.end_date"></b-form-datepicker>
-                        <b-form-datepicker v-model="order.end_date" class="text-xs"
-                            :min="order.start_date"></b-form-datepicker>
-                    </div>
-                    <div class="col-lg-3">
-                        <treeselect placeholder="Trạng thái đồng bộ" v-model="order.sync_sap_status"
-                            :options="status_syncs" class="text-xs" :multiple="true" />
-                    </div>
-                    <div class="col-lg-6">
-                        <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids"
-                            :options="customer_groups" :multiple="true" class="text-xs mb-1" />
-                        <treeselect placeholder="Người dùng" v-model="order.user_ids" :options="user_roles"
-                            :multiple="true" class="text-xs mb-1" />
-
-                    </div>
-                    <!-- <div class="col-lg-2 text-xs">
-                    <treeselect placeholder="Trạng thái đồng bộ" v-model="order.sync_sap_status" :options="status_syncs"
-                        class="text-xs" :multiple="true" />
-                </div> -->
-
-                </div>
-            </div>
-        </div>
-
-        <div class="">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card bg-card-line shadow-lg border" style="background: rgba(51, 65, 85) !important;">
-                        <div class="card-body p-0">
-                            <ChildDashboardLineOrderProcesses :data_dashboard_line="data_dashboard_line" />
-                            <div v-show="is_loading" class="text-center text-white icon-loading"><i
-                                    class="fas fa-spinner fa-pulse"></i>
+                                </div>
+                               
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="form-group">
-                        <!-- <ChildDashboardCardOrderProcesses /> -->
-                        <ChildDashboardPieOrderProcesses :data_dashboard_pie="data_dashboard_pie" />
-                        <div v-show="is_loading" class="text-center  icon-loading"><i
-                                class="fas fa-spinner fa-pulse"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-        </div>
-        <div class="form-group">
-            <div class="row">
-                <div class="col-lg-12 ml-auto mr-auto">
-                    <div class="card  shadow-lg border">
-                        <div class="card-body p-0 row">
-                            <div class="col-lg-4 p-4">
-                                <!-- <ChildDashboardPieOrderProcesses_copy /> -->
-                                <ChildDashboardCardOrderProcesses :dashboard_shared="dashboard_shared" />
-                            </div>
+                    <div class="mb-2">
+                        <div class="row">
                             <div class="col-lg-8">
-                                <div class="form-group"
-                                    style="background-image: linear-gradient(310deg, #141727 0%, #3A416F 100%);">
-                                    <!-- <ChildDashboardPieOrderProcesses_copy /> -->
-                                    <ChildDashboardBarOrderProcesses :data_dashboard_user="data_dashboard_user" />
-                                    <div v-show="is_loading" class="text-center text-white  icon-loading"><i
+                                <div class="card bg-card-line shadow-lg border mb-0"
+                                    style="background: rgba(51, 65, 85) !important;">
+                                    <div class="card-body p-0">
+                                        <ChildDashboardLineOrderProcesses :data_dashboard_line="data_dashboard_line" />
+                                        <div v-show="is_loading" class="text-center text-white icon-loading"><i
+                                                class="fas fa-spinner fa-pulse"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 ">
+                                <div class="h-100 bg-white">
+                                    <!-- <ChildDashboardCardOrderProcesses /> -->
+                                    <ChildDashboardPieOrderProcesses :data_dashboard_pie="data_dashboard_pie" />
+                                    <div v-show="is_loading" class="text-center  icon-loading"><i
                                             class="fas fa-spinner fa-pulse"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
+                    </div>
+                    <div class="form-group">
+                        <div class="card  shadow-lg border">
+                            <div class="card-body p-0 row">
+                                <div class="col-lg-4 px-4 py-1">
+                                    <!-- <ChildDashboardPieOrderProcesses_copy /> -->
+                                    <ChildDashboardCardOrderProcesses :dashboard_shared="dashboard_shared" />
+                                    <div v-show="is_loading" class="text-center text-black  icon-loading"><i
+                                            class="fas fa-spinner fa-pulse"></i>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="rounded h-100" style="background: rgb(51, 65, 85,0.91);">
+                                        <!-- <ChildDashboardPieOrderProcesses_copy /> -->
+                                        <ChildDashboardBarOrderProcesses :data_dashboard_user="data_dashboard_user" />
+                                        <div v-show="is_loading" class="text-center text-warning  icon-loading"><i
+                                                class="fas fa-spinner fa-pulse"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </b-tab>
+            <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
+                <div class="text-xs ">
+                    <!-- <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6> -->
+                    <!-- <div class="mb-1">
+                        <button class="btn btn-sm text-xs btn-success bg-white text-success px-4"><i
+                                class="fas fa-file-export mr-2"></i>Xuất báo cáo</button>
+                    </div> -->
+                    <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
+                        <ChildOrderProcessesFormSearchResponseLevel :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
+                    </div>
+                    <div class="form-group bg-white">
+                       <ChildDashboardResponseLevelOrderProcesses />
+                    </div>
+                </div>
+            </b-tab>
+
+        </b-tabs>
+
+
 
     </div>
 </template>
@@ -126,6 +188,8 @@ import ChildDashboardBarOrderProcesses from './child/body/ChildDashboardBarOrder
 import ChildDashboardLineOrderProcesses from './child/body/ChildDashboardLineOrderProcesses.vue';
 import ChildDashboardCardOrderProcesses from './child/body/ChildDashboardCardOrderProcesses.vue';
 import ChildDashboardPieOrderProcesses_copy from './child/body/ChildDashboardPieOrderProcesses_copy.vue';
+import ChildDashboardResponseLevelOrderProcesses from './child/body/ChildDashboardResponseLevelOrderProcesses.vue';
+import ChildOrderProcessesFormSearchResponseLevel from './child/header/ChildOrderProcessesFormSearchResponseLevel.vue';
 import ApiHandler, { APIRequest } from '../../ApiHandler';
 import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
@@ -139,12 +203,32 @@ export default {
         ChildDashboardLineOrderProcesses,
         ChildDashboardCardOrderProcesses,
         ChildDashboardPieOrderProcesses_copy,
+        ChildDashboardResponseLevelOrderProcesses,
+        ChildOrderProcessesFormSearchResponseLevel,
         Treeselect
     },
     data() {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
+            customers: [
+                {
+                    id: 1,
+                    label: 'Khách hàng 1 - 330942',
+                },
+                {
+                    id: 2,
+                    label: 'Khách hàng 2 - 330943',
+                },
+                {
+                    id: 3,
+                    label: 'Khách hàng 3 - 330944',
+                },
+                {
+                    id: 4,
+                    label: 'Khách hàng 4 - 330945',
+                },
+            ],
             status_syncs: [
                 {
                     id: 1,
@@ -161,6 +245,7 @@ export default {
                 user_ids: [],
                 start_date: new Date(),
                 end_date: new Date(),
+                customers: []
             },
             orderProcesses: [],
             customer_groups: [],
@@ -322,7 +407,7 @@ export default {
                 return {
                     id: item.id,
                     label: item.name,
-                    children: item.children ? this.forMatTreeSelect(item.children) : []
+                    // children: item.children ? this.forMatTreeSelect(item.children) : []
                 }
             })
         },
@@ -363,6 +448,13 @@ export default {
             this.order.end_date = new Date();
             await this.fetchDashboard();
         },
+        async btnCreateOneHundredEightyDayAgo() {
+            var curr = new Date;
+            curr.setDate(curr.getDate() - 180);
+            this.order.start_date = curr;
+            this.order.end_date = new Date();
+            await this.fetchDashboard();
+        },
         async btnCreateOneYear() {
             var curr = new Date;
             var first = new Date(curr.getFullYear(), 0, 1);
@@ -397,7 +489,8 @@ export default {
                 start_date: new Date(),
                 end_date: new Date(),
             }
-        }
+        },
+      
     },
 
 }
@@ -414,5 +507,15 @@ export default {
     width: 100%;
     font-size: 42px;
     top: 42%;
+}
+
+.span-start-date {
+    font-size: 10px;
+    color: blue;
+    border-bottom: 2px solid white;
+}
+
+.set-shrink {
+    width: 6em;
 }
 </style>
