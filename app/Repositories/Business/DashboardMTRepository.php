@@ -36,7 +36,6 @@ class DashboardMTRepository extends RepositoryAbs
             $user_ids = $this->request->filled('user_ids') ? $this->request->user_ids : null;
 
             // Khởi tạo truy vấn lấy danh sách người dùng và các thông tin liên quan đến đơn hàng
-            // Khởi tạo truy vấn lấy danh sách người dùng và các thông tin liên quan đến đơn hàng
             $query = DB::table('users')
                 ->leftJoin('order_processes', function ($join) {
                     $join->on('users.id', '=', 'order_processes.created_by')
@@ -54,7 +53,6 @@ class DashboardMTRepository extends RepositoryAbs
                     DB::raw('SUM(CASE WHEN so_headers.sync_sap_status = 0 THEN 1 ELSE 0 END) as unsynced_orders')
                 )
                 ->groupBy('users.id', 'users.name');
-
             // Nếu user_ids có giá trị, thêm điều kiện whereIn để lọc theo user_ids
             if ($user_ids) {
                 $query->whereIn('users.id', $user_ids);
