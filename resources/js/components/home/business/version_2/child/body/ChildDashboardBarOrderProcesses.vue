@@ -70,7 +70,7 @@ export default {
       },
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: false,
+        // maintainAspectRatio: false,
         indexAxis: "y", // Chuyển trục để tạo biểu đồ cột ngang
         plugins: {
           tooltip: {
