@@ -36,8 +36,12 @@ class DashboardMTRepository extends RepositoryAbs
             $user_ids = $this->request->filled('user_ids') ? $this->request->user_ids : null;
 
             // Khởi tạo truy vấn lấy danh sách người dùng và các thông tin liên quan đến đơn hàng
+            // Khởi tạo truy vấn lấy danh sách người dùng và các thông tin liên quan đến đơn hàng
             $query = DB::table('users')
-                ->leftJoin('order_processes', 'users.id', '=', 'order_processes.created_by')
+                ->leftJoin('order_processes', function ($join) {
+                    $join->on('users.id', '=', 'order_processes.created_by')
+                        ->where('order_processes.is_deleted', '=', 0);
+                })
                 ->leftJoin('so_headers', function ($join) use ($startDate, $endDate) {
                     $join->on('order_processes.id', '=', 'so_headers.order_process_id')
                         ->whereBetween('so_headers.created_at', [$startDate, $endDate]);
