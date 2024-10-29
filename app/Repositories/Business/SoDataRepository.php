@@ -450,42 +450,69 @@ class SoDataRepository extends RepositoryAbs
                         });
                 });
             }
-            // Sắp xếp theo field thuộc bảng order_proccess
-            if ($sort_field !== 'synchronized_so_count') {
-                $query->orderBy($sort_field, $sort_direction);
-            }
-            $order_processes = $query->get();
-            $order_processes->load(['created_by', 'updated_by', 'customer_group']);
-            foreach ($order_processes as $order_process_item) {
-                $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
-                $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
-                unset($order_process_item->synchronized_so_headers);
-                // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
-                $order_process_item->so_headers->each(function ($so_header) {
-                    if ($so_header->so_data_items->count() > 0) {
-                        $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
-                    } else {
-                        $so_header['promotive_name'] = null;
+            // Phương pháp phân trang tùy theo field sort
+            switch ($sort_field) {
+                case 'synchronized_so_count':
+                    // Phân trang theo field nằm ngoài bảng DB
+                    $order_processes = $query->get();
+                    $order_processes->load(['created_by', 'updated_by', 'customer_group']);
+                    foreach ($order_processes as $order_process_item) {
+                        $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
+                        $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
+                        unset($order_process_item->synchronized_so_headers);
+                        // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
+                        $order_process_item->so_headers->each(function ($so_header) {
+                            if ($so_header->so_data_items->count() > 0) {
+                                $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
+                            } else {
+                                $so_header['promotive_name'] = null;
+                            }
+                            unset($so_header->so_data_items);
+                        });
                     }
-                    unset($so_header->so_data_items);
-                });
-            }
-            // Sắp xếp theo synchronized_so_count phát sinh ngoài bảng order_proccess
-            if ($sort_field == 'synchronized_so_count') {
-                $order_processes = $order_processes->sortBy(function ($order_process_item) {
-                    return $order_process_item['synchronized_so_count'];
-                }, SORT_REGULAR, $sort_direction == 'desc');
-            }
-            // Phân trang kết quả
-            if ($per_page !== 'All') {
-                $currentPage = LengthAwarePaginator::resolveCurrentPage();
-                $order_processes = new LengthAwarePaginator(
-                    $order_processes->forPage($currentPage, $per_page),
-                    $order_processes->count(),
-                    $per_page,
-                    $currentPage,
-                    ['path' => LengthAwarePaginator::resolveCurrentPath()]
-                );
+                    // Sắp xếp theo synchronized_so_count phát sinh ngoài bảng order_proccess
+                    if ($sort_field == 'synchronized_so_count') {
+                        $order_processes = $order_processes->sortBy(function ($order_process_item) {
+                            return $order_process_item['synchronized_so_count'];
+                        }, SORT_REGULAR, $sort_direction == 'desc');
+                    }
+                    // Phân trang kết quả
+                    if ($per_page !== 'All') {
+                        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                        $order_processes = new LengthAwarePaginator(
+                            $order_processes->forPage($currentPage, $per_page),
+                            $order_processes->count(),
+                            $per_page,
+                            $currentPage,
+                            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+                        );
+                    }
+                    break;
+                default:
+                    // Phân trang theo mảng thuộc bảng DB
+                    $query->orderBy($sort_field, $sort_direction);
+                    if ($per_page !== 'All') {
+                        $order_processes = $query->paginate($per_page);
+                    } else {
+                        $order_processes = $query->get();
+                    }
+                    $order_processes->load(['created_by', 'updated_by', 'customer_group']);
+
+                    foreach ($order_processes as $order_process_item) {
+                        $order_process_item['total_so_count'] = $order_process_item->so_headers->count();
+                        $order_process_item['synchronized_so_count'] = $order_process_item->synchronized_so_headers->count();
+                        unset($order_process_item->synchronized_so_headers);
+                        // Duyệt $order_process_item->so_headers để lấy thêm promotive_name
+                        $order_process_item->so_headers->each(function ($so_header) {
+                            if ($so_header->so_data_items->count() > 0) {
+                                $so_header['promotive_name'] = $so_header->so_data_items->first()->promotive_name;
+                            } else {
+                                $so_header['promotive_name'] = null;
+                            }
+                            unset($so_header->so_data_items);
+                        });
+                    }
+                    break;
             }
             return $order_processes;
         } catch (\Throwable $exception) {
