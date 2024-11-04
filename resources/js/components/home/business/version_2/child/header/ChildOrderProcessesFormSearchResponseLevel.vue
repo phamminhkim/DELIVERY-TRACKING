@@ -27,7 +27,7 @@
                             class="mb-0 px-2 flex-shrink-0 set-shrink text-right span-start-date">Từ
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.start_date" class="text-xs"
-                            :max="order.end_date"></b-form-datepicker></div>
+                            :min="order.start_date"></b-form-datepicker></div>
                 </div>
             </div>
             <div class="col-lg-2">
@@ -69,7 +69,7 @@
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Đến
                             ngày</span></div>
-                    <div class="flex-fill"><b-form-datepicker v-model="order.start_date" class="text-xs mt-1"
+                    <div class="flex-fill"><b-form-datepicker v-model="order.end_date" class="text-xs mt-1"
                             :max="order.end_date"></b-form-datepicker></div>
                 </div>
             </div>
@@ -131,8 +131,18 @@ export default {
             },
         }
     },
+    created() {
+        this.createdOneMonth();
+    },
     methods: {
+        createdOneMonth() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
 
+            this.order.start_date = startDate;
+            this.order.end_date = endDate;
+        }
     },
     computed: {
 

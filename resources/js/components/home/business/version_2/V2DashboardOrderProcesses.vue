@@ -162,16 +162,16 @@
             </b-tab>
             <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
                 <div class="text-xs ">
-                    <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6>
+                    <!-- <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6>
                     <div class="mb-1">
                         <button class="btn btn-sm text-xs btn-success bg-white text-success px-4"><i
                                 class="fas fa-file-export mr-2"></i>Xuất báo cáo</button>
-                    </div>
+                    </div> -->
                     <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
                         <ChildOrderProcessesFormSearchResponseLevel :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
                     <div class="form-group bg-white">
-                       <ChildDashboardResponseLevelOrderProcesses />
+                       <ChildDashboardResponseLevelOrderProcesses :reportes="reportes" />
                     </div>
                 </div>
             </b-tab>
@@ -250,6 +250,7 @@ export default {
             orderProcesses: [],
             customer_groups: [],
             user_roles: [],
+            reportes: [],
             dashboard_shared: {
                 synced_orders: 0,
                 total_orders: 0,
@@ -276,6 +277,7 @@ export default {
                 dashboard_group: 'api/dashboard/MT/group',
                 dashboard_user: 'api/dashboard/MT/user',
                 dashboard_shared: 'api/dashboard/MT',
+                dashboard_report: 'api/dashboard/MT/report',
                 user_role: 'api/master/users/role',
             }
         }
@@ -290,9 +292,30 @@ export default {
         await this.fetchDashboardPie();
         await this.fetchDashboardUser();
         await this.fetchDashboardShared();
+        await this.fetchDashboardReport();
 
     },
     methods: {
+        async fetchDashboardReport() {
+            try {
+                this.is_loading = true;
+                const body = {
+                    // from_date: this.order.start_date,
+                    // to_date: this.order.end_date,
+                    // customer_group_ids: this.order.customer_group_ids,
+                    // user_ids: this.order.user_ids,
+                    // sync_sap_status: this.order.sync_sap_status
+                }
+                const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
+                if (success) {
+                    this.reportes = data.so_items;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         async fetchDashboardShared() {
             try {
                 this.is_loading = true;

@@ -457,9 +457,6 @@ class CheckDataRepository extends RepositoryAbs
                         ->when(!empty($sap_code), function ($query) use ($sap_code) {
                             return $query->where('sap_code', $sap_code);
                         })
-                        ->when(!empty($bar_code), function ($query) use ($bar_code) {
-                            return $query->where('bar_code', $bar_code);
-                        })
                         ->first();
 
                     $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
