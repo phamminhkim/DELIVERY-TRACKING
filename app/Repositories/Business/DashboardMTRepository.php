@@ -428,6 +428,12 @@ class DashboardMTRepository extends RepositoryAbs
                 $query->whereIn('customer_group_id', $this->request->customer_group_ids);
             });
         }
+        if ($this->request->filled('customer_codes')) {
+            $query->whereHas('customer_partners', function ($query) {
+                $query->whereIn('id', $this->request->customer_codes);
+            });
+        }
+
         // Lấy dữ liệu báo cáo đơn hàng
         return $query->with([
             'order_process.customer_group:id,name',
