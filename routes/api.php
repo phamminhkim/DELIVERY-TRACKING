@@ -76,8 +76,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [DashboardMTController::class, 'getPOStatistics']);
             Route::get('/user', [DashboardMTController::class, 'getPoByUser']);
             Route::get('/group', [DashboardMTController::class, 'getPoByCustomerGroup']);
-            // Route::get('/status', [DashboardMTController::class, 'getPoBySyncStatus']);
             Route::get('/date', [DashboardMTController::class, 'getPoByDate']);
+            Route::get('/report', [DashboardMTController::class, 'compareOrderReports']);
+
         });
     });
     Route::prefix('master')->group(function () {
