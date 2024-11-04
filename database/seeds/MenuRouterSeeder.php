@@ -340,6 +340,13 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Trích xuất đơn hàng',
             ],
             [
+                'title' => "KM CLC",
+                'icon' => "fas fa-gift",
+                'link' => "material-CLCs",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
+            [
                 'title' => "KM hàng tặng hàng",
                 'icon' => "fas fa-gift",
                 'link' => "material-donateds",
