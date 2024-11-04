@@ -473,7 +473,7 @@ class CheckDataRepository extends RepositoryAbs
                     $promotion_name = $clc_category_type->name ?? null;
                 } elseif ($materialDonated) {
                     $extra_offer = 'X';
-                    $ex_category_type = MaterialCategoryType::where('name', '_')
+                    $ex_category_type = MaterialCategoryType::where('name', '_IK')
                         ->where('is_deleted', false)
                         ->first();
                     $promotion_name = $ex_category_type->name ?? null;
