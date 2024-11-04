@@ -438,8 +438,11 @@ class DashboardMTRepository extends RepositoryAbs
 
     protected function mapItemsToSapMaterials($soHeaders)
     {
-        $result = [];
+        $result = new \stdClass(); // Tạo một đối tượng rỗng
+        $result->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
+
         $poNumbers = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'po_number');
+
         // Truy vấn các RawPoHeader theo po_numbers với chunk để giảm tải bộ nhớ
         $rawPoHeaders = [];
         RawPoHeader::whereIn('po_number', $poNumbers)
@@ -448,6 +451,7 @@ class DashboardMTRepository extends RepositoryAbs
                     $rawPoHeaders[$rawPoHeader->po_number][] = $rawPoHeader;
                 }
             });
+
         // Truy vấn tất cả các RawPoDataItem với chunk
         $rawPoHeaderIds = collect($rawPoHeaders)->flatten()->pluck('id')->toArray();
         $rawPoDataItems = [];
@@ -457,21 +461,17 @@ class DashboardMTRepository extends RepositoryAbs
                     $rawPoDataItems[$item->raw_po_header_id][] = $item;
                 }
             });
-
         foreach ($soHeaders as $soHeader) {
             // Khởi tạo dữ liệu cơ bản từ soHeader
-            $data = [
-                'so_items' => []
-            ];
+            $data = new \stdClass(); // Tạo một đối tượng rỗng cho mỗi soHeader
+            $data->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
             // Lấy RawPoHeader cuối cùng và các RawPoDataItem liên quan
             $poHeaders = $rawPoHeaders[$soHeader->po_number] ?? [];
             $lastRawPoHeaderId = end($poHeaders)->id ?? null;
             $itemsArray = $rawPoDataItems[$lastRawPoHeaderId] ?? [];
-
             // Chuẩn bị dữ liệu cho SAP Material và SAP Material Mapping
             $customer_group_id = optional($soHeader->order_process->customer_group)->id;
             $customerSkuCodes = array_column($itemsArray, 'customer_sku_code');
-
             // Truy vấn các SAP Materials với chunk để giảm tải bộ nhớ
             $sapMaterials = [];
             SapMaterial::whereIn('bar_code', $customerSkuCodes)
@@ -535,6 +535,7 @@ class DashboardMTRepository extends RepositoryAbs
                     $soItems[] = $item;
                 }
             }
+
             // Tính toán fulfillment_rate từ SAP API và xử lý dữ liệu
             $sapData = [
                 "ID" => "1001",
@@ -545,10 +546,11 @@ class DashboardMTRepository extends RepositoryAbs
             ];
             $json = SapApiHelper::postData(json_encode($sapData));
             $jsonData = json_decode(json_encode($json), true);
+
             // Kiểm tra lỗi kết nối đồng bộ
             if (!$jsonData['success']) {
                 $this->errors['sap_error'] = $jsonData['error'];
-                $result = null;
+                return null; // Trả về null nếu có lỗi
             } else {
                 if (!empty($jsonData['data'])) {
                     foreach ($jsonData['data'] as $json_value) {
@@ -557,6 +559,7 @@ class DashboardMTRepository extends RepositoryAbs
                             foreach ($soItems as &$item) {
                                 $sapQuantity = $item_sap['SAP_QUANTITY'] ?? null;
                                 $quantity3_sap = $item['quantity3_sap'] ?? null;
+
                                 $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
                                     ? round(($sapQuantity / $quantity3_sap) * 100)
                                     : 0;
@@ -566,6 +569,7 @@ class DashboardMTRepository extends RepositoryAbs
                                 if ($fulfillmentRate > 100) {
                                     $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
                                 }
+                                // Cập nhật các giá trị khác
                                 $item['sap_code'] = $item_sap['SAP_CODE'] ?? null;
                                 $item['sap_name'] = $item_sap['SAP_NAME'] ?? null;
                                 $item['sap_quantity'] = $sapQuantity;
@@ -579,38 +583,36 @@ class DashboardMTRepository extends RepositoryAbs
             }
             // Cập nhật dữ liệu cho từng item từ soHeader
             foreach ($soItems as $item) {
-                $updatedItem = [
-                    'id' => $soHeader->id,
-                    'customer_code' => $soHeader->customer_code,
-                    'customer_name' => $soHeader->customer_name,
-                    'po_number' => $soHeader->po_number,
-                    'so_uid' => $soHeader->so_uid,
-                    'created_at' => $soHeader->created_at,
-                    'order_process' => [
-                        'id' => $soHeader->order_process->id,
-                        'customer_group_name' => $soHeader->order_process->customer_group->name,
-                        'created_by' => $soHeader->order_process->created_by,
-                    ],
-                    'raw_po_header_id' => $item['raw_po_header_id'],
-                    'customer_sku_code' => $item['customer_sku_code'],
-                    'customer_sku_name' => $item['customer_sku_name'],
-                    'customer_sku_unit' => $item['customer_sku_unit'],
-                    'quantity2_po' => $item['quantity2_po'],
-                    'sku_sap_code' => $item['sku_sap_code'],
-                    'sku_sap_name' => $item['sku_sap_name'],
-                    'sku_sap_unit' => $item['sku_sap_unit'],
-                    'quantity3_sap' => $item['quantity3_sap'],
-                    'sap_code' => $item['sap_code'],
-                    'sap_name' => $item['sap_name'],
-                    'sap_quantity' => $item['sap_quantity'],
-                    'sap_unit_code' => $item['sap_unit_code'],
-                    'sap_user' => $item['sap_user'],
-                    'fulfillment_rate' => $item['fulfillment_rate']
-                ];
+                $updatedItem = new \stdClass(); // Tạo một đối tượng mới cho mỗi item
+                $updatedItem->id = $soHeader->id;
+                $updatedItem->customer_code = $soHeader->customer_code;
+                $updatedItem->customer_name = $soHeader->customer_name;
+                $updatedItem->po_number = $soHeader->po_number;
+                $updatedItem->so_uid = $soHeader->so_uid;
+                $updatedItem->created_at = $soHeader->created_at;
+                $updatedItem->order_process = new \stdClass(); // Tạo đối tượng cho order_process
+                $updatedItem->order_process->id = $soHeader->order_process->id;
+                $updatedItem->order_process->customer_group_name = $soHeader->order_process->customer_group->name;
+                $updatedItem->order_process->created_by = $soHeader->order_process->created_by;
+                $updatedItem->raw_po_header_id = $item['raw_po_header_id'];
+                $updatedItem->customer_sku_code = $item['customer_sku_code'];
+                $updatedItem->customer_sku_name = $item['customer_sku_name'];
+                $updatedItem->customer_sku_unit = $item['customer_sku_unit'];
+                $updatedItem->quantity2_po = $item['quantity2_po'];
+                $updatedItem->sku_sap_code = $item['sku_sap_code'];
+                $updatedItem->sku_sap_name = $item['sku_sap_name'];
+                $updatedItem->sku_sap_unit = $item['sku_sap_unit'];
+                $updatedItem->quantity3_sap = $item['quantity3_sap'];
+                $updatedItem->sap_code = $item['sap_code'];
+                $updatedItem->sap_name = $item['sap_name'];
+                $updatedItem->sap_quantity = $item['sap_quantity'];
+                $updatedItem->sap_unit_code = $item['sap_unit_code'];
+                $updatedItem->sap_user = $item['sap_user'];
+                $updatedItem->fulfillment_rate = $item['fulfillment_rate'];
 
-                $data['so_items'][] = $updatedItem;
+                $data->so_items[] = $updatedItem; // Thêm item vào mảng so_items
             }
-            $result[] = $data;
+            $result->so_items = array_merge($result->so_items, $data->so_items); // Thêm so_items từ data vào result
         }
         return $result;
     }
