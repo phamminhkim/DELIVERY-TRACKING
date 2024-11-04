@@ -180,6 +180,11 @@ class RouterSeeder extends Seeder
                 'path' => '/v2-dashboard-order-processes',
                 'component' => 'home/business/version_2/V2DashboardOrderProcesses'
             ],
+            [
+                'name' => 'Loại khuyến mãi',
+                'path' => '/material-category-type',
+                'component' => 'home/business/tables/TableMaterialCategoryType'
+            ],
         ];
 
         foreach ($routes as $routeData) {

@@ -388,6 +388,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
             ],
+            [
+                'title' => "Loại khuyến mãi",
+                'icon' => "fas fa-ad",
+                'link' => "material-category-type",
+                'query_string' => "",
+                'parent' => 'Quản lí dữ liệu',
+            ],
         ];
     }
 }
