@@ -145,10 +145,16 @@ class RouterSeeder extends Seeder
                 'path' => '/material-combos',
                 'component' => 'home/sap/MaterialCombo/MaterialCombos'
             ],
+
             [
                 'name' => 'KM hàng tặng hàng',
                 'path' => '/material-donateds',
                 'component' => 'home/sap/MaterialDonated/MaterialDonateds'
+            ],
+            [
+                'name' => 'KM CLC',
+                'path' => '/material-CLCs',
+                'component' => 'home/sap/MaterialCLC/MaterialCLCs'
             ],
             [
                 'name' => 'Khách hàng đối tác',

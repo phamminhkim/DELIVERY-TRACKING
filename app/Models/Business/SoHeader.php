@@ -2,6 +2,7 @@
 
 namespace App\Models\Business;
 
+use App\Models\Master\CustomerPartner;
 use App\Models\Master\UserMorph;
 use App\Models\Master\Warehouse;
 use Illuminate\Database\Eloquent\Model;
@@ -49,5 +50,9 @@ class SoHeader extends Model
     public function raw_po_header()
     {
         return $this->hasOne(RawPoHeader::class, 'po_number', 'po_number');
+    }
+    public function customer_partners()
+    {
+        return $this->belongsTo(CustomerPartner::class, 'customer_code')->select('id', 'code');
     }
 }
