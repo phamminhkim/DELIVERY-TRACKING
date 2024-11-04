@@ -950,6 +950,13 @@ export default {
             await items.forEach(item => {
                 this.filteredOrders.forEach(order => {
                     if (order.sku_sap_code == item.sap_code) {
+                        if (item.promotion_clc === 'X') {
+                            // order.promotion_category = item.promotion_clc;
+                            // order.is_promotive = true;
+                            // order.extra_offer = item.extra_offer;
+                            order.promotive = item.promotion_name;
+                            order.promotive_name = item.promotion_name;
+                        }
                         order.promotion_category = item.promotion_category;
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
@@ -2093,7 +2100,7 @@ export default {
         toStringInNumber(value) {
             if (value == null) {
                 return '';
-            }  else {
+            } else {
                 return value.toString();
             }
 

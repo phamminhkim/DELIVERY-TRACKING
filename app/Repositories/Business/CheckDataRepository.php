@@ -11,6 +11,7 @@ use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
+use App\Models\Master\MaterialCLC;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
 use App\Models\Master\Warehouse;
@@ -400,8 +401,8 @@ class CheckDataRepository extends RepositoryAbs
             $validator = Validator::make($this->request->all(), [
                 'customer_group_id' => 'required',
                 'items' => 'required|array',
-                'items.*.sap_code' => '',
-                'items.*.bar_code' => '',
+                'items.*.sap_code' => 'nullable|string',
+                'items.*.bar_code' => 'nullable|string',
             ], [
                 'items.array' => 'Data phải là mảng',
                 'items.required' => 'Data là bắt buộc',
@@ -424,16 +425,22 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = 'Không tìm thấy nhóm khách hàng';
                 return false;
             }
-            $mappingData = [];
-            foreach ($items as $item) {
-                $sap_code = isset($item['sap_code']) ? $item['sap_code'] : null;
-                $bar_code = isset($item['bar_code']) ? $item['bar_code'] : null;
-                $name = isset($item['name']) ? $item['name'] : null;
-                $promotion_category = isset($item['promotion_category']) ? $item['promotion_category'] : null;
 
+            $mappingData = [];
+
+            foreach ($items as $item) {
+                $sap_code = $item['sap_code'] ?? '';
+                $bar_code = $item['bar_code'] ?? '';
+                $name = $item['name'] ?? '';
+                $promotion_category = '';
+                $extra_offer = '';
+                $promotion_clc = '';
+                $promotion_name = '';
+
+                // Khởi tạo các biến với giá trị null để tránh lỗi undefined variable
                 $materialCombo = null;
-                $extra_offer = ''; //
-                $promotion_category = ''; //
+                $materialDonated = null;
+                $materialCLC = null;
 
                 // Kiểm tra xem sap_code hoặc bar_code có được cung cấp hay không
                 if (!empty($sap_code) || !empty($bar_code)) {
@@ -445,47 +452,51 @@ class CheckDataRepository extends RepositoryAbs
                             return $query->where('bar_code', $bar_code);
                         })
                         ->first();
+
+                    $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
+                        ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                            return $query->where('sap_code', $sap_code);
+                        })
+                        ->when(!empty($bar_code), function ($query) use ($bar_code) {
+                            return $query->where('bar_code', $bar_code);
+                        })
+                        ->first();
+
+                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
                 }
                 if ($materialCombo) {
-                    // $combo_category_type = MaterialCategoryType::where('name', 'Combo')
-                    //     ->where('is_deleted', false)
-                    //     ->first();
-
-                    // $promotion_category = $combo_category_type ? 'Combo' : null;
                     $promotion_category = 'X';
                     $name = $materialCombo->name;
-                } else {
-                    $sapMaterial = SapMaterial::where('sap_code', $sap_code)->first();
-
-                    if ($sapMaterial) {
-                        $name = $sapMaterial->name;
-
-                        $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
-
-                        if ($materialDonated) {
-                            // $donated_category_type = MaterialCategoryType::where('name', 'ExtraOffer')
-                            //     ->where('is_deleted', false)
-                            //     ->first();
-
-                            // $promotion_category = $donated_category_type ? 'ExtraOffer' : null;
-                            $extra_offer  = 'X';
-                        }
-                    }
+                    $clc_category_type = MaterialCategoryType::where('name', '_COMBO')
+                        ->where('is_deleted', false)
+                        ->first();
+                    $promotion_name = $clc_category_type->name ?? null;
+                } elseif ($materialDonated) {
+                    $extra_offer = 'X';
+                    $ex_category_type = MaterialCategoryType::where('name', '_IK')
+                        ->where('is_deleted', false)
+                        ->first();
+                    $promotion_name = $ex_category_type->name ?? null;
+                } elseif ($materialCLC) {
+                    $promotion_clc = 'X';
+                    $name = $materialCLC->name;
+                    $clc_category_type = MaterialCategoryType::where('name', '_CLC')
+                        ->where('is_deleted', false)
+                        ->first();
+                    $promotion_name = $clc_category_type->name ?? null;
                 }
-                // if ($promotion_category !== null) {
-                // $item['promotion_category'] = $promotion_category;
-                $item['name'] = $name;
-                if ($promotion_category == 'X' || $extra_offer == 'X') {
+                // Chỉ thêm vào mảng nếu ít nhất một trong ba trường có giá trị
+                if ($promotion_category || $extra_offer || $promotion_clc) {
                     $mappingData[] = [
                         'sap_code' => $sap_code,
                         'bar_code' => $bar_code,
                         'name' => $name,
                         'promotion_category' => $promotion_category,
-                        'extra_offer' =>  $extra_offer,
+                        'extra_offer' => $extra_offer,
+                        'promotion_clc' => $promotion_clc,
+                        'promotion_name' => $promotion_name,
                     ];
                 }
-
-                // }
             }
             return [
                 'success' => true,
@@ -497,7 +508,6 @@ class CheckDataRepository extends RepositoryAbs
             return false;
         }
     }
-
     public function checkInventory()
     {
         $result = [];

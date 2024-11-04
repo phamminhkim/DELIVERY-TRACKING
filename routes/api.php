@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\Master\CustomerPartnerController;
 use App\Http\Controllers\Api\Master\SapComplianceController;
 use App\Http\Controllers\Api\Master\MasterDataController;
 use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
+use App\Http\Controllers\Api\Master\MaterialCLCController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
@@ -105,6 +106,16 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [MaterialComboController::class, 'update']);
             Route::delete('/{id}', [MaterialComboController::class, 'destroy']);
             Route::delete('/', [MaterialComboController::class, 'destroyMultiple']);
+        });
+        Route::prefix('/material-clcs')->group(function () {
+            Route::get('/minified', [MaterialCLCController::class, 'getAllMinified']);
+            Route::get('/exportToExcel', [MaterialCLCController::class, 'exportToExcel']);
+            Route::get('/', [MaterialCLCController::class, 'getAll']);
+            Route::post('/excel', [MaterialCLCController::class, 'createMaterialCLCFormExcel']);
+            Route::post('/', [MaterialCLCController::class, 'store']);
+            Route::put('/{id}', [MaterialCLCController::class, 'update']);
+            Route::delete('/{id}', [MaterialCLCController::class, 'destroy']);
+            Route::delete('/', [MaterialCLCController::class, 'destroyMultiple']);
         });
         Route::prefix('/material-category')->group(function () {
             Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
