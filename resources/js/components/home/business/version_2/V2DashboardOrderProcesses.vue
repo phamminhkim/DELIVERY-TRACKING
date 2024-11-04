@@ -160,7 +160,7 @@
                     </div>
                 </div>
             </b-tab>
-            <!-- <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
+            <b-tab title="Báo cáo so sánh mức độ đáp ứng đơn hàng MT">
                 <div class="text-xs ">
                     <h6>MỨC ĐỘ ĐÁP ỨNG ĐƠN HÀNG KÊNH MT</h6>
                     <div class="mb-1">
@@ -174,7 +174,7 @@
                        <ChildDashboardResponseLevelOrderProcesses />
                     </div>
                 </div>
-            </b-tab> -->
+            </b-tab>
 
         </b-tabs>
 

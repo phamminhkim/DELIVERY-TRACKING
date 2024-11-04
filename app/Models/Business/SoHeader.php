@@ -46,4 +46,8 @@ class SoHeader extends Model
     {
         return $this->morphMany(UserMorph::class, 'morphable');
     }
+    public function raw_po_header()
+    {
+        return $this->hasOne(RawPoHeader::class, 'po_number', 'po_number');
+    }
 }
