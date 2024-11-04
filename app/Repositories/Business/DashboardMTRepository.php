@@ -415,9 +415,9 @@ class DashboardMTRepository extends RepositoryAbs
         if ($this->request->filled('customer_name')) {
             $query->where('customer_name', 'LIKE', '%' . $this->request->customer_name . '%');
         }
-        if ($this->request->filled('customer_code')) {
-            $query->where('customer_code', 'LIKE', '%' . $this->request->customer_code . '%');
-        }
+        // if ($this->request->filled('customer_code')) {
+        //     $query->where('customer_code', 'LIKE', '%' . $this->request->customer_code . '%');
+        // }
         if ($this->request->filled('created_bys')) {
             $query->whereHas('order_process', function ($query) {
                 $query->whereIn('created_by', $this->request->created_bys);
