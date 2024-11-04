@@ -439,6 +439,18 @@ class DashboardMTRepository extends RepositoryAbs
     protected function mapItemsToSapMaterials($soHeaders)
     {
         $result = [];
+        $poNumbers = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'po_number');
+
+        // Bước 1: Truy vấn tất cả các RawPoHeader theo po_numbers với kích thước chunk và lưu vào mảng tạm thời
+        $rawPoHeaders = [];
+        RawPoHeader::whereIn('po_number', $poNumbers)
+            ->chunk(1000, function ($chunk) use (&$rawPoHeaders) {
+                foreach ($chunk as $rawPoHeader) {
+                    $rawPoHeaders[$rawPoHeader->po_number][] = $rawPoHeader;
+                }
+            });
+
+        // Bước 2: Xử lý từng soHeader và dữ liệu liên quan của nó
         foreach ($soHeaders as $soHeader) {
             $data = [
                 'id' => $soHeader->id,
@@ -454,31 +466,24 @@ class DashboardMTRepository extends RepositoryAbs
                 ],
                 'so_items' => [],
             ];
-            /// Tìm tất cả raw_po_header có cùng po_number
-            $rawPoHeaders = RawPoHeader::where('po_number', $soHeader->po_number)->get();
-            // Nếu có nhiều raw_po_header, chỉ lấy raw_po_data_items từ ID cuối cùng
-            $itemsArray = [];
-            if ($rawPoHeaders->isNotEmpty()) {
-                // Lấy raw_po_header cuối cùng
-                $lastRawPoHeader = $rawPoHeaders->last();
-                $lastRawPoHeaderId = $lastRawPoHeader->id;
-                // Sử dụng chunk để truy vấn raw_po_data_items
-                // Truy vấn raw_po_data_items dựa trên lastRawPoHeaderId
-                RawPoDataItem::where('raw_po_header_id', $lastRawPoHeaderId)
+            $itemsArray = [];  // Khởi tạo mảng $itemsArray là mảng rỗng
+            // Bước 3: Lấy RawPoHeader cuối cùng liên quan đến po_number của soHeader này
+            $poHeaders = $rawPoHeaders[$soHeader->po_number] ?? [];
+
+            if (!empty($poHeaders)) {
+                $lastRawPoHeaderId = end($poHeaders)->id;
+
+                // Lấy tất cả các raw_po_data_items mà không dùng chunk
+                $itemsArray = RawPoDataItem::where('raw_po_header_id', $lastRawPoHeaderId)
                     ->select('raw_po_header_id', 'customer_sku_code', 'customer_sku_name', 'customer_sku_unit', 'quantity2_po')
-                    ->chunk(5000, function ($chunk) use (&$itemsArray) {
-                        foreach ($chunk as $item) {
-                            $itemsArray[] = $item->toArray(); // Chuyển đổi mỗi item thành mảng
-                        }
-                    });
+                    ->get()
+                    ->toArray();
             }
             $customer_group_id = optional($soHeader->order_process->customer_group)->id;
-            // $items = $soHeader->raw_po_header->raw_po_data_items ?? [];
-            $itemsArray = is_object($itemsArray) ? $itemsArray->toArray() : $itemsArray;
             $customerSkuCodes = array_filter(array_column($itemsArray, 'customer_sku_code'));
 
+            // Bước 4: Truy vấn tất cả SAP Materials và SAP Material Mappings với kích thước chunk
             $sapMaterials = [];
-            $sapMaterialMappings = [];
             SapMaterial::whereIn('bar_code', $customerSkuCodes)
                 ->where('is_deleted', 0)
                 ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
@@ -490,6 +495,8 @@ class DashboardMTRepository extends RepositoryAbs
                         }
                     }
                 });
+
+            $sapMaterialMappings = [];
             SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
                 $query->where('customer_group_id', $customer_group_id)
                     ->whereIn('customer_sku_code', $customerSkuCodes);
@@ -498,7 +505,6 @@ class DashboardMTRepository extends RepositoryAbs
                     $sapMaterialMappings[$mapping->customer_material->customer_sku_code][] = $mapping;
                 }
             });
-
             $mappingData = [];
             foreach ($itemsArray as $item) {
                 if (!empty($item['customer_sku_code'])) {
@@ -538,39 +544,37 @@ class DashboardMTRepository extends RepositoryAbs
                         $mappingData[] = $item;
                     }
                 }
-                $sapData = [
-                    "ID" => "1001",
-                    "action_name" => "FETCH_SALESORDERS",
-                    "BODY" => [
-                        ["VBELN" => $soHeader->so_uid]
-                    ]
-                ];
-                $json = SapApiHelper::postData(json_encode($sapData));
-                $jsonData = json_decode(json_encode($json), true);
-                if (!empty($jsonData['data'])) {
-                    foreach ($jsonData['data'] as $json_value) {
-                        $sapItems = $json_value['ITEMS'] ?? [];
-                        foreach ($sapItems as $item_sap) {
-                            foreach ($mappingData as &$item) {
-                                $sapQuantity = $item_sap['SAP_QUANTITY'] ?? null;
-                                $quantity3_sap = $item['quantity3_sap'] ?? null;
+            }
+            // Bước 5: Lấy dữ liệu từ API SAP và tính toán fulfillment_rate
+            $sapData = [
+                "ID" => "1001",
+                "action_name" => "FETCH_SALESORDERS",
+                "BODY" => [
+                    ["VBELN" => $soHeader->so_uid]
+                ]
+            ];
+            $json = SapApiHelper::postData(json_encode($sapData));
+            $jsonData = json_decode(json_encode($json), true);
 
-                                $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
-                                    ? round(($sapQuantity / $quantity3_sap) * 100)
-                                    : 0;
-                                // Làm tròn fulfillment_rate đến số nguyên gần nhất
-                                $fulfillmentRate = round($fulfillmentRate);
-                                // Chia cho 100 nếu fulfillmentRate lớn hơn 100
-                                if ($fulfillmentRate > 100) {
-                                    $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
-                                }
-                                $item['sap_code'] = $item_sap['SAP_CODE'] ?? null;
-                                $item['sap_name'] = $item_sap['SAP_NAME'] ?? null;
-                                $item['sap_quantity'] = $sapQuantity;
-                                $item['unit_code'] = $item_sap['UNIT_CODE'] ?? null;
-                                $item['user'] = $item_sap['USER'] ?? null;
-                                $item['fulfillment_rate'] = $fulfillmentRate;
+            if (!empty($jsonData['data'])) {
+                foreach ($jsonData['data'] as $json_value) {
+                    $sapItems = $json_value['ITEMS'] ?? [];
+                    foreach ($sapItems as $item_sap) {
+                        foreach ($mappingData as &$item) {
+                            $sapQuantity = $item_sap['SAP_QUANTITY'] ?? null;
+                            $quantity3_sap = $item['quantity3_sap'] ?? null;
+                            $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
+                                ? round(($sapQuantity / $quantity3_sap) * 100)
+                                : 0;
+                            if ($fulfillmentRate > 100) {
+                                $fulfillmentRate /= 100;
                             }
+                            $item['sap_code'] = $item_sap['SAP_CODE'] ?? null;
+                            $item['sap_name'] = $item_sap['SAP_NAME'] ?? null;
+                            $item['sap_quantity'] = $sapQuantity;
+                            $item['sap_unit_code'] = $item_sap['UNIT_CODE'] ?? null;
+                            $item['sap_user'] = $item_sap['USER'] ?? null;
+                            $item['fulfillment_rate'] = $fulfillmentRate;
                         }
                     }
                 }
