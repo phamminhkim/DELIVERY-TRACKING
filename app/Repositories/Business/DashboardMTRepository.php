@@ -558,6 +558,7 @@ class DashboardMTRepository extends RepositoryAbs
                     ["VBELN" => $soHeader->so_uid]
                 ]
             ];
+            // dd($sapData);
             $json = SapApiHelper::postData(json_encode($sapData));
             $jsonData = json_decode(json_encode($json), true);
 
@@ -568,11 +569,14 @@ class DashboardMTRepository extends RepositoryAbs
             } else {
                 if (!empty($jsonData['data'])) {
                     foreach ($jsonData['data'] as $json_value) {
-                        $sapItems = $json_value['ITEMS'] ?? [];
-                        foreach ($sapItems as $item_sap) {
+                        // dd($jsonData['data']);
+                        $so_numbers = $json_value['SO_NUMBER'];
+                        $item = $json_value['ITEMS'] ?? [];
+                        // foreach ($sapItems as $item_sap) {
                             foreach ($soItems as &$item) {
-                                $sapQuantity = $item_sap['SAP_QUANTITY'] ?? null;
+                                $sapQuantity = $json_value['SAP_QUANTITY'] ?? null;
                                 $quantity3_sap = $item['quantity3_sap'] ?? null;
+                                $customer_sku_code = $item['customer_sku_code'] ?? null;
 
                                 $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
                                     ? round(($sapQuantity / $quantity3_sap) * 100)
@@ -584,14 +588,14 @@ class DashboardMTRepository extends RepositoryAbs
                                     $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
                                 }
                                 // Cập nhật các giá trị khác
-                                $item['sap_code'] = $item_sap['SAP_CODE'] ?? null;
-                                $item['sap_name'] = $item_sap['SAP_NAME'] ?? null;
+                                $item['sap_code'] = $json_value['SAP_CODE'] ?? null;
+                                $item['sap_name'] = $json_value['SAP_NAME'] ?? null;
                                 $item['sap_quantity'] = $sapQuantity;
-                                $item['sap_unit_code'] = $item_sap['UNIT_CODE'] ?? null;
-                                $item['sap_user'] = $item_sap['USER'] ?? null;
+                                $item['sap_unit_code'] = $json_value['UNIT_CODE'] ?? null;
+                                $item['sap_user'] = $json_value['USER'] ?? null;
                                 $item['fulfillment_rate'] = $fulfillmentRate;
                             }
-                        }
+                        // }
                     }
                 }
             }
