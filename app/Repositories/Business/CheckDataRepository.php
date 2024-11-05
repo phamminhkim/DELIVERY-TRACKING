@@ -615,16 +615,21 @@ class CheckDataRepository extends RepositoryAbs
                         $jsonString = json_encode($json); // Convert the array to a JSON string
                         $jsonData = json_decode($jsonString, true);
 
+                        $materialPrices = []; // Sử dụng mảng này để lưu trữ giá của từng material
+
                         if (!empty($jsonData['data'])) {
-                            foreach ($jsonData['data'] as $index => $json_value) {
+                            foreach ($jsonData['data'] as $json_value) {
                                 $material = $json_value['MATERIAL'] ?? null;
                                 $price = $json_value['PRICE'] ?? null;
 
-                                $result[] = [
-                                    "so_numbers" => $soNumber,
-                                    "MATERIAL" => $material,
-                                    "PRICE" => $price,
-                                ];
+                                if (!array_key_exists($material, $materialPrices) || !$materialPrices[$material]) {
+                                    $materialPrices[$material] = $price;
+                                    $result[] = [
+                                        "so_numbers" => $soNumber,
+                                        "MATERIAL" => $material,
+                                        "PRICE" => $price,
+                                    ];
+                                }
                             }
                         } else {
                             // Không tìm thấy thông tin vật liệu và giá
@@ -647,6 +652,7 @@ class CheckDataRepository extends RepositoryAbs
             $this->errors = $exception->getTrace();
         }
     }
+
     public function getSoSapNoteSyntax($customer_group_id)
     {
         $so_sap_note_syntax = null;
