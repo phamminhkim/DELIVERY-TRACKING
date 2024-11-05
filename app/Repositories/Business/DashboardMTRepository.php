@@ -381,15 +381,10 @@ class DashboardMTRepository extends RepositoryAbs
             ->whereHas('order_process', function ($query) {
                 $query->where('is_deleted', 0);
             });
-        // thực hiện lọc dữ liệu
+
+        // Lọc dữ liệu theo các điều kiện từ request
         if ($this->request->filled('ids')) {
             $query->whereIn('id', $this->request->ids);
-        }
-        if ($this->request->filled('from_date')) {
-            $query->whereDate('created_at', '>=', $this->request->from_date);
-        }
-        if ($this->request->filled('to_date')) {
-            $query->whereDate('created_at', '<=', $this->request->to_date);
         }
         if ($this->request->filled('so_uid')) {
             $query->where('so_uid', 'LIKE', '%' . $this->request->so_uid . '%');
@@ -401,12 +396,12 @@ class DashboardMTRepository extends RepositoryAbs
             $query->where('po_number', 'LIKE', '%' . $this->request->po_number . '%');
         }
         if ($this->request->filled('sap_codes')) {
-            $sap_codes = $this->request->sap_codes; // Sử dụng sap_codes từ request
+            $sap_codes = $this->request->sap_codes;
             $query->whereHas('order_process', function ($query) use ($sap_codes) {
                 $query->whereHas('customer_group', function ($query) use ($sap_codes) {
                     $query->whereHas('customer_materials', function ($query) use ($sap_codes) {
                         $query->whereHas('sap_materials', function ($query) use ($sap_codes) {
-                            $query->whereIn('sap_code', $sap_codes); // Tìm kiếm bằng whereIn
+                            $query->whereIn('sap_code', $sap_codes);
                         });
                     });
                 });
@@ -415,9 +410,6 @@ class DashboardMTRepository extends RepositoryAbs
         if ($this->request->filled('customer_name')) {
             $query->where('customer_name', 'LIKE', '%' . $this->request->customer_name . '%');
         }
-        // if ($this->request->filled('customer_code')) {
-        //     $query->where('customer_code', 'LIKE', '%' . $this->request->customer_code . '%');
-        // }
         if ($this->request->filled('created_bys')) {
             $query->whereHas('order_process', function ($query) {
                 $query->whereIn('created_by', $this->request->created_bys);
@@ -434,6 +426,21 @@ class DashboardMTRepository extends RepositoryAbs
             });
         }
 
+        // Khởi tạo khoảng thời gian mặc định là 1 tuần gần nhất
+        $endDate = now()->endOfDay();
+        $startDate = now()->subDays(7)->startOfDay();
+
+        // Nếu có `from_date` và `to_date`, ghi đè lên khoảng ngày mặc định
+        if ($this->request->filled('from_date')) {
+            $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+        }
+        if ($this->request->filled('to_date')) {
+            $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+        }
+
+        // Áp dụng điều kiện thời gian vào truy vấn
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+
         // Lấy dữ liệu báo cáo đơn hàng
         return $query->with([
             'order_process.customer_group:id,name',
@@ -441,6 +448,7 @@ class DashboardMTRepository extends RepositoryAbs
             'raw_po_header.raw_po_data_items',
         ])->orderByDesc('id')->get();
     }
+
 
     protected function mapItemsToSapMaterials($soHeaders)
     {
