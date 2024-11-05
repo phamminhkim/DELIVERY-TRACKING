@@ -449,79 +449,66 @@ class DashboardMTRepository extends RepositoryAbs
         ])->orderByDesc('id')->get();
     }
 
+
     protected function mapItemsToSapMaterials($soHeaders)
     {
-        $result = new \stdClass();
-        $result->so_items = [];
+        $result = new \stdClass(); // Tạo một đối tượng rỗng
+        $result->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
 
         $poNumbers = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'po_number');
 
-        // Truy vấn RawPoHeaders với chunk và xử lý ngay, tránh lưu trữ quá nhiều trong bộ nhớ
+        // Truy vấn các RawPoHeader theo po_numbers với chunk để giảm tải bộ nhớ
         $rawPoHeaders = [];
-        RawPoHeader::select('id', 'po_number')
-            ->whereIn('po_number', $poNumbers)
+        RawPoHeader::whereIn('po_number', $poNumbers)
             ->chunk(1000, function ($chunk) use (&$rawPoHeaders) {
                 foreach ($chunk as $rawPoHeader) {
-                    $rawPoHeaders[$rawPoHeader->po_number] = $rawPoHeader;
+                    $rawPoHeaders[$rawPoHeader->po_number][] = $rawPoHeader;
                 }
             });
 
-        // Truy vấn RawPoDataItems dựa trên các RawPoHeaders đã lấy được
-        $rawPoHeaderIds = array_column($rawPoHeaders, 'id');
+        // Truy vấn tất cả các RawPoDataItem với chunk
+        $rawPoHeaderIds = collect($rawPoHeaders)->flatten()->pluck('id')->toArray();
         $rawPoDataItems = [];
-        RawPoDataItem::select('raw_po_header_id', 'customer_sku_code', 'quantity2_po')
-            ->whereIn('raw_po_header_id', $rawPoHeaderIds)
+        RawPoDataItem::whereIn('raw_po_header_id', $rawPoHeaderIds)
             ->chunk(1000, function ($chunk) use (&$rawPoDataItems) {
                 foreach ($chunk as $item) {
                     $rawPoDataItems[$item->raw_po_header_id][] = $item;
                 }
             });
-
         foreach ($soHeaders as $soHeader) {
-            $data = new \stdClass();
-            $data->so_items = [];
-
+            // Khởi tạo dữ liệu cơ bản từ soHeader
+            $data = new \stdClass(); // Tạo một đối tượng rỗng cho mỗi soHeader
+            $data->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
+            // Lấy RawPoHeader cuối cùng và các RawPoDataItem liên quan
             $poHeaders = $rawPoHeaders[$soHeader->po_number] ?? [];
             $lastRawPoHeaderId = end($poHeaders)->id ?? null;
             $itemsArray = $rawPoDataItems[$lastRawPoHeaderId] ?? [];
-
+            // Chuẩn bị dữ liệu cho SAP Material và SAP Material Mapping
             $customer_group_id = optional($soHeader->order_process->customer_group)->id;
             $customerSkuCodes = array_column($itemsArray, 'customer_sku_code');
-            // Caching SAP Material data to avoid repetitive queries
-            static $sapMaterialsCache = [];
-            $sapMaterials = $sapMaterialsCache;
-
-            if (!$sapMaterials) {
-                SapMaterial::select('bar_code', 'sap_code', 'name', 'unit_id', 'priority', 'is_deleted')
-                    ->whereIn('bar_code', $customerSkuCodes)
-                    ->where('is_deleted', 0)
-                    ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
-                    ->chunk(1000, function ($chunk) use (&$sapMaterials) {
-                        foreach ($chunk as $sapMaterial) {
-                            if (!isset($sapMaterials[$sapMaterial->bar_code]) || $sapMaterial->priority < $sapMaterials[$sapMaterial->bar_code]->priority) {
-                                $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
-                            }
+            // Truy vấn các SAP Materials với chunk để giảm tải bộ nhớ
+            $sapMaterials = [];
+            SapMaterial::whereIn('bar_code', $customerSkuCodes)
+                ->where('is_deleted', 0)
+                ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
+                ->chunk(1000, function ($chunk) use (&$sapMaterials) {
+                    foreach ($chunk as $sapMaterial) {
+                        if (!isset($sapMaterials[$sapMaterial->bar_code]) || $sapMaterial->priority < $sapMaterials[$sapMaterial->bar_code]->priority) {
+                            $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
                         }
-                    });
-                $sapMaterialsCache = $sapMaterials;
-            }
-
-            // Caching SAP Material Mapping data
-            static $sapMaterialMappingsCache = [];
-            $sapMaterialMappings = $sapMaterialMappingsCache;
-
-            if (!$sapMaterialMappings) {
-                SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
-                    $query->where('customer_group_id', $customer_group_id)
-                        ->whereIn('customer_sku_code', $customerSkuCodes);
-                })->chunk(1000, function ($chunk) use (&$sapMaterialMappings) {
-                    foreach ($chunk as $mapping) {
-                        $sapMaterialMappings[$mapping->customer_material->customer_sku_code][] = $mapping;
                     }
                 });
-                $sapMaterialMappingsCache = $sapMaterialMappings;
-            }
 
+            // Truy vấn các SAP Material Mapping với chunk
+            $sapMaterialMappings = [];
+            SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
+                $query->where('customer_group_id', $customer_group_id)
+                    ->whereIn('customer_sku_code', $customerSkuCodes);
+            })->chunk(1000, function ($chunk) use (&$sapMaterialMappings) {
+                foreach ($chunk as $mapping) {
+                    $sapMaterialMappings[$mapping->customer_material->customer_sku_code][] = $mapping;
+                }
+            });
             // Mapping dữ liệu cho từng item
             $soItems = [];
             foreach ($itemsArray as $item) {
@@ -539,7 +526,6 @@ class DashboardMTRepository extends RepositoryAbs
                         $foundMapping = true;
                     }
                 }
-
                 if (!$foundMapping && isset($sapMaterialMappings[$customer_sku_code])) {
                     foreach ($sapMaterialMappings[$customer_sku_code] as $sapMaterialMapping) {
                         $sapMaterial = SapMaterial::find($sapMaterialMapping->sap_material_id);
@@ -555,7 +541,6 @@ class DashboardMTRepository extends RepositoryAbs
                         }
                     }
                 }
-
                 if (!$foundMapping) {
                     $item['sku_sap_code'] = null;
                     $item['sku_sap_name'] = null;
@@ -565,7 +550,7 @@ class DashboardMTRepository extends RepositoryAbs
                 }
             }
 
-            // Truy vấn SAP API để tính fulfillment_rate
+            // Tính toán fulfillment_rate từ SAP API và xử lý dữ liệu
             $sapData = [
                 "ID" => "1001",
                 "action_name" => "FETCH_SALESORDERS",
@@ -576,9 +561,10 @@ class DashboardMTRepository extends RepositoryAbs
             $json = SapApiHelper::postData(json_encode($sapData));
             $jsonData = json_decode(json_encode($json), true);
 
+            // Kiểm tra lỗi kết nối đồng bộ
             if (!$jsonData['success']) {
                 $this->errors['sap_error'] = $jsonData['error'];
-                return null;
+                return null; // Trả về null nếu có lỗi
             } else {
                 if (!empty($jsonData['data'])) {
                     foreach ($jsonData['data'] as $json_value) {
@@ -587,15 +573,17 @@ class DashboardMTRepository extends RepositoryAbs
                             foreach ($soItems as &$item) {
                                 $sapQuantity = $item_sap['SAP_QUANTITY'] ?? null;
                                 $quantity3_sap = $item['quantity3_sap'] ?? null;
+
                                 $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
                                     ? round(($sapQuantity / $quantity3_sap) * 100)
                                     : 0;
-
+                                // Làm tròn fulfillment_rate đến số nguyên gần nhất
                                 $fulfillmentRate = round($fulfillmentRate);
+                                // Chia cho 100 nếu fulfillmentRate lớn hơn 100
                                 if ($fulfillmentRate > 100) {
-                                    $fulfillmentRate = $fulfillmentRate / 100;
+                                    $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
                                 }
-
+                                // Cập nhật các giá trị khác
                                 $item['sap_code'] = $item_sap['SAP_CODE'] ?? null;
                                 $item['sap_name'] = $item_sap['SAP_NAME'] ?? null;
                                 $item['sap_quantity'] = $sapQuantity;
@@ -607,16 +595,16 @@ class DashboardMTRepository extends RepositoryAbs
                     }
                 }
             }
-
+            // Cập nhật dữ liệu cho từng item từ soHeader
             foreach ($soItems as $item) {
-                $updatedItem = new \stdClass();
+                $updatedItem = new \stdClass(); // Tạo một đối tượng mới cho mỗi item
                 $updatedItem->id = $soHeader->id;
                 $updatedItem->customer_code = $soHeader->customer_code;
                 $updatedItem->customer_name = $soHeader->customer_name;
                 $updatedItem->po_number = $soHeader->po_number;
                 $updatedItem->so_uid = $soHeader->so_uid;
                 $updatedItem->created_at = $soHeader->created_at;
-                $updatedItem->order_process = new \stdClass();
+                $updatedItem->order_process = new \stdClass(); // Tạo đối tượng cho order_process
                 $updatedItem->order_process->id = $soHeader->order_process->id;
                 $updatedItem->order_process->customer_group_name = $soHeader->order_process->customer_group->name;
                 $updatedItem->order_process->created_by = $soHeader->order_process->created_by;
@@ -636,9 +624,9 @@ class DashboardMTRepository extends RepositoryAbs
                 $updatedItem->sap_user = $item['sap_user'];
                 $updatedItem->fulfillment_rate = $item['fulfillment_rate'];
 
-                $data->so_items[] = $updatedItem;
+                $data->so_items[] = $updatedItem; // Thêm item vào mảng so_items
             }
-            $result->so_items = array_merge($result->so_items, $data->so_items);
+            $result->so_items = array_merge($result->so_items, $data->so_items); // Thêm so_items từ data vào result
         }
         return $result;
     }
