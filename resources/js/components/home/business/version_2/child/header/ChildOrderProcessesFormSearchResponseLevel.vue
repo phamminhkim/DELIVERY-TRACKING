@@ -17,7 +17,28 @@
                             :options="customer_groups" :multiple="true" class="text-xs mb-1" />
                     </div>
                 </div>
-
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Mã
+                            KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Mã KH">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Tên
+                            KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Tên KH">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -56,8 +77,9 @@
                         <span for="" class="mb-0 px-2  span-start-date">Khách hàng</span>
                     </div>
                     <div class="flex-fill">
-                        <treeselect placeholder="Khách hàng" v-model="order.customers" :options="customers"
-                            :multiple="true" class="text-xs mb-1" />
+                        <treeselect placeholder="Khách hàng" v-model="order.customers" :options="customer_partners"
+                            @input="handleIPutCustomerPartner" @search-change="onSearchChange" :multiple="true"
+                            class="text-xs mb-1" />
                     </div>
                 </div>
 
@@ -99,7 +121,7 @@
                         <span for="" class="mb-0 px-2  span-start-date">Người tạo</span>
                     </div>
                     <div class="flex-fill">
-                        <treeselect placeholder="Người dùng" v-model="order.user_ids" :options="user_roles"
+                        <treeselect placeholder="Người tạo" v-model="order.user_ids" :options="user_roles"
                             :multiple="true" class="text-xs mb-1" />
                     </div>
                 </div>
@@ -111,6 +133,7 @@
 <script>
 import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import ApiHandler from '../../../../ApiHandler';
 export default {
     components: {
         Treeselect
@@ -122,6 +145,8 @@ export default {
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
+            is_loading: false,
             order: {
                 customer_group_ids: [],
                 customers: [],
@@ -129,10 +154,18 @@ export default {
                 start_date: null,
                 end_date: null,
             },
+            searchText: '',
+            searchTimeout: null, // Biến lưu trữ timeout
+            customer_partners: [],
+            url_api: {
+                dashboard_report: 'api/dashboard/MT/report',
+                customer_partners: 'api/master/customer-partners',
+            },
         }
     },
-    created() {
+    async created() {
         this.createdOneMonth();
+        await this.fetchCustomerPartner();
     },
     methods: {
         createdOneMonth() {
@@ -142,7 +175,58 @@ export default {
 
             this.order.start_date = startDate;
             this.order.end_date = endDate;
-        }
+        },
+        handleIPutCustomerPartner(state, value) {
+            console.log('event', state, value);
+        },
+        onSearchChange(text) {
+            // setTimeOut
+            // Xóa timeout trước đó nếu có
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+
+            // Thiết lập timeout mới để trì hoãn xử lý
+            this.searchTimeout = setTimeout(() => {
+                this.searchText = text;
+                console.log('search', this.searchText);
+                this.$emit('search-change', this.searchText);
+                this.fetchCustomerPartner();
+            }, 800); // Điều chỉnh thời gian (ms) phù hợp
+
+            // tôi sẽ gửi request sau 800ms kể từ lần cuối cùng người dùng nhập
+
+
+        },
+        async fetchCustomerPartner() {
+            try {
+                this.is_loading = true;
+                const body = {
+                    // from_date: this.order.start_date,
+                    // to_date: this.order.end_date,
+                    // customer_group_ids: this.order.customer_group_ids,
+                    // user_ids: this.order.user_ids,
+                    search: this.searchText,
+                    per_page: 100,
+                }
+                const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+                if (success) {
+                    this.customer_partners = this.mapTreeSelect(data.data);
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        mapTreeSelect(data) {
+            return data.map(item => {
+                return {
+                    id: item.id,
+                    label: item.name + ' (' + item.code + ')',
+                }
+            });
+        },
     },
     computed: {
 

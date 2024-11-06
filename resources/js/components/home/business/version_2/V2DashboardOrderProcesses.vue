@@ -114,8 +114,9 @@
                     <div class="mb-2">
                         <div class="row">
                             <div class="col-lg-8">
-                                <div class="card bg-card-line shadow-lg border mb-0"
-                                    style="background: rgba(51, 65, 85) !important;">
+                                <div class="card  border mb-0"
+                                    >
+                                    <!-- style="background: rgba(51, 65, 85) !important;" -->
                                     <div class="card-body p-0">
                                         <ChildDashboardLineOrderProcesses :data_dashboard_line="data_dashboard_line" />
                                         <div v-show="is_loading" class="text-center text-white icon-loading"><i
@@ -147,7 +148,8 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-8">
-                                    <div class="rounded h-100" style="background: rgb(51, 65, 85,0.91);">
+                                    <div class="rounded h-100" >
+                                        <!-- style="background: rgb(51, 65, 85,0.91);" -->
                                         <!-- <ChildDashboardPieOrderProcesses_copy /> -->
                                         <ChildDashboardBarOrderProcesses :data_dashboard_user="data_dashboard_user" />
                                         <div v-show="is_loading" class="text-center text-warning  icon-loading"><i
@@ -168,10 +170,11 @@
                                 class="fas fa-file-export mr-2"></i>Xuất báo cáo</button>
                     </div> -->
                     <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
-                        <ChildOrderProcessesFormSearchResponseLevel :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
+                        <ChildOrderProcessesFormSearchResponseLevel @search-change="onSearchChange"
+                        :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
                     <div class="form-group bg-white">
-                       <ChildDashboardResponseLevelOrderProcesses :reportes="reportes" />
+                       <ChildDashboardResponseLevelOrderProcesses  :search_change="search_change"  />
                     </div>
                 </div>
             </b-tab>
@@ -211,6 +214,7 @@ export default {
         return {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
+            search_change: '',
             customers: [
                 {
                     id: 1,
@@ -292,30 +296,10 @@ export default {
         await this.fetchDashboardPie();
         await this.fetchDashboardUser();
         await this.fetchDashboardShared();
-        await this.fetchDashboardReport();
-
+        
     },
     methods: {
-        async fetchDashboardReport() {
-            try {
-                this.is_loading = true;
-                const body = {
-                    // from_date: this.order.start_date,
-                    // to_date: this.order.end_date,
-                    // customer_group_ids: this.order.customer_group_ids,
-                    // user_ids: this.order.user_ids,
-                    // sync_sap_status: this.order.sync_sap_status
-                }
-                const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
-                if (success) {
-                    this.reportes = data.so_items;
-                }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            } finally {
-                this.is_loading = false;
-            }
-        },
+       
         async fetchDashboardShared() {
             try {
                 this.is_loading = true;
@@ -512,6 +496,9 @@ export default {
                 start_date: new Date(),
                 end_date: new Date(),
             }
+        },
+        onSearchChange(text) {
+            this.search_change = text;
         },
       
     },

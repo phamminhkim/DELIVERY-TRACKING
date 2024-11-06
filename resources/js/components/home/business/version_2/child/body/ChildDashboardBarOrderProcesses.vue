@@ -88,8 +88,8 @@ export default {
           title: {
             display: true,
             text: "PO NGƯỜI DÙNG",
-            color: "rgb(255 255 224)",
-            // color: "black",
+            // color: "rgb(255 255 224)",
+            color: "black",
             font: {
               weight: "bold",
             },
@@ -98,7 +98,8 @@ export default {
             display: true,
             position: "right",
             labels: {
-              color: "rgb(255 255 224)",
+              // color: "rgb(255 255 224)",
+              color: "black",
               font: {
                 weight: "bold",
               },
@@ -113,7 +114,8 @@ export default {
               minor: {
                 enabled: true, // show minor ticks
                 display: "auto", // display minor ticks automatically
-                color: "gray", // color of minor ticks
+                // color: "gray", // color of minor ticks
+                color: "black", // color of minor ticks
                 lineWidth: 0.5, // width of minor ticks
               },
             },
@@ -123,12 +125,15 @@ export default {
               offset: false,
               tickColor: "#707070",
               color: "transparent",
+              // color: "black",
             },
             border: {
               display: true,
               color: "#707070",
             },
-            ticks: { color: "white" },
+            // ticks: { color: "white" },
+            ticks: { color: "black" },
+
           },
           y: {
             beginAtZero: true,
@@ -152,7 +157,7 @@ export default {
               display: true,
               color: "#707070",
             },
-            ticks: { color: "white" },
+            ticks: { color: "black" },
           },
         },
       },
