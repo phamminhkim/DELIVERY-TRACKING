@@ -132,10 +132,12 @@ export default {
     generateRandomColor() {
       let color;
       do {
-        // Sinh màu ngẫu nhiên
+        // Sinh màu ngẫu nhiên nhưng thể hiện được màu rõ ràng và khác biệt không sử dụng màu quá giông nhau
         const r = Math.floor(Math.random() * 256);
         const g = Math.floor(Math.random() * 256);
         const b = Math.floor(Math.random() * 256);
+        
+       
         color = `rgb(${r}, ${g}, ${b})`;
       } while (this.background_color.includes(color)); // Lặp lại nếu màu đã tồn tại
 

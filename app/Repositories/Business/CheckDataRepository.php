@@ -451,15 +451,16 @@ class CheckDataRepository extends RepositoryAbs
                         ->when(!empty($bar_code), function ($query) use ($bar_code) {
                             return $query->where('bar_code', $bar_code);
                         })
+                        ->where('is_active', 1)
                         ->first();
 
                     $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
                         ->when(!empty($sap_code), function ($query) use ($sap_code) {
                             return $query->where('sap_code', $sap_code);
                         })
+                        ->where('is_active', 1)
                         ->first();
-
-                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->first();
+                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->where('is_active', 1)->first();
                 }
                 if ($materialCombo) {
                     $promotion_category = 'X';

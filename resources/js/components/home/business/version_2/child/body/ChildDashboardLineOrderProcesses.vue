@@ -152,7 +152,8 @@ export default {
           title: {
             display: true,
             text: "PO NGÀY",
-            color: "rgb(255 255 224)",
+            // color: "rgb(255 255 224)",
+            color: "black",
             font: {
               weight: "bold",
             },
@@ -257,7 +258,7 @@ export default {
       }
       const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
       gradient.addColorStop(0, 'rgba(255, 100, 100, 1)'); // Đỏ ở trên  
-      gradient.addColorStop(0.5, 'rgba(255, 255, 255, 1)'); // Trắng ở giữa  
+      // gradient.addColorStop(0.5, 'rgba(255, 255, 255, 1)'); // Trắng ở giữa  
       gradient.addColorStop(1, 'rgba(255, 0, 0, 1)'); // Đỏ ở dưới  
       return gradient;
     }

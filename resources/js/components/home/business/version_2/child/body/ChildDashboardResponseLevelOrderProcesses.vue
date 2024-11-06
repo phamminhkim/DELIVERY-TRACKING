@@ -17,18 +17,23 @@
 </template>
 <script>
 import PaginationTable from '../../../paginations/PaginationRequest.vue';
+import ApiHandler, { APIRequest } from '../../../../ApiHandler';
+
 export default {
     props: {
-        reportes: { type: Array, default: () => [] },
-
+        search_change: { type: String, default: '' }
     },
     components: {
         PaginationTable
     },
     data() {
         return {
+            api_handler: new ApiHandler(window.Laravel.access_token),
+            is_loading: false,
             currentPage: 1,
             perPage: 10,
+            reportes: [],
+            customer_partners: [],
             fields: [
                 { key: 'id', label: 'STT' },
                 { key: 'created_at', label: 'Ngày tạo', class: 'text-nowrap text-xs' },
@@ -49,14 +54,81 @@ export default {
                 { key: 'fulfillment_rate', label: 'Tỉ lệ đáp ứng', class: 'text-nowrap text-xs' },
                 { key: 'sap_user', label: 'Người tạo', class: 'text-nowrap text-xs' },
             ],
+            url_api: {
+                dashboard_report: 'api/dashboard/MT/report',
+                customer_partners: 'api/master/customer-partners',
+            }
         }
     },
+    watch: {
+        search_change: {
+            handler: function (val) {
+                this.search = val;
+                this.fetchCustomerPartner();
+            },
+            deep: true
+        }
+    },
+    async created() {
+        await this.fetchDashboardReport();
+        await this.fetchCustomerPartner();
+
+    },
     methods: {
+        async fetchDashboardReport() {
+            try {
+                this.is_loading = true;
+                const body = {
+                    // from_date: this.order.start_date,
+                    // to_date: this.order.end_date,
+                    // customer_group_ids: this.order.customer_group_ids,
+                    // user_ids: this.order.user_ids,
+                    // sync_sap_status: this.order.sync_sap_status
+                }
+                const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
+                if (success) {
+                    this.reportes = data.so_items;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        async fetchCustomerPartner() {
+            try {
+                this.is_loading = true;
+                const body = {
+                    // from_date: this.order.start_date,
+                    // to_date: this.order.end_date,
+                    // customer_group_ids: this.order.customer_group_ids,
+                    // user_ids: this.order.user_ids,
+                    search: this.search,
+                    per_page: 100,
+                }
+                const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+                if (success) {
+                    this.customer_partners = this.mapTreeSelect(data.data);
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         handlePageChange(page) {
             this.currentPage = page;
         },
         handlePerPageChange(perPage) {
             this.perPage = perPage;
+        },
+        mapTreeSelect(data) {
+            return data.map(item => {
+                return {
+                    id: item.id,
+                    label: item.name + ' (' + item.code + ')',
+                }
+            });
         }
     },
     computed: {
