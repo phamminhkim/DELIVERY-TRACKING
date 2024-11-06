@@ -13,8 +13,9 @@
                             class="mb-0 px-2  span-start-date">Nhóm
                             KH</span></div>
                     <div>
-                        <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids"
-                            :options="customer_groups" :multiple="true" class="text-xs mb-1" />
+                        <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids" :show-count="true"
+                            :value-consists-of="'LEAF_PRIORITY'" :options="customer_groups" :multiple="true"
+                            class="text-xs mb-1" />
                     </div>
                 </div>
             </div>
@@ -71,7 +72,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
+            <!-- <div class="col-lg-5">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right">
                         <span for="" class="mb-0 px-2  span-start-date">Khách hàng</span>
@@ -83,7 +84,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> -->
 
         </div>
         <div class="row">
