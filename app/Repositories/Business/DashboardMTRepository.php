@@ -445,7 +445,6 @@ class DashboardMTRepository extends RepositoryAbs
         return $query->with([
             'order_process.customer_group:id,name',
             'order_process.created_by:id,name',
-            'raw_po_header.raw_po_data_items',
         ])->orderByDesc('id')->get();
     }
 
