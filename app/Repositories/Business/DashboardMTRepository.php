@@ -434,10 +434,10 @@ class DashboardMTRepository extends RepositoryAbs
 
         // Nếu có `from_date` và `to_date`, ghi đè lên khoảng ngày mặc định
         if ($this->request->filled('from_date')) {
-            $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+            $startDate = Carbon::create($this->request->from_date)->startOfDay();
         }
         if ($this->request->filled('to_date')) {
-            $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            $endDate = Carbon::create($this->request->to_date)->endOfDay();
         }
 
         // Áp dụng điều kiện thời gian vào truy vấn
@@ -563,7 +563,7 @@ class DashboardMTRepository extends RepositoryAbs
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
             $totalMTSoItems[$so_uid] = array();
-
+            $itemsArray = [];
             $po_number = $soHeader->po_number;
             $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($po_number) {
                 return $rawPoHeader['po_number'] == $po_number;
@@ -611,29 +611,31 @@ class DashboardMTRepository extends RepositoryAbs
                         });
                     }
                     if ($matchedMappings) {
+                        $temp_item = $item;
                         foreach ($matchedMappings as $sapMaterialMapping) {
-                            $existSapMaterial = null;
-                            $sapMaterialId = $sapMaterialMapping['sap_material_id'];
-                            foreach ($sapMaterials as $material) {
-                                if ($material['id'] === $sapMaterialId) {
-                                    $existSapMaterial = $material;
-                                    break;
+                            $customer_number = $sapMaterialMapping['customer_number'];
+                            if ($customer_number != 0) {
+                                $existSapMaterial = null;
+                                $sapMaterialId = $sapMaterialMapping['sap_material_id'];
+                                foreach ($sapMaterials as $material) {
+                                    if ($material['id'] === $sapMaterialId) {
+                                        $existSapMaterial = $material;
+                                        break;
+                                    }
                                 }
-                            }
-                            if ($existSapMaterial) {
-                                $quantity3_sap = (($item['quantity2_po'] * $sapMaterialMapping['conversion_rate_sap']) / $sapMaterialMapping['customer_number']) * ($sapMaterialMapping['percentage'] / 100);
-                                $item['sku_sap_code'] = $existSapMaterial['sap_code'];
-                                $item['sku_sap_name'] = $existSapMaterial['name'];
-                                $item['sku_sap_unit'] = SapUnit::find($existSapMaterial['unit_id'])->unit_code ?: null;
-                                $item['quantity3_sap'] = $quantity3_sap;
-                                array_push($totalMTSoItems[$so_uid], $item);
-                                break;
-                            } else {
-                                $item['sku_sap_code'] = null;
-                                $item['sku_sap_name'] = null;
-                                $item['sku_sap_unit'] = null;
-                                $item['quantity3_sap'] = $item['quantity2_po'];
-                                array_push($totalMTSoItems[$so_uid], $item);
+                                if ($existSapMaterial) {
+                                    $conversion_rate_sap = $sapMaterialMapping['conversion_rate_sap'];
+                                    $customer_number = $sapMaterialMapping['customer_number'];
+                                    $percentage = $sapMaterialMapping['percentage'];
+                                    $quantity2_po = $item['quantity2_po'];
+                                    $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
+                                    $temp_item['sku_sap_code'] = $existSapMaterial['sap_code'];
+                                    $temp_item['sku_sap_name'] = $existSapMaterial['name'];
+                                    $temp_item['sku_sap_unit'] = SapUnit::find($existSapMaterial['unit_id'])->unit_code ?: null;
+                                    $temp_item['quantity3_sap'] = $quantity3_sap;
+
+                                    array_push($totalMTSoItems[$so_uid], $temp_item);
+                                }
                             }
                         }
                     } else {
@@ -646,6 +648,17 @@ class DashboardMTRepository extends RepositoryAbs
                 }
             }
         }
+
+        // Đếm số lượng phần con trong các mảng của totalMTSoItems
+        $totalMTItemCount = 0;
+        foreach ($totalMTSoItems as $so_uid => $items) {
+            $totalMTItemCount += count($items);
+        }
+        Log::info("Số lượng item trên WEB: " . $totalMTItemCount . " items");
+        // Count số $soHeaders
+        $countSoHeaders = count($soHeaders);
+        Log::info("Số lượng SO trên WEB: " . $countSoHeaders . " đơn hàng");
+
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
         $executionTime = round($executionTime, 2);
@@ -662,6 +675,7 @@ class DashboardMTRepository extends RepositoryAbs
             "BODY" => $sapSoHeaders
         ];
         $totalSAPSoItems = array();
+        $totalSAPSoItemCount = 0;
         $json = SapApiHelper::postData(json_encode($sapData));
         $jsonData = json_decode(json_encode($json), true);
         if (!$jsonData['success']) {
@@ -676,6 +690,7 @@ class DashboardMTRepository extends RepositoryAbs
                     $items = $json_value['ITEMS'] ?? [];
                     foreach ($items as $item) {
                         array_push($totalSAPSoItems[$so_numbers],$item);
+                        $totalSAPSoItemCount++;
                     }
                 }
             } else {
@@ -683,6 +698,7 @@ class DashboardMTRepository extends RepositoryAbs
             }
 
         }
+        Log::info("Số lượng item trên SAP: " . $totalSAPSoItemCount . " items");
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
         $executionTime = round($executionTime, 2);
