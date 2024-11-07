@@ -568,6 +568,10 @@ class DashboardMTRepository extends RepositoryAbs
             $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($po_number) {
                 return $rawPoHeader['po_number'] == $po_number;
             });
+            // Nếu $poHeaders là mảng rỗng thì continue vòng lặp
+            if (empty($poHeaders)) {
+                continue;
+            }
             $lastPoHeader = array_pop($poHeaders);
             $lastPoHeaderId = $lastPoHeader['id'];
             $itemsArray = array_filter($rawPoDataItems, function($rawPoDataItem) use ($lastPoHeaderId) {
