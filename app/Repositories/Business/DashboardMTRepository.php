@@ -16,6 +16,8 @@ use App\Models\Master\SapMaterial;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
 use App\Services\Sap\SapApiHelper;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardMTRepository extends RepositoryAbs
 {
@@ -451,6 +453,7 @@ class DashboardMTRepository extends RepositoryAbs
 
     protected function mapItemsToSapMaterials($soHeaders)
     {
+        $startTime = microtime(true);
         $result = (object) null;
         $result->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
 
@@ -465,6 +468,7 @@ class DashboardMTRepository extends RepositoryAbs
             $rawPoHeaders = $rawPoHeaders->merge($partialResults);
         }
 
+
         // Remove duplicate po_number và lấy ra id duy nhất
         $rawPoHeaderIds = $rawPoHeaders->unique('po_number')->pluck('id')->toArray();
         $rawPoHeaderCustomerCodes = $rawPoHeaders
@@ -473,6 +477,12 @@ class DashboardMTRepository extends RepositoryAbs
             ->filter() // Loại bỏ các phần tử rỗng
             ->toArray();
         $rawPoHeaders = $rawPoHeaders->unique('po_number')->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy rawPoHeaders: " . $executionTime . " giây");
+        $startTime = microtime(true);
 
         $rawPoDataItems = collect();
         foreach (array_chunk($rawPoHeaderIds, $chunk_size) as $chunk) {
@@ -489,6 +499,12 @@ class DashboardMTRepository extends RepositoryAbs
             ->toArray();
         $rawPoDataItems = $rawPoDataItems->toArray();
 
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy rawPoDataItems: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
         // Lấy bảng SAP có item liên quan
         $sapMaterials = collect();
         foreach (array_chunk($rawPoDataItemSkuCodes, $chunk_size) as $chunk) {
@@ -502,6 +518,12 @@ class DashboardMTRepository extends RepositoryAbs
         }
         $sapMaterials = $sapMaterials->toArray();
 
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy sapMaterials: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
         // Lấy bảng customer_materials liên quan
         $customerMaterials = collect();
         foreach (array_chunk($rawPoDataItemSkuCodes, $chunk_size) as $chunk) {
@@ -513,6 +535,13 @@ class DashboardMTRepository extends RepositoryAbs
         }
         $customerMaterialIds = $customerMaterials->pluck('id')->toArray();
         $customerMaterials = $customerMaterials->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy customerMaterials: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
         // Lấy bảng mapping SAP liên quan
         $sapMaterialMappings = collect();
         foreach (array_chunk($customerMaterialIds, $chunk_size) as $chunk) {
@@ -523,6 +552,12 @@ class DashboardMTRepository extends RepositoryAbs
             $sapMaterialMappings = $sapMaterialMappings->merge($partialResults);
         }
         $sapMaterialMappings = $sapMaterialMappings->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy sapMaterialMappings: " . $executionTime . " giây");
+        $startTime = microtime(true);
 
         $totalMTSoItems = [];
         foreach ($soHeaders as $soHeader) {
@@ -607,7 +642,11 @@ class DashboardMTRepository extends RepositoryAbs
                 }
             }
         }
-
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy totalMTSoItems: " . $executionTime . " giây");
+        $startTime = microtime(true);
         // Lấy data từ SAP
         $sapSoHeaders = [];
         foreach ($soHeaders as $soHeader) {
@@ -640,6 +679,11 @@ class DashboardMTRepository extends RepositoryAbs
             }
 
         }
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy data SAP: " . $executionTime . " giây");
+        $startTime = microtime(true);
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
             $soItemsMT = $totalMTSoItems[$so_uid];
@@ -808,6 +852,32 @@ class DashboardMTRepository extends RepositoryAbs
                 $result->so_items[] = (object) $item;
             }
         }
-        return $result;
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi mapping data: " . $executionTime . " giây");
+        // Lấy trang hiện tại từ request (mặc định là trang 1)
+        $perPage = $this->request->get('per_page', 10);
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        // Tổng số phần tử
+        $total = count($result->so_items);
+
+        // Lấy dữ liệu cho trang hiện tại
+        $currentPageItems = array_slice($result->so_items, ($currentPage - 1) * $perPage, $perPage);
+
+        // Tạo đối tượng LengthAwarePaginator
+        $paginatedResult = new LengthAwarePaginator(
+            $currentPageItems,
+            $total,
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
+
+        return $paginatedResult;
+
+        // return $result;
     }
 }
