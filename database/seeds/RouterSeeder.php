@@ -135,11 +135,11 @@ class RouterSeeder extends Seeder
                 'path' => '/customer-groups',
                 'component' => 'home/master/CustomerGroup'
             ],
-            [
-                'name' => 'Xử lý đơn hàng',
-                'path' => '/order-processes',
-                'component' => 'home/business/OrderProcesses'
-            ],
+            // [
+            //     'name' => 'Xử lý đơn hàng',
+            //     'path' => '/order-processes',
+            //     'component' => 'home/business/OrderProcesses'
+            // ],
             [
                 'name' => 'KM combo',
                 'path' => '/material-combos',
