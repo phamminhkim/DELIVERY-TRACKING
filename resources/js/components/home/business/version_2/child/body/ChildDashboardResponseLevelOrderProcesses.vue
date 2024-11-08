@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b-table :items="reportes" :fields="fields" responsive small :bordered="true" class="text-xs">
+        <b-table :items="reportes" :fields="fields" responsive small :bordered="true" class="text-xs"
+            :per-page="perPage" :current-page="currentPage">
             <template #thead-top="data">
                 <b-tr>
                     <b-th class="text-center border-0" colspan="12" variant="info">Dữ liệu Web MT</b-th>
@@ -11,7 +12,7 @@
                 {{ data.index + 1 }}
             </template>
         </b-table>
-        <PaginationTable :per_page="perPage" :current_page="currentPage" @pageChange="handlePageChange"
+        <PaginationTable :rows="total" :per_page="perPage" :current_page="currentPage" @pageChange="handlePageChange"
             @perPageChange="handlePerPageChange" />
     </div>
 </template>
@@ -21,7 +22,10 @@ import ApiHandler, { APIRequest } from '../../../../ApiHandler';
 
 export default {
     props: {
-        search_change: { type: String, default: '' }
+        search_change: { type: String, default: '' },
+        change_search: { type: Number, default: 0 },
+        start_date: { type: Date, default: '' },
+        end_date: { type: Date, default: '' },    
     },
     components: {
         PaginationTable
@@ -32,6 +36,7 @@ export default {
             is_loading: false,
             currentPage: 1,
             perPage: 10,
+            total: 0,
             reportes: [],
             customer_partners: [],
             fields: [
@@ -67,7 +72,14 @@ export default {
                 this.fetchCustomerPartner();
             },
             deep: true
-        }
+        },
+        change_search: {
+            handler: function (val) {
+                this.fetchDashboardReport();
+            },
+            deep: true
+        },
+
     },
     async created() {
         await this.fetchDashboardReport();
@@ -79,15 +91,21 @@ export default {
             try {
                 this.is_loading = true;
                 const body = {
-                    // from_date: this.order.start_date,
-                    // to_date: this.order.end_date,
+                    from_date: this.start_date,
+                    to_date: this.end_date,
                     // customer_group_ids: this.order.customer_group_ids,
                     // user_ids: this.order.user_ids,
                     // sync_sap_status: this.order.sync_sap_status
+                    page: this.currentPage,
+                    per_page: this.perPage,
                 }
                 const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
+                console.log(data)
                 if (success) {
-                    this.reportes = data.so_items;
+                    this.reportes = data.data;
+                    this.currentPage = data.current_page;
+                    this.perPage = data.per_page;
+                    this.total = data.total
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -109,6 +127,7 @@ export default {
                 const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
                 if (success) {
                     this.customer_partners = this.mapTreeSelect(data.data);
+
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -116,11 +135,13 @@ export default {
                 this.is_loading = false;
             }
         },
-        handlePageChange(page) {
+        async handlePageChange(page) {
             this.currentPage = page;
+            await this.fetchDashboardReport();
         },
-        handlePerPageChange(perPage) {
+        async handlePerPageChange(perPage) {
             this.perPage = perPage;
+            await this.fetchDashboardReport();
         },
         mapTreeSelect(data) {
             return data.map(item => {

@@ -66,6 +66,7 @@
                                                 class="mb-0 px-2 span-start-date">Nhóm KH</span></div>
                                         <div class="flex-fill">
                                             <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids"
+                                                :value-consists-of="'LEAF_PRIORITY'" :show-count="true"
                                                 :options="customer_groups" :multiple="true" class="text-xs mb-1" />
                                         </div>
                                     </div>
@@ -91,6 +92,7 @@
                                                 class="mb-0 px-2 span-start-date">Trạng thái</span></div>
                                         <div class="flex-fill">
                                             <treeselect placeholder="Trạng thái đồng bộ" v-model="order.sync_sap_status"
+                                             :value-consists-of="'LEAF_PRIORITY'" :show-count="true"
                                                 :options="status_syncs" class="text-xs" :multiple="true" />
                                         </div>
                                     </div>
@@ -101,12 +103,13 @@
                                                 class="mb-0 px-2 span-start-date">Người dùng</span></div>
                                         <div class="flex-fill">
                                             <treeselect placeholder="Người dùng" v-model="order.user_ids"
-                                                :options="user_roles" :multiple="true" class="text-xs mb-1" />
+                                                :value-consists-of="'LEAF_PRIORITY'" :options="user_roles"
+                                                :show-count="true" :multiple="true" class="text-xs mb-1" />
                                         </div>
                                     </div>
 
                                 </div>
-                               
+
                             </div>
                         </div>
                     </div>
@@ -114,8 +117,7 @@
                     <div class="mb-2">
                         <div class="row">
                             <div class="col-lg-8">
-                                <div class="card  border mb-0"
-                                    >
+                                <div class="card  border mb-0">
                                     <!-- style="background: rgba(51, 65, 85) !important;" -->
                                     <div class="card-body p-0">
                                         <ChildDashboardLineOrderProcesses :data_dashboard_line="data_dashboard_line" />
@@ -148,7 +150,7 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-8">
-                                    <div class="rounded h-100" >
+                                    <div class="rounded h-100">
                                         <!-- style="background: rgb(51, 65, 85,0.91);" -->
                                         <!-- <ChildDashboardPieOrderProcesses_copy /> -->
                                         <ChildDashboardBarOrderProcesses :data_dashboard_user="data_dashboard_user" />
@@ -171,10 +173,11 @@
                     </div> -->
                     <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
                         <ChildOrderProcessesFormSearchResponseLevel @search-change="onSearchChange"
-                        :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
+                            @start-date="handleStartDate" @end-date="handleEndDate" @search="handleSearch"
+                            :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
                     <div class="form-group bg-white">
-                       <ChildDashboardResponseLevelOrderProcesses  :search_change="search_change"  />
+                        <ChildDashboardResponseLevelOrderProcesses :search_change="search_change" :change_search="change_search" :start_date="start_date" :end_date="end_date" />
                     </div>
                 </div>
             </b-tab>
@@ -215,6 +218,9 @@ export default {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
             search_change: '',
+            change_search: 0,
+            start_date: new Date(),
+            end_date: new Date(),
             customers: [
                 {
                     id: 1,
@@ -235,12 +241,18 @@ export default {
             ],
             status_syncs: [
                 {
-                    id: 1,
-                    label: 'Đã đồng bộ',
-                },
-                {
-                    id: 0,
-                    label: 'Chưa đồng bộ',
+                    id: 'status_syncs',
+                    label: 'Tất cả',
+                    children: [
+                        {
+                            id: 1,
+                            label: 'Đã đồng bộ',
+                        },
+                        {
+                            id: 0,
+                            label: 'Chưa đồng bộ',
+                        }
+                    ]
                 }
             ],
             order: {
@@ -287,6 +299,7 @@ export default {
         }
     },
     async created() {
+        this.createdTwoWeek();
         await this.fetchUserRole();
         await this.fetchCustomerGroup();
         await this.createOrderCustomerGroup();
@@ -296,10 +309,10 @@ export default {
         await this.fetchDashboardPie();
         await this.fetchDashboardUser();
         await this.fetchDashboardShared();
-        
+
     },
     methods: {
-       
+
         async fetchDashboardShared() {
             try {
                 this.is_loading = true;
@@ -325,7 +338,8 @@ export default {
                 this.is_loading = true;
                 const { data } = await this.api_handler.get(this.url_api.user_role);
                 if (Array.isArray(data)) {
-                    this.user_roles = this.forMatTreeSelect(data);
+                    // this.user_roles = this.forMatTreeSelect(data);
+                    this.user_roles = this.parentTreeSelect(data, 'user_role', 'Tất cả');
                 }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
@@ -400,7 +414,7 @@ export default {
                 this.is_loading = true;
                 const { data } = await this.api_handler.get(this.url_api.customer_groups);
                 if (Array.isArray(data)) {
-                    this.customer_groups = this.forMatTreeSelect(data);
+                    this.customer_groups = this.parentTreeSelect(data, 'customer_group', 'Tất cả');
 
                 }
             } catch (error) {
@@ -408,6 +422,16 @@ export default {
             } finally {
                 this.is_loading = false;
             }
+        },
+        parentTreeSelect(data, id_string, title) {
+            return [
+                {
+                    id: id_string,
+                    label: title,
+                    children: this.forMatTreeSelect(data)
+                }
+            ]
+
         },
         forMatTreeSelect(data) {
             return data.map((item) => {
@@ -419,13 +443,15 @@ export default {
             })
         },
         async createOrderCustomerGroup() {
-            this.order.customer_group_ids = this.customer_groups.map((item) => item.id);
+            this.order.customer_group_ids = this.customer_groups.map((item) => item.children.map((item) => item.id)).flat();
+
         },
         async createOrderStatusSync() {
-            this.order.sync_sap_status = this.status_syncs.map((item) => item.id);
+            this.order.sync_sap_status = this.status_syncs.map((item) => item.children.map((item) => item.id)).flat();
+
         },
         async createOrderUserRole() {
-            this.order.user_ids = this.user_roles.map((item) => item.id);
+            this.order.user_ids = this.user_roles.map((item) => item.children.map((item) => item.id)).flat();
         },
         async btnCreateOneDayAgo() {
             var curr = new Date;
@@ -500,7 +526,24 @@ export default {
         onSearchChange(text) {
             this.search_change = text;
         },
-      
+        handleSearch(){
+            this.change_search++;
+        },
+        handleStartDate(date) {
+            this.start_date = date;
+        },
+        handleEndDate(date) {
+            this.end_date = date;
+        },
+        createdTwoWeek() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 14);
+
+            this.start_date = startDate;
+            this.end_date = endDate;
+        },
+
     },
 
 }

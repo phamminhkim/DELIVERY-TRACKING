@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="text-left mb-2">
-            <button @click="" class="btn btn-warning bg-white text-warning btn-sm text-xs px-2 "><i
+            <button @click="handleSearch()" class="btn btn-warning bg-white text-warning btn-sm text-xs px-2 "><i
                     class="fas fa-search mr-2"></i>Tìm kiếm</button>
             <button @click="" class="btn btn-secondary bg-white text-secondary btn-sm text-xs px-2 "><i
                     class="fas fa-sync-alt mr-2"></i>Làm mới</button>
@@ -13,8 +13,9 @@
                             class="mb-0 px-2  span-start-date">Nhóm
                             KH</span></div>
                     <div>
-                        <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids"
-                            :options="customer_groups" :multiple="true" class="text-xs mb-1" />
+                        <treeselect placeholder="Nhóm khách hàng" v-model="order.customer_group_ids" :show-count="true"
+                            :value-consists-of="'LEAF_PRIORITY'" :options="customer_groups" :multiple="true"
+                            class="text-xs mb-1" />
                     </div>
                 </div>
             </div>
@@ -48,6 +49,7 @@
                             class="mb-0 px-2 flex-shrink-0 set-shrink text-right span-start-date">Từ
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.start_date" class="text-xs"
+                            @input="handleStartDate()"
                             :min="order.start_date"></b-form-datepicker></div>
                 </div>
             </div>
@@ -71,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
+            <!-- <div class="col-lg-5">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right">
                         <span for="" class="mb-0 px-2  span-start-date">Khách hàng</span>
@@ -83,7 +85,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> -->
 
         </div>
         <div class="row">
@@ -92,6 +94,7 @@
                     <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Đến
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.end_date" class="text-xs mt-1"
+                        @input="handleEndDate()"
                             :max="order.end_date"></b-form-datepicker></div>
                 </div>
             </div>
@@ -164,17 +167,19 @@ export default {
         }
     },
     async created() {
-        this.createdOneMonth();
+        this.createdTwoWeek();
         await this.fetchCustomerPartner();
     },
     methods: {
-        createdOneMonth() {
+        createdTwoWeek() {
             const endDate = new Date();
             const startDate = new Date();
-            startDate.setMonth(startDate.getMonth() - 1);
+            startDate.setDate(startDate.getDate() - 14);
 
             this.order.start_date = startDate;
             this.order.end_date = endDate;
+            this.handleStartDate();
+            this.handleEndDate();
         },
         handleIPutCustomerPartner(state, value) {
             console.log('event', state, value);
@@ -227,6 +232,16 @@ export default {
                 }
             });
         },
+        handleStartDate(){
+            this.$emit('start-date', this.order.start_date)
+        },
+        handleEndDate(){
+            this.$emit('end-date', this.order.end_date)
+        },
+        handleSearch(){
+            this.$emit('search')
+
+        }
     },
     computed: {
 
