@@ -379,10 +379,7 @@ class DashboardMTRepository extends RepositoryAbs
     {
         // Chuẩn bị truy vấn cho báo cáo đơn hàng
         $query = SoHeader::query();
-        $query->whereNotNull('so_uid')
-            ->whereHas('order_process', function ($query) {
-                $query->where('is_deleted', 0);
-            });
+        $query->whereNotNull('so_uid')->whereNotNull('convert_po_uid');
 
         // Lọc dữ liệu theo các điều kiện từ request
         if ($this->request->filled('ids')) {
@@ -457,12 +454,12 @@ class DashboardMTRepository extends RepositoryAbs
         $result = (object) null;
         $result->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
 
-        $poNumbers = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'po_number');
+        $convertPoUids  = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'convert_po_uid');
         $chunk_size = 1000; // Kích thước mảng con
         $rawPoHeaders = collect();
-        foreach (array_chunk($poNumbers, $chunk_size) as $chunk) {
-            $partialResults = RawPoHeader::whereIn('po_number', $chunk)
-                ->select('id','po_number', 'customer_name', 'customer_code')
+        foreach (array_chunk($convertPoUids, $chunk_size) as $chunk) {
+            $partialResults = RawPoHeader::whereIn('convert_po_uid', $chunk)
+                ->select('id','po_number', 'convert_po_uid', 'customer_name', 'customer_code', 'sap_so_number')
                 ->get()
                 ->keyBy('id');
             $rawPoHeaders = $rawPoHeaders->merge($partialResults);
@@ -470,20 +467,14 @@ class DashboardMTRepository extends RepositoryAbs
 
 
         // Remove duplicate po_number và lấy ra id duy nhất
-        $rawPoHeaderIds = $rawPoHeaders->unique('po_number')->pluck('id')->toArray();
-        $rawPoHeaderCustomerCodes = $rawPoHeaders
-            ->unique('po_number')
-            ->pluck('customer_code')
-            ->filter() // Loại bỏ các phần tử rỗng
-            ->toArray();
-        $rawPoHeaders = $rawPoHeaders->unique('po_number')->toArray();
+        $rawPoHeaderIds = $rawPoHeaders->pluck('id')->toArray();
+        $rawPoHeaders = $rawPoHeaders->toArray();
 
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
         $executionTime = round($executionTime, 2);
         Log::info("Thời gian thực thi lấy rawPoHeaders: " . $executionTime . " giây");
         $startTime = microtime(true);
-
         $rawPoDataItems = collect();
         foreach (array_chunk($rawPoHeaderIds, $chunk_size) as $chunk) {
             $partialResults = RawPoDataItem::whereIn('raw_po_header_id', $chunk)
@@ -559,32 +550,60 @@ class DashboardMTRepository extends RepositoryAbs
         Log::info("Thời gian thực thi lấy sapMaterialMappings: " . $executionTime . " giây");
         $startTime = microtime(true);
 
+        Log::info("Số lượng rawPoDataItems: " . count($rawPoDataItems) . " items");
         $totalMTSoItems = [];
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
+            $customer_group_id = $soHeader->order_process->customer_group_id;
+
             $totalMTSoItems[$so_uid] = array();
             $itemsArray = [];
-            $po_number = $soHeader->po_number;
-            $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($po_number) {
-                return $rawPoHeader['po_number'] == $po_number;
+            $convert_po_uid = $soHeader->convert_po_uid;
+            $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($convert_po_uid) {
+                return $rawPoHeader['convert_po_uid'] == $convert_po_uid;
             });
             // Nếu $poHeaders là mảng rỗng thì continue vòng lặp
-            if (empty($poHeaders)) {
+            if (count($poHeaders) == 0) {
                 continue;
             }
-            $lastPoHeader = array_pop($poHeaders);
-            $lastPoHeaderId = $lastPoHeader['id'];
-            $itemsArray = array_filter($rawPoDataItems, function($rawPoDataItem) use ($lastPoHeaderId) {
-                return $rawPoDataItem['raw_po_header_id'] == $lastPoHeaderId;
-            });
+            if ($customer_group_id != 11) {
+                // Không phải đơn bổ sung thì convert_po_uid là duy nhất
+                $lastPoHeader = reset($poHeaders);
+                $lastPoHeaderId = $lastPoHeader['id'];
+                $itemsArray = array_filter($rawPoDataItems, function($rawPoDataItem) use ($lastPoHeaderId) {
+                    return $rawPoDataItem['raw_po_header_id'] == $lastPoHeaderId;
+                });
+            } else {
+                // Đơn bổ sung thì lấy item trên data final
+                $finalSoHeader = SoHeader::find($soHeader->id);
+                $finalSoHeader->so_data_items->each(function($soDataItem) use (&$itemsArray) {
+                    $itemsArray[] = [
+                        'id' => $soDataItem->id,
+                        'customer_sku_code' => $soDataItem->sku_sap_code,
+                        'customer_sku_name' => $soDataItem->sku_sap_name,
+                        'customer_sku_unit' => $soDataItem->sku_sap_unit,
+                        'quantity2_po' => $soDataItem->quantity3_sap,
+                    ];
+                });
+            }
 
             foreach ($itemsArray as $item) {
+                // Nếu $customer_group_id = 11 (Đơn bổ sung) thì giữ lại đúng item
+                if ($customer_group_id == 11) {
+                    $item['sku_sap_code'] = $item['customer_sku_code'];
+                    $item['sku_sap_name'] = $item['customer_sku_name'];
+                    // Nếu sku_sap_unit trống thì mặc định là PC
+                    $item['sku_sap_unit'] = !empty($item['customer_sku_unit']) ? $item['customer_sku_unit'] : "PC";
+                    $item['quantity3_sap'] = $item['quantity2_po'];
+                    array_push($totalMTSoItems[$so_uid], $item);
+                    continue;
+                }
                 $customer_sku_code = $item['customer_sku_code'];
                 $sapMaterial = null;
                 $sapMaterialMapping = null;
 
                 foreach ($sapMaterials as $material) {
-                    if ($material['bar_code'] === $customer_sku_code) {
+                    if ($material['bar_code'] == $customer_sku_code) {
                         $sapMaterial = $material;
                         break;
                     }
@@ -599,24 +618,26 @@ class DashboardMTRepository extends RepositoryAbs
                     $customerMaterial = null;
                     $matchedMappings = array();
                     foreach ($customerMaterials as $customer_material) {
-                        if ($customer_material['customer_sku_code'] === $customer_sku_code) {
+                        if (($customer_material['customer_group_id'] == $customer_group_id) &&
+                            ($customer_material['customer_sku_code'] == $customer_sku_code)) {
                             $customerMaterial = $customer_material;
                             break;
                         }
                     }
+                    
                     if ($customerMaterial) {
                         $customer_material_id  = $customerMaterial['id'];
                         $matchedMappings = array_filter($sapMaterialMappings, function ($mapping) use ($customer_material_id) {
-                            return $mapping['customer_material_id'] === $customer_material_id;
+                            return $mapping['customer_material_id'] == $customer_material_id;
                         });
                     }
                     if ($matchedMappings) {
                         $temp_item = $item;
-                        foreach ($matchedMappings as $sapMaterialMapping) {
-                            $customer_number = $sapMaterialMapping['customer_number'];
+                        foreach ($matchedMappings as $matchedMapping) {
+                            $customer_number = $matchedMapping['customer_number'];
                             if ($customer_number != 0) {
                                 $existSapMaterial = null;
-                                $sapMaterialId = $sapMaterialMapping['sap_material_id'];
+                                $sapMaterialId = $matchedMapping['sap_material_id'];
                                 foreach ($sapMaterials as $material) {
                                     if ($material['id'] === $sapMaterialId) {
                                         $existSapMaterial = $material;
@@ -624,16 +645,15 @@ class DashboardMTRepository extends RepositoryAbs
                                     }
                                 }
                                 if ($existSapMaterial) {
-                                    $conversion_rate_sap = $sapMaterialMapping['conversion_rate_sap'];
-                                    $customer_number = $sapMaterialMapping['customer_number'];
-                                    $percentage = $sapMaterialMapping['percentage'];
+                                    $conversion_rate_sap = $matchedMapping['conversion_rate_sap'];
+                                    $customer_number = $matchedMapping['customer_number'];
+                                    $percentage = $matchedMapping['percentage'];
                                     $quantity2_po = $item['quantity2_po'];
                                     $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
                                     $temp_item['sku_sap_code'] = $existSapMaterial['sap_code'];
                                     $temp_item['sku_sap_name'] = $existSapMaterial['name'];
                                     $temp_item['sku_sap_unit'] = SapUnit::find($existSapMaterial['unit_id'])->unit_code ?: null;
                                     $temp_item['quantity3_sap'] = $quantity3_sap;
-
                                     array_push($totalMTSoItems[$so_uid], $temp_item);
                                 }
                             }
@@ -704,10 +724,48 @@ class DashboardMTRepository extends RepositoryAbs
         $executionTime = round($executionTime, 2);
         Log::info("Thời gian thực thi lấy data SAP: " . $executionTime . " giây");
         $startTime = microtime(true);
+        $matchingItemsCount = 0;
+        $onlyInMTCount = 0;
+        $onlyInSAPCount = 0;
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
             $soItemsMT = $totalMTSoItems[$so_uid];
             $soItemsSAP = $totalSAPSoItems[$so_uid] ?? null;
+
+            // Duyệt mảng $soItemsMT, gộp các item giống nhau và cộng số lượng dựa trên sku_sap_code và sku_sap_unit
+            $mergedMTItems = [];
+            foreach ($soItemsMT as $item) {
+                $sku_sap_code = $item['sku_sap_code'];
+                $sku_sap_unit = $item['sku_sap_unit'];
+
+                // Tạo khóa duy nhất cho mỗi phần tử dựa trên sku_sap_code và sku_sap_unit
+                $key = $sku_sap_code . '_' . $sku_sap_unit;
+
+                // Kiểm tra xem phần tử đã tồn tại trong mảng tạm chưa
+                if (isset($mergedMTItems[$key])) {
+                    // Nếu tồn tại, cộng quantity3_sap của phần tử hiện tại vào phần tử đã tồn tại
+                    $mergedMTItems[$key]['quantity3_sap'] += $item['quantity3_sap'];
+                } else {
+                    // Nếu chưa tồn tại, thêm phần tử vào mảng tạm
+                    $mergedMTItems[$key] = $item;
+                }
+            }
+            $soItemsMT = array_values($mergedMTItems);
+
+            // Duyệt mảng $soItemsSAP, gộp các item giống nhau và cộng số lượng SAP_QUANTITY dựa trên SAP_CODE và UNIT_CODE
+            $mergedSAPItems = [];
+            foreach ($soItemsSAP as $item) {
+                $sap_code = $item['SAP_CODE'];
+                $unit_code = $item['UNIT_CODE'];
+                $key = $sap_code . '_' . $unit_code;
+
+                if (isset($mergedSAPItems[$key])) {
+                    $mergedSAPItems[$key]['SAP_QUANTITY'] += $item['SAP_QUANTITY'];
+                } else {
+                    $mergedSAPItems[$key] = $item;
+                }
+            }
+            $soItemsSAP = array_values($mergedSAPItems);
 
             $userSAPDefault = null;
             $matchingItems = [];
@@ -718,6 +776,7 @@ class DashboardMTRepository extends RepositoryAbs
             $sapIndex = [];
             foreach ($soItemsSAP as $itemSAP) {
                 $key = $itemSAP['SAP_CODE'] . '_' . $itemSAP['UNIT_CODE'];
+                $key = strtolower($key);
                 $sapIndex[$key] = $itemSAP;
                 $userSAPDefault = $itemSAP['USER']?? null;
             }
@@ -725,6 +784,7 @@ class DashboardMTRepository extends RepositoryAbs
             // Kiểm tra các item trong `$soItemsMT`
             foreach ($soItemsMT as $itemMT) {
                 $key = $itemMT['sku_sap_code'] . '_' . $itemMT['sku_sap_unit'];
+                $key = strtolower($key);
 
                 if (isset($sapIndex[$key])) {
                     // Nếu trùng thì đưa vào danh sách matchingItems
@@ -736,20 +796,32 @@ class DashboardMTRepository extends RepositoryAbs
             }
 
             // Tìm các item chỉ có trong `$soItemsSAP`
-            foreach ($soItemsSAP as $itemSAP) {
-                $key = $itemSAP['SAP_CODE'] . '_' . $itemSAP['UNIT_CODE'];
+            // Tạo một mảng chỉ mục từ $matchingItems để truy cập nhanh hơn
+            $matchingIndex = [];
+            foreach ($matchingItems as $matching) {
+                $matchingKey = strtolower($matching['sku_sap_code'] . '_' . $matching['sku_sap_unit']);
+                $matchingIndex[$matchingKey] = true;
+            }
 
-                if (!isset($sapIndex[$key]) || !in_array($itemSAP, $matchingItems)) {
+            foreach ($soItemsSAP as $itemSAP) {
+                $key = strtolower($itemSAP['SAP_CODE'] . '_' . $itemSAP['UNIT_CODE']);
+                // Kiểm tra sự tồn tại của $key trong mảng chỉ mục
+                if (!isset($matchingIndex[$key])) {
                     $onlyInSAP[] = $itemSAP;
                 }
             }
 
-            // Tồn tại cả 2 bảng
+            $matchingItemsCount += count($matchingItems);
+            $onlyInMTCount += count($onlyInMT);
+            $onlyInSAPCount += count($onlyInSAP);
+
+            // Tồn tại cả 2 bảng1
             foreach ($matchingItems as $matchingItem) {
                 $item = array();
                 $key = $matchingItem['sku_sap_code'] . '_' . $matchingItem['sku_sap_unit'];
-                $sapItem = $sapIndex[$key];
+                $key = strtolower($key);
 
+                $sapItem = $sapIndex[$key];
                 $sapQuantity = $sapItem['SAP_QUANTITY'] ?? null;
                 $quantity3_sap = $matchingItem['quantity3_sap'] ?? null;
 
@@ -873,6 +945,10 @@ class DashboardMTRepository extends RepositoryAbs
             }
         }
 
+        Log::info("Số lượng item có cả 2 bảng: " . $matchingItemsCount. " items");
+        Log::info("Số lượng item chỉ có ở bảng WEB: " . $onlyInMTCount . " items");
+        Log::info("Số lượng item chỉ có ở bảng SAP: " . $onlyInSAPCount. " items");
+
         $endTime = microtime(true);
         $executionTime = $endTime - $startTime;
         $executionTime = round($executionTime, 2);
@@ -897,7 +973,5 @@ class DashboardMTRepository extends RepositoryAbs
         );
 
         return $paginatedResult;
-
-        // return $result;
     }
 }
