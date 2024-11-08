@@ -16,6 +16,8 @@ use App\Models\Master\SapMaterial;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
 use App\Services\Sap\SapApiHelper;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardMTRepository extends RepositoryAbs
 {
@@ -377,10 +379,7 @@ class DashboardMTRepository extends RepositoryAbs
     {
         // Chuẩn bị truy vấn cho báo cáo đơn hàng
         $query = SoHeader::query();
-        $query->whereNotNull('so_uid')
-            ->whereHas('order_process', function ($query) {
-                $query->where('is_deleted', 0);
-            });
+        $query->whereNotNull('so_uid')->whereNotNull('convert_po_uid');
 
         // Lọc dữ liệu theo các điều kiện từ request
         if ($this->request->filled('ids')) {
@@ -432,10 +431,10 @@ class DashboardMTRepository extends RepositoryAbs
 
         // Nếu có `from_date` và `to_date`, ghi đè lên khoảng ngày mặc định
         if ($this->request->filled('from_date')) {
-            $startDate = Carbon::parse($this->request->from_date)->startOfDay();
+            $startDate = Carbon::create($this->request->from_date)->startOfDay();
         }
         if ($this->request->filled('to_date')) {
-            $endDate = Carbon::parse($this->request->to_date)->endOfDay();
+            $endDate = Carbon::create($this->request->to_date)->endOfDay();
         }
 
         // Áp dụng điều kiện thời gian vào truy vấn
@@ -445,193 +444,534 @@ class DashboardMTRepository extends RepositoryAbs
         return $query->with([
             'order_process.customer_group:id,name',
             'order_process.created_by:id,name',
-            'raw_po_header.raw_po_data_items',
         ])->orderByDesc('id')->get();
     }
 
 
     protected function mapItemsToSapMaterials($soHeaders)
     {
-        $result = new \stdClass(); // Tạo một đối tượng rỗng
+        $startTime = microtime(true);
+        $result = (object) null;
         $result->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
 
-        $poNumbers = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'po_number');
+        $convertPoUids  = array_column(is_array($soHeaders) ? $soHeaders : $soHeaders->toArray(), 'convert_po_uid');
+        $chunk_size = 1000; // Kích thước mảng con
+        $rawPoHeaders = collect();
+        foreach (array_chunk($convertPoUids, $chunk_size) as $chunk) {
+            $partialResults = RawPoHeader::whereIn('convert_po_uid', $chunk)
+                ->select('id','po_number', 'convert_po_uid', 'customer_name', 'customer_code', 'sap_so_number')
+                ->get()
+                ->keyBy('id');
+            $rawPoHeaders = $rawPoHeaders->merge($partialResults);
+        }
 
-        // Truy vấn các RawPoHeader theo po_numbers với chunk để giảm tải bộ nhớ
-        $rawPoHeaders = [];
-        RawPoHeader::whereIn('po_number', $poNumbers)
-            ->chunk(1000, function ($chunk) use (&$rawPoHeaders) {
-                foreach ($chunk as $rawPoHeader) {
-                    $rawPoHeaders[$rawPoHeader->po_number][] = $rawPoHeader;
-                }
-            });
 
-        // Truy vấn tất cả các RawPoDataItem với chunk
-        $rawPoHeaderIds = collect($rawPoHeaders)->flatten()->pluck('id')->toArray();
-        $rawPoDataItems = [];
-        RawPoDataItem::whereIn('raw_po_header_id', $rawPoHeaderIds)
-            ->chunk(1000, function ($chunk) use (&$rawPoDataItems) {
-                foreach ($chunk as $item) {
-                    $rawPoDataItems[$item->raw_po_header_id][] = $item;
-                }
-            });
-        foreach ($soHeaders as $soHeader) {
-            // Khởi tạo dữ liệu cơ bản từ soHeader
-            $data = new \stdClass(); // Tạo một đối tượng rỗng cho mỗi soHeader
-            $data->so_items = []; // Khởi tạo thuộc tính so_items là một mảng
-            // Lấy RawPoHeader cuối cùng và các RawPoDataItem liên quan
-            $poHeaders = $rawPoHeaders[$soHeader->po_number] ?? [];
-            $lastRawPoHeaderId = end($poHeaders)->id ?? null;
-            $itemsArray = $rawPoDataItems[$lastRawPoHeaderId] ?? [];
-            // Chuẩn bị dữ liệu cho SAP Material và SAP Material Mapping
-            $customer_group_id = optional($soHeader->order_process->customer_group)->id;
-            $customerSkuCodes = array_column($itemsArray, 'customer_sku_code');
-            // Truy vấn các SAP Materials với chunk để giảm tải bộ nhớ
-            $sapMaterials = [];
-            SapMaterial::whereIn('bar_code', $customerSkuCodes)
+        // Remove duplicate po_number và lấy ra id duy nhất
+        $rawPoHeaderIds = $rawPoHeaders->pluck('id')->toArray();
+        $rawPoHeaders = $rawPoHeaders->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy rawPoHeaders: " . $executionTime . " giây");
+        $startTime = microtime(true);
+        $rawPoDataItems = collect();
+        foreach (array_chunk($rawPoHeaderIds, $chunk_size) as $chunk) {
+            $partialResults = RawPoDataItem::whereIn('raw_po_header_id', $chunk)
+                ->select('id', 'raw_po_header_id', 'customer_sku_code','customer_sku_name','customer_sku_unit', 'quantity2_po')
+                ->get()
+                ->keyBy('id');
+            $rawPoDataItems = $rawPoDataItems->merge($partialResults);
+        }
+        $rawPoDataItemIds = $rawPoDataItems->pluck('id')->toArray();
+        $rawPoDataItemSkuCodes = $rawPoDataItems
+            ->pluck('customer_sku_code')
+            ->filter() // Loại bỏ các phần tử rỗng
+            ->toArray();
+        $rawPoDataItems = $rawPoDataItems->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy rawPoDataItems: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
+        // Lấy bảng SAP có item liên quan
+        $sapMaterials = collect();
+        foreach (array_chunk($rawPoDataItemSkuCodes, $chunk_size) as $chunk) {
+            $partialResults = SapMaterial::whereIn('bar_code', $chunk)
                 ->where('is_deleted', 0)
                 ->orderByRaw('CASE WHEN priority IS NOT NULL THEN 0 ELSE 1 END, priority ASC')
-                ->chunk(1000, function ($chunk) use (&$sapMaterials) {
-                    foreach ($chunk as $sapMaterial) {
-                        if (!isset($sapMaterials[$sapMaterial->bar_code]) || $sapMaterial->priority < $sapMaterials[$sapMaterial->bar_code]->priority) {
-                            $sapMaterials[$sapMaterial->bar_code] = $sapMaterial;
-                        }
-                    }
-                });
+                ->select('id','bar_code', 'sap_code', 'name', 'unit_id')
+                ->get()
+                ->keyBy('id');
+            $sapMaterials = $sapMaterials->merge($partialResults);
+        }
+        $sapMaterials = $sapMaterials->toArray();
 
-            // Truy vấn các SAP Material Mapping với chunk
-            $sapMaterialMappings = [];
-            SapMaterialMapping::whereHas('customer_material', function ($query) use ($customer_group_id, $customerSkuCodes) {
-                $query->where('customer_group_id', $customer_group_id)
-                    ->whereIn('customer_sku_code', $customerSkuCodes);
-            })->chunk(1000, function ($chunk) use (&$sapMaterialMappings) {
-                foreach ($chunk as $mapping) {
-                    $sapMaterialMappings[$mapping->customer_material->customer_sku_code][] = $mapping;
-                }
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy sapMaterials: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
+        // Lấy bảng customer_materials liên quan
+        $customerMaterials = collect();
+        foreach (array_chunk($rawPoDataItemSkuCodes, $chunk_size) as $chunk) {
+            $partialResults = CustomerMaterial::whereIn('customer_sku_code', $chunk)
+                ->select('id','customer_group_id', 'customer_sku_code')
+                ->get()
+                ->keyBy('id');
+            $customerMaterials = $customerMaterials->merge($partialResults);
+        }
+        $customerMaterialIds = $customerMaterials->pluck('id')->toArray();
+        $customerMaterials = $customerMaterials->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy customerMaterials: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
+        // Lấy bảng mapping SAP liên quan
+        $sapMaterialMappings = collect();
+        foreach (array_chunk($customerMaterialIds, $chunk_size) as $chunk) {
+            $partialResults = SapMaterialMapping::whereIn('customer_material_id', $customerMaterialIds)
+                ->select('id','customer_material_id', 'customer_number', 'sap_material_id', 'conversion_rate_sap', 'percentage')
+                ->get()
+                ->keyBy('id');
+            $sapMaterialMappings = $sapMaterialMappings->merge($partialResults);
+        }
+        $sapMaterialMappings = $sapMaterialMappings->toArray();
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy sapMaterialMappings: " . $executionTime . " giây");
+        $startTime = microtime(true);
+
+        Log::info("Số lượng rawPoDataItems: " . count($rawPoDataItems) . " items");
+        $totalMTSoItems = [];
+        foreach ($soHeaders as $soHeader) {
+            $so_uid = $soHeader->so_uid;
+            $customer_group_id = $soHeader->order_process->customer_group_id;
+
+            $totalMTSoItems[$so_uid] = array();
+            $itemsArray = [];
+            $convert_po_uid = $soHeader->convert_po_uid;
+            $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($convert_po_uid) {
+                return $rawPoHeader['convert_po_uid'] == $convert_po_uid;
             });
-            // Mapping dữ liệu cho từng item
-            $soItems = [];
-            foreach ($itemsArray as $item) {
-                $customer_sku_code = $item['customer_sku_code'];
-                $foundMapping = false;
+            // Nếu $poHeaders là mảng rỗng thì continue vòng lặp
+            if (count($poHeaders) == 0) {
+                continue;
+            }
+            if ($customer_group_id != 11) {
+                // Không phải đơn bổ sung thì convert_po_uid là duy nhất
+                $lastPoHeader = reset($poHeaders);
+                $lastPoHeaderId = $lastPoHeader['id'];
+                $itemsArray = array_filter($rawPoDataItems, function($rawPoDataItem) use ($lastPoHeaderId) {
+                    return $rawPoDataItem['raw_po_header_id'] == $lastPoHeaderId;
+                });
+            } else {
+                // Đơn bổ sung thì lấy item trên data final
+                $finalSoHeader = SoHeader::find($soHeader->id);
+                $finalSoHeader->so_data_items->each(function($soDataItem) use (&$itemsArray) {
+                    $itemsArray[] = [
+                        'id' => $soDataItem->id,
+                        'customer_sku_code' => $soDataItem->sku_sap_code,
+                        'customer_sku_name' => $soDataItem->sku_sap_name,
+                        'customer_sku_unit' => $soDataItem->sku_sap_unit,
+                        'quantity2_po' => $soDataItem->quantity3_sap,
+                    ];
+                });
+            }
 
-                if (isset($sapMaterials[$customer_sku_code])) {
-                    $sapMaterial = $sapMaterials[$customer_sku_code];
-                    if ($sapMaterial->is_deleted == 0) {
-                        $item['sku_sap_code'] = $sapMaterial->sap_code;
-                        $item['sku_sap_name'] = $sapMaterial->name;
-                        $item['sku_sap_unit'] = SapUnit::find($sapMaterial->unit_id)->unit_code ?? null;
-                        $item['quantity3_sap'] = $item['quantity2_po'];
-                        $soItems[] = $item;
-                        $foundMapping = true;
+            foreach ($itemsArray as $item) {
+                // Nếu $customer_group_id = 11 (Đơn bổ sung) thì giữ lại đúng item
+                if ($customer_group_id == 11) {
+                    $item['sku_sap_code'] = $item['customer_sku_code'];
+                    $item['sku_sap_name'] = $item['customer_sku_name'];
+                    // Nếu sku_sap_unit trống thì mặc định là PC
+                    $item['sku_sap_unit'] = !empty($item['customer_sku_unit']) ? $item['customer_sku_unit'] : "PC";
+                    $item['quantity3_sap'] = $item['quantity2_po'];
+                    array_push($totalMTSoItems[$so_uid], $item);
+                    continue;
+                }
+                $customer_sku_code = $item['customer_sku_code'];
+                $sapMaterial = null;
+                $sapMaterialMapping = null;
+
+                foreach ($sapMaterials as $material) {
+                    if ($material['bar_code'] == $customer_sku_code) {
+                        $sapMaterial = $material;
+                        break;
                     }
                 }
-                if (!$foundMapping && isset($sapMaterialMappings[$customer_sku_code])) {
-                    foreach ($sapMaterialMappings[$customer_sku_code] as $sapMaterialMapping) {
-                        $sapMaterial = SapMaterial::find($sapMaterialMapping->sap_material_id);
-                        if ($sapMaterial) {
-                            $quantity3_sap = (($item['quantity2_po'] * $sapMaterialMapping->conversion_rate_sap) / $sapMaterialMapping->customer_number) * ($sapMaterialMapping->percentage / 100);
-                            $item['sku_sap_code'] = $sapMaterial->sap_code;
-                            $item['sku_sap_name'] = $sapMaterial->name;
-                            $item['sku_sap_unit'] = SapUnit::find($sapMaterial->unit_id)->unit_code ?? null;
-                            $item['quantity3_sap'] = $quantity3_sap;
-                            $soItems[] = $item;
-                            $foundMapping = true;
+                if ($sapMaterial) {
+                    $item['sku_sap_code'] = $sapMaterial['sap_code'];
+                    $item['sku_sap_name'] = $sapMaterial['name'];
+                    $item['sku_sap_unit'] = SapUnit::find($sapMaterial['unit_id'])->unit_code ?: null;
+                    $item['quantity3_sap'] = $item['quantity2_po'];
+                    array_push($totalMTSoItems[$so_uid], $item);
+                } else {
+                    $customerMaterial = null;
+                    $matchedMappings = array();
+                    foreach ($customerMaterials as $customer_material) {
+                        if (($customer_material['customer_group_id'] == $customer_group_id) &&
+                            ($customer_material['customer_sku_code'] == $customer_sku_code)) {
+                            $customerMaterial = $customer_material;
                             break;
                         }
                     }
-                }
-                if (!$foundMapping) {
-                    $item['sku_sap_code'] = null;
-                    $item['sku_sap_name'] = null;
-                    $item['sku_sap_unit'] = null;
-                    $item['quantity3_sap'] = $item['quantity2_po'];
-                    $soItems[] = $item;
-                }
-            }
-
-            // Tính toán fulfillment_rate từ SAP API và xử lý dữ liệu
-            $sapData = [
-                "ID" => "1001",
-                "action_name" => "FETCH_SALESORDERS",
-                "BODY" => [
-                    ["VBELN" => $soHeader->so_uid]
-                ]
-            ];
-            // dd($sapData);
-            $json = SapApiHelper::postData(json_encode($sapData));
-            $jsonData = json_decode(json_encode($json), true);
-
-            // Kiểm tra lỗi kết nối đồng bộ
-            if (!$jsonData['success']) {
-                $this->errors['sap_error'] = $jsonData['error'];
-                return null; // Trả về null nếu có lỗi
-            } else {
-                if (!empty($jsonData['data'])) {
-                    foreach ($jsonData['data'] as $json_value) {
-                        // dd($jsonData['data']);
-                        $so_numbers = $json_value['SO_NUMBER'];
-                        $item = $json_value['ITEMS'] ?? [];
-                        // foreach ($sapItems as $item_sap) {
-                            foreach ($soItems as &$item) {
-                                $sapQuantity = $json_value['SAP_QUANTITY'] ?? null;
-                                $quantity3_sap = $item['quantity3_sap'] ?? null;
-                                $customer_sku_code = $item['customer_sku_code'] ?? null;
-
-                                $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
-                                    ? round(($sapQuantity / $quantity3_sap) * 100)
-                                    : 0;
-                                // Làm tròn fulfillment_rate đến số nguyên gần nhất
-                                $fulfillmentRate = round($fulfillmentRate);
-                                // Chia cho 100 nếu fulfillmentRate lớn hơn 100
-                                if ($fulfillmentRate > 100) {
-                                    $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
+                    
+                    if ($customerMaterial) {
+                        $customer_material_id  = $customerMaterial['id'];
+                        $matchedMappings = array_filter($sapMaterialMappings, function ($mapping) use ($customer_material_id) {
+                            return $mapping['customer_material_id'] == $customer_material_id;
+                        });
+                    }
+                    if ($matchedMappings) {
+                        $temp_item = $item;
+                        foreach ($matchedMappings as $matchedMapping) {
+                            $customer_number = $matchedMapping['customer_number'];
+                            if ($customer_number != 0) {
+                                $existSapMaterial = null;
+                                $sapMaterialId = $matchedMapping['sap_material_id'];
+                                foreach ($sapMaterials as $material) {
+                                    if ($material['id'] === $sapMaterialId) {
+                                        $existSapMaterial = $material;
+                                        break;
+                                    }
                                 }
-                                // Cập nhật các giá trị khác
-                                $item['sap_code'] = $json_value['SAP_CODE'] ?? null;
-                                $item['sap_name'] = $json_value['SAP_NAME'] ?? null;
-                                $item['sap_quantity'] = $sapQuantity;
-                                $item['sap_unit_code'] = $json_value['UNIT_CODE'] ?? null;
-                                $item['sap_user'] = $json_value['USER'] ?? null;
-                                $item['fulfillment_rate'] = $fulfillmentRate;
+                                if ($existSapMaterial) {
+                                    $conversion_rate_sap = $matchedMapping['conversion_rate_sap'];
+                                    $customer_number = $matchedMapping['customer_number'];
+                                    $percentage = $matchedMapping['percentage'];
+                                    $quantity2_po = $item['quantity2_po'];
+                                    $quantity3_sap = (($quantity2_po * $conversion_rate_sap) / $customer_number) * ($percentage / 100);
+                                    $temp_item['sku_sap_code'] = $existSapMaterial['sap_code'];
+                                    $temp_item['sku_sap_name'] = $existSapMaterial['name'];
+                                    $temp_item['sku_sap_unit'] = SapUnit::find($existSapMaterial['unit_id'])->unit_code ?: null;
+                                    $temp_item['quantity3_sap'] = $quantity3_sap;
+                                    array_push($totalMTSoItems[$so_uid], $temp_item);
+                                }
                             }
-                        // }
+                        }
+                    } else {
+                        $item['sku_sap_code'] = null;
+                        $item['sku_sap_name'] = null;
+                        $item['sku_sap_unit'] = null;
+                        $item['quantity3_sap'] = $item['quantity2_po'];
+                        array_push($totalMTSoItems[$so_uid], $item);
                     }
                 }
             }
-            // Cập nhật dữ liệu cho từng item từ soHeader
-            foreach ($soItems as $item) {
-                $updatedItem = new \stdClass(); // Tạo một đối tượng mới cho mỗi item
-                $updatedItem->id = $soHeader->id;
-                $updatedItem->customer_code = $soHeader->customer_code;
-                $updatedItem->customer_name = $soHeader->customer_name;
-                $updatedItem->po_number = $soHeader->po_number;
-                $updatedItem->so_uid = $soHeader->so_uid;
-                $updatedItem->created_at = $soHeader->created_at;
-                $updatedItem->order_process = new \stdClass(); // Tạo đối tượng cho order_process
-                $updatedItem->order_process->id = $soHeader->order_process->id;
-                $updatedItem->order_process->customer_group_name = $soHeader->order_process->customer_group->name;
-                $updatedItem->order_process->created_by = $soHeader->order_process->created_by;
-                $updatedItem->raw_po_header_id = $item['raw_po_header_id'];
-                $updatedItem->customer_sku_code = $item['customer_sku_code'];
-                $updatedItem->customer_sku_name = $item['customer_sku_name'];
-                $updatedItem->customer_sku_unit = $item['customer_sku_unit'];
-                $updatedItem->quantity2_po = $item['quantity2_po'];
-                $updatedItem->sku_sap_code = $item['sku_sap_code'];
-                $updatedItem->sku_sap_name = $item['sku_sap_name'];
-                $updatedItem->sku_sap_unit = $item['sku_sap_unit'];
-                $updatedItem->quantity3_sap = $item['quantity3_sap'];
-                $updatedItem->sap_code = $item['sap_code'];
-                $updatedItem->sap_name = $item['sap_name'];
-                $updatedItem->sap_quantity = $item['sap_quantity'];
-                $updatedItem->sap_unit_code = $item['sap_unit_code'];
-                $updatedItem->sap_user = $item['sap_user'];
-                $updatedItem->fulfillment_rate = $item['fulfillment_rate'];
-
-                $data->so_items[] = $updatedItem; // Thêm item vào mảng so_items
-            }
-            $result->so_items = array_merge($result->so_items, $data->so_items); // Thêm so_items từ data vào result
         }
-        return $result;
+
+        // Đếm số lượng phần con trong các mảng của totalMTSoItems
+        $totalMTItemCount = 0;
+        foreach ($totalMTSoItems as $so_uid => $items) {
+            $totalMTItemCount += count($items);
+        }
+        Log::info("Số lượng item trên WEB: " . $totalMTItemCount . " items");
+        // Count số $soHeaders
+        $countSoHeaders = count($soHeaders);
+        Log::info("Số lượng SO trên WEB: " . $countSoHeaders . " đơn hàng");
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy totalMTSoItems: " . $executionTime . " giây");
+        $startTime = microtime(true);
+        // Lấy data từ SAP
+        $sapSoHeaders = [];
+        foreach ($soHeaders as $soHeader) {
+            $sapSoHeaders[] = ["VBELN" => $soHeader->so_uid];
+        }
+        $sapData = [
+            "ID" => "1001",
+            "action_name" => "FETCH_SALESORDERS",
+            "BODY" => $sapSoHeaders
+        ];
+        $totalSAPSoItems = array();
+        $totalSAPSoItemCount = 0;
+        $json = SapApiHelper::postData(json_encode($sapData));
+        $jsonData = json_decode(json_encode($json), true);
+        if (!$jsonData['success']) {
+            $this->errors['sap_error'] = $jsonData['error'];
+            return null; // Trả về null nếu có lỗi
+        } else {
+            if (!empty($jsonData['data'])) {
+                foreach ($jsonData['data'] as $json_value) {
+                    // dd($jsonData['data']);
+                    $so_numbers = $json_value['SO_NUMBER'];
+                    $totalSAPSoItems[$so_numbers] = array();
+                    $items = $json_value['ITEMS'] ?? [];
+                    foreach ($items as $item) {
+                        array_push($totalSAPSoItems[$so_numbers],$item);
+                        $totalSAPSoItemCount++;
+                    }
+                }
+            } else {
+                return null;
+            }
+
+        }
+        Log::info("Số lượng item trên SAP: " . $totalSAPSoItemCount . " items");
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi lấy data SAP: " . $executionTime . " giây");
+        $startTime = microtime(true);
+        $matchingItemsCount = 0;
+        $onlyInMTCount = 0;
+        $onlyInSAPCount = 0;
+        foreach ($soHeaders as $soHeader) {
+            $so_uid = $soHeader->so_uid;
+            $soItemsMT = $totalMTSoItems[$so_uid];
+            $soItemsSAP = $totalSAPSoItems[$so_uid] ?? null;
+
+            // Duyệt mảng $soItemsMT, gộp các item giống nhau và cộng số lượng dựa trên sku_sap_code và sku_sap_unit
+            $mergedMTItems = [];
+            foreach ($soItemsMT as $item) {
+                $sku_sap_code = $item['sku_sap_code'];
+                $sku_sap_unit = $item['sku_sap_unit'];
+
+                // Tạo khóa duy nhất cho mỗi phần tử dựa trên sku_sap_code và sku_sap_unit
+                $key = $sku_sap_code . '_' . $sku_sap_unit;
+
+                // Kiểm tra xem phần tử đã tồn tại trong mảng tạm chưa
+                if (isset($mergedMTItems[$key])) {
+                    // Nếu tồn tại, cộng quantity3_sap của phần tử hiện tại vào phần tử đã tồn tại
+                    $mergedMTItems[$key]['quantity3_sap'] += $item['quantity3_sap'];
+                } else {
+                    // Nếu chưa tồn tại, thêm phần tử vào mảng tạm
+                    $mergedMTItems[$key] = $item;
+                }
+            }
+            $soItemsMT = array_values($mergedMTItems);
+
+            // Duyệt mảng $soItemsSAP, gộp các item giống nhau và cộng số lượng SAP_QUANTITY dựa trên SAP_CODE và UNIT_CODE
+            $mergedSAPItems = [];
+            foreach ($soItemsSAP as $item) {
+                $sap_code = $item['SAP_CODE'];
+                $unit_code = $item['UNIT_CODE'];
+                $key = $sap_code . '_' . $unit_code;
+
+                if (isset($mergedSAPItems[$key])) {
+                    $mergedSAPItems[$key]['SAP_QUANTITY'] += $item['SAP_QUANTITY'];
+                } else {
+                    $mergedSAPItems[$key] = $item;
+                }
+            }
+            $soItemsSAP = array_values($mergedSAPItems);
+
+            $userSAPDefault = null;
+            $matchingItems = [];
+            $onlyInMT = [];
+            $onlyInSAP = [];
+
+            // Đưa `$soItemsSAP` vào một mảng với khóa là "SAP_CODE_UNIT_CODE" để dễ tra cứu
+            $sapIndex = [];
+            foreach ($soItemsSAP as $itemSAP) {
+                $key = $itemSAP['SAP_CODE'] . '_' . $itemSAP['UNIT_CODE'];
+                $key = strtolower($key);
+                $sapIndex[$key] = $itemSAP;
+                $userSAPDefault = $itemSAP['USER']?? null;
+            }
+
+            // Kiểm tra các item trong `$soItemsMT`
+            foreach ($soItemsMT as $itemMT) {
+                $key = $itemMT['sku_sap_code'] . '_' . $itemMT['sku_sap_unit'];
+                $key = strtolower($key);
+
+                if (isset($sapIndex[$key])) {
+                    // Nếu trùng thì đưa vào danh sách matchingItems
+                    $matchingItems[] = $itemMT;
+                } else {
+                    // Nếu không trùng thì đưa vào danh sách onlyInMT
+                    $onlyInMT[] = $itemMT;
+                }
+            }
+
+            // Tìm các item chỉ có trong `$soItemsSAP`
+            // Tạo một mảng chỉ mục từ $matchingItems để truy cập nhanh hơn
+            $matchingIndex = [];
+            foreach ($matchingItems as $matching) {
+                $matchingKey = strtolower($matching['sku_sap_code'] . '_' . $matching['sku_sap_unit']);
+                $matchingIndex[$matchingKey] = true;
+            }
+
+            foreach ($soItemsSAP as $itemSAP) {
+                $key = strtolower($itemSAP['SAP_CODE'] . '_' . $itemSAP['UNIT_CODE']);
+                // Kiểm tra sự tồn tại của $key trong mảng chỉ mục
+                if (!isset($matchingIndex[$key])) {
+                    $onlyInSAP[] = $itemSAP;
+                }
+            }
+
+            $matchingItemsCount += count($matchingItems);
+            $onlyInMTCount += count($onlyInMT);
+            $onlyInSAPCount += count($onlyInSAP);
+
+            // Tồn tại cả 2 bảng1
+            foreach ($matchingItems as $matchingItem) {
+                $item = array();
+                $key = $matchingItem['sku_sap_code'] . '_' . $matchingItem['sku_sap_unit'];
+                $key = strtolower($key);
+
+                $sapItem = $sapIndex[$key];
+                $sapQuantity = $sapItem['SAP_QUANTITY'] ?? null;
+                $quantity3_sap = $matchingItem['quantity3_sap'] ?? null;
+
+                $fulfillmentRate = (!empty($quantity3_sap) && !empty($sapQuantity))
+                    ? round(($sapQuantity / $quantity3_sap) * 100)
+                    : 0;
+                // Làm tròn fulfillment_rate đến số nguyên gần nhất
+                $fulfillmentRate = round($fulfillmentRate);
+                // Chia cho 100 nếu fulfillmentRate lớn hơn 100
+                if ($fulfillmentRate > 100) {
+                    $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
+                }
+                // Cập nhật các giá trị khác
+                $item['sap_code'] = $sapItem['SAP_CODE'] ?? null;
+                $item['sap_name'] = $sapItem['SAP_NAME'] ?? null;
+                $item['sap_quantity'] = $sapQuantity;
+                $item['sap_unit_code'] = $sapItem['UNIT_CODE']?? null;
+                $item['sap_user'] = $sapItem['USER']?? null;
+                $item['fulfillment_rate'] = $fulfillmentRate;
+
+                // $updatedItem = new \stdClass(); // Tạo một đối tượng mới cho mỗi item
+                $item['id'] = $soHeader->id;
+                $item['customer_code'] = $soHeader->customer_code;
+                $item['customer_name'] = $soHeader->customer_name;
+                $item['po_number'] = $soHeader->po_number;
+                $item['so_uid'] = $soHeader->so_uid;
+                $item['created_at'] = $soHeader->created_at;
+                $item['order_process'] = array();
+                $item['order_process']['id'] = $soHeader->order_process->id;
+                $item['order_process']['customer_group_name'] = $soHeader->order_process->customer_group->name;
+                $item['order_process']['created_by'] = $soHeader->order_process->created_by;
+
+                $item['raw_po_header_id'] = $matchingItem['raw_po_header_id'] ?? null;
+                $item['customer_sku_code'] = $matchingItem['customer_sku_code'] ?? null;
+                $item['customer_sku_name'] = $matchingItem['customer_sku_name'] ?? null;
+                $item['customer_sku_unit'] = $matchingItem['customer_sku_unit'] ?? null;
+                $item['sku_sap_code'] = $matchingItem['sku_sap_code'] ?? null;
+                $item['sku_sap_name'] = $matchingItem['sku_sap_name'] ?? null;
+                $item['sku_sap_unit'] = $matchingItem['sku_sap_unit'] ?? null;
+                $item['quantity3_sap'] = $quantity3_sap;
+
+                $result->so_items[] = (object) $item;
+            }
+
+            // Chỉ tồn tại bảng WEB
+            foreach ($onlyInMT as $itemMT) {
+                $item = array();
+
+                $sapQuantity = null;
+                $quantity3_sap = $itemMT['quantity3_sap'] ?? null;
+
+                $fulfillmentRate = 0;
+                // Cập nhật các giá trị khác
+                $item['sap_code'] = null;
+                $item['sap_name'] = null;
+                $item['sap_quantity'] = $sapQuantity;
+                $item['sap_unit_code'] = null;
+                $item['sap_user'] = $userSAPDefault;
+                $item['fulfillment_rate'] = $fulfillmentRate;
+
+                $item['id'] = $soHeader->id;
+                $item['customer_code'] = $soHeader->customer_code;
+                $item['customer_name'] = $soHeader->customer_name;
+                $item['po_number'] = $soHeader->po_number;
+                $item['so_uid'] = $soHeader->so_uid;
+                $item['created_at'] = $soHeader->created_at;
+                $item['order_process'] = array();
+                $item['order_process']['id'] = $soHeader->order_process->id;
+                $item['order_process']['customer_group_name'] = $soHeader->order_process->customer_group->name;
+                $item['order_process']['created_by'] = $soHeader->order_process->created_by;
+
+                $item['raw_po_header_id'] = $itemMT['raw_po_header_id'] ?? null;
+                $item['customer_sku_code'] = $itemMT['customer_sku_code'] ?? null;
+                $item['customer_sku_name'] = $itemMT['customer_sku_name'] ?? null;
+                $item['customer_sku_unit'] = $itemMT['customer_sku_unit'] ?? null;
+                $item['sku_sap_code'] = $itemMT['sku_sap_code'] ?? null;
+                $item['sku_sap_name'] = $itemMT['sku_sap_name'] ?? null;
+                $item['sku_sap_unit'] = $itemMT['sku_sap_unit'] ?? null;
+                $item['quantity3_sap'] = $quantity3_sap;
+
+                $result->so_items[] = (object) $item;
+            }
+
+            // Chỉ tồn tại ở bảng SAP
+            foreach ($onlyInSAP as $itemSAP) {
+                $item = array();
+
+                $sapQuantity = $itemSAP['SAP_QUANTITY'] ?? null;
+                $quantity3_sap = null;
+
+                $fulfillmentRate = 100;
+                // Cập nhật các giá trị khác
+                $item['sap_code'] = $itemSAP['SAP_CODE'] ?? null;
+                $item['sap_name'] = $itemSAP['SAP_NAME'] ?? null;
+                $item['sap_quantity'] = $sapQuantity;
+                $item['sap_unit_code'] = $itemSAP['UNIT_CODE']?? null;
+                $item['sap_user'] = $itemSAP['USER']?? null;
+                $item['fulfillment_rate'] = $fulfillmentRate;
+
+                $item['id'] = $soHeader->id;
+                $item['customer_code'] = $soHeader->customer_code;
+                $item['customer_name'] = $soHeader->customer_name;
+                $item['po_number'] = $soHeader->po_number;
+                $item['so_uid'] = $soHeader->so_uid;
+                $item['created_at'] = $soHeader->created_at;
+                $item['order_process'] = array();
+                $item['order_process']['id'] = $soHeader->order_process->id;
+                $item['order_process']['customer_group_name'] = $soHeader->order_process->customer_group->name;
+                $item['order_process']['created_by'] = $soHeader->order_process->created_by;
+
+                $item['raw_po_header_id'] = null;
+                $item['customer_sku_code'] = null;
+                $item['customer_sku_name'] = null;
+                $item['customer_sku_unit'] = null;
+                $item['sku_sap_code'] = null;
+                $item['sku_sap_name'] = null;
+                $item['sku_sap_unit'] = null;
+                $item['quantity3_sap'] = $quantity3_sap;
+
+                $result->so_items[] = (object) $item;
+            }
+        }
+
+        Log::info("Số lượng item có cả 2 bảng: " . $matchingItemsCount. " items");
+        Log::info("Số lượng item chỉ có ở bảng WEB: " . $onlyInMTCount . " items");
+        Log::info("Số lượng item chỉ có ở bảng SAP: " . $onlyInSAPCount. " items");
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime, 2);
+        Log::info("Thời gian thực thi mapping data: " . $executionTime . " giây");
+        // Lấy trang hiện tại từ request (mặc định là trang 1)
+        $perPage = $this->request->get('per_page', 10);
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        // Tổng số phần tử
+        $total = count($result->so_items);
+
+        // Lấy dữ liệu cho trang hiện tại
+        $currentPageItems = array_slice($result->so_items, ($currentPage - 1) * $perPage, $perPage);
+
+        // Tạo đối tượng LengthAwarePaginator
+        $paginatedResult = new LengthAwarePaginator(
+            $currentPageItems,
+            $total,
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
+
+        return $paginatedResult;
     }
 }

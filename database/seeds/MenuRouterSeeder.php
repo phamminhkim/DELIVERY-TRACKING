@@ -325,13 +325,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
             ],
-            [
-                'title' => "Xử lý đơn hàng",
-                'icon' => "fas fa-tasks",
-                'link' => "order-processes",
-                'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
-            ],
+            // [
+            //     'title' => "Xử lý đơn hàng",
+            //     'icon' => "fas fa-tasks",
+            //     'link' => "order-processes",
+            //     'query_string' => "",
+            //     'parent' => 'Trích xuất đơn hàng',
+            // ],
             [
                 'title' => "KM combo",
                 'icon' => "fas fa-gift",

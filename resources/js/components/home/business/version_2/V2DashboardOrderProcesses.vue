@@ -173,10 +173,11 @@
                     </div> -->
                     <div class="form-search mb-1 p-2 rounded" style="background: rgba(30, 41, 59, 0.1);">
                         <ChildOrderProcessesFormSearchResponseLevel @search-change="onSearchChange"
+                            @start-date="handleStartDate" @end-date="handleEndDate" @search="handleSearch"
                             :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
                     <div class="form-group bg-white">
-                        <ChildDashboardResponseLevelOrderProcesses :search_change="search_change" />
+                        <ChildDashboardResponseLevelOrderProcesses :search_change="search_change" :change_search="change_search" :start_date="start_date" :end_date="end_date" />
                     </div>
                 </div>
             </b-tab>
@@ -217,6 +218,9 @@ export default {
             api_handler: new ApiHandler(window.Laravel.access_token),
             is_loading: false,
             search_change: '',
+            change_search: 0,
+            start_date: new Date(),
+            end_date: new Date(),
             customers: [
                 {
                     id: 1,
@@ -295,6 +299,7 @@ export default {
         }
     },
     async created() {
+        this.createdTwoWeek();
         await this.fetchUserRole();
         await this.fetchCustomerGroup();
         await this.createOrderCustomerGroup();
@@ -520,6 +525,23 @@ export default {
         },
         onSearchChange(text) {
             this.search_change = text;
+        },
+        handleSearch(){
+            this.change_search++;
+        },
+        handleStartDate(date) {
+            this.start_date = date;
+        },
+        handleEndDate(date) {
+            this.end_date = date;
+        },
+        createdTwoWeek() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 14);
+
+            this.start_date = startDate;
+            this.end_date = endDate;
         },
 
     },
