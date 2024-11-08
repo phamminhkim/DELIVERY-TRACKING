@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-table :items="reportes" :fields="fields" responsive small :bordered="true" class="text-xs"
-            :per-page="perPage" :current-page="currentPage">
+            :per-page="perPage">
             <template #thead-top="data">
                 <b-tr>
                     <b-th class="text-center border-0" colspan="12" variant="info">Dữ liệu Web MT</b-th>
@@ -104,7 +104,7 @@ export default {
                 if (success) {
                     this.reportes = data.data;
                     this.currentPage = data.current_page;
-                    this.perPage = data.per_page;
+                    this.perPage = Number(data.per_page);
                     this.total = data.total
                 }
             } catch (error) {
