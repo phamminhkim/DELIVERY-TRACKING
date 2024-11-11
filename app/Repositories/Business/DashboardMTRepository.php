@@ -554,13 +554,20 @@ class DashboardMTRepository extends RepositoryAbs
         $totalMTSoItems = [];
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
+            $po_number = $soHeader->po_number;
+            $so_data_item = $soHeader->so_data_items->first();
+            $promotive_name = $so_data_item->promotive_name;
+            if (!empty($promotive_name)) {
+                // Đối với đơn khuyến mãi thì bỏ qua
+                continue;
+            }
             $customer_group_id = $soHeader->order_process->customer_group_id;
 
             $totalMTSoItems[$so_uid] = array();
             $itemsArray = [];
             $convert_po_uid = $soHeader->convert_po_uid;
-            $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($convert_po_uid) {
-                return $rawPoHeader['convert_po_uid'] == $convert_po_uid;
+            $poHeaders = array_filter($rawPoHeaders, function($rawPoHeader) use ($convert_po_uid, $po_number) {
+                return $rawPoHeader['convert_po_uid'] == $convert_po_uid && $rawPoHeader['po_number'] == $po_number;
             });
             // Nếu $poHeaders là mảng rỗng thì continue vòng lặp
             if (count($poHeaders) == 0) {
@@ -729,8 +736,8 @@ class DashboardMTRepository extends RepositoryAbs
         $onlyInSAPCount = 0;
         foreach ($soHeaders as $soHeader) {
             $so_uid = $soHeader->so_uid;
-            $soItemsMT = $totalMTSoItems[$so_uid];
-            $soItemsSAP = $totalSAPSoItems[$so_uid] ?? null;
+            $soItemsMT = $totalMTSoItems[$so_uid] ?? [];
+            $soItemsSAP = $totalSAPSoItems[$so_uid] ?? [];
 
             // Duyệt mảng $soItemsMT, gộp các item giống nhau và cộng số lượng dựa trên sku_sap_code và sku_sap_unit
             $mergedMTItems = [];
@@ -815,7 +822,7 @@ class DashboardMTRepository extends RepositoryAbs
             $onlyInMTCount += count($onlyInMT);
             $onlyInSAPCount += count($onlyInSAP);
 
-            // Tồn tại cả 2 bảng1
+            // Tồn tại cả 2 bảng
             foreach ($matchingItems as $matchingItem) {
                 $item = array();
                 $key = $matchingItem['sku_sap_code'] . '_' . $matchingItem['sku_sap_unit'];
