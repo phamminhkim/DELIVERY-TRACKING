@@ -3,10 +3,10 @@
         <div class="text-left mb-2">
             <button @click="handleSearch()" class="btn btn-warning bg-white text-warning btn-sm text-xs px-2 "><i
                     class="fas fa-search mr-2"></i>Tìm kiếm</button>
-            <button @click="" class="btn btn-secondary bg-white text-secondary btn-sm text-xs px-2 "><i
+            <button @click="handleResetSearch()" class="btn btn-secondary bg-white text-secondary btn-sm text-xs px-2 "><i
                     class="fas fa-sync-alt mr-2"></i>Làm mới</button>
         </div>
-        <div class="row">
+        <div class="row mb-1">
             <div class="col-lg-7">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for=""
@@ -19,40 +19,44 @@
                     </div>
                 </div>
             </div>
+         
+            <div class="col-lg-5">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">PO MÃ SAP</span>
+                    </div>
+                    <div class="flex-fill">
+                        <textarea v-model="order.sap_codes" class="form-control form-control-sm text-xs" type="text" size="30"
+                            placeholder="PO MÃ SAP">
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1">
+            <div class="col-lg-7">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right"><span for=""
+                            class="mb-0 px-2  span-start-date">Khách hàng</span>
+                    </div>
+                    <div class="flex-fill">
+                        <treeselect placeholder="Nhập khách hàng.." :multiple="true" required
+                            :load-options="loadOptionsCustomer" :async="true" v-model="order.customer_codes" />
+                    </div>
+                </div>
+            </div>
             <div class="col-lg-5">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right">
                         <span for="" class="mb-0 px-2  span-start-date">Người tạo</span>
                     </div>
                     <div class="flex-fill">
-                        <treeselect placeholder="Người tạo" v-model="order.created_bys" :options="user_roles"
-                            :multiple="true" class="text-xs mb-1" />
+                        <input v-model="order.sap_user" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Nhập người tạo từ SAP">
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row mb-1">
-            <div class="col-lg-3">
-                <div class="d-flex">
-                    <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Mã
-                            KH</span>
-                    </div>
-                    <div class="flex-fill">
-                        <input v-model="order.customer_code" class="form-control form-control-sm text-xs" type="text" placeholder="Mã KH">
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="d-flex">
-                    <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Tên
-                            KH</span>
-                    </div>
-                    <div class="flex-fill">
-                        <input v-model="order.customer_name" class="form-control form-control-sm text-xs" type="text" placeholder="Tên KH">
-                    </div>
-                </div>
-            </div>
-           
+
         </div>
         <div class="row">
             <div class="col-lg-3">
@@ -61,8 +65,7 @@
                             class="mb-0 px-2 flex-shrink-0 set-shrink text-right span-start-date">Từ
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.start_date" class="text-xs"
-                            @input="handleStartDate()"
-                            :max="order.end_date"></b-form-datepicker></div>
+                            @input="handleStartDate()" :max="order.end_date"></b-form-datepicker></div>
                 </div>
             </div>
             <div class="col-lg-2">
@@ -71,7 +74,8 @@
                         <span for="" class="mb-0 px-2  span-start-date">Số PO</span>
                     </div>
                     <div class="flex-fill">
-                        <input v-model="order.po_number" class="form-control form-control-sm text-xs" type="text" placeholder="Số PO">
+                        <input v-model="order.po_number" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Số PO">
                     </div>
                 </div>
             </div>
@@ -81,7 +85,8 @@
                         <span for="" class="mb-0 px-2  span-start-date">Số SO SAP</span>
                     </div>
                     <div class="flex-fill">
-                        <input v-model="order.so_uid" class="form-control form-control-sm text-xs" type="text" placeholder="Số SO SAP">
+                        <input v-model="order.so_uid" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Số SO SAP">
                     </div>
                 </div>
             </div>
@@ -106,31 +111,22 @@
                     <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Đến
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.end_date" class="text-xs mt-1"
-                        @input="handleEndDate()"
-                            :min="order.start_date"></b-form-datepicker></div>
+                            @input="handleEndDate()" :min="order.start_date"></b-form-datepicker></div>
                 </div>
             </div>
-            <div class="col-lg-2">
-                <div class="d-flex">
-                    <div class="flex-shrink-0 set-shrink text-right">
-                        <span for="" class="mb-0 px-2  span-start-date">PO MÃ SAP</span>
-                    </div>
-                    <div class="flex-fill">
-                        <input v-model="order.sap_code" class="form-control form-control-sm text-xs" type="text" placeholder="PO MÃ SAP">
-                    </div>
-                </div>
-            </div>
+
             <div class="col-lg-2">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right">
                         <span for="" class="mb-0 px-2  span-start-date">SO MÃ SAP</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="SO MÃ SAP">
+                        <input v-model="order.sap_code" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="SO MÃ SAP">
                     </div>
                 </div>
             </div>
-          
+
         </div>
     </div>
 </template>
@@ -153,15 +149,16 @@ export default {
             is_loading: false,
             order: {
                 customer_group_ids: [],
-                customers: [],
+                customer_codes: [],
                 created_bys: [],
                 start_date: null,
                 end_date: null,
                 po_number: '',
                 so_uid: '',
                 sap_code: '',
+                sap_codes: [],
                 customer_code: '',
-                customer_name: '',
+                sap_user: '',
                 created_by: -1,
             },
             searchText: '',
@@ -176,8 +173,27 @@ export default {
     async created() {
         this.createdTwoWeek();
         await this.fetchCustomerPartner();
+        await this.loadOptionsCustomer();
     },
     methods: {
+        async loadOptionsCustomer({ action, searchQuery, callback }) {
+            if (action === ASYNC_SEARCH) {
+                const params = {
+                    search: searchQuery,
+                };
+                const { data } = await this.api_handler.get(
+                    'api/master/customer-partners/minified',
+                    params,
+                );
+                let options = data.data.map((item) => {
+                    return {
+                        id: item.id,
+                        label: `${item.name} (${item.code}) ${item.note}`,
+                    };
+                });
+                callback(null, options);
+            }
+        },
         createdTwoWeek() {
             const endDate = new Date();
             const startDate = new Date();
@@ -239,15 +255,31 @@ export default {
                 }
             });
         },
-        handleStartDate(){
+        handleStartDate() {
             this.$emit('start-date', this.order.start_date)
         },
-        handleEndDate(){
+        handleEndDate() {
             this.$emit('end-date', this.order.end_date)
         },
-        handleSearch(){
-            this.$emit('search')
-
+        handleSearch() {
+            this.$emit('search', this.order)
+        },
+        handleResetSearch(){
+            this.order = {
+                customer_group_ids: [],
+                customer_codes: [],
+                created_bys: [],
+                start_date: null,
+                end_date: null,
+                po_number: '',
+                so_uid: '',
+                sap_code: '',
+                sap_codes: [],
+                customer_code: '',
+                sap_user: '',
+                created_by: -1,
+            }
+            this.$emit('search', this.order)
         }
     },
     computed: {
