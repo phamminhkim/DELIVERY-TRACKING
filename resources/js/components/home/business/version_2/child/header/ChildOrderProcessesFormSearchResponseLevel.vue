@@ -7,7 +7,7 @@
                     class="fas fa-sync-alt mr-2"></i>Làm mới</button>
         </div>
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-7">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for=""
                             class="mb-0 px-2  span-start-date">Nhóm
@@ -19,15 +19,26 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-5">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">Người tạo</span>
+                    </div>
+                    <div class="flex-fill">
+                        <treeselect placeholder="Người tạo" v-model="order.created_bys" :options="user_roles"
+                            :multiple="true" class="text-xs mb-1" />
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row">
+        <div class="row mb-1">
             <div class="col-lg-3">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for="" class="mb-0 px-2  span-start-date">Mã
                             KH</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Mã KH">
+                        <input v-model="order.customer_code" class="form-control form-control-sm text-xs" type="text" placeholder="Mã KH">
                     </div>
                 </div>
             </div>
@@ -37,10 +48,11 @@
                             KH</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Tên KH">
+                        <input v-model="order.customer_name" class="form-control form-control-sm text-xs" type="text" placeholder="Tên KH">
                     </div>
                 </div>
             </div>
+           
         </div>
         <div class="row">
             <div class="col-lg-3">
@@ -50,7 +62,7 @@
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.start_date" class="text-xs"
                             @input="handleStartDate()"
-                            :min="order.start_date"></b-form-datepicker></div>
+                            :max="order.end_date"></b-form-datepicker></div>
                 </div>
             </div>
             <div class="col-lg-2">
@@ -59,7 +71,7 @@
                         <span for="" class="mb-0 px-2  span-start-date">Số PO</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Số PO">
+                        <input v-model="order.po_number" class="form-control form-control-sm text-xs" type="text" placeholder="Số PO">
                     </div>
                 </div>
             </div>
@@ -69,7 +81,7 @@
                         <span for="" class="mb-0 px-2  span-start-date">Số SO SAP</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="Số SO SAP">
+                        <input v-model="order.so_uid" class="form-control form-control-sm text-xs" type="text" placeholder="Số SO SAP">
                     </div>
                 </div>
             </div>
@@ -95,7 +107,7 @@
                             ngày</span></div>
                     <div class="flex-fill"><b-form-datepicker v-model="order.end_date" class="text-xs mt-1"
                         @input="handleEndDate()"
-                            :max="order.end_date"></b-form-datepicker></div>
+                            :min="order.start_date"></b-form-datepicker></div>
                 </div>
             </div>
             <div class="col-lg-2">
@@ -104,7 +116,7 @@
                         <span for="" class="mb-0 px-2  span-start-date">PO MÃ SAP</span>
                     </div>
                     <div class="flex-fill">
-                        <input class="form-control form-control-sm text-xs" type="text" placeholder="PO MÃ SAP">
+                        <input v-model="order.sap_code" class="form-control form-control-sm text-xs" type="text" placeholder="PO MÃ SAP">
                     </div>
                 </div>
             </div>
@@ -118,18 +130,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="d-flex">
-                    <div class="flex-shrink-0 set-shrink text-right">
-                        <span for="" class="mb-0 px-2  span-start-date">Người tạo</span>
-                    </div>
-                    <div class="flex-fill">
-                        <treeselect placeholder="Người tạo" v-model="order.user_ids" :options="user_roles"
-                            :multiple="true" class="text-xs mb-1" />
-                    </div>
-                </div>
-
-            </div>
+          
         </div>
     </div>
 </template>
@@ -153,9 +154,15 @@ export default {
             order: {
                 customer_group_ids: [],
                 customers: [],
-                user_ids: [],
+                created_bys: [],
                 start_date: null,
                 end_date: null,
+                po_number: '',
+                so_uid: '',
+                sap_code: '',
+                customer_code: '',
+                customer_name: '',
+                created_by: -1,
             },
             searchText: '',
             searchTimeout: null, // Biến lưu trữ timeout
@@ -210,7 +217,7 @@ export default {
                     // from_date: this.order.start_date,
                     // to_date: this.order.end_date,
                     // customer_group_ids: this.order.customer_group_ids,
-                    // user_ids: this.order.user_ids,
+                    // created_bys: this.order.created_bys,
                     search: this.searchText,
                     per_page: 100,
                 }
