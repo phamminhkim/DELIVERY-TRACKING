@@ -385,6 +385,7 @@ class DashboardMTRepository extends RepositoryAbs
         if ($this->request->filled('ids')) {
             $query->whereIn('id', $this->request->ids);
         }
+        // filter theo Số SO SAP
         if ($this->request->filled('so_uid')) {
             $query->where('so_uid', 'LIKE', '%' . $this->request->so_uid . '%');
         }
@@ -394,6 +395,7 @@ class DashboardMTRepository extends RepositoryAbs
         if ($this->request->filled('po_number')) {
             $query->where('po_number', 'LIKE', '%' . $this->request->po_number . '%');
         }
+        // filter theo PO mã SAP
         if ($this->request->filled('sap_codes')) {
             $sap_codes = $this->request->sap_codes;
             $query->whereHas('order_process', function ($query) use ($sap_codes) {
@@ -631,7 +633,7 @@ class DashboardMTRepository extends RepositoryAbs
                             break;
                         }
                     }
-                    
+
                     if ($customerMaterial) {
                         $customer_material_id  = $customerMaterial['id'];
                         $matchedMappings = array_filter($sapMaterialMappings, function ($mapping) use ($customer_material_id) {
@@ -950,6 +952,18 @@ class DashboardMTRepository extends RepositoryAbs
 
                 $result->so_items[] = (object) $item;
             }
+        }
+        if ($this->request->filled('sap_code')) {
+            $sap_code = $this->request->sap_code;
+            $result->so_items = array_filter($result->so_items, function ($item) use ($sap_code) {
+                return $item->sap_code == $sap_code;
+            });
+        }
+        if ($this->request->filled('sap_user')) {
+            $sap_user = $this->request->sap_user;
+            $result->so_items = array_filter($result->so_items, function ($item) use ($sap_user) {
+                return $item->sap_user == $sap_user;
+            });
         }
 
         Log::info("Số lượng item có cả 2 bảng: " . $matchingItemsCount. " items");
