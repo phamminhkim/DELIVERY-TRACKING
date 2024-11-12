@@ -177,7 +177,7 @@
                             :customer_groups="customer_groups" :customers="customers" :user_roles="user_roles" />
                     </div>
                     <div class="form-group bg-white">
-                        <ChildDashboardResponseLevelOrderProcesses :search_change="search_change" :change_search="change_search" :start_date="start_date" :end_date="end_date" />
+                        <ChildDashboardResponseLevelOrderProcesses ref="ChildDashboardResponseLevelOrderProcesses" :search_change="search_change" :change_search="change_search" :start_date="start_date" :end_date="end_date" />
                     </div>
                 </div>
             </b-tab>
@@ -526,8 +526,9 @@ export default {
         onSearchChange(text) {
             this.search_change = text;
         },
-        handleSearch(){
-            this.change_search++;
+        async handleSearch(search){
+            await this.$refs.ChildDashboardResponseLevelOrderProcesses.setOrder(search);
+            await this.change_search++;
         },
         handleStartDate(date) {
             this.start_date = date;

@@ -37,6 +37,20 @@ export default {
             currentPage: 1,
             perPage: 10,
             total: 0,
+            order: {
+                customer_group_ids: [],
+                customer_codes: [],
+                created_bys: [],
+                start_date: null,
+                end_date: null,
+                po_number: '',
+                so_uid: '',
+                sap_code: '',
+                sap_codes: [],
+                customer_code: '',
+                sap_user: '',
+                created_by: -1,
+            },
             reportes: [],
             customer_partners: [],
             fields: [
@@ -93,11 +107,14 @@ export default {
                 const body = {
                     from_date: this.start_date,
                     to_date: this.end_date,
-                    // customer_group_ids: this.order.customer_group_ids,
-                    // user_ids: this.order.user_ids,
-                    // sync_sap_status: this.order.sync_sap_status
                     page: this.currentPage,
                     per_page: this.perPage,
+                    po_number: this.order.po_number,
+                    sap_codes: this.order.sap_codes,
+                    sap_code: this.order.sap_code,
+                    sap_user: this.order.sap_user,
+                    so_uid: this.order.so_uid,
+                    customer_codes: this.order.customer_codes,
                 }
                 const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
                 console.log(data)
@@ -150,6 +167,9 @@ export default {
                     label: item.name + ' (' + item.code + ')',
                 }
             });
+        },
+        setOrder(order){
+            this.order = order;
         }
     },
     computed: {
