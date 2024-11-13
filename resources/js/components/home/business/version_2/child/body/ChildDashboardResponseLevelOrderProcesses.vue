@@ -89,13 +89,13 @@ export default {
         }
     },
     watch: {
-        search_change: {
-            handler: function (val) {
-                this.search = val;
-                this.fetchCustomerPartner();
-            },
-            deep: true
-        },
+        // search_change: {
+        //     handler: function (val) {
+        //         this.search = val;
+        //         this.fetchCustomerPartner();
+        //     },
+        //     deep: true
+        // },
         change_search: {
             handler: function (val) {
                 this.fetchDashboardReport();
