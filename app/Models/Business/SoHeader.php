@@ -51,8 +51,8 @@ class SoHeader extends Model
     {
         return $this->hasOne(RawPoHeader::class, 'po_number', 'po_number');
     }
-    public function customer_partners()
-    {
-        return $this->belongsTo(CustomerPartner::class, 'customer_code')->select('id', 'code');
-    }
+    // public function customer_partners()
+    // {
+    //     return $this->belongsTo(CustomerPartner::class, 'customer_code')->select('id', 'code');
+    // }
 }
