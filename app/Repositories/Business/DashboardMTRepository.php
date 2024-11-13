@@ -419,11 +419,16 @@ class DashboardMTRepository extends RepositoryAbs
                 });
             });
         }
+        // Lọc theo tên khách hàng
         if ($this->request->filled('customer_name')) {
-            $query->where('customer_name', 'LIKE', '%' . $this->request->customer_name . '%');
+            $customer_name = $this->request->customer_name;
+            $query->where('customer_name', 'LIKE', '%' . $customer_name . '%');
         }
+
+        // Lọc theo mã khách hàng
         if ($this->request->filled('customer_code')) {
-            $query->where('customer_code', 'LIKE', '%' . $this->request->customer_code . '%');
+            $customer_code = $this->request->customer_code;
+            $query->where('customer_code', 'LIKE', '%' . $customer_code . '%');
         }
         if ($this->request->filled('created_bys')) {
             $query->whereHas('order_process', function ($query) {
