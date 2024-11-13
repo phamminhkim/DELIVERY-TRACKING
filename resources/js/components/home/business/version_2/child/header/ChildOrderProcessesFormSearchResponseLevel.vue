@@ -230,54 +230,54 @@ export default {
         handleIPutCustomerPartner(state, value) {
             console.log('event', state, value);
         },
-        onSearchChange(text) {
-            // setTimeOut
-            // Xóa timeout trước đó nếu có
-            if (this.searchTimeout) {
-                clearTimeout(this.searchTimeout);
-            }
+        // onSearchChange(text) {
+        //     // setTimeOut
+        //     // Xóa timeout trước đó nếu có
+        //     if (this.searchTimeout) {
+        //         clearTimeout(this.searchTimeout);
+        //     }
 
-            // Thiết lập timeout mới để trì hoãn xử lý
-            this.searchTimeout = setTimeout(() => {
-                this.searchText = text;
-                console.log('search', this.searchText);
-                this.$emit('search-change', this.searchText);
-                this.fetchCustomerPartner();
-            }, 800); // Điều chỉnh thời gian (ms) phù hợp
+        //     // Thiết lập timeout mới để trì hoãn xử lý
+        //     this.searchTimeout = setTimeout(() => {
+        //         this.searchText = text;
+        //         console.log('search', this.searchText);
+        //         this.$emit('search-change', this.searchText);
+        //         this.fetchCustomerPartner();
+        //     }, 800); // Điều chỉnh thời gian (ms) phù hợp
 
-            // tôi sẽ gửi request sau 800ms kể từ lần cuối cùng người dùng nhập
+        //     // tôi sẽ gửi request sau 800ms kể từ lần cuối cùng người dùng nhập
 
 
-        },
-        async fetchCustomerPartner() {
-            try {
-                this.is_loading = true;
-                const body = {
-                    // from_date: this.order.start_date,
-                    // to_date: this.order.end_date,
-                    // customer_group_ids: this.order.customer_group_ids,
-                    // created_bys: this.order.created_bys,
-                    search: this.searchText,
-                    per_page: 100,
-                }
-                // const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
-                // if (success) {
-                //     this.customer_partners = this.mapTreeSelect(data.data);
-                // }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            } finally {
-                this.is_loading = false;
-            }
-        },
-        mapTreeSelect(data) {
-            return data.map(item => {
-                return {
-                    id: item.id,
-                    label: item.name + ' (' + item.code + ')',
-                }
-            });
-        },
+        // },
+        // async fetchCustomerPartner() {
+        //     try {
+        //         this.is_loading = true;
+        //         const body = {
+        //             // from_date: this.order.start_date,
+        //             // to_date: this.order.end_date,
+        //             // customer_group_ids: this.order.customer_group_ids,
+        //             // created_bys: this.order.created_bys,
+        //             search: this.searchText,
+        //             per_page: 100,
+        //         }
+        //         // const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+        //         if (success) {
+        //             this.customer_partners = this.mapTreeSelect(data.data);
+        //         }
+        //     } catch (error) {
+        //         this.$showMessage('error', 'Lỗi', error);
+        //     } finally {
+        //         this.is_loading = false;
+        //     }
+        // },
+        // mapTreeSelect(data) {
+        //     return data.map(item => {
+        //         return {
+        //             id: item.id,
+        //             label: item.name + ' (' + item.code + ')',
+        //         }
+        //     });
+        // },
         handleStartDate() {
             this.$emit('start-date', this.order.start_date)
         },
