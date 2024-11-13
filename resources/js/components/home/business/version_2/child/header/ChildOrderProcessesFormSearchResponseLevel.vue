@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="row mb-1">
-            <div class="col-lg-7">
+            <!-- <div class="col-lg-7">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for=""
                             class="mb-0 px-2  span-start-date">Khách hàng</span>
@@ -42,6 +42,28 @@
                     <div class="flex-fill">
                         <treeselect placeholder="Nhập khách hàng.." :multiple="true" required
                             :load-options="loadOptionsCustomer" :async="true" v-model="order.customer_codes" />
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-lg-3">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">Mã KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input v-model="order.customer_code" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Nhập Mã KH">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">Tên KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input v-model="order.customer_name" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Nhập tên KH">
                     </div>
                 </div>
             </div>
@@ -149,7 +171,8 @@ export default {
             is_loading: false,
             order: {
                 customer_group_ids: [],
-                customer_codes: [],
+                customer_code: '',
+                customer_name: '',
                 created_bys: [],
                 start_date: null,
                 end_date: null,
@@ -176,24 +199,24 @@ export default {
         await this.loadOptionsCustomer();
     },
     methods: {
-        async loadOptionsCustomer({ action, searchQuery, callback }) {
-            if (action === ASYNC_SEARCH) {
-                const params = {
-                    search: searchQuery,
-                };
-                const { data } = await this.api_handler.get(
-                    'api/master/customer-partners/minified',
-                    params,
-                );
-                let options = data.data.map((item) => {
-                    return {
-                        id: item.id,
-                        label: `${item.name} (${item.code}) ${item.note}`,
-                    };
-                });
-                callback(null, options);
-            }
-        },
+        // async loadOptionsCustomer({ action, searchQuery, callback }) {
+        //     if (action === ASYNC_SEARCH) {
+        //         const params = {
+        //             search: searchQuery,
+        //         };
+        //         const { data } = await this.api_handler.get(
+        //             'api/master/customer-partners/minified',
+        //             params,
+        //         );
+        //         let options = data.data.map((item) => {
+        //             return {
+        //                 id: item.code,
+        //                 label: `${item.name} (${item.code}) ${item.note}`,
+        //             };
+        //         });
+        //         callback(null, options);
+        //     }
+        // },
         createdTwoWeek() {
             const endDate = new Date();
             const startDate = new Date();
@@ -237,10 +260,10 @@ export default {
                     search: this.searchText,
                     per_page: 100,
                 }
-                const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
-                if (success) {
-                    this.customer_partners = this.mapTreeSelect(data.data);
-                }
+                // const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+                // if (success) {
+                //     this.customer_partners = this.mapTreeSelect(data.data);
+                // }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -267,7 +290,8 @@ export default {
         handleResetSearch(){
             this.order = {
                 customer_group_ids: [],
-                customer_codes: [],
+                customer_code:'',
+                customer_name:'',
                 created_bys: [],
                 start_date: null,
                 end_date: null,
@@ -275,7 +299,6 @@ export default {
                 so_uid: '',
                 sap_code: '',
                 sap_codes: [],
-                customer_code: '',
                 sap_user: '',
                 created_by: -1,
             }
