@@ -367,7 +367,18 @@ class DashboardMTRepository extends RepositoryAbs
             $soHeaders = $this->getOrderReports();
             // Bước 2: Xử lý ánh xạ với vật liệu SAP
             $result = $this->mapItemsToSapMaterials($soHeaders);
-            return $result;
+    
+            // Kiểm tra nếu mapItemsToSapMaterials trả về lỗi SAP
+            if (isset($this->errors['sap_error'])) {
+                // Nếu có lỗi "sap_error" từ SAP, hiển thị lỗi này
+                return false;
+            }    
+            // Kiểm tra nếu $result không có dữ liệu (là null hoặc rỗng)
+            if (is_null($result) || (is_array($result) && empty($result)) || (is_object($result) && $result->isEmpty())) {
+                return collect([]); // Trả về tập rỗng nếu không có dữ liệu
+            }    
+            return $result; // Trả về kết quả nếu có dữ liệu
+    
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -408,8 +419,16 @@ class DashboardMTRepository extends RepositoryAbs
                 });
             });
         }
+        // Lọc theo tên khách hàng
         if ($this->request->filled('customer_name')) {
-            $query->where('customer_name', 'LIKE', '%' . $this->request->customer_name . '%');
+            $customer_name = $this->request->customer_name;
+            $query->where('customer_name', 'LIKE', '%' . $customer_name . '%');
+        }
+
+        // Lọc theo mã khách hàng
+        if ($this->request->filled('customer_code')) {
+            $customer_code = $this->request->customer_code;
+            $query->where('customer_code', 'LIKE', '%' . $customer_code . '%');
         }
         if ($this->request->filled('created_bys')) {
             $query->whereHas('order_process', function ($query) {

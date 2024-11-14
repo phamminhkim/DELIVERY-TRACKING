@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="row mb-1">
-            <div class="col-lg-7">
+            <!-- <div class="col-lg-7">
                 <div class="d-flex">
                     <div class="flex-shrink-0 set-shrink text-right"><span for=""
                             class="mb-0 px-2  span-start-date">Khách hàng</span>
@@ -42,6 +42,28 @@
                     <div class="flex-fill">
                         <treeselect placeholder="Nhập khách hàng.." :multiple="true" required
                             :load-options="loadOptionsCustomer" :async="true" v-model="order.customer_codes" />
+                    </div>
+                </div>
+            </div> -->
+            <div class="col-lg-3">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">Mã KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input v-model="order.customer_code" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Nhập Mã KH">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 set-shrink text-right">
+                        <span for="" class="mb-0 px-2  span-start-date">Tên KH</span>
+                    </div>
+                    <div class="flex-fill">
+                        <input v-model="order.customer_name" class="form-control form-control-sm text-xs" type="text"
+                            placeholder="Nhập tên KH">
                     </div>
                 </div>
             </div>
@@ -149,7 +171,8 @@ export default {
             is_loading: false,
             order: {
                 customer_group_ids: [],
-                customer_codes: [],
+                customer_code: '',
+                customer_name: '',
                 created_bys: [],
                 start_date: null,
                 end_date: null,
@@ -176,24 +199,24 @@ export default {
         await this.loadOptionsCustomer();
     },
     methods: {
-        async loadOptionsCustomer({ action, searchQuery, callback }) {
-            if (action === ASYNC_SEARCH) {
-                const params = {
-                    search: searchQuery,
-                };
-                const { data } = await this.api_handler.get(
-                    'api/master/customer-partners/minified',
-                    params,
-                );
-                let options = data.data.map((item) => {
-                    return {
-                        id: item.id,
-                        label: `${item.name} (${item.code}) ${item.note}`,
-                    };
-                });
-                callback(null, options);
-            }
-        },
+        // async loadOptionsCustomer({ action, searchQuery, callback }) {
+        //     if (action === ASYNC_SEARCH) {
+        //         const params = {
+        //             search: searchQuery,
+        //         };
+        //         const { data } = await this.api_handler.get(
+        //             'api/master/customer-partners/minified',
+        //             params,
+        //         );
+        //         let options = data.data.map((item) => {
+        //             return {
+        //                 id: item.code,
+        //                 label: `${item.name} (${item.code}) ${item.note}`,
+        //             };
+        //         });
+        //         callback(null, options);
+        //     }
+        // },
         createdTwoWeek() {
             const endDate = new Date();
             const startDate = new Date();
@@ -207,54 +230,54 @@ export default {
         handleIPutCustomerPartner(state, value) {
             console.log('event', state, value);
         },
-        onSearchChange(text) {
-            // setTimeOut
-            // Xóa timeout trước đó nếu có
-            if (this.searchTimeout) {
-                clearTimeout(this.searchTimeout);
-            }
+        // onSearchChange(text) {
+        //     // setTimeOut
+        //     // Xóa timeout trước đó nếu có
+        //     if (this.searchTimeout) {
+        //         clearTimeout(this.searchTimeout);
+        //     }
 
-            // Thiết lập timeout mới để trì hoãn xử lý
-            this.searchTimeout = setTimeout(() => {
-                this.searchText = text;
-                console.log('search', this.searchText);
-                this.$emit('search-change', this.searchText);
-                this.fetchCustomerPartner();
-            }, 800); // Điều chỉnh thời gian (ms) phù hợp
+        //     // Thiết lập timeout mới để trì hoãn xử lý
+        //     this.searchTimeout = setTimeout(() => {
+        //         this.searchText = text;
+        //         console.log('search', this.searchText);
+        //         this.$emit('search-change', this.searchText);
+        //         this.fetchCustomerPartner();
+        //     }, 800); // Điều chỉnh thời gian (ms) phù hợp
 
-            // tôi sẽ gửi request sau 800ms kể từ lần cuối cùng người dùng nhập
+        //     // tôi sẽ gửi request sau 800ms kể từ lần cuối cùng người dùng nhập
 
 
-        },
-        async fetchCustomerPartner() {
-            try {
-                this.is_loading = true;
-                const body = {
-                    // from_date: this.order.start_date,
-                    // to_date: this.order.end_date,
-                    // customer_group_ids: this.order.customer_group_ids,
-                    // created_bys: this.order.created_bys,
-                    search: this.searchText,
-                    per_page: 100,
-                }
-                const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
-                if (success) {
-                    this.customer_partners = this.mapTreeSelect(data.data);
-                }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            } finally {
-                this.is_loading = false;
-            }
-        },
-        mapTreeSelect(data) {
-            return data.map(item => {
-                return {
-                    id: item.id,
-                    label: item.name + ' (' + item.code + ')',
-                }
-            });
-        },
+        // },
+        // async fetchCustomerPartner() {
+        //     try {
+        //         this.is_loading = true;
+        //         const body = {
+        //             // from_date: this.order.start_date,
+        //             // to_date: this.order.end_date,
+        //             // customer_group_ids: this.order.customer_group_ids,
+        //             // created_bys: this.order.created_bys,
+        //             search: this.searchText,
+        //             per_page: 100,
+        //         }
+        //         // const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+        //         if (success) {
+        //             this.customer_partners = this.mapTreeSelect(data.data);
+        //         }
+        //     } catch (error) {
+        //         this.$showMessage('error', 'Lỗi', error);
+        //     } finally {
+        //         this.is_loading = false;
+        //     }
+        // },
+        // mapTreeSelect(data) {
+        //     return data.map(item => {
+        //         return {
+        //             id: item.id,
+        //             label: item.name + ' (' + item.code + ')',
+        //         }
+        //     });
+        // },
         handleStartDate() {
             this.$emit('start-date', this.order.start_date)
         },
@@ -267,7 +290,8 @@ export default {
         handleResetSearch(){
             this.order = {
                 customer_group_ids: [],
-                customer_codes: [],
+                customer_code:'',
+                customer_name:'',
                 created_bys: [],
                 start_date: null,
                 end_date: null,
@@ -275,7 +299,6 @@ export default {
                 so_uid: '',
                 sap_code: '',
                 sap_codes: [],
-                customer_code: '',
                 sap_user: '',
                 created_by: -1,
             }

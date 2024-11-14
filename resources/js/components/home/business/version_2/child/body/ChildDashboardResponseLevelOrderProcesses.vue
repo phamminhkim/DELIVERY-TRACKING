@@ -1,7 +1,16 @@
 <template>
     <div>
-        <b-table :items="reportes" :fields="fields" responsive small :bordered="true" class="text-xs"
-            :per-page="perPage">
+        <b-table show-empty :busy="is_loading" :items="reportes" :fields="fields" responsive small :bordered="true"
+            class="text-xs" :per-page="perPage">
+            <template #empty>
+                <h6 class="text-center">Không có dữ liệu nào để hiển thị</h6>
+            </template>
+            <template #table-busy>
+                <div class="text-center text-primary my-2">
+                    <b-spinner class="align-middle" type="grow"></b-spinner>
+                    <strong>Đang tải dữ liệu...</strong>
+                </div>
+            </template>
             <template #thead-top="data">
                 <b-tr>
                     <b-th class="text-center border-0" colspan="12" variant="info">Dữ liệu Web MT</b-th>
@@ -39,7 +48,8 @@ export default {
             total: 0,
             order: {
                 customer_group_ids: [],
-                customer_codes: [],
+                customer_code: '',
+                customer_name: '',
                 created_bys: [],
                 start_date: null,
                 end_date: null,
@@ -47,7 +57,6 @@ export default {
                 so_uid: '',
                 sap_code: '',
                 sap_codes: [],
-                customer_code: '',
                 sap_user: '',
                 created_by: -1,
             },
@@ -75,18 +84,18 @@ export default {
             ],
             url_api: {
                 dashboard_report: 'api/dashboard/MT/report',
-                customer_partners: 'api/master/customer-partners',
+                // customer_partners: 'api/master/customer-partners',
             }
         }
     },
     watch: {
-        search_change: {
-            handler: function (val) {
-                this.search = val;
-                this.fetchCustomerPartner();
-            },
-            deep: true
-        },
+        // search_change: {
+        //     handler: function (val) {
+        //         this.search = val;
+        //         this.fetchCustomerPartner();
+        //     },
+        //     deep: true
+        // },
         change_search: {
             handler: function (val) {
                 this.fetchDashboardReport();
@@ -97,7 +106,7 @@ export default {
     },
     async created() {
         await this.fetchDashboardReport();
-        await this.fetchCustomerPartner();
+        // await this.fetchCustomerPartner();
 
     },
     methods: {
@@ -114,44 +123,48 @@ export default {
                     sap_code: this.order.sap_code,
                     sap_user: this.order.sap_user,
                     so_uid: this.order.so_uid,
-                    customer_codes: this.order.customer_codes,
+                    customer_code: this.order.customer_code,
+                    customer_name: this.order.customer_name,
+                    customer_group_ids: this.order.customer_group_ids,
                 }
-                const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
+                const { data, success,errors } = await this.api_handler.get(this.url_api.dashboard_report, body);
                 console.log(data)
                 if (success) {
                     this.reportes = data.data;
                     this.currentPage = data.current_page;
                     this.perPage = Number(data.per_page);
                     this.total = data.total
+                }else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                // this.$showMessage('error', 'Lỗi', error);
             } finally {
                 this.is_loading = false;
             }
         },
-        async fetchCustomerPartner() {
-            try {
-                this.is_loading = true;
-                const body = {
-                    // from_date: this.order.start_date,
-                    // to_date: this.order.end_date,
-                    // customer_group_ids: this.order.customer_group_ids,
-                    // user_ids: this.order.user_ids,
-                    search: this.search,
-                    per_page: 100,
-                }
-                const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
-                if (success) {
-                    this.customer_partners = this.mapTreeSelect(data.data);
+        // async fetchCustomerPartner() {
+        //     try {
+        //         this.is_loading = true;
+        //         const body = {
+        //             // from_date: this.order.start_date,
+        //             // to_date: this.order.end_date,
+        //             // customer_group_ids: this.order.customer_group_ids,
+        //             // user_ids: this.order.user_ids,
+        //             search: this.search,
+        //             per_page: 100,
+        //         }
+        //         const { data, success } = await this.api_handler.get(this.url_api.customer_partners, body);
+        //         if (success) {
+        //             this.customer_partners = this.mapTreeSelect(data.data);
 
-                }
-            } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
-            } finally {
-                this.is_loading = false;
-            }
-        },
+        //         }
+        //     } catch (error) {
+        //         this.$showMessage('error', 'Lỗi', error);
+        //     } finally {
+        //         this.is_loading = false;
+        //     }
+        // },
         async handlePageChange(page) {
             this.currentPage = page;
             await this.fetchDashboardReport();
@@ -168,7 +181,7 @@ export default {
                 }
             });
         },
-        setOrder(order){
+        setOrder(order) {
             this.order = order;
         }
     },
