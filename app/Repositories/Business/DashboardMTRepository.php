@@ -367,18 +367,18 @@ class DashboardMTRepository extends RepositoryAbs
             $soHeaders = $this->getOrderReports();
             // Bước 2: Xử lý ánh xạ với vật liệu SAP
             $result = $this->mapItemsToSapMaterials($soHeaders);
-    
+
             // Kiểm tra nếu mapItemsToSapMaterials trả về lỗi SAP
             if (isset($this->errors['sap_error'])) {
                 // Nếu có lỗi "sap_error" từ SAP, hiển thị lỗi này
                 return false;
-            }    
+            }
             // Kiểm tra nếu $result không có dữ liệu (là null hoặc rỗng)
             if (is_null($result) || (is_array($result) && empty($result)) || (is_object($result) && $result->isEmpty())) {
                 return collect([]); // Trả về tập rỗng nếu không có dữ liệu
-            }    
+            }
             return $result; // Trả về kết quả nếu có dữ liệu
-    
+
         } catch (\Exception $exception) {
             $this->message = $exception->getMessage();
             $this->errors = $exception->getTrace();
@@ -406,20 +406,7 @@ class DashboardMTRepository extends RepositoryAbs
         if ($this->request->filled('po_number')) {
             $query->where('po_number', 'LIKE', '%' . $this->request->po_number . '%');
         }
-        // filter theo PO mã SAP
-        if ($this->request->filled('sap_codes')) {
-            $sap_codes = explode(',', $this->request->sap_codes);
-            $sap_codes = array_map('trim', $sap_codes);
-            $query->whereHas('order_process', function ($query) use ($sap_codes) {
-                $query->whereHas('customer_group', function ($query) use ($sap_codes) {
-                    $query->whereHas('customer_materials', function ($query) use ($sap_codes) {
-                        $query->whereHas('sap_materials', function ($query) use ($sap_codes) {
-                            $query->whereIn('sap_code', $sap_codes);
-                        });
-                    });
-                });
-            });
-        }
+
         // Lọc theo tên khách hàng
         if ($this->request->filled('customer_name')) {
             $customer_name = $this->request->customer_name;
@@ -973,16 +960,26 @@ class DashboardMTRepository extends RepositoryAbs
                 $result->so_items[] = (object) $item;
             }
         }
+        // Filter theo sap_code trên SAP
         if ($this->request->filled('sap_code')) {
             $sap_code = $this->request->sap_code;
             $result->so_items = array_filter($result->so_items, function ($item) use ($sap_code) {
                 return $item->sap_code == $sap_code;
             });
         }
+        // Filter theo tên user trên SAP
         if ($this->request->filled('sap_user')) {
             $sap_user = $this->request->sap_user;
             $result->so_items = array_filter($result->so_items, function ($item) use ($sap_user) {
                 return $item->sap_user == $sap_user;
+            });
+        }
+        // Filter the mã SAP trên PO thô
+        if ($this->request->filled('sap_codes')) {
+            $sap_codes = explode(',', $this->request->sap_codes);
+            $sap_codes = array_map('trim', $sap_codes);
+            $result->so_items = array_filter($result->so_items, function ($item) use ($sap_codes) {
+                return in_array($item->sku_sap_code, $sap_codes);
             });
         }
 
