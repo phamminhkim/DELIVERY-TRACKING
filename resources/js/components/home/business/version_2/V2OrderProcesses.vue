@@ -9,7 +9,8 @@
             <DialogOrderProcessesSync :order_headers="order_headers" :api_handler="api_handler"
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
                 :mapping_ships="mapping_ships" :case_check="case_check" @warehouseDefault="handeleWarehouseDefault"
-                @changeInputSetShippingID="handleChangeInputSetShippingID" @emitWarehouseId="handleWarehouseId" />
+                @changeInputSetShippingID="handleChangeInputSetShippingID" @emitWarehouseId="handleWarehouseId"
+                 />
             <DialogOrderProcessesLayout :columns="columns" />
         </div>
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
@@ -847,7 +848,7 @@ export default {
             // }
             // this.update_status_function.set_data++;
             this.$showMessage('info', 'Hoàn tất', 'Xử lý file hoàn tất');
-            // await this.fetchSapMaterial(); 
+            // await this.fetchSapMaterial();
             $('#DialogOrderProcessesConvertFile').modal('hide');
 
         },
@@ -1314,7 +1315,7 @@ export default {
             return string;
         },
         handleUpdateOrder() {
-            // this.UpdateSaleOrder(202); 
+            // this.UpdateSaleOrder(202);
             // this.handleSaveUpdateOrder();
             this.is_modal_sync_sap = false;
             $('#DialogOrderProcessesSaveSO').modal('show');
@@ -1527,22 +1528,33 @@ export default {
                 this.update_status_function.update_data++;
             }
         },
-        handleChangeInputSetWarehouse(warehouse_id, selecteds) {
-            this.getSetWarehouse(warehouse_id, selecteds);
-            this.getSetMappingShipping(warehouse_id, selecteds);
+        handleChangeInputSetWarehouse(warehouse_id, selecteds, selected_order_syncs) {
+            this.getSetWarehouse(warehouse_id, selecteds, selected_order_syncs);
+            this.getSetMappingShipping(warehouse_id, selecteds, selected_order_syncs);
             this.update_status_function.update_data++;
         },
-        getSetWarehouse(warehouse_code, order_syncs_selected) {
-            order_syncs_selected.forEach(item => {
-                this.order_headers.forEach(order_sync => {
-                    if (item.id == order_sync.id) {
-                        order_sync.warehouse_id = warehouse_code;
-                    }
+        getSetWarehouse(warehouse_code, order_syncs_selected, selected_order_syncs) {
+            if (selected_order_syncs.length == 0) {
+                order_syncs_selected.forEach(item => {
+                    this.order_headers.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.warehouse_id = warehouse_code;
+                        }
+                    });
                 });
-            });
+            } else {
+                selected_order_syncs.forEach(item => {
+                    this.order_headers.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.warehouse_id = warehouse_code;
+                        }
+                    });
+                });
+            }
+
             this.update_status_function.update_data++;
         },
-        getSetMappingShipping(warehouse_id, order_syncs_selected) {
+        getSetMappingShipping(warehouse_id, order_syncs_selected, selected_order_syncs) {
             let find_warehouse = this.wareshouses_defaults.find(warehouse => warehouse.id == warehouse_id);
             let warehouse_code = find_warehouse ? find_warehouse.code : '';
             this.mapping_ships.forEach(item => {
@@ -1550,13 +1562,25 @@ export default {
                     this.case_check.shipping_id = item.shipping_id;
                 }
             });
-            order_syncs_selected.forEach(item => {
-                this.order_headers.forEach(order_sync => {
-                    if (item.id == order_sync.id) {
-                        order_sync.shipping_id = this.case_check.shipping_id;
-                    }
+            if(selected_order_syncs.length == 0){
+                order_syncs_selected.forEach(item => {
+                    this.order_headers.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = this.case_check.shipping_id;
+                        }
+                    });
                 });
-            });
+
+            } else {
+                selected_order_syncs.forEach(item => {
+                    this.order_headers.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = this.case_check.shipping_id;
+                        }
+                    });
+                });
+            }
+
 
         },
         handeleWarehouseDefault(warehouse_defaults) {
@@ -2229,6 +2253,7 @@ export default {
             // this.update_status_function.update_data++;
 
         },
+
     },
     computed: {
         filteredOrders() {
