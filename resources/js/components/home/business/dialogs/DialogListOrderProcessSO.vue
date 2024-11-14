@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="modal fade" id="listOrderProcessSO" tabindex="-1">
-            <div class="modal-dialog modal-xl m-0" >
+            <div class="modal-dialog modal-xl m-0">
                 <div class="modal-content">
                     <div class="modal-header bg-gradient-blue">
                         <h5 class="modal-title font-weight-bold text-uppercase">Danh sách xử lý đơn hàng</h5>
@@ -13,12 +13,11 @@
                         <div class="form-group">
                             <TableOrderProcessSO :list_order_process_so="list_order_process_so"
                                 @handleDoubleClick="getHandleDoubleClick" @dltOrderProcessSO="getDltOrderProcessSO"
-                                :current_page="current_page" :per_page="per_page"
-                                @deleteSoHeader="handleDeleteSoHeader" @sort="handleSort" :loading="case_is_loading.fetch_api"
-                                @search="handleSearch">
+                                :current_page="current_page" :per_page="per_page" @deleteSoHeader="handleDeleteSoHeader"
+                                @sort="handleSort" :loading="case_is_loading.fetch_api" @search="handleSearch">
                             </TableOrderProcessSO>
-                            <PaginationTable :rows="total_items" :per_page="per_page"
-                                :page_options="page_options" :current_page="current_page" @pageChange="getPageChange"
+                            <PaginationTable :rows="total_items" :per_page="per_page" :page_options="page_options"
+                                :current_page="current_page" @pageChange="getPageChange"
                                 @perPageChange="getPerPageChange">
                             </PaginationTable>
                         </div>
@@ -146,6 +145,7 @@ export default {
                 const { data, success, errors } = await this.api_handler.delete(this.api_order_process_so + '/' + id);
                 if (success) {
                     this.$showMessage('success', 'Xóa thành công');
+                    this.fetchOrderProcessSO();
                 }
                 return success;
             } catch (error) {
@@ -159,7 +159,7 @@ export default {
             if (confirm('Bạn có chắc chắn muốn xóa không?')) {
                 const is_deleted = this.DeleteOrderProcessSO(item.id);
                 is_deleted.then((is_deleted) => {
-                    if(is_deleted){
+                    if (is_deleted) {
                         this.list_order_process_so.splice(index, 1);
                     }
                 });
@@ -184,11 +184,12 @@ export default {
                         so_header_ids: [id]
                     }
                 );
-                if(success){
+                if (success) {
                     this.$showMessage('success', 'Xóa thành công');
                     this.list_order_process_so[index_parent].so_headers.splice(index_child, 1);
+                    // this.fetchOrderProcessSO();
+
                 }
-                // this.fetchOrderProcessSO();
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error
                 );
