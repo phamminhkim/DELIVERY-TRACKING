@@ -21,6 +21,10 @@
                                 class="btn btn-sm text-xs btn-light text-primary btn-group__border">
                                 <span class="badge badge-primary badge-sm mr-2">{{
                                 order_syncs_selected.length }}</span>Xem chi tiết</button>
+                              <button class="btn btn-sm btn-light px-2 text-xs text-info" size="sm" @click="selectAllRows()" >
+                                <span class="badge badge-info badge-sm mr-2">{{
+                                selected.length }}</span>Chọn tất cả</button>
+                              <button class="btn btn-sm btn-light px-2 text-xs text-secondary" size="sm" @click="clearSelected()" >Hủy chọn</button>
                         </div>
                         <div class="row custom-text">
                             <div class="col-lg-4">
@@ -52,6 +56,7 @@
                                 :warehouses="warehouses" @emitSelectedOrderSync="getSelectedOrderSync"
                                 @emitWarehouseId="emitWarehouseId"
                                 :query="case_filter.query" :use_component="'OrderSyncSAP'"
+                                :onRowSelected="onRowSelected" ref="tableOrderSync"
                                 :class_modal_v2="'V2OrderProcesses'" />
                         </div>
                     </div>
@@ -78,7 +83,7 @@ export default {
         api_handler: { type: Object, default: () => { } },
         mapping_ships: { type: Array, default: () => [] },
         case_check: { type: Object, default: () => { } },
-        // viết cho tôi 
+        // viết cho tôi
     },
     components: {
         Treeselect,
@@ -154,6 +159,12 @@ export default {
                     class: 'text-nowrap text-center'
                 },
                 {
+                    key: 'selected',
+                    label: '',
+                    class: 'text-nowrap',
+                    stickyColumn: true,
+                },
+                {
                     key: 'shipping_id',
                     label: 'Shipping',
                     sortable: true,
@@ -223,11 +234,15 @@ export default {
                     code: 'DN_Customer Pick Up',
                 },
             ],
+            ref: 'selectableTable',
             wareshouses_default: [],
             warehouses: [],
             order_syncs_selected: [],
+            selected_order_syncs: [],
+            selected: [],
             warehouse: 'api/master/warehouses/company-3000',
             api_order_sync: '/api/so-header/sync-sale-order',
+
         }
     },
     async created() {
@@ -324,10 +339,10 @@ export default {
             window.open(url, '_blank');
         },
         changeInputSetWarehouse() {
-            this.$emit('changeInputSetWarehouse', this.case_check.warehouse_id, this.order_syncs_selected)
+            this.$emit('changeInputSetWarehouse', this.case_check.warehouse_id, this.order_syncs_selected, this.selected)
         },
         changeInputSetShippingID() {
-            this.$emit('changeInputSetShippingID', this.case_check.shipping_id, this.order_syncs_selected)
+            this.$emit('changeInputSetShippingID', this.case_check.shipping_id, this.order_syncs_selected, this.selected)
         },
         isUndefined(value) {
             if (value === undefined) {
@@ -338,8 +353,21 @@ export default {
         },
         emitWarehouseId(warehouse_id, id) {
             this.$emit('emitWarehouseId', warehouse_id, id);
-          
+
         },
+        // emitSelectedFilter(selected) {
+        //     this.selected_order_syncs = selected;
+        // },
+        onRowSelected(items) {
+            this.selected = items;
+        },
+        selectAllRows() {
+            this.$refs.tableOrderSync.selectAllRows();
+        },
+        clearSelected() {
+            this.$refs.tableOrderSync.clearSelected();
+        },
+
 
     },
 

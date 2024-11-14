@@ -1,10 +1,12 @@
 <template>
     <div>
-        <b-table responsive small hover show-empty :busy="loading" :fields="fields" :items="items"
-            head-variant="light" :sticky-header="window_height + 'px'" thead-class="thead-light custom-thead" :class="{
+
+        <b-table responsive small hover show-empty :busy="loading" :fields="fields" :items="items" head-variant="light"
+            :sticky-header="window_height + 'px'" thead-class="thead-light custom-thead" :class="{
                 'position-relative-custom': use_component === 'DialogOrderSync',
                 'custom-set-height': class_modal_v2 === 'V2OrderProcesses',
-            }" :current-page="current_page" :per-page="per_page" :filter="query">
+            }" :current-page="current_page" :per-page="per_page" :filter="query" ref="selectableTable" selectable
+            @row-selected="handleRowSelected" :select-mode="selectMode">
             <template #head(select)="data">
                 <input type="checkbox" v-model="case_checkbox.select_all" @change="changeSelectAll()" />
             </template>
@@ -62,6 +64,16 @@
             <template #cell(so_sap_note)="data">
                 <span>{{ data.item.so_sap_note }}{{ data.item.promotive_name }}</span>
             </template>
+            <template #cell(selected)="{ rowSelected }">
+                <template v-if="rowSelected">
+                    <span aria-hidden="true">&check;</span>
+                    <span class="sr-only">Selected</span>
+                </template>
+                <template v-else>
+                    <span aria-hidden="true">&nbsp;</span>
+                    <span class="sr-only">Not selected</span>
+                </template>
+            </template>
         </b-table>
     </div>
 </template>
@@ -70,6 +82,7 @@ import ApiHandler, { APIRequest } from '../../ApiHandler';
 import Treeselect, { ASYNC_SEARCH } from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect';
+import { filter } from 'lodash';
 
 export default {
     props: {
@@ -90,6 +103,7 @@ export default {
             default: '',
         },
         loading: Boolean,
+        onRowSelected: Function,
     },
     components: {
         Treeselect,
@@ -110,6 +124,8 @@ export default {
             },
             window_height: 0,
             window_width: 0,
+            selectMode: 'multi',
+            selected: []
         };
     },
     watch: {
@@ -228,7 +244,35 @@ export default {
         emitWarehouseId(warehouse_id, id) {
             this.$emit('emitWarehouseId', warehouse_id, id);
         },
+        // onRowSelected(items) {
+        //     this.selected = items;
+        //     this.emitSelectedOrderSync();
+        // },
+        selectAllRows() {
+            this.$refs.selectableTable.selectAllRows();
+            // this.emitSelectedOrderSync();
+
+        },
+        clearSelected() {
+            this.$refs.selectableTable.clearSelected();
+            // this.emitSelectedOrderSync();
+
+        },
+        handleRowSelected(items) {
+            if (this.onRowSelected) {
+                this.onRowSelected(items);
+            }
+        },
+        // emitSelectedOrderSync() {
+        //     this.$emit('emitSelectedFilter', this.selected)
+        // }
     },
+    computed: {
+        selectedRows() {
+            return this.selected
+        },
+
+    }
 };
 </script>
 <style lang="scss" scoped>
@@ -248,5 +292,9 @@ export default {
     position: sticky;
     top: 0;
     z-index: 3;
+}
+
+::v-deep .b-table-row-selected {
+    background-color: #dad8d8 !important;
 }
 </style>
