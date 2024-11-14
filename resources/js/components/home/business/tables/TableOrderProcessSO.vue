@@ -291,7 +291,8 @@ export default {
             window.open(url, '_blank');
         },
         deleteSoHeader(index_parent,index_child, item) {
-            const idx_parent = index_parent + (this.current_page * this.per_page) - this.per_page
+            // const idx_parent = index_parent + (this.current_page * this.per_page) - this.per_page
+            const idx_parent = index_parent
             this.$emit('deleteSoHeader', idx_parent,index_child, item);
         },
         countSoSyncStatus(so_headers) {
