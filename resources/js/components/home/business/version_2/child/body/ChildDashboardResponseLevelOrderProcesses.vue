@@ -127,16 +127,18 @@ export default {
                     customer_name: this.order.customer_name,
                     customer_group_ids: this.order.customer_group_ids,
                 }
-                const { data, success } = await this.api_handler.get(this.url_api.dashboard_report, body);
+                const { data, success,errors } = await this.api_handler.get(this.url_api.dashboard_report, body);
                 console.log(data)
                 if (success) {
                     this.reportes = data.data;
                     this.currentPage = data.current_page;
                     this.perPage = Number(data.per_page);
                     this.total = data.total
+                }else {
+                    this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                // this.$showMessage('error', 'Lỗi', error);
             } finally {
                 this.is_loading = false;
             }
