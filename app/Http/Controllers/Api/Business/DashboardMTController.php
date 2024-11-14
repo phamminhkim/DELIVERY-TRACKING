@@ -62,7 +62,7 @@ class DashboardMTController extends ResponseController
         if ($data) {
             return $this->responseSuccess($data);
         } else {
-            return $this->responseError($handler->getMessage(), $handler->getErrors());
+            return $this->responseError($handler->getMessage(), $handler->getErrors(),200);
         }
     }
 

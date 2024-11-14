@@ -371,7 +371,7 @@ class DashboardMTRepository extends RepositoryAbs
             // Kiểm tra nếu mapItemsToSapMaterials trả về lỗi SAP
             if (isset($this->errors['sap_error'])) {
                 // Nếu có lỗi "sap_error" từ SAP, hiển thị lỗi này
-                return['error' => $this->errors['sap_error']];
+                return false;
             }    
             // Kiểm tra nếu $result không có dữ liệu (là null hoặc rỗng)
             if (is_null($result) || (is_array($result) && empty($result)) || (is_object($result) && $result->isEmpty())) {
