@@ -1,7 +1,8 @@
 <template>
-    <div class="container-fluid bg-white p-2">
+    <div class="container-fluid bg-white  p-2">
         <div v-if="!case_component.view_detail">
-            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync" @emitResetFilterForm="resetFilterForm" :case_filter="case_filter"></HeaderOrderSyncSAP>
+            <HeaderOrderSyncSAP @emitFormFilterOrderSync="getFormFilterOrderSync" @emitResetFilterForm="resetFilterForm"
+                :case_filter="case_filter"></HeaderOrderSyncSAP>
             <div class="row mb-1 align-items-end">
                 <div class="col-lg-6">
                     <div style="position: relative;">
@@ -12,16 +13,21 @@
                         <button @click="checkProcessOrderSync()" type="button"
                             class="btn btn-sm btn-light text-info  btn-group__border">
                             <span class="badge badge-info badge-sm mr-2">{{
-            this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
+                                this.case_data_temporary.order_syncs_selected.length }}</span>Đồng bộ
                             SAP</button>
                         <button @click="viewDetailOrderSyncs()" type="button"
                             class="btn btn-sm btn-light text-primary btn-group__border">
                             <span class="badge badge-primary badge-sm mr-2">{{
-            this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
+                                this.case_data_temporary.order_syncs_selected.length }}</span>Xem chi tiết</button>
                         <button @click="exportExcelOrderSyncs()" type="button"
                             class="btn btn-sm btn-success btn-group__border">
                             <span class="badge badge-light badge-sm mr-2">{{
-            this.case_data_temporary.order_syncs_selected.length }}</span>Xuất Excel</button>
+                                this.case_data_temporary.order_syncs_selected.length }}</span>Xuất Excel</button>
+                        <button class="btn btn-sm btn-light px-2 text-xs text-info" size="sm" @click="selectAllRows()">
+                            <span class="badge badge-info badge-sm mr-2">{{
+                                selected.length }}</span>Chọn tất cả</button>
+                        <button class="btn btn-sm btn-light px-2 text-xs text-secondary" size="sm"
+                            @click="clearSelected()">Hủy chọn</button>
                         <div class="row">
                             <div class="col-lg-6">
                                 <treeselect placeholder="Chọn kho.." :multiple="false" :disable-branch-nodes="true"
@@ -29,9 +35,9 @@
                                     v-model="case_model.warehouse_id" :options="case_data_temporary.warehouses" />
                             </div>
                             <div class="col-lg-6">
-                                <select v-model="case_model.shipping_id" class="form-control" aria-placeholder="Shipping"
-                                @change="changeInputSetShippingID()" >
-                                    <option  value="">Chọn Shipping</option>
+                                <select v-model="case_model.shipping_id" class="form-control"
+                                    aria-placeholder="Shipping" @change="changeInputSetShippingID()">
+                                    <option value="">Chọn Shipping</option>
                                     <option v-for="item in case_data.shipping_datas" :value="item.id">
                                         {{ item.code }}
                                     </option>
@@ -54,7 +60,8 @@
             <TableOrderSync :fields="fields" :items="case_data.order_syncs" :query="case_filter.query"
                 :use_component="'OrderSyncSAP'" :current_page="current_page" :per_page="per_page"
                 :shipping_datas="case_data.shipping_datas" :warehouses="case_data_temporary.warehouses"
-                @emitSelectedOrderSync="getSelectedOrderSync" :loading="case_is_loading.fetch_api">
+                @emitSelectedOrderSync="getSelectedOrderSync" :loading="case_is_loading.fetch_api"
+                :onRowSelected="onRowSelected" ref="tableOrderSyncs">
             </TableOrderSync>
             <PaginationTable :rows="row_items" :per_page="per_page" :page_options="page_options"
                 :current_page="current_page" @pageChange="getPageChange" @perPageChange="getPerPageChange">
@@ -230,39 +237,40 @@ export default {
                 shipping_id: '',
             },
             fields: [
+
                 {
                     key: 'select',
                     label: '',
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'index',
                     label: 'Stt',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'so_uid',
                     label: 'SAP SO num',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'update_at',
                     label: 'Ngày cập nhật',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'sync_sap_status',
                     label: 'TT Đồng bộ',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'noti_sync',
@@ -270,91 +278,97 @@ export default {
                     sortable: true,
                     class: 'text-nowrap text-danger',
                     tdClass: 'text-danger',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'po_number',
                     label: 'PO num',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'Ngày YC giao',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'sap_so_number',
                     label: 'SO Key',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'so_sap_note',
                     label: 'SAP note',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'warehouse_code',
                     label: 'Kho',
                     sortable: true,
                     class: 'text-nowrap text-center',
-                    stickyColumn: true,
+                    // stickyColumn: true,
+                },
+                {
+                    key: 'selected',
+                    label: '',
+                    class: 'text-nowrap',
+                    // stickyColumn: true,
                 },
                 {
                     key: 'shipping_id',
                     label: 'Shipping',
                     sortable: true,
                     class: 'text-nowrap text-center',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'customer_code',
                     label: 'Mã KH',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'customer_name',
                     label: 'Tên KH',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'order_process.customer_group.name',
                     label: 'Nhóm KH',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'order_process.created_by.name',
                     label: 'Người tạo',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'po_delivery_date',
                     label: 'Ngày giao',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
                 {
                     key: 'create_at',
                     label: 'Ngày tạo',
                     sortable: true,
                     class: 'text-nowrap',
-                    stickyColumn: true,
+                    // stickyColumn: true,
                 },
 
 
@@ -362,6 +376,7 @@ export default {
             per_page: 15,
             page_options: [15, 30, 50, 100, 200, 300, 500],
             current_page: 1,
+            selected: [],
 
         }
     },
@@ -375,7 +390,7 @@ export default {
         initFilterForm() {
             this.case_filter.from_date = this.formatDate(this.subtractDate(new Date(), 0, 1, 0)); // Từ 1 tháng trước
             this.case_filter.to_date = this.formatDate(new Date()); // Ngày hiện tại
-            this.case_filter.so_uid =  '';
+            this.case_filter.so_uid = '';
             this.case_filter.po_number = '';
             this.case_filter.customer_name = '';
             this.case_filter.customer_code = '';
@@ -395,7 +410,7 @@ export default {
                 date.getDate() - days,
             );
         },
-        getSetMappingShipping(warehouse_id) {
+        getSetMappingShipping(warehouse_id, order_syncs_selected, selected_order_syncs) {
             let find_warehouse = this.case_data.wareshouses_default.find(warehouse => warehouse.id == warehouse_id);
             let warehouse_code = find_warehouse ? find_warehouse.code : '';
             this.case_data.mapping_ships.forEach(item => {
@@ -403,13 +418,31 @@ export default {
                     this.case_model.shipping_id = item.shipping_id;
                 }
             });
+            if (selected_order_syncs.length == 0) {
+                order_syncs_selected.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = this.case_model.shipping_id;
+                        }
+                    });
+                });
+
+            } else {
+                selected_order_syncs.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = this.case_model.shipping_id;
+                        }
+                    });
+                });
+            }
         },
         changeInputSetWarehouse() {
-            this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected);
-            this.getSetMappingShipping(this.case_model.warehouse_id);
+            this.getSetWarehouse(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected, this.selected);
+            this.getSetMappingShipping(this.case_model.warehouse_id, this.case_data_temporary.order_syncs_selected, this.selected);
         },
-        changeInputSetShippingID(){
-            this.getSetShipping(this.case_model.shipping_id, this.case_data_temporary.order_syncs_selected);
+        changeInputSetShippingID() {
+            this.getSetShipping(this.case_model.shipping_id, this.case_data_temporary.order_syncs_selected, this.selected);
         },
         findWarehouse(warehouse_id) {
             if (!warehouse_id) {
@@ -615,24 +648,46 @@ export default {
             this.initFilterForm();
             this.getProcessOrderSync();
         },
-        getSetWarehouse(warehouse_code, order_syncs_selected) {
-            // tìm cách set warehouse_code cho order_syncs_selected
-            order_syncs_selected.forEach(item => {
-                this.case_data.order_syncs.forEach(order_sync => {
-                    if (item.id == order_sync.id) {
-                        order_sync.warehouse_id = warehouse_code;
-                    }
+        getSetWarehouse(warehouse_code, order_syncs_selected, selected) {
+            if (selected.length == 0) {
+                // tìm cách set warehouse_code cho order_syncs_selected
+                order_syncs_selected.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.warehouse_id = warehouse_code;
+                        }
+                    });
                 });
-            });
+            } else {
+                selected.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.warehouse_id = warehouse_code;
+                        }
+                    });
+                });
+            }
+
         },
-        getSetShipping(shipping_id, order_syncs_selected) {
-            order_syncs_selected.forEach(item => {
-                this.case_data.order_syncs.forEach(order_sync => {
-                    if (item.id == order_sync.id) {
-                        order_sync.shipping_id = shipping_id;
-                    }
+        getSetShipping(shipping_id, order_syncs_selected, selected) {
+            if (selected.length == 0) {
+                order_syncs_selected.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = shipping_id;
+                        }
+                    });
                 });
-            });
+            } else {
+                selected.forEach(item => {
+                    this.case_data.order_syncs.forEach(order_sync => {
+                        if (item.id == order_sync.id) {
+                            order_sync.shipping_id = shipping_id;
+                        }
+                    });
+                });
+            }
+
         },
         exportExcelOrderSyncs() {
             let data = this.case_data_temporary.order_syncs_selected;
@@ -648,7 +703,7 @@ export default {
                     'Kho': this.findWarehouse(item.warehouse_id),
                     'Makh': item.customer_code,
                     'Tên KH': item.customer_name,
-                    'Nhóm KH': item.order_process_id != null ? (item.order_process.customer_group_id != null && item.order_process.customer_group_id !== -1 ? item.order_process.customer_group.name : '' ) : '',
+                    'Nhóm KH': item.order_process_id != null ? (item.order_process.customer_group_id != null && item.order_process.customer_group_id !== -1 ? item.order_process.customer_group.name : '') : '',
                     'Người tạo': item.order_process.created_by.name,
                     'Ngày tạo': this.$formatDateStyleApartYMD(item.create_at),
                     'Ngày cập nhật': this.$formatDateStyleApartYMD(item.update_at),
@@ -672,6 +727,15 @@ export default {
             const view = new Uint8Array(buf);
             for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
             return buf;
+        },
+        onRowSelected(items) {
+            this.selected = items;
+        },
+        selectAllRows() {
+            this.$refs.tableOrderSyncs.selectAllRows();
+        },
+        clearSelected() {
+            this.$refs.tableOrderSyncs.clearSelected();
         },
     },
     computed: {
