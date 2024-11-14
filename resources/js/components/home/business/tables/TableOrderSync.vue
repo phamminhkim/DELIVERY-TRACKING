@@ -30,7 +30,7 @@
                 <input type="checkbox" v-model="case_checkbox.selected" :value="data.item" />
             </template>
             <template #cell(index)="data">
-                {{ data.index + 1 }}
+                {{ (data.index + 1) + (current_page * per_page) - per_page }}
             </template>
             <template #cell(sap_so_number)="data">
                 <a class="link-item cursor-poiner" @click="getUrl(data.item)">{{ data.item.sap_so_number }}{{

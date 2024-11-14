@@ -408,7 +408,8 @@ class DashboardMTRepository extends RepositoryAbs
         }
         // filter theo PO mã SAP
         if ($this->request->filled('sap_codes')) {
-            $sap_codes = $this->request->sap_codes;
+            $sap_codes = explode(',', $this->request->sap_codes);
+            $sap_codes = array_map('trim', $sap_codes);
             $query->whereHas('order_process', function ($query) use ($sap_codes) {
                 $query->whereHas('customer_group', function ($query) use ($sap_codes) {
                     $query->whereHas('customer_materials', function ($query) use ($sap_codes) {

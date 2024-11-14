@@ -17,8 +17,8 @@
                     <b-th class="text-center border-0" variant="success" colspan="6">Dữ liệu SAP</b-th>
                 </b-tr>
             </template>
-            <template #cell(id)="data">
-                {{ data.index + 1 }}
+            <template #cell(index)="data">
+                {{ (data.index + 1) + (currentPage * perPage) - perPage }}
             </template>
         </b-table>
         <PaginationTable :rows="total" :per_page="perPage" :current_page="currentPage" @pageChange="handlePageChange"
@@ -63,7 +63,7 @@ export default {
             reportes: [],
             customer_partners: [],
             fields: [
-                { key: 'id', label: 'STT' },
+                { key: 'index', label: 'STT' },
                 { key: 'created_at', label: 'Ngày tạo', class: 'text-nowrap text-xs' },
                 { key: 'customer_code', label: 'Mã KH', class: 'text-nowrap text-xs' },
                 { key: 'customer_name', label: 'Tên KH', class: 'text-nowrap text-xs' },
@@ -131,9 +131,7 @@ export default {
                 console.log(data)
                 if (success) {
                     this.reportes = data.data;
-                    this.currentPage = data.current_page;
-                    this.perPage = Number(data.per_page);
-                    this.total = data.total
+                    this.total = data.total;
                 }else {
                     this.$showMessage('error', 'Lỗi', errors.sap_error);
                 }
