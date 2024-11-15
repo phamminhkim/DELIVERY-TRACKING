@@ -848,7 +848,7 @@ class DashboardMTRepository extends RepositoryAbs
                 $fulfillmentRate = round($fulfillmentRate);
                 // Chia cho 100 nếu fulfillmentRate lớn hơn 100
                 if ($fulfillmentRate > 100) {
-                    $fulfillmentRate = $fulfillmentRate / 100; // Chia cho 100
+                    $fulfillmentRate = 100;
                 }
                 // Cập nhật các giá trị khác
                 $item['sap_code'] = $sapItem['SAP_CODE'] ?? null;
