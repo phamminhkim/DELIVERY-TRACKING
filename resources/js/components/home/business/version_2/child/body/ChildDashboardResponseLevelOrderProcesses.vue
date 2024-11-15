@@ -1,6 +1,20 @@
 <template>
     <div>
-        <b-table show-empty :busy="is_loading" :items="reportes" :fields="fields" responsive small :bordered="true"
+        <b-dropdown text="Ẩn/hiện cột" class="mb-2">
+            <div style="max-height: 200px; overflow-y: auto; left: 0;">
+                <b-dropdown-item-button v-for="field in fields" :key="field.key">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <b-form-checkbox 
+                            v-model="field.visible" 
+                            @click.stop="toggleColumn(field.key)" 
+                            style="margin-right: 8px;">
+                        </b-form-checkbox>
+                        {{ field.label }}
+                    </label>
+                </b-dropdown-item-button>
+            </div>
+        </b-dropdown>
+        <b-table :fields="filteredFields" show-empty :busy="is_loading" :items="reportes" responsive small :bordered="true"
             class="text-xs" :per-page="perPage">
             <template #empty>
                 <h6 class="text-center">Không có dữ liệu nào để hiển thị</h6>
@@ -13,8 +27,8 @@
             </template>
             <template #thead-top="data">
                 <b-tr>
-                    <b-th class="text-center border-0" colspan="12" variant="info">Dữ liệu Web MT</b-th>
-                    <b-th class="text-center border-0" variant="success" colspan="6">Dữ liệu SAP</b-th>
+                    <b-th class="text-center border-0" :colspan="webMtColspan" variant="info">Dữ liệu Web MT</b-th>
+                    <b-th class="text-center border-0" :colspan="sapColspan" variant="success">Dữ liệu SAP</b-th>
                 </b-tr>
             </template>
             <template #cell(index)="data">
@@ -61,26 +75,27 @@ export default {
                 created_by: -1,
             },
             reportes: [],
-            customer_partners: [],
+            // customer_partners: [],            
             fields: [
-                { key: 'index', label: 'STT' },
-                { key: 'created_at', label: 'Ngày tạo', class: 'text-nowrap text-xs' },
-                { key: 'customer_code', label: 'Mã KH', class: 'text-nowrap text-xs' },
-                { key: 'customer_name', label: 'Tên KH', class: 'text-nowrap text-xs' },
-                { key: 'order_process.customer_group_name', label: 'Nhóm KH', class: 'text-nowrap text-xs' },
-                { key: 'po_number', label: 'PO Number', class: 'text-nowrap text-xs' },
-                { key: 'customer_sku_code', label: 'PO Unit Barcode', class: 'text-nowrap text-xs' },
-                { key: 'customer_sku_name', label: 'PO Unit Barcode Description', class: 'text-nowrap text-xs' },
-                { key: 'sku_sap_code', label: 'PO Mã SAP', class: 'text-nowrap text-xs' },
-                { key: 'quantity3_sap', label: 'PO Số Lượng SAP', class: 'text-nowrap text-xs' },
-                { key: 'sku_sap_unit', label: 'PO ĐVT', class: 'text-nowrap text-xs' },
-                { key: 'so_uid', label: 'SO Number', class: 'text-nowrap text-xs' },
-                { key: 'sap_code', label: 'SO Mã SKU', class: 'text-nowrap text-xs' },
-                { key: 'sap_name', label: 'SO Tên SP', class: 'text-nowrap text-xs' },
-                { key: 'sap_quantity', label: 'SO Số Lượng CF', class: 'text-nowrap text-xs' },
-                { key: 'sap_unit_code', label: 'SO ĐVT', class: 'text-nowrap text-xs' },
-                { key: 'fulfillment_rate', label: 'Tỉ lệ đáp ứng', class: 'text-nowrap text-xs' },
-                { key: 'sap_user', label: 'Người tạo', class: 'text-nowrap text-xs' },
+                { key: 'index', label: 'STT', visible: true, group: 'webMt' },
+                { key: 'created_at', label: 'Ngày tạo', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'customer_code', label: 'Mã KH', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'customer_name', label: 'Tên KH', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'order_process.customer_group_name', label: 'Nhóm KH', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'po_number', label: 'PO Number', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'customer_sku_code', label: 'PO Unit Barcode', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'customer_sku_name', label: 'PO Unit Barcode Description', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'sku_sap_code', label: 'PO Mã SAP', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'quantity3_sap', label: 'PO Số Lượng SAP', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                { key: 'sku_sap_unit', label: 'PO ĐVT', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },                
+                { key: 'so_uid', label: 'SO Number', class: 'text-nowrap text-xs', visible: true, group: 'webMt' },
+                
+                { key: 'sap_code', label: 'SO Mã SKU', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
+                { key: 'sap_name', label: 'SO Tên SP', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
+                { key: 'sap_quantity', label: 'SO Số Lượng CF', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
+                { key: 'sap_unit_code', label: 'SO ĐVT', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
+                { key: 'fulfillment_rate', label: 'Tỉ lệ đáp ứng', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
+                { key: 'sap_user', label: 'Người tạo', class: 'text-nowrap text-xs', visible: true, group: 'sap' },
             ],
             url_api: {
                 dashboard_report: 'api/dashboard/MT/report',
@@ -110,6 +125,10 @@ export default {
 
     },
     methods: {
+        toggleColumn(key) {
+            const field = this.fields.find(f => f.key === key);
+            if (field) field.visible = !field.visible;
+        },
         async fetchDashboardReport() {
             try {
                 this.is_loading = true;
@@ -184,8 +203,18 @@ export default {
         }
     },
     computed: {
-
-    }
+        filteredFields() {
+            return this.fields.filter(field => field.visible);
+        },
+        webMtColspan() {
+            // Đếm các trường hiển thị thuộc nhóm "Dữ liệu Web MT"
+            return this.fields.filter(field => field.visible && field.group === 'webMt').length;
+        },
+        sapColspan() {
+            // Đếm các trường hiển thị thuộc nhóm "Dữ liệu SAP"
+            return this.fields.filter(field => field.visible && field.group === 'sap').length;
+        }
+    },
 }
 </script>
 <style lang="scss" scoped></style>

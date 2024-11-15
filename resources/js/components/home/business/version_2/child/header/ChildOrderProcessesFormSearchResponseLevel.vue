@@ -195,8 +195,8 @@ export default {
     },
     async created() {
         this.createdTwoWeek();
-        await this.fetchCustomerPartner();
-        await this.loadOptionsCustomer();
+        // await this.fetchCustomerPartner();
+        // await this.loadOptionsCustomer();
     },
     methods: {
         // async loadOptionsCustomer({ action, searchQuery, callback }) {
