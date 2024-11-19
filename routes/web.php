@@ -112,8 +112,7 @@ Route::get('access-token', function () {
 
     echo $access_token ?? "Không có token";
 });
-Route::get('/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
-Route::get('/auth-callback', [JstController::class, 'handleCallback']);
-Route::get('/get-access-token', [JstController::class, 'getAccessToken']);
+Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
+Route::get('/jst/callback', [JstController::class, 'handleCallback']);
 
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

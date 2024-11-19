@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 class JstController extends Controller
 {
     public function generateAuthorizationUrl()
@@ -13,33 +14,32 @@ class JstController extends Controller
         // Tham số được cung cấp bởi sàn
         $appKey = '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
         $appSecret = 'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
-        $state = '';    // Tùy chọn (có thể để rỗng)
-
-       
-        $state = '';       // Giá trị tự định nghĩa, dùng để xác thực callback
-
+        $state = 'SAAS';    // Tùy chọn (có thể để rỗng)
         // Tạo timestamp
+        // date_default_timezone_set('UTC');
         $timestamp = time();
-
         // Tạo Sign (chữ ký)
-        $rawString = "appkey={$appKey}&appsecret={$appSecret}&timestamp={$timestamp}&state={$state}";
-        $sign = md5($rawString);
-        // Tạo URL
-         $authUrl = "https://global-erp.jushuitan.cn/account/companyauth/auth";
-      
-        $authorizationUrl = "{$authUrl}?appkey={$appKey}&timestamp={$timestamp}&sign={$sign}&state={$state}";
-
-        return response()->json(['authorization_url' => $authorizationUrl]);
+        $str = [];
+        $str[] = "appkey=" . $appKey;
+        $str[] = "appsecret=" . $appSecret;
+        $str[] = "state=" . $state;
+        $str[] = "timestamp=" . $timestamp;
+        $signStr = implode("&", $str);
+        $sign =  md5($signStr); 
+        $url = "https://global-erp.jushuitan.cn/account/companyauth/auth?"
+        . "appkey=".$appKey
+        . "&timestamp=".$timestamp
+        . "&sign=".$sign
+        . "&state=".$state;
+        return  redirect($url);
     }
     public function handleCallback(Request $request)
     {
-        $code = $request->query('Code');  // Lấy Authorization Code từ query string
-        $state = $request->query('state'); // Lấy state (nếu có)
-
+        $code = $request->query('code');  
+        $state = $request->query('state'); 
         if (!$code) {
             return response()->json(['error' => 'Không nhận được Authorization Code'], 400);
         }
-
         // Tiến hành lấy Access Token bằng Authorization Code
         return $this->getAccessToken($code);
     }
@@ -49,32 +49,37 @@ class JstController extends Controller
     {
         $appKey = '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
         $appSecret = 'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
-        $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback'; // Callback URL đã đăng ký
-
-        // URL lấy Access Token từ sàn
-        $tokenUrl = "https://global-erp.jushuitan.cn/oauth/token";
-
-        // Gửi POST yêu cầu
-        $response = Http::asForm()->post($tokenUrl, [
+        $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
+        $state = 'SAAS'; 
+        $timestamp = time();
+        $str = [];
+        $str[] = "appkey=" . $appKey;
+        $str[] = "appsecret=" . $appSecret;
+        $str[] = "data=" . json_encode(array('code'=>$authorizationCode)) ;
+        $str[] = "ts=" . $timestamp;
+        $signStr = implode("&", $str);
+        $sign = md5($signStr); 
+        $url = 'https://open.jushuitan.cn/api/Authentication/GetToken';
+        $response = Http::withHeaders([
             'appkey' => $appKey,
             'appsecret' => $appSecret,
+            'ts' => $timestamp,
+            'sign' => $sign,
+            'Content-Type' => 'application/json',
+        ])->post($url, [
             'code' => $authorizationCode,
-            'redirect_uri' => $redirectUri,
         ]);
-
-        // Kiểm tra phản hồi từ API
-        if ($response->failed()) {
-            return response()->json([
-                'error' => 'Không lấy được Access Token',
-                'details' => $response->json(),
-            ], $response->status());
-        }
-
-        // Trả về Access Token
-        $data = $response->json();
+    if ($response->successful()) {
         return response()->json([
-            'access_token' => $data['access_token'] ?? null,
-            'expires_in' => $data['expires_in'] ?? null,
+            'success' => true,
+            'data' => $response->json(),
         ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'error' => $response->body(),
+        ], $response->status());
+    }
+ 
     }
 }
