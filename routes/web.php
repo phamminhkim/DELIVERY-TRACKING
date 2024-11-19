@@ -114,5 +114,6 @@ Route::get('access-token', function () {
 });
 Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
 Route::get('/jst/callback', [JstController::class, 'handleCallback']);
+Route::get('/jst/refresh-token', [JstController::class, 'refreshToken']);
 
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

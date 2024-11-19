@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+
 class JstController extends Controller
 {
     public function generateAuthorizationUrl()
@@ -25,18 +26,18 @@ class JstController extends Controller
         $str[] = "state=" . $state;
         $str[] = "timestamp=" . $timestamp;
         $signStr = implode("&", $str);
-        $sign =  md5($signStr); 
+        $sign =  md5($signStr);
         $url = "https://global-erp.jushuitan.cn/account/companyauth/auth?"
-        . "appkey=".$appKey
-        . "&timestamp=".$timestamp
-        . "&sign=".$sign
-        . "&state=".$state;
+            . "appkey=" . $appKey
+            . "&timestamp=" . $timestamp
+            . "&sign=" . $sign
+            . "&state=" . $state;
         return  redirect($url);
     }
     public function handleCallback(Request $request)
     {
-        $code = $request->query('code');  
-        $state = $request->query('state'); 
+        $code = $request->query('code');
+        $state = $request->query('state');
         if (!$code) {
             return response()->json(['error' => 'Không nhận được Authorization Code'], 400);
         }
@@ -50,15 +51,15 @@ class JstController extends Controller
         $appKey = '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
         $appSecret = 'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
         $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
-        $state = 'SAAS'; 
+        $state = 'SAAS';
         $timestamp = time();
         $str = [];
         $str[] = "appkey=" . $appKey;
         $str[] = "appsecret=" . $appSecret;
-        $str[] = "data=" . json_encode(array('code'=>$authorizationCode)) ;
+        $str[] = "data=" . json_encode(array('code' => $authorizationCode));
         $str[] = "ts=" . $timestamp;
         $signStr = implode("&", $str);
-        $sign = md5($signStr); 
+        $sign = md5($signStr);
         $url = 'https://open.jushuitan.cn/api/Authentication/GetToken';
         $response = Http::withHeaders([
             'appkey' => $appKey,
@@ -69,17 +70,51 @@ class JstController extends Controller
         ])->post($url, [
             'code' => $authorizationCode,
         ]);
-    if ($response->successful()) {
-        return response()->json([
-            'success' => true,
-            'data' => $response->json(),
-        ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'error' => $response->body(),
-        ], $response->status());
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'data' => $response->json(),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'error' => $response->body(),
+            ], $response->status());
+        }
     }
- 
+    //refreshToken
+    public function refreshToken($refreshToken)
+    {
+        $appKey = '4jhOwBqfD6GqCHrU';           // Thay b��ng appkey thực tế
+        $appSecret = 'Bg8goH0ey9UOclnf';        // Thay b��ng appsecret thực tế
+        $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
+        $state = 'SAAS';
+        $timestamp = time();
+        $str = [];
+        $str[] = "appkey=" . $appKey;
+        $str[] = "appsecret=" . $appSecret;
+        $str[] = "refresh_token=" . $refreshToken;
+        $str[] = "ts=" . $timestamp;
+        $signStr = implode("&", $str);
+        $sign = md5($signStr);
+        $url = 'https://open.jushuitan.cn/api/Authentication/RefreshToken';
+        $response = Http::withHeaders([
+            'appkey' => $appKey,
+            'appsecret' => $appSecret,
+            'ts' => $timestamp,
+            'sign' => $sign,
+            'Content-Type' => 'application/json',
+        ])->post($url);
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'data' => $response->json(),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'error' => $response->body(),
+            ], $response->status());
+        }
     }
 }
