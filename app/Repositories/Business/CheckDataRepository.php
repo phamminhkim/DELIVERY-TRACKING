@@ -415,9 +415,8 @@ class CheckDataRepository extends RepositoryAbs
                 $this->message = $validator->errors()->first();
                 return false;
             }
-
-            $customer_group_id = $this->request->input('customer_group_id');
-            $items = $this->request->input('items');
+            $customer_group_id = $this->data['customer_group_id'];
+            $items = $this->data['items'];
 
             $customerMaterials = CustomerMaterial::where('customer_group_id', $customer_group_id)->get();
 
@@ -432,70 +431,68 @@ class CheckDataRepository extends RepositoryAbs
                 $sap_code = $item['sap_code'] ?? '';
                 $bar_code = $item['bar_code'] ?? '';
                 $name = $item['name'] ?? '';
-                $promotion_category = '';
-                $extra_offer = '';
-                $promotion_clc = '';
-                $promotion_name = '';
-
-                // Khởi tạo các biến với giá trị null để tránh lỗi undefined variable
-                $materialCombo = null;
-                $materialDonated = null;
-                $materialCLC = null;
-
-                // Kiểm tra xem sap_code hoặc bar_code có được cung cấp hay không
-                if (!empty($sap_code) || !empty($bar_code)) {
-                    $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
-                        ->when(!empty($sap_code), function ($query) use ($sap_code) {
-                            return $query->where('sap_code', $sap_code);
-                        })
-                        ->when(!empty($bar_code), function ($query) use ($bar_code) {
-                            return $query->where('bar_code', $bar_code);
-                        })
-                        ->where('is_active', 1)
-                        ->first();
-
-                    $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
-                        ->when(!empty($sap_code), function ($query) use ($sap_code) {
-                            return $query->where('sap_code', $sap_code);
-                        })
-                        ->where('is_active', 1)
-                        ->first();
-                    $materialDonated = MaterialDonated::where('sap_code', $sap_code)->where('is_active', 1)->first();
-                }
+                $promotion_category = null;
+                $extra_offer = null;
+                $promotion_clc = null;
+                $promotion_name = null;
+            
+                // Tìm dữ liệu từ các bảng
+                $materialCombo = MaterialCombo::where('customer_group_id', $customer_group_id)
+                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                        return $query->where('sap_code', $sap_code);
+                    })
+                    ->when(!empty($bar_code), function ($query) use ($bar_code) {
+                        return $query->where('bar_code', $bar_code);
+                    })
+                    ->where('is_active', 1)
+                    ->first();
+            
+                $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
+                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                        return $query->where('sap_code', $sap_code);
+                    })
+                    ->where('is_active', 1)
+                    ->first();
+            
+                $materialDonated = MaterialDonated::where('sap_code', $sap_code)
+                    ->where('is_active', 1)
+                    ->first();
+            
+                // Kết hợp dữ liệu từ các bảng
                 if ($materialCombo) {
+                    $name = $materialCombo->name; // Ưu tiên tên từ MaterialCombo
                     $promotion_category = 'X';
-                    $name = $materialCombo->name;
-                    $clc_category_type = MaterialCategoryType::where('name', '_COMBO')
+                    $promotion_name = MaterialCategoryType::where('name', '_COMBO')
                         ->where('is_deleted', false)
-                        ->first();
-                    $promotion_name = $clc_category_type->name ?? null;
-                } elseif ($materialDonated) {
-                    $extra_offer = 'X';
-                    $ex_category_type = MaterialCategoryType::where('name', '_IK')
-                        ->where('is_deleted', false)
-                        ->first();
-                    $promotion_name = $ex_category_type->name ?? null;
-                } elseif ($materialCLC) {
+                        ->first()
+                        ->name ?? $promotion_name;
+                }
+            
+                if ($materialCLC) {
+                    $name = $materialCLC->name ?? $name; // Chỉ ghi đè nếu MaterialCLC có tên
                     $promotion_clc = 'X';
-                    $name = $materialCLC->name;
-                    $clc_category_type = MaterialCategoryType::where('name', '_CLC')
+                    $promotion_name = MaterialCategoryType::where('name', '_CLC')
                         ->where('is_deleted', false)
-                        ->first();
-                    $promotion_name = $clc_category_type->name ?? null;
+                        ->first()
+                        ->name ?? $promotion_name;
                 }
-                // Chỉ thêm vào mảng nếu ít nhất một trong ba trường có giá trị
-                if ($promotion_category || $extra_offer || $promotion_clc) {
-                    $mappingData[] = [
-                        'sap_code' => $sap_code,
-                        'bar_code' => $bar_code,
-                        'name' => $name,
-                        'promotion_category' => $promotion_category,
-                        'extra_offer' => $extra_offer,
-                        'promotion_clc' => $promotion_clc,
-                        'promotion_name' => $promotion_name,
-                    ];
-                }
-            }
+            
+                if ($materialDonated) {
+                    $extra_offer = 'X';
+                    $promotion_name = MaterialCategoryType::where('name', '_IK')
+                        ->where('is_deleted', false)
+                        ->first()
+                        ->name ?? $promotion_name;
+                }            
+                // Luôn thêm item vào kết quả
+                $item['barcode'] = $bar_code;
+                $item['sku_sap_code'] = $sap_code;
+                $item['promotion_category'] = $promotion_category;
+                $item['extra_offer'] = $extra_offer;
+                $item['promotion_clc'] = $promotion_clc;
+                $item['promotion_name'] = $promotion_name;
+                $mappingData[] = $item;
+            }            
             return [
                 'success' => true,
                 'items' => $mappingData
