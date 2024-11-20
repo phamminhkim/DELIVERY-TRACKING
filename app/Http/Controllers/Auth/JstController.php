@@ -13,8 +13,8 @@ class JstController extends Controller
     public function generateAuthorizationUrl()
     {
         // Tham số được cung cấp bởi sàn
-        $appKey = '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
-        $appSecret = 'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
+        $appKey = config('api_site.connections.jst.app_key');// '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
+        $appSecret = config('api_site.connections.jst.app_secret') ;//'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
         $state = 'SAAS';    // Tùy chọn (có thể để rỗng)
         // Tạo timestamp
         // date_default_timezone_set('UTC');
@@ -27,7 +27,8 @@ class JstController extends Controller
         $str[] = "timestamp=" . $timestamp;
         $signStr = implode("&", $str);
         $sign =  md5($signStr);
-        $url = "https://global-erp.jushuitan.cn/account/companyauth/auth?"
+        $url = config('api_site.connections.jst.app_address_auth') // "https://global-erp.jushuitan.cn/account/companyauth/auth?"
+            . "?"  
             . "appkey=" . $appKey
             . "&timestamp=" . $timestamp
             . "&sign=" . $sign
@@ -48,9 +49,9 @@ class JstController extends Controller
 
     public function getAccessToken($authorizationCode)
     {
-        $appKey = '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
-        $appSecret = 'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
-        $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
+        $appKey = config('api_site.connections.jst.app_key');// '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
+        $appSecret = config('api_site.connections.jst.app_secret') ;//'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
+        $redirectUri = config('api_site.connections.jst.app_callback_url');// 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
         $state = 'SAAS';
         $timestamp = time();
         $str = [];
@@ -60,7 +61,7 @@ class JstController extends Controller
         $str[] = "ts=" . $timestamp;
         $signStr = implode("&", $str);
         $sign = md5($signStr);
-        $url = 'https://open.jushuitan.cn/api/Authentication/GetToken';
+        $url = config('api_site.connections.jst.app_openapi_url') .'/api/Authentication/GetToken';
         $response = Http::withHeaders([
             'appkey' => $appKey,
             'appsecret' => $appSecret,
@@ -85,9 +86,9 @@ class JstController extends Controller
     //refreshToken
     public function refreshToken($refreshToken)
     {
-        $appKey = '4jhOwBqfD6GqCHrU';           // Thay b��ng appkey thực tế
-        $appSecret = 'Bg8goH0ey9UOclnf';        // Thay b��ng appsecret thực tế
-        $redirectUri = 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
+        $appKey = config('api_site.connections.jst.app_key');// '4jhOwBqfD6GqCHrU';           // Thay bằng appkey thực tế
+        $appSecret = config('api_site.connections.jst.app_secret') ;//'Bg8goH0ey9UOclnf';        // Thay bằng appsecret thực tế
+        $redirectUri = config('api_site.connections.jst.app_callback_url');// 'https://shipdemo.thienlong.vn/jst/callback/'; // Callback URL đã đăng ký
         $state = 'SAAS';
         $timestamp = time();
         $str = [];
@@ -97,7 +98,7 @@ class JstController extends Controller
         $str[] = "ts=" . $timestamp;
         $signStr = implode("&", $str);
         $sign = md5($signStr);
-        $url = 'https://open.jushuitan.cn/api/Authentication/RefreshToken';
+        $url = config('api_site.connections.jst.app_openapi_url').  '/api/Authentication/RefreshToken';
         $response = Http::withHeaders([
             'appkey' => $appKey,
             'appsecret' => $appSecret,
