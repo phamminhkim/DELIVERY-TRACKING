@@ -485,8 +485,8 @@ class CheckDataRepository extends RepositoryAbs
                         ->name ?? $promotion_name;
                 }            
                 // Luôn thêm item vào kết quả
-                $item['barcode'] = $bar_code;
-                $item['sku_sap_code'] = $sap_code;
+                // $item['barcode'] = $bar_code;
+                // $item['sku_sap_code'] = $sap_code;
                 $item['promotion_category'] = $promotion_category;
                 $item['extra_offer'] = $extra_offer;
                 $item['promotion_clc'] = $promotion_clc;
