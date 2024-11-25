@@ -4,6 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
 use App\Services\Sap\SapApiHelper;
+use App\Http\Controllers\Controller;
+use App\JsOauthToken;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -28,6 +33,8 @@ class JstController extends Controller
         $str[] = "timestamp=" . $timestamp;
         $signStr = implode("&", $str);
         $sign =  md5($signStr);
+        // "https://global-erp.jushuitan.cn/account/companyauth/auth?" là địa chỉ trong env JST_APP_ADDRESS_AUTH_URL
+
         $url = config('api_site.connections.jst.app_address_auth') // "https://global-erp.jushuitan.cn/account/companyauth/auth?"
             . "?"
             . "appkey=" . $appKey
@@ -76,6 +83,8 @@ class JstController extends Controller
             'code' => $authorizationCode,
         ]);
         if ($response->successful()) {
+            $data = $response->json();
+            $this->saveAccessToken($data);
             return response()->json([
                 'success' => true,
                 'data' => $response->json(),
@@ -86,6 +95,19 @@ class JstController extends Controller
                 'error' => $response->body(),
             ], $response->status());
         }
+    }
+    public function saveAccessToken($data)
+    {
+        $expiredTime = Carbon::parse($data['data']['refreshTokenExpireTime'])->format('Y-m-d H:i:s');
+        $refreshTokenExpireTime = Carbon::parse($data['data']['refreshTokenExpireTime'])->format('Y-m-d H:i:s');
+        $token = JsOauthToken::create([
+            'access_token' => $data['data']['accessToken'],
+            'refresh_token' => $data['data']['refreshToken'],
+            'expired_time' => $expiredTime,
+            'refresh_token_expire_time' => $refreshTokenExpireTime,
+            'company_id' => $data['data']['companyId'],
+        ]);
+        // $this->callSapApi($token->access_token);
     }
     //refreshToken
     public function refreshToken($refreshToken)
@@ -111,6 +133,7 @@ class JstController extends Controller
             'Content-Type' => 'application/json',
         ])->post($url);
         if ($response->successful()) {
+            $this->saveAccessToken($response->json());
             return response()->json([
                 'success' => true,
                 'data' => $response->json(),
@@ -140,6 +163,17 @@ class JstController extends Controller
         } catch (\Throwable $th) {
             Log::info($th->getMessage());
             //throw $th;
+        }
+    }
+    public function callSapApi($accessToken)
+    {
+        $sapUrl = config('api_site.connections.sap.endpoint'); // Đường dẫn API SAP
+        $response = Http::post($sapUrl, [
+            'access_token' => $accessToken,
+        ]);
+
+        if ($response->failed()) {
+            throw new \Exception('Không thể gọi API SAP: ' . $response->body());
         }
     }
 }

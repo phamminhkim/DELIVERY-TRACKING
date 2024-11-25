@@ -40,78 +40,78 @@ use Wilkques\PKCE\Generator;
 // Auth::routes(['verify' => true]);
 
 
-Auth::routes();
-Route::get('/', function () {
-    return Redirect::to('/dashboard');
-});
+// Auth::routes();
+// Route::get('/', function () {
+//     return Redirect::to('/dashboard');
+// });
 
-Route::prefix('admins')->group(function () {
-    Route::get('routes', function () {
-        $routeCollection = Route::getRoutes();
+// Route::prefix('admins')->group(function () {
+//     Route::get('routes', function () {
+//         $routeCollection = Route::getRoutes();
 
-        echo "<table style='width:100%'>";
-        echo "<tr>";
-        echo "<td width='10%'><h4>HTTP Method</h4></td>";
-        echo "<td width='10%'><h4>Route</h4></td>";
-        echo "<td width='10%'><h4>Name</h4></td>";
-        echo "<td width='70%'><h4>Corresponding Action</h4></td>";
-        echo "</tr>";
-        foreach ($routeCollection as $value) {
-            echo "<tr>";
-            echo "<td>" . $value->methods()[0] . "</td>";
-            echo "<td>" . $value->uri() . "</td>";
-            echo "<td>" . $value->getName() . "</td>";
-            echo "<td>" . $value->getActionName() . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
-    });
-    Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZaloAuthorizeUrl');
-    Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
-});
+//         echo "<table style='width:100%'>";
+//         echo "<tr>";
+//         echo "<td width='10%'><h4>HTTP Method</h4></td>";
+//         echo "<td width='10%'><h4>Route</h4></td>";
+//         echo "<td width='10%'><h4>Name</h4></td>";
+//         echo "<td width='70%'><h4>Corresponding Action</h4></td>";
+//         echo "</tr>";
+//         foreach ($routeCollection as $value) {
+//             echo "<tr>";
+//             echo "<td>" . $value->methods()[0] . "</td>";
+//             echo "<td>" . $value->uri() . "</td>";
+//             echo "<td>" . $value->getName() . "</td>";
+//             echo "<td>" . $value->getActionName() . "</td>";
+//             echo "</tr>";
+//         }
+//         echo "</table>";
+//     });
+//     Route::get('/auth/oazalo', 'Auth\SocialAuthController@redirectToOaZaloAuthorizeUrl');
+//     Route::get('/auth/oazalo/callback', 'Auth\SocialAuthController@handleOaZaloCallback');
+// });
 
-Route::get('login/{social}', [
-    'as' => 'login.{social}',
-    'uses' => 'Auth\SocialAuthController@redirectToProvider'
-]);
+// Route::get('login/{social}', [
+//     'as' => 'login.{social}',
+//     'uses' => 'Auth\SocialAuthController@redirectToProvider'
+// ]);
 
-Route::get('login/{social}/callback', [
-    'as' => 'login.{social}.callback',
-    'uses' => 'Auth\SocialAuthController@handleProviderCallback'
-]);
-Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
-Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
+// Route::get('login/{social}/callback', [
+//     'as' => 'login.{social}.callback',
+//     'uses' => 'Auth\SocialAuthController@handleProviderCallback'
+// ]);
+// Route::get('/auth/zalo', 'Auth\SocialAuthController@redirectToUserZaloAuthorizeUrl')->name('zalo.login');
+// Route::get('/auth/zalo/callback', 'Auth\SocialAuthController@handleUserZaloCallback');
 
-Route::get('/auth/onetl', 'Auth\SocialAuthController@redirectToOnetlUrl');
-Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallback');
+// Route::get('/auth/onetl', 'Auth\SocialAuthController@redirectToOnetlUrl');
+// Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallback');
 
 
-Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
-Route::get('/excel/{filename}', [SapMaterialMappingController::class,'download']);
-Route::get('/excel/{filename}', [SapMaterialController::class,'download']);
-Route::get('/excel/{filename}', [CustomerPartnerController::class,'download']);
-Route::get('/excel/{filename}', [MaterialDonatedController::class,'download']);
-Route::get('/excel/{filename}', [MaterialComboController::class,'download']);
-Route::get('/profile', [AppController::class,'profile']);
+// Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
+// Route::get('/excel/{filename}', [SapMaterialMappingController::class,'download']);
+// Route::get('/excel/{filename}', [SapMaterialController::class,'download']);
+// Route::get('/excel/{filename}', [CustomerPartnerController::class,'download']);
+// Route::get('/excel/{filename}', [MaterialDonatedController::class,'download']);
+// Route::get('/excel/{filename}', [MaterialComboController::class,'download']);
+// Route::get('/profile', [AppController::class,'profile']);
 
-Route::get('access-token', function () {
-    $auth_user = Auth()->user();
+// Route::get('access-token', function () {
+//     $auth_user = Auth()->user();
 
-    $access_token = null;
-    // Nếu không phải login từ API thì tạo token cho user
-    if ($auth_user && !$auth_user->token()) {
-        if (Session::has('user')) {
-            $access_token = Session::get('user');
-        } else {
-            $authToken =  $auth_user->createToken('authToken');
-            $access_token = $authToken->accessToken; // $auth_user->createToken('authToken')->accessToken;
-            $auth_user->withAccessToken($access_token);
-            Session::put('user', $access_token);
-        }
-    }
+//     $access_token = null;
+//     // Nếu không phải login từ API thì tạo token cho user
+//     if ($auth_user && !$auth_user->token()) {
+//         if (Session::has('user')) {
+//             $access_token = Session::get('user');
+//         } else {
+//             $authToken =  $auth_user->createToken('authToken');
+//             $access_token = $authToken->accessToken; // $auth_user->createToken('authToken')->accessToken;
+//             $auth_user->withAccessToken($access_token);
+//             Session::put('user', $access_token);
+//         }
+//     }
 
-    echo $access_token ?? "Không có token";
-});
+//     echo $access_token ?? "Không có token";
+// });
 Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
 Route::get('/jst/callback', [JstController::class, 'handleCallback']);
 Route::get('/jst/refresh-token', [JstController::class, 'refreshToken']);
