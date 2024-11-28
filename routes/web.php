@@ -112,8 +112,8 @@ use Wilkques\PKCE\Generator;
 
 //     echo $access_token ?? "Không có token";
 // });
-Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
+// Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
 Route::get('/jst/callback', [JstController::class, 'handleCallback']);
-Route::get('/jst/refresh-token', [JstController::class, 'refreshToken']);
+// Route::get('/jst/refresh-token', [JstController::class, 'refreshToken']);
 
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('delivery:update')->hourly(); // php artisan schedule:run
-        $schedule->job(new \App\Jobs\RefreshAccessTokenJob)->daily();
+       // $schedule->job(new \App\Jobs\RefreshAccessTokenJob)->daily();
 
     }
 
