@@ -46,6 +46,7 @@ class JstController extends Controller
         $code = $request->query('code');
         $state = $request->query('state');
         if (  $code && $state) {
+            echo "Đã cấp quyền lấy token";
             $this->sendCodeToSAP($code,$state);
         }
         // if (!$code) {
