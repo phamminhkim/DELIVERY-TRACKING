@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use App\Http\Controllers\Api\Master\SapMaterialController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
+use App\Http\Controllers\Auth\JstController;
 use App\Http\Controllers\SinglePage\AppController;
 use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
@@ -35,8 +36,8 @@ use Wilkques\PKCE\Generator;
 |
 */
 
-//
-// Auth::routes(['verify' => true]);
+
+Auth::routes(['verify' => true]);
 
 
 Auth::routes();
@@ -111,5 +112,8 @@ Route::get('access-token', function () {
 
     echo $access_token ?? "Không có token";
 });
+// Route::get('/jst/generate-auth-url', [JstController::class, 'generateAuthorizationUrl']);
+Route::get('/jst/callback', [JstController::class, 'handleCallback']);
+// Route::get('/jst/refresh-token', [JstController::class, 'refreshToken']);
 
 Route::any('/{any?}', 'SinglePage\AppController@index')->where('any', '.*');

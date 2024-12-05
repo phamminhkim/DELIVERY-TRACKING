@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Http\Controllers\Api\Master\UserFieldTableController;
+use App\Http\Controllers\Auth\JstController;
 use App\Models\Business\Delivery;
 use App\Models\Business\UploadedFile;
 use App\Models\Master\UserFieldTable;
@@ -448,3 +449,5 @@ Route::prefix('auth')->group(function () {
 Route::prefix('webhook')->group(function () {
     Route::post('zalo/process', [ZaloAuthController::class, 'processWebHook']);
 });
+
+
