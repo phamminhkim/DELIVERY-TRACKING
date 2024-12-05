@@ -191,6 +191,11 @@ class RouterSeeder extends Seeder
                 'path' => '/material-category-type',
                 'component' => 'home/business/tables/TableMaterialCategoryType'
             ],
+            [
+                'name' => 'Nhà sách Mapping',
+                'path' => '/book-store-home',
+                'component' => 'home/business/version_2/sales/order_processing/book_store/BookStoreHome'
+            ],
         ];
 
         foreach ($routes as $routeData) {

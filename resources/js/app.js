@@ -123,6 +123,10 @@ Vue.component(
     "material-category-type",
     require("./components/home/business/tables/TableMaterialCategoryType.vue").default
 );
+Vue.component(
+    "book-store-home",
+    require("./components/home/business/version_2/sales/order_processing/book_store/BookStoreHome.vue").default
+);
 // Vue.component(
 //     "config-table",
 //     require("./components/home/master/ConfigTable.vue").default

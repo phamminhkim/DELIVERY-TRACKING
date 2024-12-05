@@ -402,6 +402,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
             ],
+            [
+                'title' => "Nhà sách Mapping",
+                'icon' => "fas fa-store",
+                'link' => "book-store-home",
+                'query_string' => "",
+                'parent' => 'Quản lí dữ liệu',
+            ],
         ];
     }
 }

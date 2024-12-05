@@ -1,5 +1,7 @@
 <?php
 namespace App\Models\Master;
+
+use App\CustomerPartnerStore;
 use App\Traits\FullTextSearch;
 
 use Illuminate\Database\Eloquent\Model;
@@ -27,5 +29,10 @@ class CustomerPartner extends Model
     public function customer_group()
     {
         return $this->belongsTo(CustomerGroup::class);
+    }
+    public function customer_partner_stores()
+    {
+       // tôi muốn where $this->name == customer_partner_stores.name
+        return $this->belongsTo(CustomerPartnerStore::class, 'name', 'name');
     }
 }

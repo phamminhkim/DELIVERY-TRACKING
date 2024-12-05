@@ -20,7 +20,7 @@ class CustomerPartnerRepository extends RepositoryAbs
     public function getAvailableCustomerPartners($is_minified)
     {
         try {
-            $query = CustomerPartner::query();
+            $query = CustomerPartner::query()->with(['customer_partner_stores']);
 
             if ($this->request->filled('search')) {
                 $query = $query->search($this->request->search);

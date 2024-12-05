@@ -221,7 +221,6 @@ class SapMaterialRepository extends RepositoryAbs
 
                 foreach ($data as $row) {
                     $unit = SapUnit::where('unit_code', $row[$template_structure['unit_code']])->first();
-
                     if ($unit) {
                         $sapMaterial = SapMaterial::updateOrCreate(
                             [
@@ -233,7 +232,6 @@ class SapMaterialRepository extends RepositoryAbs
                                 // Thêm các trường dữ liệu khác tương ứng
                             ]
                         );
-
                         $result->push($sapMaterial);
                     }
                 }

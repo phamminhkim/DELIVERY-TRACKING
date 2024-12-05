@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Auth\UserAuthController;
 use App\Http\Controllers\Api\Auth\ZaloAuthController;
 use App\Http\Controllers\Api\Business\AiController;
+use App\Http\Controllers\Api\Business\BookStoreController;
 use App\Http\Controllers\Api\Business\DashboardController;
 use App\Http\Controllers\Api\Master\SapMaterialMappingController;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Api\Business\RawSoController;
 use App\Http\Controllers\Api\Business\UploadedFileController;
 use App\Http\Controllers\Api\Business\CheckDataController;
 use App\Http\Controllers\Api\Business\DashboardMTController;
+use App\Http\Controllers\Api\Business\SalesProcessingController;
 use App\Http\Controllers\Api\Business\SoDataController;
 use App\Http\Controllers\Api\Business\SyncDataController;
 
@@ -79,7 +81,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/group', [DashboardMTController::class, 'getPoByCustomerGroup']);
             Route::get('/date', [DashboardMTController::class, 'getPoByDate']);
             Route::get('/report', [DashboardMTController::class, 'compareOrderReports']);
-
         });
     });
     Route::prefix('master')->group(function () {
@@ -273,6 +274,17 @@ Route::middleware('auth:api')->group(function () {
             Route::delete('/{id}', [CustomerPromotionController::class, 'deleteExistingCustomerPromotion']);
         });
     });
+    Route::prefix('sales-order')->group(function () {
+        Route::post('/check-sap-code', [SalesProcessingController::class, 'checkSapCode']);
+        Route::post('/check-book-store', [SalesProcessingController::class, 'checkBookStore']);
+        Route::post('/check-sap-compliance', [SalesProcessingController::class, 'checkSapCompliance']);
+        Route::post('/so-processing-data', [SalesProcessingController::class, 'processingSOData']);
+        Route::post('/save-sales', [SalesProcessingController::class, 'saveSales']);
+    });
+    Route::prefix('book-store')->group(function () {
+        Route::get('/get-all', [BookStoreController::class, 'getAllBookStore']);
+
+    });
 
     Route::prefix('sap')->group(function () {
         Route::post('/sync-category/{category}', [MasterDataController::class, 'syncFromSAP']);
@@ -370,6 +382,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/{id}', [SoDataController::class, 'getSoData']);
         Route::get('/', [SoDataController::class, 'getOrderProcessList']);
     });
+
+    Route::post('/sales-processing', [SalesProcessingController::class, 'importSales']);
+
+
     Route::prefix('pdf-text-locator')->group(function () {
         Route::post('/', [AiController::class, 'findTextPosition']);
     });

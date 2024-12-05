@@ -1,6 +1,11 @@
 <template>
     <div class="mb-1">
+        <button class="btn btn-sm btn-info text-xs px-2 btn-book-store"><i class="fas fa-store mr-1"></i>
+            Danh sách đơn hàng nhà sách
+            <span class="badge badge-sm badge-danger text-xs rounded-pill span-badge">3</span>
+        </button>
         <button @click="emitModalListOrder()" class="btn btn-sm btn-primary text-xs px-2">Danh sách xử lý đơn hàng</button>
+
         <!-- <div class="card border-0 mr-2 shadow-sm card-cursor">
             <div class="card-body p-2 border-0 text-center text-xs" @click="emitModalListOrder(file)">
                 <i class="fas fa-list-ul text-info icon-font-size"></i>
@@ -37,5 +42,13 @@ export default {
     &:hover {
         background-color: #f8f9fa;
     }
+}
+.btn-book-store {
+    position: relative;
+}
+.span-badge {
+    position: absolute;
+    top: -13px;
+    left: 0;
 }
 </style>

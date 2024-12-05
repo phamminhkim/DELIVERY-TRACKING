@@ -35,6 +35,7 @@ use App\Services\Implementations\Restructurers\SearchTextArrayMappingRestructure
 use App\Models\Business\ExtractOrderConfig;
 use App\Repositories\Business\CheckDataRepository;
 use App\Repositories\Business\DashboardMTRepository;
+use App\Repositories\Business\SOProcessingRepository;
 use Illuminate\Http\Request;
 
 class BusinessRepository
@@ -314,6 +315,26 @@ class BusinessRepository
     {
         $file_service = new LocalFileService();
         return new PdfTextLocatorRepository($file_service, $request);
+    }
+    public static function SOProcessingOrder(Request $request)
+    {
+        return new SOProcessingRepository($request);
+    }
+    public static function saveSales(Request $request)
+    {
+        return new SOProcessingRepository($request);
+    }
+    public static function checkBookStore(Request $request)
+    {
+        return new SOProcessingRepository($request);
+    }
+    public static function checkSapCompliance(Request $request)
+    {
+        return new SOProcessingRepository($request);
+    }
+    public static function processingSOData(Request $request)
+    {
+        return new SOProcessingRepository($request);
     }
 
 }

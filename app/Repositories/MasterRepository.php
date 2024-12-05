@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Master\CustomerMaterial;
 use App\Models\Master\SapMaterial;
+use App\Repositories\Master\BookStoreRepository;
 use App\Repositories\Master\CustomerGroupRepository;
 use App\Repositories\Master\SapMaterialMappingRepository;
 use App\Repositories\Master\WarehouseRepository;
@@ -143,6 +144,10 @@ class MasterRepository
     public static function materialCLCRequest(Request $request)
     {
         return new MaterialCLCRepository($request);
+    }
+    public static function getAllBookStore(Request $request)
+    {
+        return new BookStoreRepository($request);
     }
 
 }
