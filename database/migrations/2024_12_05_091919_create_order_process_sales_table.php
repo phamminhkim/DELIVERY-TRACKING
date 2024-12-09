@@ -13,14 +13,14 @@ class CreateOrderProcessSalesTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_process_sales', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('central_branch');
-            $table->string('description');
-            $table->string('status');
-            $table->timestamps();
-        });
+        // Schema::create('order_process_sales', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('title');
+        //     $table->string('central_branch');
+        //     $table->string('description');
+        //     $table->string('status');
+        //     $table->timestamps();
+        // });
     }
 
     /**
@@ -30,6 +30,6 @@ class CreateOrderProcessSalesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_process_sales');
+        // Schema::dropIfExists('order_process_sales');
     }
 }

@@ -13,7 +13,8 @@ class AddFieldsToOrderProcessSalesTable extends Migration
      */
     public function up()
     {
-        Schema::table('order_process_sales', function (Blueprint $table) {
+         Schema::create('order_process_sales', function (Blueprint $table) {
+            $table->id();
             $table->string('title');
             $table->string('central_branch')->nullable();
             $table->string('description')->nullable();
@@ -21,7 +22,18 @@ class AddFieldsToOrderProcessSalesTable extends Migration
             // adđ foreign key
             $table->unsignedBigInteger('created_by');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
         });
+        // Schema::table('order_process_sales', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('title');
+        //     $table->string('central_branch')->nullable();
+        //     $table->string('description')->nullable();
+        //     $table->enum('status', ['pending', 'sending', 'processing', 'completed', 'canceled'])->default('pending');
+        //     // adđ foreign key
+        //     $table->unsignedBigInteger('created_by');
+        //     $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+        // });
     }
 
     /**
@@ -31,9 +43,10 @@ class AddFieldsToOrderProcessSalesTable extends Migration
      */
     public function down()
     {
-        Schema::table('order_process_sales', function (Blueprint $table) {
-            $table->dropColumn(['title', 'central_branch', 'description', 'status']);
-            $table->dropForeign(['created_by']);
-        });
+        Schema::dropIfExists('order_process_sales');
+        // Schema::table('order_process_sales', function (Blueprint $table) {
+        //     $table->dropColumn(['title', 'central_branch', 'description', 'status']);
+        //     $table->dropForeign(['created_by']);
+        // });
     }
 }
