@@ -409,6 +409,13 @@ class MenuRouterSeeder extends Seeder
                 'query_string' => "",
                 'parent' => 'Quản lí dữ liệu',
             ],
+            [
+                'title' => "Sales - Xử lý đơn hàng",
+                'icon' => "fas fa-truck-loading",
+                'link' => "sales-order-processing",
+                'query_string' => "",
+                'parent' => 'Trích xuất đơn hàng',
+            ],
         ];
     }
 }
