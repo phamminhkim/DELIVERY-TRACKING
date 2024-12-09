@@ -154,8 +154,8 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
             });
             $result[$key]['type'] = ''; // Di chuyển ra ngoài vòng lặp
 
-            $result[$key]['note'] = ''; // Di nchuyển ra ngoài vòng lặp
-            $result[$key]['count_votes'] = ''; // Di nchuyển ra ngoài vòng lặp
+            $result[$key]['description'] = ''; // Di nchuyển ra ngoài vòng lặp
+            $result[$key]['count_order'] = ''; // Di nchuyển ra ngoài vòng lặp
 
             $added_to_ns = false; // Cờ kiểm soát cho "details"
             $children = [];
@@ -266,8 +266,8 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
                             'customer_name'     => $value_child['customer_name'],
                             'is_specifications' => $result[$key]['specifications'] > $value_child['quantity'] ? 1 : 0,
                             'customer_key' => $value_child['customer_key'],
-                            'count_votes' => $result[$key]['count_votes'],
-                            'note' => $result[$key]['note'],
+                            'count_order' => $result[$key]['count_order'],
+                            'description' => $result[$key]['description'],
                             // 'customer_key' => $customer_partner ? ($customer_partner->customer_partner_stores ? $customer_partner->customer_partner_stores->code : '') : '',
 
                         ];

@@ -1,45 +1,56 @@
 <template>
-    <div>
-        <div class="modal fade" id="BookStoreImport" data-backdrop="static" data-keyboard="false" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold text-uppercase">Thêm Nhanh</h5>
-                        <button @click="closeModal()" type="button" class="close" data-dismiss="modal"
-                            aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    <div class="modal fade" id="BookStoreImport" data-backdrop="static" data-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold text-uppercase">Thêm Nhanh</h5>
+                    <button @click="closeModal()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-2">
+                        <button @click="downloadExcelTemplate()" class="btn btn-sm btn-outline-primary text-xs px-2"><i
+                                class="fas fa-download text-xs mr-1"></i>Download Template Mẫu</button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <div class="mr-1">
-                                <div><small class="mb-0">File</small><small class="text-danger ml-1">(*)</small>
-                                </div>
-                                <div class="d-flex">
-                                    <input @change="readXlsxFile" type="file" ref="fileInput" class="form-control-file form-control-sm"
-                                    accept=".xlsx, .xls, .csv">
-                                    <!-- <div class="flex-fill" v-show="is_loading">
+                    <div class="form-group">
+                        <div class="mr-1">
+                            <div><small class="mb-0 text-xs font-weight-bold">Chọn File</small><small
+                                    class="text-danger ml-1">(*)</small>
+                            </div>
+                            <div class="d-flex">
+                                <input @change="readXlsxFile" type="file" ref="fileInput"
+                                    class="form-control-file form-control-sm" accept=".xlsx, .xls, .csv">
+                                <!-- <div class="flex-fill" v-show="is_loading">
                                         <i class="fas fa-spinner fa-pulse fa-xs" style="color: #c7c6c7;"></i>
                                     </div> -->
-                                </div>
                             </div>
+                        </div>
 
-                        </div>
-                        <div class="form-group">
-                            <button class="btn btn-sm btn-success px-2 text-xs"><i class="fas fa-file-upload mr-1"></i>Upload</button>
-                        </div>
-                        <div class="form-group">
-                            <hot-table ref="myHotTable" :data="data_files" :settings="settings">
-                                <!-- <hot-column title="STT" :renderer="sttRenderer"></hot-column> -->
+                    </div>
 
-                            </hot-table>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <small class="text-xs font-weight-bold">Review</small>
+                            </div>
+                            <div class="col-lg-6 text-right">
+                                <button @click="emitSave()" type="button"
+                                    class="btn btn-success btn-sm px-4 text-xs">Lưu</button>
+                            </div>
                         </div>
+                        <b-table :fields="fields" :items="data_files" responsive hover small bordered
+                            head-variant="light" striped>
+                            <template #cell(index)="data">
+                                {{ data.index + 1 }}
+                            </template>
+                        </b-table>
                     </div>
-                    <div class="modal-footer">
-                        <button @click="closeModal()" type="button" class="btn btn-secondary btn-sm px-4 text-xs"
-                            data-dismiss="modal">Đóng</button>
-                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @click="closeModal()" type="button" class="btn btn-secondary btn-sm px-4 text-xs"
+                        data-dismiss="modal">Đóng</button>
+                    <button @click="emitSave()" type="button" class="btn btn-success btn-sm px-4 text-xs">Lưu</button>
                 </div>
             </div>
         </div>
@@ -47,17 +58,10 @@
 </template>
 <script>
 import * as XLSX from 'xlsx';
-import { HotTable, HotColumn } from '@handsontable/vue';
-import { ContextMenu } from 'handsontable/plugins/contextMenu';
-import { registerAllModules } from 'handsontable/registry';
-import 'handsontable/dist/handsontable.full.css';
-import { head } from 'lodash';
-registerAllModules();
 
 export default {
     components: {
-        HotTable,
-        HotColumn
+
     },
     props: {
         is_show: {
@@ -86,61 +90,23 @@ export default {
             file: null,
             data_files: [],
             headers: [],
-            settings: {
-                height: '500',
-                width: '100%',
-                autoWrapRow: true,
-                autoWrapCol: true,
-                rowHeaders: true,
-                // colHeaders: true,
-                // colHeaders: [
-                //     'STT',
-                //     'Loại phiếu',
-                //     'Tên nhà sách',
-                //     'Mã vạch',
-                //     '',
-                //     'Tên sản phẩm',
-                //     'Số lượng',
-                //     'Quy cách',
-                //     'barcode_cty',
-                //     'Mã SAP',
-                //     'Tên SP',
-                //     'Mã SAP',
-                //     'Dvt',
-                // ],
-
-                // dropdownMenu: true,
-                // dropdownMenu: ['filter_by_value', 'filter_action_bar'],
-
-                filters: true,
-                contextMenu: {
-                    items: {
-                        "export": {
-                            name: 'Xuất Excel',
-                            callback: function (key, options) {
-                                this.getPlugin('exportFile').downloadFile('csv', {
-                                    filename: 'Dữ liệu Khách Hàng'
-                                });
-                            },
-                        },
-                        row_above: {
-                            name: 'Thêm dòng phía trên',
-                        },
-                        row_below: {
-                            name: 'Thêm dòng phía dưới',
-                        },
-
-                        remove_row: {
-                            name: 'Xóa dòng',
-                        },
-                        separator: ContextMenu.SEPARATOR,
-
-                    },
+            fields: [
+                {
+                    key: 'index',
+                    label: 'STT',
+                    class: 'text-center text-xs text-nowarp',
                 },
-                // columns: this.columns,
-
-                licenseKey: 'non-commercial-and-evaluation'
-            },
+                {
+                    key: 'Tên nhà sách',
+                    label: 'Tên nhà sách',
+                    class: 'text-center text-xs text-nowarp',
+                },
+                {
+                    key: 'ten_ns',
+                    label: 'ten_ns',
+                    class: 'text-center text-xs text-nowarp',
+                }
+            ]
         }
     },
     methods: {
@@ -156,26 +122,30 @@ export default {
                 const sheet_name_list = workbook.SheetNames;
                 const data_files = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
                 this.data_files = data_files;
-                console.log(this.data_files);
-                this.getFieldKeyInArray();
-                this.$refs.myHotTable.hotInstance.loadData(this.data_files);
-                this.$refs.myHotTable.hotInstance.updateSettings({
-                    columns: this.headers.map(item => {
-                        return {
-                            data: item,
-                            type: 'text'
-                        }
-                    }),
-                    colHeaders: this.headers
-                });
-
             };
             reader.readAsArrayBuffer(file);
         },
-        getFieldKeyInArray() {
-            this.headers = [...new Set(this.data_files.map(item => Object.keys(item)).flat())];
-            console.log(this.headers);
+        downloadExcelTemplate() {
+            // Dữ liệu mẫu
+            const data = [
+                { "Tên nhà sách": "TMNSDT HO CHI MINH", ten_ns: "HCM" },
+                { "Tên nhà sách": "HNNSB1 NS FAHASA LONG BIÊN", ten_ns: "" },
+                { "Tên nhà sách": "HNNSDH NS FAHASA TRẦN DUY HƯNG", ten_ns: "" },
+            ];
+
+            // Chuyển dữ liệu thành Sheet
+            const worksheet = XLSX.utils.json_to_sheet(data);
+
+            // Tạo Workbook
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+
+            // Xuất file
+            XLSX.writeFile(workbook, "template.xlsx");
         },
+        emitSave() {
+            this.$emit('save', this.data_files);
+        }
     }
 }
 </script>

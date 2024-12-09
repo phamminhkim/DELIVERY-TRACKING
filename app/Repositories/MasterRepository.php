@@ -145,7 +145,7 @@ class MasterRepository
     {
         return new MaterialCLCRepository($request);
     }
-    public static function getAllBookStore(Request $request)
+    public static function BookStore(Request $request)
     {
         return new BookStoreRepository($request);
     }

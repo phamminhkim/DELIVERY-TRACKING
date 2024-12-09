@@ -1,21 +1,17 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[6],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&":
-/*!************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var vue_json_editor_assets_jsoneditor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-json-editor/assets/jsoneditor */ "./node_modules/vue-json-editor/assets/jsoneditor.js");
+/* harmony import */ var vue_json_editor_assets_jsoneditor__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_json_editor_assets_jsoneditor__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
-/* harmony import */ var _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @handsontable/vue */ "./node_modules/@handsontable/vue/es/vue-handsontable.mjs");
-/* harmony import */ var handsontable_plugins_contextMenu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! handsontable/plugins/contextMenu */ "./node_modules/handsontable/plugins/contextMenu/index.mjs");
-/* harmony import */ var handsontable_registry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! handsontable/registry */ "./node_modules/handsontable/registry.mjs");
-/* harmony import */ var handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! handsontable/dist/handsontable.full.css */ "./node_modules/handsontable/dist/handsontable.full.css");
-/* harmony import */ var handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5__);
 function _typeof(o) {
   "@babel/helpers - typeof";
 
@@ -356,243 +352,145 @@ function _asyncToGenerator(n) {
 }
 
 
-
-
-
-
-Object(handsontable_registry__WEBPACK_IMPORTED_MODULE_4__["registerAllModules"])();
 /* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    HotTable: _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__["HotTable"],
-    HotColumn: _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__["HotColumn"]
-  },
   props: {
-    prop_items: {
-      type: Array,
-      "default": function _default() {
-        return [];
-      }
+    is_show: {
+      type: Boolean,
+      "default": false
     },
-    step: {
-      type: Number,
-      "default": 0
+    items: {
+      type: Array,
+      "default": []
     }
   },
   watch: {
-    step: {
-      handler: function handler(val) {
-        if (val === 2) {
-          this.fetchData();
-        }
-      },
-      immediate: true
+    is_show: function is_show(val) {
+      if (val) {
+        $('#SODialogListHeaderSaleCR').modal('show');
+      } else {
+        $('#SODialogListHeaderSaleCR').modal('hide');
+      }
     }
   },
   data: function data() {
     return {
-      is_loading: false,
       api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_1__["default"](window.Laravel.access_token),
-      settings: {
-        height: '500',
-        width: '100%',
-        manualColumnResize: true,
-        autoWrapRow: true,
-        autoWrapCol: true,
-        rowHeaders: true,
-        colHeaders: ['Phân loại', 'Mã SAP', 'Tên SP', 'Đơn vị tính', 'Giá chưa VAT', 'Quy cách', 'Barcode', 'Thuế'],
-        // hiddenColumns: {
-        //     columns: [0], // Chỉ số cột `is_specifications`
-        //     indicators: false, // Không hiển thị chỉ báo ẩn
-        // },
-        dropdownMenu: {
-          items: {
-            filter_by_value: {
-              name: 'Tìm kiếm'
-            },
-            filter_action_bar: {}
-          }
-        },
-        filters: true,
-        contextMenu: {
-          items: {
-            "export": {
-              name: 'Xuất Excel',
-              callback: function callback(key, options) {
-                this.getPlugin('exportFile').downloadFile('csv', {
-                  filename: 'Data xử lý'
-                });
-              }
-            },
-            row_above: {
-              name: 'Thêm dòng phía trên'
-            },
-            row_below: {
-              name: 'Thêm dòng phía dưới'
-            },
-            remove_row: {
-              name: 'Xóa dòng'
-            },
-            separator: handsontable_plugins_contextMenu__WEBPACK_IMPORTED_MODULE_3__["ContextMenu"].SEPARATOR
-          }
-        },
-        licenseKey: 'non-commercial-and-evaluation'
+      current_user: window.Laravel.current_user,
+      is_loading: false,
+      order_process_sales: [],
+      pagination: {
+        current_page: 1,
+        item_per_page: 10,
+        total_items: 0,
+        last_page: 0,
+        page_options: [10, 20, 50, 100, 500]
       },
-      setting_types: {
-        type: 'dropdown',
-        source: ['_GK', '_Hộp'],
-        strict: true
-      },
+      fields: [{
+        key: 'index',
+        label: 'STT',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'status',
+        label: 'Trạng thái',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'title',
+        label: 'Tiêu đề',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'central_branch',
+        label: 'Trung tâm',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'order_process_sale_by',
+        label: 'Người xử lý',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'created_at',
+        label: 'Ngày tạo đơn',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'processing_at',
+        label: 'Ngày xử lí',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'completed_at',
+        label: 'Ngày hoàn thành',
+        "class": 'text-center text-nowarp text-xs',
+        sortable: true
+      }, {
+        key: 'action',
+        label: 'Hành động',
+        "class": 'text-center text-nowarp text-xs'
+      }],
       api: {
-        so_processing_data: 'api/sales-order/so-processing-data',
-        material_category: 'api/master/material-category'
-      },
-      error: {
-        indexs: [],
-        message: ''
-      },
-      data_api: {
-        items: [],
-        headers: [],
-        material_categories: []
-      },
-      setting_categories: {
-        source: [],
-        strict: true
+        get_all_po_sale_id: '/api/sales-order/get-all-po-sale',
+        sending_po_sale: '/api/sales-order/sending-order-po-sales'
       }
     };
   },
-  created: function created() {
-    this.fetchMaterialCategories();
-  },
   methods: {
-    mapSettingCategoryToSource: function mapSettingCategoryToSource(categories) {
-      var source = [];
-      categories.map(function (category) {
-        source.push(category.name);
-      });
-      this.setting_categories.source = source;
-      console.log(this.setting_categories.source);
+    closeModal: function closeModal() {
+      this.$emit('close-modal', false);
     },
-    fetchMaterialCategories: function fetchMaterialCategories() {
+    editOrderPOSale: function editOrderPOSale(item) {
+      this.$emit('edit-order-po-sale', item);
+    },
+    sendingOrderPOSale: function sendingOrderPOSale(item, id) {
       var _this = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var _yield$_this$api_hand, data, success, errors, message;
+        var _yield$_this$api_hand, data, success;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
               _context.next = 3;
-              return _this.api_handler.get(_this.api.material_category);
+              return _this.api_handler.put(_this.api.sending_po_sale + '/' + id, {}, {
+                item: item,
+                status: 'sending'
+              });
             case 3:
               _yield$_this$api_hand = _context.sent;
               data = _yield$_this$api_hand.data;
               success = _yield$_this$api_hand.success;
-              errors = _yield$_this$api_hand.errors;
-              message = _yield$_this$api_hand.message;
-              if (data.success) {
-                _this.mapSettingCategoryToSource(data.items);
-                // this.data_api.material_categories = data;
+              if (success) {
+                _this.$emit('sending-order-po-sale', item);
+                _this.$showMessage('success', 'Thành công', 'Gửi xử lý đơn hàng thành công');
               }
-              _context.next = 15;
+              _context.next = 12;
               break;
-            case 11:
-              _context.prev = 11;
+            case 9:
+              _context.prev = 9;
               _context.t0 = _context["catch"](0);
-              _this.error.message = _context.t0.response.data.message;
-              _this.error.indexs = _context.t0.response.data.indexs;
-            case 15:
+              _this.$showMessage('error', 'Lỗi', _context.t0.response.data.message);
+            case 12:
             case "end":
               return _context.stop();
           }
-        }, _callee, null, [[0, 11]]);
+        }, _callee, null, [[0, 9]]);
       }))();
-    },
-    // Map headers sang tiêu đề tiếng Việt
-    mapHeadersToColHeaders: function mapHeadersToColHeaders(headers) {
-      var headerMapping = {
-        promotion: "Phân loại",
-        sap_material_code: "Mã SAP",
-        sap_material_name: "Tên SP",
-        unit: "Đơn vị tính",
-        price_vat: "Giá chưa VAT",
-        specifications: "Quy cách",
-        barcode: "Barcode",
-        tax: "Thuế"
-      };
-      // Chuyển đổi headers
-      return headers.map(function (header) {
-        return headerMapping[header] || header;
-      });
-    },
-    fetchData: function fetchData() {
-      var _this2 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var _yield$_this2$api_han, data, success, errors, message, colHeaders, columns;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              _this2.is_loading = true;
-              _context2.prev = 1;
-              _context2.next = 4;
-              return _this2.api_handler.post(_this2.api.so_processing_data, {}, {
-                items: _this2.prop_items
-              });
-            case 4:
-              _yield$_this2$api_han = _context2.sent;
-              data = _yield$_this2$api_han.data;
-              success = _yield$_this2$api_han.success;
-              errors = _yield$_this2$api_han.errors;
-              message = _yield$_this2$api_han.message;
-              if (success) {
-                _this2.data_api.items = data.items;
-                _this2.data_api.headers = data.headers;
-                colHeaders = _this2.mapHeadersToColHeaders(_this2.data_api.headers); // Tạo cấu hình columns
-                columns = _this2.data_api.headers.map(function (header) {
-                  if (header === "promotion") {
-                    return {
-                      data: header,
-                      type: "dropdown",
-                      source: _this2.setting_categories.source,
-                      strict: _this2.setting_categories.strict
-                    };
-                  }
-                  return {
-                    data: header
-                  }; // Cấu hình mặc định
-                });
-                _this2.settings.colHeaders = colHeaders;
-                _this2.$refs.myHotTableSecond.hotInstance.loadData(_this2.data_api.items);
-                _this2.$refs.myHotTableSecond.hotInstance.updateSettings({
-                  colHeaders: colHeaders,
-                  columns: columns
-                });
-                _this2.$showMessage('success', 'Thông báo', 'Lấy dữ liệu thành công');
-              }
-              _context2.next = 16;
-              break;
-            case 12:
-              _context2.prev = 12;
-              _context2.t0 = _context2["catch"](1);
-              _this2.error.message = _context2.t0.response.data.message;
-              _this2.error.indexs = _context2.t0.response.data.indexs;
-            case 16:
-              _this2.is_loading = false;
-            case 17:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2, null, [[1, 12]]);
-      }))();
+    }
+  },
+  computed: {
+    rows: function rows() {
+      return this.items.length;
     }
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&":
-/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true&":
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true& ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -603,68 +501,199 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_vm._m(0), _vm._v(" "), _c("hot-table", {
-    ref: "myHotTableSecond",
-    attrs: {
-      data: _vm.data_api.items,
-      settings: _vm.settings
-    }
-  }, _vm._l(_vm.data_api.headers, function (header, index) {
-    return _c("hot-column", {
-      key: index,
-      attrs: {
-        title: header,
-        data: header,
-        type: header === "promotion" ? "dropdown" : "",
-        source: header === "promotion" ? _vm.setting_types.source : null,
-        strict: header === "promotion" ? _vm.setting_types.strict : false
-      }
-    });
-  }), 1)], 1);
-};
-var staticRenderFns = [function () {
-  var _vm = this,
-    _c = _vm._self._c;
   return _c("div", {
+    staticClass: "modal fade",
+    attrs: {
+      id: "SODialogListHeaderSaleCR",
+      "data-backdrop": "static",
+      "data-keyboard": "false",
+      tabindex: "-1"
+    }
+  }, [_c("div", {
+    staticClass: "modal-dialog modal-xl"
+  }, [_c("div", {
+    staticClass: "modal-content"
+  }, [_c("div", {
+    staticClass: "modal-header"
+  }, [_c("h5", {
+    staticClass: "modal-title font-weight-bold text-uppercase"
+  }, [_vm._v("Danh sách đơn hàng nhà sách")]), _vm._v(" "), _c("button", {
+    staticClass: "close",
+    attrs: {
+      type: "button",
+      "data-dismiss": "modal",
+      "aria-label": "Close"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.closeModal();
+      }
+    }
+  }, [_c("span", {
+    attrs: {
+      "aria-hidden": "true"
+    }
+  }, [_vm._v("×")])])]), _vm._v(" "), _c("div", {
+    staticClass: "modal-body"
+  }, [_c("div", {
+    staticClass: "form-group text-xs"
+  }, [_c("b-table", {
+    attrs: {
+      items: _vm.items,
+      fields: _vm.fields,
+      responsive: "",
+      hover: "",
+      small: "",
+      bordered: "",
+      "head-variant": "light",
+      "current-page": _vm.pagination.current_page,
+      "per-page": _vm.pagination.item_per_page,
+      striped: ""
+    },
+    scopedSlots: _vm._u([{
+      key: "cell(index)",
+      fn: function fn(data) {
+        return [_c("span", [_vm._v(_vm._s(data.index + 1))])];
+      }
+    }, {
+      key: "cell(status)",
+      fn: function fn(data) {
+        return [data.item.status == "pending" ? _c("span", {
+          staticClass: "badge badge-sm badge-secondary text-xs px-2"
+        }, [_vm._v("Chưa gửi xử lý")]) : _vm._e(), _vm._v(" "), data.item.status == "sending" ? _c("span", {
+          staticClass: "badge badge-sm badge-info text-xs px-2"
+        }, [_vm._v("Đã gửi xử lý")]) : _vm._e(), _vm._v(" "), data.item.status == "processing" ? _c("span", {
+          staticClass: "badge badge-sm badge-warning text-xs px-2"
+        }, [_vm._v("Đang xử lý")]) : _vm._e(), _vm._v(" "), data.item.status == "completed" ? _c("span", {
+          staticClass: "badge badge-sm badge-success text-xs px-2"
+        }, [_vm._v("Hoàn thành")]) : _vm._e(), _vm._v(" "), data.item.status == "canceled" ? _c("span", {
+          staticClass: "badge badge-sm badge-danger text-xs px-2"
+        }, [_vm._v("Hủy bỏ")]) : _vm._e()];
+      }
+    }, {
+      key: "cell(order_process_sale_by)",
+      fn: function fn(data) {
+        return [data.item.order_process_sale_by !== null ? _c("div", [_c("span", [_vm._v(_vm._s(data.item.order_process_sale_by.user.name))])]) : _vm._e()];
+      }
+    }, {
+      key: "cell(created_at)",
+      fn: function fn(data) {
+        return [_c("span", [_vm._v(_vm._s(_vm._f("formatDate")(data.item.created_at)))])];
+      }
+    }, {
+      key: "cell(processing_at)",
+      fn: function fn(data) {
+        return [data.item.order_process_sale_by !== null ? _c("div", [_c("span", [_vm._v(_vm._s(_vm._f("formatDate")(data.item.order_process_sale_by.processing_at)))])]) : _vm._e()];
+      }
+    }, {
+      key: "cell(completed_at)",
+      fn: function fn(data) {
+        return [data.item.order_process_sale_by !== null ? _c("div", [_c("span", [_vm._v(_vm._s(_vm._f("formatDate")(data.item.order_process_sale_by.completed_at)))])]) : _vm._e()];
+      }
+    }, {
+      key: "cell(action)",
+      fn: function fn(data) {
+        return [data.item.status == "pending" ? _c("div", [_c("button", {
+          staticClass: "btn btn-sm btn-outline-primary px-2 text-xs",
+          on: {
+            click: function click($event) {
+              return _vm.sendingOrderPOSale(data.item, data.item.id);
+            }
+          }
+        }, [_c("i", {
+          staticClass: "fas fa-paper-plane mr-1 text-xs"
+        }), _vm._v("Gửi xử lý\n                                ")]), _vm._v(" "), _c("button", {
+          staticClass: "btn btn-sm btn-outline-warning px-2 text-xs",
+          on: {
+            click: function click($event) {
+              return _vm.editOrderPOSale(data.item);
+            }
+          }
+        }, [_c("i", {
+          staticClass: "fas fa-edit mr-1 text-xs"
+        }), _vm._v("Chỉnh sửa\n                                ")])]) : _vm._e()];
+      }
+    }])
+  }), _vm._v(" "), _c("div", {
     staticClass: "row"
-  }, [_c("div", {
-    staticClass: "col-lg-5 text-xs"
-  }, [_c("div", {
-    staticClass: "mr-1"
-  }, [_c("div", [_c("small", {
-    staticClass: "mb-0"
-  }, [_vm._v("Check Tồn")]), _c("small", {
-    staticClass: "text-danger ml-1"
-  }, [_vm._v("(*)")])]), _vm._v(" "), _c("div", {
-    staticClass: "d-flex"
-  }, [_c("select", {
-    staticClass: "form-control form-control-sm flex-shrink-0"
-  }, [_c("option", {
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-md-2",
+    staticStyle: {
+      "text-align": "left"
+    },
     attrs: {
-      value: ""
+      "for": "per-page-select"
     }
-  }, [_vm._v("Chọn kho")]), _vm._v(" "), _c("option", {
+  }, [_vm._v("\n                            Số lượng mỗi trang:\n                        ")]), _vm._v(" "), _c("div", {
+    staticClass: "col-md-2"
+  }, [_c("b-form-select", {
     attrs: {
-      value: "1"
+      size: "sm",
+      options: _vm.pagination.page_options.map(function (option) {
+        return option.toString();
+      })
+    },
+    model: {
+      value: _vm.pagination.item_per_page,
+      callback: function callback($$v) {
+        _vm.$set(_vm.pagination, "item_per_page", $$v);
+      },
+      expression: "pagination.item_per_page"
     }
-  }, [_vm._v("1")])])])])])]);
-}];
+  })], 1), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-md-1",
+    staticStyle: {
+      "text-align": "left"
+    }
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-3"
+  }, [_c("b-pagination", {
+    staticClass: "ml-1",
+    attrs: {
+      "total-rows": _vm.rows,
+      "per-page": _vm.pagination.item_per_page,
+      limit: 3,
+      size: _vm.pagination.page_options.length.toString()
+    },
+    model: {
+      value: _vm.pagination.current_page,
+      callback: function callback($$v) {
+        _vm.$set(_vm.pagination, "current_page", $$v);
+      },
+      expression: "pagination.current_page"
+    }
+  })], 1)])], 1)]), _vm._v(" "), _c("div", {
+    staticClass: "modal-footer"
+  }, [_c("button", {
+    staticClass: "btn btn-secondary btn-sm px-2 text-xs",
+    attrs: {
+      type: "button",
+      "data-dismiss": "modal"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.closeModal();
+      }
+    }
+  }, [_vm._v("Đóng")])])])])]);
+};
+var staticRenderFns = [];
 render._withStripped = true;
 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue":
-/*!**********************************************************************************************************!*\
-  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue ***!
-  \**********************************************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue":
+/*!********************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue ***!
+  \********************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& */ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&");
-/* harmony import */ var _SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SOHeaderSecond.vue?vue&type=script&lang=js& */ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&");
+/* harmony import */ var _SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true& */ "./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true&");
+/* harmony import */ var _SODialogListHeaderSaleCR_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SODialogListHeaderSaleCR.vue?vue&type=script&lang=js& */ "./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -674,50 +703,50 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _SODialogListHeaderSaleCR_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "a32ac4b6",
+  "55a88d72",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue"
+component.options.__file = "resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&":
-/*!***********************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js& ***!
-  \***********************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SOHeaderSecond.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SODialogListHeaderSaleCR_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SODialogListHeaderSaleCR.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SODialogListHeaderSaleCR_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&":
-/*!*****************************************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& ***!
-  \*****************************************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true&":
+/*!***************************************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true& ***!
+  \***************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/dialog/SODialogListHeaderSaleCR.vue?vue&type=template&id=55a88d72&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SODialogListHeaderSaleCR_vue_vue_type_template_id_55a88d72_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

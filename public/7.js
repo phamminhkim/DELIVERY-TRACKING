@@ -1,15 +1,21 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[7],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js&":
-/*!*******************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
+/* harmony import */ var xlsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! xlsx */ "./node_modules/xlsx/xlsx.mjs");
+/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
+/* harmony import */ var _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @handsontable/vue */ "./node_modules/@handsontable/vue/es/vue-handsontable.mjs");
+/* harmony import */ var handsontable_plugins_contextMenu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! handsontable/plugins/contextMenu */ "./node_modules/handsontable/plugins/contextMenu/index.mjs");
+/* harmony import */ var handsontable_registry__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! handsontable/registry */ "./node_modules/handsontable/registry.mjs");
+/* harmony import */ var handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! handsontable/dist/handsontable.full.css */ "./node_modules/handsontable/dist/handsontable.full.css");
+/* harmony import */ var handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(handsontable_dist_handsontable_full_css__WEBPACK_IMPORTED_MODULE_5__);
 function _typeof(o) {
   "@babel/helpers - typeof";
 
@@ -349,48 +355,151 @@ function _asyncToGenerator(n) {
   };
 }
 
+
+
+
+
+
+Object(handsontable_registry__WEBPACK_IMPORTED_MODULE_4__["registerAllModules"])();
 /* harmony default export */ __webpack_exports__["default"] = ({
+  components: {
+    HotTable: _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__["HotTable"],
+    HotColumn: _handsontable_vue__WEBPACK_IMPORTED_MODULE_2__["HotColumn"]
+  },
+  props: {
+    prop_items: {
+      type: Array,
+      "default": function _default() {
+        return [];
+      }
+    },
+    step: {
+      type: Number,
+      "default": 0
+    }
+  },
+  watch: {
+    step: {
+      handler: function handler(val) {
+        if (val === 2) {
+          this.fetchData();
+        }
+      },
+      immediate: true
+    }
+  },
   data: function data() {
     return {
-      api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["default"](window.Laravel.access_token),
       is_loading: false,
-      errors: [],
-      material_combo: {
-        id: '',
-        sap_code: '',
-        name: '',
-        bar_code: ''
+      api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_1__["default"](window.Laravel.access_token),
+      settings: {
+        height: '500',
+        width: '100%',
+        manualColumnResize: true,
+        autoWrapRow: true,
+        autoWrapCol: true,
+        rowHeaders: true,
+        colHeaders: ['Phân loại', 'Mã SAP', 'Tên SP', 'Đơn vị tính', 'Giá chưa VAT', 'Quy cách', 'Barcode', 'Thuế'],
+        // hiddenColumns: {
+        //     columns: [0], // Chỉ số cột `is_specifications`
+        //     indicators: false, // Không hiển thị chỉ báo ẩn
+        // },
+        dropdownMenu: {
+          items: {
+            filter_by_value: {
+              name: 'Tìm kiếm'
+            },
+            filter_action_bar: {}
+          }
+        },
+        filters: true,
+        contextMenu: {
+          items: {
+            "export": {
+              name: 'Xuất Excel',
+              callback: function callback(key, options) {
+                this.getPlugin('exportFile').downloadFile('csv', {
+                  filename: 'Data xử lý'
+                });
+              }
+            },
+            row_above: {
+              name: 'Thêm dòng phía trên'
+            },
+            row_below: {
+              name: 'Thêm dòng phía dưới'
+            },
+            remove_row: {
+              name: 'Xóa dòng'
+            },
+            separator: handsontable_plugins_contextMenu__WEBPACK_IMPORTED_MODULE_3__["ContextMenu"].SEPARATOR
+          }
+        },
+        licenseKey: 'non-commercial-and-evaluation'
       },
-      api_material_combo_store: '/api/master/material-combos/store'
+      setting_types: {
+        type: 'dropdown',
+        source: ['_GK', '_Hộp'],
+        strict: true
+      },
+      api: {
+        so_processing_data: 'api/sales-order/so-processing-data',
+        material_category: 'api/master/material-category'
+      },
+      error: {
+        indexs: [],
+        message: ''
+      },
+      data_api: {
+        items: [],
+        headers: [],
+        material_categories: []
+      },
+      setting_categories: {
+        source: [],
+        strict: true
+      }
     };
   },
+  created: function created() {
+    this.fetchMaterialCategories();
+  },
   methods: {
-    storeMaterialCombo: function storeMaterialCombo() {
+    mapSettingCategoryToSource: function mapSettingCategoryToSource(categories) {
+      var source = [];
+      categories.map(function (category) {
+        source.push(category.name);
+      });
+      this.setting_categories.source = source;
+      console.log(this.setting_categories.source);
+    },
+    fetchMaterialCategories: function fetchMaterialCategories() {
       var _this = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var _data;
+        var _yield$_this$api_hand, data, success, errors, message;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
               _context.next = 3;
-              return _this.api_handler.post(_this.api_material_combo_store, _this.material_combo)["finally"](function () {
-                _this.is_loading = false;
-              });
+              return _this.api_handler.get(_this.api.material_category);
             case 3:
-              _data = _context.sent;
-              _this.$showMessage('success', 'Thêm thành công');
-              _this.$emit('storeMaterialCombo', _data);
-              _this.hideModalMaterialCombo();
-              _this.refeshModel();
-              _this.refeshErrors();
+              _yield$_this$api_hand = _context.sent;
+              data = _yield$_this$api_hand.data;
+              success = _yield$_this$api_hand.success;
+              errors = _yield$_this$api_hand.errors;
+              message = _yield$_this$api_hand.message;
+              if (data.success) {
+                _this.mapSettingCategoryToSource(data.items);
+                // this.data_api.material_categories = data;
+              }
               _context.next = 15;
               break;
             case 11:
               _context.prev = 11;
               _context.t0 = _context["catch"](0);
-              _this.errors = _context.t0.response.data.errors;
-              _this.$showMessage('error', 'Thêm mới không thành công', data.message);
+              _this.error.message = _context.t0.response.data.message;
+              _this.error.indexs = _context.t0.response.data.indexs;
             case 15:
             case "end":
               return _context.stop();
@@ -398,42 +507,92 @@ function _asyncToGenerator(n) {
         }, _callee, null, [[0, 11]]);
       }))();
     },
-    refeshModel: function refeshModel() {
-      this.material_combo = {
-        id: '',
-        sap_code: '',
-        name: '',
-        bar_code: ''
+    // Map headers sang tiêu đề tiếng Việt
+    mapHeadersToColHeaders: function mapHeadersToColHeaders(headers) {
+      var headerMapping = {
+        promotion: "Phân loại",
+        sap_material_code: "Mã SAP",
+        sap_material_name: "Tên SP",
+        unit: "Đơn vị tính",
+        price_vat: "Giá chưa VAT",
+        specifications: "Quy cách",
+        barcode: "Barcode",
+        tax: "Thuế"
       };
+      // Chuyển đổi headers
+      return headers.map(function (header) {
+        return headerMapping[header] || header;
+      });
     },
-    showModalMaterialCombo: function showModalMaterialCombo() {
-      this.refeshModel();
-      this.refeshErrors();
-      $('#modalMaterialCombo').modal('show');
-    },
-    hideModalMaterialCombo: function hideModalMaterialCombo() {
-      this.refeshModel();
-      this.refeshErrors();
-      $('#modalMaterialCombo').modal('hide');
-    },
-    hasError: function hasError(fieldName) {
-      return fieldName in this.errors;
-    },
-    getError: function getError(fieldName) {
-      return this.errors[fieldName];
-    },
-    refeshErrors: function refeshErrors() {
-      this.errors = [];
+    fetchData: function fetchData() {
+      var _this2 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        var _yield$_this2$api_han, data, success, errors, message, colHeaders, columns;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              _this2.is_loading = true;
+              _context2.prev = 1;
+              _context2.next = 4;
+              return _this2.api_handler.post(_this2.api.so_processing_data, {}, {
+                items: _this2.prop_items
+              });
+            case 4:
+              _yield$_this2$api_han = _context2.sent;
+              data = _yield$_this2$api_han.data;
+              success = _yield$_this2$api_han.success;
+              errors = _yield$_this2$api_han.errors;
+              message = _yield$_this2$api_han.message;
+              if (success) {
+                _this2.data_api.items = data.items;
+                _this2.data_api.headers = data.headers;
+                colHeaders = _this2.mapHeadersToColHeaders(_this2.data_api.headers); // Tạo cấu hình columns
+                columns = _this2.data_api.headers.map(function (header) {
+                  if (header === "promotion") {
+                    return {
+                      data: header,
+                      type: "dropdown",
+                      source: _this2.setting_categories.source,
+                      strict: _this2.setting_categories.strict
+                    };
+                  }
+                  return {
+                    data: header
+                  }; // Cấu hình mặc định
+                });
+                _this2.settings.colHeaders = colHeaders;
+                _this2.$refs.myHotTableSecond.hotInstance.loadData(_this2.data_api.items);
+                _this2.$refs.myHotTableSecond.hotInstance.updateSettings({
+                  colHeaders: colHeaders,
+                  columns: columns
+                });
+                _this2.$showMessage('success', 'Thông báo', 'Lấy dữ liệu thành công');
+              }
+              _context2.next = 16;
+              break;
+            case 12:
+              _context2.prev = 12;
+              _context2.t0 = _context2["catch"](1);
+              _this2.error.message = _context2.t0.response.data.message;
+              _this2.error.indexs = _context2.t0.response.data.indexs;
+            case 16:
+              _this2.is_loading = false;
+            case 17:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, null, [[1, 12]]);
+      }))();
     }
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true&":
-/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true& ***!
-  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -444,209 +603,69 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("div", {
-    staticClass: "modal fade",
+  return _c("div", [_vm._m(0), _vm._v(" "), _c("hot-table", {
+    ref: "myHotTableSecond",
     attrs: {
-      id: "modalMaterialCombo",
-      tabindex: "-1"
+      data: _vm.data_api.items,
+      settings: _vm.settings
     }
-  }, [_c("div", {
-    staticClass: "modal-dialog modal-lg"
-  }, [_c("div", {
-    staticClass: "modal-content"
-  }, [_c("form", {
-    on: {
-      submit: function submit($event) {
-        $event.preventDefault();
-        return _vm.storeMaterialCombo.apply(null, arguments);
+  }, _vm._l(_vm.data_api.headers, function (header, index) {
+    return _c("hot-column", {
+      key: index,
+      attrs: {
+        title: header,
+        data: header,
+        type: header === "promotion" ? "dropdown" : "",
+        source: header === "promotion" ? _vm.setting_types.source : null,
+        strict: header === "promotion" ? _vm.setting_types.strict : false
       }
-    }
-  }, [_vm._m(0), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-create"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("div", {
-    staticClass: "input-group mb-3"
-  }, [_vm._m(1), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.material_combo.sap_code,
-      expression: "material_combo.sap_code"
-    }],
-    staticClass: "form-control border-bottom border-right-0 border-top-0 rounded-0",
-    "class": _vm.hasError("sap_code") ? "is-invalid" : "",
-    attrs: {
-      type: "text",
-      placeholder: "Nhập mã SAP..."
-    },
-    domProps: {
-      value: _vm.material_combo.sap_code
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.material_combo, "sap_code", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("sap_code") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("sap_code")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "form-group"
-  }, [_c("div", {
-    staticClass: "input-group mb-3"
-  }, [_vm._m(2), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.material_combo.name,
-      expression: "material_combo.name"
-    }],
-    staticClass: "form-control border-bottom border-right-0 border-top-0 rounded-0",
-    "class": _vm.hasError("name") ? "is-invalid" : "",
-    attrs: {
-      type: "text",
-      placeholder: "Nhập sản phẩm..."
-    },
-    domProps: {
-      value: _vm.material_combo.name
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.material_combo, "name", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("name") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("name")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "form-group"
-  }, [_c("div", {
-    staticClass: "input-group mb-3"
-  }, [_vm._m(3), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.material_combo.bar_code,
-      expression: "material_combo.bar_code"
-    }],
-    staticClass: "form-control border-bottom border-right-0 border-top-0 rounded-0",
-    attrs: {
-      type: "text",
-      placeholder: "Nhập Barcode..."
-    },
-    domProps: {
-      value: _vm.material_combo.bar_code
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.material_combo, "bar_code", $event.target.value);
-      }
-    }
-  }), _vm._v("\n                                  >\n                                ")])])])]), _vm._v(" "), _vm._m(4)])])])])]);
+    });
+  }), 1)], 1);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "modal-header"
-  }, [_c("h5", {
-    staticClass: "modal-title font-weight-bold text-uppercase"
-  }, [_vm._v("Thêm mới hàng combo")]), _vm._v(" "), _c("button", {
-    staticClass: "close",
-    attrs: {
-      type: "button",
-      "data-dismiss": "modal",
-      "aria-label": "Close"
-    }
-  }, [_c("span", {
-    attrs: {
-      "aria-hidden": "true"
-    }
-  }, [_vm._v("×")])])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
-  return _c("div", {
-    staticClass: "input-group-prepend"
-  }, [_c("span", {
-    staticClass: "input-group-text border-0 bg-light",
-    attrs: {
-      id: "basic-addon1"
-    }
-  }, [_vm._v("Mã SAP")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
-  return _c("div", {
-    staticClass: "input-group-prepend"
-  }, [_c("span", {
-    staticClass: "input-group-text border-0 bg-light",
-    attrs: {
-      id: "basic-addon1"
-    }
-  }, [_vm._v("Sản phẩm")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
-  return _c("div", {
-    staticClass: "input-group-prepend"
-  }, [_c("span", {
-    staticClass: "input-group-text border-0 bg-light",
-    attrs: {
-      id: "basic-addon1"
-    }
-  }, [_vm._v("Barcode")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
-  return _c("div", {
-    staticClass: "modal-footer justify-content-around"
+    staticClass: "row"
   }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("button", {
-    staticClass: "btn btn-sm btn-light px-5 text-success",
+    staticClass: "col-lg-5 text-xs"
+  }, [_c("div", {
+    staticClass: "mr-1"
+  }, [_c("div", [_c("small", {
+    staticClass: "mb-0"
+  }, [_vm._v("Check Tồn")]), _c("small", {
+    staticClass: "text-danger ml-1"
+  }, [_vm._v("(*)")])]), _vm._v(" "), _c("div", {
+    staticClass: "d-flex"
+  }, [_c("select", {
+    staticClass: "form-control form-control-sm flex-shrink-0"
+  }, [_c("option", {
     attrs: {
-      type: "submit"
+      value: ""
     }
-  }, [_c("i", {
-    staticClass: "fas fa-save mr-2"
-  }), _vm._v("Lưu")]), _vm._v(" "), _c("button", {
-    staticClass: "btn btn-sm btn-light px-5 text-secondary font-weight-bold",
+  }, [_vm._v("Chọn kho")]), _vm._v(" "), _c("option", {
     attrs: {
-      type: "button",
-      "data-dismiss": "modal"
+      value: "1"
     }
-  }, [_c("i", {
-    staticClass: "fas fa-clone mr-2"
-  }), _vm._v("Đóng")])])]);
+  }, [_vm._v("1")])])])])])]);
 }];
 render._withStripped = true;
 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue":
-/*!*****************************************************************************!*\
-  !*** ./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue ***!
-  \*****************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue":
+/*!**********************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue ***!
+  \**********************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true& */ "./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true&");
-/* harmony import */ var _DialogMaterialCombo_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogMaterialCombo.vue?vue&type=script&lang=js& */ "./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& */ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&");
+/* harmony import */ var _SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SOHeaderSecond.vue?vue&type=script&lang=js& */ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -655,50 +674,50 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _DialogMaterialCombo_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "6062a7c3",
+  "a32ac4b6",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/home/master/dialogs/DialogMaterialCombo.vue"
+component.options.__file = "resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************!*\
-  !*** ./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&":
+/*!***********************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogMaterialCombo_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogMaterialCombo.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogMaterialCombo_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SOHeaderSecond.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true&":
-/*!************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true& ***!
-  \************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&":
+/*!*****************************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& ***!
+  \*****************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/master/dialogs/DialogMaterialCombo.vue?vue&type=template&id=6062a7c3&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/version_2/sales/order_processing/header/SOHeaderSecond.vue?vue&type=template&id=a32ac4b6&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogMaterialCombo_vue_vue_type_template_id_6062a7c3_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_SOHeaderSecond_vue_vue_type_template_id_a32ac4b6_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

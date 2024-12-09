@@ -15,6 +15,10 @@ class CreateOrderProcessSalesTable extends Migration
     {
         Schema::create('order_process_sales', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('central_branch');
+            $table->string('description');
+            $table->string('status');
             $table->timestamps();
         });
     }

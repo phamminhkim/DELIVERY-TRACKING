@@ -1,9 +1,9 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[10],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32,18 +32,6 @@ function _slicedToArray(r, e) {
 }
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _unsupportedIterableToArray(r, a) {
-  if (r) {
-    if ("string" == typeof r) return _arrayLikeToArray(r, a);
-    var t = {}.toString.call(r).slice(8, -1);
-    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
-  }
-}
-function _arrayLikeToArray(r, a) {
-  (null == a || a > r.length) && (a = r.length);
-  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
-  return n;
 }
 function _iterableToArrayLimit(r, l) {
   var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
@@ -74,6 +62,30 @@ function _iterableToArrayLimit(r, l) {
 }
 function _arrayWithHoles(r) {
   if (Array.isArray(r)) return r;
+}
+function _toConsumableArray(r) {
+  return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+}
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _unsupportedIterableToArray(r, a) {
+  if (r) {
+    if ("string" == typeof r) return _arrayLikeToArray(r, a);
+    var t = {}.toString.call(r).slice(8, -1);
+    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+  }
+}
+function _iterableToArray(r) {
+  if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
+}
+function _arrayWithoutHoles(r) {
+  if (Array.isArray(r)) return _arrayLikeToArray(r);
+}
+function _arrayLikeToArray(r, a) {
+  (null == a || a > r.length) && (a = r.length);
+  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+  return n;
 }
 function _regeneratorRuntime() {
   "use strict";
@@ -411,7 +423,7 @@ function _asyncToGenerator(n) {
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'DialogAddUpdateCustomerPromotion',
+  name: 'DialogAddUpdateCustomerGroupPivots',
   props: {
     is_editing: Boolean,
     editing_item: Object,
@@ -425,31 +437,20 @@ function _asyncToGenerator(n) {
       api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["default"](window.Laravel.access_token),
       is_loading: false,
       errors: {},
-      is_active: true,
-      customer_partner: {
+      customer_group_pivot: {
         customer_group_id: null,
-        name: '',
-        code: '',
-        note: '',
-        LV2: '',
-        LV3: '',
-        LV4: '',
-        id: ''
-      },
-      customer_partners: {
-        data: [],
-        // Mảng dữ liệu
-        paginate: [] // Mảng thông tin phân trang
+        customer_id: null
       },
       customer_group_options: [],
-      api_url: '/api/master/customer-partners'
+      customer_group_pivots: [],
+      api_url: '/api/master/customer-group-pivots'
     };
   },
   created: function created() {
     this.fetchOptionsData();
   },
   methods: {
-    addCustomerPartner: function addCustomerPartner() {
+    addCustomerGroupPivot: function addCustomerGroupPivot() {
       var _this = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
         return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -463,9 +464,9 @@ function _asyncToGenerator(n) {
             case 2:
               _this.is_loading = true;
               if (_this.is_editing === false) {
-                _this.createCustomerPartner();
+                _this.createCustomerGroupPivot();
               } else {
-                _this.updateCustomerPartner();
+                _this.updateCustomerGroupPivot();
               }
             case 4:
             case "end":
@@ -474,85 +475,77 @@ function _asyncToGenerator(n) {
         }, _callee);
       }))();
     },
-    createCustomerPartner: function createCustomerPartner() {
+    createCustomerGroupPivot: function createCustomerGroupPivot() {
       var _this2 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var result;
+        var data;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               _context2.prev = 0;
-              console.log('createCustomerPartner');
               _this2.is_loading = true;
-              _context2.next = 5;
-              return _this2.api_handler.post('/api/master/customer-partners', {
-                customer_group_id: _this2.customer_partner.customer_group_id,
-                name: _this2.customer_partner.name,
-                code: _this2.customer_partner.code,
-                note: _this2.customer_partner.note,
-                LV2: _this2.customer_partner.LV2,
-                LV3: _this2.customer_partner.LV3,
-                LV4: _this2.customer_partner.LV4
+              _context2.next = 4;
+              return _this2.api_handler.post(_this2.api_url, {
+                customer_group_id: _this2.customer_group_pivot.customer_group_id,
+                customer_id: _this2.customer_group_pivot.customer_id
               });
-            case 5:
-              result = _context2.sent;
-              if (result.errors) {
-                _context2.next = 15;
+            case 4:
+              data = _context2.sent;
+              if (!data.success) {
+                _context2.next = 14;
                 break;
               }
-              if (result.data && Array.isArray(result.data)) {
-                _this2.customer_partners.data.unshift(result.data);
-              }
+              _this2.customer_group_pivots.push(data); // Add the new mapping to the list
               _this2.showMessage('success', 'Thêm thành công');
               _this2.closeDialog();
               _this2.clearForm();
-              _context2.next = 13;
+              _context2.next = 12;
               return _this2.refetchData();
-            case 13:
-              _context2.next = 17;
+            case 12:
+              _context2.next = 16;
               break;
-            case 15:
-              _this2.errors = result.errors;
+            case 14:
+              _this2.errors = data.errors;
               _this2.showMessage('error', 'Thêm không thành công');
-            case 17:
-              _context2.next = 22;
+            case 16:
+              _context2.next = 21;
               break;
-            case 19:
-              _context2.prev = 19;
+            case 18:
+              _context2.prev = 18;
               _context2.t0 = _context2["catch"](0);
               _this2.showMessage('error', 'Thêm không thành công');
-            case 22:
-              _context2.prev = 22;
+            case 21:
+              _context2.prev = 21;
               _this2.is_loading = false;
-              return _context2.finish(22);
-            case 25:
+              return _context2.finish(21);
+            case 24:
             case "end":
               return _context2.stop();
           }
-        }, _callee2, null, [[0, 19, 22, 25]]);
+        }, _callee2, null, [[0, 18, 21, 24]]);
       }))();
     },
-    updateCustomerPartner: function updateCustomerPartner() {
+    updateCustomerGroupPivot: function updateCustomerGroupPivot() {
       var _this3 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-        var result;
+        var data, _this3$customer_group;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
               _context3.prev = 0;
               _this3.is_loading = true;
               _context3.next = 4;
-              return _this3.api_handler.put("".concat(_this3.api_url, "/").concat(_this3.customer_partner.id), _this3.customer_partner);
+              return _this3.api_handler.put("".concat(_this3.api_url, "/").concat(_this3.customer_group_pivot.id), _this3.customer_group_pivot);
             case 4:
-              result = _context3.sent;
-              if (result.errors) {
+              data = _context3.sent;
+              if (!data.success) {
                 _context3.next = 13;
                 break;
               }
-              if (result.data && Array.isArray(result.data)) {
-                _this3.customer_partners.data.push(result.data);
+              if (Array.isArray(data)) {
+                (_this3$customer_group = _this3.customer_group_pivots).push.apply(_this3$customer_group, _toConsumableArray(data)); // Add the new mappings to the end of the list
               }
-              _this3.showMessage('success', 'Thêm thành công', result.message);
+              _this3.showMessage('success', 'Cập nhật thành công');
               _this3.closeDialog();
               _context3.next = 11;
               return _this3.refetchData();
@@ -560,8 +553,8 @@ function _asyncToGenerator(n) {
               _context3.next = 15;
               break;
             case 13:
-              _this3.errors = result.errors;
-              _this3.showMessage('error', 'Thêm không thành công');
+              _this3.errors = data.errors;
+              _this3.showMessage('error', 'Cập nhật không thành công');
             case 15:
               _context3.next = 20;
               break;
@@ -583,27 +576,59 @@ function _asyncToGenerator(n) {
     fetchOptionsData: function fetchOptionsData() {
       var _this4 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-        var _yield$_this4$api_han, _yield$_this4$api_han2, customer_partner_options, customer_group_options;
+        var _yield$_this4$api_han, _yield$_this4$api_han2, customer_group_options;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
               _context4.next = 2;
-              return _this4.api_handler.handleMultipleRequest([new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-partners'), new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-groups')]);
+              return _this4.api_handler.handleMultipleRequest([new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-groups')]);
             case 2:
               _yield$_this4$api_han = _context4.sent;
-              _yield$_this4$api_han2 = _slicedToArray(_yield$_this4$api_han, 2);
-              customer_partner_options = _yield$_this4$api_han2[0];
-              customer_group_options = _yield$_this4$api_han2[1];
-              _this4.customer_partners = customer_partner_options;
+              _yield$_this4$api_han2 = _slicedToArray(_yield$_this4$api_han, 1);
+              customer_group_options = _yield$_this4$api_han2[0];
               _this4.customer_group_options = customer_group_options;
-            case 8:
+            case 6:
             case "end":
               return _context4.stop();
           }
         }, _callee4);
       }))();
     },
-    normalizer: function normalizer(node) {
+    loadOptions: function loadOptions(_ref) {
+      var _this5 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var action, searchQuery, callback, params, _yield$_this5$api_han, data, options;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              action = _ref.action, searchQuery = _ref.searchQuery, callback = _ref.callback;
+              if (!(action === _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__["ASYNC_SEARCH"])) {
+                _context5.next = 9;
+                break;
+              }
+              params = {
+                search: searchQuery
+              };
+              _context5.next = 5;
+              return _this5.api_handler.get('api/master/customers/minified', params);
+            case 5:
+              _yield$_this5$api_han = _context5.sent;
+              data = _yield$_this5$api_han.data;
+              options = data.map(function (item) {
+                return {
+                  id: item.code,
+                  label: "(".concat(item.code, ") ").concat(item.name)
+                };
+              });
+              callback(null, options);
+            case 9:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5);
+      }))();
+    },
+    normalizerOption: function normalizerOption(node) {
       return {
         id: node.id,
         label: node.name
@@ -612,26 +637,16 @@ function _asyncToGenerator(n) {
     closeDialog: function closeDialog() {
       // this.clearForm();
       this.clearErrors();
-      $('#DialogAddUpdateCustomerPartner').modal('hide');
+      $('#DialogAddUpdateCustomerGroupPivots').modal('hide');
     },
     resetDialog: function resetDialog() {
-      this.customer_partner.customer_group_id = null;
-      this.customer_partner.name = null;
-      this.customer_partner.code = null;
-      this.customer_partner.note = null;
-      this.customer_partner.LV2 = null;
-      this.customer_partner.LV3 = null;
-      this.customer_partner.LV4 = null;
+      this.customer_group_pivot.customer_id = null;
+      this.customer_group_pivot.customer_group_id = null;
       this.clearErrors();
     },
     clearForm: function clearForm() {
-      this.customer_partner.customer_group_id = null;
-      this.customer_partner.name = null;
-      this.customer_partner.code = null;
-      this.customer_partner.note = null;
-      this.customer_partner.LV2 = null;
-      this.customer_partner.LV3 = null;
-      this.customer_partner.LV4 = null;
+      this.customer_group_pivot.customer_id = null;
+      this.customer_group_pivot.customer_group_id = null;
     },
     clearErrors: function clearErrors() {
       this.errors = {};
@@ -671,29 +686,25 @@ function _asyncToGenerator(n) {
     },
     editing_item: function editing_item(item) {
       console.log(item);
-      this.customer_partner.customer_group_id = item.customer_group_id;
-      this.customer_partner.name = item.name;
-      this.customer_partner.code = item.code;
-      this.customer_partner.note = item.note;
-      this.customer_partner.LV2 = item.LV2;
-      this.customer_partner.LV3 = item.LV3;
-      this.customer_partner.LV4 = item.LV4;
-      this.customer_partner.id = item.id;
+      this.customer_group_pivot.customer_group_id = item.customer_group_id;
+      this.customer_group_pivot.customer_id = item.customer_id;
+      // this.customer_group_pivot.customer_code = item.customer_code;
+      this.customer_group_pivot.id = item.id;
     }
   },
   computed: {
     rows: function rows() {
-      return this.customer_partners.length;
+      return this.customer_group_pivots.length;
     }
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&":
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -707,7 +718,7 @@ var render = function render() {
   return _c("div", {
     staticClass: "modal fade",
     attrs: {
-      id: "DialogAddUpdateCustomerPartner",
+      id: "DialogAddUpdateCustomerGroupPivots",
       tabindex: "-1",
       role: "dialog",
       "data-backdrop": "static"
@@ -723,14 +734,14 @@ var render = function render() {
     on: {
       submit: function submit($event) {
         $event.preventDefault();
-        return _vm.addCustomerPartner.apply(null, arguments);
+        return _vm.addCustomerGroupPivot.apply(null, arguments);
       }
     }
   }, [_c("div", {
     staticClass: "modal-header"
   }, [_c("h5", {
     staticClass: "modal-title"
-  }, [_c("span", [_vm._v("\n\t\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật khách hàng đối tác" : "Thêm mới khách hàng đối tác"))])]), _vm._v(" "), _c("button", {
+  }, [_c("span", [_vm._v("\n\t\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật khách hàng liên kết" : "Thêm mới khách hàng liên kết"))])]), _vm._v(" "), _c("button", {
     staticClass: "close",
     attrs: {
       type: "button",
@@ -750,229 +761,53 @@ var render = function render() {
     staticClass: "form-group"
   }, [_c("label", [_vm._v("Nhóm khách hàng")]), _vm._v(" "), _c("small", {
     staticClass: "text-danger"
-  }, [_vm._v("*")]), _vm._v(" "), _c("treeselect", {
+  }, [_vm._v("(*)")]), _vm._v(" "), _c("treeselect", {
+    "class": _vm.hasError("v") ? "is-invalid" : "",
     attrs: {
       multiple: false,
       id: "customer_group_id",
       placeholder: "Chọn nhóm khách hàng..",
+      required: "",
       options: _vm.customer_group_options,
-      normalizer: _vm.normalizer,
-      required: ""
+      normalizer: _vm.normalizerOption
     },
     model: {
-      value: _vm.customer_partner.customer_group_id,
+      value: _vm.customer_group_pivot.customer_group_id,
       callback: function callback($$v) {
-        _vm.$set(_vm.customer_partner, "customer_group_id", $$v);
+        _vm.$set(_vm.customer_group_pivot, "customer_group_id", $$v);
       },
-      expression: "customer_partner.customer_group_id"
+      expression: "customer_group_pivot.customer_group_id"
     }
   }), _vm._v(" "), _vm.hasError("customer_group_id") ? _c("span", {
     staticClass: "invalid-feedback",
     attrs: {
       role: "alert"
     }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_group_id")))])]) : _vm._e()], 1)]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_group_id")))])]) : _vm._e()], 1), _vm._v(" "), _c("div", {
     staticClass: "form-group"
-  }, [_c("label", [_vm._v("Khách hàng Key")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.name,
-      expression: "customer_partner.name"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("name") ? "is-invalid" : "",
-    attrs: {
-      id: "name",
-      name: "name",
-      placeholder: "Nhập tên nhóm khách hàng...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.name
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "name", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("name") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("name")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Mã khách hàng")]), _vm._v(" "), _c("small", {
+  }, [_c("label", [_vm._v("Khách hàng")]), _vm._v(" "), _c("small", {
     staticClass: "text-danger"
-  }, [_vm._v("*")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.code,
-      expression: "customer_partner.code"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("code") ? "is-invalid" : "",
+  }, [_vm._v("*")]), _vm._v(" "), _c("treeselect", {
+    "class": _vm.hasError("customer_id") ? "is-invalid" : "",
     attrs: {
-      id: "code",
-      name: "code",
-      placeholder: "Yêu cầu nhập mã khách hàng...",
-      type: "text",
-      required: ""
+      placeholder: "Nhập khách hàng..",
+      required: "",
+      "load-options": _vm.loadOptions,
+      async: true
     },
-    domProps: {
-      value: _vm.customer_partner.code
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "code", $event.target.value);
-      }
+    model: {
+      value: _vm.customer_group_pivot.customer_id,
+      callback: function callback($$v) {
+        _vm.$set(_vm.customer_group_pivot, "customer_id", $$v);
+      },
+      expression: "customer_group_pivot.customer_id"
     }
-  }), _vm._v(" "), _vm.hasError("code") ? _c("span", {
+  }), _vm._v(" "), _vm.hasError("customer_id") ? _c("span", {
     staticClass: "invalid-feedback",
     attrs: {
       role: "alert"
     }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("code")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Ghi chú")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.note,
-      expression: "customer_partner.note"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("note") ? "is-invalid" : "",
-    attrs: {
-      id: "note",
-      name: "note",
-      placeholder: "Nhập ghi chú...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.note
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "note", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("note") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("note")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV2")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV2,
-      expression: "customer_partner.LV2"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV2") ? "is-invalid" : "",
-    attrs: {
-      id: "LV2",
-      name: "LV2",
-      placeholder: "Nhập LV2...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV2
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV2", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV2") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV2")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV3")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV3,
-      expression: "customer_partner.LV3"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV3") ? "is-invalid" : "",
-    attrs: {
-      id: "LV3",
-      name: "LV3",
-      placeholder: "Nhập LV3...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV3
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV3", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV3") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV3")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV4")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV4,
-      expression: "customer_partner.LV4"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV4") ? "is-invalid" : "",
-    attrs: {
-      id: "LV4",
-      name: "LV4",
-      placeholder: "Nhập LV4...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV4
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV4", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV4") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV4")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_id")))])]) : _vm._e()], 1)]), _vm._v(" "), _c("div", {
     staticClass: "modal-footer justify-content-between"
   }, [_c("button", {
     staticClass: "btn btn-secondary",
@@ -996,17 +831,17 @@ render._withStripped = true;
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue":
-/*!****************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue ***!
-  \****************************************************************************************************/
+/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue":
+/*!************************************************************************************************************!*\
+  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue ***!
+  \************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& */ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&");
-/* harmony import */ var _DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& */ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&");
+/* harmony import */ var _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& */ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&");
+/* harmony import */ var _DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& */ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -1016,50 +851,50 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "f94720d0",
+  "194bd3a8",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue"
+component.options.__file = "resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************/
+/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&":
-/*!***********************************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& ***!
-  \***********************************************************************************************************************************************/
+/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&":
+/*!*******************************************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& ***!
+  \*******************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

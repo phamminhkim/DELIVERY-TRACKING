@@ -10,7 +10,8 @@
         </div>
         <div class="d-inline-flex float-right mt-2">
             <div >
-                <ChildOrderProcessesListOrder @modalListOrder="modalListOrder" />
+                <ChildOrderProcessesListOrder @modalListOrder="modalListOrder" @modalListOrderBookStore="modalListOrderBookStore"
+                :count_order_pending="count_order_pending"  />
             </div>
             <!-- <div>
                 <ChildOrderProcessesLayoutHeader @listLayout="listLayout" />
@@ -28,7 +29,7 @@
                     @orderSyncSap="orderSyncSap" @exportExcel="exportExcel" @changeMaterial="changeMaterial"
                     @saveUpdateLayout="saveUpdateLayout" @deleteOrders="deleteOrders" @deleteOrdersHistory="deleteOrdersHistory" />
                 <!-- <ChildOrderProcessesColorDefHeader @inputBackgroundColor="inputBackgroundColor" @inputTextColor="inputTextColor"/> -->
-                
+
                 <div class="d-flex">
                     <div class="mr-2">
                         <span>Số đơn hàng : <b>{{ CountOrderSoNumber }}</b></span>
@@ -103,7 +104,9 @@ export default {
         item_change_checked: { type: Array, default: () => [] },
         item_filter_backgrounds: { type: Array, default: () => [] },
         item_filter_texts: { type: Array, default: () => [] },
-        selected_indexs: { type: Array, default: () => [] }
+        selected_indexs: { type: Array, default: () => [] },
+        count_order_pending: { type: Number, default: 0 },
+        order_process_sales: { type: Array, default: () => [] },
 
     },
     components: {
@@ -284,7 +287,10 @@ export default {
         rowDblClickMoveRow(position, input) {
             this.$emit('rowDblClickMoveRow', position, input);
         },
-       
+        modalListOrderBookStore() {
+            this.$emit('modalListOrderBookStore');
+        }
+
     }
 }
 </script>

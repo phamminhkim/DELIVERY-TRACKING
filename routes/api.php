@@ -280,10 +280,24 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/check-book-store', [SalesProcessingController::class, 'checkBookStore']);
         Route::post('/check-sap-compliance', [SalesProcessingController::class, 'checkSapCompliance']);
         Route::post('/so-processing-data', [SalesProcessingController::class, 'processingSOData']);
+        Route::get('/count-pending', [SalesProcessingController::class, 'getStatusPending']);
+        Route::get('/get-all-po-sale', [SalesProcessingController::class, 'getAllOrderPOSales']);
+        Route::get('/get-all-po-sale-create-by', [SalesProcessingController::class, 'getAllOrderPOSalesCreateBy']);
+        Route::get('/get-all-po-sale-create-by/{id}', [SalesProcessingController::class, 'getAllOrderPOSalesCreateByID']);
+
+        Route::post('/apply-order-po-sales', [SalesProcessingController::class, 'applyOrderPOsales']);
+        Route::put('/sending-order-po-sales/{id}', [SalesProcessingController::class, 'sendingOrderPOsales']);
+
         Route::post('/save-sales', [SalesProcessingController::class, 'saveSales']);
+        Route::put('/update-sales/{id}', [SalesProcessingController::class, 'updateSaveSales']);
     });
     Route::prefix('book-store')->group(function () {
         Route::get('/get-all', [BookStoreController::class, 'getAllBookStore']);
+        Route::post('/create-book-store', [BookStoreController::class, 'createBookStore']);
+        Route::put('/update-book-store/{id}', [BookStoreController::class, 'updateBookStore']);
+        Route::delete('/delete-book-store/{id}', [BookStoreController::class, 'deleteBookStore']);
+        Route::post('/tool-create-book-store', [BookStoreController::class, 'toolCreateBookStore']);
+
 
     });
 

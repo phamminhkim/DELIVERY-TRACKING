@@ -55,6 +55,15 @@ class SalesProcessingController extends ResponseController
             return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
         }
     }
+    public function updateSaveSales(Request $request, $id){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->updateSaveSales($request->items, $id);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
     public function checkBookStore(Request $request){
         $bussiness = BusinessRepository::SOProcessingOrder($request);
         $data = $bussiness->checkBookStore($request->items);
@@ -76,6 +85,60 @@ class SalesProcessingController extends ResponseController
     public function processingSOData(Request $request){
         $bussiness = BusinessRepository::processingSOData($request);
         $data = $bussiness->processingSOData($request->items);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function getStatusPending(Request $request){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->getStatusPending($request->items);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function getAllOrderPOSales(Request $request){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->getAllOrderPOSales($request->items);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function getAllOrderPOSalesCreateBy(Request $request){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->getAllOrderPOSalesCreateBy($request->items);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function getAllOrderPOSalesCreateByID(Request $request, $id){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->getAllOrderPOSalesCreateByID($request->items, $id);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function applyOrderPOsales(Request $request){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->applyOrderPOsales($request->items);
+        if ($data) {
+            return $this->responseSuccess($data);
+        } else {
+            return $this->responseError($bussiness->getMessage(), $bussiness->getErrors());
+        }
+    }
+    public function sendingOrderPOsales(Request $request, $id){
+        $bussiness = BusinessRepository::SOProcessingOrder($request);
+        $data = $bussiness->sendingOrderPOsales($request->items, $id);
         if ($data) {
             return $this->responseSuccess($data);
         } else {

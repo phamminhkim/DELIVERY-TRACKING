@@ -63,13 +63,13 @@
 
                                         </div>
                                     </div>
-                                    <div class="col-lg-3 text-xs">
+                                    <!-- <div class="col-lg-3 text-xs">
                                         <div class="mr-1">
                                             <button @click="uploadFiles()" class="btn btn-sm px-2 btn-primary text-xs">
                                                 <i class="fa fa-upload"></i> Upload
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <div class="row text-xs">
                                     <div class="col-lg-12">
@@ -97,8 +97,10 @@
                                                 QC</button>
                                             <button @click="btnStepTwo()"
                                                 class="btn btn-sm btn-success px-2 text-xs mr-2 rounded">Lưu
-                                                & xử lý đơn hàng</button>
-                                            <button class="btn btn-sm btn-info px-2 text-xs mr-2 rounded">Danh sách đơn hàng</button>
+                                                đơn hàng</button>
+                                            <button @click="btnListOrderProcess()"
+                                                class="btn btn-sm btn-info px-2 text-xs mr-2 rounded">Danh sách đơn
+                                                hàng</button>
                                         </div>
                                     </div>
                                 </div>
@@ -116,17 +118,17 @@
                                 <small class="font-weight-bold">Filter</small>
                             </div>
                             <div class="flex-fill text-xs">
-                                <button @click="filterCustomerIsNull()" class="btn btn-sm btn-light text-xs">
-                                    <i class="fas fa-filter mr-2 text-secondary"></i>Filter Khách Hàng trống
+                                <button @click="filterCustomerIsNull()" class="btn btn-sm btn-light text-xs text-gray">
+                                    Filter Khách Hàng trống
                                 </button>
-                                <button @click="filterSapCodeIsNull()" class="btn btn-sm btn-light text-xs">
-                                    <i class="fas fa-filter mr-2 text-secondary"></i>Filter Mã SAP trống
+                                <button @click="filterSapCodeIsNull()" class="btn btn-sm btn-light text-xs text-gray">
+                                    Filter Mã SAP trống
                                 </button>
-                                <button @click="filterWrongSpecifications()" class="btn btn-sm btn-light text-xs">
-                                    <i class="fas fa-filter mr-2 text-secondary"></i>Tìm kiếm sản phẩm sai quy cách
+                                <button @click="filterWrongSpecifications()" class="btn btn-sm btn-light text-xs text-gray">
+                                    Tìm kiếm sản phẩm sai quy cách
                                 </button>
                                 <button @click="clearFilter()" class="btn btn-sm btn-light text-xs">
-                                    <i class="fas fa-filter mr-2 text-secondary"></i>Clear Filter
+                                    <i class="fas fa-eraser mr-1 text-xs"></i>Clear Filter
                                 </button>
                             </div>
                         </div>
@@ -165,9 +167,9 @@
                             </hot-column>
                             <hot-column title="Quy cách" data="specifications">
                             </hot-column>
-                            <hot-column title="Ghi chú" data="note">
+                            <hot-column title="Ghi chú" data="description">
                             </hot-column>
-                            <hot-column title="Số phiếu" data="count_votes">
+                            <hot-column title="Số phiếu" data="count_order">
                             </hot-column>
                             <hot-column title="barcode_cty" data="barcode_cty">
                             </hot-column>
@@ -181,9 +183,9 @@
                     </div>
                 </div>
             </b-tab>
-            <b-tab title="2. Xử lý đơn hàng" @click="btnStep(2)" :active="step == 2">
+            <!-- <b-tab title="2. Xử lý đơn hàng" @click="btnStep(2)" :active="step == 2">
                 <SOHeaderSecond :prop_items="data_import.items" :step="step" />
-            </b-tab>
+            </b-tab> -->
 
         </b-tabs>
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
@@ -193,8 +195,12 @@
 
         <SODialogCreateBook id="SODialogCreateBook" :items="prop_items" :is_show_hide_dialog="is_show_hide_dialog"
             @close-dialog="handleCloseDialog" />
-        <SODialogSaveHeader :is_show="is_show_hide_dialog_save" @close-modal="handelCloseDialogSave"
-        @save-changes="handleSaveChanges" />
+        <SODialogSaveHeader id="SODialogSaveHeader" :is_show="is_show_hide_dialog_save" :so_header="so_header"
+            @close-modal="handelCloseDialogSave" @save-changes="handleSaveChanges"
+            @edit-save-header="handleEditSaveChange" />
+        <SODialogListHeaderSaleCR id="SODialogListHeaderSaleCR" :is_show="is_show_hide_modal_list_header_sale"
+            @close-modal="handleCloseModalListSaleCR" :items="po_sale_create_bies"
+            @edit-order-po-sale="handleOrderEdit" @sending-order-po-sale="handleFetchOrderSale" />
     </div>
 </template>
 <script>
@@ -209,6 +215,7 @@ import { toLower } from 'lodash';
 import SODialogCreateBook from '../dialog/SODialogCreateBook.vue';
 import SOHeaderSecond from './SOHeaderSecond.vue';
 import SODialogSaveHeader from '../dialog/SODialogSaveHeader.vue';
+import SODialogListHeaderSaleCR from '../dialog/SODialogListHeaderSaleCR.vue';
 registerAllModules();
 
 
@@ -219,7 +226,8 @@ export default {
         DialogSearchOrderProcesses,
         SODialogCreateBook,
         SOHeaderSecond,
-        SODialogSaveHeader
+        SODialogSaveHeader,
+        SODialogListHeaderSaleCR
     },
     data() {
         return {
@@ -227,6 +235,7 @@ export default {
             is_open_modal_search_order_processes: false,
             is_show_hide_dialog: false,
             is_show_hide_dialog_save: false,
+            is_show_hide_modal_list_header_sale: false,
             item_selecteds: [],
             index_specifications: [],
             columns: [
@@ -254,8 +263,8 @@ export default {
                 },
                 { data: 'quantity', title: 'Số lượng' },
                 { data: 'specifications', title: 'Quy cách' },
-                { data: 'note', title: 'Ghi chú' },
-                { data: 'count_votes', title: 'Số phiếu' },
+                { data: 'description', title: 'Ghi chú' },
+                { data: 'count_order', title: 'Số phiếu' },
 
                 { data: 'barcode_cty', title: 'Barcode_cty' },
                 { data: 'sap_code', title: 'Mã SAP' },
@@ -356,10 +365,16 @@ export default {
 
                 licenseKey: 'non-commercial-and-evaluation'
             },
-
+            so_header: {
+                id: -1,
+                title: '',
+                central_branch: '',
+                description: '',
+            },
             api_handler: new ApiHandler(window.Laravel.access_token),
             customer_group_id: '',
             customer_groups: [],
+            po_sale_create_bies: [],
             file: {},
             step: 1,
             types: [
@@ -374,19 +389,19 @@ export default {
             ],
             data_import: {
                 items: [
-                    {
-                        type: '',
-                        customer_name: '123',
-                        barcode: '123',
-                        sap_code: '4',
-                        product_name: '4',
-                        quantity: '4',
-                        specifications: '4',
-                        barcode_cty: '4',
-                        sap_code: '12',
-                        sap_name: '23211',
-                        unit: '1111',
-                    }
+                    // {
+                    //     type: '',
+                    //     customer_name: '123',
+                    //     barcode: '123',
+                    //     sap_code: '4',
+                    //     product_name: '4',
+                    //     quantity: '4',
+                    //     specifications: '4',
+                    //     barcode_cty: '4',
+                    //     sap_code: '12',
+                    //     sap_name: '23211',
+                    //     unit: '1111',
+                    // }
                 ],
                 header: {
                     customer_name: '',
@@ -400,6 +415,11 @@ export default {
                 check_book_store: 'api/sales-order/check-book-store',
                 check_sap_compliance: 'api/sales-order/check-sap-compliance',
                 save: 'api/sales-order/save-sales',
+                update: 'api/sales-order/update-sales',
+
+                get_all_po_sale_create_by: '/api/sales-order/get-all-po-sale-create-by',
+                get_all_po_sale_id: '/api/sales-order/get-all-po-sale-create-by',
+
             },
             prop_items: [],
             error: {
@@ -412,14 +432,94 @@ export default {
     created() {
 
         this.fetchCustomerGroup();
+        this.fetchOrderProcessSaleCreateBy();
     },
     mounted() {
         this.conditionalFormatting();
     },
 
     methods: {
+        async handleFetchOrderSale() {
+            await this.fetchOrderProcessSaleCreateBy();
+        },
+        async updateOrderProcessSale() {
+            try {
+                this.is_loading = true;
+                const { data, success, errors, message } = await this.api_handler.put(this.api.update + '/' + this.so_header.id, {}, {
+                    items: this.data_import.items,
+                    so_header: this.so_header,
+                });
+                if (success) {
+                    this.data_import.items = data.order_process_sale_items;
+                    this.so_header.id = data.id;
+                    this.so_header.title = data.title;
+                    this.so_header.central_branch = data.central_branch;
+                    this.so_header.description = data.description;
+                    this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
+                    this.$showMessage('success', 'Thông báo', 'Cập nhật đơn hàng thành công');
+                    // this.step = 2;
+                    this.error = {
+                        indexs: [],
+                        message: '',
+                    }
+
+                }
+            } catch (error) {
+                console.log(error);
+                this.error.indexs = error.response.data.errors[0];
+                this.error.message = error.response.data.message;
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        async handleEditSaveChange(status, item) {
+            console.log(status, item, 'edit save change');
+            // this.saveSO();
+            this.so_header = item;
+            await this.updateOrderProcessSale()
+        },
+        async handleOrderEdit(item) {
+            this.so_header.id = item.id;
+            await this.fetchOrderProcessSaleCreateByID();
+        },
+        async fetchOrderProcessSaleCreateByID() {
+            try {
+                this.is_loading = true;
+                const { data, success } = await this.api_handler.get(this.api.get_all_po_sale_id + '/' + this.so_header.id);
+                console.log(data);
+                if (success) {
+                    this.data_import.items = data.order_process_sale_items;
+                    this.so_header.id = data.id;
+                    this.so_header.title = data.title;
+                    this.so_header.central_branch = data.central_branch;
+                    this.so_header.description = data.description;
+                    this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
+                    this.is_show_hide_modal_list_header_sale = false;
+                    // this.po_sale_create_bies = data;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        async fetchOrderProcessSaleCreateBy() {
+            try {
+                this.is_loading = true;
+                const { data, success } = await this.api_handler.get(this.api.get_all_po_sale_create_by);
+                if (success) {
+                    this.po_sale_create_bies = data;
+                }
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         handelCloseDialogSave() {
             this.is_show_hide_dialog_save = false;
+            console.log('close dialog save', this.is_show_hide_dialog_save);
         },
         handleCloseDialog() {
             this.is_show_hide_dialog = false;
@@ -429,8 +529,9 @@ export default {
             this.is_show_hide_dialog = true;
             this.prop_items = this.data_import.items;
         },
-        async handleSaveChanges() {
+        async handleSaveChanges(is_boolean, so_header_data) {
             this.is_show_hide_dialog_save = false;
+            this.so_header = so_header_data;
             await this.saveSO();
         },
         async saveSO() {
@@ -438,10 +539,11 @@ export default {
                 this.is_loading = true;
                 const { data, success, errors, message } = await this.api_handler.post(this.api.save, {}, {
                     items: this.data_import.items,
+                    so_header: this.so_header,
                 });
                 if (success) {
                     this.$showMessage('success', 'Thông báo', 'Lưu đơn hàng thành công');
-                    this.step = 2;
+                    // this.step = 2;
                     this.error = {
                         indexs: [],
                         message: '',
@@ -557,6 +659,16 @@ export default {
         btnStep(step) {
             this.step = step;
         },
+        reset(){
+            this.so_header = {
+                id: -1,
+                title: '',
+                central_branch: '',
+                description: '',
+            };
+            this.data_import.items = [];
+            this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
+        },
         async uploadFiles() {
             try {
                 const page_url = this.api.sales_import;
@@ -588,6 +700,7 @@ export default {
         },
         async handleFileChange(event) {
             this.is_loading = true;
+            this.reset();
             const file = this.$refs.fileInput.files[0];
             const reader = new FileReader();
 
@@ -685,7 +798,7 @@ export default {
         filterSapCodeIsNull() {
             const filters = this.$refs.myHotTable.hotInstance.getPlugin('filters');
             filters.clearConditions();
-            filters.addCondition(10, 'eq', ['']);
+            filters.addCondition(12, 'eq', ['']);
             filters.filter();
         },
         filterWrongSpecifications() {
@@ -762,6 +875,14 @@ export default {
                 }
             });
         },
+        async btnListOrderProcess() {
+            this.is_show_hide_modal_list_header_sale = true;
+            await this.fetchOrderProcessSaleCreateBy();
+
+        },
+        handleCloseModalListSaleCR() {
+            this.is_show_hide_modal_list_header_sale = false;
+        }
 
     }
 }

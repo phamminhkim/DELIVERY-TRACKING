@@ -9,11 +9,11 @@
             <DialogOrderProcessesSync :order_headers="order_headers" :api_handler="api_handler"
                 @orderSyncSap="handleOrderSyncSapSubmit" @changeInputSetWarehouse="handleChangeInputSetWarehouse"
                 :mapping_ships="mapping_ships" :case_check="case_check" @warehouseDefault="handeleWarehouseDefault"
-                @changeInputSetShippingID="handleChangeInputSetShippingID" @emitWarehouseId="handleWarehouseId"
-                 />
+                @changeInputSetShippingID="handleChangeInputSetShippingID" @emitWarehouseId="handleWarehouseId" />
             <DialogOrderProcessesLayout :columns="columns" />
         </div>
         <PROrderProcesses :columns="columns" :material_category_types="material_category_types"
+            :count_order_pending="count_order_pending" :order_process_sales="order_process_sales"
             :filteredOrders="filteredOrders" :customer_groups="customer_groups" :order="order"
             :CountGrpSoNumber="CountGrpSoNumber" :CountOrderSoNumber="CountOrderSoNumber"
             :item_change_checked="item_change_checked" @convertFile="handleEmittedConvertFile" :file="file"
@@ -41,7 +41,8 @@
             @deleteRowSuccess="handleDeleteRowSuccess" @emitGetRangesData="handleGetRangesData"
             @popupOpened="handlePopupOpened" @deleteOrders="handleDeleteOrders"
             @itemChangeChecked="handleItemChangeChecked" @searchItem="handleSearchItem" @resetItem="handleResetItem"
-            @deleteOrdersHistory="handleDeleteOrdersHistory" @rowDblClickMoveRow="handleRowDblClickMoveRow" />
+            @deleteOrdersHistory="handleDeleteOrdersHistory" @rowDblClickMoveRow="handleRowDblClickMoveRow"
+            @modalListOrderBookStore="handleModalListOrderBookStore" />
 
         <DialogOrderProcessesLoadingConvertFile :file_length="processing_file.length"
             :processing_index="processing_file.index" :api_data_orders="api_data_orders" :orders="orders"
@@ -63,6 +64,9 @@
         <DialogOrderProcessesHistoryDelete :orders_delete="orders_delete" :columns="columns"
             @sortOrdersHistory="handleSortOrdersHistory" :update_status_function="update_status_function"
             @restoreOrder="handleRestoreOrder" @restoreOrderAll="handleRestoreOrderAll" />
+
+        <DialogListHeaderSale id="listOrderBookStore" :order_process_sales="order_process_sales"
+            @applyOrderPOSales="handleApplyOrderPOSales" />
     </div>
 </template>
 <script>
@@ -82,6 +86,7 @@ import DialogOrderProcessesLoadingSAP from './dialog/DialogOrderProcessesLoading
 import DialogOrderProcessesLoadingCustomerKey from './dialog/DialogOrderProcessesLoadingCustomerKey.vue';
 import DialogOrderProcessesNotiCheckSkuSapCode from './dialog/DialogOrderProcessesNotiCheckSkuSapCode.vue';
 import DialogOrderProcessesHistoryDelete from './dialog/DialogOrderProcessesHistoryDelete.vue';
+import DialogListHeaderSale from '../../business/version_2/sales/order_processing/dialog/SODialogListHeaderSale.vue';
 
 
 export default {
@@ -100,6 +105,7 @@ export default {
         DialogOrderProcessesLoadingCustomerKey,
         DialogOrderProcessesNotiCheckSkuSapCode,
         DialogOrderProcessesHistoryDelete,
+        DialogListHeaderSale,
     },
     data() {
         return {
@@ -107,6 +113,7 @@ export default {
             is_loading: false,
             is_open_modal_search_order_processes: false,
             is_modal_sync_sap: false,
+            count_order_pending: 0,
             filter: {
                 search: '',
                 field: '',
@@ -170,6 +177,7 @@ export default {
             item_filter_texts: [],
             search_items: [],
             item_sku_sap_code_nulls: [],
+            order_process_sales: [],
             url_api: {
                 order_process_so: '/api/sales-order',
                 customer_groups: 'api/master/customer-groups',
@@ -188,7 +196,8 @@ export default {
                 order_sync: '/api/so-header',
                 user_field_table_version_2: '/api/master/user-field-table/v_2',
                 check_sap_code: '/api/check-data/check-sap-code',
-
+                count_order_pending: '/api/sales-order/count-pending',
+                get_all_po_sale: '/api/sales-order/get-all-po-sale',
             },
             order: {
                 id: -1,
@@ -307,8 +316,36 @@ export default {
         await this.fetchMaterialCategoryType();
         // await this.fetchOrderHeader();
         await this.getUrl();
+        await this.fetchOrderPending();
+        await this.fetchOrderPoSales();
+    },
+    mounted() {
+        setInterval(() => {
+            this.fetchOrderPending();
+        }, 60000);
+        // Gọi API mỗi 60000ms (1 phút)
     },
     methods: {
+        async handleApplyOrderPOSales() {
+            await this.fetchOrderPoSales();
+        },
+        async fetchOrderPoSales() {
+            try {
+                const { data } = await this.api_handler.get(this.url_api.get_all_po_sale);
+                this.order_process_sales = data;
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
+        async fetchOrderPending() {
+            try {
+                const { data } = await this.api_handler.get(this.url_api.count_order_pending);
+                this.count_order_pending = data;
+                console.log(data,'count po');
+            } catch (error) {
+                this.$showMessage('error', 'Lỗi', error);
+            }
+        },
         handleRestoreOrderAll() {
             if (this.histories_delete.length > 0) {
 
@@ -1562,7 +1599,7 @@ export default {
                     this.case_check.shipping_id = item.shipping_id;
                 }
             });
-            if(selected_order_syncs.length == 0){
+            if (selected_order_syncs.length == 0) {
                 order_syncs_selected.forEach(item => {
                     this.order_headers.forEach(order_sync => {
                         if (item.id == order_sync.id) {
@@ -2252,6 +2289,10 @@ export default {
             this.update_status_function.update_move_row++;
             // this.update_status_function.update_data++;
 
+        },
+        async handleModalListOrderBookStore() {
+            $('#listOrderBookStore').modal('show');
+            await this.fetchOrderPoSales();
         },
 
     },
