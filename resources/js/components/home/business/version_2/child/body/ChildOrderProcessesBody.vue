@@ -643,16 +643,16 @@ export default {
                     }
                     if (data.promotion_category == 'X') {
                         row.getCell('barcode').getElement().style.color = '#007bff';
-                        // row.getCell('barcode').getElement().style.fontWeight = 'bold';
+                        row.getCell('barcode').getElement().style.fontWeight = 'bold';
                         row.getCell('sku_sap_code').getElement().style.color = '#007bff';
-                        // row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
+                        row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
 
                     }
                     if (data.promotion_bundle == 'X') {
-                        // row.getCell('barcode').getElement().style.fontWeight = 'bold';
+                        row.getCell('barcode').getElement().style.fontWeight = 'bold';
                         row.getCell('barcode').getElement().style.color = '#b40fcb';
                         row.getCell('sku_sap_code').getElement().style.color = '#b40fcb';
-                        // row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
+                        row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
                     }
                     // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
                     const cell_sap_so_number = row.getCell('sap_so_number');
