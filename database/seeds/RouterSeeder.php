@@ -157,6 +157,11 @@ class RouterSeeder extends Seeder
                 'component' => 'home/sap/MaterialCLC/MaterialCLCs'
             ],
             [
+                'name' => 'KM Bundles',
+                'path' => '/material-bundles',
+                'component' => 'home/sap/MaterialBundle/MaterialBundles'
+            ],
+            [
                 'name' => 'Khách hàng đối tác',
                 'path' => '/customer-partners',
                 'component' => 'home/sap/CustomerPartner/CustomerPartners'

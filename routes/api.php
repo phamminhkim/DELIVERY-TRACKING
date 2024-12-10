@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\Master\MaterialCategoryTypeController;
 use App\Http\Controllers\Api\Master\MaterialCLCController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
+use App\Http\Controllers\Api\Master\MaterialBundleController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Http\Controllers\Api\Master\UserFieldTableController;
 use App\Http\Controllers\Auth\JstController;
@@ -118,6 +119,16 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [MaterialCLCController::class, 'update']);
             Route::delete('/{id}', [MaterialCLCController::class, 'destroy']);
             Route::delete('/', [MaterialCLCController::class, 'destroyMultiple']);
+        });
+        Route::prefix('/material-bundles')->group(function () {
+            Route::get('/minified', [MaterialBundleController::class, 'getAllMinified']);
+            Route::get('/exportToExcel', [MaterialBundleController::class, 'exportToExcel']);
+            Route::get('/', [MaterialBundleController::class, 'getAll']);
+            Route::post('/excel', [MaterialBundleController::class, 'createMaterialBundleFormExcel']);
+            Route::post('/', [MaterialBundleController::class, 'store']);
+            Route::put('/{id}', [MaterialBundleController::class, 'update']);
+            Route::delete('/{id}', [MaterialBundleController::class, 'destroy']);
+            Route::delete('/', [MaterialBundleController::class, 'destroyMultiple']);
         });
         Route::prefix('/material-category')->group(function () {
             Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
