@@ -87,7 +87,7 @@ class BookStoreRepository extends RepositoryAbs
             foreach ($data_client as $item) {
                 // Validate từng bản ghi
                 $validator = Validator::make($item, [
-                    'Tên nhà sách' => 'required|string',
+                    'Tên nhà sách' => 'required|string|unique:customer_partner_stores,name',
                     'ten_ns' => 'nullable|string',
                 ]);
 
