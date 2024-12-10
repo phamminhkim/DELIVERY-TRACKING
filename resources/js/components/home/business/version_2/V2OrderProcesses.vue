@@ -672,6 +672,7 @@ export default {
                         variant_quantity: variant_quantity !== null ? variant_quantity.toString() : '',
                         extra_offer: '',
                         promotion_category: '',
+                        promotion_bundle: '',
                         po: '',
                         po_delivery_date: data_item.so_header.po_delivery_date,
                         po_number: data_item.so_header.po_number,
@@ -941,6 +942,7 @@ export default {
                         promotive: '',
                         promotive_name: '',
                         promotion_category: '',
+                        promotion_bundle: '',
                         extra_offer: '',
                         customer_name: this.isUndefined(file_response.data[index].headers.CustomerKey),
                         note: file_response.data[index].headers.CustomerKey === undefined ? '' : file_response.data[index].headers.CustomerKey,
@@ -998,6 +1000,7 @@ export default {
                         order.promotion_category = item.promotion_category;
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
+                        order.promotion_bundle = item.promotion_bundle;
                     }
                 });
             });
@@ -1249,6 +1252,7 @@ export default {
                         variant_quantity: '',
                         extra_offer: '',
                         promotion_category: '',
+                        promotion_bundle: '',
                         po_delivery_date: '',
                         po_number: '',
                         sap_so_number: '',
@@ -1289,6 +1293,7 @@ export default {
                         variant_quantity: '',
                         extra_offer: '',
                         promotion_category: '',
+                        promotion_bundle: '',
                         po_delivery_date: '',
                         po_number: '',
                         sap_so_number: '',
@@ -1683,6 +1688,7 @@ export default {
                     variant_quantity: null,
                     extra_offer: null,
                     promotion_category: null,
+                    promotion_bundle: null,
                     po_delivery_date: null,
                     po_number: null,
                     sap_so_number: null,
@@ -1785,6 +1791,7 @@ export default {
                     variant_quantity: item_double.variant_quantity,
                     extra_offer: item_double.extra_offer,
                     promotion_category: item_double.promotion_category,
+                    promotion_bundle: item_double.promotion_bundle,
                     po_delivery_date: item_double.po_delivery_date,
                     po_number: item_double.po_number,
                     sap_so_number: item_double.sap_so_number,
@@ -2344,6 +2351,12 @@ export default {
                         // filter promotion_category,
                         return this.orders.filter(order => {
                             let field_value = order.promotion_category || ''; // Giữ nguyên giá trị gốc của field_value
+                            return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
+                        });
+                    case 'promotion_bundle':
+                        // filter promotion_bundle,
+                        return this.orders.filter(order => {
+                            let field_value = order.promotion_bundle || ''; // Giữ nguyên giá trị gốc của field_value
                             return field_value.toLowerCase().includes(this.filter.value.toLowerCase());
                         });
                     case 'difference':

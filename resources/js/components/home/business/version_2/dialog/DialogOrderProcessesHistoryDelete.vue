@@ -105,16 +105,22 @@ export default {
                         });
                     }
                     if (data.extra_offer == 'X') {
-                        row.getCell('barcode').getElement().style.backgroundColor = '#ffc107';
-                        row.getCell('barcode').getElement().style.color = '#212529';
-                        row.getCell('sku_sap_code').getElement().style.backgroundColor = '#ffc107';
-                        row.getCell('sku_sap_code').getElement().style.color = '#212529';
+                        // row.getCell('barcode').getElement().style.backgroundColor = '#ffc107';
+                        row.getCell('barcode').getElement().style.color = '##ffc107';
+                        // row.getCell('sku_sap_code').getElement().style.backgroundColor = '#ffc107';
+                        row.getCell('sku_sap_code').getElement().style.color = '##ffc107';
                     }
                     if (data.promotion_category == 'X') {
-                        row.getCell('barcode').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
-                        row.getCell('barcode').getElement().style.color = '#212529';
-                        row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
-                        row.getCell('sku_sap_code').getElement().style.color = '#212529';
+                        // row.getCell('barcode').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
+                        row.getCell('barcode').getElement().style.color = '#007bff';
+                        // row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(0, 123, 255)';
+                        row.getCell('sku_sap_code').getElement().style.color = '#007bff';
+                    }
+                    if (data.promotion_bundle == 'X') {
+                        // row.getCell('barcode').getElement().style.color = 'rgb(177, 46, 233)';
+                        row.getCell('barcode').getElement().style.color = '#b40fcb';
+                        // row.getCell('sku_sap_code').getElement().style.color = 'rgb(177, 46, 233)';
+                        row.getCell('sku_sap_code').getElement().style.color = '#b40fcb';
                     }
                     // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
                     const cell_sap_so_number = row.getCell('sap_so_number');

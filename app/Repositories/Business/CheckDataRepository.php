@@ -8,6 +8,7 @@ use App\Models\Master\SapMaterial;
 use App\Models\Master\SapCompliance;
 use App\Models\Master\CustomerGroup;
 use App\Models\Master\CustomerPartner;
+use App\Models\Master\MaterialBundle;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
@@ -434,6 +435,7 @@ class CheckDataRepository extends RepositoryAbs
                 $promotion_category = null;
                 $extra_offer = null;
                 $promotion_clc = null;
+                $promotion_bundle = null;
                 $promotion_name = null;
             
                 // Tìm dữ liệu từ các bảng
@@ -453,7 +455,17 @@ class CheckDataRepository extends RepositoryAbs
                     })
                     ->where('is_active', 1)
                     ->first();
-            
+
+                $materialBundle = MaterialBundle::where('customer_group_id', $customer_group_id)
+                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                        return $query->where('sap_code', $sap_code);
+                    })
+                    ->when(!empty($bar_code), function ($query) use ($bar_code) {
+                        return $query->where('bar_code', $bar_code);
+                    })
+                    ->where('is_active', 1)
+                    ->first();
+                    
                 $materialDonated = MaterialDonated::where('sap_code', $sap_code)
                     ->where('is_active', 1)
                     ->first();
@@ -466,8 +478,15 @@ class CheckDataRepository extends RepositoryAbs
                         ->where('is_deleted', false)
                         ->first()
                         ->name ?? $promotion_name;
-                }
-            
+                }       
+                if ($materialBundle) {
+                    $name = $materialBundle->name ?? $name; // Chỉ ghi đè nếu MaterialBundle có tên
+                    $promotion_bundle = 'X';
+                    $promotion_name = MaterialCategoryType::where('name', '_BUNDLE')
+                        ->where('is_deleted', false)
+                        ->first()
+                        ->name ?? $promotion_name;
+                }         
                 if ($materialCLC) {
                     $name = $materialCLC->name ?? $name; // Chỉ ghi đè nếu MaterialCLC có tên
                     $promotion_clc = 'X';
@@ -476,7 +495,7 @@ class CheckDataRepository extends RepositoryAbs
                         ->first()
                         ->name ?? $promotion_name;
                 }
-            
+                        
                 if ($materialDonated) {
                     $extra_offer = 'X';
                     $promotion_name = MaterialCategoryType::where('name', '_IK')
@@ -490,6 +509,7 @@ class CheckDataRepository extends RepositoryAbs
                 $item['promotion_category'] = $promotion_category;
                 $item['extra_offer'] = $extra_offer;
                 $item['promotion_clc'] = $promotion_clc;
+                $item['promotion_bundle'] = $promotion_bundle;
                 $item['promotion_name'] = $promotion_name;
                 $mappingData[] = $item;
             }            
