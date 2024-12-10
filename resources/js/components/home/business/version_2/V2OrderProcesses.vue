@@ -1008,8 +1008,8 @@ export default {
                             order.theme_color.text.sku_sap_code = 'rgb(0, 123, 255)';
                             order.theme_color.text.barcode = 'rgb(0, 123, 255)';
                         } else if (order.extra_offer === 'X') {
-                            order.theme_color.text.sku_sap_code = 'rgb(255, 193, 7)';
-                            order.theme_color.text.barcode = 'rgb(255, 193, 7)';
+                            order.theme_color.background.sku_sap_code = 'rgb(253, 233, 217)';
+                            order.theme_color.background.barcode = 'rgb(253, 233, 217)';
                         }
                     }
                 });
