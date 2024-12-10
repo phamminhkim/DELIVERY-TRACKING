@@ -343,7 +343,7 @@ export default {
                 this.count_order_pending = data;
                 console.log(data,'count po');
             } catch (error) {
-                this.$showMessage('error', 'Lỗi', error);
+                // this.$showMessage('error', 'Lỗi', error);
             }
         },
         handleRestoreOrderAll() {
