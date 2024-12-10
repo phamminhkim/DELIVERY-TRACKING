@@ -1001,6 +1001,16 @@ export default {
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
                         order.promotion_bundle = item.promotion_bundle;
+                        if(order.promotion_bundle === 'X'){
+                            order.theme_color.text.sku_sap_code = 'rgb(180, 15, 203)';
+                            order.theme_color.text.barcode = 'rgb(180, 15, 203)';
+                        } else if (order.promotion_category === 'X') {
+                            order.theme_color.text.sku_sap_code = 'rgb(0, 123, 255)';
+                            order.theme_color.text.barcode = 'rgb(0, 123, 255)';
+                        } else if (order.extra_offer === 'X') {
+                            order.theme_color.text.sku_sap_code = 'rgb(255, 193, 7)';
+                            order.theme_color.text.barcode = 'rgb(255, 193, 7)';
+                        }
                     }
                 });
             });
