@@ -4,6 +4,8 @@ namespace App\Imports;
 
 use App\CustomerPartnerStore;
 use App\Models\Master\CustomerPartner;
+use App\Models\Master\MaterialBundle;
+use App\Models\Master\MaterialCombo;
 use App\Models\Master\SapCompliance;
 use App\Models\Master\SapMaterial;
 use Illuminate\Support\Collection;
@@ -137,6 +139,8 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
             return true;
             // return $normalizedItem !== 'tổng sl / sản phẩm';
         });
+        // dd($collection->toArray());
+
         $data_excel = $collection->skip($this->index_header_table + 1);
         // xóa cuối mảng data_excel
         // $data_excel->pop();
@@ -144,10 +148,12 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
         $data_demos = [];
         $stopText = 'Tổng SL / Nhà sách';
         // $stopIndex = array_search($stopText,$data_excel); // Tìm vị trí (O(n))
+
         foreach ($data_excel as $key => $row) {
 
             $query_sap_material = SapMaterial::query()->with(['unit']);
             $query_sap_complience = SapCompliance::query();
+            $query_material_combo = MaterialCombo::query();
 
             $row = $row->map(function ($item) {
                 return trim($item);
@@ -156,6 +162,18 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
 
             $result[$key]['description'] = ''; // Di nchuyển ra ngoài vòng lặp
             $result[$key]['count_order'] = ''; // Di nchuyển ra ngoài vòng lặp
+            $result[$key]['color'] = '#ff0000'; // Di nchuyển ra ngoài vòng lặp
+            $result[$key]['theme']['text'] = [
+                'sap_code' => '',
+                'sap_name' => '',
+                'barcode_cty' => '',
+            ];
+            $result[$key]['theme']['background'] = [
+                'sap_code' => '',
+                'sap_name' => '',
+                'barcode_cty' => '',
+            ];
+            // dd( $result[$key]);
 
             $added_to_ns = false; // Cờ kiểm soát cho "details"
             $children = [];
@@ -206,8 +224,31 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
                         case 'barcode':
                             $result[$key]['barcode'] = $row[$row_number];
                             $sap_material = $query_sap_material->whereNotNull('bar_code')->where('bar_code', 'like', "%$row[$row_number]%")->first();
-                            $sap_code = $sap_material ? $sap_material->sap_code : null;
+                            if ($sap_material) {
+                                // Nếu cần kiểm tra số lượng bản ghi khác, thực hiện thêm query khác
+                                if ($query_sap_material->whereNotNull('bar_code')->where('bar_code', 'like', "%$row[$row_number]%")->count() > 1) {
+                                    $result[$key]['theme']['text']['barcode_cty'] = '#ff0000';
+                                }
+                                $sap_code = $sap_material->sap_code;
+                            } else {
+                                $sap_code = null;
+                            }
+                            // $sap_code = $sap_material ? $sap_material->sap_code : null;
                             $result[$key]['barcode_cty'] = $sap_material ? $sap_material->bar_code : null;
+                            $is_material_combo = $this->materialCombo($query_material_combo, $result[$key]['barcode_cty'], $sap_code);
+                            $is_material_bundle = $this->materialBundle($result[$key]['barcode_cty'], $sap_code);
+                            if ($is_material_combo || $is_material_bundle) {
+                                $result[$key]['theme']['text']['barcode_cty'] = '#3366CC';
+                                $result[$key]['theme']['text']['sap_code'] = '#3366CC';
+                            } else {
+                                if ($result[$key]['barcode_cty'] && $sap_code) {
+                                    $is_barcodes = $this->materialComboEqualBarcode($result[$key]['barcode_cty'], $sap_code);
+                                    $is_bundle_barcode = $this->materialBundleBarcode($result[$key]['barcode_cty'], $sap_code);
+                                    if ($is_barcodes || $is_bundle_barcode) {
+                                        $result[$key]['theme']['text']['barcode_cty'] = '#3366CC';
+                                    }
+                                }
+                            }
                             $result[$key]['sap_code'] = $sap_code;
                             $result[$key]['sap_name'] = $sap_material ? $sap_material->name : null;
                             $result[$key]['unit'] = $sap_material ? $sap_material['unit']['unit_code'] : null;
@@ -218,8 +259,31 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
                         case 'barcode (mã bh)':
                             $result[$key]['barcode'] = $row[$row_number];
                             $sap_material = $query_sap_material->whereNotNull('bar_code')->where('bar_code', 'like', "%$row[$row_number]%")->first();
-                            $sap_code = $sap_material ? $sap_material->sap_code : null;
+                            if ($sap_material) {
+                                // Nếu cần kiểm tra số lượng bản ghi khác, thực hiện thêm query khác
+                                if ($query_sap_material->where('bar_code', 'like', "%$row[$row_number]%")->count() > 1) {
+                                    $result[$key]['theme']['text']['barcode_cty'] = '#ff0000';
+                                }
+                                $sap_code = $sap_material->sap_code;
+                            } else {
+                                $sap_code = null;
+                            }
+                            // $sap_code = $sap_material ? $sap_material->sap_code : null;
                             $result[$key]['barcode_cty'] = $sap_material ? $sap_material->bar_code : null;
+                            $is_material_combo = $this->materialCombo($query_material_combo, $result[$key]['barcode_cty'], $sap_code);
+                            $is_material_bundle = $this->materialBundle($result[$key]['barcode_cty'], $sap_code);
+                            if ($is_material_combo || $is_material_bundle) {
+                                $result[$key]['theme']['text']['barcode_cty'] = '#3366CC';
+                                $result[$key]['theme']['text']['sap_code'] = '#3366CC';
+                            } else {
+                                if ($result[$key]['barcode_cty'] && $sap_code) {
+                                    $is_barcodes = $this->materialComboEqualBarcode($result[$key]['barcode_cty'], $sap_code);
+                                    $is_bundle_barcode = $this->materialBundleBarcode($result[$key]['barcode_cty'], $sap_code);
+                                    if ($is_barcodes || $is_bundle_barcode) {
+                                        $result[$key]['theme']['text']['barcode_cty'] = '#3366CC';
+                                    }
+                                }
+                            }
                             $result[$key]['sap_code'] = $sap_code;
                             $result[$key]['sap_name'] = $sap_material ? $sap_material->name : null;
                             $result[$key]['unit'] = $sap_material ? $sap_material['unit']['unit_code'] : null;
@@ -268,6 +332,9 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
                             'customer_key' => $value_child['customer_key'],
                             'count_order' => $result[$key]['count_order'],
                             'description' => $result[$key]['description'],
+                            'color' => $result[$key]['color'],
+                            'theme' => $result[$key]['theme'],
+
                             // 'customer_key' => $customer_partner ? ($customer_partner->customer_partner_stores ? $customer_partner->customer_partner_stores->code : '') : '',
 
                         ];
@@ -280,6 +347,8 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
                 break;
             }
         }
+
+        // dd($get_query_sap_material);
         $dataArray = [];
         foreach ($data_demos as $key => $data_demo) {
             foreach ($data_demo as $key_data_demo => $value_data_demo) {
@@ -365,5 +434,32 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
             }
         }
         return $this->index_header_price;
+    }
+    public function materialCombo($query_material_combo, $barcode, $sap_code)
+    {
+        $get_query_sap_material = $query_material_combo->where('bar_code', $barcode)
+            ->where('sap_code', $sap_code)->exists();
+        return $get_query_sap_material;
+    }
+    public function materialComboEqualBarcode($barcode, $sap_code)
+    {
+        $query_material_combo = MaterialCombo::query();
+        $get_query_sap_material = $query_material_combo->where('bar_code', $barcode)
+            ->where('sap_code', '!=', $sap_code)->exists();
+        return $get_query_sap_material;
+    }
+    public function materialBundleBarcode($barcode, $sap_code)
+    {
+        $query_material_bundle = MaterialBundle::query();
+        $get_query_sap_material = $query_material_bundle->where('bar_code', $barcode)
+            ->where('sap_code', '!=', $sap_code)->exists();
+        return $get_query_sap_material;
+    }
+    public function materialBundle($barcode, $sap_code)
+    {
+        $query_material_bundle = MaterialBundle::query();
+        $get_query_sap_material = $query_material_bundle->where('bar_code', $barcode)
+            ->where('sap_code', $sap_code)->exists();
+        return $get_query_sap_material;
     }
 }

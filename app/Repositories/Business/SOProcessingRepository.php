@@ -175,24 +175,24 @@ class SOProcessingRepository extends RepositoryAbs
             $message = '';
 
             foreach ($data_clients as $key => $data) {
-                if (!empty($data['customer_key'])) {
-                    $check_key_customer = CustomerPartnerStore::where('code', $data['customer_key'])->first();
-                    if ($check_key_customer) {
-                        if ($check_key_customer->name != $data['customer_name']) {
-                            CustomerPartnerStore::create([
-                                'code' => $data['customer_key'],
-                                'name' => $data['customer_name'],
-                            ]);
-                        }
-                    } else {
-                        CustomerPartnerStore::create([
-                            'code' => $data['customer_key'],
-                            'name' => $data['customer_name'],
-                        ]);
-                    }
-                } else {
-                    $key_error_customer_codes[] = $key + 1;
-                }
+                // if (!empty($data['customer_key'])) {
+                //     $check_key_customer = CustomerPartnerStore::where('code', $data['customer_key'])->first();
+                //     if ($check_key_customer) {
+                //         if ($check_key_customer->name != $data['customer_name']) {
+                //             CustomerPartnerStore::create([
+                //                 'code' => $data['customer_key'],
+                //                 'name' => $data['customer_name'],
+                //             ]);
+                //         }
+                //     } else {
+                //         CustomerPartnerStore::create([
+                //             'code' => $data['customer_key'],
+                //             'name' => $data['customer_name'],
+                //         ]);
+                //     }
+                // } else {
+                //     $key_error_customer_codes[] = $key + 1;
+                // }
                 if ((count($key_error_customer_codes) == 0)) {
                     if (!empty($data['sap_code'])) {
                         $sap_material = SapMaterial::where('sap_code', $data['sap_code'])->first();
@@ -388,7 +388,7 @@ class SOProcessingRepository extends RepositoryAbs
                         'processing_at' => now(),
                     ]);
                     $update_order_process = OrderProcessSale::where('id', $data_clients['id'])->update([
-                        'status' => $data_clients['status'],
+                        'status' => $data_status,
                     ]);
                 } else {
                     if ($check_order_process_by->processing_by != $auth) {
@@ -426,6 +426,13 @@ class SOProcessingRepository extends RepositoryAbs
                             ]);
                             $update_order_process_by = OrderProcessSaleBy::where('order_process_sale_id', $data_clients['id'])->update([
                                 'completed_at' => now(),
+                            ]);
+                        } else if ($data_status == 'processing') {
+                            $update_order_process = OrderProcessSale::where('id', $data_clients['id'])->update([
+                                'status' => $data_status,
+                            ]);
+                            OrderProcessSaleBy::where('order_process_sale_id', $data_clients['id'])->update([
+                                'processing_at' => now(),
                             ]);
                         }
                         // else if ($data_clients['status'] == 'sending') {

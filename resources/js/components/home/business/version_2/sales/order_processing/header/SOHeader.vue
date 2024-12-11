@@ -124,7 +124,8 @@
                                 <button @click="filterSapCodeIsNull()" class="btn btn-sm btn-light text-xs text-gray">
                                     Filter Mã SAP trống
                                 </button>
-                                <button @click="filterWrongSpecifications()" class="btn btn-sm btn-light text-xs text-gray">
+                                <button @click="filterWrongSpecifications()"
+                                    class="btn btn-sm btn-light text-xs text-gray">
                                     Tìm kiếm sản phẩm sai quy cách
                                 </button>
                                 <button @click="clearFilter()" class="btn btn-sm btn-light text-xs">
@@ -199,8 +200,8 @@
             @close-modal="handelCloseDialogSave" @save-changes="handleSaveChanges"
             @edit-save-header="handleEditSaveChange" />
         <SODialogListHeaderSaleCR id="SODialogListHeaderSaleCR" :is_show="is_show_hide_modal_list_header_sale"
-            @close-modal="handleCloseModalListSaleCR" :items="po_sale_create_bies"
-            @edit-order-po-sale="handleOrderEdit" @sending-order-po-sale="handleFetchOrderSale" />
+            @close-modal="handleCloseModalListSaleCR" :items="po_sale_create_bies" @edit-order-po-sale="handleOrderEdit"
+            @sending-order-po-sale="handleFetchOrderSale" />
     </div>
 </template>
 <script>
@@ -388,21 +389,7 @@ export default {
                 }
             ],
             data_import: {
-                items: [
-                    // {
-                    //     type: '',
-                    //     customer_name: '123',
-                    //     barcode: '123',
-                    //     sap_code: '4',
-                    //     product_name: '4',
-                    //     quantity: '4',
-                    //     specifications: '4',
-                    //     barcode_cty: '4',
-                    //     sap_code: '12',
-                    //     sap_name: '23211',
-                    //     unit: '1111',
-                    // }
-                ],
+                items: [],
                 header: {
                     customer_name: '',
                 }
@@ -659,7 +646,7 @@ export default {
         btnStep(step) {
             this.step = step;
         },
-        reset(){
+        reset() {
             this.so_header = {
                 id: -1,
                 title: '',
@@ -716,15 +703,19 @@ export default {
                 const data = await readFile();
                 const work_book = XLSX.read(data, {
                     type: 'array',
-                    cellFormula: false,
+                    cellFormula: false,  // Không cần công thức
                     cellStyles: false,
+                    cellText: true, // Ưu tiên giá trị hiển thị
                     sheetRows: 10000,
                 });
 
                 // Hàm xử lý sheet
                 const processSheet = (sheetName) => {
                     const work_sheet = work_book.Sheets[sheetName];
-                    let rows = XLSX.utils.sheet_to_json(work_sheet, { header: 1 });
+                    let rows = XLSX.utils.sheet_to_json(work_sheet, {
+                        header: 1,
+                        raw: false, // Dùng giá trị hiển thị (giống Paste Values)
+                    });
                     rows = rows.filter(row =>
                         row.some(cell => cell !== null && cell !== "")
                     );
@@ -838,29 +829,80 @@ export default {
             hot.updateSettings({
                 cells: (row, col, prop) => {
                     const cellProperties = {};
-                    if (prop === 'specifications') {
-                        const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
+                    switch (prop) {
+                        case 'specifications':
+                            const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
 
-                        // Gán class dựa trên giá trị `is_specifications`
-                        if (isSpecifications === 1) {
-                            cellProperties.className = 'htRight htNumeric htBold text-danger';
-                        } else {
-                            cellProperties.className = 'htLeft htNumeric htBold text-secondary';
-                        }
+                            // Gán class dựa trên giá trị `is_specifications`
+                            if (isSpecifications === 1) {
+                                cellProperties.className = 'htRight htNumeric htBold';
+                                cellProperties.style = 'color: ' + hot.getDataAtRowProp(row, 'color'); // Màu đỏ
+                            } else {
+                                cellProperties.className = 'htLeft htNumeric htBold text-secondary';
+                            }
+                            break;
+                        case 'barcode_cty':
+                            cellProperties.className = 'htRight htNumeric htBold';
+                            cellProperties.style = 'color: ' + hot.getDataAtRowProp(row, 'theme.background.barcode_cty'); // Màu đỏ
+                            break;
+                        default:
+                            break;
                     }
+                    // if (prop === 'specifications') {
+                    //     const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
+
+                    //     // Gán class dựa trên giá trị `is_specifications`
+                    //     if (isSpecifications === 1) {
+                    //         cellProperties.className = 'htRight htNumeric htBold';
+                    //         cellProperties.style = 'color: ' + hot.getDataAtRowProp(row, 'color'); // Màu đỏ
+                    //     } else {
+                    //         cellProperties.className = 'htLeft htNumeric htBold text-secondary';
+                    //     }
+
+                    // }
                     return cellProperties;
                 },
             });
 
             hot.addHook('beforeRenderer', (TD, row, col, prop, value, cellProperties) => {
-                if (prop === 'specifications') {
-                    const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
-                    if (isSpecifications === 1) {
-                        TD.classList.add('htRight', 'htNumeric', 'htBold', 'text-danger');
-                    } else {
-                        TD.classList.add('htLeft', 'htNumeric', 'htBold', 'text-secondary');
-                    }
+                switch (prop) {
+                    case 'specifications':
+                        const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
+                        if (isSpecifications === 1) {
+                            TD.classList.add('htRight', 'htNumeric', 'htBold');
+                            TD.style.color = hot.getDataAtRowProp(row, 'color');
+                        } else {
+                            TD.classList.add('htLeft', 'htNumeric', 'htBold', 'text-secondary');
+                        }
+                        break;
+                    case 'barcode_cty':
+                        let text_color_barcode_cty = hot.getDataAtRowProp(row, 'theme.text.barcode_cty');
+                        if (text_color_barcode_cty !== '') {
+                            TD.style.color = text_color_barcode_cty;
+                        } else {
+                            TD.style.color = 'black';
+                        }
+                        break;
+                    case 'sap_code':
+                        let text_color_sap_code = hot.getDataAtRowProp(row, 'theme.text.sap_code');
+                        if (text_color_sap_code !== '') {
+                            TD.style.color = text_color_sap_code;
+                        } else {
+                            TD.style.color = 'black';
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
+                // if (prop === 'specifications') {
+                //     const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
+                //     if (isSpecifications === 1) {
+                //         TD.classList.add('htRight', 'htNumeric', 'htBold', 'text-danger');
+                //     } else {
+                //         TD.classList.add('htLeft', 'htNumeric', 'htBold', 'text-secondary');
+                //     }
+                // }
             });
 
             // Hook xử lý khi dữ liệu thay đổi
