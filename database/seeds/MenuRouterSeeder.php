@@ -124,6 +124,16 @@ class MenuRouterSeeder extends Seeder
                 'roles' => [
                     'admin-system',
                 ]
+            ],
+            [
+                'title' => "Sale - Thị trường",
+                'icon' => "fas fa-user-secret",
+                'link' => "#",
+                'query_string' => "",
+                'roles' => [
+                    'admin-system',
+                    'user-sale-marketing',
+                ]
             ]
         ];
     }
@@ -421,7 +431,7 @@ class MenuRouterSeeder extends Seeder
                 'icon' => "fas fa-truck-loading",
                 'link' => "sales-order-processing",
                 'query_string' => "",
-                'parent' => 'Trích xuất đơn hàng',
+                'parent' => 'Sale - Thị trường',
             ],
         ];
     }
