@@ -128,6 +128,40 @@
                                     class="btn btn-sm btn-light text-xs text-gray">
                                     Tìm kiếm sản phẩm sai quy cách
                                 </button>
+                                <!-- <button class="btn btn-sm btn-light text-xs text-gray">
+                                    Filter Màu đỏ
+                                </button> -->
+                                <!-- Example single danger button -->
+                                <!-- <div class="btn-group btn-group-sm">
+                                    <b-dropdown id="dropdown-1" variant="light" text="Filter màu" class="btn-group-sm">
+                                        <b-dropdown-item>
+                                            <div @click="filterItemColorRed()" class="filter-red"></div>
+                                        </b-dropdown-item>
+                                        <b-dropdown-item>
+                                            <div @click="filterItemColorBlue()" class="filter-blue"></div>
+                                        </b-dropdown-item>
+                                        <b-dropdown-item>
+                                            <div @click="filterItemColorPurple()" class="filter-purple"></div>
+                                        </b-dropdown-item>
+                                        <b-dropdown-divider></b-dropdown-divider>
+                                        <b-dropdown-item>
+                                            <div @click="filterItemColorFill()" class="filter-all">No fill</div>
+                                        </b-dropdown-item>
+                                    </b-dropdown>
+                                </div> -->
+                                <!-- <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown"
+                                        aria-expanded="false">
+                                        Filter màu
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">Đỏ</a>
+                                        <a class="dropdown-item" href="#">Vàng</a>
+                                        <a class="dropdown-item" href="#">Xanh</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">All</a>
+                                    </div>
+                                </div> -->
                                 <button @click="clearFilter()" class="btn btn-sm btn-light text-xs">
                                     <i class="fas fa-eraser mr-1 text-xs"></i>Clear Filter
                                 </button>
@@ -308,10 +342,73 @@ export default {
                 // dropdownMenu: ['filter_by_value', 'filter_action_bar'],
                 dropdownMenu: {
                     items: {
+                        // filter_by_color: {
+                        //     name: 'Lọc theo màu',
+                        //     submenu: {
+                        //         items: (key, options) => {
+                        //             // Truy xuất dữ liệu từ cột "color"
+                        //             const data = hot.getDataAtProp('theme.text.barcode_cty');
+                        //             console.log(data,'123', key, options);
+                        //             // Lấy danh sách màu duy nhất
+                        //             const uniqueColors = [...new Set(data.filter((color) => color))];
+
+                        //             // Tạo submenu động
+                        //             return uniqueColors.map((color) => ({
+                        //                 key: `filter_by_color:${color}`,
+                        //                 name: `<span style="color: ${color};">${color}</span>`, // Hiển thị màu
+                        //                 callback: function () {
+                        //                     alert(`Bạn đã chọn lọc màu: ${color}`);
+                        //                     // Thực hiện lọc trên bảng
+                        //                     hot.getPlugin('filters').addCondition(2, 'eq', [color]);
+                        //                     hot.getPlugin('filters').filter();
+                        //                 },
+                        //             }));
+                        //         },
+                        //     },
+                        // },
+                        // custom_group: {
+                        //     name: 'Filter màu',
+                        //     submenu:
+                        //     {
+                        //         items: [ // Đây phải là một mảng
+                        //             {
+                        //                 key: 'custom_group:suboption1',
+                        //                 name: '<div style="width:100%;height:20px;background:red"></div>',
+                        //                 callback: function (key, options) {
+                        //                     alert('Bạn chọn Hành động 1 từ Nhóm!', key, options);
+                        //                 },
+                        //             },
+                        //             {
+                        //                 key: 'custom_group:suboption2',
+                        //                 name: '<div style="width:100%;height:20px;background:#CC66FF"></div>',
+                        //                 callback: function () {
+                        //                     alert('Hành động 2 được kích hoạt.');
+                        //                 },
+                        //             },
+                        //             {
+                        //                 key: 'custom_group:suboption3',
+                        //                 name: '<div style="width:100%;height:20px;background:#3366CC"></div>',
+                        //                 callback: function () {
+                        //                     alert('Hành động 3 được kích hoạt.');
+                        //                 },
+                        //             },
+                        //         ],
+                        //     }
+                        // },
+                        // custom_action: {
+                        //     name: 'Tùy chỉnh hành động',
+                        //     callback: function (key, selection, clickEvent) {
+                        //         // Xử lý logic khi click vào mục này
+                        //         console.log('Custom action triggered!', selection);
+                        //         alert('Bạn vừa chọn hàng tại vị trí: ' + JSON.stringify(selection));
+                        //     },
+                        // },
+
                         filter_by_value: {
                             name: 'Tìm kiếm',
                         },
                         filter_action_bar: {},
+
                     }
                 },
                 className: 'customFilterButtonExample1',
@@ -426,6 +523,9 @@ export default {
     },
 
     methods: {
+        filterItemColorRed() {
+            this.$refs.myHotTable.hotInstance.getPlugin('filters').addCondition(0, 'eq', ['red']);
+        },
         async handleFetchOrderSale() {
             await this.fetchOrderProcessSaleCreateBy();
         },
@@ -799,8 +899,6 @@ export default {
             filter.clearConditions();
             // Thêm điều kiện lọc
             filter.addCondition(0, 'eq', [1]); // Lọc cột `is_specifications` có giá trị 1
-
-
             // Áp dụng bộ lọc
             filter.filter();
 
@@ -869,8 +967,7 @@ export default {
                     case 'specifications':
                         const isSpecifications = hot.getDataAtRowProp(row, 'is_specifications');
                         if (isSpecifications === 1) {
-                            TD.classList.add('htRight', 'htNumeric', 'htBold');
-                            TD.style.color = hot.getDataAtRowProp(row, 'color');
+                            TD.classList.add('htRight', 'htNumeric', 'htBold', 'text-danger');
                         } else {
                             TD.classList.add('htLeft', 'htNumeric', 'htBold', 'text-secondary');
                         }
@@ -980,6 +1077,24 @@ export default {
     margin-top: 10px;
     font-size: 14px;
     color: #333;
+}
+
+.filter-red {
+    width: 90px;
+    height: 20px;
+    background-color: red;
+}
+
+.filter-blue {
+    width: 90px;
+    height: 20px;
+    background-color: #3366CC;
+}
+
+.filter-purple {
+    width: 90px;
+    height: 20px;
+    background-color: #CC66FF;
 }
 
 // ::v-deep .handsontable.customFilterButtonExample1 .changeType {
