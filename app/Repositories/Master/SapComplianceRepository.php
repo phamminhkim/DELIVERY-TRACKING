@@ -176,6 +176,7 @@ class SapComplianceRepository extends RepositoryAbs
             $sheet->setCellValue('B1', 'Đơn vị tính');
             $sheet->setCellValue('C1', 'Tên sản phẩm');
             $sheet->setCellValue('D1', 'Quy cách');
+            $sheet->setCellValue('E1', 'Check trạng thái');
 
             // Ghi dữ liệu vào file Excel
             $row = 2;
@@ -185,11 +186,12 @@ class SapComplianceRepository extends RepositoryAbs
                 $sheet->setCellValue('B' . $row, $sap_compliance->unit->unit_code);
                 $sheet->setCellValue('C' . $row, $sap_compliance->name);
                 $sheet->setCellValue('D' . $row, $sap_compliance->compliance);
+                $sheet->setCellValue('E' . $row, $sap_compliance->check_qc);
                 $row++;
             }
 
             // Tự căn chỉnh kích thước các cột dựa trên độ dài ký tự của dữ liệu
-            $columns = ['A', 'B', 'C', 'D'];
+            $columns = ['A', 'B', 'C', 'D','E'];
             foreach ($columns as $column) {
                 $columnDimension = $sheet->getColumnDimension($column);
                 $columnWidth = $columnDimension->getWidth();
@@ -224,7 +226,7 @@ class SapComplianceRepository extends RepositoryAbs
                 ],
             ];
 
-            $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
+            $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
 
             // Tạo đối tượng Writer để ghi file Excel
             $writer = new Xlsx($spreadsheet);
