@@ -634,26 +634,41 @@ export default {
 
 
                         });
-                    }
-                    if (data.extra_offer == 'X') {
-                        row.getCell('barcode').getElement().style.backgroundColor = 'rgb(253, 233, 217)';
-                        // row.getCell('barcode').getElement().style.color = '#212529';
-                        row.getCell('sku_sap_code').getElement().style.backgroundColor = 'rgb(253, 233, 217)';
-                        // row.getCell('sku_sap_code').getElement().style.color = '#212529';
-                    }
-                    if (data.promotion_category == 'X') {
-                        row.getCell('barcode').getElement().style.color = '#007bff';
-                        row.getCell('barcode').getElement().style.fontWeight = 'bold';
-                        row.getCell('sku_sap_code').getElement().style.color = '#007bff';
-                        row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
+                    }                    
+                    // Xử lý chung các thuộc tính của barcode và sku_sap_code
+                    const barcodeCell = row.getCell('barcode').getElement().style;
+                    const skuCell = row.getCell('sku_sap_code').getElement().style;
 
+                    // Reset mặc định
+                    barcodeCell.backgroundColor = '';
+                    barcodeCell.color = '#212529';
+                    barcodeCell.fontWeight = 'normal';
+                    skuCell.backgroundColor = '';
+                    skuCell.color = '#212529';
+                    skuCell.fontWeight = 'normal';
+
+                    // Kiểm tra từng điều kiện và áp dụng thay đổi
+                    if (data.extra_offer === 'X') {
+                        barcodeCell.backgroundColor = 'rgb(253, 233, 217)';
+                        barcodeCell.color = '#212529';
+                        skuCell.backgroundColor = 'rgb(253, 233, 217)';
+                        skuCell.color = '#212529';
                     }
-                    if (data.promotion_bundle == 'X') {
-                        row.getCell('barcode').getElement().style.fontWeight = 'bold';
-                        row.getCell('barcode').getElement().style.color = '#b40fcb';
-                        row.getCell('sku_sap_code').getElement().style.color = '#b40fcb';
-                        row.getCell('sku_sap_code').getElement().style.fontWeight = 'bold';
+
+                    if (data.promotion_category === 'X') {
+                        barcodeCell.color = '#007bff';
+                        barcodeCell.fontWeight = 'bold';
+                        skuCell.color = '#007bff';
+                        skuCell.fontWeight = 'bold';
                     }
+
+                    if (data.promotion_bundle === 'X') {
+                        barcodeCell.color = '#b40fcb';
+                        barcodeCell.fontWeight = 'bold';
+                        skuCell.color = '#b40fcb';
+                        skuCell.fontWeight = 'bold';
+                    }
+
                     // hiển thị dữ liệu của cột 'sap_so_number' và 'promotive' trong cùng một ô
                     const cell_sap_so_number = row.getCell('sap_so_number');
                     const cell_so_sap_note = row.getCell('so_sap_note');
