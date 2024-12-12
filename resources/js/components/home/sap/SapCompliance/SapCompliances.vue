@@ -532,7 +532,7 @@
 					const url = window.URL.createObjectURL(blobData);
 					const link = document.createElement('a');
 					link.href = url;
-					link.setAttribute('download', 'Dữ liệu Sap.xlsx');
+					link.setAttribute('download', 'Dữ liệu Quy cách.xlsx');
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);

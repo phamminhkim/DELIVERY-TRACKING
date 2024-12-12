@@ -30,6 +30,7 @@ use App\Repositories\Master\MaterialDonatedRepository;
 use App\Repositories\Master\CustomerPartnerRepository;
 use App\Repositories\Master\MaterialCLCRepository;
 use App\Repositories\Master\MaterialBundleRepository;
+use App\Repositories\Master\MaterialParkerRepository;
 use App\Repositories\Master\SapComplianceRepository;
 use App\Repositories\Master\UserFieldTableRepository;
 use Illuminate\Http\Request;
@@ -153,6 +154,10 @@ class MasterRepository
         public static function materialBundleRequest(Request $request)
     {
         return new MaterialBundleRepository($request);
+    }
+        public static function materialParkerRequest(Request $request)
+    {
+        return new MaterialParkerRepository($request);
     }
 
 }

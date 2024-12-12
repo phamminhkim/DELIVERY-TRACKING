@@ -162,6 +162,11 @@ class RouterSeeder extends Seeder
                 'component' => 'home/sap/MaterialBundle/MaterialBundles'
             ],
             [
+                'name' => 'KM Parker',
+                'path' => '/material-parkers',
+                'component' => 'home/sap/MaterialParker/MaterialParkers'
+            ],
+            [
                 'name' => 'Khách hàng đối tác',
                 'path' => '/customer-partners',
                 'component' => 'home/sap/CustomerPartner/CustomerPartners'

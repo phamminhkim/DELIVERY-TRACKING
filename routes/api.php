@@ -45,6 +45,7 @@ use App\Http\Controllers\Api\Master\MaterialCLCController;
 use App\Http\Controllers\Api\Master\MaterialComboController;
 use App\Http\Controllers\Api\Master\MaterialDonatedController;
 use App\Http\Controllers\Api\Master\MaterialBundleController;
+use App\Http\Controllers\Api\Master\MaterialParkerController;
 use App\Http\Controllers\Api\Master\MenuRouterController;
 use App\Http\Controllers\Api\Master\UserFieldTableController;
 use App\Http\Controllers\Auth\JstController;
@@ -129,6 +130,16 @@ Route::middleware('auth:api')->group(function () {
             Route::put('/{id}', [MaterialBundleController::class, 'update']);
             Route::delete('/{id}', [MaterialBundleController::class, 'destroy']);
             Route::delete('/', [MaterialBundleController::class, 'destroyMultiple']);
+        });
+        Route::prefix('/material-parkers')->group(function () {
+            Route::get('/minified', [MaterialParkerController::class, 'getAllMinified']);
+            Route::get('/exportToExcel', [MaterialParkerController::class, 'exportToExcel']);
+            Route::get('/', [MaterialParkerController::class, 'getAll']);
+            Route::post('/excel', [MaterialParkerController::class, 'createMaterialParkerFormExcel']);
+            Route::post('/', [MaterialParkerController::class, 'store']);
+            Route::put('/{id}', [MaterialParkerController::class, 'update']);
+            Route::delete('/{id}', [MaterialParkerController::class, 'destroy']);
+            Route::delete('/', [MaterialParkerController::class, 'destroyMultiple']);
         });
         Route::prefix('/material-category')->group(function () {
             Route::get('/', [MaterialCategoryTypeController::class, 'getAvailableCategoryTypes']);
