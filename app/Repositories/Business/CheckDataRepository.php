@@ -13,6 +13,7 @@ use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
 use App\Models\Master\MaterialCategoryType;
 use App\Models\Master\MaterialCLC;
+use App\Models\Master\MaterialParker;
 use App\Models\Master\SapMaterialMapping;
 use App\Models\Master\SapUnit;
 use App\Models\Master\Warehouse;
@@ -432,10 +433,11 @@ class CheckDataRepository extends RepositoryAbs
                 $sap_code = $item['sap_code'] ?? '';
                 $bar_code = $item['bar_code'] ?? '';
                 $name = $item['name'] ?? '';
-                $promotion_category = null;
+                $promotion_category = null;                
+                $promotion_bundle = null;
                 $extra_offer = null;
                 $promotion_clc = null;
-                $promotion_bundle = null;
+                $promotion_parker = null;
                 $promotion_name = null;
             
                 // Tìm dữ liệu từ các bảng
@@ -449,19 +451,28 @@ class CheckDataRepository extends RepositoryAbs
                     ->where('is_active', 1)
                     ->first();
             
-                $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
-                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
-                        return $query->where('sap_code', $sap_code);
-                    })
-                    ->where('is_active', 1)
-                    ->first();
-
                 $materialBundle = MaterialBundle::where('customer_group_id', $customer_group_id)
                     ->when(!empty($sap_code), function ($query) use ($sap_code) {
                         return $query->where('sap_code', $sap_code);
                     })
                     ->when(!empty($bar_code), function ($query) use ($bar_code) {
                         return $query->where('bar_code', $bar_code);
+                    })
+                    ->where('is_active', 1)
+                    ->first();
+                    
+                $materialCLC = MaterialCLC::where('customer_group_id', $customer_group_id)
+                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                        return $query->where('sap_code', $sap_code);
+                    })
+                    ->where('is_active', 1)
+                    ->first();
+                    
+                $materialParker = MaterialParker::when (!empty($bar_code), function ($query) use ($bar_code) {
+                        return $query->where('bar_code', $bar_code);
+                    })
+                    ->when(!empty($sap_code), function ($query) use ($sap_code) {
+                        return $query->where('sap_code', $sap_code);
                     })
                     ->where('is_active', 1)
                     ->first();
@@ -496,7 +507,16 @@ class CheckDataRepository extends RepositoryAbs
                         ->name ?? $promotion_name;
                 }
                         
+                if ($materialParker) {
+                    $name = $materialParker->name; 
+                    $promotion_parker = 'X';
+                    $promotion_name = MaterialCategoryType::where('name', '_PK')
+                        ->where('is_deleted', false)
+                        ->first()
+                        ->name ?? $promotion_name;
+                }         
                 if ($materialDonated) {
+                    $name = $materialDonated->name;
                     $extra_offer = 'X';
                     $promotion_name = MaterialCategoryType::where('name', '_IK')
                         ->where('is_deleted', false)
@@ -509,6 +529,7 @@ class CheckDataRepository extends RepositoryAbs
                 $item['promotion_category'] = $promotion_category;
                 $item['extra_offer'] = $extra_offer;
                 $item['promotion_clc'] = $promotion_clc;
+                $item['promotion_parker'] = $promotion_parker;
                 $item['promotion_bundle'] = $promotion_bundle;
                 $item['promotion_name'] = $promotion_name;
                 $mappingData[] = $item;

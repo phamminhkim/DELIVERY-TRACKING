@@ -990,13 +990,14 @@ export default {
             await items.forEach(item => {
                 this.filteredOrders.forEach(order => {
                     if (order.sku_sap_code == item.sap_code) {
-                        if (item.promotion_clc === 'X') {
+                        if (item.promotion_clc === 'X'|| item.promotion_parker === 'X') {
                             // order.promotion_category = item.promotion_clc;
                             // order.is_promotive = true;
                             // order.extra_offer = item.extra_offer;
                             order.promotive = item.promotion_name;
                             order.promotive_name = item.promotion_name;
                         }
+                        
                         order.promotion_category = item.promotion_category;
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
