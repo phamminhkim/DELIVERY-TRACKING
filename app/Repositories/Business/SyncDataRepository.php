@@ -94,7 +94,7 @@ class SyncDataRepository extends RepositoryAbs
                         }
                         $group_name = isset($value["promotive_name"]) ? $order->sap_so_number . $value["promotive_name"] : $order->sap_so_number;
                         if (strlen($group_name) > 35) {
-                            $group_name = substr($group_name, 0, 35);
+                            $group_name = mb_substr($group_name, 0, 35);
                         }
                         $sapData['BODY'][] = [
                             "sales_org" => "3000",
