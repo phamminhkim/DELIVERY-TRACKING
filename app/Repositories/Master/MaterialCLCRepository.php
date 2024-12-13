@@ -98,6 +98,10 @@ class MaterialCLCRepository extends RepositoryAbs
                 $result = [];
 
                 foreach ($data as $row) {
+                    // Kiểm tra nếu có ít nhất 1 giá trị dữ liệu quan trọng (sap_code, name, customer_group_name) thì mới xử lý
+                    if (empty($row[$template_structure['sap_code']]) || empty($row[$template_structure['name']]) || empty($row[$template_structure['customer_group_name']])) {
+                        continue; // Bỏ qua dòng không có dữ liệu cần thiết
+                    }
                     $sap_code = $row[$template_structure['sap_code']];
                     $name = $row[$template_structure['name']];
                     $bar_code = $row[$template_structure['bar_code']];

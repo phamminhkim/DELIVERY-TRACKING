@@ -88,6 +88,10 @@ class MaterialParkerRepository extends RepositoryAbs
                 $result = collect([]);
 
                 foreach ($data as $row) {
+                    // Kiểm tra nếu có ít nhất 1 giá trị dữ liệu quan trọng (sap_code, name, bar_code) thì mới xử lý
+                    if (empty($row[$template_structure['sap_code']]) || empty($row[$template_structure['name']]) || empty($row[$template_structure['bar_code']])) {
+                        continue; // Bỏ qua dòng không có dữ liệu cần thiết
+                    }
                     $is_active = strtolower($row[$template_structure['is_active']]);
 
                     // Chuyển đổi giá trị 'is_active' thành 1 nếu chuỗi là null, ngược lại thành 0

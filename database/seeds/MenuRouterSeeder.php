@@ -357,7 +357,7 @@ class MenuRouterSeeder extends Seeder
                 'parent' => 'Trích xuất đơn hàng',
             ],
             [
-                'title' => "KM Bundles",
+                'title' => "KM Bundle",
                 'icon' => "fas fa-gift",
                 'link' => "material-bundles",
                 'query_string' => "",
