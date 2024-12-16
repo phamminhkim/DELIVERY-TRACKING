@@ -516,12 +516,12 @@ class CheckDataRepository extends RepositoryAbs
                         ->name ?? $promotion_name;
                 }         
                 if ($materialDonated) {
-                    $name = $materialDonated->name;
+                    // $name = $materialDonated->name;
                     $extra_offer = 'X';
-                    $promotion_name = MaterialCategoryType::where('name', '_IK')
-                        ->where('is_deleted', false)
-                        ->first()
-                        ->name ?? $promotion_name;
+                    // $promotion_name = MaterialCategoryType::where('name', '_IK')
+                    //     ->where('is_deleted', false)
+                    //     ->first()
+                    //     ->name ?? $promotion_name;
                 }            
                 // Luôn thêm item vào kết quả
                 // $item['barcode'] = $bar_code;
