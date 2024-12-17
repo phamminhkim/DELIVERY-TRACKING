@@ -997,7 +997,7 @@ export default {
                             order.promotive = item.promotion_name;
                             order.promotive_name = item.promotion_name;
                         }
-                        
+
                         order.promotion_category = item.promotion_category;
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
@@ -1054,8 +1054,9 @@ export default {
         handleSaveOrderSo(data) {
             this.saveSaleOrderSO();
         },
-        handleUpdateOrderSo() {
-            this.UpdateSaleOrder(this.order.id);
+        async handleUpdateOrderSo() {
+            await this.UpdateSaleOrder(this.order.id);
+             this.update_status_function.set_data++;
         },
         handleEmittedConvertFile(file) {
             this.file = file;
