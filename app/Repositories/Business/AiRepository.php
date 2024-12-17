@@ -261,18 +261,40 @@ class AiRepository extends RepositoryAbs
                             array_push($final_data, $array_data);
                             break;
                         case ExtractMethod::AI:
-                            $raw_data_table = $raw_data['line_items'];
-                            $raw_header_table = array();
-                            $raw_header_table[] = $raw_data['Info_PO'];
-                            $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
-                            $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
-                            $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
-                            $order_header = $this->addCustomInfo($restruct_header[0]);
-                            $array_data = [
-                                'headers' => $order_header,
-                                'items' => $order_data,
-                            ];
-                            array_push($final_data, $array_data);
+                            // Xử lý chỉ 1 PO
+                            // $raw_data_table = $raw_data['line_items'];
+                            // $raw_header_table = array();
+                            // $raw_header_table[] = $raw_data['Info_PO'];
+                            // $decimal_separator = isset($raw_data['Info_PO']['decimal']) ? $raw_data['Info_PO']['decimal'] : null;
+                            // $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
+                            // $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
+                            // $order_header = $this->addCustomInfo($restruct_header[0]);
+                            // $array_data = [
+                            //     'headers' => $order_header,
+                            //     'items' => $order_data,
+                            // ];
+                            // array_push($final_data, $array_data);
+
+                            // Xử lý nhiều PO
+                            foreach ($raw_data as $raw_data_po) {
+                                $table_data_content = [];
+                                if (isset($raw_data_po['content'])) {
+                                    $table_data_content = $raw_data_po['content'];
+
+                                    $raw_data_table = $table_data_content['line_items'];
+                                    $raw_header_table = array();
+                                    $raw_header_table[] = $table_data_content['Info_PO'];
+                                    $decimal_separator = isset($table_data_content['Info_PO']['decimal']) ? $table_data_content['Info_PO']['decimal'] : null;
+                                    $order_data = $this->restructureDataByAi($raw_data_table, $restructure_data_config, $decimal_separator);
+                                    $restruct_header = $this->restructureHeaderByAi($raw_header_table, $restructure_data_config);
+                                    $order_header = $this->addCustomInfo($restruct_header[0]);
+                                    $array_data = [
+                                        'headers' => $order_header,
+                                        'items' => $order_data,
+                                    ];
+                                    array_push($final_data, $array_data);
+                                }
+                            }
                             break;
                     }
 

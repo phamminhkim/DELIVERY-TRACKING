@@ -12,6 +12,7 @@ class AiExtractorService implements DataExtractorInterface
     public function extract($file_path, $options)
     {
         $raw_table_data = [];
+
         $table_area_info = $options['table_area_info'];
         $api_extract_info = $table_area_info->api_extract_info;
 
@@ -20,9 +21,14 @@ class AiExtractorService implements DataExtractorInterface
         $body_data = json_decode(json_encode($api_extract_info->body_data), true);
         $api_request = new ApiRequest($api_url, [], $body_data, $api_method);
         $api_response = $this->handleRequest($api_request, $file_path);
-        if (isset($api_response[0]['data'][0]['content'])) {
-            $raw_table_data = $api_response[0]['data'][0]['content'];
+
+        // if (isset($api_response[0]['data'][0]['content'])) {
+        //     $raw_table_data = $api_response[0]['data'][0]['content'];
+        // }
+        if (isset($api_response[0]['data'])) {
+            $raw_table_data = $api_response[0]['data'];
         }
+
         return $raw_table_data;
     }
     public function handleRequest($request, $file_path)
