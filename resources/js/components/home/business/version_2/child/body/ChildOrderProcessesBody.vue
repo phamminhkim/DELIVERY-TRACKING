@@ -277,10 +277,10 @@ export default {
                             const currentButton = headerElement.querySelector('button');
                             if (currentButton) {
                                 const newButton = document.createElement('button');
-                                newButton.innerHTML = newIconHTML; // Thêm HTML cho biểu tượng  
-                                newButton.className = 'btn btn-light btn-sm text-xs p-0'; // Thêm class nếu cần  
-                                newButton.title = 'Add/Remove Filter'; // Cập nhật title nếu cần  
-                                currentButton.replaceWith(newButton); // Sử dụng replaceWith  
+                                newButton.innerHTML = newIconHTML; // Thêm HTML cho biểu tượng
+                                newButton.className = 'btn btn-light btn-sm text-xs p-0'; // Thêm class nếu cần
+                                newButton.title = 'Add/Remove Filter'; // Cập nhật title nếu cần
+                                currentButton.replaceWith(newButton); // Sử dụng replaceWith
 
                             }
                         }
@@ -507,28 +507,28 @@ export default {
             let positon = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
             let fields = this.table.getRanges().map(range => range.getColumns().map(column => column.getField()));
             if (positon[0][0] !== undefined) {
-                this.table.scrollToRow(positon[0][0], "top", false);
-                this.table.scrollToColumn(fields[0][0], "center", false);
+                this.table.scrollToRow(positon[0][0], "middle", true);
+                this.table.scrollToColumn(fields[0][0], "middle", false);
             }
 
         },
         hasSignificantChange(newVal, oldVal) {
-            // Kiểm tra xem hai mảng có cùng chiều dài không  
+            // Kiểm tra xem hai mảng có cùng chiều dài không
             if (newVal.length !== oldVal.length) {
-                return true; // Có sự thay đổi về chiều dài  
+                return true; // Có sự thay đổi về chiều dài
             }
 
-            // Duyệt qua từng phần tử trong hai mảng  
+            // Duyệt qua từng phần tử trong hai mảng
             for (let i = 0; i < newVal.length; i++) {
-                // So sánh từng thuộc tính của mỗi phần tử  
+                // So sánh từng thuộc tính của mỗi phần tử
                 for (const key in newVal[i]) {
                     if (newVal[i][key] !== oldVal[i][key]) {
-                        return true; // Có sự thay đổi về giá trị  
+                        return true; // Có sự thay đổi về giá trị
                     }
                 }
             }
 
-            // Không có sự thay đổi đáng kể  
+            // Không có sự thay đổi đáng kể
             return false;
         },
         formatterSapSoNumber() {
@@ -551,7 +551,7 @@ export default {
                 // history: true,
                 // scrollToRowPosition: "nearest",
                 // scrollTo: false,
-                // virtualScroll: true,  
+                // virtualScroll: true,
                 // layout:"fitColumns",
                 // scrollToRowIfVisible: false, //prevent scrolling to a row if it is visible
                 // movableRows: true,
@@ -572,7 +572,7 @@ export default {
                     frozen: true,
                     width: 20,
                     hozAlign: "center",
-                    // formatter: "rownum", 
+                    // formatter: "rownum",
                     formatter: "order",
                     cssClass: "range-header-col",
                     // editor: false,
@@ -634,7 +634,7 @@ export default {
 
 
                         });
-                    }                    
+                    }
                     // Xử lý chung các thuộc tính của barcode và sku_sap_code
                     const barcodeCell = row.getCell('barcode').getElement().style;
                     const skuCell = row.getCell('sku_sap_code').getElement().style;
@@ -1106,7 +1106,7 @@ export default {
             div_footer.classList.add("text-xs", "text-right");
             // Thêm các nút vào container
             // container.appendChild(this.createBtnGroup());
-            // div_footer.appendChild(this.createResetButton()); // Nút button reset 
+            // div_footer.appendChild(this.createResetButton()); // Nút button reset
             div_footer.appendChild(this.createSearchButton(column));
             div_footer.appendChild(this.createBtnCancel());
             // div_footer.appendChild(this.createUpdateButton(itemsContainer, "")); // Nút button cập nhật
@@ -1183,10 +1183,10 @@ export default {
                         const currentButton = headerElement.querySelector('button');
                         if (currentButton) {
                             const newButton = document.createElement('button');
-                            newButton.innerHTML = newIconHTML; // Thêm HTML cho biểu tượng  
-                            newButton.className = 'btn btn-light btn-sm text-xs p-0'; // Thêm class nếu cần  
-                            newButton.title = 'Add/Remove Filter'; // Cập nhật title nếu cần  
-                            currentButton.replaceWith(newButton); // Sử dụng replaceWith  
+                            newButton.innerHTML = newIconHTML; // Thêm HTML cho biểu tượng
+                            newButton.className = 'btn btn-light btn-sm text-xs p-0'; // Thêm class nếu cần
+                            newButton.title = 'Add/Remove Filter'; // Cập nhật title nếu cần
+                            currentButton.replaceWith(newButton); // Sử dụng replaceWith
                         }
                     }
                 });
@@ -1319,7 +1319,7 @@ export default {
                         // } else if (typeof columnData[0] === 'string' && value !== '') {
                         //     console.log('chuỗi', value);
                         //     return value.toString(); // Nếu trong bảng là chuỗi, giữ nguyên chuỗi
-                        // } 
+                        // }
                         else if (value === '') {
                             return null; // Nếu giá trị là null thì giữ nguyên
                             // thiếu 1 trường hợp nếu là "false" thì chuyển thành false
@@ -1666,7 +1666,7 @@ export default {
             var btn_search_excel = document.querySelector(".btn-search-excel");
             const result = Object.groupBy(this.item_selecteds, ({ field }) => field);
             if (result[this.column] == undefined) {
-                // tìm button có class btn-search-excel 
+                // tìm button có class btn-search-excel
                 btn_search_excel.disabled = true;
             } else {
                 btn_search_excel.disabled = false;
