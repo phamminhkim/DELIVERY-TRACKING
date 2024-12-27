@@ -350,6 +350,7 @@ class AiRepository extends RepositoryAbs
                 } else {
                     Log::error("Loại file chưa được hỗ trợ: " . $file_name);
                     $this->errors[] = "File chưa được hỗ trợ cấu hình: " . $file_name;
+                    $csv_data[$file_name] = $this->getCsvDataFromPdf($file);
                 }
             } catch (\Throwable $exception) {
                 Log::error($exception->getMessage());
