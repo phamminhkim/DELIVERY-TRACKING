@@ -660,6 +660,7 @@ class CheckDataRepository extends RepositoryAbs
                             foreach ($jsonData['data'] as $json_value) {
                                 $material = $json_value['MATERIAL'] ?? null;
                                 $price = $json_value['PRICE'] ?? null;
+                                $unit = $json_value['UNIT'] ?? null;
 
                                 if (!array_key_exists($material, $materialPrices) || !$materialPrices[$material]) {
                                     $materialPrices[$material] = $price;
@@ -667,6 +668,7 @@ class CheckDataRepository extends RepositoryAbs
                                         "so_numbers" => $soNumber,
                                         "MATERIAL" => $material,
                                         "PRICE" => $price,
+                                        "UNIT" => $unit,
                                     ];
                                 }
                             }
@@ -676,6 +678,7 @@ class CheckDataRepository extends RepositoryAbs
                                 "so_numbers" => $soNumber,
                                 "MATERIAL" => null,
                                 "PRICE" => null,
+                                "UNIT" => null,
                             ];
                         }
                     }
