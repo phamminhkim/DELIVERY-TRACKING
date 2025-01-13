@@ -341,7 +341,7 @@ export default {
             try {
                 const { data } = await this.api_handler.get(this.url_api.count_order_pending);
                 this.count_order_pending = data;
-                console.log(data,'count po');
+                console.log(data, 'count po');
             } catch (error) {
                 // this.$showMessage('error', 'Lỗi', error);
             }
@@ -990,7 +990,7 @@ export default {
             await items.forEach(item => {
                 this.filteredOrders.forEach(order => {
                     if (order.sku_sap_code == item.sap_code) {
-                        if (item.promotion_clc === 'X'|| item.promotion_parker === 'X') {
+                        if (item.promotion_clc === 'X' || item.promotion_parker === 'X') {
                             // order.promotion_category = item.promotion_clc;
                             // order.is_promotive = true;
                             // order.extra_offer = item.extra_offer;
@@ -1002,7 +1002,7 @@ export default {
                         order.is_promotive = true;
                         order.extra_offer = item.extra_offer;
                         order.promotion_bundle = item.promotion_bundle;
-                        if(order.promotion_bundle === 'X'){
+                        if (order.promotion_bundle === 'X') {
                             order.theme_color.text.sku_sap_code = 'rgb(180, 15, 203)';
                             order.theme_color.text.barcode = 'rgb(180, 15, 203)';
                         } else if (order.promotion_category === 'X') {
@@ -1056,7 +1056,7 @@ export default {
         },
         async handleUpdateOrderSo() {
             await this.UpdateSaleOrder(this.order.id);
-             this.update_status_function.set_data++;
+            this.update_status_function.set_data++;
         },
         handleEmittedConvertFile(file) {
             this.file = file;
@@ -1550,7 +1550,9 @@ export default {
             var orders = [...this.filteredOrders];
             this.material_prices.forEach(tmp => {
                 for (var i = 0; i < this.filteredOrders.length; i++) {
-                    if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']) {
+                    if (tmp['MATERIAL'] !== "" && tmp['MATERIAL'] == this.filteredOrders[i]['sku_sap_code']
+                        && tmp['UNIT'] == this.filteredOrders[i]['sku_sap_unit']
+                    ) {
                         orders[i]['company_price'] = tmp['PRICE'];
                         var value_check_difference = (orders[i]['company_price'] == null || orders[i]['company_price'] == '') ? 'price_difference' : (orders[i]['company_price'] == orders[i]['price_po']) ? 'price_equal' : 'price_difference';
                         orders[i]['difference'] = value_check_difference;
