@@ -336,5 +336,9 @@ class BusinessRepository
     {
         return new SOProcessingRepository($request);
     }
+    public static function getOrderStatusStatics(Request $request)
+    {
+        return new SOProcessingRepository($request);
+    }
 
 }

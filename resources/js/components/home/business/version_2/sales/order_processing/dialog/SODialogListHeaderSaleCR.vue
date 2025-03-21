@@ -10,6 +10,25 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group text-xs">
+                        <div class="form-group-sm">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="input-group input-group-sm text-xs">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon1">
+                                                <small for="" class="text-xs labes-m"><i
+                                                        class="fas fa-search mr-1 font-weight-bold"></i>Tìm kiếm</small>
+                                            </span>
+                                        </div>
+                                        <input type="text" class="form-control form-control-sm text-xs" placeholder="Nhập tìm kiếm..."
+                                            aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group text-xs">
                         <b-table :items="items" :fields="fields" responsive hover small bordered head-variant="light"
                             :current-page="pagination.current_page" :per-page="pagination.item_per_page" striped>
                             <template #cell(index)="data">
@@ -46,22 +65,54 @@
                                     <span>{{ data.item.order_process_sale_by.completed_at | formatDate }}</span>
                                 </div>
                             </template>
+                            <template #cell(order_process_sale_receive)="data">
+                                <div v-if="data.item.order_process_sale_receive !== null">
+                                    <span>{{ data.item.order_process_sale_receive.received.name }}</span>
+                                </div>
+                                <div v-else>
+                                    <select v-model="data.item.order_process_sale_receive"
+                                        class="form-control form-control-sm text-xs">
+                                        <option :value="-1">Chọn người nhận</option>
+                                        <option v-for="user in users" :value="user.id">{{ user.name }}</option>
+                                    </select>
+                                </div>
+
+
+                            </template>
+                            <template #cell(received_at)="data">
+                                <div v-if="data.item.order_process_sale_receive !== null">
+                                    <span>{{ data.item.order_process_sale_receive.received_at | formatDate }}</span>
+                                </div>
+
+                            </template>received_at
                             <template #cell(action)="data">
                                 <!-- <button class="btn btn-sm btn-primary px-2 text-xs">
                                     <i class="fas fa-eye"></i>
                                 </button> -->
-                                <div v-if="data.item.status == 'pending'">
-                                    <button @click="sendingOrderPOSale(data.item, data.item.id)" class="btn btn-sm btn-outline-primary px-2 text-xs">
-                                        <i class="fas fa-paper-plane mr-1 text-xs"></i>Gửi xử lý
-                                    </button>
-                                    <button @click="editOrderPOSale(data.item)"
-                                        class="btn btn-sm btn-outline-warning px-2 text-xs">
-                                        <i class="fas fa-edit mr-1 text-xs"></i>Chỉnh sửa
-                                    </button>
-                                    <!-- <button class="btn btn-sm btn-danger px-2 text-xs">
-                                        <i class="fas fa-trash"></i>
-                                    </button> -->
+                                <div class="d-flex">
+                                    <div v-if="data.item.status == 'pending'" class="d-flex">
+                                        <button @click="sendingOrderPOSale(data.item, data.item.id)"
+                                            class="btn btn-sm btn-outline-primary px-2 text-xs">
+                                            <i class="fas fa-paper-plane mr-1 text-xs"></i>Gửi xử lý
+                                        </button>
+                                        <button @click="editOrderPOSale(data.item)"
+                                            class="btn btn-sm btn-outline-warning px-2 text-xs">
+                                            <i class="fas fa-edit mr-1 text-xs"></i>Chỉnh sửa
+                                        </button>
+                                        <button @click="viewOrderPOSale(data.item)"
+                                            class="btn btn-sm btn-outline-info px-2 text-xs">
+                                            <i class="far fa-eye mr-1 text-xs"></i>Xem
+                                        </button>
+                                    </div>
+                                    <div v-else>
+                                        <button @click="viewOrderPOSale(data.item)"
+                                            class="btn btn-sm btn-outline-info px-2 text-xs">
+                                            <i class="far fa-eye mr-1 text-xs"></i>Xem
+                                        </button>
+                                    </div>
                                 </div>
+
+
 
                             </template>
                         </b-table>
@@ -122,6 +173,7 @@ export default {
             current_user: window.Laravel.current_user,
             is_loading: false,
             order_process_sales: [],
+            users: [],
             pagination: {
                 current_page: 1,
                 item_per_page: 10,
@@ -133,88 +185,156 @@ export default {
                 {
                     key: 'index',
                     label: 'STT',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
                 {
                     key: 'status',
                     label: 'Trạng thái',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
+                    sortable: true
+                },
+                {
+                    key: 'code',
+                    label: 'Mã',
+                    class: 'text-center text-nowrap text-xs',
+                    tdClass: 'text-primary',
                     sortable: true
                 },
                 {
                     key: 'title',
                     label: 'Tiêu đề',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
                 },
 
                 {
                     key: 'central_branch',
                     label: 'Trung tâm',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
+                    sortable: true
+
+                },
+                {
+                    key: 'order_process_sale_receive',
+                    label: 'Người nhận',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
                 {
                     key: 'order_process_sale_by',
                     label: 'Người xử lý',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
+
                 {
-                    key: 'created_at',
-                    label: 'Ngày tạo đơn',
-                    class: 'text-center text-nowarp text-xs',
+                    key: 'received_at',
+                    label: 'Ngày gửi',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
+
                 {
                     key: 'processing_at',
                     label: 'Ngày xử lí',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
                 {
                     key: 'completed_at',
                     label: 'Ngày hoàn thành',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                     sortable: true
 
                 },
                 {
+                    key: 'created_at',
+                    label: 'Ngày tạo',
+                    class: 'text-center text-nowrap text-xs',
+                    sortable: true
+                },
+                {
+                    key: 'user.name',
+                    label: 'Người tạo',
+                    class: 'text-center text-nowrap text-xs',
+                    sortable: true
+                },
+                {
                     key: 'action',
                     label: 'Hành động',
-                    class: 'text-center text-nowarp text-xs',
+                    class: 'text-center text-nowrap text-xs',
                 },
             ],
+            order_status: [],
             api: {
                 get_all_po_sale_id: '/api/sales-order/get-all-po-sale',
                 sending_po_sale: '/api/sales-order/sending-order-po-sales',
+                get_users_processing: '/api/master/users/processing',
+                get_order_status: '/api/sales-order/get-order-status',
             }
 
         }
     },
+    created() {
+        this.fetchUsers();
+        this.fetchOrderStatus();
+    },
     methods: {
+        async fetchOrderStatus() {
+            try {
+                this.is_loading = true;
+                const { data, success, errors, message } = await this.api_handler.get(this.api.get_order_status, {}, {});
+                if (success) {
+                    console.log(data, 'data status');
+                    this.order_status = data;
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
+        async fetchUsers() {
+            try {
+                this.is_loading = true;
+                const { data, success, errors, message } = await this.api_handler.get(this.api.get_users_processing, {}, {});
+                if (success) {
+                    this.users = data;
+                }
+            } catch (error) {
+                console.log(error);
+                this.$showMessage('error', 'Lỗi', error);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         closeModal() {
             this.$emit('close-modal', false);
         },
         editOrderPOSale(item) {
             this.$emit('edit-order-po-sale', item);
         },
+        viewOrderPOSale(item) {
+            // viết giống hàm editOrderPOSale
+            this.editOrderPOSale(item);
+        },
         async sendingOrderPOSale(item, id) {
             try {
-                let {data, success} = await this.api_handler.put(this.api.sending_po_sale + '/' + id, {}, {
-                item: item,
-                status: 'sending',
-            });
-            if (success) {
-                this.$emit('sending-order-po-sale', item);
-                this.$showMessage('success', 'Thành công', 'Gửi xử lý đơn hàng thành công');
-            }
+                let { data, success } = await this.api_handler.put(this.api.sending_po_sale + '/' + id, {}, {
+                    item: item,
+                    status: 'sending',
+                });
+                if (success) {
+                    this.$emit('sending-order-po-sale', item);
+                    this.$showMessage('success', 'Thành công', 'Gửi xử lý đơn hàng thành công');
+                }
             } catch (error) {
                 this.$showMessage('error', 'Lỗi', error.response.data.message);
             }

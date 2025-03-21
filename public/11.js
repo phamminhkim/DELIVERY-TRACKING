@@ -1,23 +1,17 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[11],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
-/* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @riophae/vue-treeselect */ "./node_modules/@riophae/vue-treeselect/dist/vue-treeselect.cjs.js");
-/* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @riophae/vue-treeselect/dist/vue-treeselect.css */ "./node_modules/@riophae/vue-treeselect/dist/vue-treeselect.css");
-/* harmony import */ var _riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! toastr */ "./node_modules/toastr/toastr.js");
-/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(toastr__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! toastr/toastr.scss */ "./node_modules/toastr/toastr.scss");
-/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @riophae/vue-treeselect */ "./node_modules/@riophae/vue-treeselect/dist/vue-treeselect.cjs.js");
+/* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
 function _typeof(o) {
   "@babel/helpers - typeof";
 
@@ -26,54 +20,6 @@ function _typeof(o) {
   } : function (o) {
     return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
   }, _typeof(o);
-}
-function _slicedToArray(r, e) {
-  return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
-}
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _unsupportedIterableToArray(r, a) {
-  if (r) {
-    if ("string" == typeof r) return _arrayLikeToArray(r, a);
-    var t = {}.toString.call(r).slice(8, -1);
-    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
-  }
-}
-function _arrayLikeToArray(r, a) {
-  (null == a || a > r.length) && (a = r.length);
-  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
-  return n;
-}
-function _iterableToArrayLimit(r, l) {
-  var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-  if (null != t) {
-    var e,
-      n,
-      i,
-      u,
-      a = [],
-      f = !0,
-      o = !1;
-    try {
-      if (i = (t = t.call(r)).next, 0 === l) {
-        if (Object(t) !== t) return;
-        f = !1;
-      } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
-    } catch (r) {
-      o = !0, n = r;
-    } finally {
-      try {
-        if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return;
-      } finally {
-        if (o) throw n;
-      }
-    }
-    return a;
-  }
-}
-function _arrayWithHoles(r) {
-  if (Array.isArray(r)) return r;
 }
 function _regeneratorRuntime() {
   "use strict";
@@ -406,294 +352,86 @@ function _asyncToGenerator(n) {
 }
 
 
-
-
-
-
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'DialogAddUpdateCustomerPromotion',
-  props: {
-    is_editing: Boolean,
-    editing_item: Object,
-    refetchData: Function
-  },
   components: {
-    Treeselect: _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1___default.a
+    Treeselect: _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_0___default.a
+  },
+  props: {
+    case_filter: Object
   },
   data: function data() {
     return {
-      api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["default"](window.Laravel.access_token),
-      is_loading: false,
-      errors: {},
-      is_active: true,
-      customer_partner: {
-        customer_group_id: null,
-        name: '',
-        code: '',
-        note: '',
-        LV2: '',
-        LV3: '',
-        LV4: '',
-        id: ''
+      api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_1__["default"](window.Laravel.access_token),
+      is_show_search: false,
+      case_loading: {
+        customer_groups: false
       },
-      customer_partners: {
-        data: [],
-        // Mảng dữ liệu
-        paginate: [] // Mảng thông tin phân trang
+      case_data: {
+        customer_groups: []
       },
-      customer_group_options: [],
-      api_url: '/api/master/customer-partners'
+      case_api: {
+        customer_groups: 'api/master/customer-groups'
+      }
     };
   },
   created: function created() {
-    this.fetchOptionsData();
+    this.fetchCustomerGroup();
   },
   methods: {
-    addCustomerPartner: function addCustomerPartner() {
+    fetchCustomerGroup: function fetchCustomerGroup() {
       var _this = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var _yield$_this$api_hand, data;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              if (!_this.is_loading) {
-                _context.next = 2;
-                break;
-              }
-              return _context.abrupt("return");
-            case 2:
-              _this.is_loading = true;
-              if (_this.is_editing === false) {
-                _this.createCustomerPartner();
-              } else {
-                _this.updateCustomerPartner();
-              }
+              _context.prev = 0;
+              _this.case_loading.customer_groups = true;
+              _context.next = 4;
+              return _this.api_handler.get(_this.case_api.customer_groups);
             case 4:
+              _yield$_this$api_hand = _context.sent;
+              data = _yield$_this$api_hand.data;
+              if (Array.isArray(data)) {
+                _this.case_data.customer_groups = data.map(function (item) {
+                  return {
+                    id: item.id,
+                    label: item.name
+                  };
+                });
+              }
+              _context.next = 12;
+              break;
+            case 9:
+              _context.prev = 9;
+              _context.t0 = _context["catch"](0);
+              _this.$showMessage('error', 'Lỗi', _context.t0);
+            case 12:
+              _context.prev = 12;
+              _this.case_loading.customer_groups = false;
+              return _context.finish(12);
+            case 15:
             case "end":
               return _context.stop();
           }
-        }, _callee);
+        }, _callee, null, [[0, 9, 12, 15]]);
       }))();
     },
-    createCustomerPartner: function createCustomerPartner() {
-      var _this2 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var result;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              _context2.prev = 0;
-              console.log('createCustomerPartner');
-              _this2.is_loading = true;
-              _context2.next = 5;
-              return _this2.api_handler.post('/api/master/customer-partners', {
-                customer_group_id: _this2.customer_partner.customer_group_id,
-                name: _this2.customer_partner.name,
-                code: _this2.customer_partner.code,
-                note: _this2.customer_partner.note,
-                LV2: _this2.customer_partner.LV2,
-                LV3: _this2.customer_partner.LV3,
-                LV4: _this2.customer_partner.LV4
-              });
-            case 5:
-              result = _context2.sent;
-              if (result.errors) {
-                _context2.next = 15;
-                break;
-              }
-              if (result.data && Array.isArray(result.data)) {
-                _this2.customer_partners.data.unshift(result.data);
-              }
-              _this2.showMessage('success', 'Thêm thành công');
-              _this2.closeDialog();
-              _this2.clearForm();
-              _context2.next = 13;
-              return _this2.refetchData();
-            case 13:
-              _context2.next = 17;
-              break;
-            case 15:
-              _this2.errors = result.errors;
-              _this2.showMessage('error', 'Thêm không thành công');
-            case 17:
-              _context2.next = 22;
-              break;
-            case 19:
-              _context2.prev = 19;
-              _context2.t0 = _context2["catch"](0);
-              _this2.showMessage('error', 'Thêm không thành công');
-            case 22:
-              _context2.prev = 22;
-              _this2.is_loading = false;
-              return _context2.finish(22);
-            case 25:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2, null, [[0, 19, 22, 25]]);
-      }))();
+    emitFormFilterOrderSync: function emitFormFilterOrderSync() {
+      this.$emit('emitFormFilterOrderSync', this.case_filter);
     },
-    updateCustomerPartner: function updateCustomerPartner() {
-      var _this3 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-        var result;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.prev = 0;
-              _this3.is_loading = true;
-              _context3.next = 4;
-              return _this3.api_handler.put("".concat(_this3.api_url, "/").concat(_this3.customer_partner.id), _this3.customer_partner);
-            case 4:
-              result = _context3.sent;
-              if (result.errors) {
-                _context3.next = 13;
-                break;
-              }
-              if (result.data && Array.isArray(result.data)) {
-                _this3.customer_partners.data.push(result.data);
-              }
-              _this3.showMessage('success', 'Thêm thành công', result.message);
-              _this3.closeDialog();
-              _context3.next = 11;
-              return _this3.refetchData();
-            case 11:
-              _context3.next = 15;
-              break;
-            case 13:
-              _this3.errors = result.errors;
-              _this3.showMessage('error', 'Thêm không thành công');
-            case 15:
-              _context3.next = 20;
-              break;
-            case 17:
-              _context3.prev = 17;
-              _context3.t0 = _context3["catch"](0);
-              _this3.showMessage('error', 'Cập nhật không thành công');
-            case 20:
-              _context3.prev = 20;
-              _this3.is_loading = false;
-              return _context3.finish(20);
-            case 23:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3, null, [[0, 17, 20, 23]]);
-      }))();
-    },
-    fetchOptionsData: function fetchOptionsData() {
-      var _this4 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-        var _yield$_this4$api_han, _yield$_this4$api_han2, customer_partner_options, customer_group_options;
-        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-          while (1) switch (_context4.prev = _context4.next) {
-            case 0:
-              _context4.next = 2;
-              return _this4.api_handler.handleMultipleRequest([new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-partners'), new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-groups')]);
-            case 2:
-              _yield$_this4$api_han = _context4.sent;
-              _yield$_this4$api_han2 = _slicedToArray(_yield$_this4$api_han, 2);
-              customer_partner_options = _yield$_this4$api_han2[0];
-              customer_group_options = _yield$_this4$api_han2[1];
-              _this4.customer_partners = customer_partner_options;
-              _this4.customer_group_options = customer_group_options;
-            case 8:
-            case "end":
-              return _context4.stop();
-          }
-        }, _callee4);
-      }))();
-    },
-    normalizer: function normalizer(node) {
-      return {
-        id: node.id,
-        label: node.name
-      };
-    },
-    closeDialog: function closeDialog() {
-      // this.clearForm();
-      this.clearErrors();
-      $('#DialogAddUpdateCustomerPartner').modal('hide');
-    },
-    resetDialog: function resetDialog() {
-      this.customer_partner.customer_group_id = null;
-      this.customer_partner.name = null;
-      this.customer_partner.code = null;
-      this.customer_partner.note = null;
-      this.customer_partner.LV2 = null;
-      this.customer_partner.LV3 = null;
-      this.customer_partner.LV4 = null;
-      this.clearErrors();
-    },
-    clearForm: function clearForm() {
-      this.customer_partner.customer_group_id = null;
-      this.customer_partner.name = null;
-      this.customer_partner.code = null;
-      this.customer_partner.note = null;
-      this.customer_partner.LV2 = null;
-      this.customer_partner.LV3 = null;
-      this.customer_partner.LV4 = null;
-    },
-    clearErrors: function clearErrors() {
-      this.errors = {};
-    },
-    showMessage: function showMessage(type, title, message) {
-      if (!title) title = 'Information';
-      toastr__WEBPACK_IMPORTED_MODULE_3___default.a.options = {
-        positionClass: 'toast-bottom-right',
-        toastClass: this.getToastClassByType(type)
-      };
-      toastr__WEBPACK_IMPORTED_MODULE_3___default.a[type](message, title);
-    },
-    hasError: function hasError(fieldName) {
-      return fieldName in this.errors;
-    },
-    getError: function getError(fieldName) {
-      return this.errors[fieldName];
-    },
-    getToastClassByType: function getToastClassByType(type) {
-      switch (type) {
-        case 'success':
-          return 'toastr-bg-green';
-        case 'error':
-          return 'toastr-bg-red';
-        case 'warning':
-          return 'toastr-bg-yellow';
-        default:
-          return '';
-      }
-    }
-  },
-  watch: {
-    is_editing: function is_editing() {
-      if (!this.is_editing) {
-        this.clearForm();
-      }
-    },
-    editing_item: function editing_item(item) {
-      console.log(item);
-      this.customer_partner.customer_group_id = item.customer_group_id;
-      this.customer_partner.name = item.name;
-      this.customer_partner.code = item.code;
-      this.customer_partner.note = item.note;
-      this.customer_partner.LV2 = item.LV2;
-      this.customer_partner.LV3 = item.LV3;
-      this.customer_partner.LV4 = item.LV4;
-      this.customer_partner.id = item.id;
-    }
-  },
-  computed: {
-    rows: function rows() {
-      return this.customer_partners.length;
+    resetFilter: function resetFilter() {
+      this.$emit('emitResetFilterForm');
     }
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true&":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true& ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -704,310 +442,311 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", {
-    staticClass: "modal fade",
-    attrs: {
-      id: "DialogAddUpdateCustomerPartner",
-      tabindex: "-1",
-      role: "dialog",
-      "data-backdrop": "static"
-    }
+  return _c("div", [_c("div", {
+    staticClass: "row"
   }, [_c("div", {
-    staticClass: "modal-dialog",
-    attrs: {
-      role: "document"
-    }
-  }, [_c("div", {
-    staticClass: "modal-content"
-  }, [_c("form", {
-    on: {
-      submit: function submit($event) {
-        $event.preventDefault();
-        return _vm.addCustomerPartner.apply(null, arguments);
-      }
-    }
-  }, [_c("div", {
-    staticClass: "modal-header"
-  }, [_c("h5", {
-    staticClass: "modal-title"
-  }, [_c("span", [_vm._v("\n\t\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật khách hàng đối tác" : "Thêm mới khách hàng đối tác"))])]), _vm._v(" "), _c("button", {
-    staticClass: "close",
-    attrs: {
-      type: "button",
-      "data-dismiss": "modal",
-      "aria-label": "Close"
-    },
-    on: {
-      click: _vm.closeDialog
-    }
-  }, [_c("span", {
-    attrs: {
-      "aria-hidden": "true"
-    }
-  }, [_vm._v("×")])])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
+    staticClass: "col-lg-9"
   }, [_c("div", {
     staticClass: "form-group"
-  }, [_c("label", [_vm._v("Nhóm khách hàng")]), _vm._v(" "), _c("small", {
-    staticClass: "text-danger"
-  }, [_vm._v("*")]), _vm._v(" "), _c("treeselect", {
-    attrs: {
-      multiple: false,
-      id: "customer_group_id",
-      placeholder: "Chọn nhóm khách hàng..",
-      options: _vm.customer_group_options,
-      normalizer: _vm.normalizer,
-      required: ""
-    },
-    model: {
-      value: _vm.customer_partner.customer_group_id,
-      callback: function callback($$v) {
-        _vm.$set(_vm.customer_partner, "customer_group_id", $$v);
-      },
-      expression: "customer_partner.customer_group_id"
-    }
-  }), _vm._v(" "), _vm.hasError("customer_group_id") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_group_id")))])]) : _vm._e()], 1)]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
   }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Khách hàng Key")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.name,
-      expression: "customer_partner.name"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("name") ? "is-invalid" : "",
-    attrs: {
-      id: "name",
-      name: "name",
-      placeholder: "Nhập tên nhóm khách hàng...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.name
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "name", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("name") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("name")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Mã khách hàng")]), _vm._v(" "), _c("small", {
-    staticClass: "text-danger"
-  }, [_vm._v("*")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.code,
-      expression: "customer_partner.code"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("code") ? "is-invalid" : "",
-    attrs: {
-      id: "code",
-      name: "code",
-      placeholder: "Yêu cầu nhập mã khách hàng...",
-      type: "text",
-      required: ""
-    },
-    domProps: {
-      value: _vm.customer_partner.code
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "code", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("code") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("code")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Ghi chú")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.note,
-      expression: "customer_partner.note"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("note") ? "is-invalid" : "",
-    attrs: {
-      id: "note",
-      name: "note",
-      placeholder: "Nhập ghi chú...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.note
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "note", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("note") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("note")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV2")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV2,
-      expression: "customer_partner.LV2"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV2") ? "is-invalid" : "",
-    attrs: {
-      id: "LV2",
-      name: "LV2",
-      placeholder: "Nhập LV2...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV2
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV2", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV2") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV2")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV3")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV3,
-      expression: "customer_partner.LV3"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV3") ? "is-invalid" : "",
-    attrs: {
-      id: "LV3",
-      name: "LV3",
-      placeholder: "Nhập LV3...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV3
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV3", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV3") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV3")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-body"
-  }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("LV4")]), _vm._v(" "), _c("input", {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: _vm.customer_partner.LV4,
-      expression: "customer_partner.LV4"
-    }],
-    staticClass: "form-control",
-    "class": _vm.hasError("LV4") ? "is-invalid" : "",
-    attrs: {
-      id: "LV4",
-      name: "LV4",
-      placeholder: "Nhập LV4...",
-      type: "text"
-    },
-    domProps: {
-      value: _vm.customer_partner.LV4
-    },
-    on: {
-      input: function input($event) {
-        if ($event.target.composing) return;
-        _vm.$set(_vm.customer_partner, "LV4", $event.target.value);
-      }
-    }
-  }), _vm._v(" "), _vm.hasError("LV4") ? _c("span", {
-    staticClass: "invalid-feedback",
-    attrs: {
-      role: "alert"
-    }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("LV4")))])]) : _vm._e()])]), _vm._v(" "), _c("div", {
-    staticClass: "modal-footer justify-content-between"
+    staticClass: "btn-group btn-group-sm"
   }, [_c("button", {
-    staticClass: "btn btn-secondary",
+    directives: [{
+      name: "b-toggle",
+      rawName: "v-b-toggle.collapse-1",
+      modifiers: {
+        "collapse-1": true
+      }
+    }],
+    staticClass: "btn btn-warning btn-sm",
     attrs: {
       type: "button"
     },
     on: {
-      click: _vm.resetDialog
+      click: function click($event) {
+        _vm.is_show_search = !_vm.is_show_search;
+      }
     }
-  }, [_vm._v("\n\t\t\t\t\t\t\tReset\n\t\t\t\t\t\t")]), _vm._v(" "), _c("button", {
-    staticClass: "btn btn-primary",
+  }, [!_vm.is_show_search ? _c("span", [_vm._v("Hiện tìm kiếm")]) : _vm._e(), _vm._v(" "), _vm.is_show_search ? _c("span", [_vm._v("Ẩn tìm kiếm")]) : _vm._e()]), _vm._v(" "), _c("button", {
+    directives: [{
+      name: "b-toggle",
+      rawName: "v-b-toggle.collapse-1",
+      modifiers: {
+        "collapse-1": true
+      }
+    }],
+    staticClass: "btn btn-warning btn-sm",
     attrs: {
-      type: "submit",
-      title: "Submit"
+      type: "button"
+    },
+    on: {
+      click: function click($event) {
+        _vm.is_show_search = !_vm.is_show_search;
+      }
     }
-  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật" : "Tạo mới") + "\n\t\t\t\t\t\t")])])])])])]);
+  }, [_vm.is_show_search ? _c("i", {
+    staticClass: "fas fa-angle-up"
+  }) : _c("i", {
+    staticClass: "fas fa-angle-down"
+  })])]), _vm._v(" "), _vm._m(0)])])]), _vm._v(" "), _c("b-collapse", {
+    attrs: {
+      id: "collapse-1"
+    }
+  }, [_c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-12"
+  }, [_c("div", {
+    staticClass: "card"
+  }, [_c("div", {
+    staticClass: "card-body"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
+  }, [_vm._v("\n                                Tạo từ ngày\n                            ")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-3 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.from_date,
+      expression: "case_filter.from_date"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      type: "date"
+    },
+    domProps: {
+      value: _vm.case_filter.from_date
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "from_date", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1"
+  }, [_vm._v("\n                                Đến ngày\n                            ")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-3 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.to_date,
+      expression: "case_filter.to_date"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      type: "date"
+    },
+    domProps: {
+      value: _vm.case_filter.to_date
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "to_date", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Số PO")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-3 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.po_number,
+      expression: "case_filter.po_number"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      name: "",
+      id: ""
+    },
+    domProps: {
+      value: _vm.case_filter.po_number
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "po_number", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Số SO SAP")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-3 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.so_uid,
+      expression: "case_filter.so_uid"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      name: "",
+      id: ""
+    },
+    domProps: {
+      value: _vm.case_filter.so_uid
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "so_uid", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Mã KH")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-3 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.customer_code,
+      expression: "case_filter.customer_code"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      name: "",
+      id: ""
+    },
+    domProps: {
+      value: _vm.case_filter.customer_code
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "customer_code", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Tên KH")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-7 mt-1 mb-1"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.case_filter.customer_name,
+      expression: "case_filter.customer_name"
+    }],
+    staticClass: "form-control form-control-sm",
+    attrs: {
+      name: "",
+      id: ""
+    },
+    domProps: {
+      value: _vm.case_filter.customer_name
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.case_filter, "customer_name", $event.target.value);
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "form-group row"
+  }, [_c("label", {
+    staticClass: "col-form-label-sm col-lg-1 col-form-label text-left text-md-right mt-1",
+    attrs: {
+      "for": ""
+    }
+  }, [_vm._v("Nhóm KH")]), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-11 mt-1 mb-1"
+  }, [_c("treeselect", {
+    attrs: {
+      multiple: true,
+      options: _vm.case_data.customer_groups,
+      placeholder: "Chọn nhóm khách hàng"
+    },
+    model: {
+      value: _vm.case_filter.customer_group_ids,
+      callback: function callback($$v) {
+        _vm.$set(_vm.case_filter, "customer_group_ids", $$v);
+      },
+      expression: "case_filter.customer_group_ids"
+    }
+  })], 1)])]), _vm._v(" "), _c("div", {
+    staticClass: "card-footer"
+  }, [_c("div", {
+    staticClass: "d-flex justify-content-center"
+  }, [_c("div", [_c("button", {
+    staticClass: "btn btn-warning btn-sm mt-1 mr-2 mb-1",
+    attrs: {
+      type: "button"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.emitFormFilterOrderSync();
+      }
+    }
+  }, [_c("i", {
+    staticClass: "fa fa-search"
+  }), _vm._v("\n                                    Tìm kiếm\n                                ")])]), _vm._v(" "), _c("div", [_c("button", {
+    staticClass: "btn btn-secondary btn-sm mt-1 mb-1",
+    attrs: {
+      type: "button"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.resetFilter();
+      }
+    }
+  }, [_c("i", {
+    staticClass: "fa fa-reset"
+  }), _vm._v("\n                                    Xóa bộ lọc\n                                ")])])])])])])])])], 1);
 };
-var staticRenderFns = [];
+var staticRenderFns = [function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("button", {
+    staticClass: "btn btn-secondary btn-sm ml-1"
+  }, [_c("i", {
+    staticClass: "fas fa-sync-alt",
+    attrs: {
+      title: "Tải lại"
+    }
+  })]);
+}];
 render._withStripped = true;
 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue":
-/*!****************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue ***!
-  \****************************************************************************************************/
+/***/ "./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue ***!
+  \******************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& */ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&");
-/* harmony import */ var _DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& */ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true& */ "./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true&");
+/* harmony import */ var _HeaderOrderSyncSAP_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HeaderOrderSyncSAP.vue?vue&type=script&lang=js& */ "./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -1016,50 +755,50 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _HeaderOrderSyncSAP_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "f94720d0",
+  "65671d59",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue"
+component.options.__file = "resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_HeaderOrderSyncSAP_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./HeaderOrderSyncSAP.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_HeaderOrderSyncSAP_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&":
-/*!***********************************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& ***!
-  \***********************************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true&":
+/*!*************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true& ***!
+  \*************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerPartner/dialog/DialogAddUpdateCustomerPartner.vue?vue&type=template&id=f94720d0&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/headers/HeaderOrderSyncSAP.vue?vue&type=template&id=65671d59&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerPartner_vue_vue_type_template_id_f94720d0_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_HeaderOrderSyncSAP_vue_vue_type_template_id_65671d59_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

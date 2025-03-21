@@ -359,6 +359,7 @@ class SalesImport implements ToCollection, WithCalculatedFormulas
         array_multisort($customer_key, SORT_ASC, $dataArray);
         $this->data['items'] = $dataArray;
         $this->data['header']['customer_name'] = $customer_name;
+
         return $dataArray;
     }
 

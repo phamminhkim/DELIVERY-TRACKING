@@ -10,7 +10,8 @@ class OrderProcessSaleBy extends Model
         'order_process_sale_id',
         'processing_by',
         'processing_at',
-        'completed_at'
+        'completed_at',
+        'received_by',
     ];
     public function orderProcessSale()
     {
@@ -19,5 +20,9 @@ class OrderProcessSaleBy extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'processing_by');
+    }
+    public function receivedBy()
+    {
+        return $this->belongsTo(User::class, 'received_by');
     }
 }

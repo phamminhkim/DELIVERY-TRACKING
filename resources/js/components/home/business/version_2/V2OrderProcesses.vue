@@ -755,10 +755,11 @@ export default {
                 let { data, success, message } = await this.api_handler.post(this.url_api.save_order_so, {}, body)
                 if (success) {
                     // this.getHeaderSaveOrderSo(data);
-                    await this.getSaveOrderSO(data);
+                    // await this.getSaveOrderSO(data);
                     await this.fetchOrderProcessSODetail(data.id);
                     await this.fetchOrderHeader();
                     this.$showMessage('success', 'Lưu đơn hàng thành công');
+                    this.update_status_function.set_data++;
                     // this.$emit('saveOrderSO', data, this.is_show_modal_sync_sap);
                     // this.hideDialogTitleOrderSo();
                     $('#DialogOrderProcessesSaveSO').modal('hide');

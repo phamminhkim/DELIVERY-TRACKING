@@ -244,6 +244,7 @@ Route::middleware('auth:api')->group(function () {
         });
 
         Route::prefix('/users')->group(function () {
+            Route::get('/processing', [UserController::class, 'getAvailableRoleUsers']);
             Route::get('/', [UserController::class, 'getAvailableUsers']);
             Route::get('/role', [UserController::class, 'getUsersByRole']);
             Route::post('/', [UserController::class, 'createNewUser']);
@@ -309,9 +310,15 @@ Route::middleware('auth:api')->group(function () {
 
         Route::post('/apply-order-po-sales', [SalesProcessingController::class, 'applyOrderPOsales']);
         Route::put('/sending-order-po-sales/{id}', [SalesProcessingController::class, 'sendingOrderPOsales']);
+        Route::delete('/delete-order-po-sales/{id}', [SalesProcessingController::class, 'deleteOrderPOSales']);
 
         Route::post('/save-sales', [SalesProcessingController::class, 'saveSales']);
         Route::put('/update-sales/{id}', [SalesProcessingController::class, 'updateSaveSales']);
+
+
+
+        Route::get('/get-order-status', [SalesProcessingController::class, 'getOrderStatusStatics']);
+
     });
     Route::prefix('book-store')->group(function () {
         Route::get('/get-all', [BookStoreController::class, 'getAllBookStore']);

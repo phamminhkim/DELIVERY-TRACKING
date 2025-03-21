@@ -8,6 +8,18 @@ use App\Repositories\MasterRepository;
 
 class UserController extends ResponseController
 {
+    public function getAvailableRoleUsers(Request $request)
+    {
+
+        $handler = MasterRepository::userRequest($request);
+        $users = $handler->getAvailableRoleUsers();
+
+        if ($users) {
+            return $this->responseSuccess($users);
+        } else {
+            return $this->responseError($handler->getMessage(), $handler->getErrors());
+        }
+    }
     public function getAvailableUsers(Request $request)
     {
 

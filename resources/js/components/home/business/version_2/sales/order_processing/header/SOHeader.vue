@@ -1,7 +1,40 @@
 <template>
     <div>
-        <b-tabs small content-class="mt-3">
-            <b-tab title="1. Dữ liệu Khách hàng" @click="btnStep(1)" active>
+        <b-tabs small content-class="mt-1 bg-white p-1 rounded">
+            <b-tab title="Danh sách đơn hàng" @click="btnStep(1)" active>
+                <div class="row align-items-end mb-2">
+                    <div class="col-lg-5">
+                        <div class="mr-1 text-xs">
+                            <div><small class="mb-0">Chọn File - Excel xử lý</small><small
+                                    class="text-danger ml-1">(*)</small>
+                            </div>
+                            <div class="d-flex">
+                                <input class="flex-shrink-0" type="file" ref="fileInput" @change="handleFileChangeCopy"
+                                    accept=".xlsx, .xls, .csv" multiple>
+                                <div class="flex-fill" v-show="is_loading">
+                                    <i class="fas fa-spinner fa-pulse fa-xs" style="color: #c7c6c7;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="input-group input-group-sm text-xs">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <small for="" class="text-xs labes-m"><i
+                                            class="fas fa-search mr-1 font-weight-bold"></i>Tìm kiếm</small>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control form-control-sm text-xs"
+                                placeholder="Nhập tìm kiếm..." aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
+
+                <SOListHeaderSaleCR :items="po_sale_create_bies" @edit-order-po-sale="handleOrderEdit"
+                    @sending-order-po-sale="handleFetchOrderSale" @delete-order-po-sale="handleOrderDelete" />
+            </b-tab>
+            <b-tab title="Xử lý Mẫu (1)" @click="btnStep(2)" :active="step == 2">
                 <div>
                     <div class="header text-xs ">
                         <!-- <div class="row">
@@ -47,14 +80,14 @@
                                             </select>
                                         </div>
                                     </div> -->
-                                    <div class="col-lg-5 text-xs">
+                                    <!-- <div class="col-lg-5 text-xs">
                                         <div class="mr-1">
                                             <div><small class="mb-0">Chọn File</small><small
                                                     class="text-danger ml-1">(*)</small>
                                             </div>
                                             <div class="d-flex">
                                                 <input class="flex-shrink-0" type="file" ref="fileInput"
-                                                    @change="handleFileChange" accept=".xlsx, .xls, .csv">
+                                                    @change="handleFileChange" accept=".xlsx, .xls, .csv" multiple>
                                                 <div class="flex-fill" v-show="is_loading">
                                                     <i class="fas fa-spinner fa-pulse fa-xs"
                                                         style="color: #c7c6c7;"></i>
@@ -62,7 +95,7 @@
                                             </div>
 
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <!-- <div class="col-lg-3 text-xs">
                                         <div class="mr-1">
                                             <button @click="uploadFiles()" class="btn btn-sm px-2 btn-primary text-xs">
@@ -73,34 +106,39 @@
                                 </div>
                                 <div class="row text-xs">
                                     <div class="col-lg-12">
-                                        <div class="text-xs">
+                                        <div class="text-xs d-flex">
                                             <!-- <button @click="btnShowDialogBook()"
                                                 class="btn btn-sm btn-outline-info px-2 text-xs mr-2 rounded">Thêm nhà
                                                 sách nhanh</button> -->
-                                            <button @click="checkBookStore()"
-                                                class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Lấy
-                                                tên
-                                                nhà sách</button>
-                                            <button @click="checkSapcode()"
-                                                class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">
-                                                <small class="text-danger mr-1 text-xs"><i
-                                                        class="fab fa-diaspora"></i></small>
-                                                Lấy
-                                                mã
-                                                SAP</button>
-                                            <button @click="btnShowDialogSearchOrderProcesses()"
-                                                class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Tìm
-                                                và
-                                                thay thế</button>
-                                            <button @click="checkSapCompliance()"
-                                                class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Check
-                                                QC</button>
-                                            <button @click="btnStepTwo()"
-                                                class="btn btn-sm btn-success px-2 text-xs mr-2 rounded">Lưu
-                                                đơn hàng</button>
-                                            <button @click="btnListOrderProcess()"
-                                                class="btn btn-sm btn-info px-2 text-xs mr-2 rounded">Danh sách đơn
-                                                hàng</button>
+                                            <div v-show="data_import.items.length > 0">
+                                                <button @click="checkBookStore()"
+                                                    class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Lấy
+                                                    tên
+                                                    nhà sách</button>
+                                                <button @click="checkSapcode()"
+                                                    class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">
+                                                    <small class="text-danger mr-1 text-xs"><i
+                                                            class="fab fa-diaspora"></i></small>
+                                                    Lấy
+                                                    mã
+                                                    SAP</button>
+                                                <button @click="btnShowDialogSearchOrderProcesses()"
+                                                    class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Tìm
+                                                    và
+                                                    thay thế</button>
+                                                <button @click="checkSapCompliance()"
+                                                    class="btn btn-sm btn-outline-primary px-2 text-xs mr-2 rounded">Check
+                                                    QC</button>
+                                                <button @click="btnStepTwo()"
+                                                    class="btn btn-sm btn-success px-2 text-xs mr-2 rounded">Lưu
+                                                    đơn hàng</button>
+                                            </div>
+                                            <!-- <div>
+                                                <button @click="btnListOrderProcess()"
+                                                    class="btn btn-sm btn-info px-2 text-xs mr-2 rounded">Danh sách đơn
+                                                    hàng</button>
+                                            </div> -->
+
                                         </div>
                                     </div>
                                 </div>
@@ -167,15 +205,56 @@
                                 </button>
                             </div>
                         </div>
+                        <!-- <div class="p-1 text-xs">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <small class="font-weight-bold">
+                                        Mã đơn: <span class="text-primary">{{ so_header.code }}</span>
+                                    </small>
+                                    <small class="text-xs">
+                                        <span v-show="so_header.status == 'pending'"
+                                            class="badge badge-sm badge-secondary">Chưa gửi xử lý</span>
+                                        <span v-show="so_header.status == 'sending'"
+                                            class="badge badge-sm badge-info">Đã gửi xử lý</span>
+                                    </small>
+                                </div>
+                                <div class="col-lg-3">
+                                    <small class="font-weight-bold">
+                                        Trạng thái: <span class="">{{ so_header.status }}</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div> -->
                         <div class="d-flex mb-1 text-xs p-1" style="background: #eaeaea;">
                             <div class="mr-1">
-                                <small class="font-weight-bold">Thông báo:</small>
+                                <div v-if="so_header.code !== ''">
+                                    <small class="font-weight-bold">
+                                        Mã đơn: <span class="text-primary">{{ so_header.code }}</span>
+                                    </small>
+                                    <small class="font-weight-bold" @click="btnCopyCode()">
+                                        <button class="border px-1 rounded shadow-sm btn-light" data-toggle="tooltip"
+                                            data-placement="top" title="Sao chép">
+                                            <i class="fas fa-copy "></i>
+                                        </button>
+                                    </small>
+                                    <small class="text-xs">
+                                        <span v-show="so_header.status == 'pending'"
+                                            class="badge badge-sm badge-secondary">Chưa gửi xử lý</span>
+                                        <span v-show="so_header.status == 'sending'"
+                                            class="badge badge-sm badge-info">Đã
+                                            gửi xử lý</span>
+                                    </small>
+                                    <small class="font-weight-bold">Thông báo:</small>
+
+                                </div>
+
                             </div>
                             <div class="flex-fill text-xs">
-                                <small for="" class="text-xs text-danger">{{ error.message }}</small>
+                                <!-- <small for="" class="text-xs text-danger">{{ error.message }}</small> -->
                                 <div>
-                                    <span v-for="(item_index, index) in error.indexs" :key="index"
-                                        class="font-weight-bold text-xs text-danger"> {{ item_index }}, </span>
+                                    <small for="" class="text-xs text-danger">{{ error.message }}</small>
+                                    <!-- <span v-for="(item_index, index) in error.indexs" :key="index"
+                                        class="font-weight-bold text-xs text-danger"> {{ item_index }}, </span> -->
                                 </div>
                             </div>
                         </div>
@@ -218,11 +297,17 @@
                     </div>
                 </div>
             </b-tab>
-            <!-- <b-tab title="2. Xử lý đơn hàng" @click="btnStep(2)" :active="step == 2">
-                <SOHeaderSecond :prop_items="data_import.items" :step="step" />
+            <b-tab title="Tạo đơn hàng" @click="btnStep(3)" :active="step == 3">
+                <SOHeaderSecond :prop_items="data_import.items" :step="step"
+                @click-modal="handleClickModal" />
+            </b-tab>
+            <!-- <b-tab title="3. Review đơn hàng">
+                <SOHeaderThird />
             </b-tab> -->
 
         </b-tabs>
+        <SODialogCreateOrder id="SODialogCreateOrder" />
+
         <DialogSearchOrderProcesses :is_open_modal_search_order_processes="is_open_modal_search_order_processes"
             :orders="data_import.items" :item_selecteds="item_selecteds"
             @closeModalSearchOrderProcesses="closeModalSearchOrderProcesses" @itemReplaceAll="getReplaceItemAll"
@@ -232,7 +317,7 @@
             @close-dialog="handleCloseDialog" />
         <SODialogSaveHeader id="SODialogSaveHeader" :is_show="is_show_hide_dialog_save" :so_header="so_header"
             @close-modal="handelCloseDialogSave" @save-changes="handleSaveChanges"
-            @edit-save-header="handleEditSaveChange" />
+            @edit-save-header="handleEditSaveChange" :api_handler="api_handler" />
         <SODialogListHeaderSaleCR id="SODialogListHeaderSaleCR" :is_show="is_show_hide_modal_list_header_sale"
             @close-modal="handleCloseModalListSaleCR" :items="po_sale_create_bies" @edit-order-po-sale="handleOrderEdit"
             @sending-order-po-sale="handleFetchOrderSale" />
@@ -251,6 +336,10 @@ import SODialogCreateBook from '../dialog/SODialogCreateBook.vue';
 import SOHeaderSecond from './SOHeaderSecond.vue';
 import SODialogSaveHeader from '../dialog/SODialogSaveHeader.vue';
 import SODialogListHeaderSaleCR from '../dialog/SODialogListHeaderSaleCR.vue';
+import SOHeaderThird from './SOHeaderThird.vue';
+import SOListHeaderSaleCR from '../list/SOListHeaderSaleCR.vue';
+import SODialogCreateOrder from '../dialog/SODialogCreateOrder.vue';
+import { forEach } from 'lodash';
 registerAllModules();
 
 
@@ -262,7 +351,10 @@ export default {
         SODialogCreateBook,
         SOHeaderSecond,
         SODialogSaveHeader,
-        SODialogListHeaderSaleCR
+        SODialogListHeaderSaleCR,
+        SOHeaderThird,
+        SOListHeaderSaleCR,
+        SODialogCreateOrder
     },
     data() {
         return {
@@ -335,80 +427,86 @@ export default {
                 ],
 
                 hiddenColumns: {
-                    columns: [0], // Chỉ số cột `is_specifications`
+                    columns: [0, 9, 10], // Chỉ số cột `is_specifications`
                     indicators: false, // Không hiển thị chỉ báo ẩn
                 },
                 // dropdownMenu: true,
                 // dropdownMenu: ['filter_by_value', 'filter_action_bar'],
                 dropdownMenu: {
                     items: {
-                        // filter_by_color: {
-                        //     name: 'Lọc theo màu',
-                        //     submenu: {
-                        //         items: (key, options) => {
-                        //             // Truy xuất dữ liệu từ cột "color"
-                        //             const data = hot.getDataAtProp('theme.text.barcode_cty');
-                        //             console.log(data,'123', key, options);
-                        //             // Lấy danh sách màu duy nhất
-                        //             const uniqueColors = [...new Set(data.filter((color) => color))];
-
-                        //             // Tạo submenu động
-                        //             return uniqueColors.map((color) => ({
-                        //                 key: `filter_by_color:${color}`,
-                        //                 name: `<span style="color: ${color};">${color}</span>`, // Hiển thị màu
-                        //                 callback: function () {
-                        //                     alert(`Bạn đã chọn lọc màu: ${color}`);
-                        //                     // Thực hiện lọc trên bảng
-                        //                     hot.getPlugin('filters').addCondition(2, 'eq', [color]);
-                        //                     hot.getPlugin('filters').filter();
-                        //                 },
-                        //             }));
-                        //         },
-                        //     },
-                        // },
-                        // custom_group: {
-                        //     name: 'Filter màu',
-                        //     submenu:
-                        //     {
-                        //         items: [ // Đây phải là một mảng
-                        //             {
-                        //                 key: 'custom_group:suboption1',
-                        //                 name: '<div style="width:100%;height:20px;background:red"></div>',
-                        //                 callback: function (key, options) {
-                        //                     alert('Bạn chọn Hành động 1 từ Nhóm!', key, options);
-                        //                 },
-                        //             },
-                        //             {
-                        //                 key: 'custom_group:suboption2',
-                        //                 name: '<div style="width:100%;height:20px;background:#CC66FF"></div>',
-                        //                 callback: function () {
-                        //                     alert('Hành động 2 được kích hoạt.');
-                        //                 },
-                        //             },
-                        //             {
-                        //                 key: 'custom_group:suboption3',
-                        //                 name: '<div style="width:100%;height:20px;background:#3366CC"></div>',
-                        //                 callback: function () {
-                        //                     alert('Hành động 3 được kích hoạt.');
-                        //                 },
-                        //             },
-                        //         ],
-                        //     }
-                        // },
-                        // custom_action: {
-                        //     name: 'Tùy chỉnh hành động',
-                        //     callback: function (key, selection, clickEvent) {
-                        //         // Xử lý logic khi click vào mục này
-                        //         console.log('Custom action triggered!', selection);
-                        //         alert('Bạn vừa chọn hàng tại vị trí: ' + JSON.stringify(selection));
-                        //     },
-                        // },
+                        custom_group: {
+                            name: 'Lọc theo màu',
+                            callback: function (key, options) {
+                                alert('Bạn vừa chọn Nhóm!', key, options);
+                            },
+                            submenu: {
+                                items: this.uniqueColors(),
+                            },
+                            // submenu:
+                            // {
+                            //     items: [ // Đây phải là một mảng
+                            //         {
+                            //             key: 'custom_group:suboption1',
+                            //             name: '<div style="width:100%;height:20px;background:red"></div>',
+                            //             callback: function (key, options) {
+                            //                 alert('Bạn chọn Hành động 1 từ Nhóm!', key, options);
+                            //             },
+                            //         },
+                            //         {
+                            //             key: 'custom_group:suboption2',
+                            //             name: '<div style="width:100%;height:20px;background:#CC66FF"></div>',
+                            //             callback: function () {
+                            //                 alert('Hành động 2 được kích hoạt.');
+                            //             },
+                            //         },
+                            //         {
+                            //             key: 'custom_group:suboption3',
+                            //             name: '<div style="width:100%;height:20px;background:#3366CC"></div>',
+                            //             callback: function () {
+                            //                 alert('Hành động 3 được kích hoạt.');
+                            //             },
+                            //         },
+                            //     ],
+                            // }
+                        },
+                        custom_action: {
+                            name: 'Tùy chỉnh hành động',
+                            callback: function (key, selection, clickEvent) {
+                                // Xử lý logic khi click vào mục này
+                                console.log('Custom action triggered!', selection);
+                                alert('Bạn vừa chọn hàng tại vị trí: ' + JSON.stringify(selection));
+                            },
+                        },
 
                         filter_by_value: {
                             name: 'Tìm kiếm',
                         },
                         filter_action_bar: {},
 
+                    },
+                    className: 'custom-dropdown-menu',
+                },
+                afterDropdownMenuShow(instance) {
+                    const menu = document.querySelector('.htDropdownMenu');
+                    // từ menu đó tìm thêm thẻ table có class là 'htCore'
+                    // console.log(menu);
+
+                    if (menu) { // Tìm thẻ table có class là 'htCore' bên trong menu
+                        const table = menu.querySelector('table.htCore');
+                        console.log('table', table);
+                        table.style.width = '300px'; // Đặt kích thước tùy chỉnh
+                        menu.style.width = '300px'; // Đặt kích thước tùy chỉnh
+                        if (table) {
+                            const ht_master = menu.querySelector('div.ht_master');
+                            ht_master.style.width = '300px'; // Đặt kích thước tùy chỉnh
+                            // if (ht_master) {
+                            //     const wt_holder = menu.querySelector('div.wtHolder');
+                            //     const wt_hider = menu.querySelector('div.wtHider');
+                            //     console.log('wt_holder', wt_holder);
+                            //     wt_holder.style.width = '300px'; // Đặt kích thước tùy chỉnh
+                            //     wt_hider.style.width = '300px'; // Đặt kích thước tùy chỉnh
+                            // }
+                        }
                     }
                 },
                 className: 'customFilterButtonExample1',
@@ -450,13 +548,13 @@ export default {
                             }
                         },
                         separator: ContextMenu.SEPARATOR,
-                        clear_custom: {
-                            name: 'Clear all cells (custom)',
-                            callback() {
-                                this.clear();
-                                console.log('Clear all cells');
-                            }
-                        }
+                        // clear_custom: {
+                        //     name: 'Clear all cells (custom)',
+                        //     callback() {
+                        //         this.clear();
+                        //         console.log('Clear all cells');
+                        //     }
+                        // }
                     },
                 },
                 // columns: this.columns,
@@ -468,12 +566,14 @@ export default {
                 title: '',
                 central_branch: '',
                 description: '',
+                code: '',
+                status: '',
             },
             api_handler: new ApiHandler(window.Laravel.access_token),
             customer_group_id: '',
             customer_groups: [],
             po_sale_create_bies: [],
-            file: {},
+            files: [],
             step: 1,
             types: [
                 {
@@ -500,6 +600,7 @@ export default {
                 check_sap_compliance: 'api/sales-order/check-sap-compliance',
                 save: 'api/sales-order/save-sales',
                 update: 'api/sales-order/update-sales',
+                delete: 'api/sales-order/delete-order-po-sales',
 
                 get_all_po_sale_create_by: '/api/sales-order/get-all-po-sale-create-by',
                 get_all_po_sale_id: '/api/sales-order/get-all-po-sale-create-by',
@@ -520,9 +621,80 @@ export default {
     },
     mounted() {
         this.conditionalFormatting();
+        // this.modifyColWidth();
     },
 
     methods: {
+        // // tôi muốn viết thêm 1 hàm addHook modifyRowHeight cho hotTable dropdownMenu
+        // modifyColWidth() {
+        //     this.$refs.myHotTable.hotInstance.addHook('modifyColWidth', (width, col) => {
+        //         console.log('modifyColWidth', width, col);
+
+        //     });
+        // },
+        handleClickModal() {
+            console.log('handleCLickMOdal');
+            $('#SODialogCreateOrder').modal('show');
+
+        },
+        btnCopyCode() {
+            const text = this.so_header.code;
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            this.$showMessage('success', 'Thông báo', 'Sao chép mã đơn hàng thành công');
+        },
+        uniqueColors() {
+            // Dữ liệu mẫu của bạn
+            // Dữ liệu mẫu của bạn
+            const data = [
+                {
+                    barcode: "8935283903316",
+                    theme: {
+                        background: { barcode_cty: "#ff0000", sap_code: "#00ff00" },
+                        text: { barcode_cty: "#ff9900", sap_code: "#ff0000" },
+                    },
+                },
+                {
+                    barcode: "8935283903317",
+                    theme: {
+                        background: { barcode_cty: "#3366CC", sap_code: "#00ff00" },
+                        text: { barcode_cty: "#CC66FF", sap_code: "#00ff00" },
+                    },
+                },
+                {
+                    barcode: "8935283903318",
+                    theme: {
+                        background: { barcode_cty: "#ff0000", sap_code: "#00ff00" },
+                        text: { barcode_cty: "#00ff00", sap_code: "#3366CC" },
+                    },
+                },
+            ];
+            // Lấy danh sách màu từ cả background và text
+            const colors = [];
+            data.forEach(item => {
+                Object.values(item.theme.background).forEach(color => colors.push(color));
+                Object.values(item.theme.text).forEach(color => colors.push(color));
+            });
+
+            // Loại bỏ các màu trùng lặp
+            const uniqueColors = [...new Set(colors)];
+
+            // Tạo submenu items từ danh sách màu
+            const submenuItems = uniqueColors.map(color => ({
+                key: `color:${color}`,
+                name: `<div style="width:100%;height:20px;background:${color}"></div>`,
+                callback: function (key, options) {
+                    alert(`Bạn chọn màu: ${color}`);
+                },
+            }));
+            console.log('submenuItems', submenuItems);
+            return submenuItems;
+        },
         filterItemColorRed() {
             this.$refs.myHotTable.hotInstance.getPlugin('filters').addCondition(0, 'eq', ['red']);
         },
@@ -542,6 +714,8 @@ export default {
                     this.so_header.title = data.title;
                     this.so_header.central_branch = data.central_branch;
                     this.so_header.description = data.description;
+                    this.so_header.code = data.code;
+                    this.so_header.status = data.status;
                     this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
                     this.$showMessage('success', 'Thông báo', 'Cập nhật đơn hàng thành công');
                     // this.step = 2;
@@ -566,7 +740,12 @@ export default {
             this.so_header = item;
             await this.updateOrderProcessSale()
         },
+        async handleOrderDelete(item) {
+            console.log(item, 'delete');
+            await this.fetchDeleteOrderPOSale(item.id);
+        },
         async handleOrderEdit(item) {
+            this.step = 2;
             this.so_header.id = item.id;
             await this.fetchOrderProcessSaleCreateByID();
         },
@@ -581,6 +760,8 @@ export default {
                     this.so_header.title = data.title;
                     this.so_header.central_branch = data.central_branch;
                     this.so_header.description = data.description;
+                    this.so_header.code = data.code;
+                    this.so_header.status = data.status;
                     this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
                     this.is_show_hide_modal_list_header_sale = false;
                     // this.po_sale_create_bies = data;
@@ -604,6 +785,28 @@ export default {
                 this.is_loading = false;
             }
         },
+        async fetchDeleteOrderPOSale(id) {
+            try {
+                this.is_loading = true;
+                const { data, success } = await this.api_handler.delete(this.api.delete + '/' + id);
+                if (success) {
+                    this.$showMessage('success', 'Thông báo', 'Xóa đơn hàng thành công');
+                    this.step = 1;
+                    this.error = {
+                        indexs: [],
+                        message: '',
+                    }
+                    await this.fetchOrderProcessSaleCreateBy();
+                }
+            } catch (error) {
+                console.log(error);
+                this.error.indexs = error.response.data.errors[0];
+                this.error.message = error.response.data.message;
+                this.$showMessage('error', 'Lỗi', error.response.data.message);
+            } finally {
+                this.is_loading = false;
+            }
+        },
         handelCloseDialogSave() {
             this.is_show_hide_dialog_save = false;
             console.log('close dialog save', this.is_show_hide_dialog_save);
@@ -620,6 +823,8 @@ export default {
             this.is_show_hide_dialog_save = false;
             this.so_header = so_header_data;
             await this.saveSO();
+            await this.fetchOrderProcessSaleCreateBy();
+            this.step = 1;
         },
         async saveSO() {
             try {
@@ -639,7 +844,7 @@ export default {
                 }
             } catch (error) {
                 console.log(error);
-                this.error.indexs = error.response.data.errors[0];
+                this.error.indexs = error.response.data.errors;
                 this.error.message = error.response.data.message;
                 this.$showMessage('error', 'Lỗi', error);
             } finally {
@@ -760,8 +965,11 @@ export default {
             try {
                 const page_url = this.api.sales_import;
                 const formData = new FormData();
-                formData.append('file', this.file, "customized-file.xlsx");
-
+                // formData.append('file', this.files, "customized-file.xlsx");
+                // Thêm từng file vào FormData
+                for (let i = 0; i < this.files.length; i++) {
+                    formData.append(`file[]`, this.files[i], this.files[i].name || `customized-file-${i + 1}.xlsx`);
+                }
                 const response = await fetch(page_url, {
                     method: "POST",
                     body: formData,
@@ -773,94 +981,291 @@ export default {
                 if (!response.ok) {
                     throw new Error("Upload failed");
                 }
-
+                let items = [];
                 const data = await response.json();
-                this.data_import.items = data.data.items;
+                if (data.success == false) {
+                    this.$showMessage('error', 'Lỗi', data.message);
+                    this.loading = false;
+                    return;
+                }
+                data.data.forEach(item => {
+                    items.push(item.items);
+                });
+                let merged_items = [].concat(...items);
+                this.data_import.items = merged_items;
+                // this.data_import.items = data.data.items;
                 this.data_import.header = data.data.header;
-
                 this.$refs.myHotTable.hotInstance.loadData(this.data_import.items);
 
             } catch (error) {
                 console.error("Upload failed", error);
                 this.loading = false;
+
+            } finally {
+                this.loading = false;
+
             }
         },
-        async handleFileChange(event) {
+        async handleFileChangeCopy(event) {
             this.is_loading = true;
             this.reset();
-            const file = this.$refs.fileInput.files[0];
+
+            const files = this.$refs.fileInput.files; // Lấy danh sách file
             const reader = new FileReader();
 
-            const readFile = () => {
+            const readFile = (file) => {
                 return new Promise((resolve, reject) => {
-                    reader.onload = (e) => resolve(new Uint8Array(e.target.result));
+                    reader.onload = (e) => resolve({ data: new Uint8Array(e.target.result), file });
                     reader.onerror = (error) => reject(error);
                     reader.readAsArrayBuffer(file);
                 });
             };
 
             try {
-                const data = await readFile();
-                const work_book = XLSX.read(data, {
-                    type: 'array',
-                    cellFormula: false,  // Không cần công thức
-                    cellStyles: false,
-                    cellText: true, // Ưu tiên giá trị hiển thị
-                    sheetRows: 10000,
-                });
+                const newWorkBooks = []; // Lưu trữ các workbook đã xử lý
 
-                // Hàm xử lý sheet
-                const processSheet = (sheetName) => {
-                    const work_sheet = work_book.Sheets[sheetName];
-                    let rows = XLSX.utils.sheet_to_json(work_sheet, {
-                        header: 1,
-                        raw: false, // Dùng giá trị hiển thị (giống Paste Values)
+                for (const file of files) {
+                    const { data } = await readFile(file);
+                    const work_book = XLSX.read(data, {
+                        type: 'array',
+                        cellFormula: false,
+                        cellStyles: false,
+                        cellText: true,
+                        sheetRows: 10000,
                     });
-                    rows = rows.filter(row =>
-                        row.some(cell => cell !== null && cell !== "")
-                    );
 
-                    // Tạo workbook mới và thêm sheet đã xử lý
-                    const newWorkBook = XLSX.utils.book_new();
-                    const newWorkSheet = XLSX.utils.aoa_to_sheet(rows);
-                    XLSX.utils.book_append_sheet(newWorkBook, newWorkSheet, sheetName);
-                    return newWorkBook;
-                };
+                    const processSheet = (sheetName) => {
+                        const work_sheet = work_book.Sheets[sheetName];
+                        let rows = XLSX.utils.sheet_to_json(work_sheet, {
+                            header: 1,
+                            raw: false,
+                        });
+                        rows = rows.filter(row => row.some(cell => cell !== null && cell !== ""));
 
-                let newWorkBook;
+                        // Tạo workbook mới và thêm sheet đã xử lý
+                        const newWorkBook = XLSX.utils.book_new();
+                        const newWorkSheet = XLSX.utils.aoa_to_sheet(rows);
+                        XLSX.utils.book_append_sheet(newWorkBook, newWorkSheet, sheetName);
 
-                if (work_book.SheetNames.length > 1) {
-                    // Tìm sheet có tên mong muốn
-                    const targetSheet = work_book.SheetNames.find(sheetName =>
-                        toLower(sheetName) === toLower('CHI TIET NS DAT HANG_2')
-                    );
+                        return newWorkBook;
+                    };
 
-                    if (targetSheet) {
-                        newWorkBook = processSheet(targetSheet);
-                    } else {
-                        throw new Error('Không tìm thấy sheet "CHI TIET NS DAT HANG_2".');
+                    let newWorkBook;
+
+                    if (work_book.SheetNames.length > 1) {
+                        const targetSheet = work_book.SheetNames.find(sheetName =>
+                            sheetName.toLowerCase() === 'chi tiet ns dat hang_2'.toLowerCase()
+                        );
+
+                        if (targetSheet) {
+                            newWorkBook = processSheet(targetSheet);
+                        } else {
+                            throw new Error(`Không tìm thấy sheet "CHI TIET NS DAT HANG_2" trong file ${file.name}.`);
+                        }
+                    } else if (work_book.SheetNames.length === 1) {
+                        const sheetName = work_book.SheetNames[0];
+                        newWorkBook = processSheet(sheetName);
                     }
-                } else if (work_book.SheetNames.length === 1) {
-                    // Chỉ có một sheet
-                    const sheetName = work_book.SheetNames[0];
-                    newWorkBook = processSheet(sheetName);
+
+                    if (newWorkBook) {
+                        newWorkBooks.push({ workBook: newWorkBook, fileName: file.name });
+                    }
                 }
 
-                // Xuất file từ workbook mới
-                const newExcelFile = XLSX.write(newWorkBook, {
-                    bookType: "xlsx",
-                    type: "array",
-                });
-                const blob = new Blob([newExcelFile], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                this.file = blob;
+                // Xuất và lưu các file Excel đã xử lý
+                for (const { workBook, fileName } of newWorkBooks) {
+                    const newExcelFile = XLSX.write(workBook, {
+                        bookType: "xlsx",
+                        type: "array",
+                    });
+                    const blob = new Blob([newExcelFile], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 
+                    // this.files = blob; // Lưu blob vào biến của bạn (nếu cần)
+                    this.files.push(blob);
+
+                    // Tùy chỉnh upload cho từng file
+                }
+                console.log(this.files);
+                this.step = 2;
                 await this.uploadFiles();
+                // await this.uploadFiles(blob, fileName);
+
             } catch (error) {
                 console.error("File processing failed", error);
             } finally {
                 this.is_loading = false;
+
             }
         },
+        async handleFileChange(event) {
+            this.is_loading = true;
+            this.reset();
+
+
+            const files = this.$refs.fileInput.files; // Lấy danh sách file
+            const reader = new FileReader();
+
+            const readFile = (file) => {
+                return new Promise((resolve, reject) => {
+                    reader.onload = (e) => resolve({ data: new Uint8Array(e.target.result), file });
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsArrayBuffer(file);
+                });
+            };
+
+            try {
+                const newWorkBooks = []; // Lưu trữ các workbook đã xử lý
+
+                for (const file of files) {
+                    const { data } = await readFile(file);
+                    const work_book = XLSX.read(data, {
+                        type: 'array',
+                        cellFormula: false,
+                        cellStyles: false,
+                        cellText: true,
+                        sheetRows: 10000,
+                    });
+
+                    const processSheet = (sheetName) => {
+                        const work_sheet = work_book.Sheets[sheetName];
+                        let rows = XLSX.utils.sheet_to_json(work_sheet, {
+                            header: 1,
+                            raw: false,
+                        });
+                        rows = rows.filter(row => row.some(cell => cell !== null && cell !== ""));
+
+                        // Tạo workbook mới và thêm sheet đã xử lý
+                        const newWorkBook = XLSX.utils.book_new();
+                        const newWorkSheet = XLSX.utils.aoa_to_sheet(rows);
+                        XLSX.utils.book_append_sheet(newWorkBook, newWorkSheet, sheetName);
+
+                        return newWorkBook;
+                    };
+
+                    let newWorkBook;
+
+                    if (work_book.SheetNames.length > 1) {
+                        const targetSheet = work_book.SheetNames.find(sheetName =>
+                            sheetName.toLowerCase() === 'chi tiet ns dat hang_2'.toLowerCase()
+                        );
+
+                        if (targetSheet) {
+                            newWorkBook = processSheet(targetSheet);
+                        } else {
+                            throw new Error(`Không tìm thấy sheet "CHI TIET NS DAT HANG_2" trong file ${file.name}.`);
+                        }
+                    } else if (work_book.SheetNames.length === 1) {
+                        const sheetName = work_book.SheetNames[0];
+                        newWorkBook = processSheet(sheetName);
+                    }
+
+                    if (newWorkBook) {
+                        newWorkBooks.push({ workBook: newWorkBook, fileName: file.name });
+                    }
+                }
+
+                // Xuất và lưu các file Excel đã xử lý
+                for (const { workBook, fileName } of newWorkBooks) {
+                    const newExcelFile = XLSX.write(workBook, {
+                        bookType: "xlsx",
+                        type: "array",
+                    });
+                    const blob = new Blob([newExcelFile], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+
+                    // this.files = blob; // Lưu blob vào biến của bạn (nếu cần)
+                    this.files.push(blob);
+
+                    // Tùy chỉnh upload cho từng file
+                }
+
+                await this.uploadFiles();
+                // await this.uploadFiles(blob, fileName);
+
+            } catch (error) {
+                console.error("File processing failed", error);
+            } finally {
+                this.is_loading = false;
+
+            }
+        },
+
+        // async handleFileChange(event) {
+        //     this.is_loading = true;
+        //     this.reset();
+        //     console.log(this.$refs.fileInput.files);
+        //     const file = this.$refs.fileInput.files[0];
+        //     const reader = new FileReader();
+
+        //     const readFile = () => {
+        //         return new Promise((resolve, reject) => {
+        //             reader.onload = (e) => resolve(new Uint8Array(e.target.result));
+        //             reader.onerror = (error) => reject(error);
+        //             reader.readAsArrayBuffer(file);
+        //         });
+        //     };
+
+        //     try {
+        //         const data = await readFile();
+        //         const work_book = XLSX.read(data, {
+        //             type: 'array',
+        //             cellFormula: false,  // Không cần công thức
+        //             cellStyles: false,
+        //             cellText: true, // Ưu tiên giá trị hiển thị
+        //             sheetRows: 10000,
+        //         });
+
+        //         // Hàm xử lý sheet
+        //         const processSheet = (sheetName) => {
+        //             const work_sheet = work_book.Sheets[sheetName];
+        //             let rows = XLSX.utils.sheet_to_json(work_sheet, {
+        //                 header: 1,
+        //                 raw: false, // Dùng giá trị hiển thị (giống Paste Values)
+        //             });
+        //             rows = rows.filter(row =>
+        //                 row.some(cell => cell !== null && cell !== "")
+        //             );
+
+        //             // Tạo workbook mới và thêm sheet đã xử lý
+        //             const newWorkBook = XLSX.utils.book_new();
+        //             const newWorkSheet = XLSX.utils.aoa_to_sheet(rows);
+        //             XLSX.utils.book_append_sheet(newWorkBook, newWorkSheet, sheetName);
+        //             return newWorkBook;
+        //         };
+
+        //         let newWorkBook;
+
+        //         if (work_book.SheetNames.length > 1) {
+        //             // Tìm sheet có tên mong muốn
+        //             const targetSheet = work_book.SheetNames.find(sheetName =>
+        //                 toLower(sheetName) === toLower('CHI TIET NS DAT HANG_2')
+        //             );
+
+        //             if (targetSheet) {
+        //                 newWorkBook = processSheet(targetSheet);
+        //             } else {
+        //                 throw new Error('Không tìm thấy sheet "CHI TIET NS DAT HANG_2".');
+        //             }
+        //         } else if (work_book.SheetNames.length === 1) {
+        //             // Chỉ có một sheet
+        //             const sheetName = work_book.SheetNames[0];
+        //             newWorkBook = processSheet(sheetName);
+        //         }
+
+        //         // Xuất file từ workbook mới
+        //         const newExcelFile = XLSX.write(newWorkBook, {
+        //             bookType: "xlsx",
+        //             type: "array",
+        //         });
+        //         const blob = new Blob([newExcelFile], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        //         this.files = blob;
+
+        //         await this.uploadFiles();
+        //     } catch (error) {
+        //         console.error("File processing failed", error);
+        //     } finally {
+        //         this.is_loading = false;
+        //     }
+        // },
         async fetchCustomerGroup() {
             try {
                 this.is_loading = true;
@@ -875,6 +1280,10 @@ export default {
             }
         },
         async btnStepTwo() {
+            if (this.data_import.items.length == 0) {
+                this.$showMessage('error', 'Lỗi', 'Không có dữ liệu để lưu');
+                return;
+            }
             // add vào url là &step=2
             this.is_show_hide_dialog_save = true;
             // await this.saveSO();
@@ -1095,6 +1504,24 @@ export default {
     width: 90px;
     height: 20px;
     background-color: #CC66FF;
+}
+
+// .handsontable > .htDropdownMenu >
+::v-deep .htMenu .htDropdownMenu .handsontable {
+    //   width: 300px !important;
+    //   border: 3px solid red !important;
+    left: 10px !important;
+}
+
+::v-deep .htDropdownMenu>div.ht_master.handsontable>div.wtHolder>div.wtHider>div.wtSpreader>table.htCore {
+    border: 4px solid #fd0404 !important;
+    border-bottom-width: 2px !important;
+    border-right-width: 2px !important;
+}
+
+::v-deep .htDropdownMenu table tbody tr td .htItemWrapper {
+
+    color: red !important;
 }
 
 // ::v-deep .handsontable.customFilterButtonExample1 .changeType {

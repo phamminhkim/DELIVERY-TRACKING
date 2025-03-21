@@ -12,6 +12,7 @@ class OrderProcessSale extends Model
         'description',
         'status',
         'created_by',
+        'code',
     ];
 
     public function user()
@@ -25,5 +26,9 @@ class OrderProcessSale extends Model
     public function orderProcessSaleItems()
     {
         return $this->hasMany(OrderProcessSaleItem::class, 'order_process_sale_id');
+    }
+    public function orderProcessSaleReceive()
+    {
+        return $this->hasOne(OrderProcessSaleReceive::class, 'order_process_sale_id');
     }
 }

@@ -205,7 +205,7 @@ export default {
                 "Số Lượng": item.quantity,
                 "Qui cách": item.specifications,
                 "Ghi Chú": item.description,
-                "Số phiếu": item.order_process_sale_id,
+                "Số phiếu": item.count_order,
                 "Barcode_cty": item.barcode_cty,
                 "Mã SAP": item.sap_code,
                 "Tên SP": item.sap_name,

@@ -13,6 +13,35 @@ use App\Repositories\Abstracts\RepositoryAbs;
 
 class UserRepository extends RepositoryAbs
 {
+    public function getAvailableRoleUsers()
+    {
+        try {
+            // user-processing-book
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'user-processing-book');
+            })->get();
+            $result = array();
+
+            if ($this->request->filled('format')) {
+                if ($this->request->format == 'treeselect') {
+                    foreach ($users as $user) {
+                        $item = array(
+                            'id' => $user->id,
+                            'label' => $user->name,
+                            'object' => $user
+                        );
+                        array_push($result, $item);
+                    }
+                }
+            } else {
+                $result = $users;
+            }
+            return $result;
+        } catch (\Exception $exception) {
+            $this->message = $exception->getMessage();
+            $this->errors = $exception->getTrace();
+        }
+    }
     public function getAvailableUsers()
     {
         try {

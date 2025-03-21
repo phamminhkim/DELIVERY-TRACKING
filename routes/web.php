@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Master\MaterialCLCController;
 use App\Http\Controllers\Api\Master\MaterialBundleController;
 use App\Http\Controllers\Auth\JstController;
 use App\Http\Controllers\SinglePage\AppController;
+use App\Mail\TestMail;
 use App\Models\Master\CustomerPartner;
 use App\Models\Master\MaterialCombo;
 use App\Models\Master\MaterialDonated;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Zalo\Zalo;
@@ -40,7 +42,6 @@ use Wilkques\PKCE\Generator;
 
 
 Auth::routes(['verify' => true]);
-
 
 Auth::routes();
 Route::get('/', function () {
@@ -89,14 +90,14 @@ Route::get('/auth/onetl/callback', 'Auth\SocialAuthController@handleOnetlCallbac
 
 
 Route::get('/scan-qr/{qr_code}', [ApplicationController::class, 'getTargetApplicationUrl']);
-Route::get('/excel/{filename}', [SapMaterialMappingController::class,'download']);
-Route::get('/excel/{filename}', [SapMaterialController::class,'download']);
-Route::get('/excel/{filename}', [CustomerPartnerController::class,'download']);
-Route::get('/excel/{filename}', [MaterialDonatedController::class,'download']);
-Route::get('/excel/{filename}', [MaterialComboController::class,'download']);
-Route::get('/excel/{filename}', [MaterialCLCController::class,'download']);
-Route::get('/excel/{filename}', [MaterialBundleController::class,'download']);
-Route::get('/profile', [AppController::class,'profile']);
+Route::get('/excel/{filename}', [SapMaterialMappingController::class, 'download']);
+Route::get('/excel/{filename}', [SapMaterialController::class, 'download']);
+Route::get('/excel/{filename}', [CustomerPartnerController::class, 'download']);
+Route::get('/excel/{filename}', [MaterialDonatedController::class, 'download']);
+Route::get('/excel/{filename}', [MaterialComboController::class, 'download']);
+Route::get('/excel/{filename}', [MaterialCLCController::class, 'download']);
+Route::get('/excel/{filename}', [MaterialBundleController::class, 'download']);
+Route::get('/profile', [AppController::class, 'profile']);
 
 Route::get('access-token', function () {
     $auth_user = Auth()->user();

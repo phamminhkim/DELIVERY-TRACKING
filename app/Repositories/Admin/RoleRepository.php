@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RoleRepository extends RepositoryAbs
 {
-     public function getAvailableRoles()
+    public function getAvailableRoles()
     {
         try {
             $query = Role::query();
@@ -18,17 +18,16 @@ class RoleRepository extends RepositoryAbs
 
             if ($this->request->filled('format')) {
                 if ($this->request->format == 'treeselect') {
-                        foreach ($roles as $role) {
-                            $item = array(
-                                'id' => $role->id,
-                                'label' => $role->name . ' (' . $role->guard_name . ')',
-                                'object' => $role
-                            );
-                            array_push($result, $item);
-                        }
+                    foreach ($roles as $role) {
+                        $item = array(
+                            'id' => $role->id,
+                            'label' => $role->name . ' (' . $role->guard_name . ')',
+                            'object' => $role
+                        );
+                        array_push($result, $item);
+                    }
                 }
-            }
-            else {
+            } else {
                 $result = $roles;
             }
             return $result;
@@ -41,7 +40,7 @@ class RoleRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'name' =>'required|string|unique:roles,name,NULL,id,guard_name,' . $this->data['guard_name'],
+                'name' => 'required|string|unique:roles,name,NULL,id,guard_name,' . $this->data['guard_name'],
                 'guard_name' => 'required|string',
             ], [
                 'name.required' => 'Tên role là bắt buộc.',
@@ -73,7 +72,7 @@ class RoleRepository extends RepositoryAbs
     {
         try {
             $validator = Validator::make($this->data, [
-                'name' =>'required|string',
+                'name' => 'required|string',
                 'guard_name' => 'required|string',
             ], [
                 'name.required' => 'Tên role là bắt buộc.',

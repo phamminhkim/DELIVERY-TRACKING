@@ -1,23 +1,25 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[10],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
+/* harmony import */ var _ApiHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../ApiHandler */ "./resources/js/components/home/ApiHandler.js");
 /* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @riophae/vue-treeselect */ "./node_modules/@riophae/vue-treeselect/dist/vue-treeselect.cjs.js");
 /* harmony import */ var _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @riophae/vue-treeselect/dist/vue-treeselect.css */ "./node_modules/@riophae/vue-treeselect/dist/vue-treeselect.css");
 /* harmony import */ var _riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_riophae_vue_treeselect_dist_vue_treeselect_css__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! toastr */ "./node_modules/toastr/toastr.js");
-/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(toastr__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! toastr/toastr.scss */ "./node_modules/toastr/toastr.scss");
-/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! toastr */ "./node_modules/toastr/toastr.js");
+/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(toastr__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! toastr/toastr.scss */ "./node_modules/toastr/toastr.scss");
+/* harmony import */ var toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(toastr_toastr_scss__WEBPACK_IMPORTED_MODULE_5__);
 function _typeof(o) {
   "@babel/helpers - typeof";
 
@@ -32,6 +34,18 @@ function _slicedToArray(r, e) {
 }
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _unsupportedIterableToArray(r, a) {
+  if (r) {
+    if ("string" == typeof r) return _arrayLikeToArray(r, a);
+    var t = {}.toString.call(r).slice(8, -1);
+    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+  }
+}
+function _arrayLikeToArray(r, a) {
+  (null == a || a > r.length) && (a = r.length);
+  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+  return n;
 }
 function _iterableToArrayLimit(r, l) {
   var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
@@ -62,30 +76,6 @@ function _iterableToArrayLimit(r, l) {
 }
 function _arrayWithHoles(r) {
   if (Array.isArray(r)) return r;
-}
-function _toConsumableArray(r) {
-  return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
-}
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _unsupportedIterableToArray(r, a) {
-  if (r) {
-    if ("string" == typeof r) return _arrayLikeToArray(r, a);
-    var t = {}.toString.call(r).slice(8, -1);
-    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
-  }
-}
-function _iterableToArray(r) {
-  if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
-}
-function _arrayWithoutHoles(r) {
-  if (Array.isArray(r)) return _arrayLikeToArray(r);
-}
-function _arrayLikeToArray(r, a) {
-  (null == a || a > r.length) && (a = r.length);
-  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
-  return n;
 }
 function _regeneratorRuntime() {
   "use strict";
@@ -422,242 +412,199 @@ function _asyncToGenerator(n) {
 
 
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'DialogAddUpdateCustomerGroupPivots',
+  name: 'DialogOrderUpload',
   props: {
     is_editing: Boolean,
     editing_item: Object,
     refetchData: Function
   },
   components: {
-    Treeselect: _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1___default.a
+    Treeselect: _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1___default.a,
+    Vue: vue__WEBPACK_IMPORTED_MODULE_3___default.a
   },
   data: function data() {
     return {
       api_handler: new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["default"](window.Laravel.access_token),
       is_loading: false,
       errors: {},
-      customer_group_pivot: {
-        customer_group_id: null,
-        customer_id: null
-      },
       customer_group_options: [],
-      customer_group_pivots: [],
-      api_url: '/api/master/customer-group-pivots'
+      company_options: [],
+      load_config_form: {
+        customer: null,
+        customer_group_id: null,
+        extract_order_config: null,
+        company: null,
+        warehouse: null
+      },
+      files: [],
+      selected_batch_id: null,
+      load_extract_order_config_options: null,
+      load_customer_id_options: null,
+      load_warehouse_id_options: null
     };
   },
   created: function created() {
     this.fetchOptionsData();
   },
   methods: {
-    addCustomerGroupPivot: function addCustomerGroupPivot() {
+    onClickUploadFile: function onClickUploadFile() {
       var _this = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var batch_data, batch_response, selected_batch_id, promises, file_responses;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              if (!_this.is_loading) {
-                _context.next = 2;
+              _context.prev = 0;
+              _this.is_loading = true;
+              batch_data = {
+                customer: _this.load_config_form.customer,
+                extract_order_config: _this.load_config_form.extract_order_config,
+                customer_group_id: _this.load_config_form.customer_group_id,
+                company: _this.load_config_form.company,
+                warehouse: _this.load_config_form.warehouse
+              };
+              _context.next = 5;
+              return _this.api_handler.post('/api/ai/file/batch', batch_data);
+            case 5:
+              batch_response = _context.sent;
+              selected_batch_id = batch_response.data;
+              promises = _this.files.map(function (file) {
+                return _this.api_handler.setHeaders({
+                  'Content-Type': 'multipart/form-data'
+                }).post('/api/ai/file/upload', {}, _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["default"].createFormData({
+                  batch_id: selected_batch_id,
+                  file: file
+                }));
+              });
+              _context.next = 10;
+              return Promise.all(promises);
+            case 10:
+              file_responses = _context.sent;
+              if (batch_data.success) {
+                _context.next = 18;
                 break;
               }
-              return _context.abrupt("return");
-            case 2:
-              _this.is_loading = true;
-              if (_this.is_editing === false) {
-                _this.createCustomerGroupPivot();
-              } else {
-                _this.updateCustomerGroupPivot();
-              }
-            case 4:
+              _this.$showMessage('success', 'Thêm thành công');
+              _this.closeDialog();
+              _context.next = 16;
+              return _this.refetchData();
+            case 16:
+              _context.next = 20;
+              break;
+            case 18:
+              _this.errors = batch_data.errors;
+              _this.$showMessage('error', 'Thêm không thành công');
+            case 20:
+              _context.next = 25;
+              break;
+            case 22:
+              _context.prev = 22;
+              _context.t0 = _context["catch"](0);
+              _this.$showMessage('error', 'Đã xảy ra lỗi khi upload file');
+            case 25:
+              _context.prev = 25;
+              _this.is_loading = false;
+              return _context.finish(25);
+            case 28:
             case "end":
               return _context.stop();
           }
-        }, _callee);
-      }))();
-    },
-    createCustomerGroupPivot: function createCustomerGroupPivot() {
-      var _this2 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var data;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              _context2.prev = 0;
-              _this2.is_loading = true;
-              _context2.next = 4;
-              return _this2.api_handler.post(_this2.api_url, {
-                customer_group_id: _this2.customer_group_pivot.customer_group_id,
-                customer_id: _this2.customer_group_pivot.customer_id
-              });
-            case 4:
-              data = _context2.sent;
-              if (!data.success) {
-                _context2.next = 14;
-                break;
-              }
-              _this2.customer_group_pivots.push(data); // Add the new mapping to the list
-              _this2.showMessage('success', 'Thêm thành công');
-              _this2.closeDialog();
-              _this2.clearForm();
-              _context2.next = 12;
-              return _this2.refetchData();
-            case 12:
-              _context2.next = 16;
-              break;
-            case 14:
-              _this2.errors = data.errors;
-              _this2.showMessage('error', 'Thêm không thành công');
-            case 16:
-              _context2.next = 21;
-              break;
-            case 18:
-              _context2.prev = 18;
-              _context2.t0 = _context2["catch"](0);
-              _this2.showMessage('error', 'Thêm không thành công');
-            case 21:
-              _context2.prev = 21;
-              _this2.is_loading = false;
-              return _context2.finish(21);
-            case 24:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2, null, [[0, 18, 21, 24]]);
-      }))();
-    },
-    updateCustomerGroupPivot: function updateCustomerGroupPivot() {
-      var _this3 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-        var data, _this3$customer_group;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.prev = 0;
-              _this3.is_loading = true;
-              _context3.next = 4;
-              return _this3.api_handler.put("".concat(_this3.api_url, "/").concat(_this3.customer_group_pivot.id), _this3.customer_group_pivot);
-            case 4:
-              data = _context3.sent;
-              if (!data.success) {
-                _context3.next = 13;
-                break;
-              }
-              if (Array.isArray(data)) {
-                (_this3$customer_group = _this3.customer_group_pivots).push.apply(_this3$customer_group, _toConsumableArray(data)); // Add the new mappings to the end of the list
-              }
-              _this3.showMessage('success', 'Cập nhật thành công');
-              _this3.closeDialog();
-              _context3.next = 11;
-              return _this3.refetchData();
-            case 11:
-              _context3.next = 15;
-              break;
-            case 13:
-              _this3.errors = data.errors;
-              _this3.showMessage('error', 'Cập nhật không thành công');
-            case 15:
-              _context3.next = 20;
-              break;
-            case 17:
-              _context3.prev = 17;
-              _context3.t0 = _context3["catch"](0);
-              _this3.showMessage('error', 'Cập nhật không thành công');
-            case 20:
-              _context3.prev = 20;
-              _this3.is_loading = false;
-              return _context3.finish(20);
-            case 23:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3, null, [[0, 17, 20, 23]]);
+        }, _callee, null, [[0, 22, 25, 28]]);
       }))();
     },
     fetchOptionsData: function fetchOptionsData() {
-      var _this4 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-        var _yield$_this4$api_han, _yield$_this4$api_han2, customer_group_options;
-        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-          while (1) switch (_context4.prev = _context4.next) {
+      var _this2 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        var _yield$_this2$api_han, _yield$_this2$api_han2, customer_group_options, companies;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              _context4.next = 2;
-              return _this4.api_handler.handleMultipleRequest([new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-groups')]);
+              _context2.next = 2;
+              return _this2.api_handler.handleMultipleRequest([new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/customer-groups'), new _ApiHandler__WEBPACK_IMPORTED_MODULE_0__["APIRequest"]('get', '/api/master/companies')]);
             case 2:
-              _yield$_this4$api_han = _context4.sent;
-              _yield$_this4$api_han2 = _slicedToArray(_yield$_this4$api_han, 1);
-              customer_group_options = _yield$_this4$api_han2[0];
-              _this4.customer_group_options = customer_group_options;
-            case 6:
+              _yield$_this2$api_han = _context2.sent;
+              _yield$_this2$api_han2 = _slicedToArray(_yield$_this2$api_han, 2);
+              customer_group_options = _yield$_this2$api_han2[0];
+              companies = _yield$_this2$api_han2[1];
+              _this2.customer_group_options = customer_group_options;
+              _this2.company_options = companies;
+            case 8:
             case "end":
-              return _context4.stop();
+              return _context2.stop();
           }
-        }, _callee4);
+        }, _callee2);
       }))();
     },
     loadOptions: function loadOptions(_ref) {
-      var _this5 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-        var action, searchQuery, callback, params, _yield$_this5$api_han, data, options;
-        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-          while (1) switch (_context5.prev = _context5.next) {
+      var _this3 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+        var action, searchQuery, callback, params, _yield$_this3$api_han, data, options;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
             case 0:
               action = _ref.action, searchQuery = _ref.searchQuery, callback = _ref.callback;
               if (!(action === _riophae_vue_treeselect__WEBPACK_IMPORTED_MODULE_1__["ASYNC_SEARCH"])) {
-                _context5.next = 9;
+                _context3.next = 9;
                 break;
               }
               params = {
                 search: searchQuery
               };
-              _context5.next = 5;
-              return _this5.api_handler.get('api/master/customers/minified', params);
+              _context3.next = 5;
+              return _this3.api_handler.get('api/master/sap-units', params);
             case 5:
-              _yield$_this5$api_han = _context5.sent;
-              data = _yield$_this5$api_han.data;
+              _yield$_this3$api_han = _context3.sent;
+              data = _yield$_this3$api_han.data;
               options = data.map(function (item) {
                 return {
-                  id: item.code,
-                  label: "(".concat(item.code, ") ").concat(item.name)
+                  id: item.id,
+                  label: "(".concat(item.id, ") ").concat(item.unit_code)
                 };
               });
               callback(null, options);
             case 9:
             case "end":
-              return _context5.stop();
+              return _context3.stop();
           }
-        }, _callee5);
+        }, _callee3);
       }))();
     },
-    normalizerOption: function normalizerOption(node) {
-      return {
-        id: node.id,
-        label: node.name
-      };
+    normalizer: function normalizer(node) {
+      if (node.id !== null && node.id !== undefined) {
+        return {
+          id: node.id,
+          label: node.name
+        };
+      } else if (node.code !== null && node.code !== undefined) {
+        return {
+          id: node.code,
+          label: "(".concat(node.code, ") ").concat(node.name)
+        };
+      }
     },
     closeDialog: function closeDialog() {
-      // this.clearForm();
-      this.clearErrors();
-      $('#DialogAddUpdateCustomerGroupPivots').modal('hide');
+      this.resetForm();
+      $('#DialogOrderUpload').modal('hide');
     },
-    resetDialog: function resetDialog() {
-      this.customer_group_pivot.customer_id = null;
-      this.customer_group_pivot.customer_group_id = null;
-      this.clearErrors();
-    },
-    clearForm: function clearForm() {
-      this.customer_group_pivot.customer_id = null;
-      this.customer_group_pivot.customer_group_id = null;
-    },
-    clearErrors: function clearErrors() {
-      this.errors = {};
+    resetForm: function resetForm() {
+      // Reset the form values
+      this.selected_batch_id = null;
+      this.load_config_form.customer_group_id = null;
+      this.load_config_form.extract_order_config = null;
+      this.load_config_form.customer = null;
+      this.load_config_form.company = null;
+      this.load_config_form.warehouse = null;
+      this.files = [];
     },
     showMessage: function showMessage(type, title, message) {
       if (!title) title = 'Information';
-      toastr__WEBPACK_IMPORTED_MODULE_3___default.a.options = {
+      toastr__WEBPACK_IMPORTED_MODULE_4___default.a.options = {
         positionClass: 'toast-bottom-right',
         toastClass: this.getToastClassByType(type)
       };
-      toastr__WEBPACK_IMPORTED_MODULE_3___default.a[type](message, title);
+      toastr__WEBPACK_IMPORTED_MODULE_4___default.a[type](message, title);
     },
     hasError: function hasError(fieldName) {
       return fieldName in this.errors;
@@ -679,32 +626,66 @@ function _asyncToGenerator(n) {
     }
   },
   watch: {
-    is_editing: function is_editing() {
-      if (!this.is_editing) {
-        this.clearForm();
-      }
+    load_customer_group_id: function load_customer_group_id() {
+      var _this$customer_group_,
+        _this4 = this,
+        _this$customer_group_2;
+      this.load_customer_id_options = [];
+      var load_customer_id_options = (_this$customer_group_ = this.customer_group_options.find(function (customer_group) {
+        return customer_group.id == _this4.load_customer_group_id;
+      })) === null || _this$customer_group_ === void 0 ? void 0 : _this$customer_group_.customers;
+      this.load_customer_id_options = load_customer_id_options ? load_customer_id_options.map(function (customer) {
+        return {
+          id: customer.id,
+          label: "(".concat(customer.code, ") ").concat(customer.name)
+        };
+      }) : [];
+      this.load_extract_order_config_options = [];
+      var load_extract_order_config_options = (_this$customer_group_2 = this.customer_group_options.find(function (customer_group) {
+        return customer_group.id == _this4.load_customer_group_id;
+      })) === null || _this$customer_group_2 === void 0 ? void 0 : _this$customer_group_2.extract_order_configs;
+      this.load_extract_order_config_options = load_extract_order_config_options ? load_extract_order_config_options.map(function (extract_order_config) {
+        return {
+          value: extract_order_config.id,
+          text: extract_order_config.name
+        };
+      }) : [];
     },
-    editing_item: function editing_item(item) {
-      console.log(item);
-      this.customer_group_pivot.customer_group_id = item.customer_group_id;
-      this.customer_group_pivot.customer_id = item.customer_id;
-      // this.customer_group_pivot.customer_code = item.customer_code;
-      this.customer_group_pivot.id = item.id;
+    load_company_code: function load_company_code() {
+      var _this5 = this;
+      this.load_warehouse_id_options = [];
+      var load_compnay_options = this.company_options.find(function (company) {
+        return company.code === _this5.load_config_form.company;
+      });
+      if (load_compnay_options && load_compnay_options.warehouse) {
+        this.load_warehouse_id_options = load_compnay_options.warehouse.map(function (warehouse) {
+          return {
+            id: warehouse.id,
+            label: "(".concat(warehouse.code, ") ").concat(warehouse.name)
+          };
+        });
+      }
     }
   },
   computed: {
     rows: function rows() {
-      return this.customer_group_pivots.length;
+      return this.batch_data.length;
+    },
+    load_customer_group_id: function load_customer_group_id() {
+      return this.load_config_form.customer_group_id;
+    },
+    load_company_code: function load_company_code() {
+      return this.load_config_form.company;
     }
   }
 });
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true&":
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/babel-loader/lib??ref--11!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true& ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -718,7 +699,7 @@ var render = function render() {
   return _c("div", {
     staticClass: "modal fade",
     attrs: {
-      id: "DialogAddUpdateCustomerGroupPivots",
+      id: "DialogOrderUpload",
       tabindex: "-1",
       role: "dialog",
       "data-backdrop": "static"
@@ -734,14 +715,12 @@ var render = function render() {
     on: {
       submit: function submit($event) {
         $event.preventDefault();
-        return _vm.addCustomerGroupPivot.apply(null, arguments);
+        return _vm.onClickUploadFile.apply(null, arguments);
       }
     }
   }, [_c("div", {
     staticClass: "modal-header"
-  }, [_c("h5", {
-    staticClass: "modal-title"
-  }, [_c("span", [_vm._v("\n\t\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật khách hàng liên kết" : "Thêm mới khách hàng liên kết"))])]), _vm._v(" "), _c("button", {
+  }, [_vm._m(0), _vm._v(" "), _c("button", {
     staticClass: "close",
     attrs: {
       type: "button",
@@ -758,91 +737,285 @@ var render = function render() {
   }, [_vm._v("×")])])]), _vm._v(" "), _c("div", {
     staticClass: "modal-body"
   }, [_c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Nhóm khách hàng")]), _vm._v(" "), _c("small", {
-    staticClass: "text-danger"
-  }, [_vm._v("(*)")]), _vm._v(" "), _c("treeselect", {
-    "class": _vm.hasError("v") ? "is-invalid" : "",
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(1), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("treeselect", {
+    "class": _vm.hasError("customer_group_id") ? "is-invalid" : "",
     attrs: {
       multiple: false,
       id: "customer_group_id",
       placeholder: "Chọn nhóm khách hàng..",
-      required: "",
       options: _vm.customer_group_options,
-      normalizer: _vm.normalizerOption
+      normalizer: _vm.normalizer,
+      required: ""
     },
     model: {
-      value: _vm.customer_group_pivot.customer_group_id,
+      value: _vm.load_config_form.customer_group_id,
       callback: function callback($$v) {
-        _vm.$set(_vm.customer_group_pivot, "customer_group_id", $$v);
+        _vm.$set(_vm.load_config_form, "customer_group_id", $$v);
       },
-      expression: "customer_group_pivot.customer_group_id"
+      expression: "load_config_form.customer_group_id"
     }
   }), _vm._v(" "), _vm.hasError("customer_group_id") ? _c("span", {
     staticClass: "invalid-feedback",
     attrs: {
       role: "alert"
     }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_group_id")))])]) : _vm._e()], 1), _vm._v(" "), _c("div", {
-    staticClass: "form-group"
-  }, [_c("label", [_vm._v("Khách hàng")]), _vm._v(" "), _c("small", {
-    staticClass: "text-danger"
-  }, [_vm._v("*")]), _vm._v(" "), _c("treeselect", {
-    "class": _vm.hasError("customer_id") ? "is-invalid" : "",
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_group_id")))])]) : _vm._e()], 1)])])]), _vm._v(" "), _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(2), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("b-form-select", {
+    "class": _vm.hasError("extract_order_config") ? "is-invalid" : "",
     attrs: {
-      placeholder: "Nhập khách hàng..",
-      required: "",
-      "load-options": _vm.loadOptions,
-      async: true
+      placeholder: "Chọn cấu hình..",
+      options: _vm.load_extract_order_config_options,
+      required: ""
     },
     model: {
-      value: _vm.customer_group_pivot.customer_id,
+      value: _vm.load_config_form.extract_order_config,
       callback: function callback($$v) {
-        _vm.$set(_vm.customer_group_pivot, "customer_id", $$v);
+        _vm.$set(_vm.load_config_form, "extract_order_config", $$v);
       },
-      expression: "customer_group_pivot.customer_id"
+      expression: "load_config_form.extract_order_config"
     }
-  }), _vm._v(" "), _vm.hasError("customer_id") ? _c("span", {
+  }), _vm._v(" "), _vm.hasError("extract_order_config") ? _c("span", {
     staticClass: "invalid-feedback",
     attrs: {
       role: "alert"
     }
-  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer_id")))])]) : _vm._e()], 1)]), _vm._v(" "), _c("div", {
-    staticClass: "modal-footer justify-content-between"
-  }, [_c("button", {
-    staticClass: "btn btn-secondary",
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("extract_order_config")))])]) : _vm._e()], 1)])])]), _vm._v(" "), _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(3), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("treeselect", {
+    "class": _vm.hasError("customer") ? "is-invalid" : "",
     attrs: {
-      type: "button"
+      placeholder: "Chọn khách hàng..",
+      options: _vm.load_customer_id_options,
+      required: ""
     },
-    on: {
-      click: _vm.resetDialog
+    model: {
+      value: _vm.load_config_form.customer,
+      callback: function callback($$v) {
+        _vm.$set(_vm.load_config_form, "customer", $$v);
+      },
+      expression: "load_config_form.customer"
     }
-  }, [_vm._v("\n\t\t\t\t\t\t\tReset\n\t\t\t\t\t\t")]), _vm._v(" "), _c("button", {
+  }), _vm._v(" "), _vm.hasError("customer") ? _c("span", {
+    staticClass: "invalid-feedback",
+    attrs: {
+      role: "alert"
+    }
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("customer")))])]) : _vm._e()], 1)])])]), _vm._v(" "), _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(4), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("treeselect", {
+    "class": _vm.hasError("company") ? "is-invalid" : "",
+    attrs: {
+      multiple: false,
+      id: "company",
+      options: _vm.company_options,
+      placeholder: "Chọn công ty..",
+      normalizer: _vm.normalizer,
+      required: ""
+    },
+    model: {
+      value: _vm.load_config_form.company,
+      callback: function callback($$v) {
+        _vm.$set(_vm.load_config_form, "company", $$v);
+      },
+      expression: "load_config_form.company"
+    }
+  }), _vm._v(" "), _vm.hasError("company") ? _c("span", {
+    staticClass: "invalid-feedback",
+    attrs: {
+      role: "alert"
+    }
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("company")))])]) : _vm._e()], 1)])])]), _vm._v(" "), _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(5), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("treeselect", {
+    "class": _vm.hasError("warehouse") ? "is-invalid" : "",
+    attrs: {
+      placeholder: "Chọn kho hàng..",
+      options: _vm.load_warehouse_id_options,
+      required: ""
+    },
+    model: {
+      value: _vm.load_config_form.warehouse,
+      callback: function callback($$v) {
+        _vm.$set(_vm.load_config_form, "warehouse", $$v);
+      },
+      expression: "load_config_form.warehouse"
+    }
+  }), _vm._v(" "), _vm.hasError("warehouse") ? _c("span", {
+    staticClass: "invalid-feedback",
+    attrs: {
+      role: "alert"
+    }
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("warehouse")))])]) : _vm._e()], 1)])])]), _vm._v(" "), _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-1"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-9"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_vm._m(6), _vm._v(" "), _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("b-form-file", {
+    "class": _vm.hasError("file") ? "is-invalid" : "",
+    attrs: {
+      multiple: "",
+      required: ""
+    },
+    model: {
+      value: _vm.files,
+      callback: function callback($$v) {
+        _vm.files = $$v;
+      },
+      expression: "files"
+    }
+  }), _vm._v(" "), _vm.hasError("file") ? _c("span", {
+    staticClass: "invalid-feedback",
+    attrs: {
+      role: "alert"
+    }
+  }, [_c("strong", [_vm._v(_vm._s(_vm.getError("file")))])]) : _vm._e()], 1)])])])]), _vm._v(" "), _vm._m(7)])])])]);
+};
+var staticRenderFns = [function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("h5", {
+    staticClass: "modal-title"
+  }, [_c("span", [_vm._v("Upload đơn hàng")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label",
+    attrs: {
+      "for": "customer_group_id"
+    }
+  }, [_vm._v("Nhóm khách hàng:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label"
+  }, [_vm._v("Chọn cấu hình:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label",
+    attrs: {
+      "for": "customer_id"
+    }
+  }, [_vm._v("Khách hàng:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label"
+  }, [_vm._v("Công ty:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label"
+  }, [_vm._v("Kho hàng:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "col-lg-6"
+  }, [_c("label", {
+    staticClass: "col-form-label"
+  }, [_vm._v("Chọn File:")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "row"
+  }, [_c("div", {
+    staticClass: "col-lg-6"
+  }), _vm._v(" "), _c("div", {
+    staticClass: "col-md-6"
+  }, [_c("div", {
+    staticClass: "form-group row"
+  }, [_c("div", {
+    staticClass: "col-lg-9"
+  }, [_c("button", {
     staticClass: "btn btn-primary",
     attrs: {
       type: "submit",
-      title: "Submit"
+      title: "Submit",
+      id: "submit-btn"
     }
-  }, [_vm._v("\n\t\t\t\t\t\t\t" + _vm._s(_vm.is_editing ? "Cập nhật" : "Tạo mới") + "\n\t\t\t\t\t\t")])])])])])]);
-};
-var staticRenderFns = [];
+  }, [_vm._v("\n\t\t\t\t\t\t\t\t\t\tUpload file\n\t\t\t\t\t\t\t\t\t")])])])])]);
+}];
 render._withStripped = true;
 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue":
-/*!************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue ***!
-  \************************************************************************************************************/
+/***/ "./resources/js/components/home/business/dialogs/DialogOrderUpload.vue":
+/*!*****************************************************************************!*\
+  !*** ./resources/js/components/home/business/dialogs/DialogOrderUpload.vue ***!
+  \*****************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& */ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&");
-/* harmony import */ var _DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& */ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true& */ "./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true&");
+/* harmony import */ var _DialogOrderUpload_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DialogOrderUpload.vue?vue&type=script&lang=js& */ "./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -851,50 +1024,50 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _DialogOrderUpload_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "194bd3a8",
+  "0b2f40a9",
   null
   
 )
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue"
+component.options.__file = "resources/js/components/home/business/dialogs/DialogOrderUpload.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&":
-/*!*************************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& ***!
-  \*************************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogOrderUpload_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogOrderUpload.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogOrderUpload_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&":
-/*!*******************************************************************************************************************************************************!*\
-  !*** ./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& ***!
-  \*******************************************************************************************************************************************************/
+/***/ "./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true&":
+/*!************************************************************************************************************************!*\
+  !*** ./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true& ***!
+  \************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/sap/CustomerGroupPivots/dialog/DialogAddUpdateCustomerGroupPivots.vue?vue&type=template&id=194bd3a8&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../../node_modules/babel-loader/lib??ref--11!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--7!../../../../../../node_modules/vue-loader/lib??vue-loader-options!./DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/home/business/dialogs/DialogOrderUpload.vue?vue&type=template&id=0b2f40a9&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogAddUpdateCustomerGroupPivots_vue_vue_type_template_id_194bd3a8_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_babel_loader_lib_index_js_ref_11_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_7_node_modules_vue_loader_lib_index_js_vue_loader_options_DialogOrderUpload_vue_vue_type_template_id_0b2f40a9_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

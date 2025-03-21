@@ -169,6 +169,8 @@ export default {
             data_filters: [],
             colorsToFilter: [],
             is_editing: false,
+            scroll_top: 0,
+            scroll_left: 0,
 
         };
     },
@@ -327,6 +329,13 @@ export default {
         //             break;
         //     }
         // });
+
+        this.table.on("scrollVertical", (top) => {
+            this.scroll_top = top;
+        });
+        this.table.on("scrollHorizontal", (left) => {
+            this.scroll_left = left;
+        });
 
         window.addEventListener('resize', this.updateWindowDimensions);
 
@@ -504,12 +513,13 @@ export default {
         updateData() {
             this.table.updateData(this.filteredOrders);
             this.updateWindowDimensions();
-            let positon = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
-            let fields = this.table.getRanges().map(range => range.getColumns().map(column => column.getField()));
-            if (positon[0][0] !== undefined) {
-                this.table.scrollToRow(positon[0][0], "middle", true);
-                this.table.scrollToColumn(fields[0][0], "middle", false);
-            }
+            // Lấy phần tử DOM của bảng từ $refs
+            // let positon = this.table.getRanges().map(range => range.getRows().map(row => row.getPosition()));
+            // let fields = this.table.getRanges().map(range => range.getColumns().map(column => column.getField()));
+            // if (positon[0][0] !== undefined) {
+            //     this.table.scrollToRow(positon[0][0], "middle", true);
+            //     this.table.scrollToColumn(fields[0][0], "middle", false);
+            // }
 
         },
         hasSignificantChange(newVal, oldVal) {
